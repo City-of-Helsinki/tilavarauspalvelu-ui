@@ -16,8 +16,14 @@ RUN yarn policies set-version $YARN_VERSION
 RUN yarn install && yarn cache clean --force
 RUN yarn global add nodemon@2.0.4
 
+RUN chgrp -R 0 /opt/app-root/src/
+RUN chmod g=u -R /opt/app-root/src/.config
+
+RUN sed -i "s^\${REACT_APP_TILAVARAUS_API_URL}^${REACT_APP_TILAVARAUS_API_URL}^" .env*
+
 RUN yarn build:prod
 
 USER default
+
 EXPOSE 3000
 CMD [ "yarn", "start-server:prod"]
