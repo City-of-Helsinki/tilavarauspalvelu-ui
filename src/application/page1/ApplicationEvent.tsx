@@ -7,13 +7,13 @@ import ReservationUnitList from './ReservationUnitList';
 import {
   ApplicationEvent as ApplicationEventType,
   ApplicationPeriod,
+  OptionType,
   ReservationUnit,
 } from '../../common/types';
 import {
   formatApiDate,
   formatDate,
   getSelectedOption,
-  OptionType,
 } from '../../common/util';
 import { breakpoint } from '../../common/style';
 

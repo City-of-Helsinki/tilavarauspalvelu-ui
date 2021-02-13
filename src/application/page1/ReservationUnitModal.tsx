@@ -17,8 +17,11 @@ import {
   getReservationUnits,
   ReservationUnitsParameters,
 } from '../../common/api';
-import { ApplicationPeriod, ReservationUnit } from '../../common/types';
-import { OptionType } from '../../common/util';
+import {
+  ApplicationPeriod,
+  OptionType,
+  ReservationUnit,
+} from '../../common/types';
 import { breakpoint } from '../../common/style';
 import { reservationUnitPath } from '../../common/const';
 

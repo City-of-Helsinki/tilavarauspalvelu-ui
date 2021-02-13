@@ -1,8 +1,8 @@
 import { isAfter, parseISO, isBefore, format } from 'date-fns';
 import { stringify } from 'query-string';
 import { ReservationUnitsParameters } from './api';
-import { searchPrefix } from './const';
-import { Parameter, TranslationObject } from './types';
+import { searchPrefix, emptyOption } from './const';
+import { OptionType, Parameter, TranslationObject } from './types';
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date();
@@ -42,12 +42,6 @@ export const formatApiDate = (date: string): string => {
   return format(parseISO(date), 'yyyy-MM-dd');
 };
 
-// for Selector
-export type OptionType = {
-  label: string;
-  value?: number;
-};
-
 export const localizedValue = (
   name: string | TranslationObject | undefined,
   lang: string
@@ -71,9 +65,6 @@ const getLabel = (parameter: Parameter, lang = 'fi'): string => {
   }
   return 'no label';
 };
-
-const emptyOption = (label: string) =>
-  ({ label, value: undefined } as OptionType);
 
 export const mapOptions = (
   src: Parameter[],
