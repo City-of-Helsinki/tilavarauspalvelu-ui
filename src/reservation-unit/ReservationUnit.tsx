@@ -27,11 +27,9 @@ const ReservationUnit = (): JSX.Element | null => {
 
   useEffect(() => {
     async function fetchData() {
-      // eslint-disable-next-line
       const backendData = routeData()?.reservationUnit;
       if (backendData) {
         setReservationUnit(backendData);
-        // eslint-disable-next-line
         routeData().reservationUnit = undefined;
       } else {
         const unit = await getReservationUnit(Number(id));

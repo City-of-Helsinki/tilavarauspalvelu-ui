@@ -60,10 +60,8 @@ const Application = (): JSX.Element | null => {
   );
 
   const applicationPeriod = useAsync(async () => {
-    // eslint-disable-next-line
     const backendData = routeData()?.applicationPeriod;
     if (backendData) {
-      // eslint-disable-next-line
       routeData().applicationPeriod = undefined;
       return backendData;
     }

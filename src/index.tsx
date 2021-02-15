@@ -7,7 +7,6 @@ import reportWebVitals from './reportWebVitals';
 import { sentryDSN, sentryEnvironment } from './common/const';
 
 if (sentryDSN) {
-  console.log('Initializing sentry');
   Sentry.init({
     dsn: sentryDSN,
     environment: sentryEnvironment,

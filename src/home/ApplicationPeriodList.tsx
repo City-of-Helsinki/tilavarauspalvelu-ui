@@ -16,12 +16,10 @@ const ApplicationPeriodList = ({ data }: IProps): JSX.Element => {
 
   useEffect(() => {
     async function fetchData() {
-      // eslint-disable-next-line
       const backendData = routeData()?.applicationPeriods;
       let periods;
       if (backendData) {
         periods = backendData;
-        // eslint-disable-next-line
         routeData().applicationPeriods = undefined;
       } else {
         periods = await getApplicationPeriods();
