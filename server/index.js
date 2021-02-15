@@ -54,16 +54,14 @@ app.get('/*', async (req, res) => {
       return res.status(500).send('Server error');
     }
 
-    if (context?.status === 404) {
-      res.status(404);
-    }
+    if (context) {
+      if (context.status === 404) {
+        res.status(404);
+      }
 
-    if (context?.status === 404) {
-      res.status(404);
-    }
-
-    if (context?.url) {
-      return res.redirect(301, context.url);
+      if (context.url) {
+        return res.redirect(301, context.url);
+      }
     }
 
     return res.send(
