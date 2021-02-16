@@ -57,7 +57,6 @@ const TwoColumnContainer = styled.div`
 const PeriodContainer = styled.div`
   margin-top: var(--spacing-m);
   display: grid;
-  grid-template: auto;
   grid-template-columns: 2fr 2fr 3fr;
   gap: var(--spacing-m);
   align-items: center;

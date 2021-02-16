@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -5,7 +6,6 @@ import {
   Notification,
   Accordion,
 } from 'hds-react';
-import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
@@ -15,6 +15,7 @@ import { getParameters, getReservationUnit } from '../../common/api';
 import LabelValue from '../../component/LabelValue';
 import TimePreview from '../TimePreview';
 import { breakpoint } from '../../common/style';
+import Address from './Address';
 
 type Props = {
   application: Application;
@@ -66,6 +67,16 @@ const TwoColumnContainer = styled.div`
   gap: var(--spacing-m);
 `;
 
+export const SpanTwoColumns = styled.span`
+  grid-column-start: 1;
+  grid-column-end: 3;
+
+  @media (max-width: ${breakpoint.l}) {
+    grid-column-start: 1;
+    grid-column-end: 2;
+  }
+`;
+
 const TimePreviewContainer = styled(TwoColumnContainer)`
   svg {
     margin-top: 2px;
@@ -73,7 +84,7 @@ const TimePreviewContainer = styled(TwoColumnContainer)`
 `;
 
 const CheckboxContainer = styled.div`
-  margin-top: 60px;
+  margin-top: var(--spacing-layout-l);
   display: flex;
   align-items: center;
 `;
@@ -160,6 +171,26 @@ const Preview = ({ onNext, application }: Props): JSX.Element | null => {
     <>
       <Accordion heading={t('Application.preview.basicInfoSubHeading')}>
         <TwoColumnContainer>
+          {application.applicantType !== 'individual' ? (
+            <>
+              <LabelValue
+                label={t('Application.preview.organisation.name')}
+                value={application.organisation?.name}
+              />
+              <LabelValue
+                label={t('Application.preview.organisation.coreBusiness')}
+                value={application.organisation?.coreBusiness}
+              />
+              <Address
+                address={application.organisation?.address}
+                i18nMessagePrefix="common.address"
+              />
+              <Address
+                address={application.billingAddress}
+                i18nMessagePrefix="common.billingAddress"
+              />
+            </>
+          ) : null}
           <LabelValue
             label={t('Application.preview.firstName')}
             value={application.contactPerson?.firstName}
@@ -172,6 +203,16 @@ const Preview = ({ onNext, application }: Props): JSX.Element | null => {
             label={t('Application.preview.email')}
             value={application.contactPerson?.email}
           />
+          <LabelValue
+            label={t('Application.preview.phoneNumber')}
+            value={application.contactPerson?.phoneNumber}
+          />
+          {application.applicantType === 'individual' ? (
+            <Address
+              address={application.billingAddress}
+              i18nMessagePrefix="Application.preview.address"
+            />
+          ) : null}
         </TwoColumnContainer>
       </Accordion>
       {application.applicationEvents.map((applicationEvent) => (

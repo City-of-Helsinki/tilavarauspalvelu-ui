@@ -72,8 +72,16 @@ export type Parameter = {
   maximum?: number;
 };
 
+export type Address = {
+  id?: number;
+  streetAddress: string;
+  postCode: string;
+  city: string;
+};
+
 export type Application = {
   id?: number;
+  applicantType: 'individual' | 'association' | 'community' | 'company';
   status:
     | 'draft'
     | 'in_review'
@@ -88,13 +96,17 @@ export type Application = {
   organisation: Organisation | null;
   contactPerson: ContactPerson | null;
   applicationEvents: ApplicationEvent[];
+  billingAddress: Address | null;
 };
 
 export type Organisation = {
   id?: number;
   name: string | null;
+  description: string;
   identifier: string | null;
   yearEstablished: number | null;
+  coreBusiness: string;
+  address: Address;
 };
 
 export type ContactPerson = {
@@ -154,7 +166,7 @@ export type OptionType = {
 // editor context
 
 export type Action = {
-  type: 'load' | 'ensureContactPersonExists' | 'addNewApplicationEvent';
+  type: 'load' | 'addNewApplicationEvent';
   data?: Application;
   params?: { [key: string]: string };
 };

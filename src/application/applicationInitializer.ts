@@ -4,10 +4,12 @@ export const minimalApplicationForInitialSave = (
   applicationRoundId: number
 ): Application => ({
   status: 'draft',
+  applicantType: 'individual',
   applicationRoundId,
   organisation: null,
   applicationEvents: [],
   contactPerson: null,
+  billingAddress: null,
 });
 
 const applicationInitializer = ({
