@@ -4,7 +4,7 @@ export const minimalApplicationForInitialSave = (
   applicationRoundId: number
 ): Application => ({
   status: 'draft',
-  applicantType: 'individual',
+  applicantType: null,
   applicationRoundId,
   organisation: null,
   applicationEvents: [],

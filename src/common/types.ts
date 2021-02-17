@@ -80,6 +80,7 @@ export type Address = {
 };
 
 export type ApplicantType =
+  | null
   | 'individual'
   | 'association'
   | 'community'

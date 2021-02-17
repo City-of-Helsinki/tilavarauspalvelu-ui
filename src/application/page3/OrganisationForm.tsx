@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   TextInput,
@@ -38,18 +38,26 @@ const OrganisationForm = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const [hasRegistration, setHasRegistration] = useState(true);
-  const [hasBillingAddress, setHasBillingAddress] = useState(
-    application.billingAddress !== null
-  );
-
-  const { register, handleSubmit } = useForm({
+  const { register, unregister, handleSubmit } = useForm({
     defaultValues: {
       organisation: { ...application.organisation },
       contactPerson: { ...application.contactPerson },
       billingAddress: { ...application.billingAddress },
     },
   });
+
+  const [hasRegistration, setHasRegistration] = useState(true);
+  const [hasBillingAddress, setHasBillingAddress] = useState(
+    application.billingAddress !== null
+  );
+
+  useEffect(() => {
+    if (hasRegistration) {
+      register({ name: 'organisation.identifier', required: true });
+    } else {
+      unregister('organisation.identifier');
+    }
+  }, [hasRegistration, register, unregister]);
 
   const onSubmit = (data: Application): void => {
     // todo create copy and edit that

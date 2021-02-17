@@ -24,7 +24,7 @@ const Container = styled.div`
 
 const Page3 = ({ onNext, application }: Props): JSX.Element | null => {
   const [activeForm, setActiveForm] = useState(
-    (application.id
+    (application.applicantType
       ? typeForm[application.applicantType]
       : undefined) as FormType
   );
