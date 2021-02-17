@@ -1,14 +1,18 @@
 import { RadioButton } from 'hds-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import styled from 'styled-components';
+import { FormType } from '../../common/types';
 
 type Props = {
-  activeForm: undefined | 'individual' | 'organisation' | 'company';
+  activeForm: FormType;
   children: React.ReactNode;
-  setActiveForm: (
-    id: undefined | 'individual' | 'organisation' | 'company'
-  ) => void;
+  setActiveForm: (id: FormType) => void;
 };
+
+const Container = styled.div`
+  margin-top: var(--spacing-m);
+`;
 
 const RadioButtons = ({
   activeForm,
@@ -19,33 +23,20 @@ const RadioButtons = ({
 
   return (
     <>
-      <RadioButton
-        id="individual"
-        label={t('Application.Page3.asIndividual')}
-        onClick={() => {
-          setActiveForm('individual');
-        }}
-        checked={activeForm === 'individual'}
-      />
-      {activeForm === 'individual' ? children : null}
-      <RadioButton
-        id="organisation"
-        label={t('Application.Page3.asOrganisation')}
-        onClick={() => {
-          setActiveForm('organisation');
-        }}
-        checked={activeForm === 'organisation'}
-      />
-      {activeForm === 'organisation' ? children : null}
-      <RadioButton
-        id="company"
-        label={t('Application.Page3.asCompany')}
-        onClick={() => {
-          setActiveForm('company');
-        }}
-        checked={activeForm === 'company'}
-      />
-      {activeForm === 'company' ? children : null}
+      {['individual', 'organisation', 'company'].map((id: string) => (
+        <Container>
+          <RadioButton
+            key={id}
+            id={id}
+            label={t(`Application.Page3.as.type.${id}`)}
+            onClick={() => {
+              setActiveForm(id as FormType);
+            }}
+            checked={activeForm === id}
+          />
+          {activeForm === id ? children : null}
+        </Container>
+      ))}
     </>
   );
 };

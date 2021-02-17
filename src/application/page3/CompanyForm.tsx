@@ -38,7 +38,6 @@ const CompanyForm = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const [hasRegistration, setHasRegistration] = useState(true);
   const [hasBillingAddress, setHasBillingAddress] = useState(
     application.billingAddress !== null
   );
@@ -107,16 +106,9 @@ const CompanyForm = ({
             label={t('Application.Page3.organisation.registrationNumber')}
             id="organisation.identifier"
             name="organisation.identifier"
-            required={hasRegistration}
-            disabled={!hasRegistration}
+            required
           />
-          <Checkbox
-            label={t('Application.Page3.organisation.notRegistered')}
-            id="organisation.notRegistered"
-            name="organisation.notRegistered"
-            checked={!hasRegistration}
-            onClick={() => setHasRegistration(!hasRegistration)}
-          />
+          <span />
           <TextInput
             ref={register({ required: true })}
             label={t('Application.Page3.organisation.streetAddress')}

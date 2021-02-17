@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { Application as ApplicationType, FormType } from '../../common/types';
 import CompanyForm from './CompanyForm';
 import IndividualForm from './IndividualForm';
@@ -17,6 +18,10 @@ const typeForm = {
   community: 'organisation',
 };
 
+const Container = styled.div`
+  margin-top: var(--spacing-layout-m);
+`;
+
 const Page3 = ({ onNext, application }: Props): JSX.Element | null => {
   const [activeForm, setActiveForm] = useState(
     (application.id
@@ -25,7 +30,7 @@ const Page3 = ({ onNext, application }: Props): JSX.Element | null => {
   );
 
   return (
-    <>
+    <Container>
       {activeForm === 'individual' ? (
         <IndividualForm
           activeForm={activeForm}
@@ -55,7 +60,7 @@ const Page3 = ({ onNext, application }: Props): JSX.Element | null => {
           {null}
         </RadioButtons>
       ) : null}
-    </>
+    </Container>
   );
 };
 
