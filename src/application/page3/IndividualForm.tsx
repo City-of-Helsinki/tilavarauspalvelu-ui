@@ -10,7 +10,7 @@ import {
 } from '../../common/types';
 import { ButtonContainer, TwoColumnContainer } from '../../component/common';
 import RadioButtons from './RadioButtons';
-import EmailInput from './EmailField';
+import EmailInput from './EmailInput';
 
 type Props = {
   activeForm: FormType;
