@@ -79,9 +79,15 @@ export type Address = {
   city: string;
 };
 
+export type ApplicantType =
+  | 'individual'
+  | 'association'
+  | 'community'
+  | 'company';
+
 export type Application = {
   id?: number;
-  applicantType: 'individual' | 'association' | 'community' | 'company';
+  applicantType: ApplicantType;
   status:
     | 'draft'
     | 'in_review'
@@ -157,13 +163,12 @@ export type ApplicationEventSchedule = {
   end: string;
 };
 
-// for Selector
+// for ui:
+
 export type OptionType = {
   label: string;
   value?: number;
 };
-
-// editor context
 
 export type Action = {
   type: 'load' | 'addNewApplicationEvent';
@@ -176,4 +181,4 @@ export type ApplicationEditor = {
   reservationUnits: ReservationUnit[];
 };
 
-// /editor context
+export type FormType = undefined | 'individual' | 'organisation' | 'company';

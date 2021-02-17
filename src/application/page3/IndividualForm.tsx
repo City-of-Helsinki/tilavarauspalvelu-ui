@@ -2,20 +2,33 @@ import React from 'react';
 import { Button, TextInput, IconArrowRight, IconArrowLeft } from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { Address, Application, ContactPerson } from '../../common/types';
+import {
+  Address,
+  Application,
+  ContactPerson,
+  FormType,
+} from '../../common/types';
 import {
   ButtonContainer,
   Notification,
   SpanTwoColumns,
   TwoColumnContainer,
 } from '../../component/common';
+import RadioButtons from './RadioButtons';
 
 type Props = {
+  activeForm: FormType;
+  setActiveForm: (id: FormType) => void;
   application: Application;
   onNext: () => void;
 };
 
-const IndividualForm = ({ application, onNext }: Props): JSX.Element | null => {
+const IndividualForm = ({
+  activeForm,
+  setActiveForm,
+  application,
+  onNext,
+}: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
   const { register, handleSubmit } = useForm({
@@ -39,71 +52,76 @@ const IndividualForm = ({ application, onNext }: Props): JSX.Element | null => {
       // eslint-disable-next-line
       application.billingAddress = {} as Address;
     }
+
+    // eslint-disable-next-line
+    application.organisation = null;
     Object.assign(application.billingAddress, data.billingAddress);
     onNext();
   };
 
   return (
     <form>
-      <TwoColumnContainer>
-        <TextInput
-          ref={register({ required: true })}
-          label={t('Application.Page3.firstName')}
-          id="contactPerson.firstName"
-          name="contactPerson.firstName"
-          required
-        />
-        <TextInput
-          ref={register({ required: true })}
-          label={t('Application.Page3.lastName')}
-          id="contactPerson.lastName"
-          name="contactPerson.lastName"
-          required
-        />
-        <TextInput
-          ref={register({ required: true })}
-          label={t('Application.Page3.billingAddress.streetAddress')}
-          id="billingAddress.streetAddress"
-          name="billingAddress.streetAddress"
-          required
-        />
-        <TextInput
-          ref={register({ required: true })}
-          label={t('Application.Page3.billingAddress.postCode')}
-          id="billingAddress.postCode"
-          name="billingAddress.postCode"
-          required
-        />
-        <TextInput
-          ref={register({ required: true })}
-          label={t('Application.Page3.billingAddress.city')}
-          id="billingAddress.city"
-          name="billingAddress.city"
-          required
-        />
-        <TextInput
-          ref={register({ required: true })}
-          label={t('Application.Page3.contactPerson.phoneNumber')}
-          id="contactPerson.phoneNumber"
-          name="contactPerson.phoneNumber"
-          required
-        />
-        <SpanTwoColumns>
-          <Notification size="small" label="">
-            {t('Application.Page3.emailNotification')}
-          </Notification>
+      <RadioButtons activeForm={activeForm} setActiveForm={setActiveForm}>
+        <TwoColumnContainer>
+          <TextInput
+            ref={register({ required: true })}
+            label={t('Application.Page3.firstName')}
+            id="contactPerson.firstName"
+            name="contactPerson.firstName"
+            required
+          />
+          <TextInput
+            ref={register({ required: true })}
+            label={t('Application.Page3.lastName')}
+            id="contactPerson.lastName"
+            name="contactPerson.lastName"
+            required
+          />
+          <TextInput
+            ref={register({ required: true })}
+            label={t('Application.Page3.billingAddress.streetAddress')}
+            id="billingAddress.streetAddress"
+            name="billingAddress.streetAddress"
+            required
+          />
+          <TextInput
+            ref={register({ required: true })}
+            label={t('Application.Page3.billingAddress.postCode')}
+            id="billingAddress.postCode"
+            name="billingAddress.postCode"
+            required
+          />
+          <TextInput
+            ref={register({ required: true })}
+            label={t('Application.Page3.billingAddress.city')}
+            id="billingAddress.city"
+            name="billingAddress.city"
+            required
+          />
+          <TextInput
+            ref={register({ required: true })}
+            label={t('Application.Page3.contactPerson.phoneNumber')}
+            id="contactPerson.phoneNumber"
+            name="contactPerson.phoneNumber"
+            required
+          />
           <SpanTwoColumns>
-            <TextInput
-              ref={register({ required: true })}
-              label={t('Application.Page3.email')}
-              id="contactPerson.email"
-              name="contactPerson.email"
-              type="email"
-              required
-            />
+            <Notification size="small" label="">
+              {t('Application.Page3.emailNotification')}
+            </Notification>
+            <SpanTwoColumns>
+              <TextInput
+                ref={register({ required: true })}
+                label={t('Application.Page3.email')}
+                id="contactPerson.email"
+                name="contactPerson.email"
+                type="email"
+                required
+              />
+            </SpanTwoColumns>
           </SpanTwoColumns>
-        </SpanTwoColumns>
-      </TwoColumnContainer>
+        </TwoColumnContainer>
+      </RadioButtons>
       <ButtonContainer>
         <Button variant="secondary" iconLeft={<IconArrowLeft />} disabled>
           {t('common.prev')}
