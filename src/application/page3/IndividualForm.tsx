@@ -8,13 +8,9 @@ import {
   ContactPerson,
   FormType,
 } from '../../common/types';
-import {
-  ButtonContainer,
-  Notification,
-  SpanTwoColumns,
-  TwoColumnContainer,
-} from '../../component/common';
+import { ButtonContainer, TwoColumnContainer } from '../../component/common';
 import RadioButtons from './RadioButtons';
+import EmailInput from './EmailField';
 
 type Props = {
   activeForm: FormType;
@@ -105,23 +101,7 @@ const IndividualForm = ({
             name="contactPerson.phoneNumber"
             required
           />
-          <SpanTwoColumns>
-            <Notification
-              size="small"
-              label={t('Application.Page3.emailNotification')}>
-              {t('Application.Page3.emailNotification')}
-            </Notification>
-            <SpanTwoColumns>
-              <TextInput
-                ref={register({ required: true })}
-                label={t('Application.Page3.email')}
-                id="contactPerson.email"
-                name="contactPerson.email"
-                type="email"
-                required
-              />
-            </SpanTwoColumns>
-          </SpanTwoColumns>
+          <EmailInput register={register} />
         </TwoColumnContainer>
       </RadioButtons>
       <ButtonContainer>
