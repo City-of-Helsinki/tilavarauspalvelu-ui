@@ -14,8 +14,8 @@ import { formatDate, localizedValue } from '../../common/util';
 import { getParameters, getReservationUnit } from '../../common/api';
 import LabelValue from '../../component/LabelValue';
 import TimePreview from '../TimePreview';
-import { breakpoint } from '../../common/style';
-import Address from './Address';
+import ApplicantInfoPreview from './ApplicantInfoPreview';
+import { TwoColumnContainer } from '../../component/common';
 
 type Props = {
   application: Application;
@@ -54,27 +54,6 @@ const SmallSubHeadline = styled.div`
   margin-top: var(--spacing-layout-m);
   font-weight: 700;
   font-size: var(--fontsize-heading-s);
-`;
-
-const TwoColumnContainer = styled.div`
-  @media (max-width: ${breakpoint.s}) {
-    grid-template-columns: 1fr;
-  }
-
-  margin-top: var(--spacing-m);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-m);
-`;
-
-export const SpanTwoColumns = styled.span`
-  grid-column-start: 1;
-  grid-column-end: 3;
-
-  @media (max-width: ${breakpoint.l}) {
-    grid-column-start: 1;
-    grid-column-end: 2;
-  }
 `;
 
 const TimePreviewContainer = styled(TwoColumnContainer)`
@@ -170,50 +149,7 @@ const Preview = ({ onNext, application }: Props): JSX.Element | null => {
   return ready ? (
     <>
       <Accordion heading={t('Application.preview.basicInfoSubHeading')}>
-        <TwoColumnContainer>
-          {application.applicantType !== 'individual' ? (
-            <>
-              <LabelValue
-                label={t('Application.preview.organisation.name')}
-                value={application.organisation?.name}
-              />
-              <LabelValue
-                label={t('Application.preview.organisation.coreBusiness')}
-                value={application.organisation?.coreBusiness}
-              />
-              <Address
-                address={application.organisation?.address}
-                i18nMessagePrefix="common.address"
-              />
-              <Address
-                address={application.billingAddress}
-                i18nMessagePrefix="common.billingAddress"
-              />
-            </>
-          ) : null}
-          <LabelValue
-            label={t('Application.preview.firstName')}
-            value={application.contactPerson?.firstName}
-          />
-          <LabelValue
-            label={t('Application.preview.lastName')}
-            value={application.contactPerson?.lastName}
-          />
-          <LabelValue
-            label={t('Application.preview.email')}
-            value={application.contactPerson?.email}
-          />
-          <LabelValue
-            label={t('Application.preview.phoneNumber')}
-            value={application.contactPerson?.phoneNumber}
-          />
-          {application.applicantType === 'individual' ? (
-            <Address
-              address={application.billingAddress}
-              i18nMessagePrefix="Application.preview.address"
-            />
-          ) : null}
-        </TwoColumnContainer>
+        <ApplicantInfoPreview application={application} />
       </Accordion>
       {application.applicationEvents.map((applicationEvent) => (
         <Accordion
