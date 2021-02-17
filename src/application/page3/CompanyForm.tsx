@@ -22,6 +22,7 @@ import {
 } from '../../component/common';
 import RadioButtons from './RadioButtons';
 import EmailInput from './EmailInput';
+import BillingAddress from './BillingAddress';
 
 type Props = {
   activeForm: FormType;
@@ -137,31 +138,7 @@ const CompanyForm = ({
             checked={hasBillingAddress}
             onClick={() => setHasBillingAddress(!hasBillingAddress)}
           />
-          {hasBillingAddress ? (
-            <>
-              <TextInput
-                ref={register({ required: true })}
-                label={t('Application.Page3.organisation.streetAddress')}
-                id="billingAddress.streetAddress"
-                name="billingAddress.streetAddress"
-                required
-              />
-              <TextInput
-                ref={register({ required: true })}
-                label={t('Application.Page3.organisation.postCode')}
-                id="billingAddress.postCode"
-                name="billingAddress.postCode"
-                required
-              />
-              <TextInput
-                ref={register({ required: true })}
-                label={t('Application.Page3.organisation.city')}
-                id="billingAddress.city"
-                name="billingAddress.city"
-                required
-              />
-            </>
-          ) : null}
+          {hasBillingAddress ? <BillingAddress register={register} /> : null}
           <TextInput
             ref={register({ required: true })}
             label={t('Application.Page3.contactPerson.phoneNumber')}

@@ -11,6 +11,7 @@ import {
 import { ButtonContainer, TwoColumnContainer } from '../../component/common';
 import RadioButtons from './RadioButtons';
 import EmailInput from './EmailInput';
+import BillingAddress from './BillingAddress';
 
 type Props = {
   activeForm: FormType;
@@ -73,27 +74,7 @@ const IndividualForm = ({
             name="contactPerson.lastName"
             required
           />
-          <TextInput
-            ref={register({ required: true })}
-            label={t('Application.Page3.billingAddress.streetAddress')}
-            id="billingAddress.streetAddress"
-            name="billingAddress.streetAddress"
-            required
-          />
-          <TextInput
-            ref={register({ required: true })}
-            label={t('Application.Page3.billingAddress.postCode')}
-            id="billingAddress.postCode"
-            name="billingAddress.postCode"
-            required
-          />
-          <TextInput
-            ref={register({ required: true })}
-            label={t('Application.Page3.billingAddress.city')}
-            id="billingAddress.city"
-            name="billingAddress.city"
-            required
-          />
+          <BillingAddress register={register} />
           <TextInput
             ref={register({ required: true })}
             label={t('Application.Page3.contactPerson.phoneNumber')}
