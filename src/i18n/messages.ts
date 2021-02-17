@@ -58,21 +58,26 @@ const translations: Translations = {
       emailNotification: [
         'Kaikki hakemukseen liittyvät viestit lähetetään tähän sähköpostiin',
       ],
-      asIndividual: [
-        'Luon hakemuksen yksityishenkilönä',
-        'Create Application as private person',
-        'Skapa ansökan som privatperson',
-      ],
-      asOrganisation: [
-        'Luon hakemuksen yhdistyksen, seuran tai yhteisön puolesta',
-        'Create Application for association',
-        'Skapa ansökan om associering',
-      ],
-      asCompany: [
-        'Luon hakemuksen yrityksen puolesta',
-        'Create application for company',
-        'Skapa applikation för företag',
-      ],
+      as: {
+        type: {
+          organisation: [
+            'Luon hakemuksen yhdistyksen, seuran tai yhteisön puolesta',
+            'Create Application for association',
+            'Skapa ansökan om associering',
+          ],
+          company: [
+            'Luon hakemuksen yrityksen puolesta',
+            'Create application for company',
+            'Skapa applikation för företag',
+          ],
+          individual: [
+            'Luon hakemuksen yksityishenkilönä',
+            'Create Application as private person',
+            'Skapa ansökan som privatperson',
+          ],
+        },
+      },
+
       contactPerson: {
         firstName: ['Yhteyshenkilön etunimi', 'Firt name', 'Förnamn'],
         lastName: ['Yhteyshenkilön sukunimi', 'Last name', 'Efternamn'],
