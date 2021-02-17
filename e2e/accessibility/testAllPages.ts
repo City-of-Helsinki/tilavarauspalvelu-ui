@@ -74,15 +74,22 @@ test.only('Application', async (t) => {
   await runAxeCheck(t);
   await t.expect(violations.length === 0).ok(createReport(violations));
 
+  // select fill as individual
+  await t.click(application.page3.fillAsIndividual);
+  await runAxeCheck(t);
+  await t.expect(violations.length === 0).ok(createReport(violations));
+
   // fill contact info
   await t
     .typeText(application.page3.firstName, 'First')
     .typeText(application.page3.lastName, 'Last')
+    .typeText(application.page3.streetAddress, 'Mannerheimintie 30')
+    .typeText(application.page3.postCode, '00100')
+    .typeText(application.page3.city, 'Helsinki')
+    .typeText(application.page3.phoneNumber, '555-123456')
     .typeText(application.page3.email, 'first.last@example.com')
     .click(application.page3.nextButton);
 
   await runAxeCheck(t);
   await t.expect(violations.length === 0).ok(createReport(violations));
-
-  await t.wait(5000);
 });

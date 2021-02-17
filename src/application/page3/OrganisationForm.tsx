@@ -206,7 +206,9 @@ const OrganisationForm = ({
             required
           />
           <SpanTwoColumns>
-            <Notification size="small" label="">
+            <Notification
+              size="small"
+              label={t('Application.Page3.emailNotification')}>
               {t('Application.Page3.emailNotification')}
             </Notification>
             <SpanTwoColumns>

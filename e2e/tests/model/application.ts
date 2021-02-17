@@ -25,9 +25,14 @@ export default {
     nextButton: Selector('#next'),
   },
   page3: {
-    firstName: Selector('#firstName'),
-    lastName: Selector('#lastName'),
-    email: Selector('#email'),
+    fillAsIndividual: Selector('[for="individual"]'),
+    firstName: Selector('#contactPerson\\.firstName'),
+    lastName: Selector('#contactPerson\\.lastName'),
+    streetAddress: Selector('#billingAddress\\.streetAddress'),
+    postCode: Selector('#billingAddress\\.postCode'),
+    city: Selector('#billingAddress\\.city'),
+    phoneNumber: Selector('#contactPerson\\.phoneNumber'),
+    email: Selector('#contactPerson\\.email'),
     nextButton: Selector('#next'),
   },
 };
