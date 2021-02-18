@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  TextInput,
-  IconArrowRight,
-  IconArrowLeft,
-  Checkbox,
-} from 'hds-react';
+import { TextInput, Checkbox } from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import {
@@ -15,14 +9,11 @@ import {
   FormType,
   Organisation,
 } from '../../common/types';
-import {
-  ButtonContainer,
-  SpanTwoColumns,
-  TwoColumnContainer,
-} from '../../component/common';
+import { SpanTwoColumns, TwoColumnContainer } from '../../component/common';
 import RadioButtons from './RadioButtons';
 import EmailInput from './EmailInput';
 import BillingAddress from './BillingAddress';
+import Buttons from './Buttons';
 
 type Props = {
   activeForm: FormType;
@@ -163,17 +154,7 @@ const CompanyForm = ({
           <EmailInput register={register} />
         </TwoColumnContainer>
       </RadioButtons>
-      <ButtonContainer>
-        <Button variant="secondary" iconLeft={<IconArrowLeft />} disabled>
-          {t('common.prev')}
-        </Button>
-        <Button
-          id="next"
-          iconRight={<IconArrowRight />}
-          onClick={handleSubmit(onSubmit)}>
-          {t('common.next')}
-        </Button>
-      </ButtonContainer>
+      <Buttons onSubmit={handleSubmit(onSubmit)} />
     </form>
   );
 };

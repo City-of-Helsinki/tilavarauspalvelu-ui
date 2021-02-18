@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextInput, IconArrowRight, IconArrowLeft } from 'hds-react';
+import { TextInput } from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import {
@@ -8,10 +8,11 @@ import {
   ContactPerson,
   FormType,
 } from '../../common/types';
-import { ButtonContainer, TwoColumnContainer } from '../../component/common';
+import { TwoColumnContainer } from '../../component/common';
 import RadioButtons from './RadioButtons';
 import EmailInput from './EmailInput';
 import BillingAddress from './BillingAddress';
+import Buttons from './Buttons';
 
 type Props = {
   activeForm: FormType;
@@ -85,17 +86,7 @@ const IndividualForm = ({
           <EmailInput register={register} />
         </TwoColumnContainer>
       </RadioButtons>
-      <ButtonContainer>
-        <Button variant="secondary" iconLeft={<IconArrowLeft />} disabled>
-          {t('common.prev')}
-        </Button>
-        <Button
-          id="next"
-          iconRight={<IconArrowRight />}
-          onClick={handleSubmit(onSubmit)}>
-          {t('common.next')}
-        </Button>
-      </ButtonContainer>
+      <Buttons onSubmit={handleSubmit(onSubmit)} />
     </form>
   );
 };
