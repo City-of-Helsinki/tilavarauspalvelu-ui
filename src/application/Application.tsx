@@ -205,7 +205,7 @@ const Application = (): JSX.Element | null => {
       {error ? (
         <Notification
           type="error"
-          label="Oh noes"
+          label="Unexpected error"
           position="top-center"
           autoClose
           displayAutoCloseProgress={false}
