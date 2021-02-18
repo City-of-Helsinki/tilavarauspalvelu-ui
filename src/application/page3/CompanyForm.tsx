@@ -80,14 +80,14 @@ const CompanyForm = ({
           <SpanTwoColumns>
             <TextInput
               ref={register({ required: true })}
-              label={t('Application.Page3.organisation.name')}
+              label={t('Application.Page3.company.name')}
               id="organisation.name"
               name="organisation.name"
               required
             />
             <TextInput
               ref={register({ required: true })}
-              label={t('Application.Page3.organisation.coreBusiness')}
+              label={t('Application.Page3.company.coreBusiness')}
               id="organisation.coreBusiness"
               name="organisation.coreBusiness"
               required
@@ -95,7 +95,7 @@ const CompanyForm = ({
           </SpanTwoColumns>
           <TextInput
             ref={register({ required: true })}
-            label={t('Application.Page3.organisation.registrationNumber')}
+            label={t('Application.Page3.company.registrationNumber')}
             id="organisation.identifier"
             name="organisation.identifier"
             required

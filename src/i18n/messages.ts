@@ -92,6 +92,19 @@ const translations: Translations = {
         postCode: ['Postinumero', 'ZIP code', ' Postnummer'],
         city: ['Postitoimipaikka', 'City', 'Postdistrikt'],
       },
+      company: {
+        name: [
+          'Yrityksen virallinen nimi',
+          'The official name of the company',
+          'företagets officiella namn',
+        ],
+        coreBusiness: [
+          'Yrityksen ydintoiminta',
+          'The core business of the company',
+          'Företagets kärnverksamhet',
+        ],
+        registrationNumber: ['Y-tunnus', 'Business ID', 'FO-nummer'],
+      },
       organisation: {
         name: ['Yhdistyksen, seuran tai järjestön virallinen nimi'],
         coreBusiness: ['Yhdistyksem tai seuran ydintoiminta'],

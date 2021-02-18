@@ -176,7 +176,7 @@ const ApplicationEvent = ({
           name={fieldName('numPersons')}
         />
         <Select
-          id="ageGroupId"
+          id="ageGroup"
           placeholder="Valitse"
           options={ageGroupOptions}
           label={t('Application.Page1.ageGroup')}
@@ -190,6 +190,7 @@ const ApplicationEvent = ({
           )}
         />
         <Select
+          id="abilityGroup"
           placeholder="Valitse"
           options={abilityGroupOptions}
           label={t('Application.Page1.abilityGroup')}
@@ -204,6 +205,7 @@ const ApplicationEvent = ({
         />
         <SpanTwoColumns>
           <Select
+            id="purpose"
             placeholder="Valitse"
             required
             options={purposeOptions}
