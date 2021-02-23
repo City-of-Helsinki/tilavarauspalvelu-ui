@@ -5,8 +5,6 @@ if (isClient) {
   base = `${document.location.protocol}//${document.location.host}/`;
 }
 
-console.log('base', base);
-
 const configuration = {
   client_id: 'tilanvaraus-ui-dev',
   redirect_uri: `${base}login/helsinki/return`,
