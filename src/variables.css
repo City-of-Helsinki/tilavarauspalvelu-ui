@@ -12,4 +12,5 @@
   --tilavaraus-calendar-selected: var(--tilavaraus-blue);
   --font-medium: HelsinkiGrotesk-Medium, var(--font-default);
   --font-bold: HelsinkiGrotesk-Bold, var(--font-default);
+  --font-medium: HelsinkiGrotesk-Medium, var(--font-default);
 }
