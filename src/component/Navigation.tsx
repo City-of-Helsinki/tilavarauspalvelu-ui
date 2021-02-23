@@ -3,8 +3,10 @@ import { Navigation as HDSNavigation } from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from 'react-use';
 import { useReactOidc } from '@axa-fr/react-oidc-context';
+import { Profile } from 'oidc-client';
 import { useHistory } from 'react-router-dom';
 import { applicationsUrl } from '../common/util';
+import { authEnabled } from '../common/const';
 
 interface LanguageOption {
   label: string;
@@ -19,12 +21,12 @@ const languageOptions: LanguageOption[] = [
 
 const DEFAULT_LANGUAGE = 'fi';
 
-const Navigation = (): JSX.Element => {
-  const { oidcUser, logout } = useReactOidc();
-  let profile = null;
-  if (oidcUser) {
-    profile = oidcUser.profile;
-  }
+type Props = {
+  profile: Profile | null;
+  logout?: () => void;
+};
+
+const Navigation = ({ profile, logout }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
   const history = useHistory();
   const [language, setLanguage] = useLocalStorage<string>(
@@ -71,7 +73,7 @@ const Navigation = (): JSX.Element => {
           }}>
           <HDSNavigation.Item
             label={t('common.logout')}
-            onClick={() => logout()}
+            onClick={() => logout && logout()}
           />
         </HDSNavigation.User>
         <HDSNavigation.LanguageSelector label={formatSelectedValue(language)}>
@@ -93,4 +95,15 @@ const Navigation = (): JSX.Element => {
   );
 };
 
-export default Navigation;
+const NavigationWithProfileAndLogout = authEnabled
+  ? () => {
+      const { oidcUser, logout } = useReactOidc();
+      let profile = null;
+      if (oidcUser) {
+        profile = oidcUser.profile;
+      }
+      return <Navigation profile={profile} logout={() => logout()} />;
+    }
+  : () => <Navigation profile={null} />;
+
+export default NavigationWithProfileAndLogout;
