@@ -1,6 +1,10 @@
-import React, { SyntheticEvent, useEffect, useState } from 'react';
+import React, { SyntheticEvent, useEffect } from 'react';
 import { Navigation as HDSNavigation } from 'hds-react';
 import { useTranslation } from 'react-i18next';
+import { useLocalStorage } from 'react-use';
+import { useReactOidc } from '@axa-fr/react-oidc-context';
+import { useHistory } from 'react-router-dom';
+import { applicationsUrl } from '../common/util';
 
 interface LanguageOption {
   label: string;
@@ -13,14 +17,28 @@ const languageOptions: LanguageOption[] = [
   { label: 'English', value: 'en' },
 ];
 
+const DEFAULT_LANGUAGE = 'fi';
+
 const Navigation = (): JSX.Element => {
-  const [language, setLanguage] = useState(languageOptions[0]);
+  const { oidcUser, logout } = useReactOidc();
+  let profile = null;
+  if (oidcUser) {
+    profile = oidcUser.profile;
+  }
   const { t, i18n } = useTranslation();
-  const formatSelectedValue = ({ value }: LanguageOption): string =>
-    value.toUpperCase();
+  const history = useHistory();
+  const [language, setLanguage] = useLocalStorage<string>(
+    'userLocale',
+    i18n.language
+  );
+
+  const formatSelectedValue = (lang = DEFAULT_LANGUAGE): string =>
+    lang.toUpperCase();
 
   useEffect(() => {
-    i18n.changeLanguage(language.value);
+    if (language) {
+      i18n.changeLanguage(language);
+    }
   }, [language, i18n]);
 
   return (
@@ -44,14 +62,16 @@ const Navigation = (): JSX.Element => {
       </HDSNavigation.Row>
       <HDSNavigation.Actions>
         <HDSNavigation.User
-          authenticated
+          userName={`${profile?.given_name} ${profile?.family_name}`}
+          authenticated={Boolean(profile)}
           label={t('common.login')}
-          buttonAriaLabel="kirjaudu">
+          buttonAriaLabel={t('common.login')}
+          onSignIn={() => {
+            history.push(applicationsUrl);
+          }}>
           <HDSNavigation.Item
-            label={t('common.login')}
-            href="https://hel.fi"
-            target="_blank"
-            variant="primary"
+            label={t('common.logout')}
+            onClick={() => logout()}
           />
         </HDSNavigation.User>
         <HDSNavigation.LanguageSelector label={formatSelectedValue(language)}>
@@ -63,7 +83,7 @@ const Navigation = (): JSX.Element => {
                 e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
               ): void => {
                 e.preventDefault();
-                setLanguage(languageOption);
+                setLanguage(languageOption.value);
               }}
             />
           ))}
