@@ -12,7 +12,7 @@ import oidcConfiguration from './common/auth/configuration';
 import App from './App';
 
 import reportWebVitals from './reportWebVitals';
-import { sentryDSN, sentryEnvironment } from './common/const';
+import { authEnabled, sentryDSN, sentryEnvironment } from './common/const';
 import UpdateToken from './common/auth/UpdateToken';
 
 if (sentryDSN) {
@@ -38,7 +38,7 @@ boot(
       authenticating={LoadingSpinner}
       configuration={oidcConfiguration}
       loggerLevel={oidcLog.DEBUG}
-      isEnabled
+      isEnabled={authEnabled}
       callbackComponentOverride={UpdateToken}
       UserStore={InMemoryWebStorage}>
       <BrowserRouter>

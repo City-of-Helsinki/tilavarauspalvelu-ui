@@ -61,6 +61,7 @@ const getConfig = (
     | 'REACT_APP_SENTRY_DSN'
     | 'REACT_APP_SENTRY_ENVIRONMENT'
     | 'REACT_APP_TILAVARAUS_API_URL'
+    | 'REACT_APP_DISABLE_AUTH'
 ) => {
   return CONFIG ? CONFIG[name] : process.env[name];
 };
@@ -70,3 +71,5 @@ export const sentryDSN = getConfig('REACT_APP_SENTRY_DSN');
 export const sentryEnvironment = getConfig('REACT_APP_SENTRY_ENVIRONMENT');
 
 export const apiBaseUrl = getConfig('REACT_APP_TILAVARAUS_API_URL');
+
+export const authEnabled = getConfig('REACT_APP_DISABLE_AUTH') !== 'true';
