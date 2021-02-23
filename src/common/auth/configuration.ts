@@ -1,11 +1,20 @@
+import { isClient } from 'react-use/lib/util';
+
+let base = '';
+if (isClient) {
+  base = `${document.location.protocol}//${document.location.host}/`;
+}
+
+console.log('base', base);
+
 const configuration = {
   client_id: 'tilanvaraus-ui-dev',
-  redirect_uri: 'http://localhost:3000/login/helsinki/return',
+  redirect_uri: `${base}login/helsinki/return`,
   response_type: 'id_token token',
-  post_logout_redirect_uri: 'http://localhost:3000/',
+  post_logout_redirect_uri: base,
   scope: 'openid profile email',
   authority: 'https://api.hel.fi/sso/',
-  silent_redirect_uri: 'http://localhost:3000/login/helsinki/return',
+  silent_redirect_uri: `${base}login/helsinki/return`,
   automaticSilentRenew: false,
   loadUserInfo: false,
 };
