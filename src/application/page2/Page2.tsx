@@ -5,10 +5,11 @@ import { useDebounce } from 'use-debounce';
 import styled from 'styled-components';
 import { Application, ApplicationEventSchedule } from '../../common/types';
 import TimeSelector, { Cell } from './TimeSelector';
+import { deepCopy } from '../../common/util';
 
 type Props = {
   application: Application;
-  onNext: () => void;
+  onNext: (appToSave: Application) => void;
 };
 
 const cellLabel = (row: number): string => {
@@ -118,15 +119,21 @@ const Page2 = ({ application, onNext }: Props): JSX.Element => {
 
   const { t } = useTranslation();
 
-  const next = () => {
-    application.applicationEvents.forEach((applicationEvent, i) => {
-      // eslint-disable-next-line no-param-reassign
-      applicationEvent.applicationEventSchedules.length = 0;
+  const prepareData = (data: Application): Application => {
+    const applicationCopy = deepCopy(data);
+
+    applicationCopy.applicationEvents.forEach((applicationEvent, i) => {
+      applicationCopy.applicationEvents[i].applicationEventSchedules.length = 0;
       cellsToApplicationEventSchedules(selectorData[i]).forEach((e) =>
         applicationEvent.applicationEventSchedules.push(e)
       );
     });
-    onNext();
+    return applicationCopy;
+  };
+
+  const onSubmit = () => {
+    const appToSave = prepareData(application);
+    onNext(appToSave);
   };
 
   return (
@@ -151,7 +158,10 @@ const Page2 = ({ application, onNext }: Props): JSX.Element => {
         <Button variant="secondary" iconLeft={<IconArrowLeft />} disabled>
           {t('common.prev')}
         </Button>
-        <Button id="next" iconRight={<IconArrowRight />} onClick={() => next()}>
+        <Button
+          id="next"
+          iconRight={<IconArrowRight />}
+          onClick={() => onSubmit()}>
           {t('common.next')}
         </Button>
       </ButtonContainer>

@@ -129,6 +129,20 @@ const translations: Translations = {
       },
     },
     preview: {
+      applicantType: {
+        community: [
+          'Rekitesteröitymätön yhdistys',
+          'Unregistered association',
+          'Oregistrerad förening',
+        ],
+        company: ['Yritys', 'Company', 'Företag'],
+        individual: ['Yksityishenkilö', 'Private person', 'Privatperson'],
+        association: [
+          'Rekisteröity yhdistys',
+          'Registered association',
+          'Registrerad förening',
+        ],
+      },
       heading: ['4. Hakemuksen lähettäminen'],
       text: ['Ohessa yhteenveto hakemuksestasi.'],
       basicInfoSubHeading: ['Varaajan perustiedot'],

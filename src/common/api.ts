@@ -17,7 +17,7 @@ const axiosOptions = {
 
 let axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 
-const applicationRoundBasePath = 'application_round';
+const applicationPeriodBasePath = 'application_round';
 const reservationUnitsBasePath = 'reservation_unit';
 const parameterBasePath = 'parameters';
 const applicationBasePath = 'application';
@@ -119,7 +119,7 @@ async function apiPost<T>({ path, data }: RequestParameters): Promise<T> {
 
 export function getApplicationPeriods(): Promise<ApplicationPeriod[]> {
   return apiGet<ApplicationPeriod[]>({
-    path: `v1/${applicationRoundBasePath}`,
+    path: `v1/${applicationPeriodBasePath}`,
   });
 }
 
@@ -127,7 +127,7 @@ export function getApplicationPeriod(
   params: IDParameter
 ): Promise<ApplicationPeriod> {
   return apiGet<ApplicationPeriod>({
-    path: `v1/${applicationRoundBasePath}/${params.id}`,
+    path: `v1/${applicationPeriodBasePath}/${params.id}`,
   });
 }
 

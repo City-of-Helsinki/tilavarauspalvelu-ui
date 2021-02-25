@@ -25,11 +25,7 @@ import Page3 from './page3/Page3';
 import Preview from './preview/Preview';
 import applicationReducer from './applicationReducer';
 import applicationInitializer from './applicationInitializer';
-
-import {
-  SelectionsListContext,
-  SelectionsListContextType,
-} from '../context/SelectionsListContext';
+import useReservationUnitList from '../common/hook/useReservationUnitList';
 
 type ParamTypes = {
   applicationPeriodId: string;
@@ -71,26 +67,28 @@ const Application = (): JSX.Element | null => {
     return loadedApplication;
   }, [applicationId]);
 
-  const { reservationUnits } = React.useContext(
-    SelectionsListContext
-  ) as SelectionsListContextType;
+  const { reservationUnits } = useReservationUnitList();
 
-  const saveWithEffect = async (postSave?: (string?: number) => void) => {
+  const saveWithEffect = async (
+    appToSave: ApplicationType,
+    postSave?: (string?: number) => void
+  ) => {
     let loadedApplication: ApplicationType;
 
     try {
       if (applicationId === 'new') {
         // because applicationEvent needs applicationId we need to save application first
-        const tmpApplication = { ...application }; // shallow copy!
+        const tmpApplication = { ...appToSave };
         tmpApplication.applicationEvents = [];
         const savedApplication = await saveApplication(tmpApplication);
 
+        console.log('saved application', savedApplication);
         if (!savedApplication.id) {
           throw new Error('cannot proceed, saved application does not have id');
         }
 
         savedApplication.applicationEvents = [
-          ...application.applicationEvents.map((ae) => ({
+          ...appToSave.applicationEvents.map((ae) => ({
             ...ae,
             applicationId: savedApplication.id || 0,
           })),
@@ -98,7 +96,7 @@ const Application = (): JSX.Element | null => {
 
         loadedApplication = await saveApplication(savedApplication);
       } else {
-        loadedApplication = await saveApplication(application);
+        loadedApplication = await saveApplication(appToSave);
       }
 
       if (postSave) {
@@ -109,13 +107,14 @@ const Application = (): JSX.Element | null => {
     }
   };
 
-  const saveAndNavigate = async (path: string) => {
-    saveWithEffect((id) => {
+  const saveAndNavigate = (path: string) => async (
+    appToSave: ApplicationType
+  ) =>
+    saveWithEffect(appToSave, (id) => {
       const prefix = id ? match.url.replace('new', String(id)) : match.url;
       const target = `${prefix}/${path}`;
       history.push(target);
     });
-  };
 
   const addNewApplicationEvent = async () => {
     dispatch({
@@ -136,6 +135,8 @@ const Application = (): JSX.Element | null => {
     return null;
   }
 
+  console.log('rendering');
+
   return (
     <>
       <Switch>
@@ -152,7 +153,7 @@ const Application = (): JSX.Element | null => {
                 ({} as ApplicationPeriod)
               }
               application={application}
-              onNext={() => saveAndNavigate('page2')}
+              onNext={saveAndNavigate('page2')}
               addNewApplicationEvent={addNewApplicationEvent}
             />
           </ApplicationPage>
@@ -164,7 +165,7 @@ const Application = (): JSX.Element | null => {
             breadCrumbText={applicationPeriodName}>
             <Page2
               application={application}
-              onNext={() => saveAndNavigate('page3')}
+              onNext={saveAndNavigate('page3')}
             />
           </ApplicationPage>
         </Route>
@@ -175,7 +176,7 @@ const Application = (): JSX.Element | null => {
             breadCrumbText={applicationPeriodName}>
             <Page3
               application={application}
-              onNext={() => saveAndNavigate('preview')}
+              onNext={saveAndNavigate('preview')}
             />
           </ApplicationPage>
         </Route>

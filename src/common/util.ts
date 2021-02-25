@@ -109,3 +109,7 @@ export const searchUrl = (params: ReservationUnitsParameters): string =>
   `${searchPrefix}/?${stringify(params)}`;
 
 export const applicationsUrl = `${applicationsPrefix}/`;
+
+export function deepCopy<T>(src: T): T {
+  return JSON.parse(JSON.stringify(src));
+}

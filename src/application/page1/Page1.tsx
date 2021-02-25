@@ -10,12 +10,13 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import ApplicationEvent from './ApplicationEvent';
 import {
+  Application,
   Application as ApplicationType,
   ApplicationPeriod,
   OptionType,
   ReservationUnit,
 } from '../../common/types';
-import { mapOptions } from '../../common/util';
+import { deepCopy, mapOptions } from '../../common/util';
 import { getParameters } from '../../common/api';
 import { breakpoint } from '../../common/style';
 
@@ -23,7 +24,7 @@ type Props = {
   applicationPeriod: ApplicationPeriod;
   application: ApplicationType;
   selectedReservationUnits: ReservationUnit[];
-  onNext?: () => void;
+  onNext?: (appToSave: Application) => void;
   addNewApplicationEvent: () => void;
 };
 
@@ -111,29 +112,38 @@ const Page1 = ({
     fetchData();
   }, []);
 
-  const prepareSave = (data: ApplicationType) => {
-    application.applicationEvents.forEach((event, index) =>
-      Object.assign(event, data.applicationEvents[index])
-    );
+  const prepareData = (data: ApplicationType): ApplicationType => {
+    console.log('preparing data from events', data.applicationEvents);
+    const applicationCopy = {
+      ...deepCopy(application),
+      applicationEvents: application.applicationEvents.map(
+        (appEvent, index) => ({
+          ...appEvent,
+          ...data.applicationEvents[index],
+        })
+      ),
+    };
+    return applicationCopy;
   };
 
-  // todo rename this function
   const onSubmit = (data: ApplicationType) => {
-    prepareSave(data);
+    const appToSave = prepareData(data);
 
+    console.log('saving data', appToSave);
     if (onNext) {
-      onNext();
+      onNext(appToSave);
     }
   };
 
   const onAddApplicationEvent = (data: ApplicationType) => {
+    // TODO I am sure this is not working now
     if (
       data.applicationEvents &&
       data.applicationEvents.some((e) => Boolean(e.id))
     ) {
       return;
     }
-    prepareSave(data);
+    //    prepareData(data);
     addNewApplicationEvent();
   };
 

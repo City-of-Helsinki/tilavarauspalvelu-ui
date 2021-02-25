@@ -22,7 +22,6 @@ type Route = {
   component: React.FC;
   loadData?: (params: ReservationUnitParams) => any; // eslint-disable-line
   dataKey?: string;
-  startApplicationBar?: boolean;
 };
 
 const Routes: Route[] = [
@@ -36,7 +35,6 @@ const Routes: Route[] = [
   {
     path: searchPrefix,
     component: Search,
-    startApplicationBar: true,
   },
   {
     path: `${reservationUnitPrefix}/:id`,
@@ -44,7 +42,6 @@ const Routes: Route[] = [
     loadData: (params: ReservationUnitParams): Promise<ReservationUnitType> =>
       getReservationUnit(Number(params.id)),
     dataKey: 'reservationUnit',
-    startApplicationBar: true,
   },
   {
     path: '/application/:applicationPeriodId/:applicationId',
