@@ -141,6 +141,7 @@ const Page2 = ({ application, onNext }: Props): JSX.Element => {
       {application.applicationEvents.map((event, index) => {
         return (
           <Accordion
+            key={event.id}
             id={`timeSelector-${index}`}
             heading={event.name || undefined}>
             <TimeSelector

@@ -78,6 +78,7 @@ test('Application', async (t) => {
   await t.expect(violations.length === 0).ok(createReport(violations));
   // next page
   await t.click(application.page2.nextButton);
+  await t.expect(violations.length === 0).ok(createReport(violations));
   await runAxeCheck(t);
   await t.expect(violations.length === 0).ok(createReport(violations));
 

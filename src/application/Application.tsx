@@ -67,7 +67,7 @@ const Application = (): JSX.Element | null => {
     return loadedApplication;
   }, [applicationId]);
 
-  const { reservationUnits } = useReservationUnitList();
+  const { reservationUnits, clearSelections } = useReservationUnitList();
 
   const saveWithEffect = async (
     appToSave: ApplicationType,
@@ -98,6 +98,8 @@ const Application = (): JSX.Element | null => {
         loadedApplication = await saveApplication(appToSave);
       }
 
+      dispatch({ type: 'load', data: loadedApplication });
+
       if (postSave) {
         postSave(loadedApplication.id);
       }
@@ -112,6 +114,7 @@ const Application = (): JSX.Element | null => {
     saveWithEffect(appToSave, (id) => {
       const prefix = id ? match.url.replace('new', String(id)) : match.url;
       const target = `${prefix}/${path}`;
+      clearSelections();
       history.push(target);
     });
 

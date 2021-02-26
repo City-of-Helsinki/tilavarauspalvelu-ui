@@ -5,7 +5,7 @@ export type ReservationUnitList = {
   reservationUnits: ReservationUnit[];
   selectReservationUnit: (reservationUnit: ReservationUnit) => void;
   containsReservationUnit: (reservationUnit: ReservationUnit) => boolean;
-  clear: () => void;
+  clearSelections: () => void;
 };
 
 const useReservationUnitsList = (): ReservationUnitList => {
@@ -21,7 +21,7 @@ const useReservationUnitsList = (): ReservationUnitList => {
     ]);
   };
 
-  const clear = () => {
+  const clearSelections = () => {
     setReservationUnits([]);
   };
 
@@ -33,7 +33,7 @@ const useReservationUnitsList = (): ReservationUnitList => {
   return {
     selectReservationUnit,
     containsReservationUnit,
-    clear,
+    clearSelections,
     reservationUnits: reservationUnits || [],
   };
 };

@@ -148,6 +148,11 @@ const translations: Translations = {
       basicInfoSubHeading: ['Varaajan perustiedot'],
       firstName: ['Yhteyshenkilön etunimi'],
       lastName: ['Yhteyshenkilön sukunimi'],
+      applicantTypeLabel: [
+        'Hakijan tyyppi',
+        'Applicant type',
+        'Typ av sökande',
+      ],
       email: ['Sähköpostiosoite', 'Email address', ''],
       phoneNumber: ['Puhelinumero', 'Phone number', 'Telefonnummer'],
       organisation: {

@@ -21,7 +21,7 @@ const ApplicantInfoPreview = ({
             value={application.organisation?.name}
           />
           <LabelValue
-            label={t('Application.preview.applicantType')}
+            label={t('Application.preview.applicantTypeLabel')}
             value={String(
               t(
                 `Application.preview.applicantType.${application.applicantType}`

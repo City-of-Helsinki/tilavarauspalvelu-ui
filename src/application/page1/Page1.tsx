@@ -134,14 +134,12 @@ const Page1 = ({
   };
 
   const onAddApplicationEvent = (data: ApplicationType) => {
-    // TODO I am sure this is not working now
     if (
       data.applicationEvents &&
       data.applicationEvents.some((e) => Boolean(e.id))
     ) {
       return;
     }
-    //    prepareData(data);
     addNewApplicationEvent();
   };
 
