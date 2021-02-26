@@ -26,7 +26,7 @@ function App(): JSX.Element {
         ))}
         {isClient ? ( // client only routes
           <OidcSecure>
-            <Route path="/application/:applicationPeriodId/:applicationId">
+            <Route path="/application/:applicationRoundId/:applicationId">
               <Application />
             </Route>
             <Route path="/applications/">
