@@ -29,7 +29,7 @@ export const setApiToken = (token: string | null): void => {
   };
 
   if (token) {
-    newAxiosOptions.headers.Authorization = `Bearer ${token}`;
+    newAxiosOptions.headers.Authorization = `JWT ${token}`;
   }
 
   axiosClient = applyCaseMiddleware(axios.create(newAxiosOptions));
