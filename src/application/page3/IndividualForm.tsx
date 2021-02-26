@@ -38,9 +38,7 @@ const IndividualForm = ({
   });
 
   const prepareData = (data: Application): Application => {
-    console.log('edits', data);
     const applicationCopy = deepCopy(application);
-    console.log('original', application);
 
     applicationCopy.applicantType = 'individual';
     if (!applicationCopy.contactPerson) {
@@ -61,7 +59,6 @@ const IndividualForm = ({
   const onSubmit = (data: Application): void => {
     const appToSave = prepareData(data);
 
-    console.log('calling onNext');
     onNext(appToSave);
   };
 

@@ -89,7 +89,7 @@ const Head = ({ reservationUnit }: Props): JSX.Element => {
 
   return (
     <TopContainer>
-      <Notification applicationPeriod={null} />
+      <Notification applicationRound={null} />
       <Container>
         <BackContainer>
           <IconArrowLeft aria-hidden />

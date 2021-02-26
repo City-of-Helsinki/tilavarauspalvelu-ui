@@ -42,6 +42,10 @@ export default {
     nextButton: Selector('#next'),
   },
   preview: {
+    basicInfoAccordion: Selector('#basicInfo > div > button'),
+    firstApplicationEventAccordion: Selector(
+      '#applicationEvent-0 > div > button'
+    ),
     acceptTerms: Selector('[for="preview\\.acceptTermsOfUse"]'),
     sendButton: Selector('#submit'),
   },

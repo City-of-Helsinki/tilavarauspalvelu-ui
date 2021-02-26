@@ -12,7 +12,7 @@ import ApplicationEvent from './ApplicationEvent';
 import {
   Application,
   Application as ApplicationType,
-  ApplicationPeriod,
+  ApplicationRound,
   OptionType,
   ReservationUnit,
 } from '../../common/types';
@@ -21,7 +21,7 @@ import { getParameters } from '../../common/api';
 import { breakpoint } from '../../common/style';
 
 type Props = {
-  applicationPeriod: ApplicationPeriod;
+  applicationRound: ApplicationRound;
   application: ApplicationType;
   selectedReservationUnits: ReservationUnit[];
   onNext?: (appToSave: Application) => void;
@@ -62,7 +62,7 @@ const ButtonContainer = styled.div`
 const Page1 = ({
   onNext,
   addNewApplicationEvent,
-  applicationPeriod,
+  applicationRound,
   application,
   selectedReservationUnits,
 }: Props): JSX.Element | null => {
@@ -113,7 +113,6 @@ const Page1 = ({
   }, []);
 
   const prepareData = (data: ApplicationType): ApplicationType => {
-    console.log('preparing data from events', data.applicationEvents);
     const applicationCopy = {
       ...deepCopy(application),
       applicationEvents: application.applicationEvents.map(
@@ -129,7 +128,6 @@ const Page1 = ({
   const onSubmit = (data: ApplicationType) => {
     const appToSave = prepareData(data);
 
-    console.log('saving data', appToSave);
     if (onNext) {
       onNext(appToSave);
     }
@@ -160,7 +158,7 @@ const Page1 = ({
             form={form}
             applicationEvent={event}
             index={index}
-            applicationPeriod={applicationPeriod}
+            applicationRound={applicationRound}
             optionTypes={optionTypes}
             selectedReservationUnits={selectedReservationUnits}
           />

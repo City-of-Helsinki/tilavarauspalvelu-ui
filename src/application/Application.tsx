@@ -12,11 +12,11 @@ import { useTranslation } from 'react-i18next';
 import {
   saveApplication,
   getApplication,
-  getApplicationPeriod,
+  getApplicationRound,
 } from '../common/api';
 import {
   Application as ApplicationType,
-  ApplicationPeriod,
+  ApplicationRound,
 } from '../common/types';
 import ApplicationPage from './ApplicationPage';
 import Page1 from './page1/Page1';
@@ -28,7 +28,7 @@ import applicationInitializer from './applicationInitializer';
 import useReservationUnitList from '../common/hook/useReservationUnitList';
 
 type ParamTypes = {
-  applicationPeriodId: string;
+  applicationRoundId: string;
   applicationId: string;
 };
 
@@ -40,23 +40,23 @@ const Application = (): JSX.Element | null => {
 
   const [error, setError] = useState<string | null>();
 
-  const { applicationId, applicationPeriodId } = useParams<ParamTypes>();
+  const { applicationId, applicationRoundId } = useParams<ParamTypes>();
 
   const [application, dispatch] = useReducer(
     applicationReducer,
     {
       id: Number.isNaN(applicationId) ? Number(applicationId) : undefined,
-      applicationRoundId: Number(applicationPeriodId),
+      applicationRoundId: Number(applicationRoundId),
     } as ApplicationType,
     applicationInitializer
   );
 
-  const applicationPeriodLoadingStatus = useAsync(async () => {
-    const loadedApplicationPeriod = await getApplicationPeriod({
-      id: applicationPeriodId,
+  const applicationRoundLoadingStatus = useAsync(async () => {
+    const loadedApplicationRound = await getApplicationRound({
+      id: applicationRoundId,
     });
-    return loadedApplicationPeriod;
-  }, [applicationPeriodId]);
+    return loadedApplicationRound;
+  }, [applicationRoundId]);
 
   const applicationLoadingStatus = useAsync(async () => {
     let loadedApplication = null;
@@ -82,7 +82,6 @@ const Application = (): JSX.Element | null => {
         tmpApplication.applicationEvents = [];
         const savedApplication = await saveApplication(tmpApplication);
 
-        console.log('saved application', savedApplication);
         if (!savedApplication.id) {
           throw new Error('cannot proceed, saved application does not have id');
         }
@@ -123,11 +122,10 @@ const Application = (): JSX.Element | null => {
     });
   };
 
-  const applicationPeriodName =
-    applicationPeriodLoadingStatus.value?.name || '';
+  const applicationRoundName = applicationRoundLoadingStatus.value?.name || '';
 
   const ready =
-    ![applicationPeriodLoadingStatus, applicationLoadingStatus].some(
+    ![applicationRoundLoadingStatus, applicationLoadingStatus].some(
       (r) => r.loading
     ) && application;
 
@@ -135,22 +133,19 @@ const Application = (): JSX.Element | null => {
     return null;
   }
 
-  console.log('rendering');
-
   return (
     <>
       <Switch>
         <Route exact path={`${match.url}/page1`}>
           <ApplicationPage
-            breadCrumbText={applicationPeriodName}
-            overrideText={applicationPeriodName}
+            breadCrumbText={applicationRoundName}
+            overrideText={applicationRoundName}
             translationKeyPrefix="Application.Page1"
             match={match}>
             <Page1
               selectedReservationUnits={reservationUnits}
-              applicationPeriod={
-                applicationPeriodLoadingStatus.value ||
-                ({} as ApplicationPeriod)
+              applicationRound={
+                applicationRoundLoadingStatus.value || ({} as ApplicationRound)
               }
               application={application}
               onNext={saveAndNavigate('page2')}
@@ -162,7 +157,7 @@ const Application = (): JSX.Element | null => {
           <ApplicationPage
             translationKeyPrefix="Application.Page2"
             match={match}
-            breadCrumbText={applicationPeriodName}>
+            breadCrumbText={applicationRoundName}>
             <Page2
               application={application}
               onNext={saveAndNavigate('page3')}
@@ -173,7 +168,7 @@ const Application = (): JSX.Element | null => {
           <ApplicationPage
             translationKeyPrefix="Application.Page3"
             match={match}
-            breadCrumbText={applicationPeriodName}>
+            breadCrumbText={applicationRoundName}>
             <Page3
               application={application}
               onNext={saveAndNavigate('preview')}
@@ -184,7 +179,7 @@ const Application = (): JSX.Element | null => {
           <ApplicationPage
             translationKeyPrefix="Application.preview"
             match={match}
-            breadCrumbText={applicationPeriodName}>
+            breadCrumbText={applicationRoundName}>
             <Preview
               application={application}
               onNext={() => saveAndNavigate('preview')}

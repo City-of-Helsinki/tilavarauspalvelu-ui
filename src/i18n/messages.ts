@@ -27,7 +27,7 @@ const translations: Translations = {
       abilityGroup: ['Tasoryhmä'],
       purpose: ['Vuoron käyttötarkoitus / toiminnan sisältö'],
       spacesSubHeading: ['Toivotut tilat'],
-      applicationPeriodSubHeading: ['Vakiovuoron kausi'],
+      applicationRoundSubHeading: ['Vakiovuoron kausi'],
       periodStartDate: ['Kauden aloituspäivä'],
       periodEndDate: ['Kauden päätöspäivä'],
       minDuration: ['Vuoron minimikesto'],
@@ -187,7 +187,7 @@ const translations: Translations = {
       preview: ['4. Lähetä käsiteltäväksi'],
     },
   },
-  ApplicationPeriodCard: {
+  ApplicationRoundCard: {
     reminderButton: ['Tilaa muistutus'],
     applyButton: ['Hae Tilaa'],
     displayPastButton: ['Näytä tilat'],

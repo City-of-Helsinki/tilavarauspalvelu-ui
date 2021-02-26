@@ -19,7 +19,7 @@ const isPast = (endDate: string): boolean => {
   return isAfter(now, parseISO(endDate));
 };
 
-export const applicationPeriodState = (
+export const applicationRoundState = (
   startDate: string,
   endDate: string
 ): 'pending' | 'active' | 'past' => {

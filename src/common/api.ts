@@ -3,7 +3,7 @@ import applyCaseMiddleware from 'axios-case-converter';
 import { apiBaseUrl } from './const';
 import {
   Application,
-  ApplicationPeriod,
+  ApplicationRound,
   ReservationUnit,
   Parameter,
 } from './types';
@@ -17,7 +17,7 @@ const axiosOptions = {
 
 let axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 
-const applicationPeriodBasePath = 'application_round';
+const applicationRoundBasePath = 'application_round';
 const reservationUnitsBasePath = 'reservation_unit';
 const parameterBasePath = 'parameters';
 const applicationBasePath = 'application';
@@ -117,17 +117,17 @@ async function apiPost<T>({ path, data }: RequestParameters): Promise<T> {
   });
 }
 
-export function getApplicationPeriods(): Promise<ApplicationPeriod[]> {
-  return apiGet<ApplicationPeriod[]>({
-    path: `v1/${applicationPeriodBasePath}`,
+export function getApplicationRounds(): Promise<ApplicationRound[]> {
+  return apiGet<ApplicationRound[]>({
+    path: `v1/${applicationRoundBasePath}`,
   });
 }
 
-export function getApplicationPeriod(
+export function getApplicationRound(
   params: IDParameter
-): Promise<ApplicationPeriod> {
-  return apiGet<ApplicationPeriod>({
-    path: `v1/${applicationPeriodBasePath}/${params.id}`,
+): Promise<ApplicationRound> {
+  return apiGet<ApplicationRound>({
+    path: `v1/${applicationRoundBasePath}/${params.id}`,
   });
 }
 

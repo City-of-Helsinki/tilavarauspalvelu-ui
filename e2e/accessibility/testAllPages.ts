@@ -63,8 +63,9 @@ test('Application', async (t) => {
     .click(application.page1.purposeOption1)
     .click(application.page1.defaultPeriodCheckbox)
     .click(application.page1.nextButton);
-  await runAxeCheck(t);
-  await t.expect(violations.length === 0).ok(createReport(violations));
+
+  await application.page2.applicationEventAccordion;
+
   // fill times
   await t.click(application.page2.applicationEventAccordion);
   await t
@@ -96,6 +97,12 @@ test('Application', async (t) => {
     .typeText(application.page3.email, 'first.last@example.com')
     .click(application.page3.nextButton);
 
+  await runAxeCheck(t);
+  await t.expect(violations.length === 0).ok(createReport(violations));
+
+  await t
+    .click(application.preview.basicInfoAccordion)
+    .click(application.preview.firstApplicationEventAccordion);
   await runAxeCheck(t);
   await t.expect(violations.length === 0).ok(createReport(violations));
 

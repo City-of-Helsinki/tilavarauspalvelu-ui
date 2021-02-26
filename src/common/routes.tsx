@@ -4,9 +4,9 @@ import Application from '../application/Application';
 import Home from '../home/Home';
 import ReservationUnit from '../reservation-unit/ReservationUnit';
 import Search from '../search/Search';
-import { getApplicationPeriods, getReservationUnit } from './api';
+import { getApplicationRounds, getReservationUnit } from './api';
 import {
-  ApplicationPeriod as ApplicationPeriodType,
+  ApplicationRound as ApplicationRoundType,
   ReservationUnit as ReservationUnitType,
 } from './types';
 import { reservationUnitPrefix, searchPrefix } from './const';
@@ -29,8 +29,8 @@ const Routes: Route[] = [
     path: '/',
     exact: true,
     component: Home,
-    loadData: (): Promise<ApplicationPeriodType[]> => getApplicationPeriods(),
-    dataKey: 'applicationPeriods',
+    loadData: (): Promise<ApplicationRoundType[]> => getApplicationRounds(),
+    dataKey: 'applicationRounds',
   },
   {
     path: searchPrefix,
@@ -44,7 +44,7 @@ const Routes: Route[] = [
     dataKey: 'reservationUnit',
   },
   {
-    path: '/application/:applicationPeriodId/:applicationId',
+    path: '/application/:applicationRoundId/:applicationId',
     component: withOidcSecure(Application),
   },
   {

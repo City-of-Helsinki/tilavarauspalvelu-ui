@@ -25,7 +25,7 @@ const OrganisationForm = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const { register, unregister, handleSubmit, errors, formState } = useForm({
+  const { register, unregister, handleSubmit } = useForm({
     defaultValues: {
       organisation: { ...application.organisation },
       contactPerson: { ...application.contactPerson },
@@ -42,10 +42,8 @@ const OrganisationForm = ({
 
   useEffect(() => {
     if (hasRegistration) {
-      console.log('registering validation');
       register({ name: 'organisation.identifier', required: true });
     } else {
-      console.log('unregistering validation');
       unregister('organisation.identifier');
     }
   }, [hasRegistration, register, unregister]);
@@ -74,14 +72,9 @@ const OrganisationForm = ({
   };
 
   const onSubmit = (data: Application): void => {
-    console.log('onSubmit data', data);
     const appToSave = prepareData(data);
-    console.log('prepared', appToSave);
-
     onNext(appToSave);
   };
-  console.log('form state', formState);
-  console.log('form errors', errors);
 
   return (
     <form>
