@@ -1,4 +1,4 @@
-import { Button, IconArrowLeft, IconArrowRight } from 'hds-react';
+import { Accordion, Button, IconArrowLeft, IconArrowRight } from 'hds-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
@@ -140,17 +140,20 @@ const Page2 = ({ application, onNext }: Props): JSX.Element => {
     <>
       {application.applicationEvents.map((event, index) => {
         return (
-          <TimeSelector
-            key={event.id || 'NEW'}
-            applicationEvent={event}
-            index={index}
-            cells={selectorData[index]}
-            updateCells={updateCells}
-            copyCells={copyCells}
-            summaryData={cellsToApplicationEventSchedules(
-              debouncedSelectorData[index]
-            )}
-          />
+          <Accordion
+            id={`timeSelector-${index}`}
+            heading={event.name || undefined}>
+            <TimeSelector
+              key={event.id || 'NEW'}
+              index={index}
+              cells={selectorData[index]}
+              updateCells={updateCells}
+              copyCells={copyCells}
+              summaryData={cellsToApplicationEventSchedules(
+                debouncedSelectorData[index]
+              )}
+            />
+          </Accordion>
         );
       })}
 

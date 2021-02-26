@@ -20,9 +20,7 @@ export default {
     nextButton: Selector('#next'),
   },
   page2: {
-    applicationEventAccordion: Selector(
-      'div.Accordion-module_accordionHeader__3_uK7 > button'
-    ),
+    applicationEventAccordion: Selector('#accordin-1'),
     randomApplicationEventScheduleButton: (): Selector => {
       const rnd = random.randomInt(7 * 17);
       const button = Selector(`[role=region] > div > div > button`);

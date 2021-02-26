@@ -155,6 +155,8 @@ const ApplicationEvent = ({
     }
   };
 
+  console.log(applicationRound);
+
   return (
     <Accordion heading={`${name}` || ''}>
       <SubHeadLine>

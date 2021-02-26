@@ -44,7 +44,7 @@ const Routes: Route[] = [
     dataKey: 'reservationUnit',
   },
   {
-    path: '/application/:applicationRoundId/:applicationId',
+    path: '/application/:applicationPeriodId/:applicationId',
     component: withOidcSecure(Application),
   },
   {

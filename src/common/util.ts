@@ -35,14 +35,14 @@ export const applicationRoundState = (
 
 export const formatDate = (date: string): string => {
   if (!date) {
-    return 'undefined || null';
+    return 'no date';
   }
   return format(parseISO(date), 'd. M. yyyy');
 };
 
 export const formatApiDate = (date: string): string => {
   if (!date) {
-    return 'undefined || null';
+    return 'no date';
   }
   return format(parseISO(date), 'yyyy-MM-dd');
 };

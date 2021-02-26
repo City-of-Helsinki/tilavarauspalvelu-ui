@@ -178,6 +178,7 @@ const Page1 = ({
         <Button
           id="next"
           iconRight={<IconArrowRight />}
+          disabled={application.applicationEvents.length === 0}
           onClick={() => form.handleSubmit(onSubmit)()}>
           {t('common.next')}
         </Button>
