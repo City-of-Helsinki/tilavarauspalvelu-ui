@@ -28,7 +28,7 @@ export type Space = {
 export type Resource = {
   id: number;
   name: TranslationObject;
-  Type: 'fixed';
+  locationType: 'fixed';
   spaceId: number;
   bufferTimeBefore: string;
   bufferTimeAfter: string;
