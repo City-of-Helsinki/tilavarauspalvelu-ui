@@ -10,9 +10,9 @@ import Head from './Head';
 import { routeData } from '../common/const';
 import Address from './Address';
 import Map from './Map';
-import { SpanTwoColumns } from '../component/common';
 import { localizedValue } from '../common/util';
 import Images from './Images';
+import StartApplicationBar from '../component/StartApplicationBar';
 
 type ParamTypes = {
   id: string;
@@ -64,16 +64,17 @@ const ReservationUnit = (): JSX.Element | null => {
             <Address reservationUnit={reservationUnit} />
             <Images images={reservationUnit.images} />
           </div>
-          <SpanTwoColumns>
+          <TwoColoumnLayout>
             <Map
               title={localizedValue(reservationUnit.name, i18n.language)}
               latitude={reservationUnit.location.coordinates?.latitude}
               longitude={reservationUnit.location.coordinates?.longitude}
             />
             <Address reservationUnit={reservationUnit} />
-          </SpanTwoColumns>
+          </TwoColoumnLayout>
         </TwoColoumnLayout>
       </Container>
+      <StartApplicationBar count={0} />
     </>
   ) : null;
 };
