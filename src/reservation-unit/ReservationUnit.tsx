@@ -13,6 +13,7 @@ import Map from './Map';
 import { localizedValue } from '../common/util';
 import Images from './Images';
 import StartApplicationBar from '../component/StartApplicationBar';
+import { SpanTwoColumns } from '../component/common';
 
 type ParamTypes = {
   id: string;
@@ -64,14 +65,14 @@ const ReservationUnit = (): JSX.Element | null => {
             <Address reservationUnit={reservationUnit} />
             <Images images={reservationUnit.images} />
           </div>
-          <TwoColoumnLayout>
+          <SpanTwoColumns>
             <Map
               title={localizedValue(reservationUnit.name, i18n.language)}
-              latitude={reservationUnit.location.coordinates?.latitude}
-              longitude={reservationUnit.location.coordinates?.longitude}
+              latitude={reservationUnit.location?.coordinates?.latitude}
+              longitude={reservationUnit.location?.coordinates?.longitude}
             />
             <Address reservationUnit={reservationUnit} />
-          </TwoColoumnLayout>
+          </SpanTwoColumns>
         </TwoColoumnLayout>
       </Container>
       <StartApplicationBar count={0} />

@@ -69,7 +69,7 @@ export type ReservationUnit = {
   resources: Resource[];
   services: Service[];
   images: Image[];
-  location: Location;
+  location?: Location;
   reservationUnitType: Parameter;
   termsOfUse: string;
 };

@@ -50,6 +50,9 @@ const mapUrl = (location: Location): string | null => {
 const Address = ({ reservationUnit }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
+  if (!reservationUnit?.location) {
+    return <div />;
+  }
   return (
     <Container>
       <Name>{localizedValue(reservationUnit.name, i18n.language)}</Name>

@@ -7,7 +7,7 @@ type Props = {
   images: Image[];
 };
 
-const Name = styled.div`
+const Heading = styled.div`
   font-size: var(--fontsize-heading-m);
   font-family: var(--font-bold);
 `;
@@ -26,15 +26,21 @@ const ThumbnailImage = styled.img`
   margin-top: var(--spacing-layout-s);
 `;
 
-const Images = ({ images }: Props): JSX.Element | null => {
+const Images = ({ images }: Props): JSX.Element => {
   const { t } = useTranslation();
 
+  if (images.length === 0) {
+    return <div />;
+  }
   return (
     <Container>
-      <Name>{t('reservationUnit.images')}</Name>
+      <Heading>{t('reservationUnit.images')}</Heading>
       <ImageGrid>
         {images.map((image) => (
-          <ThumbnailImage alt="Tila kuvasta" src={image.imageUrl} />
+          <ThumbnailImage
+            alt={t('common.imgAltForSpace')}
+            src={image.imageUrl}
+          />
         ))}
       </ImageGrid>
     </Container>
