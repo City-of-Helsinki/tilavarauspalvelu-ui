@@ -131,7 +131,7 @@ const translations: Translations = {
     preview: {
       applicantType: {
         community: [
-          'Rekitesteröitymätön yhdistys',
+          'Rekisteröimätön yhdistys',
           'Unregistered association',
           'Oregistrerad förening',
         ],
