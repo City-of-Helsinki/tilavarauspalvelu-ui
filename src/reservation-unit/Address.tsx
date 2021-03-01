@@ -9,6 +9,10 @@ type Props = {
   reservationUnit: ReservationUnit;
 };
 
+const Container = styled.div`
+  margin-top: var(--spacing-layout-s);
+`;
+
 const Name = styled.div`
   font-size: var(--fontsize-heading-m);
   font-family: var(--font-bold);
@@ -47,7 +51,7 @@ const Address = ({ reservationUnit }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
   return (
-    <div>
+    <Container>
       <Name>{localizedValue(reservationUnit.name, i18n.language)}</Name>
       {reservationUnit.location?.addressStreet ? (
         <AddressLine>{reservationUnit.location?.addressStreet}</AddressLine>
@@ -70,7 +74,7 @@ const Address = ({ reservationUnit }: Props): JSX.Element => {
         href={hslUrl(i18n.language, reservationUnit.location)}
         name={t('reservationUnit.linkHSL')}
       />
-    </div>
+    </Container>
   );
 };
 

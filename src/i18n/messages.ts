@@ -246,6 +246,9 @@ const translations: Translations = {
       'Google Directions',
       'Google Vägbeskrivning',
     ],
+    images: ['Kuvat', 'Images', 'Bilder'],
+    description: ['Kuvaus', 'Description', 'Beskrivning'],
+    termsOfUse: ['Käyttöehdot ja säännöt', 'Terms of use', 'Villkor'],
   },
 
   Navigation: {

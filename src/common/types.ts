@@ -28,7 +28,7 @@ export type Space = {
 export type Resource = {
   id: number;
   name: TranslationObject;
-  locationType: 'fixed';
+  Type: 'fixed';
   spaceId: number;
   bufferTimeBefore: string;
   bufferTimeAfter: string;
@@ -42,11 +42,17 @@ export type Service = {
   bufferTimeAfter: string;
 };
 
+export type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
 export type Location = {
   id: number;
   addressStreet: string;
   addressZip: string;
   addressCity: string;
+  coordinates?: Coordinates;
 };
 
 export type Image = {
@@ -65,6 +71,7 @@ export type ReservationUnit = {
   images: Image[];
   location: Location;
   reservationUnitType: Parameter;
+  termsOfUse: string;
 };
 
 export type Parameter = {
