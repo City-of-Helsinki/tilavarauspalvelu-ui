@@ -34,7 +34,7 @@ const translations: Translations = {
       maxDuration: ['Vuoron maksimikesto'],
       eventsPerWeek: ['Vuorojen määrä/viikko'],
       biweekly: ['Vuoro vain joka toinen viikko'],
-      createNew: ['Luo uusi vakiovuoro'],
+      createNew: ['Lisää uusi vakiovuoro hakemukselle'],
       applicationEventName: ['Nimetön vakiovuoro'],
     },
     Page2: {
@@ -186,10 +186,10 @@ const translations: Translations = {
   },
   ApplicationPage: {
     navigation: {
-      page1: ['1. Vakiovuoron perustiedot'],
-      page2: ['2. Vakiovuoron ajankohta'],
-      page3: ['3. Varaajan perustiedot'],
-      preview: ['4. Lähetä käsiteltäväksi'],
+      page1: ['Vakiovuoron perustiedot'],
+      page2: ['Vakiovuoron ajankohta'],
+      page3: ['Varaajan perustiedot'],
+      preview: ['Lähetä käsiteltäväksi'],
     },
   },
   ApplicationRoundCard: {

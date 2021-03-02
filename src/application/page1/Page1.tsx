@@ -1,9 +1,4 @@
-import {
-  Button,
-  IconArrowLeft,
-  IconArrowRight,
-  IconPlusCircleFill,
-} from 'hds-react';
+import { Button, IconArrowRight, IconPlusCircleFill } from 'hds-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -164,15 +159,15 @@ const Page1 = ({
       })}
 
       <ButtonContainer>
+        {' '}
         <Button
           id="addApplicationEvent"
           iconLeft={<IconPlusCircleFill />}
           onClick={() => form.handleSubmit(onAddApplicationEvent)()}>
           {t('Application.Page1.createNew')}
         </Button>
-        <Button disabled iconLeft={<IconArrowLeft />}>
-          {t('common.prev')}
-        </Button>
+      </ButtonContainer>
+      <ButtonContainer>
         <Button
           id="next"
           iconRight={<IconArrowRight />}
