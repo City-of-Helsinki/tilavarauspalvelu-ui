@@ -33,6 +33,8 @@ export const applicationRoundState = (
   return 'pending';
 };
 
+export const parseDate = (date: string): Date => parseISO(date);
+
 export const formatDate = (date: string): string => {
   if (!date) {
     return 'no date';

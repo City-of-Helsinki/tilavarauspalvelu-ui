@@ -1,5 +1,11 @@
-import { Accordion, Checkbox, Select, TextInput } from 'hds-react';
 import React, { ChangeEvent, useEffect, useState } from 'react';
+import {
+  Accordion,
+  Button,
+  Checkbox,
+  IconPaperclip,
+  TextInput,
+} from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import styled from 'styled-components';
@@ -10,12 +16,11 @@ import {
   OptionType,
   ReservationUnit,
 } from '../../common/types';
-import {
-  formatApiDate,
-  formatDate,
-  getSelectedOption,
-} from '../../common/util';
+import { formatApiDate, formatDate } from '../../common/util';
 import { breakpoint } from '../../common/style';
+import { HorisontalRule } from '../../component/common';
+import ApplicationEventSummary from './ApplicationEventSummary';
+import ControlledSelect from '../../component/ControlledSelect';
 
 type OptionTypes = {
   ageGroupOptions: OptionType[];
@@ -33,11 +38,7 @@ type Props = {
   optionTypes: OptionTypes;
 };
 
-const Ruler = styled.hr`
-  margin-top: var(--spacing-layout-m);
-`;
-
-const SubHeadLine = styled.div`
+const SubHeadLine = styled.h3`
   font-family: var(--font-bold);
   margin-top: var(--spacing-layout-m);
   font-weight: 700;
@@ -60,6 +61,7 @@ const PeriodContainer = styled.div`
   grid-template-columns: 2fr 2fr 3fr;
   gap: var(--spacing-m);
   align-items: center;
+  margin-bottom: var(--spacing-layout-s);
   @media (max-width: ${breakpoint.m}) {
     grid-template-columns: 1fr;
   }
@@ -73,6 +75,10 @@ const SpanTwoColumns = styled.span`
     grid-column-start: 1;
     grid-column-end: 2;
   }
+`;
+
+const SaveButton = styled(Button)`
+  margin-top: var(--spacing-layout-l);
 `;
 
 const ApplicationEvent = ({
@@ -111,7 +117,7 @@ const ApplicationEvent = ({
   const durationMax = form.watch(fieldName('maxDuration'));
 
   useEffect(() => {
-    form.register({ name: fieldName('ageGroupId'), required: true });
+    //    form.register({ name: fieldName('ageGroupId'), required: true });
     form.register({ name: fieldName('abilityGroupId'), required: true });
     form.register({ name: fieldName('purposeId'), required: true });
     form.register({ name: fieldName('eventReservationUnits') });
@@ -175,52 +181,31 @@ const ApplicationEvent = ({
           id={fieldName('numPersons')}
           name={fieldName('numPersons')}
         />
-        <Select
-          id="ageGroup"
-          placeholder="Valitse"
-          options={ageGroupOptions}
+        <ControlledSelect
+          name={fieldName('ageGroupId')}
+          required
           label={t('Application.Page1.ageGroup')}
-          required
-          onChange={(selection: OptionType): void => {
-            form.setValue(fieldName('ageGroupId'), selection.value);
-          }}
-          defaultValue={getSelectedOption(
-            applicationEvent.ageGroupId,
-            ageGroupOptions
-          )}
+          control={form.control}
+          options={ageGroupOptions}
         />
-        <Select
-          id="abilityGroup"
-          placeholder="Valitse"
-          options={abilityGroupOptions}
-          label={t('Application.Page1.abilityGroup')}
+        <ControlledSelect
+          name={fieldName('abilityGroupId')}
           required
-          onChange={(selection: OptionType): void => {
-            form.setValue(fieldName('abilityGroupId'), selection.value);
-          }}
-          defaultValue={getSelectedOption(
-            applicationEvent.abilityGroupId,
-            abilityGroupOptions
-          )}
+          label={t('Application.Page1.abilityGroup')}
+          control={form.control}
+          options={abilityGroupOptions}
         />
         <SpanTwoColumns>
-          <Select
-            id="purpose"
-            placeholder="Valitse"
+          <ControlledSelect
+            name={fieldName('purposeId')}
             required
-            options={purposeOptions}
             label={t('Application.Page1.purpose')}
-            onChange={(selection: OptionType): void => {
-              form.setValue(fieldName('purposeId'), selection.value);
-            }}
-            defaultValue={getSelectedOption(
-              applicationEvent.purposeId,
-              purposeOptions
-            )}
+            control={form.control}
+            options={purposeOptions}
           />
         </SpanTwoColumns>
       </TwoColumnContainer>
-      <Ruler />
+      <HorisontalRule />
       <SubHeadLine>{t('Application.Page1.spacesSubHeading')}</SubHeadLine>
       <ReservationUnitList
         selectedReservationUnits={selectedReservationUnits}
@@ -230,9 +215,9 @@ const ApplicationEvent = ({
         fieldName={fieldName('eventReservationUnits')}
         options={{ purposeOptions, reservationUnitTypeOptions }}
       />
-      <Ruler />
+      <HorisontalRule />
       <SubHeadLine>
-        {t('Application.Page1.applicationPeriodSubHeading')}
+        {t('Application.Page1.applicationRoundSubHeading')}
       </SubHeadLine>
       <PeriodContainer>
         <TextInput
@@ -307,6 +292,14 @@ const ApplicationEvent = ({
           }}
         />
       </PeriodContainer>
+      <HorisontalRule />
+      <SubHeadLine>
+        {t('Application.Page1.applicationEventSummary')}
+      </SubHeadLine>
+      <ApplicationEventSummary index={index} form={form} />
+      <SaveButton iconLeft={<IconPaperclip />}>
+        Hyväksy ja tallenna vakiovuoro
+      </SaveButton>
     </Accordion>
   );
 };

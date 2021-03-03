@@ -157,7 +157,6 @@ const Page1 = ({
           />
         );
       })}
-
       <ButtonContainer>
         {' '}
         <Button

@@ -51,17 +51,15 @@ const Stepper = ({ match }: Props): JSX.Element => {
   return (
     <NavigationContainer aria-label={t('common.applicationNavigationName')}>
       <ul>
-        {pages.map((page, index) => {
-          return (
-            <li>
-              <NavLink to={page.path}>
-                <Number>{index + 1}</Number>
+        {pages.map((page, index) => (
+          <li key={page.page}>
+            <NavLink to={page.path}>
+              <Number>{index + 1}</Number>
 
-                {t(`ApplicationPage.navigation.${page.page}`)}
-              </NavLink>
-            </li>
-          );
-        })}
+              {t(`ApplicationPage.navigation.${page.page}`)}
+            </NavLink>
+          </li>
+        ))}
       </ul>
     </NavigationContainer>
   );

@@ -17,6 +17,15 @@ interface Translations {
 }
 
 const translations: Translations = {
+  ApplicationEventSummary: {
+    message: [
+      'Olet hakemassa vakiovuorolle {{name}} kaudella {{startDate}} - {{endDate}} vähintään yhteensä {{hours}} tuntia vakiovuoroaikaa.',
+    ],
+    numPersons: ['Ryhmän koko on <1>{{numPersons}} henkilöä<1>'],
+    minDuration: ['Yhden vuoron kesto minimissään {{minDuration}} t'],
+    eventsPerWeek: ['<0>{{eventsPerWeek}}</0> vuoro viikossa'],
+    eventsPerWeek_plural: ['<0>{{eventsPerWeek}}</0> vuoroa viikossa'],
+  },
   Application: {
     Page1: {
       heading: ['1. Vakiovuoron luominen'],
@@ -36,6 +45,7 @@ const translations: Translations = {
       biweekly: ['Vuoro vain joka toinen viikko'],
       createNew: ['Lisää uusi vakiovuoro hakemukselle'],
       applicationEventName: ['Nimetön vakiovuoro'],
+      applicationEventSummary: ['Yhteenveto'],
     },
     Page2: {
       heading: ['2. Vakiovuoron ajankohta'],

@@ -3,6 +3,7 @@ import {
   IconArrowDown,
   IconArrowUp,
   IconGroup,
+  IconPlusCircle,
   IconTrash,
 } from 'hds-react';
 import React, { useEffect, useState } from 'react';
@@ -80,10 +81,6 @@ const MaxPersonsCountContainer = styled.span`
   margin-left: var(--spacing-xs);
 `;
 
-const DeleteButton = styled(Button)`
-  --border-color: transparent;
-`;
-
 const ArrowContainer = styled.div`
   display: flex;
 `;
@@ -140,14 +137,14 @@ const ReservationUnitCard = ({
             </MaxPersonsCountContainer>
           </MaxPersonsContainer>
           <div>
-            <DeleteButton
-              variant="secondary"
+            <Button
+              variant="supplementary"
               iconLeft={<IconTrash />}
               onClick={() => {
                 onDelete(reservationUnit);
               }}>
               {t('ReservationUnitList.buttonRemove')}
-            </DeleteButton>
+            </Button>
           </div>
         </CardContainer>
         <ArrowContainer>
@@ -288,7 +285,10 @@ const ReservationUnitList = ({
         );
       })}
       <ButtonContainer>
-        <Button onClick={() => setShowModal(true)}>
+        <Button
+          variant="supplementary"
+          iconLeft={<IconPlusCircle />}
+          onClick={() => setShowModal(true)}>
           {t('ReservationUnitList.add')}
         </Button>
       </ButtonContainer>
