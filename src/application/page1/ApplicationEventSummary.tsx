@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { ApplicationEvent } from '../../common/types';
-import { parseDate, formatDate } from '../../common/util';
+import { parseDate, formatDate, fromApiDuration } from '../../common/util';
 import { TwoColumnContainer } from '../../component/common';
 import IconWithText from '../../reservation-unit/IconWithText';
 
@@ -34,8 +34,8 @@ const numHours = (
     differenceInWeeks(parseDate(endDate), parseDate(startDate)) /
     (biweekly ? 2 : 1);
 
-  const minutes = numWeeks * eventsPerWeek * minDurationMinutes;
-  return minutes / 60;
+  const hours = numWeeks * eventsPerWeek * minDurationMinutes;
+  return hours;
 };
 
 const ApplicationEventSummary = ({
@@ -61,28 +61,25 @@ const ApplicationEventSummary = ({
 
   const event = form.getValues().applicationEvents[index] as ApplicationEvent;
 
-  const startDate = event.begin as string;
-  const endDate = event.end as string;
+  if (!event) {
+    return null;
+  }
+
+  const begin = event.begin as string;
+  const end = event.end as string;
   const biweekly = Boolean(event.biweekly);
   const eventsPerWeek = Number(event.eventsPerWeek);
-  const minDurationMinutes = Number(event.minDuration);
+  const minDuration = Number(fromApiDuration(event.minDuration as string));
   const numPersons = Number(event.numPersons);
-  const minDuration = Number(event.minDuration);
 
   return (
     <>
       <Message>
         {t('ApplicationEventSummary.message', {
           name: form.getValues().applicationEvents[index].name,
-          startDate: formatDate(startDate),
-          endDate: formatDate(endDate),
-          hours: numHours(
-            startDate,
-            endDate,
-            biweekly,
-            eventsPerWeek,
-            minDurationMinutes
-          ),
+          startDate: formatDate(begin),
+          endDate: formatDate(end),
+          hours: numHours(begin, end, biweekly, eventsPerWeek, minDuration),
         })}
       </Message>
       <TwoColumnContainer>

@@ -158,7 +158,6 @@ const Page1 = ({
         );
       })}
       <ButtonContainer>
-        {' '}
         <Button
           id="addApplicationEvent"
           iconLeft={<IconPlusCircleFill />}
@@ -170,7 +169,10 @@ const Page1 = ({
         <Button
           id="next"
           iconRight={<IconArrowRight />}
-          disabled={application.applicationEvents.length === 0}
+          disabled={
+            application.applicationEvents.length === 0 &&
+            !form.formState.isValid
+          }
           onClick={() => form.handleSubmit(onSubmit)()}>
           {t('common.next')}
         </Button>

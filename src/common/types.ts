@@ -133,8 +133,8 @@ export type ApplicationEvent = {
   ageGroupId: number | null;
   abilityGroupId: number | null;
   purposeId: number | null;
-  minDuration: number | null;
-  maxDuration: number | null;
+  minDuration: string | null;
+  maxDuration: string | null;
   eventsPerWeek: number;
   biweekly: boolean;
   begin: string | null;

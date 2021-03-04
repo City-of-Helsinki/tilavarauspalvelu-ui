@@ -115,3 +115,11 @@ export const applicationsUrl = `${applicationsPrefix}/`;
 export function deepCopy<T>(src: T): T {
   return JSON.parse(JSON.stringify(src));
 }
+
+/** convert between api duration and hours */
+export const fromApiDuration = (duration: string): string => {
+  const parts = duration.split(':');
+  return `${Number(parts[1])}`;
+};
+
+export const toApiDuration = (hours: string): string => `00:${hours}:00`;

@@ -96,9 +96,8 @@ const Application = (): JSX.Element | null => {
         loadedApplication = await saveApplication(savedApplication);
       } else {
         loadedApplication = await saveApplication(appToSave);
+        dispatch({ type: 'load', data: loadedApplication });
       }
-
-      dispatch({ type: 'load', data: loadedApplication });
 
       if (postSave) {
         postSave(loadedApplication.id);

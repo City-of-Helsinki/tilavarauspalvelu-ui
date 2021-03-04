@@ -16,11 +16,17 @@ import {
   OptionType,
   ReservationUnit,
 } from '../../common/types';
-import { formatApiDate, formatDate } from '../../common/util';
+import {
+  formatApiDate,
+  formatDate,
+  fromApiDuration,
+  toApiDuration,
+} from '../../common/util';
 import { breakpoint } from '../../common/style';
 import { HorisontalRule } from '../../component/common';
 import ApplicationEventSummary from './ApplicationEventSummary';
 import ControlledSelect from '../../component/ControlledSelect';
+import ControlledTextInput from '../../component/ControllerTextInput';
 
 type OptionTypes = {
   ageGroupOptions: OptionType[];
@@ -80,6 +86,7 @@ const SpanTwoColumns = styled.span`
 const SaveButton = styled(Button)`
   margin-top: var(--spacing-layout-l);
 `;
+const defaultDuration = '1';
 
 const ApplicationEvent = ({
   applicationEvent,
@@ -93,7 +100,6 @@ const ApplicationEvent = ({
     applicationRound.applicationPeriodBegin
   );
   const periodEndDate = formatApiDate(applicationRound.applicationPeriodEnd);
-  const defaultDuration = '1';
 
   const [defaultPeriodSelected, setDefaultPeriodSelected] = useState(false);
   const [defaultDurationSelected, setDefaultDurationSelected] = useState(false);
@@ -117,9 +123,6 @@ const ApplicationEvent = ({
   const durationMax = form.watch(fieldName('maxDuration'));
 
   useEffect(() => {
-    //    form.register({ name: fieldName('ageGroupId'), required: true });
-    form.register({ name: fieldName('abilityGroupId'), required: true });
-    form.register({ name: fieldName('purposeId'), required: true });
     form.register({ name: fieldName('eventReservationUnits') });
   });
 
@@ -156,8 +159,8 @@ const ApplicationEvent = ({
     const { checked } = e.target;
     setDefaultDurationSelected(checked);
     if (checked) {
-      form.setValue(fieldName('minDuration'), defaultDuration);
-      form.setValue(fieldName('maxDuration'), defaultDuration);
+      form.setValue(fieldName('minDuration'), toApiDuration(defaultDuration));
+      form.setValue(fieldName('maxDuration'), toApiDuration(defaultDuration));
     }
   };
 
@@ -245,17 +248,19 @@ const ApplicationEvent = ({
           onChange={selectDefaultPeriod}
           disabled={defaultPeriodSelected}
         />
-        <TextInput
-          ref={form.register({ required: true })}
+        <ControlledTextInput
+          control={form.control}
+          fromEntity={fromApiDuration}
+          toEntity={toApiDuration}
           label={t('Application.Page1.minDuration')}
-          id={fieldName('minDuration')}
           name={fieldName('minDuration')}
           required
         />
-        <TextInput
-          ref={form.register({ required: true })}
+        <ControlledTextInput
+          control={form.control}
+          fromEntity={fromApiDuration}
+          toEntity={toApiDuration}
           label={t('Application.Page1.maxDuration')}
-          id={fieldName('maxDuration')}
           name={fieldName('maxDuration')}
           required
         />

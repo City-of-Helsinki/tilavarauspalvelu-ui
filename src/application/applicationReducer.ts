@@ -3,8 +3,8 @@ import { Action, Application, ApplicationEvent } from '../common/types';
 
 const applicationEvent = (applicationId?: number): ApplicationEvent => ({
   name: i18next.t('Application.Page1.applicationEventName'),
-  minDuration: 1,
-  maxDuration: 1,
+  minDuration: '00:01:00',
+  maxDuration: '00:01:00',
   eventsPerWeek: 1,
   numPersons: null,
   ageGroupId: null,
