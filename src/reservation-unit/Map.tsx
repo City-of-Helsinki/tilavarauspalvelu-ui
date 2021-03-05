@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactMapGL, { Marker, NavigationControl } from 'react-map-gl';
 import { mapStyle } from '../common/const';
-import MapMarkerIcon from '../component/MapMarkerIcon';
+import { ReactComponent as MapMarkerIcon } from '../images/mapMarkerIcon.svg';
 
 type State = Record<string, number>;
 type Props = { title: string; latitude?: number; longitude?: number };
