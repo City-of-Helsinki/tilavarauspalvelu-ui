@@ -46,6 +46,7 @@ const translations: Translations = {
       createNew: ['Lisää uusi vakiovuoro hakemukselle'],
       applicationEventName: ['Nimetön vakiovuoro'],
       applicationEventSummary: ['Yhteenveto'],
+      applicationEventSaved: ['Vakiovuoro tallennettu hakemukselle'],
     },
     Page2: {
       heading: ['2. Vakiovuoron ajankohta'],

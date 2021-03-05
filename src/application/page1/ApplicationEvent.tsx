@@ -1,5 +1,11 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Checkbox, IconPaperclip, TextInput } from 'hds-react';
+import {
+  Button,
+  Checkbox,
+  IconPaperclip,
+  Notification,
+  TextInput,
+} from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import styled from 'styled-components';
@@ -114,8 +120,7 @@ const ApplicationEvent = ({
   dispatch,
   onSave,
 }: Props): JSX.Element => {
-  console.log(editorState);
-
+  console.log(applicationEvent);
   const periodStartDate = formatApiDate(
     applicationRound.applicationPeriodBegin
   );
@@ -136,11 +141,13 @@ const ApplicationEvent = ({
   const fieldName = (nameField: string) =>
     `applicationEvents[${index}].${nameField}`;
 
-  const name = form.watch(fieldName('name'));
+  const applicationName = form.watch(fieldName('name'));
   const applicationPeriodBegin = form.watch(fieldName('begin'));
   const applicationPeriodEnd = form.watch(fieldName('end'));
   const durationMin = form.watch(fieldName('minDuration'));
   const durationMax = form.watch(fieldName('maxDuration'));
+  form.watch(fieldName('numPersons'));
+  form.watch(fieldName('eventsPerWeek'));
 
   useEffect(() => {
     form.register({ name: fieldName('eventReservationUnits') });
@@ -194,7 +201,7 @@ const ApplicationEvent = ({
           })
         }
         open={isOpen(applicationEvent.id, editorState.accordionStates)}
-        heading={`${name}` || ''}>
+        heading={`${applicationName}` || ''}>
         <SubHeadLine>
           {t('Application.Page1.basicInformationSubHeading')}
         </SubHeadLine>
@@ -335,16 +342,22 @@ const ApplicationEvent = ({
             applicationEvent,
             (form.getValues() as Application).applicationEvents?.[index]
           )}
-          index={index}
-          form={form}
+          name={applicationName}
         />
         <SaveButton iconLeft={<IconPaperclip />} onClick={onSave}>
           Hyväksy ja tallenna vakiovuoro
         </SaveButton>
       </Accordion>
-      {editorState.savedEventId === applicationEvent.id
-        ? 'Tallennettu!!!'
-        : null}
+      {editorState.savedEventId === applicationEvent.id ? (
+        <Notification
+          dismissible
+          closeButtonLabelText=""
+          size="small"
+          type="success"
+          label={t('Application.applicationEventSaved')}>
+          {t('Application.applicationEventSaved')}
+        </Notification>
+      ) : null}
     </>
   );
 };

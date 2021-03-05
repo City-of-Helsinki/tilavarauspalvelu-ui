@@ -1,7 +1,6 @@
 import { differenceInWeeks } from 'date-fns';
 import { IconArrowRedo, IconCalendar, IconClock, IconGroup } from 'hds-react';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { ApplicationEvent } from '../../common/types';
@@ -10,9 +9,8 @@ import { TwoColumnContainer } from '../../component/common';
 import IconWithText from '../../reservation-unit/IconWithText';
 
 type Props = {
-  form: ReturnType<typeof useForm>;
-  index: number;
   applicationEvent: ApplicationEvent;
+  name: string;
 };
 
 const Message = styled.div`
@@ -40,30 +38,10 @@ const numHours = (
 };
 
 const ApplicationEventSummary = ({
-  form,
-  index,
   applicationEvent,
+  name,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-
-  /*
-  const fieldName = (nameField: string) =>
-    `applicationEvents[${index}].${nameField}`;
-
-  form.watch(fieldName('name'));
-  form.watch(fieldName('begin'));
-  form.watch(fieldName('end'));
-  form.watch(fieldName('biweekly'));
-  form.watch(fieldName('eventsPerWeek'));
-  form.watch(fieldName('numPersons'));
-  form.watch(fieldName('minDuration'));
-  */
-
-  if (!form.getValues().applicationEvents) {
-    return null;
-  }
-
-  // const event = form.getValues().applicationEvents[index] as ApplicationEvent;
 
   if (!applicationEvent) {
     return null;
@@ -82,7 +60,7 @@ const ApplicationEventSummary = ({
     <>
       <Message>
         {t('ApplicationEventSummary.message', {
-          name: form.getValues().applicationEvents[index].name,
+          name,
           startDate: formatDate(begin),
           endDate: formatDate(end),
           hours: numHours(begin, end, biweekly, eventsPerWeek, minDuration),
