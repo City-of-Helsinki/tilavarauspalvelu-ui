@@ -96,6 +96,13 @@ const isOpen = (
 ): boolean =>
   Boolean(states.find((state) => state.applicationEventId === current)?.open);
 
+const getApplicationEventData = (
+  original: ApplicationEventType,
+  form: ApplicationEventType
+): ApplicationEventType => {
+  return { ...original, ...form };
+};
+
 const ApplicationEvent = ({
   applicationEvent,
   index,
@@ -323,15 +330,14 @@ const ApplicationEvent = ({
         <SubHeadLine>
           {t('Application.Page1.applicationEventSummary')}
         </SubHeadLine>
-        {(form.getValues() as Application).applicationEvents ? (
-          <ApplicationEventSummary
-            applicationEvent={
-              (form.getValues() as Application).applicationEvents[index]
-            }
-            index={index}
-            form={form}
-          />
-        ) : null}
+        <ApplicationEventSummary
+          applicationEvent={getApplicationEventData(
+            applicationEvent,
+            (form.getValues() as Application).applicationEvents?.[index]
+          )}
+          index={index}
+          form={form}
+        />
         <SaveButton iconLeft={<IconPaperclip />} onClick={onSave}>
           Hyväksy ja tallenna vakiovuoro
         </SaveButton>
