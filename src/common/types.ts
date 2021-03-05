@@ -174,8 +174,10 @@ export type OptionType = {
 };
 
 export type Action = {
-  type: 'load' | 'addNewApplicationEvent';
-  data?: Application;
+  type: 'load' | 'addNewApplicationEvent' | 'save' | 'toggleAccordionState';
+  application?: Application;
+  savedEventId?: number;
+  eventId?: number;
   params?: { [key: string]: string };
 };
 
@@ -187,3 +189,14 @@ export type ApplicationEditor = {
 export type FormType = undefined | 'individual' | 'organisation' | 'company';
 
 export type LocalizationLanguages = 'fi' | 'sv' | 'en';
+
+export type EditorState = {
+  application: Application;
+  savedEventId?: number;
+  accordionStates: AccordionState[];
+};
+
+export type AccordionState = {
+  applicationEventId: number;
+  open: boolean;
+};

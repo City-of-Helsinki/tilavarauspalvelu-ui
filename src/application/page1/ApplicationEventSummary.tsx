@@ -12,6 +12,7 @@ import IconWithText from '../../reservation-unit/IconWithText';
 type Props = {
   form: ReturnType<typeof useForm>;
   index: number;
+  applicationEvent: ApplicationEvent;
 };
 
 const Message = styled.div`
@@ -41,9 +42,11 @@ const numHours = (
 const ApplicationEventSummary = ({
   form,
   index,
+  applicationEvent,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
+  /*
   const fieldName = (nameField: string) =>
     `applicationEvents[${index}].${nameField}`;
 
@@ -54,23 +57,26 @@ const ApplicationEventSummary = ({
   form.watch(fieldName('eventsPerWeek'));
   form.watch(fieldName('numPersons'));
   form.watch(fieldName('minDuration'));
+  */
 
   if (!form.getValues().applicationEvents) {
     return null;
   }
 
-  const event = form.getValues().applicationEvents[index] as ApplicationEvent;
+  // const event = form.getValues().applicationEvents[index] as ApplicationEvent;
 
-  if (!event) {
+  if (!applicationEvent) {
     return null;
   }
 
-  const begin = event.begin as string;
-  const end = event.end as string;
-  const biweekly = Boolean(event.biweekly);
-  const eventsPerWeek = Number(event.eventsPerWeek);
-  const minDuration = Number(fromApiDuration(event.minDuration as string));
-  const numPersons = Number(event.numPersons);
+  const begin = applicationEvent.begin as string;
+  const end = applicationEvent.end as string;
+  const biweekly = Boolean(applicationEvent.biweekly);
+  const eventsPerWeek = Number(applicationEvent.eventsPerWeek);
+  const minDuration = Number(
+    fromApiDuration(applicationEvent.minDuration as string)
+  );
+  const numPersons = Number(applicationEvent.numPersons);
 
   return (
     <>

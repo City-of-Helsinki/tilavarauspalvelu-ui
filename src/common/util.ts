@@ -116,10 +116,14 @@ export function deepCopy<T>(src: T): T {
   return JSON.parse(JSON.stringify(src));
 }
 
-/** convert between api duration and hours */
+/** convert between api duration and editor contents */
 export const fromApiDuration = (duration: string): string => {
+  if (!duration) {
+    return '';
+  }
   const parts = duration.split(':');
   return `${Number(parts[1])}`;
 };
 
-export const toApiDuration = (hours: string): string => `00:${hours}:00`;
+export const toApiDuration = (hours: string): string =>
+  hours ? `00:${hours}:00` : '';

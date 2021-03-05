@@ -1,4 +1,4 @@
-import { Application } from '../common/types';
+import { Application, EditorState } from '../common/types';
 
 export const minimalApplicationForInitialSave = (
   applicationRoundId: number
@@ -15,13 +15,14 @@ export const minimalApplicationForInitialSave = (
 const applicationInitializer = ({
   id,
   applicationRoundId,
-}: Application): Application => {
+}: Application): EditorState => {
   if (!id) {
     return {
-      ...minimalApplicationForInitialSave(applicationRoundId),
+      application: minimalApplicationForInitialSave(applicationRoundId),
+      accordionStates: [],
     };
   }
-  return {} as Application;
+  return {} as EditorState;
 };
 
 export default applicationInitializer;

@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import ApplicationEvent from './ApplicationEvent';
 import {
+  Action,
   Application,
-  Application as ApplicationType,
   ApplicationRound,
+  EditorState,
   OptionType,
   ReservationUnit,
 } from '../../common/types';
@@ -17,9 +18,16 @@ import { breakpoint } from '../../common/style';
 
 type Props = {
   applicationRound: ApplicationRound;
-  application: ApplicationType;
+  editorState: EditorState;
   selectedReservationUnits: ReservationUnit[];
-  onNext?: (appToSave: Application) => void;
+  save: ({
+    application,
+    eventId,
+  }: {
+    application: Application;
+    eventId?: number;
+  }) => void;
+  dispatch: React.Dispatch<Action>;
   addNewApplicationEvent: () => void;
 };
 
@@ -55,14 +63,15 @@ const ButtonContainer = styled.div`
 `;
 
 const Page1 = ({
-  onNext,
+  save,
   addNewApplicationEvent,
   applicationRound,
-  application,
+  editorState,
+  dispatch,
   selectedReservationUnits,
 }: Props): JSX.Element | null => {
-  const [ready, setReady] = useState<boolean>(false);
-
+  const [ready, setReady] = useState(false);
+  const [msg, setMsg] = useState('');
   const [ageGroupOptions, setAgeGroupOptions] = useState<OptionType[]>([]);
   const [purposeOptions, setPurposeOptions] = useState<OptionType[]>([]);
   const [abilityGroupOptions, setAbilityGroupOptions] = useState<OptionType[]>(
@@ -81,7 +90,10 @@ const Page1 = ({
 
   const { t } = useTranslation();
 
+  const { application } = editorState;
+
   const form = useForm({
+    mode: 'onChange',
     defaultValues: {
       applicationEvents: application.applicationEvents,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,7 +119,12 @@ const Page1 = ({
     fetchData();
   }, []);
 
-  const prepareData = (data: ApplicationType): ApplicationType => {
+  useEffect(() => {
+    if (form.formState.isSubmitted && !form.formState.isSubmitSuccessful)
+      setMsg('Please fill out all required fields');
+  }, [form.formState]);
+
+  const prepareData = (data: Application): Application => {
     const applicationCopy = {
       ...deepCopy(application),
       applicationEvents: application.applicationEvents.map(
@@ -120,15 +137,12 @@ const Page1 = ({
     return applicationCopy;
   };
 
-  const onSubmit = (data: ApplicationType) => {
+  const onSubmit = (data: Application, eventId?: number) => {
     const appToSave = prepareData(data);
-
-    if (onNext) {
-      onNext(appToSave);
-    }
+    save({ application: appToSave, eventId });
   };
 
-  const onAddApplicationEvent = (data: ApplicationType) => {
+  const onAddApplicationEvent = (data: Application) => {
     if (
       data.applicationEvents &&
       data.applicationEvents.some((e) => Boolean(e.id))
@@ -144,6 +158,7 @@ const Page1 = ({
 
   return (
     <form>
+      {msg}
       {application.applicationEvents.map((event, index) => {
         return (
           <ApplicationEvent
@@ -154,6 +169,11 @@ const Page1 = ({
             applicationRound={applicationRound}
             optionTypes={optionTypes}
             selectedReservationUnits={selectedReservationUnits}
+            onSave={form.handleSubmit((app: Application) =>
+              onSubmit(app, event.id)
+            )}
+            editorState={editorState}
+            dispatch={dispatch}
           />
         );
       })}
@@ -170,10 +190,9 @@ const Page1 = ({
           id="next"
           iconRight={<IconArrowRight />}
           disabled={
-            application.applicationEvents.length === 0 &&
-            !form.formState.isValid
+            application.applicationEvents.length === 0 || form.formState.isDirty
           }
-          onClick={() => form.handleSubmit(onSubmit)()}>
+          onClick={() => console.log('next clicked')}>
           {t('common.next')}
         </Button>
       </ButtonContainer>

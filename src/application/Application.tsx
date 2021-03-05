@@ -42,7 +42,7 @@ const Application = (): JSX.Element | null => {
 
   const { applicationId, applicationRoundId } = useParams<ParamTypes>();
 
-  const [application, dispatch] = useReducer(
+  const [state, dispatch] = useReducer(
     applicationReducer,
     {
       id: Number.isNaN(applicationId) ? Number(applicationId) : undefined,
@@ -62,7 +62,7 @@ const Application = (): JSX.Element | null => {
     let loadedApplication = null;
     if (applicationId && applicationId !== 'new') {
       loadedApplication = await getApplication(Number(applicationId));
-      dispatch({ type: 'load', data: loadedApplication });
+      dispatch({ type: 'load', application: loadedApplication });
     }
     return loadedApplication;
   }, [applicationId]);
@@ -71,7 +71,8 @@ const Application = (): JSX.Element | null => {
 
   const saveWithEffect = async (
     appToSave: ApplicationType,
-    postSave?: (string?: number) => void
+    postSave?: (string?: number) => void,
+    eventId?: number
   ) => {
     let loadedApplication: ApplicationType;
 
@@ -96,7 +97,11 @@ const Application = (): JSX.Element | null => {
         loadedApplication = await saveApplication(savedApplication);
       } else {
         loadedApplication = await saveApplication(appToSave);
-        dispatch({ type: 'load', data: loadedApplication });
+        dispatch({
+          type: 'save',
+          application: loadedApplication,
+          savedEventId: eventId,
+        });
       }
 
       if (postSave) {
@@ -120,7 +125,6 @@ const Application = (): JSX.Element | null => {
   const addNewApplicationEvent = async () => {
     dispatch({
       type: 'addNewApplicationEvent',
-      data: application,
     });
   };
 
@@ -129,7 +133,7 @@ const Application = (): JSX.Element | null => {
   const ready =
     ![applicationRoundLoadingStatus, applicationLoadingStatus].some(
       (r) => r.loading
-    ) && application;
+    ) && state.application;
 
   if (!ready) {
     return null;
@@ -149,8 +153,15 @@ const Application = (): JSX.Element | null => {
               applicationRound={
                 applicationRoundLoadingStatus.value || ({} as ApplicationRound)
               }
-              application={application}
-              onNext={saveAndNavigate('page2')}
+              dispatch={dispatch}
+              editorState={state}
+              save={({
+                application,
+                eventId,
+              }: {
+                application: ApplicationType;
+                eventId?: number;
+              }) => saveWithEffect(application, undefined, eventId)}
               addNewApplicationEvent={addNewApplicationEvent}
             />
           </ApplicationPage>
@@ -161,7 +172,7 @@ const Application = (): JSX.Element | null => {
             match={match}
             breadCrumbText={applicationRoundName}>
             <Page2
-              application={application}
+              application={state.application}
               onNext={saveAndNavigate('page3')}
             />
           </ApplicationPage>
@@ -172,7 +183,7 @@ const Application = (): JSX.Element | null => {
             match={match}
             breadCrumbText={applicationRoundName}>
             <Page3
-              application={application}
+              application={state.application}
               onNext={saveAndNavigate('preview')}
             />
           </ApplicationPage>
@@ -183,7 +194,7 @@ const Application = (): JSX.Element | null => {
             match={match}
             breadCrumbText={applicationRoundName}>
             <Preview
-              application={application}
+              application={state.application}
               onNext={() => saveAndNavigate('preview')}
             />
           </ApplicationPage>
