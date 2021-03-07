@@ -1,7 +1,5 @@
 import {
   Button,
-  IconCalendar,
-  IconClock,
   IconGlyphEuro,
   IconGroup,
   IconInfoCircle,
@@ -145,20 +143,8 @@ const Head = ({ reservationUnit }: Props): JSX.Element => {
                     maxPersons: reservationUnit.maxPersons,
                   })}
                 />
-                <IconWithText
-                  icon={
-                    <IconClock aria-label={t('reservationUnit.maxDuration')} />
-                  }
-                  text="Max. 2 tuntia"
-                />
               </div>
               <div>
-                <IconWithText
-                  icon={
-                    <IconCalendar aria-label={t('reservationUnit.price')} />
-                  }
-                  text="7€ -10€/tunti"
-                />
                 <IconWithText
                   icon={
                     <IconGlyphEuro
