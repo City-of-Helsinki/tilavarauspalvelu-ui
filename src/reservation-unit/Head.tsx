@@ -4,11 +4,11 @@ import {
   IconClock,
   IconGlyphEuro,
   IconGroup,
-  IconHeart,
   IconInfoCircle,
   IconPlus,
   IconArrowLeft,
   Koros,
+  IconCheck,
 } from 'hds-react';
 import { useHistory } from 'react-router-dom';
 import React from 'react';
@@ -42,6 +42,8 @@ const BackLabel = styled.span`
 `;
 
 const RightContainer = styled.div`
+  font-size: var(--fontsize-body-m);
+
   margin-top: var(--spacing-m);
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -59,8 +61,21 @@ const Props = styled.div`
   gap: var(--spacing-s);
 `;
 
+const ReservationUnitName = styled.h1`
+  font-size: var(--fontsize-heading-l);
+`;
+
+const SpaceName = styled.div`
+  font-size: var(--fontsize-heading-m);
+  font-family: var(--font-bold);
+`;
+
 const ButtonContainer = styled.div`
-  margin-top: var(--spacing-layout-xs);
+  margin-top: var(--spacing-layout-m);
+
+  & > button {
+    margin: 0;
+  }
 `;
 
 const ImageContainer = styled.div`
@@ -81,6 +96,7 @@ const Head = ({ reservationUnit }: Props): JSX.Element => {
   const {
     selectReservationUnit,
     containsReservationUnit,
+    removeReservationUnit,
     reservationUnits,
   } = useReservationUnitList();
 
@@ -104,12 +120,12 @@ const Head = ({ reservationUnit }: Props): JSX.Element => {
         </BackContainer>
         <RightContainer>
           <div>
-            <h1 className="heading-l">
+            <ReservationUnitName>
               {localizedValue(reservationUnit.name, i18n.language)}
-            </h1>
-            <h2 className="heading-m">
+            </ReservationUnitName>
+            <SpaceName>
               {localizedValue(reservationUnit.spaces?.[0]?.name, i18n.language)}
-            </h2>
+            </SpaceName>
             <Props>
               <div>
                 <IconWithText
@@ -158,21 +174,22 @@ const Head = ({ reservationUnit }: Props): JSX.Element => {
               </div>
             </Props>
             <ButtonContainer>
-              <Button
-                iconLeft={<IconHeart />}
-                className="margin-top-s"
-                variant="secondary"
-                disabled>
-                {t('common.favourite')}
-              </Button>
-              <Button
-                disabled={containsReservationUnit(reservationUnit)}
-                onClick={() => selectReservationUnit(reservationUnit)}
-                iconLeft={<IconPlus />}
-                className="margin-left-s margin-top-s"
-                variant="secondary">
-                {t('common.selectReservationUnit')}
-              </Button>
+              {containsReservationUnit(reservationUnit) ? (
+                <Button
+                  onClick={() => removeReservationUnit(reservationUnit)}
+                  iconLeft={<IconCheck />}
+                  className="margin-left-s margin-top-s">
+                  {t('common.reservationUnitSelected')}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => selectReservationUnit(reservationUnit)}
+                  iconLeft={<IconPlus />}
+                  className="margin-left-s margin-top-s"
+                  variant="secondary">
+                  {t('common.selectReservationUnit')}
+                </Button>
+              )}
             </ButtonContainer>
           </div>
           <ImageContainer>

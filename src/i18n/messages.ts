@@ -219,7 +219,7 @@ const translations: Translations = {
     applicationNavigationName: ['Hakemus', 'Application', 'Ansökan'],
     applicationName: ['Varaamo', 'Varaamo', 'Varaamo'],
     selectReservationUnit: ['Valitse tila'],
-    favourite: ['Suosikki', 'Favourite', 'Favorit'],
+    reservationUnitSelected: ['Lisätty hakemukselle'],
     next: ['Seuraava', 'Next', 'Nästa'],
     prev: ['Takaisin'],
     submit: ['Lähetä'],
