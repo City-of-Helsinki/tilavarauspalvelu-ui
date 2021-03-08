@@ -12,9 +12,9 @@ import Address from './Address';
 import Map from './Map';
 import { localizedValue } from '../common/util';
 import Images from './Images';
-import StartApplicationBar from '../component/StartApplicationBar';
 import { SpanTwoColumns } from '../component/common';
 import Sanitize from '../component/Sanitize';
+import { breakpoint } from '../common/style';
 
 type ParamTypes = {
   id: string;
@@ -23,7 +23,10 @@ type ParamTypes = {
 const TwoColoumnLayout = styled.div`
   display: grid;
   gap: var(--spacing-layout-s);
-  grid-template-columns: 7fr 3fr;
+  grid-template-columns: 7fr 390px;
+  @media (max-width: ${breakpoint.l}) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const Content = styled.div`
@@ -82,7 +85,6 @@ const ReservationUnit = (): JSX.Element | null => {
           </SpanTwoColumns>
         </TwoColoumnLayout>
       </Container>
-      <StartApplicationBar count={0} />
     </>
   ) : null;
 };
