@@ -5,7 +5,7 @@ import { useLocalStorage } from 'react-use';
 import { Profile } from 'oidc-client';
 import { useHistory } from 'react-router-dom';
 import { applicationsUrl } from '../common/util';
-import { isBrowser } from '../common/const';
+import { authEnabled, isBrowser } from '../common/const';
 
 interface LanguageOption {
   label: string;
@@ -95,7 +95,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
 };
 
 const NavigationWithProfileAndLogout = (): JSX.Element => {
-  if (isBrowser) {
+  if (isBrowser && authEnabled) {
     // eslint-disable-next-line
     const WithOidc = require('./WithOidc').default;
 
