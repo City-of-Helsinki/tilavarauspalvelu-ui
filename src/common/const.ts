@@ -13,6 +13,7 @@ export const weekdays = [
 export const reservationUnitPrefix = '/reservation-unit';
 export const searchPrefix = '/search';
 export const applicationsPrefix = '/applications';
+export const applicationPrefix = '/application';
 
 export const mapStyle = {
   version: 8,
@@ -85,6 +86,8 @@ const getConfig = (
     | 'REACT_APP_TILAVARAUS_API_URL'
     | 'REACT_APP_DISABLE_AUTH'
     | 'REACT_APP_OIDC_CLIENT_ID'
+    | 'REACT_APP_OIDC_URL'
+    | 'REACT_APP_OIDC_SCOPE'
 ) => {
   return CONFIG ? CONFIG[name] : process.env[name];
 };
@@ -98,3 +101,7 @@ export const apiBaseUrl = getConfig('REACT_APP_TILAVARAUS_API_URL');
 export const authEnabled = getConfig('REACT_APP_DISABLE_AUTH') !== 'true';
 
 export const oidcClientId = getConfig('REACT_APP_OIDC_CLIENT_ID');
+
+export const oidcUrl = getConfig('REACT_APP_OIDC_URL');
+
+export const oidcScope = getConfig('REACT_APP_OIDC_SCOPE');
