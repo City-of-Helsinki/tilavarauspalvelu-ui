@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import PageWrapper from '../../component/PageWrapper';
 
-const UpdateToken = (): JSX.Element => {
+const LoggingIn = (): JSX.Element => {
   return (
     <BrowserRouter>
       <PageWrapper>
@@ -13,4 +13,4 @@ const UpdateToken = (): JSX.Element => {
   );
 };
 
-export default UpdateToken;
+export default LoggingIn;
