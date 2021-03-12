@@ -78,11 +78,12 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Configurable environment variables
 
-| Name                         | Description                                                   |
-| ---------------------------- | ------------------------------------------------------------- |
-| REACT_APP_TILAVARAUS_API_URL | tilavaraus-core base url                                      |
-| REACT_APP_SENTRY_DSN         | Sentry dsn                                                    |
-| REACT_APP_SENTRY_ENVIRONMENT | Sentry environment, for example 'test', 'prod'                |
-| REACT_APP_OIDC_CLIENT_ID     | Oidc client id                                                |
-| REACT_APP_OIDC_URL           | https://api.hel.fi/sso                                        |
-| REACT_APP_OIDC_SCOPE         | openid profile email https://api.hel.fi/auth/tilavarausapidev |
+| Name                           | Description                                                   |
+| ------------------------------ | ------------------------------------------------------------- |
+| REACT_APP_TILAVARAUS_API_URL   | tilavaraus-core base url                                      |
+| REACT_APP_SENTRY_DSN           | Sentry dsn                                                    |
+| REACT_APP_SENTRY_ENVIRONMENT   | Sentry environment, for example 'test', 'prod'                |
+| REACT_APP_OIDC_CLIENT_ID       | Oidc client id                                                |
+| REACT_APP_OIDC_URL             | https://api.hel.fi/sso                                        |
+| REACT_APP_OIDC_SCOPE           | openid profile email https://api.hel.fi/auth/tilavarausapidev |
+| REACT_APP_TILAVARAUS_API_SCOPE | https://api.hel.fi/auth/tilavarausapidev                      |

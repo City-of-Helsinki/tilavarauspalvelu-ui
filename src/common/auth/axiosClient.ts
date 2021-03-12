@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import applyCaseMiddleware from 'axios-case-converter';
-import { oidcUrl, oidcClientId } from '../const';
+import { authEnabled, oidcUrl, oidcClientId, apiScope } from '../const';
 
 const axiosOptions = {
   timeout: 5000,
@@ -10,11 +10,11 @@ const axiosOptions = {
   },
 };
 
-function getApiAccessToken(apiScope: string) {
+function getApiAccessToken() {
   return sessionStorage.getItem(`oidc.apiToken.${apiScope}`);
 }
 
-function setApiAccessToken(accessToken: string, apiScope: string) {
+function setApiAccessToken(accessToken: string) {
   return sessionStorage.setItem(`oidc.apiToken.${apiScope}`, accessToken);
 }
 
@@ -33,7 +33,10 @@ function getAccessToken() {
   return undefined;
 }
 
-const getNewApiAccessToken = async (accessToken: string, apiScope: string) => {
+const updateApiAccessToken = async (accessToken: string) => {
+  if (!apiScope) {
+    throw new Error('Application configuration error, illegal api scope.');
+  }
   const response = await axios.request({
     responseType: 'json',
     method: 'POST',
@@ -47,7 +50,7 @@ const getNewApiAccessToken = async (accessToken: string, apiScope: string) => {
   const { data } = response;
 
   const apiAccessToken = data[apiScope];
-  setApiAccessToken(apiAccessToken, 'https://api.hel.fi/auth/tilavarausapidev');
+  setApiAccessToken(apiAccessToken);
 
   return apiAccessToken;
 };
@@ -55,14 +58,10 @@ const getNewApiAccessToken = async (accessToken: string, apiScope: string) => {
 const axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 
 axiosClient.interceptors.request.use((req: AxiosRequestConfig) => {
-  const apiAccessToken = getApiAccessToken(
-    'https://api.hel.fi/auth/tilavarausapidev'
-  );
+  const apiAccessToken = getApiAccessToken();
 
   if (apiAccessToken) {
-    req.headers.Authorization = `Bearer ${getApiAccessToken(
-      'https://api.hel.fi/auth/tilavarausapidev'
-    )}`;
+    req.headers.Authorization = `Bearer ${apiAccessToken}`;
   }
   return req;
 });
@@ -70,17 +69,15 @@ axiosClient.interceptors.request.use((req: AxiosRequestConfig) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const refreshAuthLogic = (failedRequest: any) => {
   const accessToken = getAccessToken();
-  return getNewApiAccessToken(
-    accessToken,
-    'https://api.hel.fi/auth/tilavarausapidev'
-  ).then((apiAccessToken) => {
+  return updateApiAccessToken(accessToken).then((apiAccessToken) => {
     // eslint-disable-next-line no-param-reassign
     failedRequest.response.config.headers.Authorization = `Bearer ${apiAccessToken}`;
     return Promise.resolve();
   });
 };
 
-// interceptor that fetches new api access keys
-createAuthRefreshInterceptor(axiosClient, refreshAuthLogic);
+if (authEnabled) {
+  createAuthRefreshInterceptor(axiosClient, refreshAuthLogic);
+}
 
 export default axiosClient;
