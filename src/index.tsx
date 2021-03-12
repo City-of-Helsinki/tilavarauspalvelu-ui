@@ -30,16 +30,16 @@ const boot =
 
 boot(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthenticationProvider
-        authenticating={LoadingSpinner}
-        configuration={oidcConfiguration}
-        loggerLevel={oidcLog.ERROR}
-        isEnabled={authEnabled}
-        callbackComponentOverride={LoggingIn}>
+    <AuthenticationProvider
+      authenticating={LoadingSpinner}
+      configuration={oidcConfiguration}
+      loggerLevel={oidcLog.ERROR}
+      isEnabled={authEnabled}
+      callbackComponentOverride={LoggingIn}>
+      <BrowserRouter>
         <App />
-      </AuthenticationProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthenticationProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
