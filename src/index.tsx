@@ -9,7 +9,7 @@ import App from './App';
 
 import reportWebVitals from './reportWebVitals';
 import { authEnabled, sentryDSN, sentryEnvironment } from './common/const';
-import UpdateToken from './common/auth/UpdateToken';
+import LoggingIn from './common/auth/LoggingIn';
 
 if (sentryDSN) {
   Sentry.init({
@@ -30,16 +30,16 @@ const boot =
 
 boot(
   <React.StrictMode>
-    <AuthenticationProvider
-      authenticating={LoadingSpinner}
-      configuration={oidcConfiguration}
-      loggerLevel={oidcLog.ERROR}
-      isEnabled={authEnabled}
-      callbackComponentOverride={UpdateToken}>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthenticationProvider
+        authenticating={LoadingSpinner}
+        configuration={oidcConfiguration}
+        loggerLevel={oidcLog.ERROR}
+        isEnabled={authEnabled}
+        callbackComponentOverride={LoggingIn}>
         <App />
-      </BrowserRouter>
-    </AuthenticationProvider>
+      </AuthenticationProvider>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );
