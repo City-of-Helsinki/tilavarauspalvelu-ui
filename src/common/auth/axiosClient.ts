@@ -10,15 +10,13 @@ const axiosOptions = {
   },
 };
 
-function getApiAccessToken() {
-  return sessionStorage.getItem(`oidc.apiToken.${apiScope}`);
-}
+const getApiAccessToken = () =>
+  sessionStorage.getItem(`oidc.apiToken.${apiScope}`);
 
-function setApiAccessToken(accessToken: string) {
-  return sessionStorage.setItem(`oidc.apiToken.${apiScope}`, accessToken);
-}
+const setApiAccessToken = (accessToken: string) =>
+  sessionStorage.setItem(`oidc.apiToken.${apiScope}`, accessToken);
 
-function getAccessToken() {
+const getAccessToken = () => {
   const key = `oidc.user:${oidcUrl}/:${oidcClientId}`;
   const data = sessionStorage.getItem(key);
 
@@ -31,7 +29,7 @@ function getAccessToken() {
     }
   }
   return undefined;
-}
+};
 
 const updateApiAccessToken = async (accessToken: string) => {
   if (!apiScope) {
