@@ -22,9 +22,13 @@ jobs:
         node-version: '14'
     - name: Run CI checks
       run: |
+        docker build -t tilavaraus-ui .
         yarn install --frozen-lockfile
         yarn lint
         yarn lint:css
         yarn build
         yarn test
-        docker build -t tilavaraus-ui .
+    - name: Run server tests
+      run: |
+        docker start --name tilavaraus-ui-server tilavaraus-ui
+        yarn test-server
