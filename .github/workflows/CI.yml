@@ -24,7 +24,7 @@ jobs:
       run: |
         docker build -t tilavaraus-ui .
         docker run -d --name tilavaraus-ui-server tilavaraus-ui
-        yarn test-server
+        yarn test:server
         docker stop tilavaraus-ui
     - name: Run CI checks
       run: |
