@@ -20,10 +20,11 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.css', '.scss'],
   },
+
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.(ts|tsx)$/,
         use: [
           {
             loader: 'ts-loader',
@@ -35,7 +36,19 @@ module.exports = {
       },
       {
         test: /\.js$/,
+        exclude: /node_modules/,
         use: 'babel-loader',
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'svg-url-loader',
+            options: {
+              limit: 10000,
+            },
+          },
+        ],
       },
       {
         test: /\.(css|scss)$/,

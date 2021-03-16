@@ -42,11 +42,17 @@ export type Service = {
   bufferTimeAfter: string;
 };
 
+export type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
 export type Location = {
   id: number;
   addressStreet: string;
   addressZip: string;
   addressCity: string;
+  coordinates?: Coordinates;
 };
 
 export type Image = {
@@ -57,14 +63,16 @@ export type Image = {
 export type ReservationUnit = {
   id: number;
   name: TranslationObject;
+  description: string;
   maxPersons: number;
   requireIntroduction: boolean;
   spaces: Space[];
   resources: Resource[];
   services: Service[];
   images: Image[];
-  location: Location;
+  location?: Location;
   reservationUnitType: Parameter;
+  termsOfUse: string;
 };
 
 export type Parameter = {
@@ -157,7 +165,7 @@ export type EventReservationUnit = {
   reservationUnitId: number;
 };
 
-type DAY = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type DAY = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type ApplicationEventSchedule = {
   id?: number;
@@ -199,4 +207,11 @@ export type EditorState = {
 export type AccordionState = {
   applicationEventId: number;
   open: boolean;
+};
+
+export type Cell = {
+  hour: number;
+  label: string;
+  state: boolean;
+  key: string;
 };

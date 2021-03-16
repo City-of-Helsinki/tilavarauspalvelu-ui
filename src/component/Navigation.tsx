@@ -2,11 +2,11 @@ import React, { SyntheticEvent, useEffect } from 'react';
 import { Navigation as HDSNavigation } from 'hds-react';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from 'react-use';
-import { useReactOidc } from '@axa-fr/react-oidc-context';
 import { Profile } from 'oidc-client';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 import { applicationsUrl } from '../common/util';
-import { authEnabled } from '../common/const';
+import { authEnabled, isBrowser } from '../common/const';
 
 interface LanguageOption {
   label: string;
@@ -18,6 +18,13 @@ const languageOptions: LanguageOption[] = [
   { label: 'Svenska', value: 'sv' },
   { label: 'English', value: 'en' },
 ];
+
+const StyledNavigation = styled(HDSNavigation)`
+  --header-background-color: var(
+    --tilavaraus-header-background-color
+  ) !important;
+  color: var(--tilavaraus-header-color);
+`;
 
 const DEFAULT_LANGUAGE = 'fi';
 
@@ -44,12 +51,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
   }, [language, i18n]);
 
   return (
-    <HDSNavigation
-      theme={{
-        '--header-background-color':
-          'var(--tilavaraus-header-background-color)',
-        '--header-color': 'var(--tilavaraus-header-color)',
-      }}
+    <StyledNavigation
       title={t('common.applicationName')}
       menuToggleAriaLabel="Menu"
       skipTo="#main"
@@ -91,19 +93,25 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
           ))}
         </HDSNavigation.LanguageSelector>
       </HDSNavigation.Actions>
-    </HDSNavigation>
+    </StyledNavigation>
   );
 };
 
-const NavigationWithProfileAndLogout = authEnabled
-  ? () => {
-      const { oidcUser, logout } = useReactOidc();
-      let profile = null;
-      if (oidcUser) {
-        profile = oidcUser.profile;
-      }
-      return <Navigation profile={profile} logout={() => logout()} />;
-    }
-  : () => <Navigation profile={null} />;
+const NavigationWithProfileAndLogout = (): JSX.Element => {
+  if (isBrowser && authEnabled) {
+    // eslint-disable-next-line
+    const WithOidc = require('./WithOidc').default;
+
+    return (
+      <WithOidc
+        render={(props: {
+          profile: Profile | null;
+          logout: (() => void) | undefined;
+        }) => <Navigation profile={props.profile} logout={props.logout} />}
+      />
+    );
+  }
+  return <Navigation profile={null} />;
+};
 
 export default NavigationWithProfileAndLogout;
