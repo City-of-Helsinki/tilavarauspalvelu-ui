@@ -135,8 +135,7 @@ const Application = (): JSX.Element | null => {
             overrideText={applicationRoundName}
             translationKeyPrefix="Application.Page1"
             match={match}>
-            {' '}
-            Intro page todo
+            Tähän intro page (TILA-238)
             <Link id="start" to={`${applicationId}/page1`}>
               Aloita hakemus
             </Link>
