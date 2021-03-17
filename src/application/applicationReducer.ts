@@ -28,7 +28,7 @@ const applicationEvent = (applicationId?: number): ApplicationEvent => ({
 const reducer = (state: EditorState, action: Action): EditorState => {
   switch (action.type) {
     case 'addNewApplicationEvent': {
-      const nextState = { ...state };
+      const nextState = { ...state, savedEventId: -1 };
       nextState.application.applicationEvents.push(
         applicationEvent(state.application.id)
       );
@@ -44,6 +44,7 @@ const reducer = (state: EditorState, action: Action): EditorState => {
       const nextState = {
         ...state,
         application: action.application as Application,
+        loading: false,
         accordionStates:
           action.application?.applicationEvents.map((ae) => ({
             applicationEventId: ae.id as number,

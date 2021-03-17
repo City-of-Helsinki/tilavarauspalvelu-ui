@@ -199,6 +199,7 @@ export type FormType = undefined | 'individual' | 'organisation' | 'company';
 export type LocalizationLanguages = 'fi' | 'sv' | 'en';
 
 export type EditorState = {
+  loading: boolean;
   application: Application;
   savedEventId?: number;
   accordionStates: AccordionState[];

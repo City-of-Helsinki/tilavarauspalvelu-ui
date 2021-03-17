@@ -1,4 +1,4 @@
-import { Application, EditorState } from '../common/types';
+import { Application } from '../common/types';
 
 export const minimalApplicationForInitialSave = (
   applicationRoundId: number
@@ -11,18 +11,3 @@ export const minimalApplicationForInitialSave = (
   contactPerson: null,
   billingAddress: null,
 });
-
-const applicationInitializer = ({
-  id,
-  applicationRoundId,
-}: Application): EditorState => {
-  if (!id) {
-    return {
-      application: minimalApplicationForInitialSave(applicationRoundId),
-      accordionStates: [],
-    };
-  }
-  return {} as EditorState;
-};
-
-export default applicationInitializer;

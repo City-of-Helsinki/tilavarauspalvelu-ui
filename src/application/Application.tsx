@@ -1,6 +1,7 @@
 import React, { useReducer, useState } from 'react';
 import { useAsync } from 'react-use';
 import {
+  Link,
   Route,
   Switch,
   useHistory,
@@ -17,6 +18,7 @@ import {
 import {
   Application as ApplicationType,
   ApplicationRound,
+  EditorState,
 } from '../common/types';
 import ApplicationPage from './ApplicationPage';
 import Page1 from './page1/Page1';
@@ -24,12 +26,10 @@ import Page2 from './page2/Page2';
 import Page3 from './page3/Page3';
 import Preview from './preview/Preview';
 import applicationReducer from './applicationReducer';
-import applicationInitializer from './applicationInitializer';
 import useReservationUnitList from '../common/hook/useReservationUnitList';
 import Sent from './sent/Sent';
 
 type ParamTypes = {
-  applicationRoundId: string;
   applicationId: string;
 };
 
@@ -41,32 +41,32 @@ const Application = (): JSX.Element | null => {
 
   const [error, setError] = useState<string | null>();
 
-  const { applicationId, applicationRoundId } = useParams<ParamTypes>();
+  const { applicationId } = useParams<ParamTypes>();
 
-  const [state, dispatch] = useReducer(
-    applicationReducer,
-    {
-      id: Number.isNaN(applicationId) ? Number(applicationId) : undefined,
-      applicationRoundId: Number(applicationRoundId),
-    } as ApplicationType,
-    applicationInitializer
-  );
+  const [state, dispatch] = useReducer(applicationReducer, {
+    application: { id: 0 } as ApplicationType,
+    accordionStates: [],
+    loading: true,
+  } as EditorState);
 
   const applicationRoundLoadingStatus = useAsync(async () => {
-    const loadedApplicationRound = await getApplicationRound({
-      id: applicationRoundId,
-    });
-    return loadedApplicationRound;
-  }, [applicationRoundId]);
+    if (state.application.applicationRoundId) {
+      const loadedApplicationRound = await getApplicationRound({
+        id: state.application.applicationRoundId,
+      });
+      return loadedApplicationRound;
+    }
+    return null;
+  }, [state.application.id]);
 
   const applicationLoadingStatus = useAsync(async () => {
     let loadedApplication = null;
-    if (applicationId && applicationId !== 'new') {
+    if (applicationId) {
       loadedApplication = await getApplication(Number(applicationId));
       dispatch({ type: 'load', application: loadedApplication });
     }
     return loadedApplication;
-  }, [applicationId]);
+  });
 
   const { reservationUnits, clearSelections } = useReservationUnitList();
 
@@ -78,38 +78,24 @@ const Application = (): JSX.Element | null => {
     let loadedApplication: ApplicationType;
 
     try {
-      if (applicationId === 'new') {
-        // because applicationEvent needs applicationId we need to save application first
-        const tmpApplication = { ...appToSave };
-        tmpApplication.applicationEvents = [];
-        const savedApplication = await saveApplication(tmpApplication);
-
-        if (!savedApplication.id) {
-          throw new Error('cannot proceed, saved application does not have id');
-        }
-
-        savedApplication.applicationEvents = [
-          ...appToSave.applicationEvents.map((ae) => ({
-            ...ae,
-            applicationId: savedApplication.id || 0,
-          })),
-        ];
-
-        loadedApplication = await saveApplication(savedApplication);
-      } else {
-        loadedApplication = await saveApplication(appToSave);
-        dispatch({
-          type: 'save',
-          application: loadedApplication,
-          savedEventId: eventId,
-        });
-      }
+      const existingIds = appToSave.applicationEvents
+        .filter((ae) => ae.id)
+        .map((ae) => ae.id);
+      loadedApplication = await saveApplication(appToSave);
+      const newEvent = loadedApplication.applicationEvents.filter(
+        (ae) => existingIds.indexOf(ae.id) === -1
+      );
+      dispatch({
+        type: 'save',
+        application: loadedApplication,
+        savedEventId: eventId || (newEvent.length && newEvent[0].id) || 0,
+      });
 
       if (postSave) {
         postSave(loadedApplication.id);
       }
     } catch (e) {
-      setError(`${t('Application.error.saveFailed')}:${e.message}`);
+      setError(`${t('Application.error.saveFailed')}:${e.message}, ${e.stack}`);
     }
   };
 
@@ -134,7 +120,7 @@ const Application = (): JSX.Element | null => {
   const ready =
     ![applicationRoundLoadingStatus, applicationLoadingStatus].some(
       (r) => r.loading
-    ) && state.application;
+    ) && state.loading === false;
 
   if (!ready) {
     return null;
@@ -143,6 +129,19 @@ const Application = (): JSX.Element | null => {
   return (
     <>
       <Switch>
+        <Route exact path={`${match.url}`}>
+          <ApplicationPage
+            breadCrumbText={applicationRoundName}
+            overrideText={applicationRoundName}
+            translationKeyPrefix="Application.Page1"
+            match={match}>
+            {' '}
+            Intro page todo
+            <Link id="start" to={`${applicationId}/page1`}>
+              Aloita hakemus
+            </Link>
+          </ApplicationPage>
+        </Route>
         <Route exact path={`${match.url}/page1`}>
           <ApplicationPage
             breadCrumbText={applicationRoundName}

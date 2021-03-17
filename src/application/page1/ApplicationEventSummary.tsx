@@ -68,7 +68,7 @@ const ApplicationEventSummary = ({
       </Message>
       <TwoColumnContainer>
         <CustomIconWithText
-          icon={<IconGroup />}
+          icon={<IconGroup aria-hidden />}
           text={
             <Trans i18nKey="ApplicationEventSummary.numPersons">
               Ryhmän koko on <strong>{{ numPersons }}</strong>
@@ -76,11 +76,11 @@ const ApplicationEventSummary = ({
           }
         />
         <CustomIconWithText
-          icon={<IconClock />}
+          icon={<IconClock aria-hidden />}
           text={t('ApplicationEventSummary.minDuration', { minDuration })}
         />
         <CustomIconWithText
-          icon={<IconCalendar />}
+          icon={<IconCalendar aria-hidden />}
           text={
             <Trans
               count={eventsPerWeek}

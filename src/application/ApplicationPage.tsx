@@ -24,6 +24,10 @@ const InnerContainer = styled.div`
   }
 `;
 
+const Main = styled.div`
+  margin-top: var(--spacing-s);
+`;
+
 const ApplicationPage = ({
   translationKeyPrefix,
   breadCrumbText,
@@ -44,7 +48,7 @@ const ApplicationPage = ({
       <Container main>
         <InnerContainer>
           <Stepper match={match} />
-          <div>{children}</div>
+          <Main>{children}</Main>
         </InnerContainer>
       </Container>
     </>

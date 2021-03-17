@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Button, IconAngleDown, IconAngleUp, useAccordion } from 'hds-react';
 import styled from 'styled-components';
@@ -11,9 +11,6 @@ const AccordionElement = styled.div`
 
 const HeadingButton = styled(Button)`
   width: 100%;
-  padding: 0;
-  margin: 0;
-  border: 0;
 
   & span {
     color: var(--color-black-90);
@@ -29,13 +26,16 @@ type Props = {
   heading?: string;
   open?: boolean;
   children: React.ReactNode;
-  onToggle: () => void;
+  onToggle?: () => void;
+  id?: string;
 };
+
 const Accordion = ({
   heading,
   open = false,
   children,
   onToggle,
+  id,
 }: Props): JSX.Element => {
   const { isOpen, openAccordion, closeAccordion } = useAccordion({
     initiallyOpen: open,
@@ -56,7 +56,7 @@ const Accordion = ({
     <IconAngleDown aria-hidden />
   );
   return (
-    <AccordionElement>
+    <AccordionElement id={id}>
       <HeadingButton
         variant="supplementary"
         iconRight={icon}
@@ -69,3 +69,12 @@ const Accordion = ({
 };
 
 export default Accordion;
+
+export const AccordionWithState = ({
+  open: initiallyOpen,
+  ...rest
+}: Props): JSX.Element => {
+  const [open, setOpen] = useState(initiallyOpen);
+
+  return <Accordion onToggle={() => setOpen(!open)} {...rest} open={open} />;
+};

@@ -29,6 +29,7 @@ const translations: Translations = {
   Application: {
     Page1: {
       heading: ['1. Vakiovuoron luominen'],
+      text: ['Perustiedot'],
       basicInformationSubHeading: ['Perustiedot'],
       name: ['Vakiovuoron nimi'],
       groupSize: ['Ryhmän koko'],
@@ -321,6 +322,8 @@ const translations: Translations = {
   ReservationUnitList: {
     option: ['Vaihtoehto'],
     buttonRemove: ['Poista'],
+    buttonUp: ['Siirrä ylös'],
+    buttonDown: ['Siirrä alas'],
     add: ['Lisää tila'],
   },
   ReservationUnitModal: {

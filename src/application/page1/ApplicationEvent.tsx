@@ -52,7 +52,7 @@ type Props = {
   onSave: () => void;
 };
 
-const SubHeadLine = styled.h3`
+const SubHeadLine = styled.h2`
   font-family: var(--font-bold);
   margin-top: var(--spacing-layout-m);
   font-weight: 700;
@@ -120,7 +120,6 @@ const ApplicationEvent = ({
   dispatch,
   onSave,
 }: Props): JSX.Element => {
-  console.log(applicationEvent);
   const periodStartDate = formatApiDate(
     applicationRound.applicationPeriodBegin
   );
@@ -151,7 +150,8 @@ const ApplicationEvent = ({
 
   useEffect(() => {
     form.register({ name: fieldName('eventReservationUnits') });
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const selectionIsDefaultPeriod =
@@ -344,14 +344,15 @@ const ApplicationEvent = ({
           )}
           name={applicationName}
         />
-        <SaveButton iconLeft={<IconPaperclip />} onClick={onSave}>
+        <SaveButton
+          id={`applicationEvents[${index}].save`}
+          iconLeft={<IconPaperclip />}
+          onClick={onSave}>
           Hyväksy ja tallenna vakiovuoro
         </SaveButton>
       </Accordion>
       {editorState.savedEventId === applicationEvent.id ? (
         <Notification
-          dismissible
-          closeButtonLabelText=""
           size="small"
           type="success"
           label={t('Application.applicationEventSaved')}>
