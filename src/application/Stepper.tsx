@@ -55,7 +55,6 @@ const Stepper = ({ match }: Props): JSX.Element => {
           <li key={page.page}>
             <NavLink to={page.path}>
               <Number>{index + 1}</Number>
-
               {t(`ApplicationPage.navigation.${page.page}`)}
             </NavLink>
           </li>
