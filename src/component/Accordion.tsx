@@ -12,7 +12,7 @@ const AccordionElement = styled.div`
 const HeadingButton = styled(Button)`
   width: 100%;
 
-  & span {
+  span {
     color: var(--color-black-90);
     font-size: var(--fontsize-heading-m);
     font-family: var(--font-bold);

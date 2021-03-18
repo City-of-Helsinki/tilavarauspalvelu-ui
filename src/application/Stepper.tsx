@@ -16,7 +16,7 @@ const NavigationContainer = styled.nav`
     }
   }
 
-  & a {
+  a {
     color: var(--color-black-90);
     text-decoration: none;
     display: flex;

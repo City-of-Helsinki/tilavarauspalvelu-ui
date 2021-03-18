@@ -30,7 +30,7 @@ import { breakpoint } from '../../common/style';
 import { HorisontalRule } from '../../component/common';
 import ApplicationEventSummary from './ApplicationEventSummary';
 import ControlledSelect from '../../component/ControlledSelect';
-import ControlledTextInput from '../../component/ControllerTextInput';
+import ControlledTextInput from '../../component/ControlledTextInput';
 import Accordion from '../../component/Accordion';
 
 type OptionTypes = {
