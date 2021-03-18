@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Accordion } from 'hds-react';
 import Container from '../component/Container';
 import { ReservationUnit as ReservationUnitType } from '../common/types';
-import { getReservationUnit } from '../common/api';
+import { getReservationUnit, getReservationUnits } from '../common/api';
 import Head from './Head';
 import { routeData } from '../common/const';
 import Address from './Address';
@@ -15,6 +15,7 @@ import Images from './Images';
 import { SpanTwoColumns } from '../component/common';
 import Sanitize from '../component/Sanitize';
 import { breakpoint } from '../common/style';
+import RelatedUnits from './RelatedUnits';
 
 type ParamTypes = {
   id: string;
@@ -42,6 +43,8 @@ const ReservationUnit = (): JSX.Element | null => {
     setReservationUnit,
   ] = useState<ReservationUnitType | null>(null);
 
+  const [relatedUnits, setRelatedUnits] = useState<ReservationUnitType[]>([]);
+
   useEffect(() => {
     async function fetchData() {
       const backendData = routeData()?.reservationUnit;
@@ -50,6 +53,13 @@ const ReservationUnit = (): JSX.Element | null => {
         routeData().reservationUnit = undefined;
       } else {
         const unit = await getReservationUnit(Number(id));
+        if (unit.unitId) {
+          setRelatedUnits(
+            (await getReservationUnits({ unit: unit.unitId })).filter(
+              (u) => u.id !== Number(id)
+            )
+          );
+        }
         setReservationUnit(unit);
       }
     }
@@ -84,6 +94,7 @@ const ReservationUnit = (): JSX.Element | null => {
               longitude={reservationUnit.location?.coordinates?.longitude}
             />
             <Address reservationUnit={reservationUnit} />
+            <RelatedUnits units={relatedUnits} />
           </SpanTwoColumns>
         </TwoColoumnLayout>
       </Container>

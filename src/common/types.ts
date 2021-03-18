@@ -60,6 +60,10 @@ export type Image = {
   imageType: 'main' | 'map' | 'ground_plan' | 'other';
 };
 
+export type Building = {
+  name: string;
+};
+
 export type ReservationUnit = {
   id: number;
   name: TranslationObject;
@@ -73,6 +77,8 @@ export type ReservationUnit = {
   location?: Location;
   reservationUnitType: Parameter;
   termsOfUse: string;
+  building: Building;
+  unitId: number;
 };
 
 export type Parameter = {
