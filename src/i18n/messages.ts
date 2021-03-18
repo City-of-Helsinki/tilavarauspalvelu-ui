@@ -27,6 +27,9 @@ const translations: Translations = {
     eventsPerWeek_plural: ['<0>{{eventsPerWeek}}</0> vuoroa viikossa'],
   },
   Application: {
+    Intro: {
+      startNewApplication: ['Aloita hakemuksen täyttäminen'],
+    },
     Page1: {
       heading: ['1. Vakiovuoron luominen'],
       text: ['Perustiedot'],

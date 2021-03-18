@@ -136,8 +136,9 @@ const Application = (): JSX.Element | null => {
             translationKeyPrefix="Application.Page1"
             match={match}>
             Tähän intro page (TILA-238)
+            <br />
             <Link id="start" to={`${applicationId}/page1`}>
-              Aloita hakemus
+              {t('Application.Intro.startNewApplication')}
             </Link>
           </ApplicationPage>
         </Route>
