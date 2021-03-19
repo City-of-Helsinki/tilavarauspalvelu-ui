@@ -26,6 +26,21 @@ const translations: Translations = {
     eventsPerWeek: ['<0>{{eventsPerWeek}}</0> vuoro viikossa'],
     eventsPerWeek_plural: ['<0>{{eventsPerWeek}}</0> vuoroa viikossa'],
   },
+  Applications: {
+    heading: ['Omat hakemukset'],
+    group: {
+      draft: ['Luonnokset'],
+      sent: ['Lähetetyt'],
+    },
+  },
+  ApplicationCard: {
+    edit: ['Muokkaa hakemusta'],
+    cancel: ['Peruuta hakemus'],
+    status: {
+      draft: ['Luonnos'],
+      in_review: ['Lähetetty'],
+    },
+  },
   Application: {
     Intro: {
       startNewApplication: ['Aloita hakemuksen täyttäminen'],
