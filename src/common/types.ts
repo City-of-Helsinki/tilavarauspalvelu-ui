@@ -57,6 +57,8 @@ export type Location = {
 
 export type Image = {
   imageUrl: string;
+  mediumUrl: string;
+  smallUrl: string;
   imageType: 'main' | 'map' | 'ground_plan' | 'other';
 };
 

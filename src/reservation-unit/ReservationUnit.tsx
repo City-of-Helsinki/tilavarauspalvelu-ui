@@ -16,6 +16,8 @@ import { SpanTwoColumns } from '../component/common';
 import Sanitize from '../component/Sanitize';
 import { breakpoint } from '../common/style';
 import RelatedUnits from './RelatedUnits';
+import useReservationUnitsList from '../common/hook/useReservationUnitList';
+import StartApplicationBar from '../component/StartApplicationBar';
 
 type ParamTypes = {
   id: string;
@@ -43,6 +45,8 @@ const ReservationUnit = (): JSX.Element | null => {
     setReservationUnit,
   ] = useState<ReservationUnitType | null>(null);
 
+  const reservationUnitList = useReservationUnitsList();
+
   const [relatedUnits, setRelatedUnits] = useState<ReservationUnitType[]>([]);
 
   useEffect(() => {
@@ -68,7 +72,10 @@ const ReservationUnit = (): JSX.Element | null => {
 
   return reservationUnit ? (
     <>
-      <Head reservationUnit={reservationUnit} />
+      <Head
+        reservationUnit={reservationUnit}
+        reservationUnitList={reservationUnitList}
+      />
       <Container>
         <TwoColoumnLayout>
           <div>
@@ -93,11 +100,19 @@ const ReservationUnit = (): JSX.Element | null => {
               latitude={reservationUnit.location?.coordinates?.latitude}
               longitude={reservationUnit.location?.coordinates?.longitude}
             />
-            <Address reservationUnit={reservationUnit} />
-            <RelatedUnits units={relatedUnits} />
+            {reservationUnit.location ? (
+              <Address reservationUnit={reservationUnit} />
+            ) : null}
+            <RelatedUnits
+              reservationUnitList={reservationUnitList}
+              units={relatedUnits}
+            />
           </SpanTwoColumns>
         </TwoColoumnLayout>
       </Container>
+      <StartApplicationBar
+        count={reservationUnitList.reservationUnits.length}
+      />
     </>
   ) : null;
 };
