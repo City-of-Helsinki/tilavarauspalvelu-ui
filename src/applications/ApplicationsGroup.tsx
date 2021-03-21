@@ -1,6 +1,11 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Application, ApplicationRound } from '../common/types';
 import ApplicationCard from './ApplicationCard';
+
+const GroupName = styled.h2`
+  font-size: var(--fontsize-heading-m);
+`;
 
 type Props = {
   name: string;
@@ -19,7 +24,7 @@ const ApplicationsGroup = ({
 
   return (
     <>
-      <h2>{name}</h2>
+      <GroupName>{name}</GroupName>
       {applications.map((application) => (
         <ApplicationCard
           key={application.id}

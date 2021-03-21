@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { Button, Card as HdsCard, Tag as HdsTag } from 'hds-react';
@@ -16,22 +17,30 @@ const Card = styled(HdsCard)`
 `;
 
 const Tag = styled(HdsTag)`
-  margin-top: var(--spacing-s);
+  margin-top: var(--spacing-xs);
   color: var(--color-white);
-  background-color: #0062b9;
+  background-color: var(--tilavaraus-blue);
+  font-family: var(--font-regular);
+`;
+
+const GreenTag = styled(Tag)`
+  background-color: var(--tilavaraus-green);
+`;
+
+const YellowTag = styled(Tag)`
+  background-color: var(--tilavaraus-yellow);
+  color: var(--color-black);
 `;
 
 const Buttons = styled.div`
   font-family: var(--font-medium);
-  font-size: var(--fontsize-body-m);
-  display: grid;
-  @media (max-width: ${breakpoint.l}) {
-    margin-top: var(--spacing-m);
-    display: block;
-  }
+  font-size: var(--fontsize-body-s);
+  margin-top: var(--spacing-m);
 `;
 
 const Applicant = styled.div`
+  font-family: var(--font-regular);
+  font-size: var(--fontsize-body-m);
   margin-top: var(--spacing-xs);
   margin-bottom: var(--spacing-s);
 `;
@@ -41,16 +50,17 @@ const RoundName = styled.div`
   font-size: var(--fontsize-heading-m);
   font-family: var(--font-bold);
   margin-bottom: 0;
-  @media (max-width: ${breakpoint.l}) {
-    font-size: var(--fontsize-body-m);
+  @media (max-width: ${breakpoint.s}) {
+    font-size: var(--fontsize-heading-m);
   }
 `;
 
 const StyledButton = styled(Button)`
   margin-right: var(--spacing-xs);
+  font-size: var(--fontsize-body-m);
   @media (max-width: ${breakpoint.s}) {
-    font-size: var(--fontsize-body-m);
     margin-top: var(--spacing-xs);
+    margin-right: 0;
     width: 100%;
   }
 `;
@@ -59,13 +69,15 @@ type Props = {
   applicationRound: ApplicationRound;
 };
 
-const getApplicant = (application: Application): string => {
-  const prefix = 'Hakemus luotu';
+const getApplicant = (application: Application, t: TFunction): string => {
   if (application.organisation) {
-    return prefix + application.organisation?.name || 'Nimetön organisaatio';
+    return t('ApplicationCard.organisation', {
+      type: t(`ApplicationCard.applicantType.${application.applicantType}`),
+      name: application.organisation?.name || t('ApplicationCard.noName'),
+    });
   }
   if (application.contactPerson) {
-    return `${prefix} yksityishenkilönä`;
+    return t('ApplicationCard.person');
   }
 
   return '';
@@ -81,13 +93,23 @@ const ApplicationCard = ({
     applicationRound.applicationPeriodBegin,
     applicationRound.applicationPeriodEnd
   );
+
+  let C = Tag;
+  if (application.status === 'draft') {
+    C = YellowTag;
+  }
+  if (application.status === 'allocated') {
+    C = GreenTag;
+  }
+
   return (
     <Card border key={application.id}>
       <div>
-        <Tag>{t(`ApplicationCard.status.${application.status}`)}</Tag>
+        <C>{t(`ApplicationCard.status.${application.status}`)}</C>
+
         <RoundName>{applicationRound.name}</RoundName>
         {application.applicantType !== null ? (
-          <Applicant>{getApplicant(application)}</Applicant>
+          <Applicant>{getApplicant(application, t)}</Applicant>
         ) : null}
       </div>
       <Buttons>

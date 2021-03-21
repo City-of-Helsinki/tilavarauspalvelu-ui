@@ -37,8 +37,14 @@ const translations: Translations = {
     edit: ['Muokkaa hakemusta'],
     cancel: ['Peruuta hakemus'],
     status: {
-      draft: ['Luonnos'],
-      in_review: ['Lähetetty'],
+      draft: ['Kesken'],
+      in_review: ['Käsittelyssä'],
+    },
+    person: ['Hakemus luotu: yksityishenkilönä'],
+    organisation: ['Hakemus luotu: {{type}} {{name}}'],
+    applicantType: {
+      community: ['yhdistykselle'],
+      company: ['yritykselle'],
     },
   },
   Application: {
@@ -310,6 +316,8 @@ const translations: Translations = {
   Navigation: {
     Item: {
       spaceReservation: ['Vakiovuorot'],
+      reservationUnitSearch: ['Tilahaku'],
+      applications: ['Omat hakemukset'],
     },
     skipToMainContent: [
       'Siirry sivun pääsisältöön',
