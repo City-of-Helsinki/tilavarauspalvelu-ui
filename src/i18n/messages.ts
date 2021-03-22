@@ -76,7 +76,7 @@ const translations: Translations = {
     Page2: {
       heading: ['2. Vakiovuoron ajankohta'],
       text: ['Anna toivomasi ajankohta jokaiselle luomallesi vakiovuorolle.'],
-      copyTimes: ['Kopioi valinnat kaikille vakiovuoroille'],
+      copyTimes: ['Kopioi ajat kaikille vakiovuoroille'],
       summary: ['Yhteenveto'],
     },
     Page3: {
