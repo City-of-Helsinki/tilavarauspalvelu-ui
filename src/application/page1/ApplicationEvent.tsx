@@ -38,6 +38,7 @@ type OptionTypes = {
   purposeOptions: OptionType[];
   abilityGroupOptions: OptionType[];
   reservationUnitTypeOptions: OptionType[];
+  participantCountOptions: OptionType[];
 };
 
 type Props = {
@@ -136,6 +137,7 @@ const ApplicationEvent = ({
     abilityGroupOptions,
     purposeOptions,
     reservationUnitTypeOptions,
+    participantCountOptions,
   } = optionTypes;
 
   const { t } = useTranslation();
@@ -255,7 +257,11 @@ const ApplicationEvent = ({
           applicationRound={applicationRound}
           form={form}
           fieldName={fieldName('eventReservationUnits')}
-          options={{ purposeOptions, reservationUnitTypeOptions }}
+          options={{
+            purposeOptions,
+            reservationUnitTypeOptions,
+            participantCountOptions,
+          }}
         />
         <HorisontalRule />
         <SubHeadLine>

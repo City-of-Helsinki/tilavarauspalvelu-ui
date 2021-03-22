@@ -16,6 +16,7 @@ import {
 import { deepCopy, mapOptions } from '../../common/util';
 import { getParameters } from '../../common/api';
 import { breakpoint } from '../../common/style';
+import { participantCountOptions } from '../../common/const';
 
 type Props = {
   applicationRound: ApplicationRound;
@@ -37,6 +38,7 @@ type OptionTypes = {
   purposeOptions: OptionType[];
   abilityGroupOptions: OptionType[];
   reservationUnitTypeOptions: OptionType[];
+  participantCountOptions: OptionType[];
 };
 
 const ButtonContainer = styled.div`
@@ -115,6 +117,7 @@ const Page1 = ({
         abilityGroupOptions: mapOptions(fetchedAbilityGroupOptions),
         purposeOptions: mapOptions(fetchedPurposeOptions),
         reservationUnitTypeOptions: mapOptions(fetchedReservationUnitType),
+        participantCountOptions,
       });
       setReady(true);
     }

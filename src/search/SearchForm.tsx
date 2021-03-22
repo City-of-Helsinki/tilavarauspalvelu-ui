@@ -70,7 +70,7 @@ const SearchForm = ({ onSearch, formValues }: Props): JSX.Element | null => {
     register({ name: 'purpose' });
     register({ name: 'district' });
     register({ name: 'applicationRound' });
-    register({ name: 'max_persons' });
+    register({ name: 'maxPersons' });
     register({ name: 'reservationUnitType' });
   }, [register]);
 
@@ -181,10 +181,10 @@ const SearchForm = ({ onSearch, formValues }: Props): JSX.Element | null => {
               )}
               label={t('SearchForm.participantCountLabel')}
               onChange={(selection: OptionType): void => {
-                setValue('max_persons', selection.value);
+                setValue('maxPersons', selection.value);
               }}
               defaultValue={getSelectedOption(
-                getValues('max_persons'),
+                getValues('maxPersons'),
                 participantCountOptions
               )}
             />

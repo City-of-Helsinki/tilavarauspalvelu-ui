@@ -181,6 +181,7 @@ const ReservationUnitCard = ({
 type OptionTypes = {
   purposeOptions: OptionType[];
   reservationUnitTypeOptions: OptionType[];
+  participantCountOptions: OptionType[];
 };
 
 type Props = {
