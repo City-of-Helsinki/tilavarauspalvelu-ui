@@ -237,3 +237,5 @@ export const getAddress = (ru: ReservationUnit): string | null => {
 
   return `${ru.location.addressStreet},${ru.location.addressCity}`;
 };
+
+export const applicationUrl = (id: number): string => `/application/${id}`;
