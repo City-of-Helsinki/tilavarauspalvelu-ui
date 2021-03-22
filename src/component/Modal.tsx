@@ -7,6 +7,7 @@ type Props = {
   handleClose: () => void;
   show: boolean;
   children: React.ReactNode;
+  closeButtonKey?: string;
 };
 
 const Overlay = styled.div`
@@ -55,7 +56,12 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const Modal = ({ handleClose, show, children }: Props): JSX.Element | null => {
+const Modal = ({
+  handleClose,
+  show,
+  children,
+  closeButtonKey = 'common.close',
+}: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
   if (!show) {
@@ -69,7 +75,7 @@ const Modal = ({ handleClose, show, children }: Props): JSX.Element | null => {
         <MainContainer>{children}</MainContainer>
         <ButtonContainer>
           <Button variant="secondary" onClick={handleClose}>
-            {t('common.close')}
+            {t(closeButtonKey)}
           </Button>
         </ButtonContainer>
       </ModalElement>

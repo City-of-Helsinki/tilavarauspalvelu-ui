@@ -189,7 +189,7 @@ const ReservationUnitCard = ({
         <Button
           iconRight={<IconArrowRight />}
           onClick={handle}
-          variant="secondary">
+          variant={isSelected ? 'danger' : 'secondary'}>
           {buttonText}
         </Button>
       </Actions>

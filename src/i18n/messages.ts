@@ -351,6 +351,9 @@ const translations: Translations = {
     buttonUp: ['Siirrä ylös'],
     buttonDown: ['Siirrä alas'],
     add: ['Lisää tila'],
+    infoReservationUnits: [
+      'Järjestä tilat haluamasi järjestykseen nuolilla. Ensisijaisin tila ylimmäiseksi. Voit lisätä tilatoiveita Lisää tila painikkeella.',
+    ],
   },
   ReservationUnitModal: {
     selectReservationUnit: ['Lisää hakemukselle', 'Add to application'],
@@ -359,7 +362,7 @@ const translations: Translations = {
       'Remove from application',
       'Ta bort från applikationen',
     ],
-    heading: ['Hae tiloja hakemukselle'],
+    heading: ['Lisää sopivia tiloja hakemukselle'],
     searchTermLabel: ['Sanahaku'],
     searchPurposeLabel: ['Käyttötarkoitus'],
     searchReservationUnitTypeLabel: ['Tilan tyyppi'],
@@ -368,6 +371,7 @@ const translations: Translations = {
       'Open in new tab',
       'Öppna i ny flik',
     ],
+    returnToApplication: ['Palaa hakemukselle'],
   },
   ReservationUnit: {
     backToSearch: ['Takaisin hakutuloksiin'],

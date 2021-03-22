@@ -5,6 +5,7 @@ import {
   IconGroup,
   IconPlusCircle,
   IconTrash,
+  Notification,
 } from 'hds-react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -285,6 +286,9 @@ const ReservationUnitList = ({
 
   return (
     <MainContainer>
+      <Notification size="small">
+        {t('ReservationUnitList.infoReservationUnits')}
+      </Notification>
       {reservationUnits.map((ru, index, all) => {
         return (
           <ReservationUnitCard
@@ -311,7 +315,8 @@ const ReservationUnitList = ({
         handleClose={() => {
           setShowModal(false);
         }}
-        show={showModal}>
+        show={showModal}
+        closeButtonKey="ReservationUnitModal.returnToApplication">
         <ReservationUnitModal
           currentReservationUnits={reservationUnits}
           applicationRound={applicationRound}
