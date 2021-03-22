@@ -49,8 +49,12 @@ const reducer = (state: EditorState, action: Action): EditorState => {
 
       if (nextState.application.applicationEvents?.length < 1) {
         nextState.application.applicationEvents.push(
-          applicationEvent(state.application.id)
+          applicationEvent(action.application?.id)
         );
+
+        if (!nextState.application.applicationEvents[0].applicationId) {
+          throw new Error('Illegal state, application id not set');
+        }
       }
 
       nextState.accordionStates =

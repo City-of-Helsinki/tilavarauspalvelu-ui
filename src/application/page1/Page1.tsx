@@ -159,6 +159,13 @@ const Page1 = ({
     return null;
   }
 
+  const addNewEventButtonDisabled =
+    application.applicationEvents.filter((ae) => !ae.id).length > 0;
+
+  const nextButtonDisabled =
+    application.applicationEvents.filter((ae) => !ae.id).length > 0 ||
+    (form.formState.isDirty && !editorState.savedEventId);
+
   return (
     <>
       {msg}
@@ -184,7 +191,8 @@ const Page1 = ({
         <Button
           id="addApplicationEvent"
           iconLeft={<IconPlusCircleFill />}
-          onClick={() => form.handleSubmit(onAddApplicationEvent)()}>
+          onClick={() => form.handleSubmit(onAddApplicationEvent)()}
+          disabled={addNewEventButtonDisabled}>
           {t('Application.Page1.createNew')}
         </Button>
       </ButtonContainer>
@@ -192,10 +200,7 @@ const Page1 = ({
         <Button
           id="next"
           iconRight={<IconArrowRight />}
-          disabled={
-            application.applicationEvents.length === 0 ||
-            (form.formState.isDirty && !editorState.savedEventId)
-          }
+          disabled={nextButtonDisabled}
           onClick={() => history.push('page2')}>
           {t('common.next')}
         </Button>
