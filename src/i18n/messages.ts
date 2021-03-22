@@ -81,7 +81,7 @@ const translations: Translations = {
     },
     Page3: {
       heading: ['3. Varaajan perustiedot'],
-      text: ['Varaavan yhteisön ja yhteyshenkilön perustiedot.'],
+      text: ['Varaavan yhteisön ja yhteyshenkilön perustiedot'],
       asPrivatePersonSubHeading: ['Varaan yksityishenkilönä'],
       firstName: ['Etunimi', 'First name', 'Förnamn'],
       lastName: ['Sukunimi', 'Last name', 'Efternamn'],
@@ -92,12 +92,12 @@ const translations: Translations = {
         'E-postadress',
       ],
       emailNotification: [
-        'Kaikki hakemukseen liittyvät viestit lähetetään tähän sähköpostiin',
+        'Kaikki hakemukseen liittyvät viestit lähetetään alla olevaan sähköpostiin',
       ],
       as: {
         type: {
           organisation: [
-            'Luon hakemuksen yhdistyksen, seuran tai yhteisön puolesta',
+            'Luon hakemuksen yhdistyksen, järjestön, ryhmän tai yhteisön puolesta',
             'Create Application for association',
             'Skapa ansökan om associering',
           ],
@@ -118,7 +118,7 @@ const translations: Translations = {
         firstName: ['Yhteyshenkilön etunimi', 'Firt name', 'Förnamn'],
         lastName: ['Yhteyshenkilön sukunimi', 'Last name', 'Efternamn'],
         phoneNumber: [
-          'Yhteyshenkilön puhelinumero',
+          'Yhteyshenkilön puhelinnumero',
           'Phone number',
           'Telefonnummer',
         ],
@@ -142,8 +142,8 @@ const translations: Translations = {
         registrationNumber: ['Y-tunnus', 'Business ID', 'FO-nummer'],
       },
       organisation: {
-        name: ['Yhdistyksen, seuran tai järjestön virallinen nimi'],
-        coreBusiness: ['Yhdistyksem tai seuran ydintoiminta'],
+        name: ['Yhdistyksen, järjestön, ryhmän tai yhteisön virallinen nimi'],
+        coreBusiness: ['Yhdistyksen tai seuran ydintoiminta'],
         registrationNumber: [
           'Rekisterinumero',
           'Registration number',
@@ -153,7 +153,7 @@ const translations: Translations = {
         postCode: ['Postinumero', 'ZIP code', ' Postnummer'],
         city: ['Postitoimipaikka', 'City', 'Postdistrikt'],
         notRegistered: [
-          'Seuraa ei ole rekisteröity',
+          'Yhdistystä ei ole rekisteröity',
           'Organisation is not registered',
           'Organisationen är inte registrerad',
         ],
