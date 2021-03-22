@@ -456,6 +456,12 @@ const translations: Translations = {
       copyrightText: ['Kaikki oikeudet pidätetään'],
     },
   },
+  auth: {
+    lostSession: {
+      heading: ['Sinut on kirjattu ulos'],
+      text: ['Olet kirjautunut ulos'],
+    },
+  },
 };
 
 // transform to i18n format
