@@ -333,7 +333,7 @@ const translations: Translations = {
     info: {
       heading: ['Hakeminen'],
       text: [
-        'Vakiovuoroja haetaan yleisen haun kautta. Voit selata tiloja valmiiksi, mutta hakemuksen voi ainoastaan jättää silloin kun hakuaika on käynnissä.',
+        'Vakiovuoroja haetaan yleisen haun kautta. Voit selata tiloja valmiiksi, mutta hakemuksen voi jättää vain hakuajan puitteissa.',
       ],
     },
     browseAllButton: ['Selaa kaikkia tiloja'],
@@ -341,7 +341,7 @@ const translations: Translations = {
     applicationTimes: {
       heading: ['Vakiovuorojen hakuajat'],
       text: [
-        'Vakiovuoroihin on hakuaika kaksi kertaa vuodessa. Ajankohta vaihtelee palvelusta ja toimialasta riippuen. Voit tilata sähköpostimuistutuksen tuleviin hakuihin.',
+        'Vakiovuoroihin on hakuaika kaksi kertaa vuodessa. Ajankohta vaihtelee palvelusta ja toimialasta riippuen.',
       ],
     },
   },
@@ -378,7 +378,7 @@ const translations: Translations = {
   },
   search: {
     heading: ['Vakiovuorojen tilat'],
-    text: ['Valitse tilat joihin haluat hakea vakiovuoroja.'],
+    text: ['Valitse tilat, joihin haluat hakea vakiovuoroja'],
   },
   SearchForm: {
     searchTermPlaceholder: ['Hae sanalla', 'Search with words', 'Sök med ord'],

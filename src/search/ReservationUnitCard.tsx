@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { ReservationUnit } from '../common/types';
-import { localizedValue } from '../common/util';
+import { getMainImage, localizedValue } from '../common/util';
 
 interface Props {
   reservationUnit: ReservationUnit;
@@ -81,7 +81,7 @@ const ReservationUnitCard = ({
         width="240"
         height="156"
         src={
-          reservationUnit.images[0]?.imageUrl ||
+          getMainImage(reservationUnit)?.smallUrl ||
           'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
         }
       />
@@ -92,7 +92,7 @@ const ReservationUnitCard = ({
           </Link>
         </Name>
         <Description>
-          {localizedValue(reservationUnit.spaces[0]?.name, i18n.language)}
+          {localizedValue(reservationUnit.building.name, i18n.language)}
         </Description>
         <Bottom>
           <IconInfoCircle aria-label={t('reservationUnit.type')} />{' '}

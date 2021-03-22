@@ -227,7 +227,7 @@ const ReservationUnitList = ({
     let isMounted = true; // note this flag denote mount status
     let data;
     const fetchData = async () => {
-      if (applicationEvent.eventReservationUnits.length === 0) {
+      if (applicationEvent.eventReservationUnits?.length === 0) {
         data = selectedReservationUnits;
       } else {
         const promises = applicationEvent.eventReservationUnits.map(
