@@ -100,11 +100,6 @@ const isOpen = (
   current: number | undefined,
   states: AccordionState[]
 ): boolean => {
-  if (current === undefined) {
-    console.log('finding for undefined', states);
-    console.log(states.find((state) => state.applicationEventId === null));
-  }
-
   return Boolean(
     states.find((state) => state.applicationEventId === current)?.open
   );
@@ -147,8 +142,6 @@ const ApplicationEvent = ({
 
   const fieldName = (nameField: string) =>
     `applicationEvents[${index}].${nameField}`;
-
-  console.log('editorState @ApplicationEvent', editorState);
 
   const applicationName = form.watch(fieldName('name'));
   const applicationPeriodBegin = form.watch(fieldName('begin'));

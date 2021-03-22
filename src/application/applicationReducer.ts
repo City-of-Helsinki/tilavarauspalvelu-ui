@@ -26,7 +26,6 @@ const applicationEvent = (applicationId?: number): ApplicationEvent => ({
 });
 
 const reducer = (state: EditorState, action: Action): EditorState => {
-  console.log('processing action', action);
   switch (action.type) {
     case 'addNewApplicationEvent': {
       const nextState = { ...state, savedEventId: -1 };
