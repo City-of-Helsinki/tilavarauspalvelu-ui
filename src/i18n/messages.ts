@@ -66,7 +66,7 @@ const translations: Translations = {
       periodEndDate: ['Kauden päätöspäivä'],
       minDuration: ['Vuoron minimikesto'],
       maxDuration: ['Vuoron maksimikesto'],
-      eventsPerWeek: ['Vuorojen määrä/viikko'],
+      eventsPerWeek: ['Vuorojen määrä viikossa'],
       biweekly: ['Vuoro vain joka toinen viikko'],
       createNew: ['Lisää uusi vakiovuoro hakemukselle'],
       applicationEventName: ['Nimetön vakiovuoro'],
