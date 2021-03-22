@@ -180,7 +180,7 @@ const translations: Translations = {
         ],
       },
       heading: ['4. Hakemuksen lähettäminen'],
-      text: ['Ohessa yhteenveto hakemuksestasi.'],
+      text: ['Yhteenveto hakemuksestasi'],
       basicInfoSubHeading: ['Varaajan perustiedot'],
       firstName: ['Yhteyshenkilön etunimi'],
       lastName: ['Yhteyshenkilön sukunimi'],
@@ -214,7 +214,7 @@ const translations: Translations = {
       notification: {
         processing: ['Käsittely'],
         body: [
-          'Hakemusten käsittely aloitetaan kun hakuaika on päättynyt. Ilmoitamme sinulle, sekä järjestöllesi tai yrityksellesi hakemuksen eri vaiheista sähköpostitse.',
+          'Hakemusten käsittely aloitetaan, kun hakuaika on päättynyt. Ilmoitamme antamaasi sähköpostiosoitteeseen eri vaiheista.',
         ],
       },
       userAcceptsTerms: ['Hyväksyn palvelun käyttöehdot'],
@@ -222,8 +222,8 @@ const translations: Translations = {
     sent: {
       heading: ['Hakemuksesi on lähetetty käsiteltäväksi'],
       faq1Question: ['Kuinka hakemuiksen käsittely etenee?'],
-      faq2Question: ['Kuinka valitan päätöksestä?'],
-      faq3Question: ['Kuinka hakemuksen käsittely tapahtuu?'],
+      faq2Question: ['Kuinka hakemuksen käsittely tapahtuu?'],
+      faq3Question: ['Kuinka valitan päätöksestä?'],
     },
   },
   ApplicationPage: {
@@ -231,7 +231,7 @@ const translations: Translations = {
       page1: ['Vakiovuoron perustiedot'],
       page2: ['Vakiovuoron ajankohta'],
       page3: ['Varaajan perustiedot'],
-      preview: ['Lähetä käsiteltäväksi'],
+      preview: ['Tarkista ja lähetä käsiteltäväksi'],
     },
   },
   ApplicationRoundCard: {
