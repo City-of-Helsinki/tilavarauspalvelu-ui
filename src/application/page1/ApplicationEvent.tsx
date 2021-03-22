@@ -99,8 +99,16 @@ const defaultDuration = '1';
 const isOpen = (
   current: number | undefined,
   states: AccordionState[]
-): boolean =>
-  Boolean(states.find((state) => state.applicationEventId === current)?.open);
+): boolean => {
+  if (current === undefined) {
+    console.log('finding for undefined', states);
+    console.log(states.find((state) => state.applicationEventId === null));
+  }
+
+  return Boolean(
+    states.find((state) => state.applicationEventId === current)?.open
+  );
+};
 
 const getApplicationEventData = (
   original: ApplicationEventType,
@@ -139,6 +147,8 @@ const ApplicationEvent = ({
 
   const fieldName = (nameField: string) =>
     `applicationEvents[${index}].${nameField}`;
+
+  console.log('editorState @ApplicationEvent', editorState);
 
   const applicationName = form.watch(fieldName('name'));
   const applicationPeriodBegin = form.watch(fieldName('begin'));
@@ -351,7 +361,8 @@ const ApplicationEvent = ({
           Hyväksy ja tallenna vakiovuoro
         </SaveButton>
       </Accordion>
-      {editorState.savedEventId === applicationEvent.id ? (
+      {editorState.savedEventId &&
+      editorState.savedEventId === applicationEvent.id ? (
         <Notification
           size="small"
           type="success"

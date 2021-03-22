@@ -26,6 +26,7 @@ const applicationEvent = (applicationId?: number): ApplicationEvent => ({
 });
 
 const reducer = (state: EditorState, action: Action): EditorState => {
+  console.log('processing action', action);
   switch (action.type) {
     case 'addNewApplicationEvent': {
       const nextState = { ...state, savedEventId: -1 };
@@ -43,14 +44,22 @@ const reducer = (state: EditorState, action: Action): EditorState => {
     case 'load': {
       const nextState = {
         ...state,
-        application: action.application as Application,
+        application: { ...(action.application as Application) },
         loading: false,
-        accordionStates:
-          action.application?.applicationEvents.map((ae) => ({
-            applicationEventId: ae.id as number,
-            open: false,
-          })) || ([] as AccordionState[]),
       };
+
+      if (nextState.application.applicationEvents?.length < 1) {
+        nextState.application.applicationEvents.push(
+          applicationEvent(state.application.id)
+        );
+      }
+
+      nextState.accordionStates =
+        action.application?.applicationEvents.map((ae, i, arr) => ({
+          applicationEventId: ae.id as number,
+          open: arr.length === 1, // auto open if only 1 event
+        })) || ([] as AccordionState[]);
+
       return nextState;
     }
     case 'save': {
