@@ -338,7 +338,6 @@ const translations: Translations = {
       ],
     },
     browseAllButton: ['Selaa kaikkia tiloja'],
-    infoButton: ['Lue lisää hakuprosessista'],
     applicationTimes: {
       heading: ['Vakiovuorojen hakuajat'],
       text: [
