@@ -51,6 +51,7 @@ const translations: Translations = {
     Intro: {
       startNewApplication: ['Aloita hakemuksen täyttäminen'],
     },
+    applicationEventSaved: ['Vakiovuoro tallennettu hakemukselle'],
     Page1: {
       heading: ['1. Vakiovuoron luominen'],
       text: ['Perustiedot'],

@@ -1,4 +1,9 @@
-import { Button, IconArrowRight, IconPlusCircleFill } from 'hds-react';
+import {
+  Button,
+  IconArrowRight,
+  IconPlusCircleFill,
+  Notification,
+} from 'hds-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -171,7 +176,16 @@ const Page1 = ({
 
   return (
     <>
-      {msg}
+      {msg ? (
+        <Notification
+          type="error"
+          size="small"
+          label=""
+          autoClose
+          onClose={() => setMsg('')}>
+          {msg}
+        </Notification>
+      ) : null}
       {application.applicationEvents.map((event, index) => {
         return (
           <ApplicationEvent
