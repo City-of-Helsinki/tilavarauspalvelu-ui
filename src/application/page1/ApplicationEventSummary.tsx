@@ -23,6 +23,13 @@ const CustomIconWithText = styled(IconWithText)`
   font-size: var(--fontsize-body-l);
 `;
 
+const SubHeadLine = styled.h2`
+  font-family: var(--font-bold);
+  margin-top: var(--spacing-layout-m);
+  font-weight: 700;
+  font-size: var(--fontsize-heading-m);
+`;
+
 const numHours = (
   startDate: string,
   endDate: string,
@@ -70,8 +77,18 @@ const ApplicationEventSummary = ({
   );
   const numPersons = Number(applicationEvent.numPersons);
 
+  if (!begin || !end || !minDuration) {
+    return null;
+  }
+
+  console.log(begin, end, minDuration);
+
   return (
     <>
+      <SubHeadLine>
+        {t('Application.Page1.applicationEventSummary')}
+      </SubHeadLine>
+
       <Message>
         {t('ApplicationEventSummary.message', {
           name,

@@ -336,9 +336,6 @@ const ApplicationEvent = ({
           />
         </PeriodContainer>
         <HorisontalRule />
-        <SubHeadLine>
-          {t('Application.Page1.applicationEventSummary')}
-        </SubHeadLine>
         <ApplicationEventSummary
           applicationEvent={getApplicationEventData(
             applicationEvent,
