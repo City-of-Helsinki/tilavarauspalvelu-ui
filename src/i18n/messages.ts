@@ -69,6 +69,7 @@ const translations: Translations = {
       maxDuration: ['Vuoron maksimikesto'],
       eventsPerWeek: ['Vuorojen määrä viikossa'],
       biweekly: ['Vuoro vain joka toinen viikko'],
+      defaultDurationLabel: ['1 tunti'],
       createNew: ['Lisää uusi vakiovuoro hakemukselle'],
       applicationEventName: ['Nimetön vakiovuoro'],
       applicationEventSummary: ['Yhteenveto'],

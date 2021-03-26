@@ -305,7 +305,7 @@ const ApplicationEvent = ({
           <Checkbox
             id="durationCheckbox"
             checked={defaultDurationSelected}
-            label={`${defaultDuration}${t('common.abbreviations.hour')}`}
+            label={t('Application.Page1.defaultDurationLabel')}
             onChange={selectDefaultDuration}
             disabled={defaultDurationSelected}
           />
