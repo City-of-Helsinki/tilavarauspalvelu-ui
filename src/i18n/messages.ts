@@ -22,7 +22,7 @@ const translations: Translations = {
       'Olet hakemassa vakiovuorolle {{name}} kaudella {{startDate}} - {{endDate}} vähintään yhteensä {{hours}} tuntia vakiovuoroaikaa.',
     ],
     numPersons: ['Ryhmän koko on <1>{{numPersons}} henkilöä<1>'],
-    minDuration: ['Yhden vuoron kesto minimissään {{minDuration}} t'],
+    minDuration: ['Yhden vuoron kesto minimissään {{minDuration}}'],
     eventsPerWeek: ['<0>{{eventsPerWeek}}</0> vuoro viikossa'],
     eventsPerWeek_plural: ['<0>{{eventsPerWeek}}</0> vuoroa viikossa'],
   },
@@ -73,6 +73,7 @@ const translations: Translations = {
       applicationEventName: ['Nimetön vakiovuoro'],
       applicationEventSummary: ['Yhteenveto'],
       applicationEventSaved: ['Vakiovuoro tallennettu hakemukselle'],
+      saveEvent: ['Hyväksy ja tallenna vakiovuoro'],
     },
     Page2: {
       heading: ['2. Vakiovuoron ajankohta'],
@@ -276,6 +277,7 @@ const translations: Translations = {
     hour: ['Tunti'],
     abbreviations: {
       hour: ['t', 'h', 'h'],
+      minute: ['min'],
     },
     login: ['Kirjaudu', 'Login', 'Logga in'],
     logout: ['Kirjaudu ulos', 'Logout', 'Logga ut'],
