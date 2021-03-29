@@ -21,6 +21,7 @@ import {
 import Modal from '../../component/Modal';
 import ReservationUnitModal from './ReservationUnitModal';
 import { getAddress, getMainImage, localizedValue } from '../../common/util';
+import { breakpoint } from '../../common/style';
 
 type CardProps = {
   order: number;
@@ -46,6 +47,9 @@ const CardButtonContainer = styled.div`
   grid-template-columns: 4fr 1fr;
   margin-top: var(--spacing-s);
   align-items: center;
+  @media (max-width: ${breakpoint.s}) {
+    grid-template-columns: 3fr 1fr;
+  }
 `;
 
 const CardContainer = styled.div`
@@ -54,12 +58,20 @@ const CardContainer = styled.div`
   display: grid;
   grid-template-columns: 76px 5fr 1fr 1fr;
   align-items: center;
+  @media (max-width: ${breakpoint.m}) {
+    grid-template-columns: 1fr 2fr;
+    gap: var(--spacing-xs);
+  }
 `;
 
 const Image = styled.img`
   width: 76px;
   height: 99px;
   object-fit: cover;
+  @media (max-width: ${breakpoint.s}) {
+    width: 50px;
+    height: auto;
+  }
 `;
 
 const Name = styled.div`
