@@ -12,7 +12,7 @@ type Props = {
   required: boolean;
   options: OptionType[];
   error?: string;
-  validate?: any;
+  validate?: { [key: string]: (val: string) => boolean };
 };
 const ControlledSelect = ({
   name,
