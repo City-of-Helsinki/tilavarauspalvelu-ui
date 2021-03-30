@@ -88,7 +88,6 @@ const Page2 = ({ application, onNext }: Props): JSX.Element => {
       setMsg('Application.error.missingSchedule');
       return;
     }
-    console.log('no errors found', appToSave);
     onNext(appToSave);
   };
 
