@@ -6,7 +6,6 @@ import {
   Notification,
   TextInput,
 } from 'hds-react';
-import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import styled from 'styled-components';
@@ -23,11 +22,12 @@ import {
 } from '../../common/types';
 import {
   apiDurationToMinutes,
+  errorText,
   formatApiDate,
   formatDate,
 } from '../../common/util';
 import { breakpoint } from '../../common/style';
-import { HorisontalRule } from '../../component/common';
+import { CheckboxWrapper, HorisontalRule } from '../../component/common';
 import ApplicationEventSummary from './ApplicationEventSummary';
 import ControlledSelect from '../../component/ControlledSelect';
 import Accordion from '../../component/Accordion';
@@ -97,15 +97,7 @@ const SaveButton = styled(Button)`
   margin-top: var(--spacing-layout-l);
 `;
 
-const CheckboxWrapper = styled.div`
-  margin-top: 2.5em;
-  margin-bottom: auto;
-`;
-
 const defaultDuration = '01:00:00';
-
-const errorText = (t: TFunction, key: string): string =>
-  key ? t(`Application.error.${key}`) : '';
 
 const isOpen = (
   current: number | undefined,
@@ -212,8 +204,6 @@ const ApplicationEvent = ({
       form.setValue(fieldName('maxDuration'), defaultDuration);
     }
   };
-
-  console.log(form.errors);
 
   return (
     <>

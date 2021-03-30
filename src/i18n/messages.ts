@@ -63,6 +63,7 @@ const translations: Translations = {
       endAfterPeriodEnd: ['Kauden lopetuspäivä on liian myöhäinen'],
       endBeforeBegin: ['Kauden lopetuspäivä on aikaisempi kuin aloituspäivä'],
       endBeforePeriodBegin: ['Kauden lopetuspäivä on liian aikainen'],
+      missingSchedule: ['Lisää kaikille vakiovuoroille vähintään yksi aika'],
     },
     Intro: {
       startNewApplication: ['Aloita hakemuksen täyttäminen'],
