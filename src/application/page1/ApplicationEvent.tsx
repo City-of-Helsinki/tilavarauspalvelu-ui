@@ -159,7 +159,7 @@ const ApplicationEvent = ({
   const applicationPeriodEnd = form.watch(fieldName('end'));
   const durationMin = form.watch(fieldName('minDuration'));
   const durationMax = form.watch(fieldName('maxDuration'));
-  form.watch(fieldName('numPersons'));
+  const numPersons = form.watch(fieldName('numPersons'));
   form.watch(fieldName('eventsPerWeek'));
 
   useEffect(() => {
@@ -236,8 +236,14 @@ const ApplicationEvent = ({
           </div>
           <div>
             <TextInput
+              type="number"
               required
-              ref={form.register({ required: true })}
+              ref={form.register({
+                validate: {
+                  required: (val) => Boolean(val),
+                  numPersonsMin: (val) => Number(val) > 0,
+                },
+              })}
               label={t('Application.Page1.groupSize')}
               id={fieldName('numPersons')}
               name={fieldName('numPersons')}
@@ -294,6 +300,7 @@ const ApplicationEvent = ({
           applicationRound={applicationRound}
           form={form}
           fieldName={fieldName('eventReservationUnits')}
+          minSize={numPersons}
           options={{
             purposeOptions,
             reservationUnitTypeOptions,
@@ -308,7 +315,6 @@ const ApplicationEvent = ({
           <TextInput
             type="date"
             onChange={() => {
-              console.log('onchange');
               form.clearErrors([fieldName('begin'), fieldName('end')]);
             }}
             ref={form.register({

@@ -50,6 +50,8 @@ const translations: Translations = {
   Application: {
     error: {
       required: ['Pakollinen', 'Required', 'Obligatorisk'],
+
+      numPersonsMin: ['Ryhmän koko virheellinen'],
       minDurationBiggerThanMaxDuration: [
         'Minimikesto on suurempi kuin maksimikesto',
       ],
@@ -64,6 +66,7 @@ const translations: Translations = {
       endBeforeBegin: ['Kauden lopetuspäivä on aikaisempi kuin aloituspäivä'],
       endBeforePeriodBegin: ['Kauden lopetuspäivä on liian aikainen'],
       missingSchedule: ['Lisää kaikille vakiovuoroille vähintään yksi aika'],
+      reservationUnitTooSmall: ['Tila on liian pieni ryhmän käyttöön'],
     },
     Intro: {
       startNewApplication: ['Aloita hakemuksen täyttäminen'],
