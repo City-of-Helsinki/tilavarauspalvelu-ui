@@ -105,19 +105,28 @@ export type ApplicantType =
   | 'community'
   | 'company';
 
+export type ApplicationStatus =
+  | 'draft'
+  | 'in_review'
+  | 'review_done'
+  | 'allocating'
+  | 'allocated'
+  | 'validated'
+  | 'handled'
+  | 'declined'
+  | 'cancelled';
+
+export type ReducedApplicationStatus =
+  | 'draft'
+  | 'processing'
+  | 'handled'
+  | 'cancelled'
+  | 'declined';
+
 export type Application = {
   id?: number;
   applicantType: ApplicantType;
-  status:
-    | 'draft'
-    | 'in_review'
-    | 'review_done'
-    | 'allocating'
-    | 'allocated'
-    | 'validated'
-    | 'handled'
-    | 'declined'
-    | 'cancelled';
+  status: ApplicationStatus;
   applicationRoundId: number;
   organisation: Organisation | null;
   contactPerson: ContactPerson | null;
@@ -146,6 +155,15 @@ export type ContactPerson = {
   phoneNumber: string | null;
 };
 
+export type ApplicationEventStatus =
+  | 'created'
+  | 'allocating'
+  | 'allocated'
+  | 'validated'
+  | 'approved'
+  | 'declined'
+  | 'cancelled';
+
 export type ApplicationEvent = {
   id?: number;
   name: string | null;
@@ -162,14 +180,7 @@ export type ApplicationEvent = {
   applicationId: number;
   eventReservationUnits: EventReservationUnit[];
   applicationEventSchedules: ApplicationEventSchedule[];
-  status:
-    | 'created'
-    | 'allocating'
-    | 'allocated'
-    | 'validated'
-    | 'approved'
-    | 'declined'
-    | 'cancelled';
+  status: ApplicationEventStatus;
 };
 
 export type EventReservationUnit = {

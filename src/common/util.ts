@@ -12,6 +12,8 @@ import {
   TranslationObject,
   ReservationUnit,
   Image,
+  ApplicationStatus,
+  ReducedApplicationStatus,
 } from './types';
 
 export const isActive = (startDate: string, endDate: string): boolean => {
@@ -259,6 +261,22 @@ export const getAddress = (ru: ReservationUnit): string | null => {
 };
 
 export const applicationUrl = (id: number): string => `/application/${id}`;
+export const resolutionUrl = (id: number): string => `/applications/${id}`;
 
 export const errorText = (t: TFunction, key: string | undefined): string =>
   key ? t(`Application.error.${key}`) : '';
+
+export const getReducedApplicationStatus = (
+  status: ApplicationStatus
+): ReducedApplicationStatus => {
+  switch (status) {
+    case 'in_review':
+    case 'review_done':
+    case 'allocating':
+    case 'allocated':
+    case 'validated':
+      return 'processing';
+    default:
+      return status;
+  }
+};
