@@ -24,7 +24,7 @@ const Loader = ({ children, datas }: Params): JSX.Element => {
     0;
 
   if (hasError) {
-    return <span>{t('error.retrievingData')}</span>;
+    return <span>{t('common.error.dataError')}</span>;
   }
 
   if (isLoading && triggerSpinner) {

@@ -92,6 +92,8 @@ const translations: Translations = {
     Intro: {
       startNewApplication: ['Aloita hakemuksen täyttäminen'],
       heading: ['Vakiovuorohakemus'],
+      createFailedHeading: ['Hakemuksen luominen epäonnistui'],
+      createFailedContent: ['Yritä myöhemmin uudelleen'],
       faq1: {
         question: [
           'Edustan yhdistystä tai rekisteröitymätöntä ryhmää, kuinka toimin?',

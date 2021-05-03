@@ -43,3 +43,33 @@ export function useApiData<F, T, P>(
 
   return { ...data };
 }
+
+export function useApiDataNoParams<F, T>(
+  apiFunction: () => Promise<F>,
+  transform: (from: F) => T = identity
+): ApiData<F, T> {
+  const [data, setData] = useState<ApiData<F, T>>({
+    status: 'init',
+  });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const loadedData = await apiFunction();
+
+        setData({
+          data: loadedData,
+          transformed: transform(loadedData),
+          status: 'done',
+        });
+      } catch (e) {
+        setData({ data: undefined, status: 'error' });
+      }
+    }
+    if (data.status === 'init') {
+      setData({ data: undefined, status: 'loading' });
+      fetchData();
+    }
+  }, [apiFunction, data, transform]);
+
+  return { ...data };
+}
