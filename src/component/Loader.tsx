@@ -5,7 +5,7 @@ import { ApiData } from '../common/hook/useApiData';
 
 type Params = {
   // eslint-disable-next-line
-  datas: ApiData<any>[];
+  datas: ApiData<any, any>[];
   children: React.ReactNode;
 };
 
@@ -14,8 +14,7 @@ const Loader = ({ children, datas }: Params): JSX.Element => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const i = setTimeout(() => setTriggerSpinner(true), 150);
-
+    const i = setTimeout(() => setTriggerSpinner(true), 800);
     return () => clearTimeout(i);
   }, []);
 

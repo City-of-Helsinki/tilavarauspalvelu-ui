@@ -1,26 +1,36 @@
 import { useEffect, useState } from 'react';
 
-export type ApiData<T> = {
-  data?: T;
+export type ApiData<F, T> = {
+  data?: F;
+  transformed?: T;
   status: State;
 };
 
+// eslint-disable-next-line
+const identity = (f: any) => f;
+
 type State = 'init' | 'loading' | 'error' | 'done';
 
-export function useApiData<T, P>(
-  apiFunction: (params: P) => Promise<T>,
-  apiParams?: P
-): ApiData<T> {
-  const [data, setData] = useState<ApiData<T>>({
+export function useApiData<F, T, P>(
+  apiFunction: (params: P) => Promise<F>,
+  apiParams?: P,
+  transform: (from: F) => T = identity
+): ApiData<F, T> {
+  const [data, setData] = useState<ApiData<F, T>>({
     status: 'init',
   });
   useEffect(() => {
     async function fetchData() {
+      if (!apiParams) {
+        return;
+      }
       try {
-        if (apiParams) {
-          const loadedData = await apiFunction(apiParams);
-          setData({ data: loadedData, status: 'done' });
-        }
+        const loadedData = await apiFunction(apiParams);
+        setData({
+          data: loadedData,
+          transformed: transform(loadedData),
+          status: 'done',
+        });
       } catch (e) {
         setData({ data: undefined, status: 'error' });
       }
@@ -29,7 +39,7 @@ export function useApiData<T, P>(
       setData({ data: undefined, status: 'loading' });
       fetchData();
     }
-  }, [apiFunction, apiParams, data]);
+  }, [apiFunction, apiParams, data, transform]);
 
   return { ...data };
 }

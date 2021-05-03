@@ -186,6 +186,7 @@ export type ApplicationEvent = {
 export type EventReservationUnit = {
   priority: number;
   reservationUnitId: number;
+  reservationUnitDetails?: ReservationUnit;
 };
 
 export type DAY = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -195,6 +196,23 @@ export type ApplicationEventSchedule = {
   day: DAY;
   begin: string;
   end: string;
+};
+
+export type ReservationState =
+  | 'created'
+  | 'cancelled'
+  | 'confirmed'
+  | 'denied'
+  | 'requested'
+  | 'waiting for payment';
+
+export type Reservation = {
+  id: number;
+  state: ReservationState;
+  priority: number;
+  begin: string;
+  end: string;
+  reservationUnit: ReservationUnit[];
 };
 
 // for ui:

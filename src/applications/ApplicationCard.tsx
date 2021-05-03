@@ -191,7 +191,7 @@ const ApplicationCard = ({
           onClick={() => {
             history.push(`${resolutionUrl(application.id as number)}`);
           }}>
-          {t('ApplicationCard.resolution')}
+          {t('ApplicationCard.reservations')}
         </StyledButton>
       </Buttons>
       <ConfirmationModal

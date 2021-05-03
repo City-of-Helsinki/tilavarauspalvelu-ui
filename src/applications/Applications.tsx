@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { useAsync } from 'react-use';
 import styled from 'styled-components';
 import groupBy from 'lodash/groupBy';
 import { getApplications, getApplicationRounds } from '../common/api';
@@ -11,9 +10,10 @@ import {
   ReducedApplicationStatus,
 } from '../common/types';
 import Head from './Head';
-import { CenterSpinner } from '../component/common';
 import ApplicationsGroup from './ApplicationsGroup';
 import { getReducedApplicationStatus } from '../common/util';
+import { useApiData } from '../common/hook/useApiData';
+import Loader from '../component/Loader';
 
 const Container = styled.div`
   padding: var(--spacing-l) var(--spacing-m) var(--spacing-m);
@@ -60,42 +60,30 @@ function ApplicationGroups({
 const Applications = (): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const [applications, setApplications] = useState(
-    {} as { [key: string]: Application[] }
-  );
-  const [rounds, setRounds] = useState(
-    {} as { [key: number]: ApplicationRound }
+  const applications = useApiData(getApplications, {}, (apps) =>
+    groupBy(
+      apps.filter((app) => app.status !== 'cancelled'),
+      (a) => getReducedApplicationStatus(a.status)
+    )
   );
 
-  const status = useAsync(async () => {
-    const loadedApplications = (await getApplications()).filter(
-      (a) => a.status !== 'cancelled'
-    );
-    const groupedApplications = groupBy(loadedApplications, (a) =>
-      getReducedApplicationStatus(a.status)
-    );
-    setApplications(groupedApplications);
-    const loadedRounds = await getApplicationRounds();
-    setRounds(
-      loadedRounds.reduce((prev, current) => {
-        return { ...prev, [current.id]: current };
-      }, {} as { [key: number]: ApplicationRound })
-    );
-  }, []);
+  const rounds = useApiData(getApplicationRounds, {}, (applicationRounds) =>
+    applicationRounds.reduce((prev, current) => {
+      return { ...prev, [current.id]: current };
+    }, {} as { [key: number]: ApplicationRound })
+  );
 
   return (
     <>
       <Head heading={t('Applications.heading')} />
       <Container>
-        {status.loading ? (
-          <CenterSpinner />
-        ) : (
+        <Loader datas={[applications, rounds]}>
           <ApplicationGroups
             t={t}
-            rounds={rounds}
-            applications={applications}
+            rounds={rounds.transformed || {}}
+            applications={applications.transformed || {}}
           />
-        )}
+        </Loader>
       </Container>
     </>
   );

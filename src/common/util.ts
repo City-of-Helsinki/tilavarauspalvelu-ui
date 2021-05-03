@@ -1,4 +1,11 @@
-import { isAfter, parseISO, isBefore, format } from 'date-fns';
+import {
+  isAfter,
+  parseISO,
+  isBefore,
+  format,
+  startOfWeek as dateFnsStartOfWeek,
+  endOfWeek as dateFnsEndOfWeek,
+} from 'date-fns';
 import i18next, { TFunction } from 'i18next';
 import { stringify } from 'query-string';
 import { ReservationUnitsParameters } from './api';
@@ -280,3 +287,9 @@ export const getReducedApplicationStatus = (
       return status;
   }
 };
+
+export const startOfWeek = (d: Date): Date =>
+  dateFnsStartOfWeek(d, { weekStartsOn: 1 });
+
+export const endOfWeek = (d: Date): Date =>
+  dateFnsEndOfWeek(d, { weekStartsOn: 1 });
