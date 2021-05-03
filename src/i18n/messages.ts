@@ -389,6 +389,7 @@ const translations: Translations = {
   },
 
   Navigation: {
+    userNoName: ['Nimetön Käyttäjä'],
     Item: {
       spaceReservation: ['Vakiovuorot'],
       reservationUnitSearch: ['Tilahaku'],
