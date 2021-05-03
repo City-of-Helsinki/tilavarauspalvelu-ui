@@ -34,7 +34,7 @@ const eventStyleGetter = (event: { reservation: Reservation }) => {
   style.backgroundColor =
     reservation.state === 'cancelled'
       ? 'var(--color-error-dark)'
-      : 'var(--color-tram-dark)';
+      : 'var(--color-success-dark)';
 
   if (reservation.state === 'cancelled') {
     style.textDecoration = 'line-through';
