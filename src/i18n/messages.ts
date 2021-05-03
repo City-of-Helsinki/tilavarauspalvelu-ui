@@ -474,6 +474,11 @@ const translations: Translations = {
   },
   ReservationCalendar: {
     prefixForCancelled: ['Peruttu'],
+    linkToResourceUnitLabel: ['Tutustu tilaan'],
+    legend: {
+      okLabel: ['Voimassa oleva varaus'],
+      cancelledLabel: ['Peruttu varaus'],
+    },
   },
   Reservations: {
     back: ['Takaisin Omat hakemukset'],

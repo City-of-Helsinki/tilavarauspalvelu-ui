@@ -41,17 +41,26 @@ const Container = styled.div`
   max-width: var(--container-width-xl);
   margin: 0 auto var(--spacing-2-xl) auto;
   height: 100%;
+  @media (max-width: ${breakpoint.m}) {
+    padding: var(--spacing-s);
+  }
 `;
 
 const RoundName = styled.div`
   font-size: var(--fontsize-heading-xl);
   font-family: var(--font-bold);
+  @media (max-width: ${breakpoint.s}) {
+    font-size: var(--fontsize-heading-l);
+  }
 `;
 
 const EventName = styled.div`
   margin-top: var(--spacing-xs);
   font-size: var(--fontsize-heading-l);
   font-family: var(--font-bold);
+  @media (max-width: ${breakpoint.s}) {
+    font-size: var(--fontsize-heading-m);
+  }
 `;
 
 const Applicant = styled.div`
@@ -68,6 +77,9 @@ const Modified = styled.div`
 
 const Card = styled(HDSCard)`
   margin-top: var(--spacing-layout-m);
+  @media (max-width: ${breakpoint.m}) {
+    padding: var(--spacing-s);
+  }
 `;
 
 const TwoColLayout = styled.div`
@@ -75,6 +87,9 @@ const TwoColLayout = styled.div`
   display: grid;
   grid-gap: var(--spacing-layout-xs);
   grid-template-columns: var(--spacing-layout-m) 1fr;
+  @media (max-width: ${breakpoint.m}) {
+    grid-template-columns: var(--spacing-layout-xs) 1fr;
+  }
 `;
 
 const Actions = styled.div`
@@ -84,6 +99,15 @@ const Actions = styled.div`
   grid-template-columns: 1fr 10rem;
   @media (max-width: ${breakpoint.m}) {
     grid-template-columns: 1fr;
+  }
+`;
+
+const CalendarContainer = styled.div`
+  @media (max-width: ${breakpoint.s}) {
+    overflow-x: scroll;
+    > div {
+      width: 30em;
+    }
   }
 `;
 
@@ -313,11 +337,16 @@ const Reservations = (): JSX.Element | null => {
                               </div>
                             </TwoColLayout>
                             <HorisontalRule />
-                            <ReservationCalendar
-                              begin={new Date(week.value as number)}
-                              reservations={resUnitReservations}
-                              applicationEvent={event}
-                            />
+                            <CalendarContainer>
+                              <div>
+                                <ReservationCalendar
+                                  begin={new Date(week.value as number)}
+                                  reservations={resUnitReservations}
+                                  reservationUnit={reservationUnit}
+                                  applicationEvent={event}
+                                />
+                              </div>
+                            </CalendarContainer>
                           </>
                         );
                       }
