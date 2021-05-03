@@ -472,6 +472,9 @@ const translations: Translations = {
     ],
     returnToApplication: ['Palaa hakemukselle'],
   },
+  ReservationCalendar: {
+    prefixForCancelled: ['Peruttu'],
+  },
   Reservations: {
     back: ['Takaisin Omat hakemukset'],
     info: ['Hakemukselle on myönnetty seuraavat vakiovuorot'],

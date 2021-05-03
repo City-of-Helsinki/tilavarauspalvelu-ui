@@ -2,6 +2,7 @@ import { TFunction } from 'i18next';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import { breakpoint } from '../common/style';
 import { Reservation } from '../common/types';
 import { localizedValue, parseDate } from '../common/util';
 
@@ -14,7 +15,7 @@ const Container = styled.div`
 `;
 
 const InfoText = styled.div`
-  margin-top: var(--spacing-m);
+  margin-top: var(--spacing-l);
   font-size: var(--fontsize-heading-m);
 `;
 
@@ -22,7 +23,11 @@ const TwoColLayout = styled.div`
   margin-top: var(--spacing-m);
   display: grid;
   grid-gap: 0.5em;
-  grid-template-columns: 1fr 1fr 9fr;
+  grid-template-columns: 2fr 9fr;
+  @media (max-width: ${breakpoint.m}) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 `;
 
 const reservationLine = (
@@ -34,8 +39,8 @@ const reservationLine = (
   const end = parseDate(reservation.end);
   return (
     <TwoColLayout>
-      <span>{t('common.dateLong', { date: begin })}</span>
       <span>
+        {t('common.dateLong', { date: begin })}{' '}
         {t('common.time', { date: begin })}-{t('common.time', { date: end })}
       </span>
       <span>

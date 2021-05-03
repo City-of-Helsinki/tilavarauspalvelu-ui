@@ -26,14 +26,16 @@ const eventStyleGetter = (event: { reservation: Reservation }) => {
   const style = {
     borderRadius: '0px',
     opacity: 0.8,
-    color: 'black',
+    color: 'var(--color-white)',
     display: 'block',
   } as React.CSSProperties;
 
-  const colors = ['var(--color-copper)', 'var(--color-tram)'];
   const { reservation } = event;
   style.backgroundColor =
-    colors[reservation.reservationUnit?.[0].id % colors.length];
+    reservation.state === 'cancelled'
+      ? 'var(--color-error-dark)'
+      : 'var(--color-tram-dark)';
+
   if (reservation.state === 'cancelled') {
     style.textDecoration = 'line-through';
   }
@@ -42,6 +44,9 @@ const eventStyleGetter = (event: { reservation: Reservation }) => {
     style,
   };
 };
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const ignore = () => {};
 
 const ReservationCalendar = ({
   begin,
@@ -55,17 +60,21 @@ const ReservationCalendar = ({
     getDay,
     locales,
   });
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   return (
     <Container>
       <Calendar
         culture="fi"
-        formats={{}}
+        formats={{ dayFormat: 'EEEEEE d.M.yyyy' }}
         eventPropGetter={eventStyleGetter}
         events={reservations?.map((r) => {
           const event = {
-            title: `${applicationEvent.name}: ${localizedValue(
+            title: `${
+              r.state === 'cancelled'
+                ? `${t('ReservationCalendar.prefixForCancelled')}: `
+                : ''
+            } ${applicationEvent.name}: ${localizedValue(
               r.reservationUnit?.[0].name,
               i18n.language
             )}`,
@@ -78,7 +87,9 @@ const ReservationCalendar = ({
           return event;
         })}
         date={begin}
+        onNavigate={ignore}
         view="week"
+        onView={ignore}
         min={startOfMonth(begin)}
         max={endOfMonth(begin)}
         localizer={localizer}
