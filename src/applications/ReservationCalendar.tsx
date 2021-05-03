@@ -106,7 +106,7 @@ const ReservationCalendar = ({
   return (
     <Container>
       <Calendar
-        culture="fi"
+        culture={i18n.language}
         formats={{ dayFormat: 'EEEEEE d.M.yyyy' }}
         eventPropGetter={eventStyleGetter}
         events={reservations?.map((r) => {
