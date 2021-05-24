@@ -35,6 +35,34 @@ export type Resource = {
   bufferTimeAfter: string;
 };
 
+export type ApplicationStatusChange = {
+  status: ApplicationStatus;
+  userId: number;
+  applicationId: number;
+  timestamp: string;
+};
+
+export type ApplicationRoundStatus =
+  | 'draft'
+  | 'in_review'
+  | 'review_done'
+  | 'allocated'
+  | 'handled'
+  | 'validated'
+  | 'approved';
+
+export type ApplicationRoundStatusChange = {
+  status: ApplicationRoundStatus;
+  userId: number;
+  applicationRoundId: number;
+  timestamp: string;
+};
+
+export type User = {
+  firstName: string;
+  lastName: string;
+};
+
 export type Service = {
   id: number;
   name: TranslationObject;
@@ -208,11 +236,21 @@ export type ReservationState =
 
 export type Reservation = {
   id: number;
+  applicationId: number;
+  applicationEventId: number;
   state: ReservationState;
   priority: number;
   begin: string;
   end: string;
   reservationUnit: ReservationUnit[];
+};
+
+export type RecurringReservation = {
+  applicationId: number;
+  applicationEventId: number;
+  ageGroupId: number;
+  abilityGroupId: number;
+  reservations: Reservation[];
 };
 
 // for ui:

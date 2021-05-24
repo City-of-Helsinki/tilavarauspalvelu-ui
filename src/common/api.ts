@@ -7,14 +7,20 @@ import {
   ReservationUnit,
   Parameter,
   Reservation,
+  RecurringReservation,
+  User,
+  ApplicationRoundStatusChange,
 } from './types';
 import { ApiError } from './ApiError';
 
 const applicationRoundBasePath = 'application_round';
 const reservationUnitsBasePath = 'reservation_unit';
 const reservationBasePath = 'reservation';
+const recurringReservationBasePath = 'recurring_reservation';
 const parameterBasePath = 'parameters';
 const applicationBasePath = 'application';
+const applicationEventStatusBasePath = 'application_event_status';
+const userBasePath = 'users';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface QueryParameters extends ReservationUnitsParameters {}
@@ -114,6 +120,7 @@ export function getApplicationRound(
 
 export interface ReservationUnitsParameters {
   applicationRound?: number;
+  application?: number;
   search?: string;
   purpose?: number;
   reservationUnitType?: number;
@@ -132,6 +139,42 @@ export function getReservationUnits(
 export function getReservations(): Promise<Reservation[]> {
   return apiGet<Reservation[]>({
     path: `v1/${reservationBasePath}`,
+  });
+}
+
+export function getRecurringReservations(
+  applicationId: number
+): Promise<RecurringReservation[]> {
+  return apiGet<RecurringReservation[]>({
+    path: `v1/${recurringReservationBasePath}`,
+    parameters: { application: applicationId },
+  });
+}
+
+/** TODO, waiting for api that reveals application round status changes */
+export async function getDecisionMaker(
+  applicationRound: number
+): Promise<User | null> {
+  const statusChanges = await apiGet<ApplicationRoundStatusChange[]>({
+    path: `v1/${applicationEventStatusBasePath}`,
+    parameters: { applicationRound },
+  });
+
+  const decisionStatusChange = statusChanges
+    .filter(
+      (sc) =>
+        sc.applicationRoundId === applicationRound && sc.status === 'approved'
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )
+    .find(() => true);
+
+  console.log(decisionStatusChange);
+
+  return apiGet<User>({
+    path: `v1/${userBasePath}/${decisionStatusChange?.userId}`,
   });
 }
 

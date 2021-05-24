@@ -486,9 +486,18 @@ const translations: Translations = {
   Reservations: {
     back: ['Takaisin Omat hakemukset'],
     info: ['Hakemukselle on myönnetty seuraavat vakiovuorot'],
+    titleResolution: ['Vuorojaon päätös'],
+    resultWithReservations: [
+      'Hakemuksellesi on myönnetty seuraavat käyttövuorot.',
+    ],
+    resultWithoutReservations: [
+      'Hakemuksellesi ei valitettavasti ole voity myöntää käyttövuoroja.',
+    ],
     weekSelectLabel: ['Valitse viikko'],
-    showList: ['Näytä lista'],
-    showCalendar: ['Näytä kalenteri'],
+    showList: ['Näytä listassa'],
+    showCalendar: ['Näytä kalenterissa'],
+    download: ['Lataa päätös (.pdf)'],
+    generating: ['Dokumenttia luodaan'],
   },
   ReservationUnit: {
     backToSearch: ['Takaisin hakutuloksiin'],
