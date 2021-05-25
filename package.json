@@ -57,7 +57,10 @@
     "@types/react-map-gl": "^5.2.9",
     "@types/react-router-dom": "^5.1.6",
     "@types/sanitize-html": "^1.27.1",
-    "@types/styled-components": "^5.1.7"
+    "@types/styled-components": "^5.1.7",
+    "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.168",
+    "@types/node": "^12.0.0"
   },
   "scripts": {
     "start": "HOST=local-tilavaraus.hel.fi HTTPS=true react-scripts start",
@@ -97,9 +100,6 @@
     ]
   },
   "devDependencies": {
-    "@types/jest": "^26.0.15",
-    "@types/lodash": "^4.14.168",
-    "@types/node": "^12.0.0",
     "autoprefixer": "^10.1.0",
     "axe-testcafe": "^3.0.0",
     "eslint-plugin-testcafe": "^0.2.1",
