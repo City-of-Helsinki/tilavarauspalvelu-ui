@@ -65,7 +65,7 @@ const ReservationsDocument = ({
           );
 
           return (
-            <PDFPage>
+            <PDFPage key={resUnit.id}>
               <P />
               <Text>Vakiovuoron nimi</Text>
               <H1>{applicationEvent.name}</H1>

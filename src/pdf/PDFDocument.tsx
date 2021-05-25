@@ -32,12 +32,12 @@ Font.registerHyphenationCallback((word) => [word]);
 
 Font.register({
   family: FAMILY_BOLD,
-  src: '/static/media/533af26cf28d7660f24c2884d3c27eac.8287fd93.woff',
+  src: '/Roboto-Bold.ttf',
 });
 
 Font.register({
   family: FAMILY_REGULAR,
-  src: '/static/media/565d73a693abe0776c801607ac28f0bf.df29a4d1.woff',
+  src: '/Roboto-Regular.ttf',
 });
 
 type Props = {
