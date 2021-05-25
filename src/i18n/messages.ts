@@ -508,8 +508,8 @@ const translations: Translations = {
   },
 
   ReservationList: {
-    granted: ['Sinulle on myönnetty seuraavat vakiovuorot'],
-    cancelled: ['Seuraavat vakiovuorot on peruttu'],
+    granted: ['Sinulle on myönnetty seuraavat käyttövuorot'],
+    denied: ['Seuraavia käyttövuoroja ei voitu myöntää'],
   },
   search: {
     heading: ['Vakiovuorojen tilat'],
