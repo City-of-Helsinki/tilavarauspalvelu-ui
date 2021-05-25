@@ -8,8 +8,6 @@ import {
   Parameter,
   Reservation,
   RecurringReservation,
-  User,
-  ApplicationRoundStatusChange,
 } from './types';
 import { ApiError } from './ApiError';
 
@@ -19,8 +17,6 @@ const reservationBasePath = 'reservation';
 const recurringReservationBasePath = 'recurring_reservation';
 const parameterBasePath = 'parameters';
 const applicationBasePath = 'application';
-const applicationEventStatusBasePath = 'application_event_status';
-const userBasePath = 'users';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface QueryParameters extends ReservationUnitsParameters {}
@@ -150,34 +146,6 @@ export function getRecurringReservations(
     parameters: { application: applicationId },
   });
 }
-
-/** TODO, waiting for api that reveals application round status changes */
-export async function getDecisionMaker(
-  applicationRound: number
-): Promise<User | null> {
-  const statusChanges = await apiGet<ApplicationRoundStatusChange[]>({
-    path: `v1/${applicationEventStatusBasePath}`,
-    parameters: { applicationRound },
-  });
-
-  const decisionStatusChange = statusChanges
-    .filter(
-      (sc) =>
-        sc.applicationRoundId === applicationRound && sc.status === 'approved'
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    )
-    .find(() => true);
-
-  console.log(decisionStatusChange);
-
-  return apiGet<User>({
-    path: `v1/${userBasePath}/${decisionStatusChange?.userId}`,
-  });
-}
-
 interface IDParameter {
   id: number;
 }

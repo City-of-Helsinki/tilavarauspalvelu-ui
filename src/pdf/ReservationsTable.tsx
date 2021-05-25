@@ -27,7 +27,7 @@ const parseDate = (isoDateTime: string) => new Date(Date.parse(isoDateTime));
 
 const date = (isoDateTime: string) => {
   const d = parseDate(isoDateTime);
-  return `${d.getDate()}.${d.getMonth()}.${d.getFullYear()}`;
+  return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
 };
 
 const time = (isoDateTime: string) => {

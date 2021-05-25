@@ -14,6 +14,7 @@ export type ApplicationRound = {
   reservationPeriodEnd: string;
   purposeIds: number[];
   criteria: string;
+  approvedBy?: string;
 };
 
 export type Space = {
@@ -50,13 +51,6 @@ export type ApplicationRoundStatus =
   | 'handled'
   | 'validated'
   | 'approved';
-
-export type ApplicationRoundStatusChange = {
-  status: ApplicationRoundStatus;
-  userId: number;
-  applicationRoundId: number;
-  timestamp: string;
-};
 
 export type User = {
   firstName: string;
@@ -137,19 +131,16 @@ export type ApplicationStatus =
   | 'draft'
   | 'in_review'
   | 'review_done'
-  | 'allocating'
-  | 'allocated'
-  | 'validated'
-  | 'handled'
+  | 'sent'
   | 'declined'
   | 'cancelled';
 
 export type ReducedApplicationStatus =
   | 'draft'
   | 'processing'
-  | 'handled'
   | 'cancelled'
-  | 'declined';
+  | 'declined'
+  | 'sent';
 
 export type Application = {
   id?: number;
@@ -251,6 +242,7 @@ export type RecurringReservation = {
   ageGroupId: number;
   abilityGroupId: number;
   reservations: Reservation[];
+  deniedReservations: Reservation[];
 };
 
 // for ui:

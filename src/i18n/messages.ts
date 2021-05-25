@@ -36,8 +36,8 @@ const translations: Translations = {
     noApplications: ['Hakemuksia ei ole.'],
     group: {
       draft: ['Luonnokset'],
-      sent: ['Käsittelyssä'],
-      handled: ['Käsitelty'],
+      processing: ['Käsittelyssä'],
+      sent: ['Käsitelty'],
     },
   },
   ApplicationCard: {
@@ -51,7 +51,7 @@ const translations: Translations = {
     status: {
       draft: ['Kesken'],
       processing: ['Käsittelyssä'],
-      handled: ['Käsitelty'],
+      sent: ['Käsitelty'],
     },
     reservations: ['Varaukset'],
     saved: ["Viimeksi tallennettu: {{date, dd.MM.yyyy 'klo' HH:mm}}"],

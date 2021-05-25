@@ -1,14 +1,18 @@
 import React from 'react';
-import { Application, RecurringReservation, User } from '../common/types';
+import { Application, RecurringReservation } from '../common/types';
 import NoReservationsDocument from './NoReservationsDocument';
 import ReservationsDocument from './ReservationsDocument';
+
+const getPDFFilename = (application: Application): string =>
+  `${application.contactPerson?.firstName} ${application.contactPerson?.lastName} - Paatos.pdf`;
+
 /**
  * This separate function allows bundle splitting so that pdf related libs are loaded only when needed.
  */
 export const download = (
   application: Application,
   reservations: RecurringReservation[],
-  decisionMaker: User | null,
+  decisionMaker: string | null,
   setStatus: React.Dispatch<
     React.SetStateAction<'init' | 'loading' | 'done' | 'error'>
   >
@@ -17,6 +21,8 @@ export const download = (
     setStatus('error');
     return;
   }
+
+  const fileName = getPDFFilename(application);
   import('@react-pdf/renderer')
     .then((renderer) => {
       let doc: JSX.Element;
@@ -49,7 +55,7 @@ export const download = (
       blob.then((data) => {
         const element = document.createElement('a');
         element.setAttribute('href', window.URL.createObjectURL(data));
-        element.setAttribute('download', 'filename.pdf');
+        element.setAttribute('download', fileName);
 
         element.style.display = 'none';
         document.body.appendChild(element);

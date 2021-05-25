@@ -3,6 +3,7 @@ import { Document, Page, StyleSheet, Font, View } from '@react-pdf/renderer';
 import { FAMILY_BOLD, FAMILY_REGULAR, SIZE } from './Typography';
 import PageHeader from './PageHeader';
 import PageFooter from './PageFooter';
+import { Application } from '../common/types';
 
 const styles = StyleSheet.create({
   page: {
@@ -15,6 +16,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 75,
   },
 });
+
+export const getPDFTitle = (
+  application: Application,
+  hasReservations: boolean
+): string =>
+  `${application.contactPerson?.firstName} ${
+    application.contactPerson?.lastName
+  } - Paatos - ${
+    hasReservations ? 'Myönnetyt vuorot' : 'Ei myönnettyjä vuoroja'
+  }`;
 
 // disable hyphenation
 Font.registerHyphenationCallback((word) => [word]);
@@ -29,10 +40,21 @@ Font.register({
   src: '/static/media/565d73a693abe0776c801607ac28f0bf.df29a4d1.woff',
 });
 
-type Props = { metadata?: { title: string }; children?: React.ReactNode };
+type Props = {
+  application: Application;
+  hasReservations: boolean;
+  children?: React.ReactNode;
+};
 
-export const PDFDocument = ({ children, metadata }: Props): JSX.Element => (
-  <Document {...metadata} author="Helsingin kaupunki" language="fi">
+export const PDFDocument = ({
+  children,
+  application,
+  hasReservations,
+}: Props): JSX.Element => (
+  <Document
+    title={getPDFTitle(application, hasReservations)}
+    author="Helsingin kaupunki"
+    language="fi">
     {children}
   </Document>
 );

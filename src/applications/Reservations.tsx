@@ -19,7 +19,6 @@ import styled from 'styled-components';
 import {
   getApplication,
   getApplicationRound,
-  getDecisionMaker,
   getRecurringReservations,
 } from '../common/api';
 import { ApiData, useApiData } from '../common/hook/useApiData';
@@ -31,7 +30,6 @@ import {
   RecurringReservation,
   Reservation,
   ReservationUnit,
-  User,
 } from '../common/types';
 import { endOfWeek, getAddress, parseDate, startOfWeek } from '../common/util';
 import Back from '../component/Back';
@@ -251,7 +249,6 @@ const Reservations = (): JSX.Element | null => {
     Number(applicationId)
   );
 
-  const decisionMaker = useApiData(getDecisionMaker, Number(applicationId));
   const [week, setWeek] = useState(getWeekOption(new Date(), t));
 
   const startDate = new Date(week.value as number);
@@ -306,29 +303,28 @@ const Reservations = (): JSX.Element | null => {
                 <ResolutionDescription>
                   {reservationsResultText}
                 </ResolutionDescription>
-                <Loader datas={[decisionMaker]}>
-                  <ToggleButton
-                    theme="black"
-                    variant="secondary"
-                    iconLeft={<IconDownload />}
-                    isLoading={status === 'loading'}
-                    loadingText={t('Reservations.generating')}
-                    onClick={() => {
-                      setStatus('loading');
-                      setTimeout(() => {
-                        import('../pdf/util').then(({ download }) => {
-                          download(
-                            application.data as Application,
-                            reservations.data as RecurringReservation[],
-                            decisionMaker.data as User,
-                            setStatus
-                          );
-                        });
-                      }, 0);
-                    }}>
-                    {t('Reservations.download')}
-                  </ToggleButton>
-                </Loader>
+
+                <ToggleButton
+                  theme="black"
+                  variant="secondary"
+                  iconLeft={<IconDownload />}
+                  isLoading={status === 'loading'}
+                  loadingText={t('Reservations.generating')}
+                  onClick={() => {
+                    setStatus('loading');
+                    setTimeout(() => {
+                      import('../pdf/util').then(({ download }) => {
+                        download(
+                          application.data as Application,
+                          reservations.data as RecurringReservation[],
+                          applicationRound.data?.approvedBy || null,
+                          setStatus
+                        );
+                      });
+                    }, 0);
+                  }}>
+                  {t('Reservations.download')}
+                </ToggleButton>
               </div>
               <Buttons>
                 <ToggleButton

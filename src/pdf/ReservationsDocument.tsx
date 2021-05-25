@@ -6,17 +6,18 @@ import {
   ApplicationEvent,
   Reservation,
   ReservationUnit,
-  User,
 } from '../common/types';
 import { PDFDocument, PDFPage } from './PDFDocument';
 
 import ReservationsTable from './ReservationsTable';
 import Applicant from './Applicant';
+import ComplaintInfo from './ComplaintInfo';
+import DecisionMaker from './DecisionMaker';
 
 type Props = {
   application: Application;
   reservations: Reservation[];
-  decisionMaker: User;
+  decisionMaker: string;
 };
 
 const ReservationsDocument = ({
@@ -24,7 +25,7 @@ const ReservationsDocument = ({
   reservations,
   decisionMaker,
 }: Props): JSX.Element => (
-  <PDFDocument metadata={{ title: 'todo title' }}>
+  <PDFDocument application={application} hasReservations>
     <PDFPage>
       <P />
       <P />
@@ -36,20 +37,8 @@ const ReservationsDocument = ({
         hakemuksenne perusteella <Applicant application={application} /> on
         myönnetty seuraavat käyttövuorot nuorisopalvelun tiloihin.
       </P>
-      <P>
-        Päätökseen voi hakea muutosta jättämällä kirjallisen muutoshakemuksen
-        osoitteeseen Kirjaamo, Kulttuurin ja vapaa-ajan toimiala,
-        Nuorisopalvelut, PL 10, 00099 Helsingin kaupunki tai sähköpostitse
-        helsinki.kirjaamo@hel.fi.
-      </P>
-      <P />
-      <P>
-        <B>Ystävällisin terveisin,</B>
-      </P>
-      <Text>
-        {decisionMaker.firstName} {decisionMaker.lastName}
-      </Text>
-      <Text>Kulttuurin ja vapaa-ajan toimiala, Nuorisopalvelut</Text>
+      <ComplaintInfo />
+      <DecisionMaker decisionMaker={decisionMaker} />
     </PDFPage>
     {application.applicationEvents.map(
       (applicationEvent: ApplicationEvent): JSX.Element[] => {
