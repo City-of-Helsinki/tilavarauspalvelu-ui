@@ -491,7 +491,7 @@ const translations: Translations = {
       'Hakemuksellesi on myönnetty seuraavat käyttövuorot.',
     ],
     resultWithoutReservations: [
-      'Hakemuksellesi ei valitettavasti ole voity myöntää käyttövuoroja.',
+      'Hakemuksellesi ei valitettavasti ole voitu myöntää käyttövuoroja.',
     ],
     weekSelectLabel: ['Valitse viikko'],
     showList: ['Näytä listassa'],
