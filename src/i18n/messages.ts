@@ -498,6 +498,7 @@ const translations: Translations = {
     showCalendar: ['Näytä kalenterissa'],
     download: ['Lataa päätös (.pdf)'],
     generating: ['Dokumenttia luodaan'],
+    errorGeneratingPDF: ['PDF Dokumenttia ei pystytty luomaan'],
   },
   ReservationUnit: {
     backToSearch: ['Takaisin hakutuloksiin'],

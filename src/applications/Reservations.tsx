@@ -9,6 +9,7 @@ import {
   IconMenuHamburger,
   IconDownload,
   Select,
+  Notification,
 } from 'hds-react';
 import { TFunction } from 'i18next';
 import React, { useState } from 'react';
@@ -276,34 +277,41 @@ const Reservations = (): JSX.Element | null => {
     return prev;
   }, new Map<ReservationUnit, Reservation[]>());
 
-  const reservationsResultText =
-    reservations.data &&
-    t(
-      reservations.data?.length > 0
-        ? 'Reservations.resultWithReservations'
-        : 'Reservations.resultWithoutReservations'
-    );
+  const hasReservations = reservations.data?.length;
 
+  const reservationsResultText = t(
+    hasReservations
+      ? 'Reservations.resultWithReservations'
+      : 'Reservations.resultWithoutReservations'
+  );
   return (
     <Container>
       <Back label="Reservations.back" />
       <Loader datas={[application, applicationRound, reservations]}>
-        {reservations.data?.length === 0 ? (
-          <span> no reservations</span>
-        ) : (
-          <>
-            <RoundName>{applicationRound.data?.name}</RoundName>
-            <Applicant>
-              {getApplicant(application.data as Application, t)}
-            </Applicant>
-            {modified(application, t)}
-            <TwoColumnContainer>
-              <div>
-                <SubHeading>{t('Reservations.titleResolution')}</SubHeading>
-                <ResolutionDescription>
-                  {reservationsResultText}
-                </ResolutionDescription>
+        <>
+          <RoundName>{applicationRound.data?.name}</RoundName>
+          <Applicant>
+            {getApplicant(application.data as Application, t)}
+          </Applicant>
+          {modified(application, t)}
+          <TwoColumnContainer>
+            <div>
+              <SubHeading>{t('Reservations.titleResolution')}</SubHeading>
+              <ResolutionDescription>
+                {reservationsResultText}
+              </ResolutionDescription>
 
+              {status === 'error' ? (
+                <Notification
+                  type="error"
+                  label={t('Reservations.errorGeneratingPDF')}
+                  position="top-center"
+                  displayAutoCloseProgress={false}
+                  autoClose
+                  onClose={() => setStatus('done')}>
+                  {t('Reservations.errorGeneratingPDF')}
+                </Notification>
+              ) : (
                 <ToggleButton
                   theme="black"
                   variant="secondary"
@@ -325,7 +333,9 @@ const Reservations = (): JSX.Element | null => {
                   }}>
                   {t('Reservations.download')}
                 </ToggleButton>
-              </div>
+              )}
+            </div>
+            {hasReservations ? (
               <Buttons>
                 <ToggleButton
                   theme="black"
@@ -344,116 +354,119 @@ const Reservations = (): JSX.Element | null => {
                   {t('Reservations.showCalendar')}
                 </ToggleButton>
               </Buttons>
-            </TwoColumnContainer>
+            ) : null}
+          </TwoColumnContainer>
+          {hasReservations ? (
+            <>
+              <HorisontalRule />
+              {application.data?.applicationEvents.map((event) => (
+                <div key={event.id}>
+                  <SubHeading>{event.name}</SubHeading>
+                  {isCalendar ? (
+                    <Card border>
+                      {event.eventReservationUnits.map((eru) => (
+                        <div key={eru.reservationUnitId}>
+                          <Actions>
+                            <Select
+                              label={t('Reservations.weekSelectLabel')}
+                              multiselect={false}
+                              icon={<IconCalendar />}
+                              options={getWeekOptions(t, event)}
+                              value={week}
+                              onChange={(w) => {
+                                setWeek(w);
+                              }}
+                            />
+                            <Button
+                              id="b"
+                              variant="secondary"
+                              onClick={() => {
+                                setWeek(getWeekOption(new Date(), t));
+                              }}>
+                              {t('common.today')}
+                            </Button>
+                          </Actions>
 
-            <HorisontalRule />
-            {application.data?.applicationEvents.map((event) => (
-              <div key={event.id}>
-                <SubHeading>{event.name}</SubHeading>
-                {isCalendar ? (
-                  <Card border>
-                    {event.eventReservationUnits.map((eru) => (
-                      <div key={eru.reservationUnitId}>
-                        <Actions>
-                          <Select
-                            label={t('Reservations.weekSelectLabel')}
-                            multiselect={false}
-                            icon={<IconCalendar />}
-                            options={getWeekOptions(t, event)}
-                            value={week}
-                            onChange={(w) => {
-                              setWeek(w);
-                            }}
-                          />
-                          <Button
-                            id="b"
-                            variant="secondary"
-                            onClick={() => {
-                              setWeek(getWeekOption(new Date(), t));
-                            }}>
-                            {t('common.today')}
-                          </Button>
-                        </Actions>
-
-                        <TwoColLayout>
-                          <IconCalendar />
-                          <div>
-                            {displayDate(startDate, t)} -{' '}
-                            {displayDate(endDate, t)}
-                          </div>
-                          {weekEvents.map((reservation) => {
-                            const begin = parseDate(reservation.begin);
-                            const end = parseDate(reservation.end);
-                            return (
-                              <>
-                                <div>
-                                  {t(`common.weekDay.${begin.getDay()}`)}
-                                </div>
-                                <div>
-                                  {' '}
-                                  {t('common.time', {
-                                    date: begin,
-                                  })}{' '}
-                                  - {t('common.time', { date: end })}
-                                </div>
-                              </>
-                            );
-                          })}
-                        </TwoColLayout>
-                        {Array.from(resUnitEvents.entries()).map(
-                          ([reservationUnit, resUnitReservations]) => {
-                            return (
-                              <>
-                                <HorisontalRule />
-                                <TwoColLayout>
-                                  <IconHome />
-                                  <ReservationUnitName>
-                                    {reservationUnit.name.fi}
-                                  </ReservationUnitName>
-                                  <IconInfoCircle />
-                                  <ContactInfo>
-                                    {reservationUnit.contactInformation}
-                                    TODO contact info from API
-                                  </ContactInfo>
-                                  <IconLocation />
+                          <TwoColLayout>
+                            <IconCalendar />
+                            <div>
+                              {displayDate(startDate, t)} -{' '}
+                              {displayDate(endDate, t)}
+                            </div>
+                            {weekEvents.map((reservation) => {
+                              const begin = parseDate(reservation.begin);
+                              const end = parseDate(reservation.end);
+                              return (
+                                <>
                                   <div>
-                                    <BuildingName>
-                                      {reservationUnit.building?.name}
-                                    </BuildingName>
-                                    <AddressLine>
-                                      {getAddress(reservationUnit)}
-                                    </AddressLine>
+                                    {t(`common.weekDay.${begin.getDay()}`)}
                                   </div>
-                                </TwoColLayout>
-                                <HorisontalRule />
-                                <CalendarContainer>
                                   <div>
-                                    <ReservationCalendar
-                                      begin={new Date(week.value as number)}
-                                      reservations={resUnitReservations}
-                                      reservationUnit={reservationUnit}
-                                      applicationEvent={event}
-                                    />
+                                    {' '}
+                                    {t('common.time', {
+                                      date: begin,
+                                    })}{' '}
+                                    - {t('common.time', { date: end })}
                                   </div>
-                                </CalendarContainer>
-                              </>
-                            );
-                          }
-                        )}
-                      </div>
-                    ))}
-                  </Card>
-                ) : (
-                  <ReservationList
-                    reservations={reservations.data?.flatMap(
-                      (rr) => rr.reservations
-                    )}
-                  />
-                )}
-              </div>
-            ))}
-          </>
-        )}
+                                </>
+                              );
+                            })}
+                          </TwoColLayout>
+                          {Array.from(resUnitEvents.entries()).map(
+                            ([reservationUnit, resUnitReservations]) => {
+                              return (
+                                <>
+                                  <HorisontalRule />
+                                  <TwoColLayout>
+                                    <IconHome />
+                                    <ReservationUnitName>
+                                      {reservationUnit.name.fi}
+                                    </ReservationUnitName>
+                                    <IconInfoCircle />
+                                    <ContactInfo>
+                                      {reservationUnit.contactInformation}
+                                      TODO contact info from API
+                                    </ContactInfo>
+                                    <IconLocation />
+                                    <div>
+                                      <BuildingName>
+                                        {reservationUnit.building?.name}
+                                      </BuildingName>
+                                      <AddressLine>
+                                        {getAddress(reservationUnit)}
+                                      </AddressLine>
+                                    </div>
+                                  </TwoColLayout>
+                                  <HorisontalRule />
+                                  <CalendarContainer>
+                                    <div>
+                                      <ReservationCalendar
+                                        begin={new Date(week.value as number)}
+                                        reservations={resUnitReservations}
+                                        reservationUnit={reservationUnit}
+                                        applicationEvent={event}
+                                      />
+                                    </div>
+                                  </CalendarContainer>
+                                </>
+                              );
+                            }
+                          )}
+                        </div>
+                      ))}
+                    </Card>
+                  ) : (
+                    <ReservationList
+                      reservations={reservations.data?.flatMap(
+                        (rr) => rr.reservations
+                      )}
+                    />
+                  )}
+                </div>
+              ))}
+            </>
+          ) : null}
+        </>
       </Loader>
     </Container>
   );
