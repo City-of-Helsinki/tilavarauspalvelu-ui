@@ -181,8 +181,8 @@ const ReservationsView = ({
           <SubHeading>{event.name}</SubHeading>
           {isCalendar ? (
             <Card border>
-              {event.eventReservationUnits.map((eru) => (
-                <div key={eru.reservationUnitId}>
+              {event.eventReservationUnits.map((resUnit) => (
+                <div key={resUnit.reservationUnitId}>
                   <Actions>
                     <Select
                       label={t('Reservations.weekSelectLabel')}
@@ -239,7 +239,6 @@ const ReservationsView = ({
                             <IconInfoCircle />
                             <ContactInfo>
                               {reservationUnit.contactInformation}
-                              TODO contact info from API
                             </ContactInfo>
                             <IconLocation />
                             <div>
