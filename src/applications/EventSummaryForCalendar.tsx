@@ -171,7 +171,6 @@ const ReservationUnitEventsSummaryForCalendar = ({
 
   return (
     <>
-      <HorisontalRule />
       <SubHeading>{applicationEvent.name}</SubHeading>
       <Card border>
         {applicationEvent.eventReservationUnits.map((resUnit) => (
@@ -223,7 +222,6 @@ const ReservationUnitEventsSummaryForCalendar = ({
               ([reservationUnit, resUnitReservations]) => {
                 return (
                   <>
-                    <HorisontalRule />
                     <TwoColLayout>
                       <IconHome />
                       <ReservationUnitName>

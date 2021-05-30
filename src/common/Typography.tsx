@@ -9,3 +9,11 @@ export const SubHeading = styled.div`
     font-size: var(--fontsize-heading-m);
   }
 `;
+
+export const Strong = styled.span`
+  font-family: var(--font-bold);
+`;
+
+export const Reqular = styled.span`
+  font-family: var(--font-bold);
+`;

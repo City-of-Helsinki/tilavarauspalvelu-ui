@@ -2,7 +2,8 @@ import React from 'react';
 import { ApiData } from '../common/hook/useApiData';
 import { Application, RecurringReservation } from '../common/types';
 import { HorisontalRule } from '../component/common';
-import ReservationUnitEventsSummaryForCalendar from './ReservationUnitEventsSummaryForCalendar';
+import EventSummaryForCalendar from './EventSummaryForCalendar';
+import EventSummaryForList from './EventSummaryForList';
 
 type Props = {
   isCalendar: boolean;
@@ -20,12 +21,18 @@ const ReservationsView = ({
       <HorisontalRule />
       {application.data?.applicationEvents.map((event) =>
         isCalendar ? (
-          <ReservationUnitEventsSummaryForCalendar
+          <EventSummaryForCalendar
             key={event.id}
             applicationEvent={event}
             reservations={reservations}
           />
-        ) : null
+        ) : (
+          <EventSummaryForList
+            key={event.id}
+            applicationEvent={event}
+            reservations={reservations}
+          />
+        )
       )}
     </>
   );

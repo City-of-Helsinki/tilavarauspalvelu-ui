@@ -63,9 +63,15 @@ const Modified = styled.div`
 
 const Buttons = styled.div`
   justify-self: end;
+  @media (max-width: ${breakpoint.s}) {
+    width: 100%;
+  }
 `;
 const ToggleButton = styled(Button)`
   margin-top: var(--spacing-m);
+  @media (max-width: ${breakpoint.s}) {
+    width: 100%;
+  }
 `;
 
 type ParamTypes = {
@@ -103,7 +109,7 @@ const modified = (
 
 const Reservations = (): JSX.Element | null => {
   const { applicationId } = useParams<ParamTypes>();
-  const [isCalendar, setIsCalendar] = useState(true);
+  const [isCalendar, setIsCalendar] = useState(false);
   const [status, setStatus] = useState<'init' | 'loading' | 'done' | 'error'>(
     'init'
   );
@@ -133,82 +139,80 @@ const Reservations = (): JSX.Element | null => {
     <Container>
       <Back label="Reservations.back" />
       <Loader datas={[application, applicationRound, reservations]}>
-        <>
-          <RoundName>{applicationRound.data?.name}</RoundName>
-          <Applicant>
-            {getApplicant(application.data as Application, t)}
-          </Applicant>
-          {modified(application, t)}
-          <TwoColumnContainer>
-            <div>
-              <SubHeading>{t('Reservations.titleResolution')}</SubHeading>
-              <ResolutionDescription>
-                {reservationsResultText}
-              </ResolutionDescription>
+        <RoundName>{applicationRound.data?.name}</RoundName>
+        <Applicant>
+          {getApplicant(application.data as Application, t)}
+        </Applicant>
+        {modified(application, t)}
+        <TwoColumnContainer>
+          <div>
+            <SubHeading>{t('Reservations.titleResolution')}</SubHeading>
+            <ResolutionDescription>
+              {reservationsResultText}
+            </ResolutionDescription>
 
-              {status === 'error' ? (
-                <Notification
-                  type="error"
-                  label={t('Reservations.errorGeneratingPDF')}
-                  position="top-center"
-                  displayAutoCloseProgress={false}
-                  autoClose
-                  onClose={() => setStatus('done')}>
-                  {t('Reservations.errorGeneratingPDF')}
-                </Notification>
-              ) : (
-                <ToggleButton
-                  theme="black"
-                  variant="secondary"
-                  iconLeft={<IconDownload />}
-                  isLoading={status === 'loading'}
-                  loadingText={t('Reservations.generating')}
-                  onClick={() => {
-                    setStatus('loading');
-                    setTimeout(() => {
-                      import('../pdf/util').then(({ download }) => {
-                        download(
-                          application.data as Application,
-                          reservations.data as RecurringReservation[],
-                          applicationRound.data?.approvedBy || null,
-                          setStatus
-                        );
-                      });
-                    }, 0);
-                  }}>
-                  {t('Reservations.download')}
-                </ToggleButton>
-              )}
-            </div>
-            {hasReservations ? (
-              <Buttons>
-                <ToggleButton
-                  theme="black"
-                  aria-pressed={isCalendar}
-                  variant={(isCalendar && 'secondary') || 'primary'}
-                  iconLeft={<IconMenuHamburger />}
-                  onClick={() => setIsCalendar(false)}>
-                  {t('Reservations.showList')}
-                </ToggleButton>
-                <ToggleButton
-                  theme="black"
-                  variant={(isCalendar && 'primary') || 'secondary'}
-                  aria-pressed={!isCalendar}
-                  onClick={() => setIsCalendar(true)}
-                  iconLeft={<IconCalendar />}>
-                  {t('Reservations.showCalendar')}
-                </ToggleButton>
-              </Buttons>
-            ) : null}
-          </TwoColumnContainer>
+            {status === 'error' ? (
+              <Notification
+                type="error"
+                label={t('Reservations.errorGeneratingPDF')}
+                position="top-center"
+                displayAutoCloseProgress={false}
+                autoClose
+                onClose={() => setStatus('done')}>
+                {t('Reservations.errorGeneratingPDF')}
+              </Notification>
+            ) : (
+              <ToggleButton
+                theme="black"
+                variant="secondary"
+                iconLeft={<IconDownload />}
+                isLoading={status === 'loading'}
+                loadingText={t('Reservations.generating')}
+                onClick={() => {
+                  setStatus('loading');
+                  setTimeout(() => {
+                    import('../pdf/util').then(({ download }) => {
+                      download(
+                        application.data as Application,
+                        reservations.data as RecurringReservation[],
+                        applicationRound.data?.approvedBy || null,
+                        setStatus
+                      );
+                    });
+                  }, 0);
+                }}>
+                {t('Reservations.download')}
+              </ToggleButton>
+            )}
+          </div>
           {hasReservations ? (
-            <ReservationsView
-              application={application}
-              isCalendar={isCalendar}
-              reservations={reservations}
-            />
+            <Buttons>
+              <ToggleButton
+                theme="black"
+                aria-pressed={isCalendar}
+                variant={(isCalendar && 'secondary') || 'primary'}
+                iconLeft={<IconMenuHamburger />}
+                onClick={() => setIsCalendar(false)}>
+                {t('Reservations.showList')}
+              </ToggleButton>
+              <ToggleButton
+                theme="black"
+                variant={(isCalendar && 'primary') || 'secondary'}
+                aria-pressed={!isCalendar}
+                onClick={() => setIsCalendar(true)}
+                iconLeft={<IconCalendar />}>
+                {t('Reservations.showCalendar')}
+              </ToggleButton>
+            </Buttons>
           ) : null}
-        </>
+        </TwoColumnContainer>
+        {hasReservations ? (
+          <ReservationsView
+            application={application}
+            isCalendar={isCalendar}
+            reservations={reservations}
+          />
+        ) : null}
       </Loader>
     </Container>
   );
