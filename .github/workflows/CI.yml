@@ -35,7 +35,5 @@ jobs:
         docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
         yarn test:server
     - name: Run e2e accessibility
-      uses: DevExpress/testcafe-action@latest
-      with:
-        args: "-skip-js-errors \"chrome --window-size='1920,1080'\" e2e/tests""
-
+      run: |
+        testcafe "chrome:headless --disable-gpu --window-size='1920,1080'\" e2e/tests -s takeOnFails=true --skip-js-errors"
