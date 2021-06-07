@@ -37,5 +37,5 @@ jobs:
     - name: Run e2e accessibility
       uses: DevExpress/testcafe-action@latest
       with:
-        args: "chrome tests"
+        args: "-skip-js-errors \"chrome --window-size='1920,1080'\" e2e/tests""
 
