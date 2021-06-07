@@ -41,6 +41,6 @@ jobs:
         yarn test:server
         docker stop tilavaraus-ui-server
       uses: DevExpress/testcafe-action@latest
-        with:
-          args: "chrome tests"
+      with:
+        args: "chrome tests"
 
