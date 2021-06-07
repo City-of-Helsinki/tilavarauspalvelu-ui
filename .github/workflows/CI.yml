@@ -5,35 +5,34 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js lts/fermium (14)
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: '14'
-    - name: Run CI checks
-      run: |
-        yarn install --frozen-lockfile
-        yarn lint
-        yarn lint:css
-        yarn build
-        yarn test
-    - name: Build image
-      run: |
-        docker build -t tilavaraus-ui .
-    - name: Run server tests
-      run: |
-        docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
-        yarn test:server
-    - name: Run e2e accessibility
-      run: |
-        testcafe "chrome:headless --disable-gpu --window-size='1920,1080'\" e2e/tests -s takeOnFails=true --skip-js-errors"
+      - uses: actions/checkout@v2
+      - name: Use Node.js lts/fermium (14)
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: Run CI checks
+        run: |
+          yarn install --frozen-lockfile
+          yarn lint
+          yarn lint:css
+          yarn build
+          yarn test
+      - name: Build image
+        run: |
+          docker build -t tilavaraus-ui .
+      - name: Run server tests
+        run: |
+          docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
+          yarn test:server
+      - name: Run e2e accessibility
+        run: |
+          yarn test:e2e-ci

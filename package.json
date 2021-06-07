@@ -78,6 +78,7 @@
     "start-server:dev": "env-cmd -f ./.env.development nodemon ./server-build/index.js",
     "start:dev": "yarn build:dev && npm-run-all --parallel build-server:dev start-server:dev",
     "test:e2e-local": "testcafe --skip-js-errors \"chrome --window-size='1920,1080'\" e2e/tests",
+    "test:e2e-ci": "testcafe \"chrome:headless --disable-gpu --window-size='1920,1080'\" e2e/tests -s takeOnFails=true --skip-js-errors",
     "test:axe-local": "testcafe --skip-js-errors \"chrome --window-size='1920,1080'\" e2e/accessibility",
     "test:server": "jest ./server/"
   },
