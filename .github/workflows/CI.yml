@@ -35,4 +35,4 @@ jobs:
           yarn test:server
       - name: Run e2e accessibility
         run: |
-          yarn test:e2e-ci
+          yarn test:axe-ci
