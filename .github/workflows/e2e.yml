@@ -9,7 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env: CYPRESS_BASE_URL=http://localhost:3000
+    env:
+      CYPRESS_BASE_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v2
