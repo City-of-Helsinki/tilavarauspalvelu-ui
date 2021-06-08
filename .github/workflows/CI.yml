@@ -33,6 +33,5 @@ jobs:
         run: |
           docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
           yarn test:server
-      - name: Run e2e accessibility
-        run: |
-          yarn test:axe-ci
+      - name: Cypress e2e & a11y
+        uses: cypress-io/github-action@v2
