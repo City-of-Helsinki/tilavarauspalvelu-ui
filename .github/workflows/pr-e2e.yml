@@ -1,0 +1,30 @@
+name: pr-e2e
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build image
+        run: |
+          docker build -t tilavaraus-ui .
+      - name: Start container
+        run: |
+          docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
+      - name: Run server tests
+        run: |
+          yarn test:server
+      - name: Cypress e2e & a11y
+        env:
+          UI_URL: http://localhost:3000
+        uses: cypress-io/github-action@v2
+      - name: Stop container
+        run: |
+          docker stop tilavaraus-ui-server
