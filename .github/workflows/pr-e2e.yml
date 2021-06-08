@@ -20,6 +20,7 @@ jobs:
           docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
       - name: Run server tests
         run: |
+          yarn install --frozen-lockfile
           yarn test:server
       - name: Cypress e2e & a11y
         env:
