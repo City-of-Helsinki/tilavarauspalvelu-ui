@@ -1,4 +1,4 @@
-name: pr-style-test
+name: style-test
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v2-beta
         with:
           node-version: '14'
-      - name: Run CI checks
+      - name: Run style checks and client tests
         run: |
           yarn install --frozen-lockfile
           yarn lint

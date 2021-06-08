@@ -4,6 +4,8 @@ import {
 } from '../fixtures/applicationRound';
 
 const urlPrefix = process.env.UI_URL || 'https://localhost:3000';
+
+console.log('Using url prefix', urlPrefix)
 describe('Tilavaraus ui', () => {
   it('Frontpage displays applicationRounds', () => {
     interceptApplicationRounds([applicationRound]);

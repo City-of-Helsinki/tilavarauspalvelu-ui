@@ -1,4 +1,4 @@
-name: pr-e2e
+name: e2e
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      UI_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v2
@@ -23,8 +25,6 @@ jobs:
           yarn install --frozen-lockfile
           yarn test:server
       - name: Cypress e2e & a11y
-        env:
-          UI_URL: http://localhost:3000
         uses: cypress-io/github-action@v2
       - name: Stop container
         run: |
