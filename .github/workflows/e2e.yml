@@ -19,7 +19,7 @@ jobs:
           docker build -t tilavaraus-ui .
       - name: Start container
         run: |
-          docker run -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
+          docker run -e REACT_APP_TILAVARAUS_API_URL=http://localhost:8000 -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
       - name: Run server tests
         run: |
           yarn install --frozen-lockfile
