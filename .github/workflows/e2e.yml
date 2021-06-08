@@ -25,15 +25,15 @@ jobs:
           yarn install --frozen-lockfile
           yarn test:server
       - name: Cypress e2e & a11y
-        - uses: cypress-io/github-action@v2
-      - name: Upload screenshots on failure
-        - uses: actions/upload-artifact@v1
+        uses: cypress-io/github-action@v2
+      - name: Upload images on failure
+        uses: actions/upload-artifact@v1
           if: failure()
           with:
             name: cypress-screenshots
             path: cypress/screenshots
       - name: Upload videos
-        - uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v1
           if: always()
           with:
             name: cypress-videos
