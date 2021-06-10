@@ -32,10 +32,10 @@ beforeEach(() => {
     cy.intercept('GET', '/v1/reservation_unit/*', json).as('reservationUnit');
   });
 
-  cy.fixture('v1/post_application').then((json) => {
+  cy.fixture('v1/application/post').then((json) => {
     cy.intercept('POST', '/v1/application/', json).as('applicationPost');
   });
-  cy.fixture('v1/put_application_page_1').then((json) => {
+  cy.fixture('v1/application/put_page_1').then((json) => {
     cy.intercept('PUT', '/v1/application/138', json);
   });
 
@@ -107,7 +107,7 @@ describe('application', () => {
     fillAsIndividual();
     cy.wait(['@city']);
 
-    cy.fixture('v1/put_application_page_3').then((json) => {
+    cy.fixture('v1/application/put_page_3').then((json) => {
       cy.intercept('PUT', '/v1/application/138', json);
     });
 
