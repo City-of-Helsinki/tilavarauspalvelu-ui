@@ -59,6 +59,10 @@ beforeEach(() => {
     cy.intercept('GET', '/v1/parameters/age_group/*', json).as('ageGroup');
   });
 
+  cy.fixture('v1/parameters/city').then((json) => {
+    cy.intercept('GET', '/v1/parameters/city/*', json).as('city');
+  });
+
   cy.fixture('v1/parameters/purpose').then((json) => {
     cy.intercept('GET', '/v1/parameters/purpose/*', json).as('purpose');
   });
@@ -97,6 +101,8 @@ describe('application', () => {
     nextButton().click();
 
     fillAsIndividual();
+    cy.wait(['@city']);
+
     cy.fixture('v1/put_application_page_3').then((json) => {
       cy.intercept('PUT', '/v1/application/138', json);
     });

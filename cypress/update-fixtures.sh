@@ -6,3 +6,4 @@ curl http://localhost:8000/v1/parameters/reservation_unit_type/?format=json -o f
 curl http://localhost:8000/v1/parameters/ability_group/?format=json -o fixtures/v1/parameters/ability_group.json
 curl http://localhost:8000/v1/parameters/age_group/?format=json -o fixtures/v1/parameters/age_group.json
 curl http://localhost:8000/v1/parameters/purpose/?format=json -o fixtures/v1/parameters/purpose.json
+curl http://localhost:8000/v1/parameters/city/?format=json -o fixtures/v1/parameters/city.json
