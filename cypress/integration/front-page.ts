@@ -1,20 +1,22 @@
-import {
-  applicationRound,
-  interceptApplicationRounds,
-} from '../fixtures/applicationRound';
+import { browseAllButton } from '../model/home';
 
+beforeEach(() => {
+  cy.fixture('v1/application_round').then((json) => {
+    cy.intercept('GET', '/v1/application_round/*', json);
+  });
+  cy.visit('/');
+});
 
-
-describe('Tilavaraus ui', () => {
-  it('Frontpage displays applicationRounds', () => {
-    interceptApplicationRounds([applicationRound]);
-    cy.visit('/');
-    cy.get('h1').should('contain', 'Vakkiovuoron hakeminen');
+describe('Tilavaraus ui front page', () => {
+  it('displays applicationRounds', () => {
+    cy.get('h1').should('contain', 'Vakiovuoron hakeminen');
   });
 
-  it('Page is accessible', () => {
-    interceptApplicationRounds([applicationRound]);
-    cy.visit('/');
+  it('displays browse all button', () => {
+    browseAllButton().should('exist');
+  });
+
+  it('is accessible', () => {
     cy.a11yCheck();
   });
 });

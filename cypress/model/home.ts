@@ -1,4 +1,3 @@
-const browseAllButton = (): Cypress.Chainable<JQuery<HTMLElement>> =>
-  cy.get('#browseAllButton');
-
-export default browseAllButton;
+export function browseAllButton(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('#browseAllButton');
+}
