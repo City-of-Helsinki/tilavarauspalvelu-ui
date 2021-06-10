@@ -75,10 +75,13 @@ beforeEach(() => {
 });
 
 describe('application', () => {
-  it('can be submitted', () => {
+  it('can be submitted and is accessible', () => {
     cy.wait('@reservationUnit');
     addReservationUnitButton('Studiokompleksi').click();
     startApplicationButton().click();
+
+    cy.a11yCheck();
+
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
     proceedToPage1Button().click();
@@ -91,6 +94,9 @@ describe('application', () => {
       '@abilityGroup',
       '@reservationUnitType',
     ]);
+
+    cy.a11yCheck();
+
     applicationName().clear().type('Kurikan Vimma');
     numPersons().type('3');
     selectOption('applicationEvents[0].ageGroupId', 1);
@@ -98,11 +104,16 @@ describe('application', () => {
     acceptAndSaveEvent().click();
     nextButton().click();
 
+    cy.a11yCheck();
+
+
     randomApplicationEventScheduleButton().click();
     randomApplicationEventScheduleButton().click();
     randomApplicationEventScheduleButton().click();
 
     nextButton().click();
+
+    cy.a11yCheck();
 
     fillAsIndividual();
     cy.wait(['@city']);
@@ -113,34 +124,12 @@ describe('application', () => {
 
     nextButton().click();
 
+    cy.a11yCheck();
+
+
     acceptTerms();
 
     submitApplication();
   });
 
-  it('intro page is accessible', () => {
-    cy.wait('@reservationUnit');
-    addReservationUnitButton('Studiokompleksi').click();
-    startApplicationButton().click();
-    cy.a11yCheck();
-  });
-
-  it('page1 is accessible', () => {
-    cy.wait('@reservationUnit');
-    addReservationUnitButton('Studiokompleksi').click();
-    startApplicationButton().click();
-    selectApplicationRoundButton().click();
-    firstAvailableApplicationRound().click();
-    proceedToPage1Button().click();
-    cy.wait([
-      '@applicationPost',
-      '@applicationPage1',
-      '@applicationRound1',
-      '@purpose',
-      '@ageGroup',
-      '@abilityGroup',
-      '@reservationUnitType',
-    ]);
-    cy.a11yCheck();
-  });
 });
