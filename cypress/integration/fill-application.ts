@@ -67,6 +67,10 @@ beforeEach(() => {
     cy.intercept('GET', '/v1/parameters/purpose/*', json).as('purpose');
   });
 
+  cy.fixture('v1/reservation_unit/2').then((json) => {
+    cy.intercept('GET', '/v1/reservation_unit/2/*', json);
+  });
+
   cy.visit('/search/?search=');
 });
 
