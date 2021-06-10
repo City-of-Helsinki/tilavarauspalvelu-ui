@@ -126,10 +126,11 @@ describe('application', () => {
 
     cy.a11yCheck();
 
-
     acceptTerms();
 
     submitApplication();
+
+    cy.get('h1').should('contain', 'Hakemuksesi on');
   });
 
 });
