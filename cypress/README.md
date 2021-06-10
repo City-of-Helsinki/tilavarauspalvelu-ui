@@ -1,6 +1,6 @@
 # Automated accessibility / browser testing
 
-This directory contains the automated accessibility and browser tests. In the current form, instead of a live backend' cypress mocked server responses are used.
+This directory contains the automated accessibility and browser tests. In the current form, instead of a live backend, cypress mocked server responses are used.
 
 ## Updateting fixture data
 
@@ -8,4 +8,4 @@ Most of the expected server data can be updated with the update-fixtures.sh scri
 
 ## Testing locally with dev server
 
-`REACT_APP_DISABLE_AUTH=true yarn start`
+`yarn test:browser` will launch the cypress ui.
