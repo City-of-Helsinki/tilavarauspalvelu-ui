@@ -20,10 +20,6 @@ jobs:
       - name: Start container
         run: |
           docker run -e REACT_APP_DISABLE_AUTH=true -e REACT_APP_TILAVARAUS_API_URL=http://localhost:8000 -p 3000:3000 -d --name tilavaraus-ui-server tilavaraus-ui
-      - name: Run server tests
-        run: |
-          yarn install --frozen-lockfile
-          yarn test:server
       - name: Cypress e2e & a11y
         uses: cypress-io/github-action@v2
       - name: Upload images on failure
