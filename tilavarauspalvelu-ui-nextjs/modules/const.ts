@@ -94,6 +94,8 @@ export const isBrowser = typeof window !== "undefined";
 
 export const sentryDSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
+export const matomoEnabled = process.env.NEXT_PUBLIC_ENABLE_MATOMO === 'true';
+
 export const sentryEnvironment = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT;
 
 export const apiBaseUrl = process.env.NEXT_PUBLIC_TILAVARAUS_API_URL;

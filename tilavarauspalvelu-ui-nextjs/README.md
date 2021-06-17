@@ -74,13 +74,11 @@ Runs accessibility tests against local setup. Both ui and api must be running be
 
 ### `yarn build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds a production version
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `yarn start`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Starts production version
 
 ## Configurable environment variables
 
@@ -93,3 +91,4 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 | NEXT_PUBLIC_OIDC_URL             | https://api.hel.fi/sso                                        |
 | NEXT_PUBLIC_OIDC_SCOPE           | openid profile email https://api.hel.fi/auth/tilavarausapidev |
 | NEXT_PUBLIC_TILAVARAUS_API_SCOPE | https://api.hel.fi/auth/tilavarausapidev                      |
+| NEXT_PUBLIC_ENABLE_MATOMO        | 'true' enables matomo tracking                                |

@@ -9,10 +9,7 @@ import oidcConfiguration from "../modules/auth/configuration";
 import nextI18NextConfig from "../next-i18next.config.js";
 import "../styles/global.scss";
 import { format } from 'date-fns';
-import { initSentry } from "../modules/util";
-import { useEffect } from "react";
-
-
+import {TrackingWrapper} from '../modules/tracking'
 
 function MyApp({ Component, pageProps }) {
   if (!isBrowser) {
@@ -23,8 +20,6 @@ function MyApp({ Component, pageProps }) {
     );
   }
 
-  useEffect(initSentry, []);
-
   const AuthenticationProvider = dynamic(() =>
     import("@axa-fr/react-oidc-context").then(
       (mod) => mod.AuthenticationProvider
@@ -32,18 +27,20 @@ function MyApp({ Component, pageProps }) {
   );
 
   return (
-    <AuthenticationProvider
-      authenticating={CenterSpinner}
-      notAuthenticated={SessionLost}
-      sessionLostComponent={SessionLost}
-      configuration={oidcConfiguration}
-      isEnabled={authEnabled}
-      callbackComponentOverride={LoggingIn}
-    >
-      <PageWrapper>
-        <Component {...pageProps} />
-      </PageWrapper>
-    </AuthenticationProvider>
+    <TrackingWrapper>
+      <AuthenticationProvider
+        authenticating={CenterSpinner}
+        notAuthenticated={SessionLost}
+        sessionLostComponent={SessionLost}
+        configuration={oidcConfiguration}
+        isEnabled={authEnabled}
+        callbackComponentOverride={LoggingIn}
+      >
+        <PageWrapper>
+          <Component {...pageProps} />
+        </PageWrapper>
+      </AuthenticationProvider>
+    </TrackingWrapper>
   );
 }
 
