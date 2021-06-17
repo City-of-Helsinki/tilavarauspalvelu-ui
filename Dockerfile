@@ -27,6 +27,7 @@ ENV YARN_VERSION 1.22.5
 RUN yarn policies set-version $YARN_VERSION
 WORKDIR /app
 COPY . .
+
 COPY --from=deps /app/node_modules ./node_modules
 RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
 
@@ -43,8 +44,9 @@ RUN yarn policies set-version $YARN_VERSION
 WORKDIR /app
 
 ENV NODE_ENV production
-
+run ls /app/
 COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next-i18next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=default:root /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
