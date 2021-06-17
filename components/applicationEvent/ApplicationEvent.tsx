@@ -250,7 +250,6 @@ const ApplicationEvent = ({
               label={t("application:Page1.name")}
               id={fieldName("name")}
               name={fieldName("name")}
-              prompt={t('application:Page1.applicationEventName')}
               required
               invalid={!!form.errors.applicationEvents?.[index]?.name?.type}
               errorText={errorText(

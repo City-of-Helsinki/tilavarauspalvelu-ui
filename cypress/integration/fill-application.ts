@@ -11,7 +11,7 @@ import {
   fillAsIndividual,
   acceptTerms,
   submitApplication,
-} from 'model/application';
+} from '../model/application';
 import {
   addReservationUnitButton,
   startApplicationButton,

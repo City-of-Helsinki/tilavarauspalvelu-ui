@@ -183,7 +183,7 @@ export type ApplicationEventStatus =
 export type ApplicationEvent = {
   id?: number;
   name: string | null;
-  uuid: string | null;
+  uuid?: string;
   numPersons: number | null;
   ageGroupId: number | null;
   abilityGroupId: number | null;
