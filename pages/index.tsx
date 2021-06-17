@@ -18,12 +18,17 @@ interface IProps {
 }
 
 export const getStaticProps: GetStaticProps<IProps> = async ({ locale }) => {
-  const applicationRounds = await getApplicationRounds();
-  applicationRounds.sort(
-    (ar1: ApplicationRound, ar2: ApplicationRound) =>
-      parseISO(ar1.applicationPeriodBegin).getTime() -
-      parseISO(ar2.applicationPeriodBegin).getTime()
-  );
+  let applicationRounds = [];
+  try {
+    applicationRounds = await getApplicationRounds();
+    applicationRounds.sort(
+      (ar1: ApplicationRound, ar2: ApplicationRound) =>
+        parseISO(ar1.applicationPeriodBegin).getTime() -
+        parseISO(ar2.applicationPeriodBegin).getTime()
+    );
+  } catch (e) {
+    //no server side data
+  }
 
   return {
     props: {
