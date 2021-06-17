@@ -102,18 +102,22 @@ describe('application', () => {
     selectOption('applicationEvents[0].ageGroupId', 1);
     selectOption('applicationEvents[0].purposeId', 1);
     acceptAndSaveEvent().click();
-    nextButton().click();
-
-    cy.a11yCheck();
-
-
-    randomApplicationEventScheduleButton().click();
-    randomApplicationEventScheduleButton().click();
-    randomApplicationEventScheduleButton().click();
 
     nextButton().click();
 
-    cy.a11yCheck();
+    cy.wait([
+      '@applicationRound1',
+    ]);
+
+    // cy.a11yCheck();
+
+    randomApplicationEventScheduleButton().click();
+    randomApplicationEventScheduleButton().click();
+    randomApplicationEventScheduleButton().click();
+
+    nextButton().click();
+
+    // cy.a11yCheck();
 
     fillAsIndividual();
     cy.wait(['@city']);
@@ -123,6 +127,13 @@ describe('application', () => {
     });
 
     nextButton().click();
+    cy.wait([
+      '@purpose',
+      '@city',
+      '@ageGroup',
+    ]);
+
+    cy.get('h1').should('contain', 'Hakemuksen lähe');
 
     cy.a11yCheck();
 

@@ -238,7 +238,7 @@ const ApplicationEvent = ({
           })
         }
         open={isOpen(applicationEvent.id, editorState.accordionStates)}
-        heading={`${eventName}` || ""}
+        heading={`${eventName}` || t('application:Page1.applicationEventName')}
       >
         <SubHeadLine>
           {t("application:Page1.basicInformationSubHeading")}
@@ -250,6 +250,7 @@ const ApplicationEvent = ({
               label={t("application:Page1.name")}
               id={fieldName("name")}
               name={fieldName("name")}
+              prompt={t('application:Page1.applicationEventName')}
               required
               invalid={!!form.errors.applicationEvents?.[index]?.name?.type}
               errorText={errorText(
