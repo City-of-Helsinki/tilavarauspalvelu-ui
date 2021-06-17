@@ -82,6 +82,9 @@ export const apiDateToUIDate = (date: string): string => {
 };
 
 export const uiDateToApiDate = (date: string): string => {
+  if (date.indexOf('.') === -1) {
+    return date;
+  }
   return toApiDate(fromUIDate(date));
 };
 
