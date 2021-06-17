@@ -22,8 +22,8 @@ const StyledNavigation = styled(HDSNavigation)`
   ) !important;
   color: var(--tilavaraus-header-color);
   @media (max-width: ${breakpoint.s}) {
-    position: fixed;
-    z-index: 10;
+    position: fixed !important;
+    z-index: 10 !important;
   }
 `;
 
