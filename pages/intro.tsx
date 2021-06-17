@@ -87,7 +87,7 @@ const Intro = (): JSX.Element => {
         <Container>
           <Loader datas={[applicationRounds]}>
             <Select
-              id="reservationUnitSearch.purpose"
+              id="applicationRoundSelect"
               placeholder={t("common:select")}
               options={applicationRounds.transformed as OptionType[]}
               label=""
@@ -96,6 +96,7 @@ const Intro = (): JSX.Element => {
               }}
             />
             <Button
+              id="start-application"
               disabled={!applicationRound || saving}
               onClick={() => {
                 createNewApplication(applicationRound);

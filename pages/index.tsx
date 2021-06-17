@@ -10,7 +10,6 @@ import Container from "../components/common/Container";
 import Header from "../components/index/Header";
 import ApplicationPeriods from "../components/index/ApplicationPeriodList";
 import { breakpoint } from "../modules/style";
-import Title from "../components/common/Title";
 import { ApplicationRound } from "../modules/types";
 import { getApplicationRounds } from "../modules/api";
 
@@ -109,7 +108,6 @@ const Home = ({ applicationRounds }: Props): JSX.Element => {
 
   return (
     <>
-      <Title>Tilavarauspalvelu</Title>
       <Header heading={t("head.heading")} text={t("head.text")} />
       <Container>
         <TopContainer>

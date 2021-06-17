@@ -3,6 +3,8 @@ import styled from "styled-components";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import ServiceNotification from "./ServiceNotification";
+import Title from "./Title";
+
 
 interface Props {
   children: React.ReactNode;
@@ -16,6 +18,7 @@ const Main = styled.main`
 const PageWrapper = (props: Props): JSX.Element => {
   return (
     <>
+      <Title>Tilavarauspalvelu</Title>
       <Navigation />
       <ServiceNotification />
       <Main id="main">{props.children}</Main>

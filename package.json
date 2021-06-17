@@ -5,7 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest",
+    "test:browser": "CYPRESS_BASE_URL=http://local-tilavaraus.hel.fi:3000 ./node_modules/.bin/cypress open",
+    "lint": "eslint --ext ts,tsx",
+    "lint:css": "stylelint '**/*.tsx'",
+    "ts-check": "tsc --noEmit --project tsconfig.json"
   },
   "dependencies": {
     "@axa-fr/react-oidc-context": "^3.1.6",
@@ -37,7 +42,14 @@
     "styled-components": "^5.3.0"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.23",
     "@types/react": "^17.0.6",
+    "axe-core": "^4.2.2",
+    "cypress": "^7.5.0",
+    "cypress-axe": "^0.12.2",
+    "eslint": "^7.28.0",
+    "jest": "^27.0.4",
+    "stylelint": "^13.13.1",
     "typescript": "^4.2.4"
   }
 }
