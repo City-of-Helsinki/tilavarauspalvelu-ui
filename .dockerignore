@@ -1,23 +1,6 @@
+# Blacklisted folders
 #################################################
-# Exclude all by default
-#################################################
-*
+node_modules
+.next
+.env.local
 
-#################################################
-# Whitelisted folders
-#################################################
-!public*
-!src*
-!server
-
-#################################################
-# Whitelisted files
-#################################################
-!.env*
-!package.json
-!yarn.lock
-!tsconfig.json
-!LICENSE
-!webpack.server*
-!.babel*
-!tsconfig.server*
