@@ -103,13 +103,19 @@ describe('application', () => {
     selectOption('applicationEvents[0].purposeId', 1);
     acceptAndSaveEvent().click();
 
+    cy.fixture('v1/application/138_page_2').then((json) => {
+      cy.intercept('GET', '/v1/application/138/*', json);
+    });
+
     nextButton().click();
 
     cy.wait([
       '@applicationRound1',
     ]);
 
-    // cy.a11yCheck();
+    cy.get('h1').should('contain', 'ajankohta');
+
+    cy.a11yCheck();
 
     randomApplicationEventScheduleButton().click();
     randomApplicationEventScheduleButton().click();
@@ -117,13 +123,16 @@ describe('application', () => {
 
     nextButton().click();
 
-    // cy.a11yCheck();
+    cy.get('h1').should('contain', 'Varaajan perus');
+
+    cy.a11yCheck();
 
     fillAsIndividual();
     cy.wait(['@city']);
 
     cy.fixture('v1/application/put_page_3').then((json) => {
       cy.intercept('PUT', '/v1/application/138', json);
+      cy.intercept('GET', '/v1/application/138/*', json);
     });
 
     nextButton().click();
@@ -134,8 +143,6 @@ describe('application', () => {
     ]);
 
     cy.get('h1').should('contain', 'Hakemuksen lähe');
-
-    cy.a11yCheck();
 
     acceptTerms();
 

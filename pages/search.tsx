@@ -34,7 +34,7 @@ const StyledKoros = styled(Koros)`
 
 interface Props {}
 
-export const getStaticProps: GetStaticProps<Props> = async ({ locale }) => {
+export const getServerSideProps = async ({ locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale)),

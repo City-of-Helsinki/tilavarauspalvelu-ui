@@ -12,31 +12,18 @@ import ApplicationPeriods from "../components/index/ApplicationPeriodList";
 import { breakpoint } from "../modules/style";
 import { ApplicationRound } from "../modules/types";
 import { getApplicationRounds } from "../modules/api";
+import { useApiData } from "../hooks/useApiData";
+import Loader from "../components/common/Loader";
 
 interface IProps {
   applicationRounds: ApplicationRound[];
 }
 
-export const getStaticProps: GetStaticProps<IProps> = async ({ locale }) => {
-  let applicationRounds = [];
-  try {
-    applicationRounds = await getApplicationRounds();
-    applicationRounds.sort(
-      (ar1: ApplicationRound, ar2: ApplicationRound) =>
-        parseISO(ar1.applicationPeriodBegin).getTime() -
-        parseISO(ar2.applicationPeriodBegin).getTime()
-    );
-  } catch (e) {
-    //no server side data
-  }
-
+export const getServerSideProps = async ({ locale, params }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale)),
-      applicationRounds,
-      // Will be passed to the page component as props
     },
-    revalidate: 100, // In seconds
   };
 };
 
@@ -107,9 +94,20 @@ type Props = {
   applicationRounds: ApplicationRound[];
 };
 
-const Home = ({ applicationRounds }: Props): JSX.Element => {
+const Home = (): JSX.Element => {
   const { t } = useTranslation("home");
   const router = useRouter();
+
+  const applicationRounds = useApiData(getApplicationRounds, {}, (applicationRounds) => {
+      applicationRounds.sort(
+        (ar1: ApplicationRound, ar2: ApplicationRound) =>
+          parseISO(ar1.applicationPeriodBegin).getTime() -
+          parseISO(ar2.applicationPeriodBegin).getTime()
+      );
+
+      return applicationRounds;
+    }
+  );
 
   return (
     <>
@@ -119,7 +117,9 @@ const Home = ({ applicationRounds }: Props): JSX.Element => {
           <Heading>{t("applicationTimes.heading")}</Heading>
           <p className="text-lg">{t("applicationTimes.text")}</p>
         </TopContainer>
-        <ApplicationPeriods applicationRounds={applicationRounds} />
+        <Loader datas={[applicationRounds]}>
+        <ApplicationPeriods applicationRounds={applicationRounds.transformed} />
+        </Loader>
         <StyledImageWithCard
           cardAlignment="right"
           cardLayout="hover"

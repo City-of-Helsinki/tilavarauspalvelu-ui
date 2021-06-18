@@ -98,9 +98,9 @@ export const matomoEnabled = process.env.NEXT_PUBLIC_ENABLE_MATOMO === 'true';
 
 export const sentryEnvironment = process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT;
 
-export const apiBaseUrl = process.env.NEXT_PUBLIC_TILAVARAUS_API_URL;
+export const apiBaseUrl = isBrowser ? window.config?.apiBaseUrl : process.env.TILAVARAUS_API_URL;
 
-export const authEnabled = process.env.NEXT_PUBLIC_DISABLE_AUTH !== "true";
+export const authEnabled = isBrowser ? window.config?.authEnabled: process.env.DISABLE_AUTH !== "true";
 
 export const oidcClientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID;
 

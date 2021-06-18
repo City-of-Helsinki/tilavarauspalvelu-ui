@@ -4,6 +4,8 @@ import Navigation from "./Navigation";
 import Footer from "./Footer";
 import ServiceNotification from "./ServiceNotification";
 import Title from "./Title";
+import Head from "next/head";
+import { apiBaseUrl, authEnabled } from "../../modules/const";
 
 
 interface Props {
@@ -18,6 +20,12 @@ const Main = styled.main`
 const PageWrapper = (props: Props): JSX.Element => {
   return (
     <>
+      <Head>
+        {
+          // TODO refactor & complete dynamic fe configuration, this works for ssr pages, but not for static pages
+        }
+        <script dangerouslySetInnerHTML={{__html:`window.config={apiBaseUrl:"${apiBaseUrl}", authEnabled:${authEnabled}}`}}/>
+      </Head>
       <Title>Tilavarauspalvelu</Title>
       <Navigation />
       <ServiceNotification />
