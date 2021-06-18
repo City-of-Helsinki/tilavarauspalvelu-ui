@@ -80,7 +80,10 @@ describe('application', () => {
     addReservationUnitButton('Studiokompleksi').click();
     startApplicationButton().click();
 
+    cy.get('h1').should('contain', 'Vakiovuorohakemus');
+
     cy.a11yCheck();
+
 
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
@@ -94,6 +97,9 @@ describe('application', () => {
       '@abilityGroup',
       '@reservationUnitType',
     ]);
+
+
+    cy.get('h1').should('contain', 'Vakiovuoron luominen');
 
     cy.a11yCheck();
 
