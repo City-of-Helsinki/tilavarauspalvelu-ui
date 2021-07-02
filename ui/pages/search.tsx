@@ -17,14 +17,21 @@ import { ReservationUnit } from "../modules/types";
 import { searchUrl } from "../modules/util";
 import { isBrowser, searchPrefix } from "../modules/const";
 import { CenterSpinner } from "../components/common/common";
-
-const style = {
-  fontSize: "var(--fontsize-heading-l)",
-} as React.CSSProperties;
+import ClientOnly from "../components/ClientOnly";
 
 const HeadContainer = styled.div`
   background-color: white;
   padding-top: var(--spacing-layout-xs);
+`;
+
+const Title = styled.h1`
+  font-size: var(--fontsize-heading-l);
+`;
+
+const Ingress = styled.div`
+  font-family: var(--font-regular);
+  font-size: var(--fontsize-body-xl);
+  margin-bottom: var(--spacing-layout-s);
 `;
 
 const StyledKoros = styled(Koros)`
@@ -92,20 +99,22 @@ const Search = (): JSX.Element => {
       <HeadContainer>
         <Container>
           <Breadcrumb current={{ label: "search", linkTo: searchPrefix }} />
-          <h1 style={style}>{t("search:heading")}</h1>
-          <span className="text-lg">{t("search:text")}</span>
+          <Title>{t("search:heading")}</Title>
+          <Ingress>{t("search:text")}</Ingress>
           <SearchForm onSearch={onSearch} formValues={values} />
         </Container>
       </HeadContainer>
       <StyledKoros type="wave" className="koros" flipHorizontal />
-      {state === "loading" ? (
-        <CenterSpinner style={{ marginTop: "var(--spacing-layout-xl)" }} />
-      ) : (
-        <SearchResultList
-          error={state === "error"}
-          reservationUnits={reservationUnits}
-        />
-      )}
+      <ClientOnly>
+        {state === "loading" ? (
+          <CenterSpinner style={{ marginTop: "var(--spacing-layout-xl)" }} />
+        ) : (
+          <SearchResultList
+            error={state === "error"}
+            reservationUnits={reservationUnits}
+          />
+        )}
+      </ClientOnly>
     </>
   );
 };

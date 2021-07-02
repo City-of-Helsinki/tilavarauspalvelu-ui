@@ -50,9 +50,11 @@ const MainContent = styled.div`
 const Name = styled.span`
   font-size: var(--fontsize-heading-m);
   font-weight: 700;
+  margin-bottom: var(--spacing-2-xs);
 `;
 
 const Description = styled.span`
+  font-family: var(--font-regular);
   font-size: var(--fontsize-body-l);
   flex-grow: 1;
 `;
@@ -61,6 +63,7 @@ const Bottom = styled.span`
   display: flex;
   font-weight: 500;
   align-items: center;
+  gap: var(--spacing-l);
   font-size: var(--fontsize-body-m);
 
   > div {
@@ -71,7 +74,7 @@ const Bottom = styled.span`
     }
   }
 
-  @media (max-width: ${breakpoint.l}) {
+  @media (max-width: ${breakpoint.xl}) {
     display: block;
   }
 `;
@@ -106,6 +109,12 @@ const Anchor = styled.a`
   color: var(--color-black-90);
 `;
 
+const StyledIconWithText = styled(IconWithText)`
+  span {
+    margin-left: var(--spacing-2-xs);
+  }
+`;
+
 const ReservationUnitCard = ({
   reservationUnit,
   selectReservationUnit,
@@ -138,7 +147,7 @@ const ReservationUnitCard = ({
         </Description>
         <Bottom>
           {reservationUnit.reservationUnitType ? (
-            <IconWithText
+            <StyledIconWithText
               icon={
                 <IconInfoCircle aria-label={t("reservationUnitCard:type")} />
               }
@@ -149,7 +158,7 @@ const ReservationUnitCard = ({
             />
           ) : null}
           {reservationUnit.maxPersons ? (
-            <IconWithText
+            <StyledIconWithText
               icon={
                 <IconGroup
                   aria-label={t("reservationUnitCard:maxPersons", {
@@ -161,7 +170,7 @@ const ReservationUnitCard = ({
             />
           ) : null}
           {getAddress(reservationUnit) ? (
-            <IconWithText
+            <StyledIconWithText
               className="grow"
               icon={
                 <IconLocation aria-label={t("reservationUnitCard:address")} />

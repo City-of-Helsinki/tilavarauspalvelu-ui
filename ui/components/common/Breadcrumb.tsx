@@ -15,6 +15,7 @@ const root = { label: "home", linkTo: "/" } as BreadcrumbType;
 
 const Container = styled.nav`
   margin-top: var(--spacing-s);
+  font-family: var(--font-regular);
   font-size: var(--fontsize-body-s);
 
   & > a {

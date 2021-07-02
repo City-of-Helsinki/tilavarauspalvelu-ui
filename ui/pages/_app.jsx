@@ -2,6 +2,8 @@ import React from "react";
 import { appWithTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
 import { format } from "date-fns";
+import { ApolloProvider } from "@apollo/client";
+import apolloClient from "../modules/apolloClient";
 import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
 import { authEnabled, isBrowser } from "../modules/const";
@@ -37,9 +39,11 @@ function MyApp({ Component, pageProps }) {
         isEnabled={authEnabled}
         callbackComponentOverride={LoggingIn}
       >
-        <PageWrapper>
-          <Component {...pageProps} />
-        </PageWrapper>
+        <ApolloProvider client={apolloClient}>
+          <PageWrapper>
+            <Component {...pageProps} />
+          </PageWrapper>
+        </ApolloProvider>
       </AuthenticationProvider>
     </TrackingWrapper>
   );
