@@ -1,5 +1,7 @@
+import React from "react";
 import { appWithTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
+import { format } from "date-fns";
 import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
 import { authEnabled, isBrowser } from "../modules/const";
@@ -8,8 +10,7 @@ import { CenterSpinner } from "../components/common/common";
 import oidcConfiguration from "../modules/auth/configuration";
 import nextI18NextConfig from "../next-i18next.config.js";
 import "../styles/global.scss";
-import { format } from 'date-fns';
-import {TrackingWrapper} from '../modules/tracking'
+import { TrackingWrapper } from "../modules/tracking";
 
 function MyApp({ Component, pageProps }) {
   if (!isBrowser) {

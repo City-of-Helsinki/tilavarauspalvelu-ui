@@ -10,17 +10,22 @@ type Props = {
 };
 
 const Container = styled.div`
-  margin-top: var(--spacing-layout-s);
+  margin-top: var(--spacing-2-xs);
 `;
 
 const Name = styled.div`
   font-size: var(--fontsize-heading-m);
   font-family: var(--font-bold);
+  margin-bottom: var(--spacing-m);
 `;
 
 const AddressLine = styled.div`
   font-size: var(--fontsize-body-m);
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-2-xs);
+`;
+
+const Links = styled.div`
+  margin-top: var(--spacing-m);
 `;
 
 const hslUrl = (locale: string, location: Location): string | null => {
@@ -66,18 +71,20 @@ const Address = ({ reservationUnit }: Props): JSX.Element => {
           {`${reservationUnit.location?.addressZip} ${reservationUnit.location?.addressCity}`}
         </AddressLine>
       ) : null}
-      <ExternalLink
-        href={mapUrl(reservationUnit.location)}
-        name={t("reservationUnit:linkMap")}
-      />
-      <ExternalLink
-        href={googleUrl(reservationUnit.location)}
-        name={t("reservationUnit:linkGoogle")}
-      />{" "}
-      <ExternalLink
-        href={hslUrl(i18n.language, reservationUnit.location)}
-        name={t("reservationUnit:linkHSL")}
-      />
+      <Links>
+        <ExternalLink
+          href={mapUrl(reservationUnit.location)}
+          name={t("reservationUnit:linkMap")}
+        />
+        <ExternalLink
+          href={googleUrl(reservationUnit.location)}
+          name={t("reservationUnit:linkGoogle")}
+        />{" "}
+        <ExternalLink
+          href={hslUrl(i18n.language, reservationUnit.location)}
+          name={t("reservationUnit:linkHSL")}
+        />
+      </Links>
     </Container>
   );
 };

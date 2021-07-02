@@ -11,7 +11,7 @@ interface Props {
 
 const Main = styled.main`
   font-size: var(--fontsize-body-m);
-  flex-grow: 1;
+  flex: 1 0 auto;
 `;
 
 const PageWrapper = (props: Props): JSX.Element => {
@@ -21,11 +21,6 @@ const PageWrapper = (props: Props): JSX.Element => {
       <Navigation />
       <ServiceNotification />
       <Main id="main">{props.children}</Main>
-      <div
-        style={{
-          marginTop: "var(--spacing-layout-xl)",
-        }}
-      />
       <Footer />
       <div id="modal-root" />
     </>

@@ -29,6 +29,7 @@ const HeadContainer = styled.div`
 
 const StyledKoros = styled(Koros)`
   fill: white;
+  margin-bottom: var(--spacing-layout-l);
 `;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -98,7 +99,7 @@ const Search = (): JSX.Element => {
       </HeadContainer>
       <StyledKoros type="wave" className="koros" flipHorizontal />
       {state === "loading" ? (
-        <CenterSpinner />
+        <CenterSpinner style={{ marginTop: "var(--spacing-layout-xl)" }} />
       ) : (
         <SearchResultList
           error={state === "error"}

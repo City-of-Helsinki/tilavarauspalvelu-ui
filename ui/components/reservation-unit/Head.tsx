@@ -33,13 +33,13 @@ const RightContainer = styled.div`
   grid-template-columns: 2fr 1fr;
   gap: var(--spacing-s);
 
-  div > h1 {
-    margin-top: 0;
-  }
-
   @media (max-width: ${breakpoint.m}) {
     grid-template-columns: 1fr;
   }
+`;
+
+const StyledIconWithText = styled(IconWithText)`
+  margin-top: var(--spacing-m);
 `;
 
 const Props = styled.div`
@@ -50,6 +50,7 @@ const Props = styled.div`
 
 const ReservationUnitName = styled.h1`
   font-size: var(--fontsize-heading-l);
+  margin: var(--spacing-2-xs) 0 var(--spacing-xs);
 `;
 
 const BuildingName = styled.div`
@@ -109,7 +110,7 @@ const Head = ({
             <Props>
               <div>
                 {reservationUnit.reservationUnitType ? (
-                  <IconWithText
+                  <StyledIconWithText
                     icon={
                       <IconInfoCircle aria-label={t("reservationUnit:type")} />
                     }
@@ -119,7 +120,7 @@ const Head = ({
                     )}
                   />
                 ) : null}
-                <IconWithText
+                <StyledIconWithText
                   icon={
                     <IconGroup aria-label={t("reservationUnit:maxPersons")} />
                   }

@@ -47,7 +47,6 @@ const ButtonContainer = styled.div`
 
 const SearchForm = ({ onSearch, formValues }: Props): JSX.Element | null => {
   const { t, i18n } = useTranslation();
-  const [ready, setReady] = useState<boolean>(false);
   const [reservationUnitTypeOptions, setReservationUnitTypeOptions] = useState<
     OptionType[]
   >([]);
@@ -81,7 +80,6 @@ const SearchForm = ({ onSearch, formValues }: Props): JSX.Element | null => {
           i18n.language
         )
       );
-      setReady(true);
     }
     fetchData();
   }, [i18n, t]);
@@ -93,10 +91,6 @@ const SearchForm = ({ onSearch, formValues }: Props): JSX.Element | null => {
   const search = (criteria: Record<string, string>) => {
     onSearch(criteria);
   };
-
-  if (!ready) {
-    return null;
-  }
 
   return (
     <>

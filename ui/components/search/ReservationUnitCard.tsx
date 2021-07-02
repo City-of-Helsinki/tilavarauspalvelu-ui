@@ -101,6 +101,11 @@ const Image = styled.img`
     height: 50vw;
   }
 `;
+
+const Anchor = styled.a`
+  color: var(--color-black-90);
+`;
+
 const ReservationUnitCard = ({
   reservationUnit,
   selectReservationUnit,
@@ -122,8 +127,10 @@ const ReservationUnitCard = ({
       />
       <MainContent>
         <Name>
-          <Link href={`../reservation-unit/${reservationUnit.id}`}>
-            {localizedValue(reservationUnit.name, i18n.language)}
+          <Link href={`../reservation-unit/${reservationUnit.id}`} passHref>
+            <Anchor>
+              {localizedValue(reservationUnit.name, i18n.language)}
+            </Anchor>
           </Link>
         </Name>
         <Description>
@@ -166,7 +173,6 @@ const ReservationUnitCard = ({
       </MainContent>
       <Actions>
         <div style={{ flexGrow: 1 }} />
-
         {containsReservationUnit(reservationUnit) ? (
           <Button
             iconLeft={<IconCheck />}

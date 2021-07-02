@@ -29,23 +29,29 @@ const Heading = styled.div`
 `;
 
 const Content = styled.div`
-  margin-left: var(--spacing-s);
+  padding: var(--spacing-s);
 `;
 
-const Unit = styled.div``;
+const Unit = styled.div`
+  background-color: var(--color-white);
+`;
+
 const Name = styled.div`
   font-family: var(--font-bold);
+  font-weight: 700;
+  font-size: var(--fontsize-heading-s);
 `;
 
 const Image = styled.img`
-  margin-top: var(--spacing-s);
   width: 100%;
   height: 205px;
   object-fit: cover;
 `;
 
 const Building = styled.div`
+  font-family: var(--font-regular);
   font-size: var(--fontsize-body-m);
+  margin: var(--spacing-3-xs) 0 var(--spacing-xs);
 `;
 
 const Grid = styled.div`
@@ -76,9 +82,18 @@ const SpanTwoColumns = styled.span`
     grid-column-end: 2;
   }
 `;
+
+const StyledIconWithText = styled(IconWithText)`
+  margin-top: var(--spacing-xs);
+`;
+
 const Buttons = styled.div`
   margin-top: var(--spacing-m);
   font-size: var(--fontsize-body-m);
+
+  button {
+    margin: 0;
+  }
 `;
 
 const RelatedUnits = ({
@@ -109,7 +124,7 @@ const RelatedUnits = ({
               </Link>
               <Building>{unit.building.name}</Building>
               <Props>
-                <IconWithText
+                <StyledIconWithText
                   icon={
                     <IconInfoCircle
                       aria-label={t("reservationUnitCard:type")}
@@ -121,7 +136,7 @@ const RelatedUnits = ({
                   )}
                 />
                 {unit.maxPersons ? (
-                  <IconWithText
+                  <StyledIconWithText
                     icon={
                       <IconGroup
                         aria-label={t("reservationUnitCard:maxPersons", {
@@ -136,7 +151,7 @@ const RelatedUnits = ({
                 )}
                 {getAddress(unit) ? (
                   <SpanTwoColumns>
-                    <IconWithText
+                    <StyledIconWithText
                       icon={
                         <IconLocation
                           aria-label={t("reservationUnitCard:address")}
@@ -146,30 +161,30 @@ const RelatedUnits = ({
                     />
                   </SpanTwoColumns>
                 ) : (
-                  <IconWithText icon={<span />} text="&nbsp;" />
+                  <StyledIconWithText icon={<span />} text="&nbsp;" />
                 )}
               </Props>
+              <Buttons>
+                {containsReservationUnit(unit) ? (
+                  <Button
+                    onClick={() => removeReservationUnit(unit)}
+                    iconLeft={<IconCheck />}
+                    className="margin-left-xs margin-top-s"
+                  >
+                    {t("common:reservationUnitSelected")}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => selectReservationUnit(unit)}
+                    iconLeft={<IconPlus />}
+                    className="margin-left-s margin-top-s"
+                    variant="secondary"
+                  >
+                    {t("common:selectReservationUnit")}
+                  </Button>
+                )}
+              </Buttons>
             </Content>
-            <Buttons>
-              {containsReservationUnit(unit) ? (
-                <Button
-                  onClick={() => removeReservationUnit(unit)}
-                  iconLeft={<IconCheck />}
-                  className="margin-left-s margin-top-s"
-                >
-                  {t("common:reservationUnitSelected")}
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => selectReservationUnit(unit)}
-                  iconLeft={<IconPlus />}
-                  className="margin-left-s margin-top-s"
-                  variant="secondary"
-                >
-                  {t("common:selectReservationUnit")}
-                </Button>
-              )}
-            </Buttons>
           </Unit>
         ))}
       </Grid>
