@@ -11,6 +11,7 @@ type Props = {
 
 const Container = styled.div`
   margin-top: var(--spacing-2-xs);
+  margin-bottom: var(--spacing-layout-l);
 `;
 
 const Name = styled.div`

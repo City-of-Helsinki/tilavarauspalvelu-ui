@@ -8,22 +8,27 @@ import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
 import { authEnabled, isBrowser } from "../modules/const";
 import LoggingIn from "../components/common/LoggingIn";
-import { CenterSpinner } from "../components/common/common";
+import { AbsoluteSpinner } from "../components/common/common";
 import oidcConfiguration from "../modules/auth/configuration";
-import nextI18NextConfig from "../next-i18next.config.js";
+import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
 import { TrackingWrapper } from "../modules/tracking";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function MyApp({ Component, pageProps }) {
   if (!isBrowser) {
     return (
-      <PageWrapper>
-        <Component {...pageProps} />
-      </PageWrapper>
+      // eslint-disable-next-line react/jsx-filename-extension
+      <ApolloProvider client={apolloClient}>
+        <PageWrapper>
+          <Component {...pageProps} />
+        </PageWrapper>
+      </ApolloProvider>
     );
   }
 
   const AuthenticationProvider = dynamic(() =>
+    // eslint-disable-next-line import/no-unresolved
     import("@axa-fr/react-oidc-context").then(
       (mod) => mod.AuthenticationProvider
     )
@@ -32,7 +37,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <TrackingWrapper>
       <AuthenticationProvider
-        authenticating={CenterSpinner}
+        authenticating={AbsoluteSpinner}
         notAuthenticated={SessionLost}
         sessionLostComponent={SessionLost}
         configuration={oidcConfiguration}

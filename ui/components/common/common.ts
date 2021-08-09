@@ -46,8 +46,18 @@ export const HorisontalRule = styled.div`
   background-color: var(--color-black-60);
   margin-top: var(--spacing-layout-m);
 `;
+
 export const CenterSpinner = styled(LoadingSpinner)`
   margin: 0 auto var(--spacing-2-xl) auto;
+`;
+
+export const AbsoluteSpinner = styled(LoadingSpinner)`
+  && {
+    position: fixed;
+  }
+  top: 20vh;
+  left: 48vw;
+  z-index: 1000;
 `;
 
 export const CheckboxWrapper = styled.div`

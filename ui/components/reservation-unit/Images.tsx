@@ -16,7 +16,7 @@ const Heading = styled.div`
 `;
 
 const Container = styled.div`
-  margin-top: var(--spacing-layout-m);
+  margin-top: var(--spacing-2-xs);
 `;
 
 const ImageGrid = styled.div`
@@ -84,10 +84,10 @@ const Images = ({ images }: Props): JSX.Element => {
   }
   return (
     <Container>
-      <Heading>{t("reservationUnit.images")}</Heading>
+      <Heading>{t("reservationUnit:images")}</Heading>
       <ImageGrid>
         {images.map((image) => (
-          <div>
+          <div key={image.smallUrl}>
             <StyledButton
               type="button"
               onClick={() => {
@@ -108,7 +108,7 @@ const Images = ({ images }: Props): JSX.Element => {
             setShowModal(false);
           }}
           show={showModal}
-          closeButtonKey=":close"
+          closeButtonKey="common:close"
         >
           <ModalContent>
             {currentImage ? (
@@ -120,13 +120,13 @@ const Images = ({ images }: Props): JSX.Element => {
             <ModalImages>
               {images.map((image) => (
                 <StyledButton
+                  key={image.smallUrl}
                   type="button"
                   onClick={() => {
                     setCurrentImage(image);
                   }}
                 >
                   <ThumbnailImage
-                    key={image.smallUrl}
                     alt={t("common:imgAltForSpace")}
                     src={image.smallUrl}
                   />

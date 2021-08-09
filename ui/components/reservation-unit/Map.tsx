@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import ReactMapGL, { Marker, NavigationControl } from "react-map-gl";
-import Image from "next/image";
-import { mapStyle } from "../../modules/const";
+import { mapboxToken, mapStyle } from "../../modules/const";
 
 type State = Record<string, number>;
 type Props = { title: string; latitude?: number; longitude?: number };
@@ -32,10 +31,11 @@ const Map = ({ title, latitude, longitude }: Props): JSX.Element | null => {
       onViewportChange={(
         newViewPort: React.SetStateAction<Record<string, number>>
       ) => setViewport(newViewPort)}
+      mapboxApiAccessToken={mapboxToken}
     >
       <NavigationControl style={navControlStyle} />
       <Marker key={title} longitude={longitude} latitude={latitude}>
-        <Image src="./mapMarkerIcon.svg" height="16" width="16" />
+        <img src="/mapMarkerIcon.svg" height="42" width="32" alt="" />
       </Marker>
     </ReactMapGL>
   );

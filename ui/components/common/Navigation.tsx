@@ -9,6 +9,7 @@ import { applicationsUrl } from "../../modules/util";
 import { authEnabled, isBrowser } from "../../modules/const";
 import { breakpoint } from "../../modules/style";
 import { UserProfile } from "../../modules/types";
+import RequireAuthentication from "./RequireAuthentication";
 
 interface LanguageOption {
   label: string;
@@ -26,7 +27,7 @@ const StyledNavigation = styled(HDSNavigation)`
 
   @media (max-width: ${breakpoint.s}) {
     position: fixed !important;
-    z-index: 10 !important;
+    z-index: 100 !important;
   }
 `;
 
@@ -61,6 +62,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
     "userLocale",
     i18n.language
   );
+  const [shouldLogin, setShouldLogin] = React.useState(false);
 
   const formatSelectedValue = (lang = DEFAULT_LANGUAGE): string =>
     lang.toUpperCase();
@@ -103,9 +105,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
             userName={getUserName(profile, t)}
             authenticated={Boolean(profile)}
             label={t("common:login")}
-            onSignIn={() => {
-              router.push(applicationsUrl);
-            }}
+            onSignIn={() => setShouldLogin(true)}
           >
             <HDSNavigation.Item
               label={t("common:logout")}
@@ -129,6 +129,11 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
         </HDSNavigation.Actions>
       </StyledNavigation>
       <PreContent />
+      {shouldLogin && (
+        <RequireAuthentication>
+          <div />
+        </RequireAuthentication>
+      )}
     </>
   );
 };

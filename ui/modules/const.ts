@@ -89,6 +89,7 @@ export const {
   oidcUrl,
   oidcScope,
   apiScope,
+  mapboxToken,
 } = publicRuntimeConfig;
 
 export const apiBaseUrl = isBrowser

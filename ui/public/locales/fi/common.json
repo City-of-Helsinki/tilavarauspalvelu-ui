@@ -4,6 +4,9 @@
   "dateLong": "{{date, dd.MM.yyyy}}",
   "time": "{{date, HH:mm}}",
   "today": "Tänään",
+  "day": "Päivä",
+  "week": "Viikko",
+  "month": "Kuukausi",
   "weekDayLong.0": "Sunnuntai",
   "weekDayLong.1": "Maanantai",
   "weekDayLong.2": "Tiistai",
@@ -37,7 +40,7 @@
   },
   "applicationNavigationName": "Hakemus",
   "applicationName": "Varaamo",
-  "selectReservationUnit": "Valitse tila",
+  "selectReservationUnit": "Lisää tila hakemukselle",
   "removeReservationUnit": "Lisätty hakemukselle",
   "reservationUnitSelected": "Lisätty hakemukselle",
   "next": "Seuraava",
@@ -67,5 +70,6 @@
     "streetAddress": "Laskutusosoite",
     "postCode": "Postinumero",
     "city": "Postitoimipaikka"
-  }
+  },
+  "location": "Sijainti"
 }

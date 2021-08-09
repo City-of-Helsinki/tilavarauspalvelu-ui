@@ -4,5 +4,15 @@
   "legend": {
     "okLabel": "Voimassa oleva varaus",
     "cancelledLabel": "Peruttu varaus"
+  },
+  "loginInfo": "Sinun täytyy kirjautua sisään, jotta voit tehdä varauksen tähän tilaan.",
+  "showCurrentDay": "Näytä nykyinen päivä",
+  "showPrevious": "Naytä edellinen {{view}}",
+  "showNext": "Naytä seuraava {{view}}",
+  "showView": "Näytä {{view}}näkymä",
+  "legend": {
+    "free": "Vapaana",
+    "unavailable": "Ei varattavissa",
+    "busy": "Varattu"
   }
 }

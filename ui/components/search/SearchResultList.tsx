@@ -2,7 +2,6 @@ import { Notification as HDSNotification } from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { useQuery, gql } from "@apollo/client";
 import useReservationUnitsList from "../../hooks/useReservationUnitList";
 import { ReservationUnit } from "../../modules/types";
 import Container from "../common/Container";
@@ -29,26 +28,6 @@ const Notification = styled(HDSNotification)`
 `;
 
 const SearchResultList = ({ error, reservationUnits }: Props): JSX.Element => {
-  const reservationUnitsQuery = gql`
-    {
-      reservationUnits {
-        edges {
-          node {
-            pk
-            name
-          }
-        }
-      }
-    }
-  `;
-
-  const {
-    data,
-    loading: isLoading,
-    error: err,
-  } = useQuery(reservationUnitsQuery);
-  console.log(data, isLoading, err);
-
   const {
     reservationUnits: selectedReservationUnits,
     selectReservationUnit,
