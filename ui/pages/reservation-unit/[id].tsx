@@ -167,7 +167,7 @@ const ReservationUnit = ({
   const [viewType, setViewType] = useState<WeekOptions>("week");
   const [initialReservation, setInitialReservation] =
     useState<PendingReservation | null>(null);
-  const [reservations, setReservations] = useState<Reservation[] | null>([]);
+  const [reservations] = useState<Reservation[] | null>([]);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [showReservationDialog, setShowReservationDialog] =
     useState<boolean>(false);
@@ -229,7 +229,7 @@ const ReservationUnit = ({
                 end: end.toISOString(),
               } as PendingReservation);
             }}
-            onSelectEvent={(event: CalendarEvent) => {
+            onSelectEvent={() => {
               setShowReservationDialog(true);
             }}
             showToolbar
@@ -274,7 +274,6 @@ const ReservationUnit = ({
           show={showReservationDialog}
           closeButtonKey="common:close"
           handleOk={() => {
-            console.log(reservationUnit, reservationUnit.id);
             router.push(`/reservation-unit/${reservationUnit.id}/reservation`);
           }}
           okButtonKey={t("reservationCalendar:makeReservation")}

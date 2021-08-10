@@ -9,7 +9,7 @@ type Props = {
 const Wrapper = styled.div``;
 
 const ReservationDialog = ({ reservationUnit }: Props): JSX.Element => {
-  return <Wrapper>{reservationUnit.name}</Wrapper>;
+  return <Wrapper>{reservationUnit?.name}</Wrapper>;
 };
 
 export default ReservationDialog;
