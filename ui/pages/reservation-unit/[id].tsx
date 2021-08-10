@@ -62,6 +62,7 @@ export const getServerSideProps = async ({ locale, params }) => {
         }
         maxPersons
         building: unit {
+          id: pk
           name
         }
         location {
@@ -79,9 +80,9 @@ export const getServerSideProps = async ({ locale, params }) => {
       variables: { pk: id },
     });
 
-    if (data.reservationUnit.id) {
+    if (data.reservationUnit?.building?.id) {
       relatedReservationUnits = (
-        await getReservationUnits({ unit: data.reservationUnit.unitId })
+        await getReservationUnits({ unit: data.reservationUnit.building.id })
       ).filter((u) => u.id !== Number(id));
     }
 
@@ -173,10 +174,6 @@ const ReservationUnit = ({
     useState<boolean>(false);
 
   const reservationUnitList = useReservationUnitsList();
-
-  // TODO GET RID OF THIS
-  // eslint-disable-next-line no-param-reassign
-  relatedReservationUnits = [reservationUnit, reservationUnit];
 
   const shouldDisplayBottomWrapper = relatedReservationUnits?.length > 0;
 
