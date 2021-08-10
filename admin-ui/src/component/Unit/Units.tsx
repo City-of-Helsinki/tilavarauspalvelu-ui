@@ -46,8 +46,8 @@ const PopupName = styled.div`
 `;
 
 const PopupAddress = styled.div`
-  font-family: var(--tilavaraus-admin-font-normal);
-  font-size: var(--font-size-body-s);
+  font-family: var(--tilavaraus-admin-font-medium);
+  font-size: var(--fontsize-body-s);
   line-height: 26px;
 `;
 
@@ -55,7 +55,7 @@ const PopupLink = styled(BasicLink)`
   font-family: var(--tilavaraus-admin-font-bold);
   justify-content: flex-end;
   width: 100%;
-  font-size: var(--font-size-body-xs);
+  font-size: var(--fontsize-body-xs);
 `;
 
 const UnitList = styled.div`
