@@ -55,7 +55,7 @@ const PopupLink = styled(BasicLink)`
   font-family: var(--tilavaraus-admin-font-bold);
   justify-content: flex-end;
   width: 100%;
-  font-size: var(--fontsize-body-xs);
+  font-size: var(--fontsize-body-s);
 `;
 
 const UnitList = styled.div`
