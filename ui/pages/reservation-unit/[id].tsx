@@ -2,10 +2,16 @@ import React, { useState } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { gql } from "@apollo/client";
+import router from "next/router";
 import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+// eslint-disable-next-line import/no-unresolved
 import Container from "../../components/common/Container";
-import { ReservationUnit as ReservationUnitType } from "../../modules/types";
+import {
+  PendingReservation,
+  Reservation,
+  ReservationUnit as ReservationUnitType,
+} from "../../modules/types";
 import { getReservationUnits } from "../../modules/api";
 import Head from "../../components/reservation-unit/Head";
 import Address from "../../components/reservation-unit/Address";
@@ -19,9 +25,11 @@ import { AccordionWithState as Accordion } from "../../components/common/Accordi
 import apolloClient from "../../modules/apolloClient";
 import Map from "../../components/reservation-unit/Map";
 import { H2 } from "../../modules/style/typography";
-import Calendar from "../../components/calendar/Calendar";
+import Calendar, { CalendarEvent } from "../../components/calendar/Calendar";
 import Legend from "../../components/calendar/Legend";
 import LoginFragment from "../../components/LoginFragment";
+import Modal from "../../components/common/Modal";
+import ReservationDialog from "./ReservationDialog";
 
 type Props = {
   reservationUnit: ReservationUnitType | null;
@@ -39,6 +47,7 @@ export const getServerSideProps = async ({ locale, params }) => {
   const RESERVATION_UNIT = gql`
     query SelectedReservationUnit($pk: Int) {
       reservationUnit: reservationUnitByPk(pk: $pk) {
+        id: pk
         name
         images {
           imageUrl
@@ -156,6 +165,12 @@ const ReservationUnit = ({
 
   const [date, setDate] = useState(new Date());
   const [viewType, setViewType] = useState<WeekOptions>("week");
+  const [initialReservation, setInitialReservation] =
+    useState<PendingReservation | null>(null);
+  const [reservations, setReservations] = useState<Reservation[] | null>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [showReservationDialog, setShowReservationDialog] =
+    useState<boolean>(false);
 
   const reservationUnitList = useReservationUnitsList();
 
@@ -164,6 +179,10 @@ const ReservationUnit = ({
   relatedReservationUnits = [reservationUnit, reservationUnit];
 
   const shouldDisplayBottomWrapper = relatedReservationUnits?.length > 0;
+
+  const allReservations = [...reservations, initialReservation].filter(
+    (n) => n
+  );
 
   return reservationUnit ? (
     <>
@@ -194,7 +213,7 @@ const ReservationUnit = ({
           <StyledH2>{t("reservations:reservationCalendar")}</StyledH2>
           <Calendar
             begin={date}
-            reservations={[]}
+            reservations={allReservations}
             reservationUnit={reservationUnit}
             onNavigate={(d: Date) => {
               setDate(d);
@@ -203,10 +222,26 @@ const ReservationUnit = ({
             onView={(n: WeekOptions) => {
               setViewType(n);
             }}
+            onSelecting={({ start, end }: CalendarEvent) => {
+              setInitialReservation({
+                name: t("reservationCalendar:initialReservation"),
+                begin: start.toISOString(),
+                end: end.toISOString(),
+              } as PendingReservation);
+            }}
+            onSelectEvent={(event: CalendarEvent) => {
+              setShowReservationDialog(true);
+            }}
             showToolbar
+            reservable={isAuthenticated}
           />
           <Legend />
-          <LoginFragment text={t("reservationCalendar:loginInfo")} />
+          <LoginFragment
+            text={t("reservationCalendar:loginInfo")}
+            setIsAuthenticated={(isAuthd: boolean) =>
+              setIsAuthenticated(isAuthd)
+            }
+          />
         </CalendarWrapper>
         <MapWrapper>
           <StyledH2>{t("common:location")}</StyledH2>
@@ -233,6 +268,20 @@ const ReservationUnit = ({
       <StartApplicationBar
         count={reservationUnitList.reservationUnits.length}
       />
+      {showReservationDialog && (
+        <Modal
+          handleClose={() => setShowReservationDialog(false)}
+          show={showReservationDialog}
+          closeButtonKey="common:close"
+          handleOk={() => {
+            console.log(reservationUnit, reservationUnit.id);
+            router.push(`/reservation-unit/${reservationUnit.id}/reservation`);
+          }}
+          okButtonKey={t("reservationCalendar:makeReservation")}
+        >
+          <ReservationDialog reservationUnit={reservationUnit} />
+        </Modal>
+      )}
     </>
   ) : null;
 };

@@ -71,5 +71,6 @@
     "postCode": "Postinumero",
     "city": "Postitoimipaikka"
   },
-  "location": "Sijainti"
+  "location": "Sijainti",
+  "phone": "Puhelin"
 }

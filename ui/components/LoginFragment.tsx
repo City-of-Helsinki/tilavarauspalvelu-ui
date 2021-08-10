@@ -7,7 +7,10 @@ import { isBrowser } from "../modules/const";
 import { UserProfile } from "../modules/types";
 import RequireAuthentication from "./common/RequireAuthentication";
 
-type Props = { text?: string };
+type Props = {
+  text?: string;
+  setIsAuthenticated?: (isAuthenticated: boolean) => void;
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -33,7 +36,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const LoginFragment = ({ text }: Props): JSX.Element => {
+const LoginFragment = ({ text, setIsAuthenticated }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [shouldLogin, setShouldLogin] = React.useState(false);
@@ -54,7 +57,10 @@ const LoginFragment = ({ text }: Props): JSX.Element => {
 
   return (
     <WithOidc
+      setIsAuthenticated={setIsAuthenticated}
       render={(props: { profile: UserProfile | null }) => {
+        setIsAuthenticated(props.profile !== null);
+
         return !props.profile ? (
           <Wrapper>
             <Button

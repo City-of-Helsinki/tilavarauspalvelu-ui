@@ -16,6 +16,7 @@ import {
   ApplicationEvent,
   Reservation,
   ReservationUnit,
+  PendingReservation,
 } from "../../modules/types";
 import Toolbar from "./Toolbar";
 
@@ -29,14 +30,17 @@ export type CalendarEvent = {
 };
 
 type Props = {
-  reservations?: Reservation[];
+  reservations?: Reservation[] | PendingReservation[];
   begin: Date;
   applicationEvent?: ApplicationEvent;
   reservationUnit: ReservationUnit;
   viewType?: string;
   onNavigate?: (n: Date) => void;
   onView?: (n: string) => void;
+  onSelectEvent?: (event: CalendarEvent) => void;
+  onSelecting?: ({ start, end }: CalendarEvent) => void;
   showToolbar?: boolean;
+  reservable?: boolean;
 };
 
 export const eventStyleGetter = ({
@@ -190,9 +194,12 @@ const Calendar = ({
   begin,
   reservationUnit,
   viewType = "week",
+  onSelecting,
   onNavigate = () => {},
   onView = () => {},
+  onSelectEvent = () => {},
   showToolbar = false,
+  reservable = false,
 }: Props): JSX.Element => {
   const { i18n, t } = useTranslation();
 
@@ -209,7 +216,7 @@ const Calendar = ({
             r.state === "cancelled"
               ? `${t("reservationCalendar:prefixForCancelled")}: `
               : ""
-          } ${
+          } ${r?.name ? `${r.name}: ` : ""}${
             applicationEvent?.name ? `${applicationEvent.name}: ` : ""
           }${localizedValue(reservationUnit.name, i18n.language)}`,
           start: parseDate(r.begin),
@@ -231,6 +238,11 @@ const Calendar = ({
       views={["day", "week", "month"]}
       className={`view-${viewType}`}
       components={{ toolbar: Toolbar }}
+      onSelecting={(calendarEvent: CalendarEvent) => onSelecting(calendarEvent)}
+      selectable={reservable}
+      onSelectEvent={(event: CalendarEvent) => {
+        onSelectEvent(event);
+      }}
     />
   );
 };

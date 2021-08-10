@@ -234,6 +234,11 @@ export type Reservation = {
   reservationUnit: ReservationUnit[];
 };
 
+export type PendingReservation = {
+  begin: string;
+  end: string;
+};
+
 export type RecurringReservation = {
   applicationId: number;
   applicationEventId: number;
