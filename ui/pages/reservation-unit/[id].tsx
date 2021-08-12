@@ -15,7 +15,6 @@ import {
 import { getReservationUnits } from "../../modules/api";
 import Head from "../../components/reservation-unit/Head";
 import Address from "../../components/reservation-unit/Address";
-import Images from "../../components/reservation-unit/Images";
 import Sanitize from "../../components/common/Sanitize";
 import { breakpoint } from "../../modules/style";
 import RelatedUnits from "../../components/reservation-unit/RelatedUnits";
@@ -66,6 +65,8 @@ export const getServerSideProps = async ({ locale, params }) => {
           name
         }
         location {
+          latitude
+          longitude
           addressStreet
           addressZip
           addressCity
@@ -89,17 +90,7 @@ export const getServerSideProps = async ({ locale, params }) => {
     return {
       props: {
         ...(await serverSideTranslations(locale)),
-        reservationUnit: {
-          // TODO: remove this
-          ...data.reservationUnit,
-          location: {
-            ...data.reservationUnit.location,
-            coordinates: {
-              longitude: 60.29429873400916,
-              latitude: 25.07080078125,
-            },
-          },
-        },
+        reservationUnit: data.reservationUnit,
         relatedReservationUnits,
       },
     };
@@ -203,7 +194,6 @@ const ReservationUnit = ({
           </div>
           <div>
             <Address reservationUnit={reservationUnit} />
-            <Images images={reservationUnit.images} />
           </div>
         </TwoColumnLayout>
         <CalendarWrapper>
@@ -244,8 +234,8 @@ const ReservationUnit = ({
           <StyledH2>{t("common:location")}</StyledH2>
           <Map
             title={reservationUnit.building?.name}
-            latitude={reservationUnit.location?.coordinates?.latitude}
-            longitude={reservationUnit.location?.coordinates?.longitude}
+            latitude={Number(reservationUnit.location?.latitude)}
+            longitude={Number(reservationUnit.location?.longitude)}
           />
         </MapWrapper>
       </Container>

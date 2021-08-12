@@ -3,6 +3,7 @@ import { Koros } from "hds-react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import queryString from "query-string";
+import { useLocalStorage } from "react-use";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Container from "../components/common/Container";
@@ -53,6 +54,10 @@ const Search = (): JSX.Element => {
 
   const [values, setValues] = useState({} as Record<string, string>);
   const [state, setState] = useState<"loading" | "done" | "error">("done");
+  const [storedValues, setStoredValues] = useLocalStorage(
+    "reasevationUnit-search",
+    null
+  );
 
   const [reservationUnits, setReservationUnits] = useState<
     ReservationUnit[] | null
@@ -87,6 +92,20 @@ const Search = (): JSX.Element => {
         });
     }
   }, [searchParams, setReservationUnits]);
+
+  useEffect(() => {
+    const params = queryString.parse(searchParams);
+    if (state === "done" && !{}.propertyIsEnumerable.call(params, "restore")) {
+      setStoredValues(params);
+    }
+  }, [state, setStoredValues, searchParams]);
+
+  useEffect(() => {
+    const params = queryString.parse(searchParams);
+    if ({}.propertyIsEnumerable.call(params, "restore")) {
+      window.location.search = queryString.stringify(storedValues);
+    }
+  }, [searchParams, storedValues]);
 
   const history = useRouter();
 

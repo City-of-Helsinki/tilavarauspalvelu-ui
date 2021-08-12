@@ -23,12 +23,13 @@ const Button = styled(HDSButton).attrs({
 `;
 
 type Props = {
+  link?: string;
   label?: string;
 };
 
-const Back = ({ label = "common:prev" }: Props): JSX.Element => {
+const Back = ({ link, label = "common:prev" }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const router = useRouter();
+  const { back, push } = useRouter();
 
   return (
     <Button
@@ -36,7 +37,15 @@ const Back = ({ label = "common:prev" }: Props): JSX.Element => {
       variant="supplementary"
       type="button"
       iconLeft={<IconArrowLeft />}
-      onClick={() => router.back()}
+      onClick={
+        link
+          ? () => {
+              push(link);
+            }
+          : () => {
+              back();
+            }
+      }
     >
       {t(label)}
     </Button>
