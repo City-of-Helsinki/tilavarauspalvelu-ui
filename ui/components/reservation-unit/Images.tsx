@@ -4,29 +4,35 @@ import styled from "styled-components";
 import dynamic from "next/dynamic";
 import { breakpoint } from "../../modules/style";
 import { Image } from "../../modules/types";
+import Carousel from "../Carousel";
+import { pixel } from "../../styles/util";
 
 const Modal = dynamic(() => import("../common/Modal"));
 type Props = {
   images: Image[];
 };
 
-const Heading = styled.div`
-  font-size: var(--fontsize-heading-m);
-  font-family: var(--font-bold);
+const StyledCarousel = styled(Carousel)`
+  order: -1;
+  margin-bottom: var(--spacing-l);
+
+  @media (min-width: ${breakpoint.m}) {
+    order: unset !important;
+    margin-bottom: unset !important;
+    position: relative;
+    top: calc(var(--spacing-2-xl) * -1);
+    margin-right: var(--spacing-l) !important;
+  }
 `;
 
-const Container = styled.div`
-  margin-top: var(--spacing-2-xs);
-`;
+const CarouselImage = styled.img`
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
 
-const ImageGrid = styled.div`
-  margin-top: var(--spacing-layout-s);
-  display: grid;
-  gap: var(--spacing-xs);
-  grid-template-columns: 1fr 1fr 1fr;
-
-  @media (max-width: ${breakpoint.l}) {
-    display: flex;
+  @media (max-width: ${breakpoint.m}) {
+    width: 100%;
+    height: auto;
   }
 `;
 
@@ -40,8 +46,9 @@ const ThumbnailImage = styled.img`
     height: auto;
   }
 `;
+
 const ModalContent = styled.div`
-  max-width: 100vw;
+  max-width: 94vw;
 
   @media (max-width: ${breakpoint.s}) {
     margin: 0.5em;
@@ -68,10 +75,8 @@ const ModalImages = styled.div`
   }
 `;
 const LargeImage = styled.img`
-  max-width: 100%;
-  width: 100%;
+  max-width: 90vw;
   max-height: calc(100vh - 16em);
-  object-fit: cover;
 `;
 
 const Images = ({ images }: Props): JSX.Element => {
@@ -83,60 +88,53 @@ const Images = ({ images }: Props): JSX.Element => {
     return <div />;
   }
   return (
-    <Container>
-      <Heading>{t("reservationUnit:images")}</Heading>
-      <ImageGrid>
+    <>
+      <StyledCarousel>
         {images.map((image) => (
-          <div key={image.smallUrl}>
-            <StyledButton
-              type="button"
-              onClick={() => {
-                setCurrentImage(image);
-                setShowModal(true);
-              }}
-            >
-              <ThumbnailImage
-                key={image.smallUrl}
-                alt={t("common:imgAltForSpace")}
-                src={image.smallUrl}
-              />
-            </StyledButton>
-          </div>
+          <CarouselImage
+            key={image.smallUrl}
+            alt={t("common:imgAltForSpace")}
+            src={image.mediumUrl || pixel}
+            onClick={() => {
+              setCurrentImage(image);
+              setShowModal(true);
+            }}
+          />
         ))}
-        <Modal
-          handleClose={() => {
-            setShowModal(false);
-          }}
-          show={showModal}
-          closeButtonKey="common:close"
-        >
-          <ModalContent>
-            {currentImage ? (
-              <LargeImage
-                alt={t("common:imgAltForSpace")}
-                src={currentImage.imageUrl}
-              />
-            ) : null}
-            <ModalImages>
-              {images.map((image) => (
-                <StyledButton
-                  key={image.smallUrl}
-                  type="button"
-                  onClick={() => {
-                    setCurrentImage(image);
-                  }}
-                >
-                  <ThumbnailImage
-                    alt={t("common:imgAltForSpace")}
-                    src={image.smallUrl}
-                  />
-                </StyledButton>
-              ))}
-            </ModalImages>
-          </ModalContent>
-        </Modal>
-      </ImageGrid>
-    </Container>
+      </StyledCarousel>
+      <Modal
+        handleClose={() => {
+          setShowModal(false);
+        }}
+        show={showModal}
+        closeButtonKey="common:close"
+      >
+        <ModalContent>
+          {currentImage ? (
+            <LargeImage
+              alt={t("common:imgAltForSpace")}
+              src={currentImage.imageUrl}
+            />
+          ) : null}
+          <ModalImages>
+            {images.map((image) => (
+              <StyledButton
+                key={image.smallUrl}
+                type="button"
+                onClick={() => {
+                  setCurrentImage(image);
+                }}
+              >
+                <ThumbnailImage
+                  alt={t("common:imgAltForSpace")}
+                  src={image.smallUrl}
+                />
+              </StyledButton>
+            ))}
+          </ModalImages>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

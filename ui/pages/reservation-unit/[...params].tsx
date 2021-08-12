@@ -35,25 +35,8 @@ export const getServerSideProps = async ({ locale, params }) => {
       reservationUnit: reservationUnitByPk(pk: $pk) {
         id: pk
         name
-        images {
-          imageUrl
-          mediumUrl
-          smallUrl
-          imageType
-        }
-        description
-        termsOfUse
-        reservationUnitType {
-          name
-        }
-        maxPersons
         building: unit {
           name
-        }
-        location {
-          addressStreet
-          addressZip
-          addressCity
         }
       }
     }
@@ -68,17 +51,7 @@ export const getServerSideProps = async ({ locale, params }) => {
     return {
       props: {
         ...(await serverSideTranslations(locale)),
-        reservationUnit: {
-          // TODO: remove this
-          ...data.reservationUnit,
-          location: {
-            ...data.reservationUnit.location,
-            coordinates: {
-              longitude: 60.29429873400916,
-              latitude: 25.07080078125,
-            },
-          },
-        },
+        reservationUnit: data.reservationUnit,
       },
     };
   }

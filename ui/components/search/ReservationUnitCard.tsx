@@ -14,6 +14,7 @@ import { breakpoint } from "../../modules/style";
 import { ReservationUnit } from "../../modules/types";
 import { getAddress, getMainImage, localizedValue } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
+import { pixel } from "../../styles/util";
 
 interface Props {
   reservationUnit: ReservationUnit;
@@ -129,10 +130,7 @@ const ReservationUnitCard = ({
         alt={t("common:imgAltForSpace", {
           name: localizedValue(reservationUnit.name, i18n.language),
         })}
-        src={
-          getMainImage(reservationUnit)?.mediumUrl ||
-          "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-        }
+        src={getMainImage(reservationUnit)?.mediumUrl || pixel}
       />
       <MainContent>
         <Name>

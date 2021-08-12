@@ -5,3 +5,6 @@ export const truncatedText = css`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
+
+export const pixel =
+  "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";

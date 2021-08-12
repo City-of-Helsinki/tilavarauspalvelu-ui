@@ -12,11 +12,13 @@ import styled from "styled-components";
 import useReservationUnitList from "../../hooks/useReservationUnitList";
 import { breakpoint } from "../../modules/style";
 import { ReservationUnit as ReservationUnitType } from "../../modules/types";
-import { getMainImage, localizedValue } from "../../modules/util";
+import { localizedValue } from "../../modules/util";
 import Back from "../common/Back";
 import Container from "../common/Container";
 import IconWithText from "../common/IconWithText";
 import Notification from "./Notification";
+import Images from "./Images";
+import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 
 interface PropsType {
   reservationUnit: ReservationUnitType;
@@ -25,12 +27,13 @@ interface PropsType {
 
 const TopContainer = styled.div`
   background-color: white;
+  padding-top: var(--spacing-m);
 `;
 
 const RightContainer = styled.div`
   font-size: var(--fontsize-body-m);
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: var(--spacing-s);
 
   @media (max-width: ${breakpoint.m}) {
@@ -66,17 +69,6 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const Image = styled.img`
-  width: 100%;
-  height: 259px;
-  object-fit: cover;
-
-  @media (max-width: ${breakpoint.m}) {
-    width: 100%;
-    height: auto;
-  }
-`;
-
 const StyledKoros = styled(Koros)`
   margin-top: var(--spacing-l);
   fill: var(--tilavaraus-gray);
@@ -98,7 +90,7 @@ const Head = ({
     <TopContainer>
       <Notification applicationRound={null} />
       <Container>
-        <Back label="reservationUnit:backToSearch" />
+        <Back link="/search?restore" label="reservationUnit:backToSearch" />
         <RightContainer>
           <div>
             <ReservationUnitName>
@@ -107,6 +99,9 @@ const Head = ({
             <BuildingName>
               {localizedValue(reservationUnit.building?.name, i18n.language)}
             </BuildingName>
+            <JustForMobile style={{ marginTop: "var(--spacing-l)" }}>
+              <Images images={reservationUnit.images} />
+            </JustForMobile>
             <Props>
               <div>
                 {reservationUnit.reservationUnitType ? (
@@ -152,15 +147,9 @@ const Head = ({
               )}
             </ButtonContainer>
           </div>
-          <Image
-            alt={t("common:imgAltForSpace", {
-              name: localizedValue(reservationUnit.name, i18n.language),
-            })}
-            src={
-              getMainImage(reservationUnit)?.smallUrl ||
-              "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-            }
-          />
+          <JustForDesktop>
+            <Images images={reservationUnit.images} />
+          </JustForDesktop>
         </RightContainer>
       </Container>
       <StyledKoros className="koros" type="wave" />
