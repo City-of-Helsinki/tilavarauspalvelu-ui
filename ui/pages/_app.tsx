@@ -3,6 +3,7 @@ import { appWithTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
 import { format } from "date-fns";
 import { ApolloProvider } from "@apollo/client";
+import { AppProps } from "next/app";
 import apolloClient from "../modules/apolloClient";
 import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
@@ -15,7 +16,7 @@ import "../styles/global.scss";
 import { TrackingWrapper } from "../modules/tracking";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }: AppProps) {
   if (!isBrowser) {
     return (
       // eslint-disable-next-line react/jsx-filename-extension
