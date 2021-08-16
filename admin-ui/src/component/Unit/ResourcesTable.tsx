@@ -70,6 +70,7 @@ const ResourcesTable = ({ resources }: IProps): JSX.Element => {
             <RowButton
               onClick={(e) => {
                 e.stopPropagation();
+                // eslint-disable-next-line no-alert
                 window.alert("display popup menu");
                 return false;
               }}
