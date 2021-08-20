@@ -5,7 +5,6 @@ import {
   AuthenticationProvider,
   // eslint-disable-next-line import/no-unresolved
 } from "@axa-fr/react-oidc-context";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import oidcConfiguration from "./common/auth/configuration";
 import "./index.scss";
 import App from "./App";
@@ -15,28 +14,21 @@ import AuthorizationNeeded from "./component/Authentication/AuthorizationNeeded"
 import { authEnabled } from "./common/const";
 import MainLander from "./component/MainLander";
 
-const client = new ApolloClient({
-  uri: "http://localhost:8000/graphql/",
-  cache: new InMemoryCache(),
-});
-
 ReactDOM.render(
-  <ApolloProvider client={client}>
-    <React.StrictMode>
-      <AuthenticationProvider
-        notAuthenticated={() => <MainLander withSiteWrapper />}
-        notAuthorized={() => <AuthorizationNeeded />}
-        authenticating={() => <Authenticating noNavigation />}
-        configuration={oidcConfiguration}
-        loggerLevel={oidcLog.ERROR}
-        isEnabled={authEnabled}
-        callbackComponentOverride={() => <Authenticating />}
-        sessionLostComponent={() => <MainLander withSiteWrapper />}
-      >
-        <App />
-      </AuthenticationProvider>
-    </React.StrictMode>
-  </ApolloProvider>,
+  <React.StrictMode>
+    <AuthenticationProvider
+      notAuthenticated={() => <MainLander withSiteWrapper />}
+      notAuthorized={() => <AuthorizationNeeded />}
+      authenticating={() => <Authenticating noNavigation />}
+      configuration={oidcConfiguration}
+      loggerLevel={oidcLog.ERROR}
+      isEnabled={authEnabled}
+      callbackComponentOverride={() => <Authenticating />}
+      sessionLostComponent={() => <MainLander withSiteWrapper />}
+    >
+      <App />
+    </AuthenticationProvider>
+  </React.StrictMode>,
   document.getElementById("root")
 );
 

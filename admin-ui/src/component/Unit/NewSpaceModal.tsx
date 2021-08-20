@@ -17,13 +17,14 @@ import styled from "styled-components";
 import { FetchResult, useMutation } from "@apollo/client";
 import { useTranslation, TFunction } from "react-i18next";
 import { omit, set } from "lodash";
-import { Space, UnitWIP } from "../../common/types";
-import { parseAddress } from "../../common/util";
 import {
-  CREATE_SPACE,
+  Space,
+  UnitWIP,
   SpaceCreateMutationInput,
   SpaceCreateMutationPayload,
-} from "../../common/graphql";
+} from "../../common/types";
+import { parseAddress } from "../../common/util";
+import { CREATE_SPACE } from "../../common/queries";
 import { CustomDialogHeader } from "./CustomDialogHeader";
 
 const defaultParentSpaceId = "1";
@@ -396,7 +397,15 @@ const SecondPage = ({
   unit: UnitWIP;
   dispatch: React.Dispatch<Action>;
   closeModal: () => void;
-  createSpace: (variables: SpaceCreateMutationInput) => void;
+  createSpace: (
+    variables: SpaceCreateMutationInput
+  ) => Promise<
+    FetchResult<
+      { createSpace: SpaceCreateMutationPayload },
+      Record<string, any>,
+      Record<string, any>
+    >
+  >;
   t: TFunction;
   onSave: () => void;
 }): JSX.Element => {
@@ -456,6 +465,7 @@ const SecondPage = ({
         </Button>
         <NextButton
           disabled={!nextEnabled}
+          loadingText={t("SpaceModal.page2.saving")}
           onClick={() => {
             const promises = Promise.allSettled(
               editorState.spaces.map((s) =>
@@ -470,14 +480,28 @@ const SecondPage = ({
               )
             );
 
-            promises.then((res) => {
-              if (res.length === editorState.spaces.length) {
-                onSave();
-                closeModal();
-              } else {
+            promises
+              .then((res) => {
+                const succesful = res.filter(
+                  (r) => r.status === "fulfilled" && !r.value.errors
+                ) as PromiseFulfilledResult<
+                  FetchResult<
+                    { createSpace: SpaceCreateMutationPayload },
+                    Record<string, any>,
+                    Record<string, any>
+                  >
+                >[];
+
+                if (succesful.length === editorState.spaces.length) {
+                  onSave();
+                  closeModal();
+                } else {
+                  // WIP
+                }
+              })
+              .catch(() => {
                 // WIP
-              }
-            });
+              });
           }}
         >
           {t("SpaceModal.page2.createButton")}

@@ -736,6 +736,7 @@ const translations: ITranslations = {
       maxPersonsHelperText: ["henkilöä"],
       codeLabel: ["Tilan numero"],
       codePlaceholder: ["Numero tai koodi"],
+      saving: ["Luodaan tilatietoja..."],
     },
   },
 };
