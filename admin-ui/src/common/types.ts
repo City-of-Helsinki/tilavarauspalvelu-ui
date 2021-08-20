@@ -54,8 +54,8 @@ export type Space = {
   id: number;
   locationType: "fixed";
   name: TranslationObject;
-  parent: number;
-  building: number;
+  parent: Space | null;
+  building: ReservationUnitBuilding | null;
   surfaceArea: number; // WIP
   maxPersons: number; // WIP
   code: string; // WIP
@@ -65,7 +65,7 @@ export type Resource = {
   id: number;
   name: TranslationObject;
   locationType: "fixed";
-  space: number;
+  space: Space | null;
   unit: UnitWIP; // WIP
   resourceType: string; // WIP
   bufferTimeBefore: string;
@@ -96,12 +96,17 @@ export type Image = {
   imageType: "main" | "map" | "ground_plan" | "other";
 };
 
-type ReservationUnitBuilding = {
+export type ReservationUnitBuilding = {
   id: number;
-  district: number | null;
+  district: District;
   name: string | null;
   realEstate: string | null;
   surfaceArea: string | null;
+};
+
+export type District = {
+  id: number;
+  name: string;
 };
 
 export type ReservationUnit = {

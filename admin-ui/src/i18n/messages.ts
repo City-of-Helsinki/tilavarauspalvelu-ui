@@ -57,7 +57,9 @@ const translations: ITranslations = {
     today: ["Tänään"],
     agesSuffix: ["{{range}}-vuotiaat"],
     resetFilters: ["Tyhjennä suodattimet"],
+    resetSearch: ["Tyhjennä hakukenttä"],
     apply: ["Käytä"],
+    areaUnitSquareMeter: [" m²"],
     volumeUnit: [" kpl", " ", " "],
     personUnit: ["{{count}} henkilö"],
     personUnit_plural: ["{{count}} henkeä"],
@@ -158,6 +160,8 @@ const translations: ITranslations = {
     spaceAndHobbyTypes: ["Tila- ja harrastetyypit"],
     applicationRounds: ["Hakukierrokset"],
     conditionsAndAttachments: ["Ehdot ja liitteet"],
+    spaces: ["Tilat"],
+    resources: ["Resurssit"],
     units: ["Toimipisteet"],
   },
   HeadingMenu: {
@@ -572,6 +576,33 @@ const translations: ITranslations = {
     purposeCount: ["{{count}} käyttötarkoitus"],
     purposeCount_plural: ["{{count}} käyttötarkoitusta"],
     downloadSpaceCalendar: ["Lataa tilan kalenterimerkinnät (.ics)"],
+  },
+  Spaces: {
+    spaceListHeading: ["Kaikki tilat"],
+    spaceListDescription: [
+      "Täällä näet koosteen kaikista tiloista, joita on liitetty järjestelmään ja jotka sinulla on oikeus nähdä.",
+    ],
+    searchPlaceholder: ["Hae tiloja"],
+    headings: {
+      name: ["Nimi"],
+      building: ["Toimipiste"],
+      district: ["Kaupunginosa"],
+      volume: ["Vetoisuus"],
+      size: ["Koko"],
+    },
+  },
+  Resources: {
+    resourceListHeading: ["Kaikki resurssit"],
+    resourceListDescription: [
+      "Täällä näet koosteen kaikista resursseista, joita on liitetty järjestelmään ja jotka sinulla on oikeus nähdä.",
+    ],
+    searchPlaceholder: ["Hae resursseja"],
+    headings: {
+      name: ["Nimi"],
+      building: ["Toimipiste"],
+      district: ["Kaupunginosa"],
+      resourceType: ["Resurssityyppi"],
+    },
   },
   Applicant: {
     inAllocation: ["Mukana jaossa"],
