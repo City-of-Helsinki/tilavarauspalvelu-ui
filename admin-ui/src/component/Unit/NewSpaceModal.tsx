@@ -22,6 +22,7 @@ import {
   UnitWIP,
   SpaceCreateMutationInput,
   SpaceCreateMutationPayload,
+  OptionType,
 } from "../../common/types";
 import { parseAddress } from "../../common/util";
 import { CREATE_SPACE } from "../../common/queries";
@@ -47,7 +48,7 @@ type Action =
   | { type: "setSpaceSurfaceArea"; surfaceArea: number; index: number }
   | { type: "setSpaceMaxPersonCount"; maxPersonCount: number; index: number }
   | { type: "setSpaceCode"; code: string; index: number }
-  | { type: "setParentSpace"; parentSpace?: Space | null }
+  | { type: "setParentSpace"; parentSpace?: string | null }
   | { type: "nextPage" }
   | { type: "prevPage" }
   | { type: "addRow" }
@@ -214,7 +215,7 @@ const parentOptions = [
   {
     label: "Itsenäinen tila",
     value: null,
-  },
+  } as OptionType,
 ];
 
 function FirstPage({
@@ -278,8 +279,11 @@ function FirstPage({
           required
           helper={t("SpaceModal.page1.parentHelperText")}
           options={parentOptions}
-          onChange={(e: any) =>
-            dispatch({ type: "setParentSpace", parentSpace: e.value })
+          onChange={(selected: OptionType) =>
+            dispatch({
+              type: "setParentSpace",
+              parentSpace: selected.value as string,
+            })
           }
         />
       </Dialog.Content>
@@ -399,13 +403,7 @@ const SecondPage = ({
   closeModal: () => void;
   createSpace: (
     variables: SpaceCreateMutationInput
-  ) => Promise<
-    FetchResult<
-      { createSpace: SpaceCreateMutationPayload },
-      Record<string, any>,
-      Record<string, any>
-    >
-  >;
+  ) => Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>>;
   t: TFunction;
   onSave: () => void;
 }): JSX.Element => {
@@ -485,11 +483,7 @@ const SecondPage = ({
                 const succesful = res.filter(
                   (r) => r.status === "fulfilled" && !r.value.errors
                 ) as PromiseFulfilledResult<
-                  FetchResult<
-                    { createSpace: SpaceCreateMutationPayload },
-                    Record<string, any>,
-                    Record<string, any>
-                  >
+                  FetchResult<{ createSpace: SpaceCreateMutationPayload }>
                 >[];
 
                 if (succesful.length === editorState.spaces.length) {
@@ -526,13 +520,8 @@ const NewSpaceModal = ({
 
   const createSpace = (
     input: SpaceCreateMutationInput
-  ): Promise<
-    FetchResult<
-      { createSpace: SpaceCreateMutationPayload },
-      Record<string, any>,
-      Record<string, any>
-    >
-  > => createSpaceMutation[0]({ variables: { input } });
+  ): Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>> =>
+    createSpaceMutation[0]({ variables: { input } });
 
   return editorState.page === 0 ? (
     <FirstPage
