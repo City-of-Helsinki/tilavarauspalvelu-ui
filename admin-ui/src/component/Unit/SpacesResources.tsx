@@ -18,7 +18,7 @@ import InfoModalContent from "./InfoModalContent";
 import ResourcesTable from "./ResourcesTable";
 import SpacesTable from "./SpacesTable";
 import SubPageHead from "./SubPageHead";
-import Modal, { useModal as useHDSModal } from "./Modal";
+import Modal, { useModal as useHDSModal } from "../HDSModal";
 import NewSpaceModalDialog from "./NewSpaceModal";
 import { breakpoints } from "../../styles/util";
 
