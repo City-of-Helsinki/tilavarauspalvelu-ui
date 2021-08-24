@@ -116,7 +116,7 @@ const PopupMenu = ({ items }: IProps): JSX.Element => {
         role="button"
         tabIndex={-1}
       />
-      <FocusTrap>
+      <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <Popup style={{ ...style, position: "absolute" }}>
           {items.map((i, index) => (
             <button
