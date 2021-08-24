@@ -746,7 +746,7 @@ const translations: ITranslations = {
   },
   ResourcesTable: {
     menuEditResource: ["Muokkaa resurssia"],
-    menuRemoveResource: ["Poista Resurssi"],
+    menuRemoveResource: ["Poista resurssi"],
   },
 };
 
