@@ -24,7 +24,7 @@ import {
 import {
   apiDateToUIDate,
   apiDurationToMinutes,
-  errorText,
+  applicationErrorText,
   formatApiDate,
   formatDate,
   uiDateToApiDate,
@@ -255,7 +255,7 @@ const ApplicationEvent = ({
               name={fieldName("name")}
               required
               invalid={!!form.errors.applicationEvents?.[index]?.name?.type}
-              errorText={errorText(
+              errorText={applicationErrorText(
                 t,
                 form.errors.applicationEvents?.[index]?.name?.type
               )}
@@ -277,7 +277,7 @@ const ApplicationEvent = ({
               invalid={
                 !!form.errors.applicationEvents?.[index]?.numPersons?.type
               }
-              errorText={errorText(
+              errorText={applicationErrorText(
                 t,
                 form.errors.applicationEvents?.[index]?.numPersons?.type
               )}
@@ -289,7 +289,7 @@ const ApplicationEvent = ({
             label={t("application:Page1.ageGroup")}
             control={form.control}
             options={ageGroupOptions}
-            error={errorText(
+            error={applicationErrorText(
               t,
               form.errors.applicationEvents?.[index]?.ageGroupId?.type
             )}
@@ -300,7 +300,7 @@ const ApplicationEvent = ({
             label={t("application:Page1.purpose")}
             control={form.control}
             options={purposeOptions}
-            error={errorText(
+            error={applicationErrorText(
               t,
               form.errors.applicationEvents?.[index]?.purposeId?.type
             )}
@@ -362,7 +362,7 @@ const ApplicationEvent = ({
             value={form.getValues(fieldName("begin"))}
             required
             invalid={!!form.errors.applicationEvents?.[index]?.begin?.type}
-            errorText={errorText(
+            errorText={applicationErrorText(
               t,
               form.errors.applicationEvents?.[index]?.begin?.type
             )}
@@ -406,7 +406,7 @@ const ApplicationEvent = ({
             name={fieldName("end")}
             required
             invalid={form.errors.applicationEvents?.[index]?.end?.type}
-            errorText={errorText(
+            errorText={applicationErrorText(
               t,
               form.errors.applicationEvents?.[index]?.end?.type
             )}
@@ -432,7 +432,7 @@ const ApplicationEvent = ({
             label={t("application:Page1.minDuration")}
             control={form.control}
             options={durationOptions}
-            error={errorText(
+            error={applicationErrorText(
               t,
               form.errors.applicationEvents?.[index]?.minDuration?.type
             )}
@@ -455,7 +455,7 @@ const ApplicationEvent = ({
             label={t("application:Page1.maxDuration")}
             control={form.control}
             options={durationOptions}
-            error={errorText(
+            error={applicationErrorText(
               t,
               form.errors.applicationEvents?.[index]?.maxDuration?.type
             )}
@@ -500,7 +500,7 @@ const ApplicationEvent = ({
               invalid={
                 !!form.errors.applicationEvents?.[index]?.eventsPerWeek?.type
               }
-              errorText={errorText(
+              errorText={applicationErrorText(
                 t,
                 form.errors.applicationEvents?.[index]?.eventsPerWeek?.type
               )}

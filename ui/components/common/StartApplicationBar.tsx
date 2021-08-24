@@ -10,7 +10,7 @@ const BackgroundContainer = styled.div`
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 2;
+  z-index: 20;
 `;
 
 const ReservationUnitCount = styled.div`

@@ -7,6 +7,7 @@ import {
   endOfWeek as dateFnsEndOfWeek,
   parse,
 } from "date-fns";
+import { fi } from "date-fns/locale";
 import { i18n } from "next-i18next";
 import { TFunction } from "i18next";
 import { stringify } from "query-string";
@@ -24,6 +25,8 @@ import {
   ApplicationStatus,
   ReducedApplicationStatus,
 } from "./types";
+
+const locales = { fi };
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date().getTime();
@@ -54,19 +57,19 @@ export const applicationRoundState = (
 
 export const parseDate = (date: string): Date => parseISO(date);
 
-const toUIDate = (date: Date): string => {
-  return format(date, "d.M.yyyy");
+const toUIDate = (date: Date, formatStr = "d.M.yyyy"): string => {
+  return format(date, formatStr, { locale: locales[i18n.language] });
 };
 
 const fromAPIDate = (date: string): Date => {
   const d = parse(date, "yyyy-MM-dd", new Date());
   return d;
 };
-export const formatDate = (date: string): string => {
+export const formatDate = (date: string, formatStr?: string): string => {
   if (!date) {
     return "-";
   }
-  return toUIDate(parseISO(date));
+  return toUIDate(parseISO(date), formatStr);
 };
 
 export const fromUIDate = (date: string): Date => {
@@ -297,8 +300,10 @@ export const getAddress = (ru: ReservationUnit): string | null => {
 export const applicationUrl = (id: number): string => `/application/${id}`;
 export const resolutionUrl = (id: number): string => `/applications/${id}`;
 
-export const errorText = (t: TFunction, key: string | undefined): string =>
-  key ? t(`application:error.${key}`) : "";
+export const applicationErrorText = (
+  t: TFunction,
+  key: string | undefined
+): string => (key ? t(`application:error.${key}`) : "");
 
 export const getReducedApplicationStatus = (
   status: ApplicationStatus
@@ -341,4 +346,24 @@ export const formatDurationMinutes = (duration: number): string => {
   }
 
   return p.join(" ");
+};
+
+export const getLocalizedTimeFormat = (): string => {
+  switch (i18n.language) {
+    case "en":
+      return "H:mm";
+    case "fi":
+    default:
+      return "H.mm";
+  }
+};
+
+export const getLocalizedDateFormat = (): string => {
+  switch (i18n.language) {
+    case "en":
+      return "M/d/yyyy";
+    case "fi":
+    default:
+      return "d.M.yyyy";
+  }
 };

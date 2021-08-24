@@ -9,7 +9,7 @@ import RequireAuthentication from "./common/RequireAuthentication";
 
 type Props = {
   text?: string;
-  setIsAuthenticated?: (isAuthenticated: boolean) => void;
+  componentIfAuthenticated?: React.ReactNode;
 };
 
 const Wrapper = styled.div`
@@ -36,7 +36,14 @@ const Wrapper = styled.div`
   }
 `;
 
-const LoginFragment = ({ text, setIsAuthenticated }: Props): JSX.Element => {
+const LoginFragment = ({
+  text,
+  componentIfAuthenticated,
+}: Props): JSX.Element => {
+  type InnerProps = {
+    profile: UserProfile | null;
+  };
+
   const { t } = useTranslation();
 
   const [shouldLogin, setShouldLogin] = React.useState(false);
@@ -57,11 +64,8 @@ const LoginFragment = ({ text, setIsAuthenticated }: Props): JSX.Element => {
 
   return (
     <WithOidc
-      setIsAuthenticated={setIsAuthenticated}
-      render={(props: { profile: UserProfile | null }) => {
-        setIsAuthenticated(props.profile !== null);
-
-        return !props.profile ? (
+      render={({ profile }: InnerProps) => {
+        return !profile ? (
           <Wrapper>
             <Button
               iconLeft={<IconSignin />}
@@ -72,7 +76,9 @@ const LoginFragment = ({ text, setIsAuthenticated }: Props): JSX.Element => {
             </Button>
             {text}
           </Wrapper>
-        ) : null;
+        ) : (
+          <>{componentIfAuthenticated}</>
+        );
       }}
     />
   );

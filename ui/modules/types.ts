@@ -296,4 +296,5 @@ export type UserProfile = {
   given_name: string;
   // eslint-disable-next-line camelcase
   family_name: string;
+  email: string;
 };

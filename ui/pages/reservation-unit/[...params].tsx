@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { gql } from "@apollo/client";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import queryString from "query-string";
 import router from "next/router";
+import { isDate, isFinite } from "lodash";
 import {
   IconCalendar,
-  IconTicket,
   Koros,
   Notification,
   TextInput,
@@ -13,22 +14,49 @@ import {
   Button,
   IconArrowLeft,
 } from "hds-react";
-import { useTranslation } from "react-i18next";
-import { ReservationUnit } from "../../modules/types";
+import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import { ReservationUnit, UserProfile } from "../../modules/types";
 import apolloClient from "../../modules/apolloClient";
 import { H1, H2 } from "../../modules/style/typography";
 import { breakpoint } from "../../modules/style";
 import { TwoColumnContainer } from "../../components/common/common";
 import { NarrowCenteredContainer } from "../../modules/style/layout";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
+import { isBrowser } from "../../modules/const";
+import {
+  applicationErrorText,
+  formatDate,
+  getLocalizedDateFormat,
+  getLocalizedTimeFormat,
+} from "../../modules/util";
+import WithUserProfile from "../../components/WithUserProfile";
 
 type Props = {
   reservationUnit: ReservationUnit;
+  profile: UserProfile | null;
+};
+
+type QueryParams = {
+  begin: string;
+  end: string;
+};
+
+type Inputs = {
+  reserver: string;
+  phone: string;
+  reservationName: string;
+  reservationDescription: string;
+  spaceTerms: boolean;
+  resourceTerms: boolean;
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getServerSideProps = async ({ locale, params }) => {
+export const getServerSideProps = async ({ locale, params, query }) => {
   const id = Number(params.params[0]);
+  const path = params.params[1];
+  const isValidDate = (date: string): boolean =>
+    !!date && isDate(new Date(date)) && isFinite(new Date(date).getTime());
 
   const RESERVATION_UNIT = gql`
     query SelectedReservationUnit($pk: Int) {
@@ -42,7 +70,12 @@ export const getServerSideProps = async ({ locale, params }) => {
     }
   `;
 
-  if (id) {
+  if (
+    isFinite(id) &&
+    path === "reservation" &&
+    isValidDate(query?.begin) &&
+    isValidDate(query?.end)
+  ) {
     const { data } = await apolloClient.query({
       query: RESERVATION_UNIT,
       variables: { pk: id },
@@ -56,7 +89,9 @@ export const getServerSideProps = async ({ locale, params }) => {
     };
   }
 
-  return { props: { ...(await serverSideTranslations(locale)), paramsId: id } };
+  return {
+    notFound: true,
+  };
 };
 
 const Head = styled.div`
@@ -67,6 +102,7 @@ const Head = styled.div`
 const Description = styled.div``;
 
 const DescriptionItem = styled.div`
+  text-transform: capitalize;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -80,6 +116,12 @@ const StyledKoros = styled(Koros)`
 
 const BodyContainer = styled(NarrowCenteredContainer)`
   background-color: var(-color-gray);
+  font-family: var(--font-regular);
+  font-weight: 400;
+
+  a {
+    color: var(--color-bus);
+  }
 `;
 
 const StyledNotification = styled(Notification).attrs({
@@ -135,13 +177,41 @@ const ActionContainer = styled.div`
 
 const ReservationUnitReservation = ({
   reservationUnit,
+  profile,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const [areTermsSpaceAccepted, setAreTermsSpaceAccepted] =
-    React.useState(false);
+  const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
+    "pending"
+  );
+  const { register, handleSubmit, errors } = useForm<Inputs>();
+  const onSubmit = (data) => {
+    setFormStatus("sent");
+    console.log(data);
+  };
+
+  const searchParams = isBrowser ? window.location.search : "";
+  const { begin, end }: QueryParams = queryString.parse(
+    searchParams
+  ) as QueryParams;
+
+  const beginDate = formatDate(begin, `cccccc ${getLocalizedDateFormat()}`);
+  const beginTime = formatDate(begin, getLocalizedTimeFormat());
+  const endDate = formatDate(end, `cccccc ${getLocalizedDateFormat()}`);
+  const endTime = formatDate(end, getLocalizedTimeFormat());
+
+  const timeString = `${beginDate} ${beginTime} - ${
+    endDate !== beginDate ? endDate : ""
+  }
+  ${endTime}`;
+
+  const [areTermsSpaceAccepted, setAreTermsSpaceAccepted] = useState(false);
   const [areTermsResourceAccepted, setAreTermsResourceAccepted] =
-    React.useState(false);
+    useState(false);
+
+  if (!isBrowser) {
+    return null;
+  }
 
   return (
     <>
@@ -151,97 +221,192 @@ const ReservationUnitReservation = ({
           <H2>{reservationUnit.building.name}</H2>
           <Description>
             <DescriptionItem>
-              <IconCalendar /> Aika
+              <IconCalendar /> {timeString}
             </DescriptionItem>
-            <DescriptionItem>
+            {/* <DescriptionItem>
               <IconTicket /> Hinta
-            </DescriptionItem>
+            </DescriptionItem> */}
           </Description>
         </NarrowCenteredContainer>
         <StyledKoros className="koros" type="wave" />
       </Head>
-      <BodyContainer>
-        <H1>{t("reservationCalendar:newReservation")}</H1>
-        <form>
-          <H2 style={{ marginTop: "var(--spacing-layout-m)" }}>
-            {t("reservationCalendar:reserverInfo")}
-          </H2>
-          <TwoColumnContainer>
-            <TextInput
-              label={t("reservationCalendar:label.reserver")}
-              id="reserver"
-            />
-            <TextInput label={t("common:phone")} id="phone" />
-          </TwoColumnContainer>
-          <H2 style={{ marginTop: "var(--spacing-layout-xl)" }}>
-            {t("reservationCalendar:reservationInfo")}
-          </H2>
-          <StyledNotification
-            type="alert"
-            label={`${t(
-              "reservationCalendar:notification.reservationAlertTitle"
-            )}`}
-          >
-            {t("reservationCalendar:notification.reservationAlertBody")}
-          </StyledNotification>
-          <OneColumnContainer>
-            <TextInput
-              label={t("reservationCalendar:label.reservationName")}
-              id="reservationName"
-            />
-            <TextInput
-              label={t("reservationCalendar:label.reservationDescription")}
-              id="reservationDescription"
-            />
-          </OneColumnContainer>
-          <AccordionContainer>
-            <TermContainer>
-              <Accordion
-                open
-                heading={t("reservationCalendar:heading.termsOfUse")}
-              >
-                {t("reservationCalendar:terms.space")}
-              </Accordion>
-              <Checkbox
-                id="terms.space"
-                checked={areTermsSpaceAccepted}
-                onChange={(e) => setAreTermsSpaceAccepted(e.target.checked)}
-                label={t("reservationCalendar:label.termsSpace")}
+      {formStatus === "pending" && (
+        <BodyContainer>
+          <H1>{t("reservationCalendar:newReservation")}</H1>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <H2 style={{ marginTop: "var(--spacing-layout-m)" }}>
+              {t("reservationCalendar:reserverInfo")}
+            </H2>
+            <TwoColumnContainer>
+              <TextInput
+                label={`${t("reservationCalendar:label.reserver")}*`}
+                id="reserver"
+                name="reserver"
+                ref={register({ required: true })}
+                errorText={
+                  errors.reserver && applicationErrorText(t, "requiredField")
+                }
               />
-            </TermContainer>
-            <TermContainer>
-              <Accordion
-                open
-                heading={t("reservationCalendar:heading.resourceTerms")}
-              >
-                {t("reservationCalendar:terms.resource")}
-              </Accordion>
-              <Checkbox
-                id="terms.resource"
-                checked={areTermsResourceAccepted}
-                onChange={(e) => setAreTermsResourceAccepted(e.target.checked)}
-                label={t("reservationCalendar:label.termsResource")}
+              <TextInput
+                label={`${t("common:phone")}*`}
+                id="phone"
+                name="phone"
+                ref={register({ required: true })}
+                errorText={
+                  errors.phone && applicationErrorText(t, "requiredField")
+                }
               />
-            </TermContainer>
-          </AccordionContainer>
-          <ActionContainer>
-            <Button variant="primary" type="submit">
-              {t("reservationCalendar:saveReservation")}
+            </TwoColumnContainer>
+            <H2 style={{ marginTop: "var(--spacing-layout-xl)" }}>
+              {t("reservationCalendar:reservationInfo")}
+            </H2>
+            <StyledNotification
+              type="alert"
+              label={`${t(
+                "reservationCalendar:notification.reservationAlertTitle"
+              )}`}
+            >
+              {t("reservationCalendar:notification.reservationAlertBody")}
+            </StyledNotification>
+            <OneColumnContainer>
+              <TextInput
+                label={`${t("reservationCalendar:label.reservationName")}*`}
+                id="reservationName"
+                name="reservationName"
+                ref={register({ required: true })}
+                errorText={
+                  errors.reservationName &&
+                  applicationErrorText(t, "requiredField")
+                }
+              />
+              <TextInput
+                label={`${t(
+                  "reservationCalendar:label.reservationDescription"
+                )}*`}
+                id="reservationDescription"
+                name="reservationDescription"
+                ref={register({ required: true })}
+                errorText={
+                  errors.reservationDescription &&
+                  applicationErrorText(t, "requiredField")
+                }
+              />
+            </OneColumnContainer>
+            <AccordionContainer>
+              <TermContainer>
+                <Accordion
+                  open
+                  heading={t("reservationCalendar:heading.termsOfUse")}
+                >
+                  {t("reservationCalendar:spaceTerms")}
+                </Accordion>
+                <Checkbox
+                  id="spaceTerms"
+                  name="spaceTerms"
+                  checked={areTermsSpaceAccepted}
+                  onChange={(e) => setAreTermsSpaceAccepted(e.target.checked)}
+                  label={`${t("reservationCalendar:label.termsSpace")}*`}
+                  ref={register({ required: true })}
+                  errorText={
+                    !!errors.spaceTerms &&
+                    applicationErrorText(t, "requiredField")
+                  }
+                />
+              </TermContainer>
+              <TermContainer>
+                <Accordion
+                  open
+                  heading={t("reservationCalendar:heading.resourceTerms")}
+                >
+                  {t("reservationCalendar:resourceTerms")}
+                </Accordion>
+                <Checkbox
+                  id="resourceTerms"
+                  name="resourceTerms"
+                  checked={areTermsResourceAccepted}
+                  onChange={(e) =>
+                    setAreTermsResourceAccepted(e.target.checked)
+                  }
+                  label={`${t("reservationCalendar:label.termsResource")}*`}
+                  ref={register({ required: true })}
+                  errorText={
+                    !!errors.resourceTerms &&
+                    applicationErrorText(t, "requiredField")
+                  }
+                />
+              </TermContainer>
+            </AccordionContainer>
+            <ActionContainer>
+              <Button variant="primary" type="submit">
+                {t("reservationCalendar:saveReservation")}
+              </Button>
+              <Button
+                variant="secondary"
+                iconLeft={<IconArrowLeft />}
+                onClick={() =>
+                  router.push(`/reservation-unit/${reservationUnit.id}`)
+                }
+              >
+                {t("common:prev")}
+              </Button>
+            </ActionContainer>
+          </form>
+        </BodyContainer>
+      )}
+      {formStatus === "sent" && (
+        <BodyContainer>
+          <H1>{t("reservationUnit:reservationSuccessful")}</H1>
+          <p>
+            <Trans
+              i18nKey="reservationUnit:reservationReminderText"
+              t={t}
+              values={{ profile }}
+              components={{
+                emailLink: (
+                  <a href={`mailto:${profile.email}`}>{profile.email}</a>
+                ),
+              }}
+            />
+          </p>
+          <p>
+            <Trans
+              i18nKey="reservationUnit:loadReservationCalendar"
+              t={t}
+              components={{
+                calendarLink: <a href="foobariavaan"> </a>, // TODO change
+              }}
+            />
+          </p>
+          <p>
+            {t("common:thanksForUsingVaraamo")}
+            <br />
+            <a
+              href={t(`footer:Navigation.feedback.href`)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("common:sendFeedback")}
+            </a>
+          </p>
+          <ActionContainer style={{ marginTop: "var(--spacing-3-xl)" }}>
+            <Button
+              variant="primary"
+              onClick={() => router.push("/applications")}
+            >
+              {t("reservationUnit:gotoApplications")}
             </Button>
             <Button
               variant="secondary"
+              onClick={() => router.push("/")}
               iconLeft={<IconArrowLeft />}
-              onClick={() =>
-                router.push(`/reservation-unit/${reservationUnit.id}`)
-              }
             >
-              {t("common:prev")}
+              {t("common:gotoFrontpage")}
             </Button>
           </ActionContainer>
-        </form>
-      </BodyContainer>
+        </BodyContainer>
+      )}
     </>
   );
 };
 
-export default ReservationUnitReservation;
+export default WithUserProfile(ReservationUnitReservation);

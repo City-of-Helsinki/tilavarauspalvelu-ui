@@ -72,5 +72,8 @@
     "city": "Postitoimipaikka"
   },
   "location": "Sijainti",
-  "phone": "Puhelin"
+  "phone": "Puhelin",
+  "thanksForUsingVaraamo": "Kiitos Varaamon käytöstä!",
+  "sendFeedback": "Lähetä palvelusta palautetta.",
+  "gotoFrontpage": "Palaa etusivulle"
 }
