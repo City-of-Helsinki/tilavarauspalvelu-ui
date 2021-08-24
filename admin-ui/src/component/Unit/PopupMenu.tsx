@@ -83,19 +83,14 @@ const PopupMenu = ({ items }: IProps): JSX.Element => {
   const buttonRef = useRef<HTMLDivElement>(null);
   const firstMenuItemRef = useRef<HTMLButtonElement>(null);
   const [openPopup, closePopup, rect] = usePopup(buttonRef);
-  const [root, setRoot] = useState<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    let popupRoot = document.getElementById("popup-root") as HTMLDivElement;
+  let popupRoot = document.getElementById("popup-root") as HTMLDivElement;
 
-    if (!popupRoot) {
-      popupRoot = document.createElement("div");
-      popupRoot.setAttribute("id", "popup-root");
-      document.body.appendChild(popupRoot);
-    }
-
-    setRoot(popupRoot);
-  }, []);
+  if (!popupRoot) {
+    popupRoot = document.createElement("div");
+    popupRoot.setAttribute("id", "popup-root");
+    document.body.appendChild(popupRoot);
+  }
 
   useEffect(() => {
     if (firstMenuItemRef.current) {
@@ -154,7 +149,7 @@ const PopupMenu = ({ items }: IProps): JSX.Element => {
       >
         {" "}
       </RowButton>
-      {open && root ? ReactDOM.createPortal(content, root) : null}
+      {open && popupRoot ? ReactDOM.createPortal(content, popupRoot) : null}
     </Container>
   );
 };
