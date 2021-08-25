@@ -723,7 +723,7 @@ const translations: ITranslations = {
     },
     page2: {
       modalTitle: ["Määritä tilojen pohjatiedot"],
-      subSpaceModalTitle: ["Määritä allitilatiedot"],
+      subSpaceModalTitle: ["Määritä alitilatiedot"],
       info: [
         "Voit muokata tiloja milloin tahansa myöhemmin. Huomioi paloturvallisuusmääräykset maksimihenkilömäärissä.",
       ],

@@ -239,19 +239,17 @@ function FirstPage({
   dispatch,
   closeModal,
   t,
-  parentSpace,
+  hasFixedParent,
 }: {
   editorState: State;
   unit: UnitWIP;
   dispatch: React.Dispatch<Action>;
   closeModal: () => void;
   t: TFunction;
-  parentSpace?: Space;
+  hasFixedParent: boolean;
 }): JSX.Element {
   const nextEnabled =
     editorState.numSpaces > 0 && editorState.parentSpace !== undefined;
-
-  const isRootSpace = !parentSpace;
 
   return (
     <>
@@ -259,7 +257,7 @@ function FirstPage({
         id="dialog-title"
         extras={<RoundTag>{t("SpaceModal.phase")} 1/2</RoundTag>}
         title={t(
-          parentSpace
+          hasFixedParent
             ? "SpaceModal.page1.subSpaceModalTitle"
             : "SpaceModal.page1.modalTitle"
         )}
@@ -279,7 +277,7 @@ function FirstPage({
           </div>
           <Address>{parseAddress(unit.location)}</Address>
         </UnitInfo>
-        {isRootSpace ? <Title>{t("SpaceModal.page1.title")}</Title> : null}
+        {!hasFixedParent ? <Title>{t("SpaceModal.page1.title")}</Title> : null}
         <NarrowNumberInput
           value={editorState.numSpaces}
           helperText={t("SpaceModal.page1.numSpacesHelperText")}
@@ -299,7 +297,7 @@ function FirstPage({
           max={10}
           required
         />
-        {parentSpace == null ? (
+        {!hasFixedParent ? (
           <>
             <br />
             <Select
@@ -433,7 +431,7 @@ const SecondPage = ({
   createSpace,
   t,
   onSave,
-  parentSpace,
+  hasFixedParent,
 }: {
   editorState: State;
   unit: UnitWIP;
@@ -444,21 +442,19 @@ const SecondPage = ({
   ) => Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>>;
   t: TFunction;
   onSave: () => void;
-  parentSpace?: Space;
+  hasFixedParent: boolean;
 }): JSX.Element => {
   const nextEnabled =
     editorState.numSpaces > 0 && editorState.parentSpace !== undefined;
-
-  const isRootSpace = parentSpace === null;
 
   return (
     <>
       <CustomDialogHeader
         id="dialog-title"
         title={t(
-          isRootSpace
-            ? "SpaceModal.page2.modalTitle"
-            : "SpaceModal.page2.subSpaceModalTitle"
+          hasFixedParent
+            ? "SpaceModal.page2.subSpaceModalTitle"
+            : "SpaceModal.page2.modalTitle"
         )}
         extras={<RoundTag>{t("SpaceModal.phase")} 2/2</RoundTag>}
         close={closeModal}
@@ -466,9 +462,9 @@ const SecondPage = ({
       <Dialog.Content>
         <p className="text-body" id="custom-dialog-content">
           {t(
-            isRootSpace
-              ? "SpaceModal.page2.info"
-              : "SpaceModal.page2.subSpaceInfo"
+            hasFixedParent
+              ? "SpaceModal.page2.subSpaceInfo"
+              : "SpaceModal.page2.info"
           )}
         </p>
         <UnitInfo>
@@ -574,6 +570,7 @@ const NewSpaceModal = ({
   ): Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>> =>
     createSpaceMutation[0]({ variables: { input } });
 
+  const hasFixedParent = Boolean(parentSpace);
   return editorState.page === 0 ? (
     <FirstPage
       editorState={editorState}
@@ -581,7 +578,7 @@ const NewSpaceModal = ({
       dispatch={dispatch}
       closeModal={closeModal}
       t={t}
-      parentSpace={parentSpace}
+      hasFixedParent={hasFixedParent}
     />
   ) : (
     <SecondPage
@@ -592,6 +589,7 @@ const NewSpaceModal = ({
       createSpace={createSpace}
       t={t}
       onSave={onSave}
+      hasFixedParent={hasFixedParent}
     />
   );
 };
