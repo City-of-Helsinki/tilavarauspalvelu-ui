@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { format } from "date-fns";
 import { ApolloProvider } from "@apollo/client";
 import { AppProps } from "next/app";
+import { fi } from "date-fns/locale";
 import apolloClient from "../modules/apolloClient";
 import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
@@ -58,8 +59,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 export default appWithTranslation(MyApp, {
   ...nextI18NextConfig,
   interpolation: {
-    format: (value, fmt) => {
-      if (value instanceof Date) return format(value, fmt || "dd.MM.YY");
+    format: (value, fmt, lng) => {
+      const locales = { fi };
+      if (value instanceof Date)
+        return format(value, fmt || "dd.MM.YY", { locale: locales[lng] });
       return value;
     },
     escapeValue: false,
