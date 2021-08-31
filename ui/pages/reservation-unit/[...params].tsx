@@ -5,6 +5,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import queryString from "query-string";
 import router from "next/router";
 import { isDate, isFinite } from "lodash";
+import { parseISO } from "date-fns";
 import {
   IconCalendar,
   Koros,
@@ -24,12 +25,7 @@ import { TwoColumnContainer } from "../../components/common/common";
 import { NarrowCenteredContainer } from "../../modules/style/layout";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
 import { isBrowser } from "../../modules/const";
-import {
-  applicationErrorText,
-  formatDate,
-  getLocalizedDateFormat,
-  getLocalizedTimeFormat,
-} from "../../modules/util";
+import { applicationErrorText } from "../../modules/util";
 import WithUserProfile from "../../components/WithUserProfile";
 
 type Props = {
@@ -124,6 +120,12 @@ const BodyContainer = styled(NarrowCenteredContainer)`
   }
 `;
 
+const StyledTextInput = styled(TextInput)`
+  label {
+    font-family: var(--font-medium);
+  }
+`;
+
 const StyledNotification = styled(Notification).attrs({
   style: {
     "--notification-padding": "var(--spacing-m)",
@@ -175,6 +177,17 @@ const ActionContainer = styled.div`
   }
 `;
 
+const createReservation = ({ begin, end, profile, reservationUnit }) => {
+  const reservation = {
+    begin,
+    end,
+    user: profile.id,
+    reservationUnit: reservationUnit.id,
+  };
+
+  console.log(reservation); // eslint-disable-line no-console
+};
+
 const ReservationUnitReservation = ({
   reservationUnit,
   profile,
@@ -184,21 +197,30 @@ const ReservationUnitReservation = ({
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
     "pending"
   );
-  const { register, handleSubmit, errors } = useForm<Inputs>();
-  const onSubmit = (data) => {
-    setFormStatus("sent");
-    console.log(data);
-  };
-
   const searchParams = isBrowser ? window.location.search : "";
   const { begin, end }: QueryParams = queryString.parse(
     searchParams
   ) as QueryParams;
 
-  const beginDate = formatDate(begin, `cccccc ${getLocalizedDateFormat()}`);
-  const beginTime = formatDate(begin, getLocalizedTimeFormat());
-  const endDate = formatDate(end, `cccccc ${getLocalizedDateFormat()}`);
-  const endTime = formatDate(end, getLocalizedTimeFormat());
+  const beginDate = t("common:dateWithWeekday", {
+    date: begin && parseISO(begin),
+  });
+
+  const beginTime = t("common:timeWithPrefix", {
+    date: begin && parseISO(begin),
+  });
+  const endDate = t("common:dateWithWeekday", {
+    date: end && parseISO(end),
+  });
+  const endTime = t("common:time", {
+    date: end && parseISO(end),
+  });
+
+  const { register, handleSubmit, errors } = useForm<Inputs>();
+  const onSubmit = (data) => {
+    createReservation({ ...data, begin, end, profile, reservationUnit });
+    setFormStatus("sent");
+  };
 
   const timeString = `${beginDate} ${beginTime} - ${
     endDate !== beginDate ? endDate : ""
@@ -238,7 +260,7 @@ const ReservationUnitReservation = ({
               {t("reservationCalendar:reserverInfo")}
             </H2>
             <TwoColumnContainer>
-              <TextInput
+              <StyledTextInput
                 label={`${t("reservationCalendar:label.reserver")}*`}
                 id="reserver"
                 name="reserver"
@@ -247,7 +269,7 @@ const ReservationUnitReservation = ({
                   errors.reserver && applicationErrorText(t, "requiredField")
                 }
               />
-              <TextInput
+              <StyledTextInput
                 label={`${t("common:phone")}*`}
                 id="phone"
                 name="phone"
@@ -269,7 +291,7 @@ const ReservationUnitReservation = ({
               {t("reservationCalendar:notification.reservationAlertBody")}
             </StyledNotification>
             <OneColumnContainer>
-              <TextInput
+              <StyledTextInput
                 label={`${t("reservationCalendar:label.reservationName")}*`}
                 id="reservationName"
                 name="reservationName"
@@ -279,7 +301,7 @@ const ReservationUnitReservation = ({
                   applicationErrorText(t, "requiredField")
                 }
               />
-              <TextInput
+              <StyledTextInput
                 label={`${t(
                   "reservationCalendar:label.reservationDescription"
                 )}*`}
