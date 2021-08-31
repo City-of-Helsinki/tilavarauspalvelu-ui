@@ -13,10 +13,12 @@ export const SubHeading = styled.div`
 
 export const Strong = styled.span`
   font-family: var(--font-bold);
+  font-size: 700;
 `;
 
 export const Reqular = styled.span`
   font-family: var(--font-bold);
+  font-size: 400;
 `;
 
 export const H1 = styled.h1`

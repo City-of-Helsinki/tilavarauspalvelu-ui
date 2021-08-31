@@ -115,7 +115,7 @@ export default class Toolbar extends React.Component<Props> {
         break;
       }
       case "month": {
-        const month = format(date, "MMMM", culture).slice(0, -2);
+        const month = format(date, "LLLL", culture);
         const year = format(date, "yyyy", culture);
         title = `${month} ${year}`;
         break;
