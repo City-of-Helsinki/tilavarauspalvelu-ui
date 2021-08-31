@@ -8,6 +8,7 @@ import {
 } from "hds-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import router from "next/router";
 import Link from "next/link";
 import styled from "styled-components";
 import { reservationUnitPath } from "../../modules/const";
@@ -20,6 +21,7 @@ import IconWithText from "../common/IconWithText";
 type PropsType = {
   units: ReservationUnit[];
   reservationUnitList: ReturnType<typeof useReservationUnitsList>;
+  viewType: "recurring" | "single";
 };
 
 const Heading = styled.div`
@@ -37,6 +39,11 @@ const Unit = styled.div`
 `;
 
 const Name = styled.div`
+  &:hover {
+    opacity: 0.5;
+  }
+
+  cursor: pointer;
   font-family: var(--font-bold);
   font-weight: 700;
   font-size: var(--fontsize-heading-s);
@@ -99,6 +106,7 @@ const Buttons = styled.div`
 const RelatedUnits = ({
   units,
   reservationUnitList,
+  viewType,
 }: PropsType): JSX.Element | null => {
   const { t, i18n } = useTranslation();
 
@@ -164,26 +172,40 @@ const RelatedUnits = ({
                   <StyledIconWithText icon={<span />} text="&nbsp;" />
                 )}
               </Props>
-              <Buttons>
-                {containsReservationUnit(unit) ? (
+              {viewType === "recurring" && (
+                <Buttons>
+                  {containsReservationUnit(unit) ? (
+                    <Button
+                      onClick={() => removeReservationUnit(unit)}
+                      iconLeft={<IconCheck />}
+                      className="margin-left-xs margin-top-s"
+                    >
+                      {t("common:reservationUnitSelected")}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => selectReservationUnit(unit)}
+                      iconLeft={<IconPlus />}
+                      className="margin-left-s margin-top-s"
+                      variant="secondary"
+                    >
+                      {t("common:selectReservationUnit")}
+                    </Button>
+                  )}
+                </Buttons>
+              )}
+              {viewType === "single" && (
+                <Buttons>
                   <Button
-                    onClick={() => removeReservationUnit(unit)}
-                    iconLeft={<IconCheck />}
+                    style={{ width: "100%" }}
+                    onClick={() => router.push(reservationUnitPath(unit.id))}
                     className="margin-left-xs margin-top-s"
-                  >
-                    {t("common:reservationUnitSelected")}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => selectReservationUnit(unit)}
-                    iconLeft={<IconPlus />}
-                    className="margin-left-s margin-top-s"
                     variant="secondary"
                   >
-                    {t("common:selectReservationUnit")}
+                    {t("common:seeDetails")}
                   </Button>
-                )}
-              </Buttons>
+                </Buttons>
+              )}
             </Content>
           </Unit>
         ))}

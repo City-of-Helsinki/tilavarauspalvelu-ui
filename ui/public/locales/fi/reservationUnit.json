@@ -11,6 +11,7 @@
   "images": "Kuvat",
   "description": "Kuvaus",
   "termsOfUse": "Käyttöehdot ja säännöt",
+  "termsOfUseSpaces": "Tilakohtaiset ehdot",
   "backToSearch": "Takaisin hakutuloksiin",
   "reservationSuccessful": "Varaus onnistui",
   "reservationReminderText": "Saat sähköpostiisi (<emailLink>{{profile.email}}</emailLink>) muistutuksen varauksesta.",

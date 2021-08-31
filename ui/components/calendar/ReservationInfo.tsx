@@ -1,14 +1,10 @@
 import { Button } from "hds-react";
 import { useRouter } from "next/router";
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import styled from "styled-components";
+import { parseISO } from "date-fns";
 import { breakpoint } from "../../modules/style";
-import {
-  formatDate,
-  getLocalizedDateFormat,
-  getLocalizedTimeFormat,
-} from "../../modules/util";
 
 type Props = {
   reservationUnitId: number;
@@ -39,10 +35,19 @@ const ReservationInfo = ({
   const { t } = useTranslation();
   const router = useRouter();
 
-  const beginDate = formatDate(begin, `cccccc ${getLocalizedDateFormat()}`);
-  const beginTime = formatDate(begin, getLocalizedTimeFormat());
-  const endDate = formatDate(end, `cccccc ${getLocalizedDateFormat()}`);
-  const endTime = formatDate(end, getLocalizedTimeFormat());
+  const beginDate = t("common:dateWithWeekday", {
+    date: begin && parseISO(begin),
+  });
+
+  const beginTime = t("common:timeWithPrefix", {
+    date: begin && parseISO(begin),
+  });
+  const endDate = t("common:dateWithWeekday", {
+    date: end && parseISO(end),
+  });
+  const endTime = t("common:time", {
+    date: end && parseISO(end),
+  });
 
   return (
     <Wrapper>

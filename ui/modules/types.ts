@@ -25,6 +25,7 @@ export type Space = {
   buildingId: number;
   surfaceArea: null;
   districtId: number;
+  termsOfUse: string;
 };
 
 export type Resource = {
@@ -92,6 +93,9 @@ export type ReservationUnit = {
   building: Building;
   contactInformation: string;
   unitId: number;
+  minReservationDuration: string;
+  maxReservationDuration: string;
+  nextAvailableSlot: string;
 };
 
 export type Parameter = {

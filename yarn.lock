@@ -2756,6 +2756,13 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.170.tgz#0d67711d4bf7f4ca5147e9091b847479b87925d6"
   integrity sha512-bpcvu/MKHHeYX+qeEN8GE7DIravODWdACVA1ctevD8CN24RhPZIKMn9ntfAsrvLfSX3cR5RrBKAbYm9bGs0A+Q==
 
+"@types/mapbox-gl@*":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@types/mapbox-gl/-/mapbox-gl-2.4.0.tgz#b70429d2904b3bc518e27cbbe077151549622daf"
+  integrity sha512-Na5vXw6Ez0L5To/+pL78dWPNoG6QlPdEDdnkSmIL5HWxemD+s0pTmTWDbMj7tcqJ2hnVyOyukVIveR9HPi7eeA==
+  dependencies:
+    "@types/geojson" "*"
+
 "@types/mapbox-gl@^2.0.3":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@types/mapbox-gl/-/mapbox-gl-2.3.0.tgz#8a88784b1e5e332c9e609a32fe4299789279ed47"
@@ -2833,6 +2840,16 @@
   integrity sha512-0ohAiJAx1DAUEcY9UopnfwCE9sSMDGnY/oXjWMax6g3RpzmTt2GMyMVAXcbn0mo8XAff0SbQJl2/SBU+hjSZ1A==
   dependencies:
     "@types/react" "*"
+
+"@types/react-map-gl@^5.2.10":
+  version "5.2.10"
+  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.10.tgz#adac497807dea4e134377039e5abb14c4160bd03"
+  integrity sha512-9NPlPnBOXoa8gpyhnYhhpUNYFs/pDIwmLJhcwepOgYRvjgKMDIFHnc0mZycfTRMpF6SrMcFaSObI67Fu2f0Kng==
+  dependencies:
+    "@types/geojson" "*"
+    "@types/mapbox-gl" "*"
+    "@types/react" "*"
+    "@types/viewport-mercator-project" "*"
 
 "@types/react-router-dom@^5.1.7":
   version "5.1.7"
@@ -2933,6 +2950,13 @@
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.3.tgz#9c088679876f374eb5983f150d4787aa6fb32d7e"
   integrity sha512-FvUupuM3rlRsRtCN+fDudtmytGO6iHJuuRKS1Ss0pG5z8oX0diNEw94UEL7hgDbpN94rgaK5R7sWm6RrSkZuAQ==
+
+"@types/viewport-mercator-project@*":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@types/viewport-mercator-project/-/viewport-mercator-project-6.1.2.tgz#81c28c868625bb83d373a2b726cebb7958a71d8e"
+  integrity sha512-21U4s61ZMUx95F2Uc9DpXBlcSKlrkeChM+hbGWmpz8HtL+zwl/zP5pJarJmxKv/764iR9xf5870jYZ8Mby5xuQ==
+  dependencies:
+    gl-matrix "^3.2.0"
 
 "@types/warning@^3.0.0":
   version "3.0.0"
@@ -7728,7 +7752,7 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-gl-matrix@^3.0.0, gl-matrix@^3.3.0:
+gl-matrix@^3.0.0, gl-matrix@^3.2.0, gl-matrix@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.3.0.tgz#232eef60b1c8b30a28cbbe75b2caf6c48fd6358b"
   integrity sha512-COb7LDz+SXaHtl/h4LeaFcNdJdAQSDeVqjiIihSXNrkWObZLhDI4hIkZC11Aeqp7bcE72clzB0BnDXr2SmslRA==

@@ -1,8 +1,11 @@
 {
-  "dateTime": "{{date, dd.MM.yyyy 'klo' HH:mm}}",
-  "date": "{{date, dd.MM.yy}}",
-  "dateLong": "{{date, dd.MM.yyyy}}",
-  "time": "{{date, HH:mm}}",
+  "dateTime": "{{date, d.M.yyyy 'klo' H.mm}}",
+  "dateWithWeekday": "{{date, cccccc dd.M.yyyy}}",
+  "dateTimeNoYear": "{{date, dd. MMMM 'klo' H.mm}}",
+  "date": "{{date, d.M.yy}}",
+  "dateLong": "{{date, d.M.yyyy}}",
+  "time": "{{date, H.mm}}",
+  "timeWithPrefix": "{{date, 'klo' H.mm}}",
   "today": "Tänään",
   "day": "Päivä",
   "week": "Viikko",
@@ -35,6 +38,8 @@
   "month.11": "Joulukuu",
   "hour": "{{count}} tunti",
   "hour_plural": "{{count}} tuntia",
+  "minute": "{{count}} minuutti",
+  "minute_plural": "{{count}} minuuttia",
   "error": {
     "dataError": "Tietoja ei saatu haettua"
   },
@@ -54,8 +59,8 @@
   "noResults": "Ei tuloksia",
   "select": "Valitse",
   "abbreviations": {
-    "hour": "t",
-    "minute": "min"
+    "hour": "{{count}} t",
+    "minute": "{{count}} min"
   },
   "login": "Kirjaudu",
   "logout": "Kirjaudu ulos",
@@ -75,5 +80,6 @@
   "phone": "Puhelin",
   "thanksForUsingVaraamo": "Kiitos Varaamon käytöstä!",
   "sendFeedback": "Lähetä palvelusta palautetta.",
-  "gotoFrontpage": "Palaa etusivulle"
+  "gotoFrontpage": "Palaa etusivulle",
+  "seeDetails": "Katso tiedot"
 }

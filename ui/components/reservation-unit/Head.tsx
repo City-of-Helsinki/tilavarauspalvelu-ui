@@ -1,18 +1,21 @@
 import {
   Button,
+  IconCalendarClock,
   IconCheck,
+  IconClock,
   IconGroup,
   IconInfoCircle,
   IconPlus,
   Koros,
 } from "hds-react";
+import { parseISO } from "date-fns";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import useReservationUnitList from "../../hooks/useReservationUnitList";
 import { breakpoint } from "../../modules/style";
 import { ReservationUnit as ReservationUnitType } from "../../modules/types";
-import { localizedValue } from "../../modules/util";
+import { formatDuration, localizedValue } from "../../modules/util";
 import Back from "../common/Back";
 import Container from "../common/Container";
 import IconWithText from "../common/IconWithText";
@@ -23,6 +26,8 @@ import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 interface PropsType {
   reservationUnit: ReservationUnitType;
   reservationUnitList: ReturnType<typeof useReservationUnitList>;
+  viewType: "recurring" | "single";
+  calendarRef: React.MutableRefObject<HTMLDivElement>;
 }
 
 const TopContainer = styled.div`
@@ -43,6 +48,10 @@ const RightContainer = styled.div`
 
 const StyledIconWithText = styled(IconWithText)`
   margin-top: var(--spacing-m);
+  display: flex;
+  align-items: flex-start;
+  white-space: pre-line;
+  line-height: var(--lineheight-l);
 `;
 
 const Props = styled.div`
@@ -69,6 +78,13 @@ const ButtonContainer = styled.div`
   }
 `;
 
+const ThinButton = styled(Button).attrs({
+  variant: "secondary",
+  style: { "--min-size": "35px" },
+})`
+  height: 35px;
+`;
+
 const StyledKoros = styled(Koros)`
   margin-top: var(--spacing-l);
   fill: var(--tilavaraus-gray);
@@ -77,6 +93,8 @@ const StyledKoros = styled(Koros)`
 const Head = ({
   reservationUnit,
   reservationUnitList,
+  viewType,
+  calendarRef,
 }: PropsType): JSX.Element => {
   const {
     selectReservationUnit,
@@ -85,6 +103,16 @@ const Head = ({
   } = reservationUnitList;
 
   const { t, i18n } = useTranslation();
+
+  const minReservationDuration = formatDuration(
+    reservationUnit.minReservationDuration,
+    false
+  );
+
+  const maxReservationDuration = formatDuration(
+    reservationUnit.maxReservationDuration,
+    false
+  );
 
   return (
     <TopContainer>
@@ -104,6 +132,42 @@ const Head = ({
             </JustForMobile>
             <Props>
               <div>
+                {viewType === "single" &&
+                  reservationUnit.nextAvailableSlot &&
+                  reservationUnit.maxReservationDuration && (
+                    <StyledIconWithText
+                      icon={
+                        <IconCalendarClock
+                          aria-label={t("reservationUnit:type")}
+                        />
+                      }
+                      text={`${t("reservationCalendar:nextAvailableSlot", {
+                        count:
+                          reservationUnit.maxReservationDuration.startsWith(
+                            "01:00:"
+                          )
+                            ? 1
+                            : 2,
+                        slot: maxReservationDuration,
+                      })}:
+                      ${t("common:dateTimeNoYear", {
+                        date: parseISO(reservationUnit.nextAvailableSlot),
+                      })}
+                      `}
+                    />
+                  )}
+              </div>
+              <div>
+                {viewType === "single" &&
+                  (reservationUnit.minReservationDuration ||
+                    reservationUnit.maxReservationDuration) && (
+                    <StyledIconWithText
+                      icon={<IconClock />}
+                      text={`Min ${minReservationDuration}
+                      Max ${maxReservationDuration}
+                    `}
+                    />
+                  )}
                 {reservationUnit.reservationUnitType ? (
                   <StyledIconWithText
                     icon={
@@ -124,26 +188,39 @@ const Head = ({
                   })}
                 />
               </div>
-              <div />
             </Props>
             <ButtonContainer>
-              {containsReservationUnit(reservationUnit) ? (
-                <Button
-                  onClick={() => removeReservationUnit(reservationUnit)}
-                  iconLeft={<IconCheck />}
-                  className="margin-left-s margin-top-s"
+              {viewType === "recurring" &&
+                (containsReservationUnit(reservationUnit) ? (
+                  <Button
+                    onClick={() => removeReservationUnit(reservationUnit)}
+                    iconLeft={<IconCheck />}
+                    className="margin-left-s margin-top-s"
+                  >
+                    {t("common:reservationUnitSelected")}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => selectReservationUnit(reservationUnit)}
+                    iconLeft={<IconPlus />}
+                    className="margin-left-s margin-top-s"
+                    variant="secondary"
+                  >
+                    {t("common:selectReservationUnit")}
+                  </Button>
+                ))}
+              {viewType === "single" && (
+                <ThinButton
+                  onClick={() => {
+                    window.scroll({
+                      top: calendarRef.current.offsetTop - 20,
+                      left: 0,
+                      behavior: "smooth",
+                    });
+                  }}
                 >
-                  {t("common:reservationUnitSelected")}
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => selectReservationUnit(reservationUnit)}
-                  iconLeft={<IconPlus />}
-                  className="margin-left-s margin-top-s"
-                  variant="secondary"
-                >
-                  {t("common:selectReservationUnit")}
-                </Button>
+                  {t("reservationCalendar:showCalendar")}
+                </ThinButton>
               )}
             </ButtonContainer>
           </div>

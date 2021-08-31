@@ -1,17 +1,15 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { gql } from "@apollo/client";
 import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-// eslint-disable-next-line import/no-unresolved
 import Container from "../../components/common/Container";
 import {
   PendingReservation,
   Reservation,
   ReservationUnit as ReservationUnitType,
 } from "../../modules/types";
-import { getReservationUnits } from "../../modules/api";
 import Head from "../../components/reservation-unit/Head";
 import Address from "../../components/reservation-unit/Address";
 import Sanitize from "../../components/common/Sanitize";
@@ -21,7 +19,7 @@ import useReservationUnitsList from "../../hooks/useReservationUnitList";
 import StartApplicationBar from "../../components/common/StartApplicationBar";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
 import apolloClient from "../../modules/apolloClient";
-import Map from "../../components/reservation-unit/Map";
+import Map from "../../components/Map";
 import { H2 } from "../../modules/style/typography";
 import Calendar, { CalendarEvent } from "../../components/calendar/Calendar";
 import Legend from "../../components/calendar/Legend";
@@ -31,6 +29,7 @@ import ReservationInfo from "../../components/calendar/ReservationInfo";
 type Props = {
   reservationUnit: ReservationUnitType | null;
   relatedReservationUnits: ReservationUnitType[];
+  viewType: "recurring" | "single";
 };
 
 type WeekOptions = "day" | "week" | "month";
@@ -69,6 +68,14 @@ export const getServerSideProps = async ({ locale, params }) => {
           addressZip
           addressCity
         }
+        minReservationDuration
+        maxReservationDuration
+        nextAvailableSlot
+        spaces {
+          id: pk
+          name
+          termsOfUse
+        }
       }
     }
   `;
@@ -80,9 +87,43 @@ export const getServerSideProps = async ({ locale, params }) => {
     });
 
     if (data.reservationUnit?.building?.id) {
-      relatedReservationUnits = (
-        await getReservationUnits({ unit: data.reservationUnit.building.id })
-      ).filter((u) => u.id !== Number(id));
+      const RELATED_RESERVATION_UNITS = gql`
+        query RelatedReservationUnits($unit: ID) {
+          relatedReservationUnits: reservationUnits(unit: $unit) {
+            edges {
+              node {
+                id: pk
+                name
+                images {
+                  imageUrl
+                  smallUrl
+                  imageType
+                }
+                building: unit {
+                  id: pk
+                  name
+                }
+                reservationUnitType {
+                  name
+                }
+                maxPersons
+                location {
+                  addressStreet
+                }
+              }
+            }
+          }
+        }
+      `;
+      const { data: relatedReservationUnitsData } = await apolloClient.query({
+        query: RELATED_RESERVATION_UNITS,
+        variables: { unit: data.reservationUnit.building.id },
+      });
+
+      relatedReservationUnits =
+        relatedReservationUnitsData.relatedReservationUnits.edges
+          .map((n) => n.node)
+          .filter((n: ReservationUnitType) => n.id !== data.reservationUnit.id);
     }
 
     return {
@@ -150,14 +191,17 @@ const MapWrapper = styled.div`
 const ReservationUnit = ({
   reservationUnit,
   relatedReservationUnits,
+  viewType,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
   const [date, setDate] = useState(new Date());
-  const [viewType, setViewType] = useState<WeekOptions>("week");
+  const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
   const [initialReservation, setInitialReservation] =
     useState<PendingReservation | null>(null);
   const [reservations] = useState<Reservation[] | null>([]);
+
+  const calendarRef = useRef(null);
 
   const reservationUnitList = useReservationUnitsList();
 
@@ -172,6 +216,8 @@ const ReservationUnit = ({
       <Head
         reservationUnit={reservationUnit}
         reservationUnitList={reservationUnitList}
+        viewType={viewType}
+        calendarRef={calendarRef}
       />
       <Container>
         <TwoColumnLayout>
@@ -181,51 +227,48 @@ const ReservationUnit = ({
                 <Sanitize html={reservationUnit.description} />
               </Content>
             </Accordion>
-            <Accordion heading={t("reservationUnit:termsOfUse")}>
-              <Content>
-                <Sanitize html={reservationUnit.termsOfUse} />
-              </Content>
-            </Accordion>
           </div>
           <div>
             <Address reservationUnit={reservationUnit} />
           </div>
         </TwoColumnLayout>
-        <CalendarWrapper>
-          <StyledH2>{t("reservations:reservationCalendar")}</StyledH2>
-          <Calendar
-            begin={date}
-            reservations={allReservations}
-            reservationUnit={reservationUnit}
-            onNavigate={(d: Date) => {
-              setDate(d);
-            }}
-            viewType={viewType}
-            onView={(n: WeekOptions) => {
-              setViewType(n);
-            }}
-            onSelecting={({ start, end }: CalendarEvent) => {
-              setInitialReservation({
-                name: t("reservationCalendar:initialReservation"),
-                begin: start.toISOString(),
-                end: end.toISOString(),
-              } as PendingReservation);
-            }}
-            showToolbar
-            reservable
-          />
-          <Legend />
-          <LoginFragment
-            text={t("reservationCalendar:loginInfo")}
-            componentIfAuthenticated={
-              <ReservationInfo
-                reservationUnitId={reservationUnit.id}
-                begin={initialReservation?.begin}
-                end={initialReservation?.end}
-              />
-            }
-          />
-        </CalendarWrapper>
+        {viewType === "single" && (
+          <CalendarWrapper ref={calendarRef}>
+            <StyledH2>{t("reservations:reservationCalendar")}</StyledH2>
+            <Calendar
+              begin={date}
+              reservations={allReservations}
+              reservationUnit={reservationUnit}
+              onNavigate={(d: Date) => {
+                setDate(d);
+              }}
+              viewType={calendarViewType}
+              onView={(n: WeekOptions) => {
+                setCalendarViewType(n);
+              }}
+              onSelecting={({ start, end }: CalendarEvent) => {
+                setInitialReservation({
+                  name: t("reservationCalendar:initialReservation"),
+                  begin: start.toISOString(),
+                  end: end.toISOString(),
+                } as PendingReservation);
+              }}
+              showToolbar
+              reservable
+            />
+            <Legend />
+            <LoginFragment
+              text={t("reservationCalendar:loginInfo")}
+              componentIfAuthenticated={
+                <ReservationInfo
+                  reservationUnitId={reservationUnit.id}
+                  begin={initialReservation?.begin}
+                  end={initialReservation?.end}
+                />
+              }
+            />
+          </CalendarWrapper>
+        )}
         <MapWrapper>
           <StyledH2>{t("common:location")}</StyledH2>
           <Map
@@ -234,6 +277,29 @@ const ReservationUnit = ({
             longitude={Number(reservationUnit.location?.longitude)}
           />
         </MapWrapper>
+        <TwoColumnLayout>
+          <Address reservationUnit={reservationUnit} />
+          <div />
+          <Accordion heading={t("reservationUnit:termsOfUse")}>
+            <Content>
+              <Sanitize html={reservationUnit.termsOfUse} />
+            </Content>
+          </Accordion>
+          <div />
+          <Accordion heading={t("reservationUnit:termsOfUseSpaces")}>
+            <Content>
+              {reservationUnit.spaces.map((space) => (
+                <React.Fragment key={space.id}>
+                  {reservationUnit.spaces.length > 1 && <h3>{space.name}</h3>}
+                  <p>
+                    <Sanitize html={space.termsOfUse} />
+                  </p>
+                </React.Fragment>
+              ))}
+            </Content>
+          </Accordion>
+          <div />
+        </TwoColumnLayout>
       </Container>
       <BottomWrapper>
         {shouldDisplayBottomWrapper && (
@@ -243,14 +309,17 @@ const ReservationUnit = ({
               <RelatedUnits
                 reservationUnitList={reservationUnitList}
                 units={relatedReservationUnits}
+                viewType={viewType}
               />
             </BottomContainer>
           </>
         )}
       </BottomWrapper>
-      <StartApplicationBar
-        count={reservationUnitList.reservationUnits.length}
-      />
+      {viewType === "recurring" && (
+        <StartApplicationBar
+          count={reservationUnitList.reservationUnits.length}
+        />
+      )}
     </>
   ) : null;
 };

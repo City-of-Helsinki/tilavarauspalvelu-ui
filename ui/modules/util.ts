@@ -7,10 +7,10 @@ import {
   endOfWeek as dateFnsEndOfWeek,
   parse,
 } from "date-fns";
-import { fi } from "date-fns/locale";
 import { i18n } from "next-i18next";
 import { TFunction } from "i18next";
 import { stringify } from "query-string";
+import { isNumber, trim } from "lodash";
 import { ReservationUnitsParameters } from "./api";
 import { searchPrefix, emptyOption, applicationsPrefix } from "./const";
 import {
@@ -25,8 +25,6 @@ import {
   ApplicationStatus,
   ReducedApplicationStatus,
 } from "./types";
-
-const locales = { fi };
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date().getTime();
@@ -58,7 +56,7 @@ export const applicationRoundState = (
 export const parseDate = (date: string): Date => parseISO(date);
 
 const toUIDate = (date: Date, formatStr = "d.M.yyyy"): string => {
-  return format(date, formatStr, { locale: locales[i18n.language] });
+  return format(date, formatStr);
 };
 
 const fromAPIDate = (date: string): Date => {
@@ -91,21 +89,28 @@ export const uiDateToApiDate = (date: string): string => {
   return toApiDate(fromUIDate(date));
 };
 
-export const formatDuration = (duration: string): string => {
-  if (!duration) {
+export const formatDuration = (
+  duration: string,
+  abbreviated = true
+): string => {
+  if (!duration || isNumber(duration) || !duration?.includes(":")) {
     return "-";
   }
+
+  const hourKey = abbreviated ? "common:abbreviations.hour" : "common:hour";
+  const minuteKey = abbreviated
+    ? "common:abbreviations.minute"
+    : "common:minute";
+
   const time = duration.split(":");
   if (time.length < 3) {
     return "-";
   }
   return `${
     Number(time[0])
-      ? `${`${Number(time[0])} ${
-          i18n.t("common:hour") || "".toLocaleLowerCase()
-        }`} `
+      ? `${`${Number(time[0])} ${i18n.t(hourKey) || "".toLocaleLowerCase()}`} `
       : ""
-  }${Number(time[1]) ? time[1] + i18n.t("common:abbreviations.minute") : ""}`;
+  }${Number(time[1]) ? i18n.t(minuteKey, { count: Number(time[1]) }) : ""}`;
 };
 
 export const formatApiDate = (date: string): string => {
@@ -294,7 +299,10 @@ export const getAddress = (ru: ReservationUnit): string | null => {
     return null;
   }
 
-  return `${ru.location.addressStreet}, ${ru.location.addressCity}`;
+  return trim(
+    `${ru.location.addressStreet || ""}, ${ru.location.addressCity || ""}`,
+    ", "
+  );
 };
 
 export const applicationUrl = (id: number): string => `/application/${id}`;
@@ -326,7 +334,10 @@ export const startOfWeek = (d: Date): Date =>
 export const endOfWeek = (d: Date): Date =>
   dateFnsEndOfWeek(d, { weekStartsOn: 1 });
 
-export const formatDurationMinutes = (duration: number): string => {
+export const formatDurationMinutes = (
+  duration: number,
+  abbreviated = true
+): string => {
   if (!duration) {
     return "-";
   }
@@ -334,36 +345,19 @@ export const formatDurationMinutes = (duration: number): string => {
   const hour = Math.floor(duration / 60);
   const min = Math.floor(duration % 60);
 
+  const hourKey = abbreviated ? "common:abbreviations.hour" : "common:hour";
+  const minuteKey = abbreviated
+    ? "common:abbreviations.minute"
+    : "common:minute";
+
   const p = [];
 
   if (hour) {
-    p.push(i18n.t("common:hour", { count: hour }).toLocaleLowerCase());
+    p.push(i18n.t(hourKey, { count: hour }).toLocaleLowerCase());
   }
   if (min) {
-    p.push(
-      `${min} ${i18n.t("common:abbreviations.minute").toLocaleLowerCase()}`
-    );
+    p.push(i18n.t(minuteKey, { count: min }).toLocaleLowerCase());
   }
 
   return p.join(" ");
-};
-
-export const getLocalizedTimeFormat = (): string => {
-  switch (i18n.language) {
-    case "en":
-      return "H:mm";
-    case "fi":
-    default:
-      return "H.mm";
-  }
-};
-
-export const getLocalizedDateFormat = (): string => {
-  switch (i18n.language) {
-    case "en":
-      return "M/d/yyyy";
-    case "fi":
-    default:
-      return "d.M.yyyy";
-  }
 };
