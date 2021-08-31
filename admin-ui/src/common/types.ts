@@ -458,5 +458,15 @@ export type ErrorType = {
 export type SpaceCreateMutationPayload = {
   id: number;
   errors: ErrorType;
-  clientMutationId: string;
+  clientMutationId?: string;
+};
+
+export type SpaceDeleteMutationInput = {
+  pk: number;
+  clientMutationId?: string;
+};
+
+export type SpaceDeleteMutationPayload = {
+  deleted: boolean;
+  clientMutationId?: string;
 };

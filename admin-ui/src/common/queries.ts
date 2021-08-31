@@ -64,3 +64,11 @@ export const CREATE_SPACE = gql`
     }
   }
 `;
+
+export const DELETE_SPACE = gql`
+  mutation deleteSpace($input: SpaceDeleteMutationInput!) {
+    deleteSpace(input: $input) {
+      deleted
+    }
+  }
+`;
