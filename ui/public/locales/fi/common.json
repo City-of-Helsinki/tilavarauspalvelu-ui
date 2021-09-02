@@ -1,7 +1,7 @@
 {
   "dateTime": "{{date, d.M.yyyy 'klo' H.mm}}",
-  "dateWithWeekday": "{{date, cccccc dd.M.yyyy}}",
-  "dateTimeNoYear": "{{date, dd. MMMM 'klo' H.mm}}",
+  "dateWithWeekday": "{{date, cccccc d.M.yyyy}}",
+  "dateTimeNoYear": "{{date, d. MMMM 'klo' H.mm}}",
   "date": "{{date, d.M.yy}}",
   "dateLong": "{{date, d.M.yyyy}}",
   "time": "{{date, H.mm}}",

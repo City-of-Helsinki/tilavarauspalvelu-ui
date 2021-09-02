@@ -52,7 +52,7 @@ const defaultItems: LegendItem[] = [
   },
   {
     title: "unavailable",
-    color: "var(--color-black-20)",
+    color: "var(--color-black-10)",
   },
   {
     title: "busy",

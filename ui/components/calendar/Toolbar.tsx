@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { breakpoint } from "../../modules/style";
 
 type Props = {
-  onNavigate: (n: string) => void;
+  onNavigate: (n: string | Date) => void;
   onView: (n: string) => void;
   view: string;
   date: Date;
@@ -48,7 +48,6 @@ const Wrapper = styled.div`
       order: unset;
       width: 40%;
       height: unset;
-      margin-left: var(--spacing-layout-2-xl);
     }
   }
 

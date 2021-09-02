@@ -216,6 +216,7 @@ export type ApplicationEventSchedule = {
 };
 
 export type ReservationState =
+  | "initial"
   | "created"
   | "cancelled"
   | "confirmed"
@@ -225,8 +226,8 @@ export type ReservationState =
 
 export type Reservation = {
   id: number;
-  applicationId: number;
-  applicationEventId: number;
+  applicationId: number | null;
+  applicationEventId: number | null;
   state: ReservationState;
   priority: number;
   begin: string;
@@ -237,6 +238,7 @@ export type Reservation = {
 export type PendingReservation = {
   begin: string;
   end: string;
+  state: "initial";
 };
 
 export type RecurringReservation = {
@@ -301,4 +303,20 @@ export type UserProfile = {
   // eslint-disable-next-line camelcase
   family_name: string;
   email: string;
+};
+
+export type OpeningHourTime = {
+  startTime: string;
+  endTime: string;
+  endTimeOnNextDay?: boolean;
+};
+
+export type OpeningHour = {
+  date: string;
+  times: OpeningHourTime;
+};
+
+export type OpeningHours = {
+  id: number;
+  openingHours: OpeningHour[];
 };

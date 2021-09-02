@@ -37,6 +37,7 @@
   "resourceTerms": "- Jos myöhästyt yli 15 minuuttia, varauksesi vapautetaan muiden käyttöön.\n- Mikäli työsi ei valmistu varaamasi ajan sisällä, työ keskeytetään seuraavan varauksen alkaessa.\n- Sinulla voi olla voimassa vain yksi varaus kerrallaan. Ylimääräiset varaukset poistetaan.",
   "saveReservation": "Tallenna varaus",
   "selectedTime": "Valittu aika",
+  "nextAvailableTime": "Seuraava vapaa aika",
   "nextAvailableSlot": "Seuraava vapaa tunti",
   "nextAvailableSlot_plural": "Seuraavat vapaat {{slot}}",
   "showCalendar": "Näytä kalenteri"

@@ -74,8 +74,8 @@ export const fromUIDate = (date: string): Date => {
   return parse(date, "d.M.yyyy", new Date());
 };
 
-const toApiDate = (date: Date): string => {
-  return format(date, "yyyy-MM-dd");
+export const toApiDate = (date: Date, formatStr = "yyyy-MM-dd"): string => {
+  return format(date, formatStr);
 };
 
 export const apiDateToUIDate = (date: string): string => {
@@ -188,7 +188,7 @@ export function deepCopy<T>(src: T): T {
 }
 
 export const apiDurationToMinutes = (duration: string): number => {
-  if (!duration) {
+  if (!duration || isNumber(duration) || !duration?.includes(":")) {
     return 0;
   }
   const parts = duration.split(":");

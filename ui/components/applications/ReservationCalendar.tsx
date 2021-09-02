@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import Calendar from "../calendar/Calendar";
+import Calendar, { CalendarEvent } from "../calendar/Calendar";
 import { reservationUnitPath } from "../../modules/const";
 import { breakpoint } from "../../modules/style";
 import {
@@ -10,6 +10,7 @@ import {
   ReservationUnit,
 } from "../../modules/types";
 import ExternalLink from "../reservation-unit/ExternalLink";
+import { localizedValue, parseDate } from "../../modules/util";
 
 type Props = {
   reservations?: Reservation[];
@@ -61,20 +62,33 @@ const ReservationCalendar = ({
   applicationEvent,
   reservationUnit,
 }: Props): JSX.Element | null => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const events = reservations?.map((reservation: Reservation) => {
+    const event = {
+      title: `${
+        reservation.state === "cancelled"
+          ? `${t("reservationCalendar:prefixForCancelled")}: `
+          : ""
+      } ${
+        applicationEvent?.name ? `${applicationEvent.name}: ` : ""
+      }${localizedValue(reservationUnit.name, i18n.language)}`,
+      start: parseDate(reservation.begin),
+      end: parseDate(reservation.end),
+      allDay: false,
+      event: reservation,
+    };
+
+    return event as CalendarEvent;
+  });
 
   return (
     <Container>
-      <Calendar
-        reservations={reservations}
-        begin={begin}
-        applicationEvent={applicationEvent}
-        reservationUnit={reservationUnit}
-      />
+      <Calendar events={events} begin={begin} />
       <Legends>
-        <Ok>11.00-12:00</Ok>
+        <Ok>11.00-12.00</Ok>
         <Label>{t("reservationCalendar:legend.okLabel")}</Label>
-        <Cancelled>11.00 -12:45</Cancelled>
+        <Cancelled>11.00-12.45</Cancelled>
         <Label>{t("reservationCalendar:legend.cancelledLabel")}</Label>
       </Legends>
       <ExternalLink

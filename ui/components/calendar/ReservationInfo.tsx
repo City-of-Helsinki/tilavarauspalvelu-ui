@@ -3,11 +3,14 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { parseISO } from "date-fns";
+import { differenceInMinutes, parseISO } from "date-fns";
 import { breakpoint } from "../../modules/style";
+import { ReservationUnit } from "../../modules/types";
+import { isReservationLongEnough } from "../../modules/calendar";
+import { formatDurationMinutes } from "../../modules/util";
 
 type Props = {
-  reservationUnitId: number;
+  reservationUnit: ReservationUnit;
   begin?: string;
   end?: string;
 };
@@ -23,12 +26,16 @@ const Wrapper = styled.div`
   }
 `;
 
+const DurationWrapper = styled.span`
+  text-transform: lowercase;
+`;
+
 const TimeRange = styled.span`
   text-transform: capitalize;
 `;
 
 const ReservationInfo = ({
-  reservationUnitId,
+  reservationUnit,
   begin,
   end,
 }: Props): JSX.Element => {
@@ -49,16 +56,26 @@ const ReservationInfo = ({
     date: end && parseISO(end),
   });
 
+  const duration = differenceInMinutes(new Date(end), new Date(begin));
+
   return (
     <Wrapper>
       <div>
         <Button
           onClick={() => {
             router.push(
-              `/reservation-unit/${reservationUnitId}/reservation?begin=${begin}&end=${end}`
+              `/reservation-unit/${reservationUnit.id}/reservation?begin=${begin}&end=${end}`
             );
           }}
-          disabled={!begin || !end}
+          disabled={
+            !begin ||
+            !end ||
+            !isReservationLongEnough(
+              new Date(begin),
+              new Date(end),
+              reservationUnit.minReservationDuration
+            )
+          }
         >
           {t("reservationCalendar:makeReservation")}
         </Button>
@@ -68,7 +85,10 @@ const ReservationInfo = ({
         {begin && end ? (
           <TimeRange>
             {beginDate} {beginTime} - {endDate !== beginDate && endDate}{" "}
-            {endTime}
+            {endTime}{" "}
+            <DurationWrapper>
+              ({formatDurationMinutes(duration)})
+            </DurationWrapper>
           </TimeRange>
         ) : (
           "–"
