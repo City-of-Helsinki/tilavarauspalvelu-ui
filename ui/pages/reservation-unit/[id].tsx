@@ -248,7 +248,9 @@ const ReservationUnit = ({
       priority: 100,
       begin: "2021-08-31T09:00:00.000Z",
       end: "2021-08-31T20:00:00.000Z",
-      reservationUnit,
+      reservationUnit: [reservationUnit],
+      applicationId: null,
+      applicationEventId: null,
     },
     {
       id: 2,
@@ -256,7 +258,9 @@ const ReservationUnit = ({
       priority: 100,
       begin: "2021-09-01T09:00:00.000Z",
       end: "2021-09-01T20:00:00.000Z",
-      reservationUnit,
+      reservationUnit: [reservationUnit],
+      applicationId: null,
+      applicationEventId: null,
     },
   ]);
   const [openingHours] = useState<OpeningHour[] | null>([
