@@ -773,10 +773,17 @@ const translations: ITranslations = {
     descriptionPlaceholder: ["Resurssin kuvaus {{language}}"],
     cancel: ["Palaa tallentamatta tietoja"],
     save: ["Luo resurssitieto"],
+    saveError: ["Tietojen tallennus epäonnistui."],
   },
-  ResourcesTable: {
+  ResourceTable: {
     menuEditResource: ["Muokkaa resurssia"],
     menuRemoveResource: ["Poista resurssi"],
+    removeConfirmationTitle: ["Haluatko varmasti poistaa resurssin {{name}}?"],
+    removeConfirmationMessage: [
+      "Resurssi poistetaan toimipisteestä. Et voi perua toimintoa.",
+    ],
+    removeConfirmationAccept: ["Poista"],
+    removeConfirmationCancel: ["Kumoa"],
   },
 };
 
