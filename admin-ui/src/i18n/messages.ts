@@ -28,6 +28,11 @@ const translations: ITranslations = {
     saturday: ["Lauantai"],
     sunday: ["Sunnuntai"],
   },
+  language: {
+    fi: ["suomeksi"],
+    sv: ["ruotsiksi"],
+    en: ["englanniksi"],
+  },
   common: {
     applicationName: ["Tilavarauskäsittely"],
     selectReservationUnit: ["Valitse tila"],
@@ -759,6 +764,15 @@ const translations: ITranslations = {
   },
   ResourceModal: {
     modalTitle: ["Luo uusi resurssi toimipisteelle"],
+    info: [
+      "Voit luoda kerralla yhden toimipisteen resurssin. Niitä voivat olla esim. laitteet tar tarvikkeet.",
+    ],
+    nameLabel: ["Resurssin nimi {{lang}}"],
+    namePlaceholder: ["Kirjaa tarkenne  {{language}}"],
+    descriptionLabel: ["Resurssin kuvaus {{lang}}"],
+    descriptionPlaceholder: ["Resurssin kuvaus {{language}}"],
+    cancel: ["Palaa tallentamatta tietoja"],
+    save: ["Luo resurssitieto"],
   },
   ResourcesTable: {
     menuEditResource: ["Muokkaa resurssia"],
