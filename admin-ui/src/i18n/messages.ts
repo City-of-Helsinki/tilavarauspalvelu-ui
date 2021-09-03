@@ -701,6 +701,8 @@ const translations: ITranslations = {
     newSpacesCreatedNotification: [
       "Voit luoda tiloille alitiloja niin pitkälle kuin on tarpeellista.",
     ],
+    spacesDeletedTitle: ["Tila poistettu"],
+    spacesDeletedNotification: ["Tila poistettu onnistuneesti"],
   },
   SpaceModal: {
     phase: ["Vaihe"],
@@ -748,6 +750,12 @@ const translations: ITranslations = {
     menuAddSubSpace: ["Lisää alitiloja"],
     menuEditSpace: ["Muokkaa tilatietoja"],
     menuRemoveSpace: ["Poista tila"],
+    removeConfirmationTitle: ["Haluatko varmasti poistaa tilan {{name}}?"],
+    removeConfirmationMessage: [
+      "Tila poistetaan kaikista varausyksiköistä, joihin se on liitetty. Et voi perua toimintoa.",
+    ],
+    removeConfirmationAccept: ["Poista"],
+    removeConfirmationCancel: ["Kumoa"],
   },
   ResourcesTable: {
     menuEditResource: ["Muokkaa resurssia"],

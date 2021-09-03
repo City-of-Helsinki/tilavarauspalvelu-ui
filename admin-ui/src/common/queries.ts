@@ -77,3 +77,11 @@ export const UNITS_QUERY = gql`
     }
   }
 `;
+
+export const DELETE_SPACE = gql`
+  mutation deleteSpace($input: SpaceDeleteMutationInput!) {
+    deleteSpace(input: $input) {
+      deleted
+    }
+  }
+`;

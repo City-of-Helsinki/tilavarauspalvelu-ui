@@ -4,7 +4,7 @@ import {
   IconPlusCircleFill,
   Notification,
 } from "hds-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -25,6 +25,67 @@ import { breakpoints } from "../../styles/util";
 interface IProps {
   unitId: string;
 }
+
+type NotificationType = {
+  title: string;
+  text: string;
+  type: "success" | "error";
+};
+
+type Action =
+  | {
+      type: "setNotification";
+      notification: NotificationType;
+    }
+  | { type: "clearNotification" }
+  | { type: "clearError" }
+  | { type: "unitLoaded"; unit: UnitWIP }
+  | { type: "dataLoadError"; message: string };
+
+type State = {
+  notification: null | NotificationType;
+  loading: boolean;
+  unit: UnitWIP | null;
+  error: null | {
+    message: string;
+  };
+};
+
+const initialState: State = {
+  loading: true,
+  notification: null,
+  unit: null,
+  error: null,
+};
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "clearNotification": {
+      return { ...state, notification: null };
+    }
+    case "setNotification": {
+      return { ...state, notification: { ...action.notification } };
+    }
+    case "unitLoaded": {
+      return { ...state, unit: action.unit, loading: false };
+    }
+    case "dataLoadError": {
+      return {
+        ...state,
+        loading: false,
+        error: { message: action.message },
+      };
+    }
+    case "clearError": {
+      return {
+        ...state,
+        error: null,
+      };
+    }
+    default:
+      return state;
+  }
+};
 
 const Wrapper = styled.div``;
 
@@ -71,10 +132,7 @@ const StyledNotification = styled(Notification)`
 `;
 
 const SpacesResources = (): JSX.Element => {
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [unit, setUnit] = useState<UnitWIP>();
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const { setModalContent } = useModal();
 
   const { t, i18n } = useTranslation();
@@ -86,11 +144,12 @@ const SpacesResources = (): JSX.Element => {
     const fetchUnit = async () => {
       try {
         const result = await getUnit(Number(unitId));
-        setUnit(result);
+        dispatch({ type: "unitLoaded", unit: result });
       } catch (error) {
-        setErrorMsg("errors.errorFetchingData");
-      } finally {
-        setIsLoading(false);
+        dispatch({
+          type: "dataLoadError",
+          message: "errors.errorFetchingData",
+        });
       }
     };
 
@@ -103,9 +162,39 @@ const SpacesResources = (): JSX.Element => {
     closeModal: closeNewSpaceModal,
   } = useHDSModal();
 
-  if (isLoading || !unit) {
+  console.log("state", state);
+
+  if (state.loading || state.unit === null) {
+    console.log("rendering spinner");
     return <Loader />;
   }
+
+  const saveSpaceSuccess = () =>
+    dispatch({
+      type: "setNotification",
+      notification: {
+        type: "success",
+        title: "Unit.newSpacesCreatedTitle",
+        text: "Unit.newSpacesCreatedNotification",
+      },
+    });
+
+  const deleteSpaceSuccess = () =>
+    dispatch({
+      type: "setNotification",
+      notification: {
+        type: "success",
+        title: "Unit.spaceDeletedTitle",
+        text: "Unit.spaceDeletedNotification",
+      },
+    });
+
+  const spaceDataError = (text: string) => {
+    dispatch({
+      type: "dataLoadError",
+      message: text,
+    });
+  };
 
   return (
     <Wrapper>
@@ -116,22 +205,22 @@ const SpacesResources = (): JSX.Element => {
         afterCloseFocusRef={newSpacesButtonRef}
       >
         <NewSpaceModal
-          unit={unit}
+          unit={state.unit}
           closeModal={closeNewSpaceModal}
-          onSave={() => setSaveSuccess(true)}
+          onSave={saveSpaceSuccess}
         />
       </Modal>
-      <SubPageHead title={t("Unit.spacesAndResources")} unit={unit} />
+      <SubPageHead title={t("Unit.spacesAndResources")} unit={state.unit} />
       <IngressContainer>
-        {saveSuccess ? (
+        {state.notification ? (
           <StyledNotification
-            type="success"
-            label={t("Unit.newSpacesCreatedTitle")}
+            type={state.notification.type}
+            label={t(state.notification.title)}
             dismissible
             closeButtonLabelText={`${t("common.close")}`}
-            onClose={() => setSaveSuccess(false)}
+            onClose={() => dispatch({ type: "clearNotification" })}
           >
-            {t("Unit.newSpacesCreatedNotification")}
+            {t(state.notification.text)}
           </StyledNotification>
         ) : null}
         <Info>
@@ -160,9 +249,11 @@ const SpacesResources = (): JSX.Element => {
         </TableHead>
       </WideContainer>{" "}
       <SpacesTable
-        spaces={unit.spaces}
-        unit={unit}
-        onSave={() => setSaveSuccess(true)}
+        spaces={state.unit.spaces}
+        unit={state.unit}
+        onSave={saveSpaceSuccess}
+        onDelete={deleteSpaceSuccess}
+        onDataError={spaceDataError}
       />
       <WideContainer>
         <TableHead>
@@ -175,21 +266,23 @@ const SpacesResources = (): JSX.Element => {
           </ActionButton>
         </TableHead>
       </WideContainer>
-      <ResourcesTable resources={unit.resources} />
-      {errorMsg && (
-        <Notification
-          type="error"
-          label={t("errors.functionFailed")}
-          position="top-center"
-          autoClose={false}
-          dismissible
-          closeButtonLabelText={t("common.close")}
-          displayAutoCloseProgress={false}
-          onClose={() => setErrorMsg(null)}
-        >
-          {t(errorMsg)}
-        </Notification>
-      )}
+      <ResourcesTable resources={state.unit.resources} />
+      {state.error ? (
+        <Wrapper>
+          <Notification
+            type="error"
+            label={t("errors.functionFailed")}
+            position="top-center"
+            autoClose={false}
+            dismissible
+            onClose={() => dispatch({ type: "clearError" })}
+            closeButtonLabelText={t("common.close")}
+            displayAutoCloseProgress={false}
+          >
+            {t(state.error.message)}
+          </Notification>
+        </Wrapper>
+      ) : null}
     </Wrapper>
   );
 };
