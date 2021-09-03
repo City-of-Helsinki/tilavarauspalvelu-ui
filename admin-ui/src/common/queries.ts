@@ -98,10 +98,24 @@ export const UNIT_QUERY = gql`
   }
 `;
 
+// WIP, no api yet
 export const CREATE_RESOURCE = gql`
   mutation createResource($input: ResourceCreateMutationInput!) {
     createSpace(input: $input) {
       id
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;
+
+// WIP, no api yet
+export const DELETE_RESOURCE = gql`
+  mutation deleteResource($input: ResourceDeleteMutationInput!) {
+    deleteResource(input: $input) {
+      deleted
       errors {
         field
         messages
