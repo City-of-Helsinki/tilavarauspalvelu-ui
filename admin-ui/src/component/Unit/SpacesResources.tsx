@@ -21,6 +21,7 @@ import SubPageHead from "./SubPageHead";
 import Modal, { useModal as useHDSModal } from "../HDSModal";
 import NewSpaceModal from "./NewSpaceModal";
 import { breakpoints } from "../../styles/util";
+import NewResourceModal from "./NewResourceModal";
 
 interface IProps {
   unitId: string;
@@ -131,7 +132,7 @@ const StyledNotification = styled(Notification)`
   }
 `;
 
-const SpacesResources = (): JSX.Element => {
+const SpacesResources = (): JSX.Element | null => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { setModalContent } = useModal();
 
@@ -139,6 +140,7 @@ const SpacesResources = (): JSX.Element => {
   const { unitId } = useParams<IProps>();
 
   const newSpacesButtonRef = React.createRef<HTMLButtonElement>();
+  const newResourceButtonRef = React.createRef<HTMLButtonElement>();
 
   useEffect(() => {
     const fetchUnit = async () => {
@@ -162,11 +164,36 @@ const SpacesResources = (): JSX.Element => {
     closeModal: closeNewSpaceModal,
   } = useHDSModal();
 
+  const {
+    open: newResourceModalIsOpen,
+    openModal: openNewResourceModal,
+    closeModal: closeNewResourceModal,
+  } = useHDSModal();
+
   console.log("state", state);
 
-  if (state.loading || state.unit === null) {
+  if (state.loading) {
     console.log("rendering spinner");
     return <Loader />;
+  }
+
+  if (state.error && !state.unit) {
+    return (
+      <Wrapper>
+        <Notification
+          type="error"
+          label={t("errors.functionFailed")}
+          position="top-center"
+          autoClose={false}
+          dismissible
+          onClose={() => dispatch({ type: "clearError" })}
+          closeButtonLabelText={t("common.close")}
+          displayAutoCloseProgress={false}
+        >
+          {t(state.error.message)}
+        </Notification>
+      </Wrapper>
+    );
   }
 
   const saveSpaceSuccess = () =>
@@ -189,17 +216,20 @@ const SpacesResources = (): JSX.Element => {
       },
     });
 
-  const spaceDataError = (text: string) => {
+  const onDataError = (text: string) => {
     dispatch({
       type: "dataLoadError",
       message: text,
     });
   };
 
+  if (state.unit === null) {
+    return null;
+  }
   return (
     <Wrapper>
       <Modal
-        id="modal-id"
+        id="space-modal"
         open={newSpaceDialogIsOpen}
         close={() => closeNewSpaceModal()}
         afterCloseFocusRef={newSpacesButtonRef}
@@ -207,6 +237,20 @@ const SpacesResources = (): JSX.Element => {
         <NewSpaceModal
           unit={state.unit}
           closeModal={closeNewSpaceModal}
+          onSave={saveSpaceSuccess}
+          onDataError={onDataError}
+        />
+      </Modal>
+      <SubPageHead title={t("Unit.spacesAndResources")} unit={state.unit} />
+      <Modal
+        id="resource-modal"
+        open={newResourceModalIsOpen}
+        close={() => closeNewResourceModal()}
+        afterCloseFocusRef={newResourceButtonRef}
+      >
+        <NewResourceModal
+          unit={state.unit}
+          closeModal={closeNewResourceModal}
           onSave={saveSpaceSuccess}
         />
       </Modal>
@@ -253,7 +297,7 @@ const SpacesResources = (): JSX.Element => {
         unit={state.unit}
         onSave={saveSpaceSuccess}
         onDelete={deleteSpaceSuccess}
-        onDataError={spaceDataError}
+        onDataError={onDataError}
       />
       <WideContainer>
         <TableHead>
@@ -261,6 +305,7 @@ const SpacesResources = (): JSX.Element => {
           <ActionButton
             iconLeft={<IconPlusCircleFill />}
             variant="supplementary"
+            onClick={() => openNewResourceModal()}
           >
             {t("Unit.addResource")}
           </ActionButton>
@@ -279,7 +324,7 @@ const SpacesResources = (): JSX.Element => {
             closeButtonLabelText={t("common.close")}
             displayAutoCloseProgress={false}
           >
-            {t(state.error.message)}
+            {t(state.error?.message)}
           </Notification>
         </Wrapper>
       ) : null}

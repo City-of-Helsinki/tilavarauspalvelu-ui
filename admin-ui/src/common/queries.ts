@@ -85,3 +85,27 @@ export const DELETE_SPACE = gql`
     }
   }
 `;
+
+export const UNIT_QUERY = gql`
+  query unit($pk: Int) {
+    unitByPk(pk: $pk) {
+      pk
+      name
+      tprekId
+      shortDescription
+      name
+    }
+  }
+`;
+
+export const CREATE_RESOURCE = gql`
+  mutation createResource($input: ResourceCreateMutationInput!) {
+    createSpace(input: $input) {
+      id
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;

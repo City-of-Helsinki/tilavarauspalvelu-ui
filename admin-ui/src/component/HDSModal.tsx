@@ -12,7 +12,7 @@ interface IProps {
 
 const WideDialogStyle = createGlobalStyle`
   div.wide-dialog {
-    width: var(--container-width-m) !important;
+    width: var(--container-width-l) !important;
   }
   `;
 

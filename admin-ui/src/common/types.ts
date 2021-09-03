@@ -482,3 +482,16 @@ export type UnitType = {
   spaces: [];
   openingHours: [];
 };
+
+
+export type ResourceCreateMutationInput = {
+  unitId: number;
+  name: TranslationObject;
+  description: TranslationObject;
+}
+
+export type ResourceCreateMutationPayload = {
+  id: number;
+  errors: ErrorType;
+  clientMutationId: string;
+};

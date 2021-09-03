@@ -757,6 +757,9 @@ const translations: ITranslations = {
     removeConfirmationAccept: ["Poista"],
     removeConfirmationCancel: ["Kumoa"],
   },
+  ResourceModal: {
+    modalTitle: ["Luo uusi resurssi toimipisteelle"],
+  },
   ResourcesTable: {
     menuEditResource: ["Muokkaa resurssia"],
     menuRemoveResource: ["Poista resurssi"],

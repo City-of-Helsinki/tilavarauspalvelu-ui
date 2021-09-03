@@ -121,6 +121,7 @@ const SpacesTable = ({
                           unit={unit}
                           closeModal={closeModal}
                           onSave={onSave}
+                          onDataError={onDataError}
                         />
                       ),
                   },
