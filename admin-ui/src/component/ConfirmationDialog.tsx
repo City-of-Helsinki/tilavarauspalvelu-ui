@@ -57,7 +57,7 @@ const ConfirmationDialog = forwardRef(
               }
             }}
           >
-            {t(state.cancelLabel || "cancel")}
+            {t(state.cancelLabel || "common.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -67,7 +67,7 @@ const ConfirmationDialog = forwardRef(
               }
             }}
           >
-            {t(state.acceptLabel || "ok")}
+            {t(state.acceptLabel || "common.approve")}
           </Button>
         </Dialog.ActionButtons>
       </Dialog>
