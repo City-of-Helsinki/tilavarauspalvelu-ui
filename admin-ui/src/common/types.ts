@@ -471,13 +471,14 @@ export type SpaceDeleteMutationPayload = {
   clientMutationId?: string;
 };
 
+// WIP, api incomplete
 export type UnitType = {
   pk: number;
   name: string;
   location?: Location;
   area?: string; // district?
   service?: string;
-  reservationUnits: []
+  reservationUnits: [];
   resources: [];
   spaces: [];
   openingHours: [];

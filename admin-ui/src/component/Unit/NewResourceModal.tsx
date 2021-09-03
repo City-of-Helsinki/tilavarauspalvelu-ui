@@ -121,8 +121,6 @@ const NewResourceModal = ({
   const [editorState, dispatch] = useReducer(reducer, initialState);
   const { t } = useTranslation();
 
-  console.log("dialog state", editorState);
-
   const [createResourceMutation] = useMutation<
     { createResource: ResourceCreateMutationPayload },
     { input: ResourceCreateMutationInput }
