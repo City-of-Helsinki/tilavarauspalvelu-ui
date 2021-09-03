@@ -2,7 +2,6 @@ import axios, { AxiosRequestConfig } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import applyCaseMiddleware from "axios-case-converter";
 import { authEnabled, oidcUrl, oidcClientId, apiScope } from "../const";
-import { getApiAccessToken, setApiAccessToken } from "./util";
 
 const axiosOptions = {
   timeout: 20000,
@@ -10,6 +9,12 @@ const axiosOptions = {
     "Content-Type": "application/json",
   },
 };
+
+const getApiAccessToken = () =>
+  sessionStorage.getItem(`oidc.apiToken.${apiScope}`);
+
+const setApiAccessToken = (accessToken: string) =>
+  sessionStorage.setItem(`oidc.apiToken.${apiScope}`, accessToken);
 
 const getAccessToken = () => {
   const key = `oidc.user:${oidcUrl}/:${oidcClientId}`;
