@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
+import { GetServerSideProps } from "next";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { gql } from "@apollo/client";
@@ -34,8 +35,9 @@ import {
   getSlotPropGetter,
   isReservationLongEnough,
   isReservationShortEnough,
+  isSlotWithinTimeframe,
 } from "../../modules/calendar";
-import Toolbar from "../../components/calendar/Toolbar";
+import Toolbar, { ToolbarProps } from "../../components/calendar/Toolbar";
 
 type Props = {
   reservationUnit: ReservationUnitType | null;
@@ -46,7 +48,10 @@ type Props = {
 type WeekOptions = "day" | "week" | "month";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getServerSideProps = async ({ locale, params }) => {
+export const getServerSideProps: GetServerSideProps = async ({
+  locale,
+  params,
+}) => {
   const id = Number(params.id);
 
   let relatedReservationUnits = [] as ReservationUnitType[];
@@ -247,7 +252,7 @@ const ReservationUnit = ({
       state: "created",
       priority: 100,
       begin: "2021-08-31T09:00:00.000Z",
-      end: "2021-08-31T20:00:00.000Z",
+      end: "2021-08-31T18:00:00.000Z",
       reservationUnit: [reservationUnit],
       applicationId: null,
       applicationEventId: null,
@@ -291,6 +296,40 @@ const ReservationUnit = ({
     [openingHours]
   );
 
+  const handleEventChange = (
+    { start, end }: CalendarEvent,
+    skipLengthCheck = false
+  ): boolean => {
+    if (
+      !areSlotsReservable(
+        [new Date(start), subMinutes(new Date(end), 1)],
+        openingHours
+      ) ||
+      (!skipLengthCheck &&
+        !isReservationLongEnough(
+          start,
+          end,
+          reservationUnit.minReservationDuration
+        )) ||
+      !isReservationShortEnough(
+        start,
+        end,
+        reservationUnit.maxReservationDuration
+      ) ||
+      doReservationsCollide(reservations, { start, end }) ||
+      !isSlotWithinTimeframe(start)
+    ) {
+      return false;
+    }
+
+    setInitialReservation({
+      begin: start.toISOString(),
+      end: end.toISOString(),
+      state: "initial",
+    } as PendingReservation);
+    return true;
+  };
+
   const calendarRef = useRef(null);
 
   const reservationUnitList = useReservationUnitsList();
@@ -314,6 +353,16 @@ const ReservationUnit = ({
 
       return event as CalendarEvent;
     });
+
+  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
+    <Toolbar
+      {...props}
+      onNavigateToNextAvailableDate={() =>
+        reservationUnit.nextAvailableSlot &&
+        setFocusDate(new Date(reservationUnit.nextAvailableSlot))
+      }
+    />
+  ));
 
   return reservationUnit ? (
     <>
@@ -351,83 +400,18 @@ const ReservationUnit = ({
               onView={(n: WeekOptions) => {
                 setCalendarViewType(n);
               }}
-              onSelecting={({ start, end }: CalendarEvent): boolean => {
-                if (
-                  !areSlotsReservable(
-                    [new Date(start), subMinutes(new Date(end), 1)],
-                    openingHours
-                  ) ||
-                  !isReservationShortEnough(
-                    start,
-                    end,
-                    reservationUnit.maxReservationDuration
-                  ) ||
-                  doReservationsCollide(reservations, { start, end })
-                ) {
-                  return false;
-                }
-                setInitialReservation({
-                  begin: start.toISOString(),
-                  end: end.toISOString(),
-                  state: "initial",
-                } as PendingReservation);
-                return true;
-              }}
+              onSelecting={(event: CalendarEvent) =>
+                handleEventChange(event, true)
+              }
               showToolbar
               reservable
-              toolbarComponent={Toolbar}
+              toolbarComponent={
+                reservationUnit.nextAvailableSlot ? ToolbarWithProps : Toolbar
+              }
               resizable
               draggable
-              onEventDrop={({ start, end }: CalendarEvent) => {
-                if (
-                  areSlotsReservable(
-                    [new Date(start), subMinutes(new Date(end), 1)],
-                    openingHours
-                  ) &&
-                  !doReservationsCollide(reservations, { start, end }) &&
-                  isReservationShortEnough(
-                    start,
-                    end,
-                    reservationUnit.maxReservationDuration
-                  ) &&
-                  isReservationLongEnough(
-                    start,
-                    end,
-                    reservationUnit.minReservationDuration
-                  )
-                ) {
-                  setInitialReservation({
-                    begin: start.toISOString(),
-                    end: end.toISOString(),
-                    state: "initial",
-                  });
-                }
-              }}
-              onEventResize={({ start, end }: CalendarEvent) => {
-                if (
-                  areSlotsReservable(
-                    [new Date(start), subMinutes(new Date(end), 1)],
-                    openingHours
-                  ) &&
-                  !doReservationsCollide(reservations, { start, end }) &&
-                  isReservationShortEnough(
-                    start,
-                    end,
-                    reservationUnit.maxReservationDuration
-                  ) &&
-                  isReservationLongEnough(
-                    start,
-                    end,
-                    reservationUnit.minReservationDuration
-                  )
-                ) {
-                  setInitialReservation({
-                    begin: start.toISOString(),
-                    end: end.toISOString(),
-                    state: "initial",
-                  });
-                }
-              }}
+              onEventDrop={handleEventChange}
+              onEventResize={handleEventChange}
               draggableAccessor={({ event }: CalendarEvent) =>
                 event.state === "initial"
               }

@@ -42,7 +42,7 @@ type Props = {
   onView?: (n: string) => void;
   onSelectEvent?: (event: CalendarEvent) => void;
   onSelecting?: ({ start, end }: CalendarEvent) => void;
-  onEventDrop?: (event: CalendarEvent, delta: number) => void;
+  onEventDrop?: (event: CalendarEvent) => void;
   onEventResize?: (event: CalendarEvent) => void;
   draggableAccessor?: (event: CalendarEvent) => boolean;
   resizableAccessor?: (event: CalendarEvent) => boolean;
@@ -164,12 +164,6 @@ const StyledCalendar = styled(BigCalendar)`
 
     .rbc-month-row {
       flex-basis: 100px;
-    }
-  }
-
-  .rbc-timeslot-inactive {
-    &:hover {
-      cursor: not-allowed;
     }
   }
 

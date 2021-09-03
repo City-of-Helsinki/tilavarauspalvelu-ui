@@ -7,8 +7,9 @@ import fi from "date-fns/locale/fi";
 import styled from "styled-components";
 import { breakpoint } from "../../modules/style";
 
-type Props = {
-  onNavigate: (n: string | Date) => void;
+export type ToolbarProps = {
+  onNavigate: (n: string) => void;
+  onNavigateToNextAvailableDate?: () => void;
   onView: (n: string) => void;
   view: string;
   date: Date;
@@ -58,6 +59,11 @@ const Wrapper = styled.div`
       margin-bottom: 0;
     }
 
+    &[disabled] {
+      border-color: var(--color-black-30);
+      color: var(--color-black-30);
+    }
+
     border-radius: 0;
     border: 2px solid var(--color-bus);
     font-family: var(--font-bold);
@@ -95,10 +101,16 @@ const Wrapper = styled.div`
   }
 `;
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  gap: var(--spacing-s);
+`;
+
 // eslint-disable-next-line react/prefer-stateless-function
-export default class Toolbar extends React.Component<Props> {
+export default class Toolbar extends React.Component<ToolbarProps> {
   render(): JSX.Element {
-    const { onNavigate, onView, view, date } = this.props;
+    const { onNavigate, onNavigateToNextAvailableDate, onView, view, date } =
+      this.props;
 
     const culture = { locale: locales[i18n.language] };
 
@@ -142,13 +154,23 @@ export default class Toolbar extends React.Component<Props> {
 
     return (
       <Wrapper className="rbc-toolbar">
-        <button
-          type="button"
-          onClick={() => onNavigate("TODAY")}
-          aria-label={i18n.t("reservationCalendar:showCurrentDay")}
-        >
-          {i18n.t("common:today")}
-        </button>
+        <ButtonWrapper>
+          <button
+            type="button"
+            onClick={() => onNavigate("TODAY")}
+            aria-label={i18n.t("reservationCalendar:showCurrentDay")}
+          >
+            {i18n.t("common:today")}
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateToNextAvailableDate()}
+            aria-label={i18n.t("reservationCalendar:nextAvailableTime")}
+            disabled={!onNavigateToNextAvailableDate}
+          >
+            {i18n.t("reservationCalendar:nextAvailableTime")}
+          </button>
+        </ButtonWrapper>
         <div className="rbc-toolbar-navigation-hz">
           <button
             className="rbc-toolbar-button--borderless"

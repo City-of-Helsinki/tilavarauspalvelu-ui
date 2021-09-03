@@ -3,7 +3,9 @@ import {
   areIntervalsOverlapping,
   differenceInMinutes,
   getISODay,
+  isAfter,
   isBefore,
+  startOfDay,
 } from "date-fns";
 import { TFunction } from "next-i18next";
 import { SlotProps } from "../components/calendar/Calendar";
@@ -87,22 +89,39 @@ export const isReservationLongEnough = (
   return reservationDuration >= minMinutes;
 };
 
+const areOpeningHoursAvailable = (
+  openingHours: OpeningHour[],
+  slotDate: Date
+) => {
+  return !!openingHours.some((oh) => {
+    const startDate = oh.date;
+    const startTime = new Date(`${startDate}T${oh.times.startTime}`);
+    const endTime = new Date(`${startDate}T${oh.times.endTime}`);
+    return (
+      startTime.getDay() === slotDate.getDay() &&
+      startTime.getHours() <= slotDate.getHours() &&
+      endTime.getHours() >= slotDate.getHours()
+    );
+  });
+};
+
+export const isSlotWithinTimeframe = (start: Date, bufferDays = 0): boolean => {
+  return bufferDays
+    ? isAfter(new Date(start), startOfDay(addDays(new Date(), bufferDays)))
+    : isAfter(new Date(start), new Date());
+};
+
 export const areSlotsReservable = (
   slots: Date[],
-  openingHours: OpeningHour[]
+  openingHours: OpeningHour[],
+  bufferDays?: number
 ): boolean => {
   return slots.every((slot) => {
     const slotDate = new Date(slot);
-    return !!openingHours.some((oh) => {
-      const startDate = oh.date;
-      const startTime = new Date(`${startDate}T${oh.times.startTime}`);
-      const endTime = new Date(`${startDate}T${oh.times.endTime}`);
-      return (
-        startTime.getDay() === slotDate.getDay() &&
-        startTime.getHours() <= slotDate.getHours() &&
-        endTime.getHours() >= slotDate.getHours()
-      );
-    });
+    return (
+      areOpeningHoursAvailable(openingHours, slotDate) &&
+      isSlotWithinTimeframe(slotDate, bufferDays)
+    );
   });
 };
 
@@ -119,9 +138,9 @@ export const doReservationsCollide = (
 };
 
 export const getSlotPropGetter =
-  (openingHours: OpeningHour[]) =>
+  (openingHours: OpeningHour[], bufferDays?: number) =>
   (date: Date): SlotProps => {
-    switch (areSlotsReservable([date], openingHours)) {
+    switch (areSlotsReservable([date], openingHours, bufferDays)) {
       case true:
         return {};
       default:
