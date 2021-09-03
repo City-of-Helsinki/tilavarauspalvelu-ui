@@ -761,6 +761,7 @@ const translations: ITranslations = {
     ],
     removeConfirmationAccept: ["Poista"],
     removeConfirmationCancel: ["Kumoa"],
+    removeFailed: ["Tilan poistaminen ei onnistunut."],
   },
   ResourceModal: {
     modalTitle: ["Luo uusi resurssi toimipisteelle"],
@@ -784,6 +785,7 @@ const translations: ITranslations = {
     ],
     removeConfirmationAccept: ["Poista"],
     removeConfirmationCancel: ["Kumoa"],
+    removeFailed: ["Resurssin poistaminen ei onnistunut."],
   },
 };
 
