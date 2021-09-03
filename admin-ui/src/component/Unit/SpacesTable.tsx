@@ -198,16 +198,7 @@ const SpacesTable = ({
       >
         {modalContent}
       </Modal>
-      <ConfirmationDialog
-        open={false}
-        id="confirmation-dialog"
-        ref={modal}
-        onAccept={() => {
-          console.log("accepted!");
-        }}
-        heading="otsikko"
-        content="sisältö"
-      />
+      <ConfirmationDialog open={false} id="confirmation-dialog" ref={modal} />
     </Wrapper>
   );
 };

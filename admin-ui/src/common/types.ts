@@ -483,15 +483,28 @@ export type UnitType = {
   openingHours: [];
 };
 
-
+// WIP, no api yet
 export type ResourceCreateMutationInput = {
   unitId: number;
   name: TranslationObject;
   description: TranslationObject;
-}
+};
 
+// WIP no api yet
 export type ResourceCreateMutationPayload = {
   id: number;
   errors: ErrorType;
   clientMutationId: string;
+};
+
+// WIP no api yet
+export type ResourceDeleteMutationInput = {
+  pk: number;
+  clientMutationId?: string;
+};
+
+// WIP no api yet
+export type ResourceDeleteMutationPayload = {
+  deleted: boolean;
+  clientMutationId?: string;
 };

@@ -170,10 +170,7 @@ const SpacesResources = (): JSX.Element | null => {
     closeModal: closeNewResourceModal,
   } = useHDSModal();
 
-  console.log("state", state);
-
   if (state.loading) {
-    console.log("rendering spinner");
     return <Loader />;
   }
 
@@ -206,12 +203,12 @@ const SpacesResources = (): JSX.Element | null => {
       },
     });
 
-  const deleteSpaceSuccess = () =>
+  const onSave = (text?: string) =>
     dispatch({
       type: "setNotification",
       notification: {
         type: "success",
-        title: "Unit.spaceDeletedTitle",
+        title: text || t("Unit.spaceDeletedTitle"),
         text: "Unit.spaceDeletedNotification",
       },
     });
@@ -241,7 +238,6 @@ const SpacesResources = (): JSX.Element | null => {
           onDataError={onDataError}
         />
       </Modal>
-      <SubPageHead title={t("Unit.spacesAndResources")} unit={state.unit} />
       <Modal
         id="resource-modal"
         open={newResourceModalIsOpen}
@@ -296,7 +292,7 @@ const SpacesResources = (): JSX.Element | null => {
         spaces={state.unit.spaces}
         unit={state.unit}
         onSave={saveSpaceSuccess}
-        onDelete={deleteSpaceSuccess}
+        onDelete={onSave}
         onDataError={onDataError}
       />
       <WideContainer>
@@ -311,7 +307,11 @@ const SpacesResources = (): JSX.Element | null => {
           </ActionButton>
         </TableHead>
       </WideContainer>
-      <ResourcesTable resources={state.unit.resources} />
+      <ResourcesTable
+        resources={state.unit.resources}
+        onDelete={onSave}
+        onDataError={onDataError}
+      />
       {state.error ? (
         <Wrapper>
           <Notification
