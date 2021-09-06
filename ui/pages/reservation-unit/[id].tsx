@@ -171,6 +171,20 @@ const Content = styled.div`
   font-family: var(--font-regular);
 `;
 
+const CalendarFooter = styled.div`
+  display: block;
+
+  button {
+    order: 2;
+  }
+
+  @media (min-width: ${breakpoint.l}) {
+    display: flex;
+    gap: var(--spacing-2-xl);
+    justify-content: space-between;
+  }
+`;
+
 const BottomWrapper = styled.div`
   margin: 0;
   padding: 0;
@@ -419,17 +433,19 @@ const ReservationUnit = ({
                 event.state === "initial"
               }
             />
-            <Legend />
-            <LoginFragment
-              text={t("reservationCalendar:loginInfo")}
-              componentIfAuthenticated={
-                <ReservationInfo
-                  reservationUnit={reservationUnit}
-                  begin={initialReservation?.begin}
-                  end={initialReservation?.end}
-                />
-              }
-            />
+            <CalendarFooter>
+              <Legend />
+              <LoginFragment
+                text={t("reservationCalendar:loginInfo")}
+                componentIfAuthenticated={
+                  <ReservationInfo
+                    reservationUnit={reservationUnit}
+                    begin={initialReservation?.begin}
+                    end={initialReservation?.end}
+                  />
+                }
+              />
+            </CalendarFooter>
           </CalendarWrapper>
         )}
         <MapWrapper>

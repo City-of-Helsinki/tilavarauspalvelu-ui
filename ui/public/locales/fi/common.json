@@ -63,6 +63,7 @@
     "minute": "{{count}} min"
   },
   "login": "Kirjaudu",
+  "loginAlt": "Kirjaudu sisään",
   "logout": "Kirjaudu ulos",
   "cancel": "Peruuta",
   "imgAltForSpace": "Kuva tilasta {{name}}",

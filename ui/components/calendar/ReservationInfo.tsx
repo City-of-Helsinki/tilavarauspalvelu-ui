@@ -18,11 +18,30 @@ type Props = {
 const Wrapper = styled.div`
   display: grid;
   gap: var(--spacing-s);
-  align-items: baseline;
+  align-items: flex-start;
 
-  @media (min-width: ${breakpoint.m}) {
+  button {
+    order: 2;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  @media (min-width: ${breakpoint.s}) {
     grid-template-columns: auto 1fr;
     gap: var(--spacing-xl);
+
+    button {
+      order: 1;
+      max-width: 10rem;
+    }
+  }
+
+  @media (min-width: ${breakpoint.l}) {
+    button {
+      max-width: unset;
+    }
   }
 `;
 
@@ -60,26 +79,24 @@ const ReservationInfo = ({
 
   return (
     <Wrapper>
-      <div>
-        <Button
-          onClick={() => {
-            router.push(
-              `/reservation-unit/${reservationUnit.id}/reservation?begin=${begin}&end=${end}`
-            );
-          }}
-          disabled={
-            !begin ||
-            !end ||
-            !isReservationLongEnough(
-              new Date(begin),
-              new Date(end),
-              reservationUnit.minReservationDuration
-            )
-          }
-        >
-          {t("reservationCalendar:makeReservation")}
-        </Button>
-      </div>
+      <Button
+        onClick={() => {
+          router.push(
+            `/reservation-unit/${reservationUnit.id}/reservation?begin=${begin}&end=${end}`
+          );
+        }}
+        disabled={
+          !begin ||
+          !end ||
+          !isReservationLongEnough(
+            new Date(begin),
+            new Date(end),
+            reservationUnit.minReservationDuration
+          )
+        }
+      >
+        {t("reservationCalendar:makeReservation")}
+      </Button>
       <div>
         <h3>{t("reservationCalendar:selectedTime")}:</h3>
         {begin && end ? (

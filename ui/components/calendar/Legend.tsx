@@ -14,12 +14,11 @@ type LegendItem = {
 
 const Wrapper = styled.div`
   display: flex;
-  justify-content: space-between;
-  max-width: 400px;
   margin-bottom: var(--spacing-l);
+  gap: var(--spacing-3-xl);
 
-  @media (min-width: ${breakpoint.m}) {
-    margin-left: var(--spacing-layout-xl);
+  @media (min-width: ${breakpoint.l}) {
+    justify-content: space-between;
   }
 `;
 
@@ -29,20 +28,22 @@ const LegendItem = styled.div<{ $color: string }>`
     display: block;
     background-color: ${({ $color }) => $color};
     border: 1px solid var(--color-black-40);
-    width: 24px;
-    height: 24px;
+    width: 34px;
+    height: 34px;
+    position: relative;
+    left: calc(50% - 18px);
   }
 
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  column-gap: var(--spacing-m);
-  gap: var(--spacing-s);
+  display: grid;
+  align-content: center;
+  column-gap: var(--spacing-xl);
+  gap: var(--spacing-3-xs);
 `;
 
 const LegendTitle = styled.div`
   display: block;
   white-space: nowrap;
+  font-size: var(--fontsize-body-s);
 `;
 
 const defaultItems: LegendItem[] = [

@@ -27,6 +27,10 @@ const AddressLine = styled.div`
 
 const Links = styled.div`
   margin-top: var(--spacing-m);
+
+  a {
+    color: var(--color-bus);
+  }
 `;
 
 const hslUrl = (locale: string, location: Location): string | null => {

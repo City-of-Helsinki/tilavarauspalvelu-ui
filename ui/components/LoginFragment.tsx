@@ -31,7 +31,7 @@ const Wrapper = styled.div`
     gap: var(--spacing-m);
 
     button {
-      width: 10em;
+      width: auto;
     }
   }
 `;
@@ -70,9 +70,9 @@ const LoginFragment = ({
             <Button
               iconLeft={<IconSignin />}
               onClick={() => setShouldLogin(true)}
-              aria-label={t("common:login")}
+              aria-label={t("common:loginAlt")}
             >
-              {t("common:login")}
+              {t("common:loginAlt")}
             </Button>
             {text}
           </Wrapper>

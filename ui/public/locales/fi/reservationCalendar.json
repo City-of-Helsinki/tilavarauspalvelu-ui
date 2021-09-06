@@ -4,7 +4,7 @@
   "legend": {
     "okLabel": "Voimassa oleva varaus",
     "cancelledLabel": "Peruttu varaus",
-    "free": "Vapaana",
+    "free": "Vapaa",
     "unavailable": "Ei varattavissa",
     "busy": "Varattu"
   },
