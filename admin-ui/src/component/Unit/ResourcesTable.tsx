@@ -104,7 +104,7 @@ const ResourcesTable = ({
                           await deleteResource(id);
                           onDelete(t("ResourceTable.remove.success"));
                         } catch (error) {
-                          onDataError(t("ResourceTable.remove.failed"));
+                          onDataError(t("ResourceTable.removeFailed"));
                         }
                       },
                     });

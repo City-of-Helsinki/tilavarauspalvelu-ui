@@ -774,11 +774,12 @@ const translations: ITranslations = {
     ],
     removeConfirmationAccept: ["Poista"],
     removeConfirmationCancel: ["Kumoa"],
+    removeFailed: ["Tilan poistaminen ei onnistunut."],
   },
   ResourceModal: {
     modalTitle: ["Luo uusi resurssi toimipisteelle"],
     info: [
-      "Voit luoda kerralla yhden toimipisteen resurssin. Niitä voivat olla esim. laitteet tar tarvikkeet.",
+      "Voit luoda kerralla yhden toimipisteen resurssin. Niitä voivat olla esim. laitteet tai tarvikkeet.",
     ],
     nameLabel: ["Resurssin nimi {{lang}}"],
     namePlaceholder: ["Kirjaa tarkenne  {{language}}"],
@@ -797,6 +798,7 @@ const translations: ITranslations = {
     ],
     removeConfirmationAccept: ["Poista"],
     removeConfirmationCancel: ["Kumoa"],
+    removeFailed: ["Resurssin poistaminen ei onnistunut."],
   },
 };
 

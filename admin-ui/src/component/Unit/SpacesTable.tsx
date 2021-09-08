@@ -152,11 +152,11 @@ const SpacesTable = ({
                               if (!d.errors) {
                                 onDelete();
                               } else {
-                                onDataError("remove.space.failed");
+                                onDataError("SpaceTable.removeFailed");
                               }
                             })
                             .catch(() => {
-                              onDataError("remove.space.failed");
+                              onDataError("SpaceTable.removeFailed");
                             });
                         },
                       });
