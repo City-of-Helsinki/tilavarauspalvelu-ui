@@ -193,25 +193,18 @@ const SpacesResources = (): JSX.Element | null => {
     );
   }
 
-  const saveSpaceSuccess = () =>
+  const onSave = (title?: string, text?: string) =>
     dispatch({
       type: "setNotification",
       notification: {
         type: "success",
-        title: "Unit.newSpacesCreatedTitle",
-        text: "Unit.newSpacesCreatedNotification",
+        title: title || t("Unit.spaceDeletedTitle"),
+        text: text || "Unit.spaceDeletedNotification",
       },
     });
 
-  const onSave = (text?: string) =>
-    dispatch({
-      type: "setNotification",
-      notification: {
-        type: "success",
-        title: text || t("Unit.spaceDeletedTitle"),
-        text: "Unit.spaceDeletedNotification",
-      },
-    });
+  const onSaveSpace = () =>
+    onSave("Unit.newSpacesCreatedTitle", "Unit.newSpacesCreatedNotification");
 
   const onDataError = (text: string) => {
     dispatch({
@@ -234,7 +227,7 @@ const SpacesResources = (): JSX.Element | null => {
         <NewSpaceModal
           unit={state.unit}
           closeModal={closeNewSpaceModal}
-          onSave={saveSpaceSuccess}
+          onSave={onSaveSpace}
           onDataError={onDataError}
         />
       </Modal>
@@ -247,7 +240,7 @@ const SpacesResources = (): JSX.Element | null => {
         <NewResourceModal
           unit={state.unit}
           closeModal={closeNewResourceModal}
-          onSave={saveSpaceSuccess}
+          onSave={onSave}
         />
       </Modal>
       <SubPageHead title={t("Unit.spacesAndResources")} unit={state.unit} />
@@ -291,7 +284,7 @@ const SpacesResources = (): JSX.Element | null => {
       <SpacesTable
         spaces={state.unit.spaces}
         unit={state.unit}
-        onSave={saveSpaceSuccess}
+        onSave={onSaveSpace}
         onDelete={onSave}
         onDataError={onDataError}
       />
