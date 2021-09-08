@@ -134,7 +134,7 @@ const Carousel = ({
       slidesToShow={slidesToShow}
       slidesToScroll={slidesToScroll}
       cellSpacing={cellSpacing}
-      $showCenterControls={children.length > slidesToShow}
+      $showCenterControls={children?.length > slidesToShow}
       {...rest}
     >
       {children}

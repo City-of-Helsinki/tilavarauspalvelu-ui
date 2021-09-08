@@ -84,14 +84,14 @@ const Images = ({ images }: Props): JSX.Element => {
   const [showModal, setShowModal] = useState(false);
   const [currentImage, setCurrentImage] = useState<Image>();
 
-  if (images.length === 0) {
+  if (images?.length === 0) {
     return <div />;
   }
 
   return (
     <>
       <StyledCarousel>
-        {images.map((image) => (
+        {images?.map((image) => (
           <CarouselImage
             key={image.smallUrl}
             alt={t("common:imgAltForSpace")}
@@ -118,7 +118,7 @@ const Images = ({ images }: Props): JSX.Element => {
             />
           ) : null}
           <ModalImages>
-            {images.map((image) => (
+            {images?.map((image) => (
               <StyledButton
                 key={image.smallUrl}
                 type="button"
