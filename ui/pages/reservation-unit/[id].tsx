@@ -59,6 +59,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   const RESERVATION_UNIT = gql`
     query SelectedReservationUnit($pk: Int) {
       reservationUnit: reservationUnitByPk(pk: $pk) {
+        nodeId: id
         id: pk
         name
         images {
@@ -137,9 +138,15 @@ export const getServerSideProps: GetServerSideProps = async ({
       });
 
       relatedReservationUnits =
-        relatedReservationUnitsData.relatedReservationUnits.edges
+        relatedReservationUnitsData?.relatedReservationUnits?.edges
           .map((n) => n.node)
           .filter((n: ReservationUnitType) => n.id !== data.reservationUnit.id);
+    }
+
+    if (!data.reservationUnit?.nodeId) {
+      return {
+        notFound: true,
+      };
     }
 
     return {
@@ -467,7 +474,7 @@ const ReservationUnit = ({
           <div />
           <Accordion heading={t("reservationUnit:termsOfUseSpaces")}>
             <Content>
-              {reservationUnit.spaces.map((space) => (
+              {reservationUnit.spaces?.map((space) => (
                 <React.Fragment key={space.id}>
                   {reservationUnit.spaces.length > 1 && <h3>{space.name}</h3>}
                   <p>

@@ -40,5 +40,6 @@
   "nextAvailableTime": "Seuraava vapaa aika",
   "nextAvailableSlot": "Seuraava vapaa tunti",
   "nextAvailableSlot_plural": "Seuraavat vapaat {{slot}}",
-  "showCalendar": "Näytä kalenteri"
+  "showCalendar": "Näytä kalenteri",
+  "eventDuration": "Vuoron kesto"
 }

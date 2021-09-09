@@ -125,7 +125,7 @@ const RelatedUnits = ({
       <Grid>
         {units.slice(0, 3).map((unit) => (
           <Unit key={unit.id}>
-            <Image src={getMainImage(unit)?.imageUrl} />
+            <Image src={getMainImage(unit)?.imageUrl} image-alt={unit.name} />
             <Content>
               <Link href={reservationUnitPath(unit.id)} passHref>
                 <Name>{localizedValue(unit.name, i18n.language)}</Name>

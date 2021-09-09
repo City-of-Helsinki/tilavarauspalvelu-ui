@@ -162,7 +162,11 @@ const Head = ({
                   (reservationUnit.minReservationDuration ||
                     reservationUnit.maxReservationDuration) && (
                     <StyledIconWithText
-                      icon={<IconClock />}
+                      icon={
+                        <IconClock
+                          aria-label={t("reservationCalendar:eventDuration")}
+                        />
+                      }
                       text={`Min ${minReservationDuration}
                       Max ${maxReservationDuration}
                     `}

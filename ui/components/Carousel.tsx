@@ -2,6 +2,7 @@ import React from "react";
 import NukaCarousel from "nuka-carousel";
 import { Button as HDSButton, IconAngleLeft, IconAngleRight } from "hds-react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import { breakpoint } from "../modules/style";
 
 type Props = {
@@ -98,6 +99,8 @@ const Carousel = ({
   wrapAround = true,
   ...rest
 }: Props): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <StyledCarousel
       renderCenterLeftControls={({ currentSlide, previousSlide }) => {
@@ -107,6 +110,7 @@ const Carousel = ({
             $disabled={isDisabled}
             type="button"
             onClick={previousSlide}
+            aria-label={t("common:prev")}
           >
             <IconAngleLeft />
           </VerticalButton>
@@ -124,6 +128,7 @@ const Carousel = ({
             $disabled={isDisabled}
             type="button"
             onClick={nextSlide}
+            aria-label={t("common:next")}
           >
             <IconAngleRight />
           </VerticalButton>
