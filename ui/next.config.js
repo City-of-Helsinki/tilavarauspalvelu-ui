@@ -17,5 +17,6 @@ module.exports = {
     oidcScope: process.env.OIDC_SCOPE,
     apiScope: process.env.TILAVARAUS_API_SCOPE,
     mapboxToken: process.env.MAPBOX_TOKEN,
+    mockRequests: process.env.MOCK_REQUESTS === "true",
   },
 };

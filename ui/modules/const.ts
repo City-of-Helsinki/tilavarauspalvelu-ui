@@ -90,6 +90,7 @@ export const {
   oidcScope,
   apiScope,
   mapboxToken,
+  mockRequests,
 } = publicRuntimeConfig;
 
 export const apiBaseUrl = isBrowser
