@@ -6,5 +6,5 @@
     "types": ["cypress", "cypress-axe"],
     "resolveJsonModule": true,
   },
-  "include": [".", "../mocks"]
+  "include": ["**/*.ts", "../mocks/*.ts"]
 }
