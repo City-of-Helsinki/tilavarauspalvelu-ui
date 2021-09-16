@@ -51,15 +51,6 @@ export const CenterSpinner = styled(LoadingSpinner)`
   margin: 0 auto var(--spacing-2-xl) auto;
 `;
 
-export const AbsoluteSpinner = styled(LoadingSpinner)`
-  && {
-    position: fixed;
-  }
-  top: 20vh;
-  left: 48vw;
-  z-index: 1000;
-`;
-
 export const CheckboxWrapper = styled.div`
   margin-top: 2.5em;
   margin-bottom: auto;

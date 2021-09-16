@@ -10,11 +10,11 @@ import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
 import { authEnabled, isBrowser, mockRequests } from "../modules/const";
 import LoggingIn from "../components/common/LoggingIn";
-import { AbsoluteSpinner } from "../components/common/common";
 import oidcConfiguration from "../modules/auth/configuration";
 import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
 import { TrackingWrapper } from "../modules/tracking";
+import { FullscreenSpinner } from "../components/common/FullscreenSpinner";
 
 if (mockRequests) {
   require("../mocks");
@@ -43,7 +43,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <TrackingWrapper>
       <AuthenticationProvider
-        authenticating={AbsoluteSpinner}
+        authenticating={FullscreenSpinner}
         notAuthenticated={SessionLost}
         sessionLostComponent={SessionLost}
         configuration={oidcConfiguration}
