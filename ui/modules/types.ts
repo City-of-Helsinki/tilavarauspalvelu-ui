@@ -96,6 +96,7 @@ export type ReservationUnit = {
   minReservationDuration: string;
   maxReservationDuration: string;
   nextAvailableSlot: string;
+  openingHours: OpeningHours;
 };
 
 export type Parameter = {
@@ -305,18 +306,41 @@ export type UserProfile = {
   email: string;
 };
 
+export type TimeSpan = {
+  startTime: string;
+  endTime: string;
+  weekdays: number[];
+  resourceState: string;
+  endTimeOnNextDay: boolean;
+  name: TranslationObject;
+  description: TranslationObject;
+};
+
 export type OpeningHourTime = {
   startTime: string;
   endTime: string;
   endTimeOnNextDay?: boolean;
 };
 
-export type OpeningHour = {
+export type OpeningTime = {
   date: string;
-  times: OpeningHourTime;
+  startTime: string;
+  endTime: string;
+  state: string;
+  period: number[] | null;
+};
+
+export type OpeningTimePeriod = {
+  periodId: number;
+  startDate: string;
+  endDate: string;
+  resourceState: string;
+  timeSpans: TimeSpan[];
+  name: TranslationObject;
+  description: TranslationObject;
 };
 
 export type OpeningHours = {
-  id: number;
-  openingHours: OpeningHour[];
+  openingTimes?: OpeningTime[];
+  openingTimePeriods?: OpeningTimePeriod[];
 };

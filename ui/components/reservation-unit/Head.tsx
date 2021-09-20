@@ -1,5 +1,6 @@
 import {
   Button,
+  IconCalendar,
   IconCalendarClock,
   IconCheck,
   IconClock,
@@ -9,6 +10,7 @@ import {
   Koros,
 } from "hds-react";
 import { parseISO } from "date-fns";
+import { isEqual, uniq, pick } from "lodash";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
@@ -22,10 +24,15 @@ import IconWithText from "../common/IconWithText";
 import Notification from "./Notification";
 import Images from "./Images";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
+import {
+  ActiveOpeningTime,
+  getDayOpeningTimes,
+} from "../../modules/openingHours";
 
 interface PropsType {
   reservationUnit: ReservationUnitType;
   reservationUnitList: ReturnType<typeof useReservationUnitList>;
+  activeOpeningTimes: ActiveOpeningTime[];
   viewType: "recurring" | "single";
   calendarRef: React.MutableRefObject<HTMLDivElement>;
 }
@@ -93,6 +100,7 @@ const StyledKoros = styled(Koros)`
 const Head = ({
   reservationUnit,
   reservationUnitList,
+  activeOpeningTimes,
   viewType,
   calendarRef,
 }: PropsType): JSX.Element => {
@@ -114,6 +122,10 @@ const Head = ({
     false
   );
 
+  const openingTimesTextArr = activeOpeningTimes.map((openingTime, index) =>
+    getDayOpeningTimes(openingTime, index)
+  );
+
   return (
     <TopContainer>
       <Notification applicationRound={null} />
@@ -132,6 +144,14 @@ const Head = ({
             </JustForMobile>
             <Props>
               <div>
+                <StyledIconWithText
+                  icon={
+                    <IconCalendar
+                      aria-label={t("reservationUnit:openingTimes")}
+                    />
+                  }
+                  texts={openingTimesTextArr}
+                />
                 {viewType === "single" &&
                   reservationUnit.nextAvailableSlot &&
                   reservationUnit.maxReservationDuration && (

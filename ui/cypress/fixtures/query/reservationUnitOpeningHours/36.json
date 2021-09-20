@@ -1,0 +1,192 @@
+{
+  "data": {
+    "reservationUnit": {
+      "openingHours": {
+        "openingTimes": [
+          {
+            "date": "2021-09-18",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-09-19",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-09-25",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-09-26",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-02",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-03",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-09",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-10",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-16",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-17",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-23",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-24",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-30",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-10-31",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-06",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-07",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-13",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-14",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-20",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-21",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-27",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-11-28",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-12-04",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-12-05",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-12-11",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": null
+          },
+          {
+            "date": "2021-12-12",
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "state": "open",
+            "periods": []
+          }
+        ]
+      }
+    }
+  }
+}

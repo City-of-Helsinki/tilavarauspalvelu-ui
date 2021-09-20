@@ -41,7 +41,7 @@
   },
   "minReservationDuration": "01:00:00",
   "maxReservationDuration": "01:30:00",
-  "nextAvailableSlot": null,
+  "nextAvailableSlot": "2021-11-13T12:00:00Z",
   "spaces": [
     {
       "id": 41,
@@ -50,6 +50,111 @@
     }
   ],
   "openingHours": {
-    "openingTimes": null
+    "openingTimePeriods": [
+      {
+        "periodId": 38600,
+        "startDate": "2020-10-12",
+        "endDate": "2021-10-11",
+        "resourceState": null,
+        "timeSpans": [
+          {
+            "startTime": "09:00:00",
+            "endTime": "12:00:00",
+            "weekdays": [6, 1, 7],
+            "resourceState": "open",
+            "endTimeOnNextDay": null,
+            "name": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            },
+            "description": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            }
+          },
+          {
+            "startTime": "12:00:00",
+            "endTime": "21:00:00",
+            "weekdays": [7, 2],
+            "resourceState": "open",
+            "endTimeOnNextDay": null,
+            "name": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            },
+            "description": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            }
+          }
+        ],
+        "name": {
+          "fi": "Vakiovuorot",
+          "en": "",
+          "sv": ""
+        },
+        "description": {
+          "fi": "",
+          "en": "",
+          "sv": ""
+        }
+      },
+      {
+        "periodId": 38601,
+        "startDate": "2021-10-12",
+        "endDate": "2021-10-30",
+        "resourceState": null,
+        "timeSpans": [
+          {
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "weekdays": [4, 5, 6],
+            "resourceState": "open",
+            "endTimeOnNextDay": null,
+            "name": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            },
+            "description": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            }
+          },
+          {
+            "startTime": "09:00:00",
+            "endTime": "21:00:00",
+            "weekdays": [7],
+            "resourceState": "open",
+            "endTimeOnNextDay": null,
+            "name": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            },
+            "description": {
+              "fi": null,
+              "en": null,
+              "sv": null
+            }
+          }
+        ],
+        "name": {
+          "fi": "Vakiovuorot",
+          "en": "",
+          "sv": ""
+        },
+        "description": {
+          "fi": "",
+          "en": "",
+          "sv": ""
+        }
+      }
+    ]
   }
 }

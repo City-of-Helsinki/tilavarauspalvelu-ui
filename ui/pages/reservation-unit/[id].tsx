@@ -8,7 +8,6 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { subMinutes } from "date-fns";
 import Container from "../../components/common/Container";
 import {
-  OpeningHour,
   PendingReservation,
   Reservation,
   ReservationUnit as ReservationUnitType,
@@ -28,7 +27,7 @@ import Calendar, { CalendarEvent } from "../../components/calendar/Calendar";
 import Legend from "../../components/calendar/Legend";
 import LoginFragment from "../../components/LoginFragment";
 import ReservationInfo from "../../components/calendar/ReservationInfo";
-import { parseDate } from "../../modules/util";
+import { parseDate, toApiDate } from "../../modules/util";
 import {
   areSlotsReservable,
   doReservationsCollide,
@@ -38,6 +37,7 @@ import {
   isSlotWithinTimeframe,
 } from "../../modules/calendar";
 import Toolbar, { ToolbarProps } from "../../components/calendar/Toolbar";
+import { getActiveOpeningTimes } from "../../modules/openingHours";
 
 type Props = {
   reservationUnit: ReservationUnitType | null;
@@ -46,6 +46,115 @@ type Props = {
 };
 
 type WeekOptions = "day" | "week" | "month";
+
+const RESERVATION_UNIT = gql`
+  query SelectedReservationUnit($pk: Int) {
+    reservationUnit: reservationUnitByPk(pk: $pk) {
+      nodeId: id
+      id: pk
+      name
+      images {
+        imageUrl
+        mediumUrl
+        smallUrl
+        imageType
+      }
+      description
+      termsOfUse
+      reservationUnitType {
+        name
+      }
+      maxPersons
+      building: unit {
+        id: pk
+        name
+      }
+      location {
+        latitude
+        longitude
+        addressStreet
+        addressZip
+        addressCity
+      }
+      minReservationDuration
+      maxReservationDuration
+      nextAvailableSlot
+      spaces {
+        id: pk
+        name
+        termsOfUse
+      }
+      openingHours(openingTimes: false, periods: true) {
+        openingTimePeriods {
+          periodId
+          startDate
+          endDate
+          resourceState
+          timeSpans {
+            startTime
+            endTime
+            resourceState
+            weekdays
+          }
+        }
+      }
+    }
+  }
+`;
+
+const OPENING_HOURS = gql`
+  query ReservationUnitOpeningHours(
+    $pk: Int
+    $openingHoursFrom: Date
+    $openingHoursTo: Date
+  ) {
+    reservationUnit: reservationUnitByPk(pk: $pk) {
+      openingHours(
+        openingTimes: true
+        periods: false
+        startDate: $openingHoursFrom
+        endDate: $openingHoursTo
+      ) {
+        openingTimes {
+          date
+          startTime
+          endTime
+          state
+          periods
+        }
+      }
+    }
+  }
+`;
+
+const RELATED_RESERVATION_UNITS = gql`
+  query RelatedReservationUnits($unit: ID) {
+    relatedReservationUnits: reservationUnits(unit: $unit) {
+      edges {
+        node {
+          id: pk
+          name
+          images {
+            imageUrl
+            smallUrl
+            imageType
+          }
+          building: unit {
+            id: pk
+            name
+          }
+          reservationUnitType {
+            name
+          }
+          maxPersons
+          location {
+            addressStreet
+          }
+        }
+      }
+    }
+  }
+`;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getServerSideProps: GetServerSideProps = async ({
@@ -56,94 +165,45 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   let relatedReservationUnits = [] as ReservationUnitType[];
 
-  const RESERVATION_UNIT = gql`
-    query SelectedReservationUnit($pk: Int) {
-      reservationUnit: reservationUnitByPk(pk: $pk) {
-        nodeId: id
-        id: pk
-        name
-        images {
-          imageUrl
-          mediumUrl
-          smallUrl
-          imageType
-        }
-        description
-        termsOfUse
-        reservationUnitType {
-          name
-        }
-        maxPersons
-        building: unit {
-          id: pk
-          name
-        }
-        location {
-          latitude
-          longitude
-          addressStreet
-          addressZip
-          addressCity
-        }
-        minReservationDuration
-        maxReservationDuration
-        nextAvailableSlot
-        spaces {
-          id: pk
-          name
-          termsOfUse
-        }
-      }
-    }
-  `;
-
   if (id) {
-    const { data } = await apolloClient.query({
+    const { data: reservationUnitData } = await apolloClient.query({
       query: RESERVATION_UNIT,
-      variables: { pk: id },
+      variables: {
+        pk: id,
+      },
     });
 
-    if (data.reservationUnit?.building?.id) {
-      const RELATED_RESERVATION_UNITS = gql`
-        query RelatedReservationUnits($unit: ID) {
-          relatedReservationUnits: reservationUnits(unit: $unit) {
-            edges {
-              node {
-                id: pk
-                name
-                images {
-                  imageUrl
-                  smallUrl
-                  imageType
-                }
-                building: unit {
-                  id: pk
-                  name
-                }
-                reservationUnitType {
-                  name
-                }
-                maxPersons
-                location {
-                  addressStreet
-                }
-              }
-            }
-          }
-        }
-      `;
+    const lastOpeningPeriodEndDate =
+      reservationUnitData.reservationUnit.openingHours.openingTimePeriods
+        .map((period) => period.endDate)
+        .sort()
+        .reverse()[0];
+
+    const { data: openingHours } = await apolloClient.query({
+      query: OPENING_HOURS,
+      variables: {
+        pk: id,
+        openingHoursFrom: toApiDate(new Date()),
+        openingHoursTo: lastOpeningPeriodEndDate,
+      },
+    });
+
+    if (reservationUnitData.reservationUnit?.building?.id) {
       const { data: relatedReservationUnitsData } = await apolloClient.query({
         query: RELATED_RESERVATION_UNITS,
-        variables: { unit: data.reservationUnit.building.id },
+        variables: { unit: reservationUnitData.reservationUnit.building.id },
       });
 
       relatedReservationUnits =
         relatedReservationUnitsData?.relatedReservationUnits?.edges
           .map((n) => n.node)
-          .filter((n: ReservationUnitType) => n.id !== data.reservationUnit.id);
+          .filter(
+            (n: ReservationUnitType) =>
+              n.id !== reservationUnitData.reservationUnit.id
+          );
     }
 
-    if (!data.reservationUnit?.nodeId) {
+    if (!reservationUnitData.reservationUnit?.nodeId) {
       return {
         notFound: true,
       };
@@ -152,7 +212,14 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         ...(await serverSideTranslations(locale)),
-        reservationUnit: data.reservationUnit,
+        reservationUnit: {
+          ...reservationUnitData.reservationUnit,
+          openingHours: {
+            ...reservationUnitData.reservationUnit.openingHours,
+            openingTimes:
+              openingHours.reservationUnit.openingHours.openingTimes,
+          },
+        },
         relatedReservationUnits,
       },
     };
@@ -289,32 +356,14 @@ const ReservationUnit = ({
       applicationEventId: null,
     },
   ]);
-  const [openingHours] = useState<OpeningHour[] | null>([
-    {
-      date: "2021-08-30",
-      times: { startTime: "09:00:00", endTime: "20:00:00" },
-    },
-    {
-      date: "2021-08-31",
-      times: { startTime: "07:00:00", endTime: "20:00:00" },
-    },
-    {
-      date: "2021-09-01",
-      times: { startTime: "07:00:00", endTime: "22:00:00" },
-    },
-    {
-      date: "2021-09-02",
-      times: { startTime: "07:00:00", endTime: "20:00:00" },
-    },
-    {
-      date: "2021-09-03",
-      times: { startTime: "10:00:00", endTime: "20:00:00" },
-    },
-  ]);
+
+  const activeOpeningTimes = getActiveOpeningTimes(
+    reservationUnit.openingHours.openingTimePeriods
+  );
 
   const slotPropGetter = useMemo(
-    () => getSlotPropGetter(openingHours),
-    [openingHours]
+    () => getSlotPropGetter(reservationUnit.openingHours.openingTimes),
+    [reservationUnit.openingHours.openingTimes]
   );
 
   const handleEventChange = (
@@ -324,7 +373,7 @@ const ReservationUnit = ({
     if (
       !areSlotsReservable(
         [new Date(start), subMinutes(new Date(end), 1)],
-        openingHours
+        reservationUnit.openingHours.openingTimes
       ) ||
       (!skipLengthCheck &&
         !isReservationLongEnough(
@@ -389,6 +438,7 @@ const ReservationUnit = ({
     <>
       <Head
         reservationUnit={reservationUnit}
+        activeOpeningTimes={activeOpeningTimes}
         reservationUnitList={reservationUnitList}
         viewType={viewType}
         calendarRef={calendarRef}

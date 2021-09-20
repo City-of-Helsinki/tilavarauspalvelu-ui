@@ -11,7 +11,7 @@ import { TFunction } from "next-i18next";
 import { SlotProps } from "../components/calendar/Calendar";
 import {
   ApplicationEvent,
-  OpeningHour,
+  OpeningTime,
   OptionType,
   Reservation,
 } from "./types";
@@ -20,6 +20,7 @@ import {
   endOfWeek,
   parseDate,
   startOfWeek,
+  toApiDate,
 } from "./util";
 
 export const longDate = (date: Date, t: TFunction): string =>
@@ -89,15 +90,16 @@ export const isReservationLongEnough = (
   return reservationDuration >= minMinutes;
 };
 
-const areOpeningHoursAvailable = (
-  openingHours: OpeningHour[],
+const areOpeningTimesAvailable = (
+  openingHours: OpeningTime[],
   slotDate: Date
 ) => {
-  return !!openingHours.some((oh) => {
+  return !!openingHours?.some((oh) => {
     const startDate = oh.date;
-    const startTime = new Date(`${startDate}T${oh.times.startTime}`);
-    const endTime = new Date(`${startDate}T${oh.times.endTime}`);
+    const startTime = new Date(`${startDate}T${oh.startTime}`);
+    const endTime = new Date(`${startDate}T${oh.endTime}`);
     return (
+      toApiDate(slotDate) === startDate.toString() &&
       startTime.getDay() === slotDate.getDay() &&
       startTime.getHours() <= slotDate.getHours() &&
       endTime.getHours() >= slotDate.getHours()
@@ -113,13 +115,13 @@ export const isSlotWithinTimeframe = (start: Date, bufferDays = 0): boolean => {
 
 export const areSlotsReservable = (
   slots: Date[],
-  openingHours: OpeningHour[],
+  openingHours: OpeningTime[],
   bufferDays?: number
 ): boolean => {
   return slots.every((slot) => {
     const slotDate = new Date(slot);
     return (
-      areOpeningHoursAvailable(openingHours, slotDate) &&
+      areOpeningTimesAvailable(openingHours, slotDate) &&
       isSlotWithinTimeframe(slotDate, bufferDays)
     );
   });
@@ -138,7 +140,7 @@ export const doReservationsCollide = (
 };
 
 export const getSlotPropGetter =
-  (openingHours: OpeningHour[], bufferDays?: number) =>
+  (openingHours: OpeningTime[], bufferDays?: number) =>
   (date: Date): SlotProps => {
     switch (areSlotsReservable([date], openingHours, bufferDays)) {
       case true:
