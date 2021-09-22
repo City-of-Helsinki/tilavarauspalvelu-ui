@@ -41,7 +41,7 @@
   },
   "minReservationDuration": "01:00:00",
   "maxReservationDuration": "01:30:00",
-  "nextAvailableSlot": "2021-11-13T12:00:00Z",
+  "nextAvailableSlot": "2021-09-21T09:30:00Z",
   "spaces": [
     {
       "id": 41,

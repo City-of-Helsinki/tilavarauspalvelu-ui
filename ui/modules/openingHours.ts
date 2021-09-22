@@ -17,6 +17,8 @@ export type OpeningHourRow = {
   index: number;
 };
 
+const reservableStates = ["open"];
+
 export const getActiveOpeningTimePeriod = (
   openingTimePeriods: OpeningTimePeriod[],
   date: string
@@ -35,7 +37,9 @@ export const getActiveOpeningTimes = (
     openingTimePeriods,
     toApiDate(new Date())
   );
-  const timeSpans = activeOpeningTimePeriod?.timeSpans;
+  const timeSpans = activeOpeningTimePeriod?.timeSpans?.filter((timeSpan) =>
+    reservableStates.includes(timeSpan.resourceState)
+  );
   const weekdays = uniq(
     timeSpans?.reduce((acc, timeSpan) => acc.concat(timeSpan.weekdays), [])
   ).sort();

@@ -120,7 +120,6 @@ const OPENING_HOURS = gql`
           startTime
           endTime
           state
-          periods
         }
       }
     }
