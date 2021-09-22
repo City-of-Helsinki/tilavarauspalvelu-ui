@@ -10,7 +10,6 @@ import {
   Koros,
 } from "hds-react";
 import { parseISO } from "date-fns";
-import { isEqual, uniq, pick } from "lodash";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
