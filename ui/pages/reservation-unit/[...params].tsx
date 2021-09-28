@@ -14,12 +14,13 @@ import {
   Checkbox,
   Button,
   IconArrowLeft,
+  IconCheckCircle,
 } from "hds-react";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { ReservationUnit, UserProfile } from "../../modules/types";
 import apolloClient from "../../modules/apolloClient";
-import { H1, H2 } from "../../modules/style/typography";
+import { H1, H2, Strong } from "../../modules/style/typography";
 import { breakpoint } from "../../modules/style";
 import { TwoColumnContainer } from "../../components/common/common";
 import { NarrowCenteredContainer } from "../../modules/style/layout";
@@ -45,6 +46,17 @@ type Inputs = {
   reservationDescription: string;
   spaceTerms: boolean;
   resourceTerms: boolean;
+};
+
+type Reservation = {
+  begin: string;
+  end: string;
+  user: string;
+  reservationUnit: number;
+  reserver: string;
+  phone: string;
+  reservationName: string;
+  reservationDescription: string;
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -137,6 +149,20 @@ const StyledNotification = styled(Notification).attrs({
   }
 `;
 
+const Heading = styled(H1)`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+
+  svg {
+    color: var(--color-tram);
+  }
+`;
+
+const Subheading = styled(H2)`
+  margin-top: var(--spacing-2-xs);
+`;
+
 const OneColumnContainer = styled(TwoColumnContainer)`
   grid-template-columns: 1fr;
   margin-bottom: var(--spacing-3-xl);
@@ -170,23 +196,14 @@ const ActionContainer = styled.div`
 
   button {
     margin-bottom: var(--spacing-m);
+    font-family: var(--font-medium);
+    font-weight: 500;
 
     @media (min-width: ${breakpoint.m}) {
       width: 18rem;
     }
   }
 `;
-
-const createReservation = ({ begin, end, profile, reservationUnit }) => {
-  const reservation = {
-    begin,
-    end,
-    user: profile.id,
-    reservationUnit: reservationUnit.id,
-  };
-
-  console.log(reservation); // eslint-disable-line no-console
-};
 
 const ReservationUnitReservation = ({
   reservationUnit,
@@ -197,6 +214,8 @@ const ReservationUnitReservation = ({
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
     "pending"
   );
+  const [reservation, setReservation] = useState<Reservation | null>(null);
+
   const searchParams = isBrowser ? window.location.search : "";
   const { begin, end }: QueryParams = queryString.parse(
     searchParams
@@ -209,16 +228,29 @@ const ReservationUnitReservation = ({
   const beginTime = t("common:timeWithPrefix", {
     date: begin && parseISO(begin),
   });
+
   const endDate = t("common:dateWithWeekday", {
     date: end && parseISO(end),
   });
+
   const endTime = t("common:time", {
     date: end && parseISO(end),
   });
 
   const { register, handleSubmit, errors } = useForm<Inputs>();
   const onSubmit = (data) => {
-    createReservation({ ...data, begin, end, profile, reservationUnit });
+    // createReservation({ ...data, begin, end, profile, reservationUnit });
+    setReservation({
+      begin,
+      end,
+      user: profile.email,
+      reservationUnit: reservationUnit.id,
+      reserver: data.reserver,
+      phone: data.phone,
+      reservationName: data.reservationName,
+      reservationDescription: data.reservationDescription,
+    });
+    console.log(reservation); // eslint-disable-line no-console
     setFormStatus("sent");
   };
 
@@ -377,54 +409,99 @@ const ReservationUnitReservation = ({
       )}
       {formStatus === "sent" && (
         <BodyContainer>
-          <H1>{t("reservationUnit:reservationSuccessful")}</H1>
-          <p>
-            <Trans
-              i18nKey="reservationUnit:reservationReminderText"
-              t={t}
-              values={{ profile }}
-              components={{
-                emailLink: (
-                  <a href={`mailto:${profile.email}`}>{profile.email}</a>
-                ),
-              }}
-            />
-          </p>
-          <p>
-            <Trans
-              i18nKey="reservationUnit:loadReservationCalendar"
-              t={t}
-              components={{
-                calendarLink: <a href="foobariavaan"> </a>, // TODO change
-              }}
-            />
-          </p>
-          <p>
-            {t("common:thanksForUsingVaraamo")}
-            <br />
-            <a
-              href={t(`footer:Navigation.feedback.href`)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t("common:sendFeedback")}
-            </a>
-          </p>
-          <ActionContainer style={{ marginTop: "var(--spacing-3-xl)" }}>
-            <Button
-              variant="primary"
-              onClick={() => router.push("/applications")}
-            >
-              {t("reservationUnit:gotoApplications")}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => router.push("/")}
-              iconLeft={<IconArrowLeft />}
-            >
-              {t("common:gotoFrontpage")}
-            </Button>
-          </ActionContainer>
+          <TwoColumnContainer style={{ alignItems: "flex-start" }}>
+            <div>
+              <Heading>
+                <IconCheckCircle size="m" />
+                {t("reservationUnit:reservationSuccessful")}
+              </Heading>
+              <p>
+                <Trans
+                  i18nKey="reservationUnit:reservationReminderText"
+                  t={t}
+                  values={{ profile }}
+                  components={{
+                    emailLink: (
+                      <a href={`mailto:${profile.email}`}>{profile.email}</a>
+                    ),
+                  }}
+                />
+              </p>
+              <p>
+                <Trans
+                  i18nKey="reservationUnit:loadReservationCalendar"
+                  t={t}
+                  components={{
+                    calendarLink: <a href="foobariavaan"> </a>, // TODO change
+                  }}
+                />
+              </p>
+              <p>
+                {t("common:thanksForUsingVaraamo")}
+                <br />
+                <a
+                  href={t(`footer:Navigation.feedback.href`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("common:sendFeedback")}
+                </a>
+              </p>
+              <ActionContainer style={{ marginTop: "var(--spacing-3-xl)" }}>
+                <Button
+                  variant="primary"
+                  onClick={() => router.push("/applications")}
+                >
+                  {t("reservationUnit:gotoApplications")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => router.push("/")}
+                  iconLeft={<IconArrowLeft />}
+                >
+                  {t("common:gotoFrontpage")}
+                </Button>
+              </ActionContainer>
+            </div>
+            <div>
+              <Subheading>{t("reservationUnit:additionalInfo")}</Subheading>
+              <p>
+                <Strong>
+                  {t("reservationCalendar:label.reservationName")}
+                </Strong>
+                <div>{reservation.reservationName}</div>
+              </p>
+              <p>
+                <Strong>{t("reservationCalendar:label.reserver")}</Strong>
+                <div>{reservation.reserver}</div>
+              </p>
+              <p>
+                <Strong>
+                  {t("reservationCalendar:label.reservationDescription")}
+                </Strong>
+                <div>{reservation.reservationDescription}</div>
+              </p>
+              <p>
+                <Strong>
+                  {t("reservationCalendar:label.reservationDate")}
+                </Strong>
+                <div style={{ textTransform: "capitalize" }}>
+                  {beginDate} {beginTime} - {endDate !== beginDate && endDate}{" "}
+                  {endTime}
+                </div>
+              </p>
+              <p>
+                <Strong>
+                  {t("reservationCalendar:label.reservationSpace")}
+                </Strong>
+                <div>{reservationUnit.name}</div>
+              </p>
+              <p>
+                <Strong>{t("common:phone")}</Strong>
+                <div>{reservation.phone}</div>
+              </p>
+            </div>
+          </TwoColumnContainer>
         </BodyContainer>
       )}
     </>

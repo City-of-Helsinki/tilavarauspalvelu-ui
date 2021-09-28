@@ -17,5 +17,6 @@
   "reservationReminderText": "Saat sähköpostiisi (<emailLink>{{profile.email}}</emailLink>) muistutuksen varauksesta.",
   "loadReservationCalendar": "<calendarLink>Lataa tästä</calendarLink> kalenteriisi muistutus.",
   "gotoApplications": "Siirry omiin varauksiin",
-  "openingTimes": "Aukioloajat"
+  "openingTimes": "Aukioloajat",
+  "additionalInfo": "Varauksen lisätiedot"
 }

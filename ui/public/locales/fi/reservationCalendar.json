@@ -27,7 +27,9 @@
     "reservationName": "Varauksen nimi (julkinen)",
     "reservationDescription": "Varauksen kuvaus",
     "termsSpace": "Olen lukenut ja hyväksynyt käyttösäännöt",
-    "termsResource": "Olen lukenut ja hyväksynyt tilan resurssikohtaiset ehdot"
+    "termsResource": "Olen lukenut ja hyväksynyt tilan resurssikohtaiset ehdot",
+    "reservationDate": "Varauksen ajankohta",
+    "reservationSpace": "Tila"
   },
   "heading": {
     "termsOfUse": "Käyttö- ja varausehdot",
