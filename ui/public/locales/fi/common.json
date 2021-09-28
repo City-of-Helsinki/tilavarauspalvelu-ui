@@ -83,5 +83,8 @@
   "thanksForUsingVaraamo": "Kiitos Varaamon käytöstä!",
   "sendFeedback": "Lähetä palvelusta palautetta.",
   "gotoFrontpage": "Palaa etusivulle",
-  "seeDetails": "Katso tiedot"
+  "seeDetails": "Katso tiedot",
+  "beginningWith": "Alkaen",
+  "endingWith": "Päättyen",
+  "showMore": "Näytä enemmän"
 }

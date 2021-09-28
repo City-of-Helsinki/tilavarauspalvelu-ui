@@ -343,3 +343,8 @@ export type OpeningHours = {
   openingTimes?: OpeningTime[];
   openingTimePeriods?: OpeningTimePeriod[];
 };
+
+export type PageInfo = {
+  endCursor: string;
+  hasNextPage: boolean;
+};

@@ -12,7 +12,12 @@ import { TFunction } from "i18next";
 import { stringify } from "query-string";
 import { isNumber, trim } from "lodash";
 import { ReservationUnitsParameters } from "./api";
-import { searchPrefix, emptyOption, applicationsPrefix } from "./const";
+import {
+  searchPrefix,
+  emptyOption,
+  applicationsPrefix,
+  singleSearchPrefix,
+} from "./const";
 import {
   ApplicationEventSchedule,
   Cell,
@@ -178,8 +183,21 @@ export const getSelectedOption = (
   return option;
 };
 
+export const getComboboxValues = (
+  value: string,
+  options: OptionType[]
+): OptionType[] => {
+  if (!value || options.length < 1) return undefined;
+  return value.includes(",")
+    ? value.split(",").map((unit) => getSelectedOption(unit, options))
+    : [getSelectedOption(value, options)];
+};
+
 export const searchUrl = (params: ReservationUnitsParameters): string =>
   `${searchPrefix}/?${stringify(params)}`;
+
+export const singleSearchUrl = (params: ReservationUnitsParameters): string =>
+  `${singleSearchPrefix}/?${stringify(params)}`;
 
 export const applicationsUrl = `${applicationsPrefix}/`;
 

@@ -21,9 +21,7 @@ import {
 describe("application", () => {
   beforeEach(() => {
     cy.fixture("v1/application_round").then((json) => {
-      cy.intercept("GET", "/v1/application_round/*", json).as(
-        "applicationRound"
-      );
+      cy.intercept("GET", "/v1/application_round/*", json);
     });
 
     cy.fixture("v1/application_round_1").then((json) => {
@@ -79,7 +77,6 @@ describe("application", () => {
   });
 
   it("can be submitted and is accessible", () => {
-    searchButton().click();
     cy.wait("@reservationUnit");
     addReservationUnitButton("Studiokompleksi").click();
     startApplicationButton().click();
