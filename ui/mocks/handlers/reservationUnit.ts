@@ -33,7 +33,7 @@ export const reservationUnitHandlers = [
         contactInformation: null,
         unitId: 7,
         id: 36,
-        name: "Pukinmäen nuorisotalon keittiö",
+        name: { fi: "Pukinmäen nuorisotalon keittiö" },
         images: [
           {
             imageUrl:

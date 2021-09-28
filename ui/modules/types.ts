@@ -79,7 +79,7 @@ export type Building = {
 
 export type ReservationUnit = {
   id: number;
-  name: TranslationObject | string;
+  name: TranslationObject;
   description: string;
   maxPersons: number;
   requireIntroduction: boolean;
