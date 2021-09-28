@@ -73,12 +73,13 @@ export type Image = {
 };
 
 export type Building = {
+  id: number;
   name: string;
 };
 
 export type ReservationUnit = {
   id: number;
-  name: TranslationObject;
+  name: TranslationObject | string;
   description: string;
   maxPersons: number;
   requireIntroduction: boolean;
@@ -326,7 +327,7 @@ export type OpeningTime = {
   startTime: string;
   endTime: string;
   state: string;
-  period: number[] | null;
+  periods: number[] | null;
 };
 
 export type OpeningTimePeriod = {

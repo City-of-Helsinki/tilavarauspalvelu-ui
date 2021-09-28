@@ -50,7 +50,6 @@ type WeekOptions = "day" | "week" | "month";
 const RESERVATION_UNIT = gql`
   query SelectedReservationUnit($pk: Int) {
     reservationUnit: reservationUnitByPk(pk: $pk) {
-      nodeId: id
       id: pk
       name
       images {
@@ -202,7 +201,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           );
     }
 
-    if (!reservationUnitData.reservationUnit?.nodeId) {
+    if (!reservationUnitData.reservationUnit?.id) {
       return {
         notFound: true,
       };
