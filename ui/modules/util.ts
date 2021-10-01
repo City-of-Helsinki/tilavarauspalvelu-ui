@@ -68,6 +68,7 @@ const fromAPIDate = (date: string): Date => {
   const d = parse(date, "yyyy-MM-dd", new Date());
   return d;
 };
+
 export const formatDate = (date: string, formatStr?: string): string => {
   if (!date) {
     return "-";
@@ -206,7 +207,7 @@ export function deepCopy<T>(src: T): T {
 }
 
 export const apiDurationToMinutes = (duration: string): number => {
-  if (!duration || isNumber(duration) || !duration?.includes(":")) {
+  if (!duration) {
     return 0;
   }
   const parts = duration.split(":");

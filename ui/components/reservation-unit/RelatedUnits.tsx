@@ -1,5 +1,4 @@
 import {
-  Button,
   IconCheck,
   IconGroup,
   IconInfoCircle,
@@ -17,6 +16,7 @@ import { breakpoint } from "../../modules/style";
 import { ReservationUnit } from "../../modules/types";
 import { getAddress, getMainImage, localizedValue } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
+import { MediumButton } from "../../styles/util";
 
 type PropsType = {
   units: ReservationUnit[];
@@ -74,6 +74,8 @@ const Grid = styled.div`
 `;
 
 const Props = styled.div`
+  font-family: var(--font-medium);
+  font-weight: 500;
   font-size: var(--fontsize-body-m);
   display: grid;
   grid-template-columns: 3fr 1fr;
@@ -175,35 +177,35 @@ const RelatedUnits = ({
               {viewType === "recurring" && (
                 <Buttons>
                   {containsReservationUnit(unit) ? (
-                    <Button
+                    <MediumButton
                       onClick={() => removeReservationUnit(unit)}
                       iconLeft={<IconCheck />}
                       className="margin-left-xs margin-top-s"
                     >
                       {t("common:reservationUnitSelected")}
-                    </Button>
+                    </MediumButton>
                   ) : (
-                    <Button
+                    <MediumButton
                       onClick={() => selectReservationUnit(unit)}
                       iconLeft={<IconPlus />}
                       className="margin-left-s margin-top-s"
                       variant="secondary"
                     >
                       {t("common:selectReservationUnit")}
-                    </Button>
+                    </MediumButton>
                   )}
                 </Buttons>
               )}
               {viewType === "single" && (
                 <Buttons>
-                  <Button
+                  <MediumButton
                     style={{ width: "100%" }}
                     onClick={() => router.push(reservationUnitPath(unit.id))}
                     className="margin-left-xs margin-top-s"
                     variant="secondary"
                   >
                     {t("common:seeDetails")}
-                  </Button>
+                  </MediumButton>
                 </Buttons>
               )}
             </Content>

@@ -1,5 +1,4 @@
 import {
-  Button,
   IconCalendar,
   IconDownload,
   IconMenuHamburger,
@@ -28,6 +27,7 @@ import Loader from "../../components/common/Loader";
 import { TwoColumnContainer } from "../../components/common/common";
 import ReservationsView from "../../components/applications/ReservationsView";
 import { isBrowser } from "../../modules/const";
+import { MediumButton } from "../../styles/util";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
@@ -82,7 +82,7 @@ const Buttons = styled.div`
     width: 100%;
   }
 `;
-const ToggleButton = styled(Button)`
+const ToggleButton = styled(MediumButton)`
   margin-top: var(--spacing-m);
 
   @media (max-width: ${breakpoint.s}) {

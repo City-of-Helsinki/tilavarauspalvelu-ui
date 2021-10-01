@@ -1,11 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import {
-  Button as HDSButton,
-  Checkbox,
-  DateInput,
-  Notification,
-  TextInput,
-} from "hds-react";
+import { Checkbox, DateInput, Notification, TextInput } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import styled from "styled-components";
@@ -37,6 +31,7 @@ import Accordion from "../common/Accordion";
 import { defaultDuration, durationOptions } from "../../modules/const";
 import { after, before } from "../../modules/validation";
 import ConfirmationModal, { ModalRef } from "../common/ConfirmationModal";
+import { MediumButton } from "../../styles/util";
 
 type OptionTypes = {
   ageGroupOptions: OptionType[];
@@ -101,7 +96,7 @@ const SpanTwoColumns = styled.span`
   }
 `;
 
-const Button = styled(HDSButton)`
+const Button = styled(MediumButton)`
   margin-top: var(--spacing-layout-l);
 
   @media (max-width: ${breakpoint.s}) {

@@ -21,12 +21,16 @@ const Name = styled.div`
 `;
 
 const AddressLine = styled.div`
+  font-family: var(--font-medium);
+  font-weight: 500;
   font-size: var(--fontsize-body-m);
   margin-top: var(--spacing-2-xs);
 `;
 
 const Links = styled.div`
   margin-top: var(--spacing-m);
+  font-family: var(--font-medium);
+  font-weight: 500;
 
   a {
     color: var(--color-bus);

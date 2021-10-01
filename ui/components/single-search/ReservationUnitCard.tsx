@@ -1,4 +1,4 @@
-import { Button, IconGroup, IconLocation, IconHome } from "hds-react";
+import { IconGroup, IconLocation, IconHome } from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import router from "next/router";
@@ -8,6 +8,7 @@ import { breakpoint } from "../../modules/style";
 import { ReservationUnit } from "../../modules/types";
 import { getAddress, getMainImage, localizedValue } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
+import { MediumButton } from "../../styles/util";
 
 interface Props {
   reservationUnit: ReservationUnit;
@@ -121,6 +122,8 @@ const Image = styled.img`
 const ReservationUnitCard = ({ reservationUnit }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
+  const link = `/reservation-unit/single/${reservationUnit.id}`;
+
   return (
     <Container>
       <Image
@@ -134,7 +137,7 @@ const ReservationUnitCard = ({ reservationUnit }: Props): JSX.Element => {
       />
       <MainContent>
         <Name>
-          <Link href={`../reservation-unit/${reservationUnit.id}`}>
+          <Link href={link}>
             {localizedValue(reservationUnit.name, i18n.language)}
           </Link>
         </Name>
@@ -176,14 +179,9 @@ const ReservationUnitCard = ({ reservationUnit }: Props): JSX.Element => {
       </MainContent>
       <Actions>
         <div style={{ flexGrow: 1 }} />
-        <Button
-          variant="secondary"
-          onClick={() =>
-            router.push(`/single/reservation-unit/${reservationUnit.id}`)
-          }
-        >
+        <MediumButton variant="secondary" onClick={() => router.push(link)}>
           {t("reservationUnitCard:seeMore")}
-        </Button>
+        </MediumButton>
       </Actions>
     </Container>
   );

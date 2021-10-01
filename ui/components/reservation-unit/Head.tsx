@@ -1,5 +1,4 @@
 import {
-  Button,
   IconCalendar,
   IconCalendarClock,
   IconCheck,
@@ -27,13 +26,14 @@ import {
   ActiveOpeningTime,
   getDayOpeningTimes,
 } from "../../modules/openingHours";
+import { MediumButton } from "../../styles/util";
 
 interface PropsType {
   reservationUnit: ReservationUnitType;
   reservationUnitList: ReturnType<typeof useReservationUnitList>;
   activeOpeningTimes: ActiveOpeningTime[];
   viewType: "recurring" | "single";
-  calendarRef: React.MutableRefObject<HTMLDivElement>;
+  calendarRef?: React.MutableRefObject<HTMLDivElement>;
 }
 
 const TopContainer = styled.div`
@@ -64,6 +64,8 @@ const Props = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-s);
+  font-family: var(--font-medium);
+  font-weight: 500;
 `;
 
 const ReservationUnitName = styled.h1`
@@ -84,7 +86,7 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const ThinButton = styled(Button).attrs({
+const ThinButton = styled(MediumButton).attrs({
   variant: "secondary",
   style: { "--min-size": "35px" },
 })`
@@ -121,7 +123,7 @@ const Head = ({
     false
   );
 
-  const openingTimesTextArr = activeOpeningTimes.map((openingTime, index) =>
+  const openingTimesTextArr = activeOpeningTimes?.map((openingTime, index) =>
     getDayOpeningTimes(openingTime, index)
   );
 
@@ -129,7 +131,12 @@ const Head = ({
     <TopContainer>
       <Notification applicationRound={null} />
       <Container>
-        <Back link="/search?restore" label="reservationUnit:backToSearch" />
+        <Back
+          link={`/${
+            viewType === "single" ? "search/single" : "search"
+          }?restore`}
+          label="reservationUnit:backToSearch"
+        />
         <RightContainer>
           <div>
             <ReservationUnitName>
@@ -215,22 +222,22 @@ const Head = ({
             <ButtonContainer>
               {viewType === "recurring" &&
                 (containsReservationUnit(reservationUnit) ? (
-                  <Button
+                  <MediumButton
                     onClick={() => removeReservationUnit(reservationUnit)}
                     iconLeft={<IconCheck />}
                     className="margin-left-s margin-top-s"
                   >
                     {t("common:reservationUnitSelected")}
-                  </Button>
+                  </MediumButton>
                 ) : (
-                  <Button
+                  <MediumButton
                     onClick={() => selectReservationUnit(reservationUnit)}
                     iconLeft={<IconPlus />}
                     className="margin-left-s margin-top-s"
                     variant="secondary"
                   >
                     {t("common:selectReservationUnit")}
-                  </Button>
+                  </MediumButton>
                 ))}
               {viewType === "single" && (
                 <ThinButton

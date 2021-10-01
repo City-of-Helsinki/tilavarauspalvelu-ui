@@ -1,4 +1,3 @@
-import { Button } from "hds-react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "next-i18next";
@@ -8,6 +7,7 @@ import { breakpoint } from "../../modules/style";
 import { ReservationUnit } from "../../modules/types";
 import { isReservationLongEnough } from "../../modules/calendar";
 import { formatDurationMinutes } from "../../modules/util";
+import { MediumButton } from "../../styles/util";
 
 type Props = {
   reservationUnit: ReservationUnit;
@@ -79,7 +79,7 @@ const ReservationInfo = ({
 
   return (
     <Wrapper>
-      <Button
+      <MediumButton
         onClick={() => {
           router.push(
             `/reservation-unit/${reservationUnit.id}/reservation?begin=${begin}&end=${end}`
@@ -96,7 +96,7 @@ const ReservationInfo = ({
         }
       >
         {t("reservationCalendar:makeReservation")}
-      </Button>
+      </MediumButton>
       <div>
         <h3>{t("reservationCalendar:selectedTime")}:</h3>
         {begin && end ? (

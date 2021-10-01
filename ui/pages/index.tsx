@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
-import { Button, IconSearch, ImageWithCard } from "hds-react";
+import { IconSearch, ImageWithCard } from "hds-react";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { parseISO } from "date-fns";
@@ -13,6 +13,7 @@ import { ApplicationRound } from "../modules/types";
 import { getApplicationRounds } from "../modules/api";
 import { useApiData } from "../hooks/useApiData";
 import Loader from "../components/common/Loader";
+import { MediumButton } from "../styles/util";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getServerSideProps = async ({ locale }) => {
@@ -129,7 +130,7 @@ const Home = (): JSX.Element => {
             <Heading>{t("info.heading")}</Heading>
             <p>{t("info.text")}</p>
             <ButtonContainer>
-              <Button
+              <MediumButton
                 id="browseAllButton"
                 variant="secondary"
                 theme="black"
@@ -137,7 +138,7 @@ const Home = (): JSX.Element => {
                 iconLeft={<IconSearch />}
               >
                 {t("browseAllButton")}
-              </Button>
+              </MediumButton>
             </ButtonContainer>
           </InfoContainer>
         </StyledImageWithCard>

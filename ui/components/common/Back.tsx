@@ -10,8 +10,6 @@ const Button = styled(HDSButton).attrs({
   } as React.CSSProperties,
 })`
   font-size: var(--fontsize-body-l);
-  font-family: var(--font-regular);
-  font-weight: 300;
   margin-left: 0;
   padding-left: 0;
   color: black;

@@ -25,6 +25,7 @@ const HeadingButton = styled(Button).attrs({
       color: var(--color-black-90);
       font-size: var(--fontsize-heading-m);
       font-family: var(--font-bold);
+      font-weight: 700;
       padding: 0;
       margin: 0;
       margin-right: auto;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
-import { Select, TextInput, Button as HDSButton, IconSearch } from "hds-react";
+import { Select, TextInput, IconSearch } from "hds-react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useUpdate } from "react-use";
@@ -9,13 +9,14 @@ import { getApplicationRounds, getParameters } from "../../modules/api";
 import { mapOptions, getSelectedOption } from "../../modules/util";
 import { emptyOption, participantCountOptions } from "../../modules/const";
 import { OptionType } from "../../modules/types";
+import { MediumButton } from "../../styles/util";
 
 type Props = {
   onSearch: (search: Record<string, string>) => void;
   formValues: { [key: string]: string };
 };
 
-const Button = styled(HDSButton)`
+const Button = styled(MediumButton)`
   margin-left: var(--spacing-m);
 `;
 

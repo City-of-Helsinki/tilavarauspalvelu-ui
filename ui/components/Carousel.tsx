@@ -1,9 +1,10 @@
 import React from "react";
 import NukaCarousel from "nuka-carousel";
-import { Button as HDSButton, IconAngleLeft, IconAngleRight } from "hds-react";
+import { IconAngleLeft, IconAngleRight } from "hds-react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { breakpoint } from "../modules/style";
+import { MediumButton } from "../styles/util";
 
 type Props = {
   children: React.ReactNode[];
@@ -13,7 +14,7 @@ type Props = {
   wrapAround?: boolean;
 };
 
-const Button = styled(HDSButton).attrs({
+const Button = styled(MediumButton).attrs({
   style: {
     "--color-bus": "rgba(0,0,0,0.4)",
     "--color-bus-dark": "rgba(0,0,0,0.4)",

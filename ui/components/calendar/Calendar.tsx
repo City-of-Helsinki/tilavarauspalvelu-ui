@@ -78,6 +78,50 @@ export const eventStyleGetter = ({
 };
 
 const StyledCalendar = styled(BigCalendar)`
+  .rbc-timeslot-group {
+    border-bottom: 0;
+
+    .rbc-time-slot {
+      &:first-of-type {
+        border-color: var(--color-black-20);
+      }
+
+      border-top-color: var(--color-black-10);
+    }
+  }
+
+  .rbc-time-gutter {
+    z-index: 4;
+    position: sticky;
+    left: 0;
+
+    /* stylelint-disable */
+    .rbc-timeslot-group,
+    .rbc-time-slot {
+      background-color: var(--color-white) !important;
+      padding-bottom: 1px;
+    }
+    /* stylelint-enable */
+
+    .rbc-timeslot-group {
+      .rbc-time-slot {
+        &:first-of-type {
+          border-color: var(--color-black-20);
+        }
+
+        border-top: 1px solid var(--color-black-10);
+        flex: none;
+      }
+    }
+
+    .rbc-label {
+      padding: 0 var(--spacing-s) 0 var(--spacing-s);
+      font-family: var(--font-regular);
+      font-weight: 400;
+      font-size: var(--fontsize-body-s);
+    }
+  }
+
   .rbc-time-header {
     .rbc-time-header-gutter {
       z-index: 5;
@@ -103,6 +147,14 @@ const StyledCalendar = styled(BigCalendar)`
     .rbc-allday-cell {
       display: none;
     }
+  }
+
+  .rbc-time-content {
+    & > * + * > * {
+      border-left-color: var(--color-black-40);
+    }
+
+    border-top: 1px solid var(--color-black-40);
   }
 
   &.view-week,
@@ -164,56 +216,6 @@ const StyledCalendar = styled(BigCalendar)`
 
     .rbc-month-row {
       flex-basis: 100px;
-    }
-  }
-
-  .rbc-timeslot-group {
-    border-bottom: 0;
-
-    .rbc-time-slot {
-      &:first-of-type {
-        border-color: var(--color-black-20);
-      }
-
-      border-top-color: var(--color-black-10);
-    }
-  }
-
-  .rbc-time-content {
-    & > * + * > * {
-      border-left-color: var(--color-black-40);
-    }
-
-    border-top: 1px solid var(--color-black-40);
-  }
-
-  .rbc-time-gutter {
-    z-index: 4;
-    position: sticky;
-    left: 0;
-
-    .rbc-timeslot-group {
-      .rbc-time-slot {
-        &:first-of-type {
-          border-color: var(--color-black-20);
-        }
-
-        border-top: 1px solid var(--color-black-10);
-        flex: none;
-      }
-    }
-
-    .rbc-timeslot-group,
-    .rbc-time-slot {
-      background-color: var(--color-white) !important;
-      padding-bottom: 1px;
-    }
-
-    .rbc-label {
-      padding: 0 var(--spacing-s) 0 var(--spacing-s);
-      font-family: var(--font-regular);
-      font-weight: 400;
-      font-size: var(--fontsize-body-s);
     }
   }
 

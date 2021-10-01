@@ -1,5 +1,4 @@
 import {
-  Button,
   Card as HDSCard,
   IconCalendar,
   IconHome,
@@ -25,6 +24,7 @@ import {
   ReservationUnit,
 } from "../../modules/types";
 import { endOfWeek, getAddress, parseDate } from "../../modules/util";
+import { MediumButton } from "../../styles/util";
 import { HorisontalRule } from "../common/common";
 import ReservationCalendar from "./ReservationCalendar";
 
@@ -155,7 +155,7 @@ const ReservationUnitEventsSummaryForCalendar = ({
                   setWeek(w);
                 }}
               />
-              <Button
+              <MediumButton
                 id="setCurrentWeek"
                 variant="secondary"
                 onClick={() => {
@@ -163,7 +163,7 @@ const ReservationUnitEventsSummaryForCalendar = ({
                 }}
               >
                 {t("common:today")}
-              </Button>
+              </MediumButton>
             </Actions>
 
             <TwoColLayout>

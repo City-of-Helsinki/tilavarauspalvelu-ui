@@ -18,7 +18,7 @@ describe("Tilavaraus ui search page", () => {
       cy.intercept("GET", "/v1/parameters/reservation_unit_type/*", json);
     });
 
-    cy.visit("/single/search");
+    cy.visit("/search/single");
   });
 
   const searchTerm = "tila";

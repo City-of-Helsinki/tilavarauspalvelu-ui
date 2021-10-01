@@ -97,6 +97,7 @@ export type ReservationUnit = {
   maxReservationDuration: string;
   nextAvailableSlot: string;
   openingHours: OpeningHours;
+  reservations?: Reservation[];
 };
 
 export type Parameter = {
@@ -227,13 +228,15 @@ export type ReservationState =
 
 export type Reservation = {
   id: number;
-  applicationId: number | null;
-  applicationEventId: number | null;
+  applicationId?: number | null;
+  applicationEventId?: number | null;
   state: ReservationState;
-  priority: number;
+  priority: string;
   begin: string;
   end: string;
-  reservationUnit: ReservationUnit[];
+  reservationUnit?: ReservationUnit[];
+  numPersons?: number;
+  calendarUrl?: string;
 };
 
 export type PendingReservation = {

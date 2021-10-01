@@ -3,7 +3,10 @@ import {
   OpeningHours,
   OpeningTime,
   ReservationUnit,
+  Reservation,
+  ReservationState,
 } from "../../modules/types";
+import { toApiDate } from "../../modules/util";
 
 type Variables = {
   pk: number;
@@ -17,6 +20,9 @@ type OpeningHoursReturnVariables = {
   pk: number;
   openingHoursFrom: string;
   openingHoursTo: string;
+  reservationsFrom: string;
+  reservationsTo: string;
+  reservationState: [ReservationState];
 };
 
 type OpeningHoursReturnType = {
@@ -215,7 +221,13 @@ export const reservationUnitHandlers = [
   graphql.query<OpeningHoursReturnType, OpeningHoursReturnVariables>(
     "ReservationUnitOpeningHours",
     async (req, res, ctx) => {
-      const { openingHoursFrom, openingHoursTo } = req.variables;
+      const {
+        openingHoursFrom,
+        openingHoursTo,
+        reservationsFrom,
+        reservationsTo,
+        reservationState,
+      } = req.variables;
 
       const reservationUnitOpeningHours = {
         data: {
@@ -476,6 +488,28 @@ export const reservationUnitHandlers = [
                 },
               ],
             },
+            reservations: [
+              {
+                id: 5,
+                state: "created" as ReservationState,
+                priority: "A_200",
+                begin: "2021-10-27T12:50:31+00:00",
+                end: "2021-10-27T13:50:35+00:00",
+                numPersons: 3,
+                calendarUrl:
+                  "http://localhost:8000/v1/reservation_calendar/5/?hash=aafe8cef803ea6aa3dc8c03307016b506554a62397a2c44828fc1d828fa7fee6",
+              },
+              {
+                id: 6,
+                state: "created" as ReservationState,
+                priority: "A_200",
+                begin: "2021-11-27T12:50:31+00:00",
+                end: "2021-11-27T13:50:35+00:00",
+                numPersons: 3,
+                calendarUrl:
+                  "http://localhost:8000/v1/reservation_calendar/5/?hash=aafe8cef803ea6aa3dc8c03307016b506554a62397a2c44828fc1d828fa7fee6",
+              },
+            ],
           },
         },
       };
@@ -490,9 +524,36 @@ export const reservationUnitHandlers = [
           }
         );
 
+      const reservations: Reservation[] =
+        reservationUnitOpeningHours.data.reservationUnit.reservations.filter(
+          (reservation) => {
+            let pass = false;
+            if (
+              toApiDate(new Date(reservation.begin)) >=
+              toApiDate(new Date(reservationsFrom))
+            )
+              pass = true;
+
+            if (
+              toApiDate(new Date(reservation.begin)) <=
+              toApiDate(new Date(reservationsTo))
+            )
+              pass = true;
+
+            if (reservationState) {
+              pass = reservationState.includes(reservation.state);
+            }
+
+            return pass;
+          }
+        );
+
       return res(
         ctx.data({
-          reservationUnit: { openingHours: { openingTimes } } as OpeningHours,
+          reservationUnit: {
+            openingHours: { openingTimes },
+            reservations,
+          } as OpeningHours,
         })
       );
     }

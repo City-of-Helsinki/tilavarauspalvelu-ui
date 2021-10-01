@@ -64,9 +64,10 @@ const Wrapper = styled.div`
       color: var(--color-black-30);
     }
 
+    cursor: pointer;
     border-radius: 0;
     border: 2px solid var(--color-bus);
-    font-family: var(--font-bold);
+    font-family: var(--font-bold) !important;
     font-weight: 700;
     color: var(--color-bus);
     font-size: var(--fontsize-body-s);
@@ -80,9 +81,14 @@ const Wrapper = styled.div`
       &.rbc-active {
         &:first-of-type,
         &:last-of-type {
+          &:hover {
+            border-color: var(--color-bus-dark);
+          }
+
           border-color: var(--color-bus-dark);
         }
 
+        cursor: default;
         background-color: var(--color-bus-dark);
         color: var(--color-white);
         border-color: var(--color-bus-dark);
@@ -90,10 +96,15 @@ const Wrapper = styled.div`
 
       &:first-of-type,
       &:last-of-type {
+        &:hover {
+          border-color: var(--color-black-30);
+        }
+
         border-right: 2px solid var(--color-bus);
         border-left: 2px solid var(--color-bus);
       }
 
+      cursor: pointer;
       border-right: 1px solid var(--color-bus);
       border-left: 1px solid var(--color-bus);
       font-family: var(--font-bold);

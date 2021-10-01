@@ -31,6 +31,13 @@ const StyledNavigation = styled(HDSNavigation)`
   }
 `;
 
+const NaviItem = styled(HDSNavigation.Item)`
+  span {
+    font-family: var(--font-medium);
+    font-weight: 500;
+  }
+`;
+
 const PreContent = styled.div`
   @media (max-width: ${breakpoint.s}) {
     margin-top: var(--spacing-layout-m);
@@ -83,16 +90,16 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
         skipToContentLabel={t("navigation:skipToMainContent")}
       >
         <HDSNavigation.Row variant="inline">
-          <HDSNavigation.Item
+          <NaviItem
             label={t("navigation:Item.reservationUnitSearch")}
             onClick={() => router.push("/search")}
           />
-          <HDSNavigation.Item
+          <NaviItem
             label={t("navigation:Item.spaceReservation")}
             onClick={() => router.push("/")}
           />
           {profile ? (
-            <HDSNavigation.Item
+            <NaviItem
               label={t("navigation:Item.applications")}
               onClick={() => router.push(applicationsUrl)}
             />

@@ -6,19 +6,19 @@ import queryString from "query-string";
 import { useLocalStorage } from "react-use";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import Container from "../components/common/Container";
-import Breadcrumb from "../components/common/Breadcrumb";
-import SearchForm from "../components/search/SearchForm";
-import SearchResultList from "../components/search/SearchResultList";
+import Container from "../../components/common/Container";
+import Breadcrumb from "../../components/common/Breadcrumb";
+import SearchForm from "../../components/search/SearchForm";
+import SearchResultList from "../../components/search/SearchResultList";
 import {
   getReservationUnits,
   ReservationUnitsParameters,
-} from "../modules/api";
-import { ReservationUnit } from "../modules/types";
-import { searchUrl } from "../modules/util";
-import { isBrowser, searchPrefix } from "../modules/const";
-import { CenterSpinner } from "../components/common/common";
-import ClientOnly from "../components/ClientOnly";
+} from "../../modules/api";
+import { ReservationUnit } from "../../modules/types";
+import { searchUrl } from "../../modules/util";
+import { isBrowser, searchPrefix } from "../../modules/const";
+import { CenterSpinner } from "../../components/common/common";
+import ClientOnly from "../../components/ClientOnly";
 
 const HeadContainer = styled.div`
   background-color: white;
@@ -55,7 +55,7 @@ const Search = (): JSX.Element => {
   const [values, setValues] = useState({} as Record<string, string>);
   const [state, setState] = useState<"loading" | "done" | "error">("done");
   const [storedValues, setStoredValues] = useLocalStorage(
-    "reasevationUnit-search",
+    "reservationUnit-search",
     null
   );
 

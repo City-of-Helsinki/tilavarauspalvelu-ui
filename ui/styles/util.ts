@@ -1,4 +1,5 @@
-import { css } from "styled-components";
+import { Button } from "hds-react";
+import styled, { css } from "styled-components";
 
 export const truncatedText = css`
   white-space: nowrap;
@@ -8,3 +9,7 @@ export const truncatedText = css`
 
 export const pixel =
   "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
+export const MediumButton = styled(Button)`
+  font-family: var(--font-medium);
+`;

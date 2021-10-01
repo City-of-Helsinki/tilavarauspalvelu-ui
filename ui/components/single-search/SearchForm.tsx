@@ -1,13 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
-import {
-  Select,
-  TextInput,
-  Button as HDSButton,
-  IconSearch,
-  Tag,
-  Combobox,
-} from "hds-react";
+import { Select, TextInput, IconSearch, Tag, Combobox } from "hds-react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { gql, useQuery } from "@apollo/client";
@@ -21,6 +14,7 @@ import {
 } from "../../modules/util";
 import { emptyOption, participantCountOptions } from "../../modules/const";
 import { OptionType } from "../../modules/types";
+import { MediumButton } from "../../styles/util";
 
 type Props = {
   onSearch: (search: Record<string, string>) => void;
@@ -40,8 +34,6 @@ const SEARCH_FORM_PARAMS = gql`
     }
   }
 `;
-
-const Button = styled(HDSButton)``;
 
 const Container = styled.div`
   margin-top: var(--spacing-l);
@@ -249,10 +241,13 @@ const SearchForm = ({
           onChange={(selection: OptionType): void => {
             setValue("reservationUnitType", selection.value);
           }}
-          defaultValue={getSelectedOption(
-            getValues("reservationUnitType"),
-            reservationUnitTypeOptions
-          )}
+          defaultValue={
+            getValues("reservationUnitType") &&
+            getSelectedOption(
+              getValues("reservationUnitType"),
+              reservationUnitTypeOptions
+            )
+          }
           key={`reservationUnitType${getValues(
             "reservationUnitType"
           )}${reservationUnitTypeOptions.map((n) => n.value).join(",")}`}
@@ -311,13 +306,13 @@ const SearchForm = ({
             </>
           )}
         </TagControls>
-        <Button
+        <MediumButton
           id="searchButton"
           onClick={handleSubmit(search)}
           iconLeft={<IconSearch />}
         >
           {t("searchForm:searchButton")}
-        </Button>
+        </MediumButton>
       </ButtonContainer>
     </>
   );

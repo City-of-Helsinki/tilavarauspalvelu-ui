@@ -1,11 +1,12 @@
 import React from "react";
-import { Button, IconSignin } from "hds-react";
+import { IconSignin } from "hds-react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { breakpoint } from "../modules/style";
 import { isBrowser } from "../modules/const";
 import { UserProfile } from "../modules/types";
 import RequireAuthentication from "./common/RequireAuthentication";
+import { MediumButton } from "../styles/util";
 
 type Props = {
   text?: string;
@@ -67,13 +68,13 @@ const LoginFragment = ({
       render={({ profile }: InnerProps) => {
         return !profile ? (
           <Wrapper>
-            <Button
+            <MediumButton
               iconLeft={<IconSignin />}
               onClick={() => setShouldLogin(true)}
               aria-label={t("common:loginAlt")}
             >
               {t("common:loginAlt")}
-            </Button>
+            </MediumButton>
             {text}
           </Wrapper>
         ) : (

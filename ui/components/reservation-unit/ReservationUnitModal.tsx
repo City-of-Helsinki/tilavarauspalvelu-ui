@@ -1,5 +1,4 @@
 import {
-  Button,
   IconArrowRight,
   IconGroup,
   IconInfoCircle,
@@ -26,7 +25,7 @@ import { breakpoint } from "../../modules/style";
 import { reservationUnitPath } from "../../modules/const";
 import { getAddress, getMainImage, localizedValue } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
-import { pixel } from "../../styles/util";
+import { MediumButton, pixel } from "../../styles/util";
 
 const Container = styled.div`
   width: 100%;
@@ -189,13 +188,13 @@ const ReservationUnitCard = ({
         ) : null}
       </Props>
       <Actions>
-        <Button
+        <MediumButton
           iconRight={<IconArrowRight />}
           onClick={handle}
           variant={isSelected ? "danger" : "secondary"}
         >
           {buttonText}
-        </Button>
+        </MediumButton>
       </Actions>
     </Container>
   );
@@ -244,7 +243,7 @@ const ButtonContainer = styled.div`
   align-items: center;
 `;
 
-const SearchButton = styled(Button).attrs({
+const SearchButton = styled(MediumButton).attrs({
   type: "submit",
 })`
   margin-right: var(--spacing-m);

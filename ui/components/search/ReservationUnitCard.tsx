@@ -1,5 +1,4 @@
 import {
-  Button,
   IconGroup,
   IconInfoCircle,
   IconLocation,
@@ -14,7 +13,7 @@ import { breakpoint } from "../../modules/style";
 import { ReservationUnit } from "../../modules/types";
 import { getAddress, getMainImage, localizedValue } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
-import { pixel } from "../../styles/util";
+import { MediumButton, pixel } from "../../styles/util";
 
 interface Props {
   reservationUnit: ReservationUnit;
@@ -66,6 +65,7 @@ const Bottom = styled.span`
   align-items: center;
   gap: var(--spacing-l);
   font-size: var(--fontsize-body-m);
+  font-family: var(--font-medium);
 
   > div {
     margin: 5px;
@@ -181,20 +181,20 @@ const ReservationUnitCard = ({
       <Actions>
         <div style={{ flexGrow: 1 }} />
         {containsReservationUnit(reservationUnit) ? (
-          <Button
+          <MediumButton
             iconLeft={<IconCheck />}
             onClick={() => removeReservationUnit(reservationUnit)}
           >
             {t("common:removeReservationUnit")}
-          </Button>
+          </MediumButton>
         ) : (
-          <Button
+          <MediumButton
             iconLeft={<IconPlus />}
             onClick={() => selectReservationUnit(reservationUnit)}
             variant="secondary"
           >
             {t("common:selectReservationUnit")}
-          </Button>
+          </MediumButton>
         )}
       </Actions>
     </Container>

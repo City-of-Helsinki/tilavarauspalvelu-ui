@@ -12,22 +12,22 @@ import {
   Notification,
   TextInput,
   Checkbox,
-  Button,
   IconArrowLeft,
   IconCheckCircle,
 } from "hds-react";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
-import { ReservationUnit, UserProfile } from "../../modules/types";
-import apolloClient from "../../modules/apolloClient";
-import { H1, H2, Strong } from "../../modules/style/typography";
-import { breakpoint } from "../../modules/style";
-import { TwoColumnContainer } from "../../components/common/common";
-import { NarrowCenteredContainer } from "../../modules/style/layout";
-import { AccordionWithState as Accordion } from "../../components/common/Accordion";
-import { isBrowser } from "../../modules/const";
-import { applicationErrorText } from "../../modules/util";
-import WithUserProfile from "../../components/WithUserProfile";
+import { ReservationUnit, UserProfile } from "../../../modules/types";
+import apolloClient from "../../../modules/apolloClient";
+import { H1, H2, Strong } from "../../../modules/style/typography";
+import { breakpoint } from "../../../modules/style";
+import { TwoColumnContainer } from "../../../components/common/common";
+import { NarrowCenteredContainer } from "../../../modules/style/layout";
+import { AccordionWithState as Accordion } from "../../../components/common/Accordion";
+import { isBrowser } from "../../../modules/const";
+import { applicationErrorText } from "../../../modules/util";
+import WithUserProfile from "../../../components/WithUserProfile";
+import { MediumButton } from "../../../styles/util";
 
 type Props = {
   reservationUnit: ReservationUnit;
@@ -391,10 +391,10 @@ const ReservationUnitReservation = ({
               </TermContainer>
             </AccordionContainer>
             <ActionContainer>
-              <Button variant="primary" type="submit">
+              <MediumButton variant="primary" type="submit">
                 {t("reservationCalendar:saveReservation")}
-              </Button>
-              <Button
+              </MediumButton>
+              <MediumButton
                 variant="secondary"
                 iconLeft={<IconArrowLeft />}
                 onClick={() =>
@@ -402,7 +402,7 @@ const ReservationUnitReservation = ({
                 }
               >
                 {t("common:prev")}
-              </Button>
+              </MediumButton>
             </ActionContainer>
           </form>
         </BodyContainer>
@@ -448,19 +448,19 @@ const ReservationUnitReservation = ({
                 </a>
               </p>
               <ActionContainer style={{ marginTop: "var(--spacing-3-xl)" }}>
-                <Button
+                <MediumButton
                   variant="primary"
                   onClick={() => router.push("/applications")}
                 >
                   {t("reservationUnit:gotoApplications")}
-                </Button>
-                <Button
+                </MediumButton>
+                <MediumButton
                   variant="secondary"
                   onClick={() => router.push("/")}
                   iconLeft={<IconArrowLeft />}
                 >
                   {t("common:gotoFrontpage")}
-                </Button>
+                </MediumButton>
               </ActionContainer>
             </div>
             <div>

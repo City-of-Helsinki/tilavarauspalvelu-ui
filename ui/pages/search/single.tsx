@@ -5,6 +5,7 @@ import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
 import queryString from "query-string";
 import { useRouter } from "next/router";
+import { useLocalStorage } from "react-use";
 import { isEqual, omit } from "lodash";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Container from "../../components/common/Container";
@@ -24,7 +25,7 @@ const RESERVATION_UNITS = gql`
     $unit: ID
     $reservationUnitType: ID
     $limit: Int
-    $after: String
+    $cursor: String
   ) {
     reservationUnits(
       textSearch: $search
@@ -33,7 +34,7 @@ const RESERVATION_UNITS = gql`
       reservationUnitType: $reservationUnitType
       unit: $unit
       first: $limit
-      after: $after
+      after: $cursor
     ) {
       edges {
         node {
@@ -97,6 +98,10 @@ const Search = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [values, setValues] = useState({} as Record<string, string>);
+  const [storedValues, setStoredValues] = useLocalStorage(
+    "reservationUnit-search",
+    null
+  );
 
   const { data, fetchMore, refetch, loading, error } = useQuery(
     RESERVATION_UNITS,
@@ -130,21 +135,39 @@ const Search = (): JSX.Element => {
       if (!isEqual(values, newValues)) {
         setValues(newValues);
       }
+      refetch(newValues);
     }
-  }, [searchParams, values]);
+  }, [searchParams, values, refetch]);
+
+  useEffect(() => {
+    const params = queryString.parse(searchParams);
+    if (!loading && !{}.propertyIsEnumerable.call(params, "restore")) {
+      setStoredValues(params);
+    }
+  }, [loading, setStoredValues, searchParams]);
+
+  useEffect(() => {
+    const params = queryString.parse(searchParams);
+    if ({}.propertyIsEnumerable.call(params, "restore")) {
+      window.location.search = queryString.stringify(storedValues);
+    }
+  }, [searchParams, storedValues]);
 
   const history = useRouter();
 
   const onSearch = async (criteria: ReservationUnitsParameters) => {
     history.replace(singleSearchUrl(criteria));
-    refetch(criteria);
   };
 
   const onRemove = (key: string[]) => {
     const newValues = key ? omit(values, key) : {};
-    setValues(newValues);
-    history.replace(singleSearchUrl(newValues));
-    refetch(newValues);
+    history.replace(
+      singleSearchUrl({
+        ...newValues,
+        // a hacky way to bypass query cache
+        search: !key || key.includes("search") ? "" : values.search || "",
+      })
+    );
   };
 
   return (
@@ -171,12 +194,13 @@ const Search = (): JSX.Element => {
         <SearchResultList
           error={!!error}
           reservationUnits={reservationUnits}
-          fetchMore={(after) => {
+          fetchMore={(cursor) => {
+            const variables = {
+              ...values,
+              cursor,
+            };
             fetchMore({
-              variables: {
-                ...values,
-                after,
-              },
+              variables,
             });
           }}
           pageInfo={pageInfo}

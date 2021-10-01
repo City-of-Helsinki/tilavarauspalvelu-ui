@@ -1,17 +1,12 @@
-import React, { useMemo, useRef, useState } from "react";
+import React from "react";
 import { GetServerSideProps } from "next";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { gql } from "@apollo/client";
 import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { subMinutes } from "date-fns";
 import Container from "../../components/common/Container";
-import {
-  PendingReservation,
-  Reservation,
-  ReservationUnit as ReservationUnitType,
-} from "../../modules/types";
+import { ReservationUnit as ReservationUnitType } from "../../modules/types";
 import Head from "../../components/reservation-unit/Head";
 import Address from "../../components/reservation-unit/Address";
 import Sanitize from "../../components/common/Sanitize";
@@ -23,32 +18,15 @@ import { AccordionWithState as Accordion } from "../../components/common/Accordi
 import apolloClient from "../../modules/apolloClient";
 import Map from "../../components/Map";
 import { H2 } from "../../modules/style/typography";
-import Calendar, { CalendarEvent } from "../../components/calendar/Calendar";
-import Legend from "../../components/calendar/Legend";
-import LoginFragment from "../../components/LoginFragment";
-import ReservationInfo from "../../components/calendar/ReservationInfo";
-import { parseDate, toApiDate } from "../../modules/util";
-import {
-  areSlotsReservable,
-  doReservationsCollide,
-  getSlotPropGetter,
-  isReservationLongEnough,
-  isReservationShortEnough,
-  isSlotWithinTimeframe,
-} from "../../modules/calendar";
-import Toolbar, { ToolbarProps } from "../../components/calendar/Toolbar";
 import { getActiveOpeningTimes } from "../../modules/openingHours";
 
 type Props = {
   reservationUnit: ReservationUnitType | null;
   relatedReservationUnits: ReservationUnitType[];
-  viewType: "recurring" | "single";
 };
 
-type WeekOptions = "day" | "week" | "month";
-
 const RESERVATION_UNIT = gql`
-  query SelectedReservationUnit($pk: Int) {
+  query SelectedReservationUnit($pk: Int!) {
     reservationUnit: reservationUnitByPk(pk: $pk) {
       id: pk
       name
@@ -75,8 +53,6 @@ const RESERVATION_UNIT = gql`
         addressZip
         addressCity
       }
-      minReservationDuration
-      maxReservationDuration
       nextAvailableSlot
       spaces {
         id: pk
@@ -95,30 +71,6 @@ const RESERVATION_UNIT = gql`
             resourceState
             weekdays
           }
-        }
-      }
-    }
-  }
-`;
-
-const OPENING_HOURS = gql`
-  query ReservationUnitOpeningHours(
-    $pk: Int
-    $openingHoursFrom: Date
-    $openingHoursTo: Date
-  ) {
-    reservationUnit: reservationUnitByPk(pk: $pk) {
-      openingHours(
-        openingTimes: true
-        periods: false
-        startDate: $openingHoursFrom
-        endDate: $openingHoursTo
-      ) {
-        openingTimes {
-          date
-          startTime
-          endTime
-          state
         }
       }
     }
@@ -160,7 +112,6 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
 }) => {
   const id = Number(params.id);
-
   let relatedReservationUnits = [] as ReservationUnitType[];
 
   if (id) {
@@ -168,21 +119,6 @@ export const getServerSideProps: GetServerSideProps = async ({
       query: RESERVATION_UNIT,
       variables: {
         pk: id,
-      },
-    });
-
-    const lastOpeningPeriodEndDate =
-      reservationUnitData.reservationUnit.openingHours.openingTimePeriods
-        .map((period) => period.endDate)
-        .sort()
-        .reverse()[0];
-
-    const { data: openingHours } = await apolloClient.query({
-      query: OPENING_HOURS,
-      variables: {
-        pk: id,
-        openingHoursFrom: toApiDate(new Date()),
-        openingHoursTo: lastOpeningPeriodEndDate,
       },
     });
 
@@ -210,14 +146,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         ...(await serverSideTranslations(locale)),
-        reservationUnit: {
-          ...reservationUnitData.reservationUnit,
-          openingHours: {
-            ...reservationUnitData.reservationUnit.openingHours,
-            openingTimes:
-              openingHours.reservationUnit.openingHours.openingTimes,
-          },
-        },
+        reservationUnit: reservationUnitData.reservationUnit,
         relatedReservationUnits,
       },
     };
@@ -241,20 +170,6 @@ const TwoColumnLayout = styled.div`
 
 const Content = styled.div`
   font-family: var(--font-regular);
-`;
-
-const CalendarFooter = styled.div`
-  display: block;
-
-  button {
-    order: 2;
-  }
-
-  @media (min-width: ${breakpoint.l}) {
-    display: flex;
-    gap: var(--spacing-2-xl);
-    justify-content: space-between;
-  }
 `;
 
 const BottomWrapper = styled.div`
@@ -282,155 +197,23 @@ const StyledH2 = styled(H2)`
   }
 `;
 
-const CalendarWrapper = styled.div`
-  margin-bottom: var(--spacing-layout-xl);
-`;
-
 const MapWrapper = styled.div`
   margin-bottom: var(--spacing-xl);
 `;
 
-const eventStyleGetter = ({
-  event,
-}: CalendarEvent): { style: React.CSSProperties; className?: string } => {
-  const style = {
-    borderRadius: "0px",
-    opacity: "0.8",
-    color: "var(--color-white)",
-    display: "block",
-    borderColor: "transparent",
-  } as Record<string, string>;
-  let className = "";
-
-  switch (event.state) {
-    case "cancelled":
-      style.backgroundColor = "var(--color-error-dark)";
-      style.textDecoration = "line-through";
-      break;
-    case "initial":
-      style.backgroundColor = "var(--color-success-dark)";
-      className = "rbc-event-movable";
-      break;
-    default:
-      style.backgroundColor = "var(--color-brick-dark)";
-  }
-
-  return {
-    style,
-    className,
-  };
-};
-
 const ReservationUnit = ({
   reservationUnit,
   relatedReservationUnits,
-  viewType = "single", // TODO get rid of
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
-
-  const [focusDate, setFocusDate] = useState(new Date());
-  const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
-  const [initialReservation, setInitialReservation] =
-    useState<PendingReservation | null>(null);
-  const [reservations] = useState<Reservation[] | null>([
-    {
-      id: 1,
-      state: "created",
-      priority: 100,
-      begin: "2021-08-31T09:00:00.000Z",
-      end: "2021-08-31T18:00:00.000Z",
-      reservationUnit: [reservationUnit],
-      applicationId: null,
-      applicationEventId: null,
-    },
-    {
-      id: 2,
-      state: "created",
-      priority: 100,
-      begin: "2021-09-01T09:00:00.000Z",
-      end: "2021-09-01T20:00:00.000Z",
-      reservationUnit: [reservationUnit],
-      applicationId: null,
-      applicationEventId: null,
-    },
-  ]);
 
   const activeOpeningTimes = getActiveOpeningTimes(
     reservationUnit.openingHours.openingTimePeriods
   );
 
-  const slotPropGetter = useMemo(
-    () => getSlotPropGetter(reservationUnit.openingHours.openingTimes),
-    [reservationUnit.openingHours.openingTimes]
-  );
-
-  const handleEventChange = (
-    { start, end }: CalendarEvent,
-    skipLengthCheck = false
-  ): boolean => {
-    if (
-      !areSlotsReservable(
-        [new Date(start), subMinutes(new Date(end), 1)],
-        reservationUnit.openingHours.openingTimes
-      ) ||
-      (!skipLengthCheck &&
-        !isReservationLongEnough(
-          start,
-          end,
-          reservationUnit.minReservationDuration
-        )) ||
-      !isReservationShortEnough(
-        start,
-        end,
-        reservationUnit.maxReservationDuration
-      ) ||
-      doReservationsCollide(reservations, { start, end }) ||
-      !isSlotWithinTimeframe(start)
-    ) {
-      return false;
-    }
-
-    setInitialReservation({
-      begin: start.toISOString(),
-      end: end.toISOString(),
-      state: "initial",
-    } as PendingReservation);
-    return true;
-  };
-
-  const calendarRef = useRef(null);
-
   const reservationUnitList = useReservationUnitsList();
 
   const shouldDisplayBottomWrapper = relatedReservationUnits?.length > 0;
-
-  const calendarEvents = [...reservations, initialReservation]
-    .filter((n) => n)
-    .map((reservation: Reservation) => {
-      const event = {
-        title: `${
-          reservation.state === "cancelled"
-            ? `${t("reservationCalendar:prefixForCancelled")}: `
-            : ""
-        }`,
-        start: parseDate(reservation.begin),
-        end: parseDate(reservation.end),
-        allDay: false,
-        event: reservation,
-      };
-
-      return event as CalendarEvent;
-    });
-
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar
-      {...props}
-      onNavigateToNextAvailableDate={() =>
-        reservationUnit.nextAvailableSlot &&
-        setFocusDate(new Date(reservationUnit.nextAvailableSlot))
-      }
-    />
-  ));
 
   return reservationUnit ? (
     <>
@@ -438,8 +221,7 @@ const ReservationUnit = ({
         reservationUnit={reservationUnit}
         activeOpeningTimes={activeOpeningTimes}
         reservationUnitList={reservationUnitList}
-        viewType={viewType}
-        calendarRef={calendarRef}
+        viewType="recurring"
       />
       <Container>
         <TwoColumnLayout>
@@ -454,55 +236,6 @@ const ReservationUnit = ({
             <Address reservationUnit={reservationUnit} />
           </div>
         </TwoColumnLayout>
-        {viewType === "single" && (
-          <CalendarWrapper ref={calendarRef}>
-            <StyledH2>{t("reservations:reservationCalendar")}</StyledH2>
-            <Calendar
-              events={calendarEvents}
-              begin={focusDate}
-              onNavigate={(d: Date) => {
-                setFocusDate(d);
-              }}
-              customEventStyleGetter={eventStyleGetter}
-              slotPropGetter={slotPropGetter}
-              viewType={calendarViewType}
-              onView={(n: WeekOptions) => {
-                setCalendarViewType(n);
-              }}
-              onSelecting={(event: CalendarEvent) =>
-                handleEventChange(event, true)
-              }
-              showToolbar
-              reservable
-              toolbarComponent={
-                reservationUnit.nextAvailableSlot ? ToolbarWithProps : Toolbar
-              }
-              resizable
-              draggable
-              onEventDrop={handleEventChange}
-              onEventResize={handleEventChange}
-              draggableAccessor={({ event }: CalendarEvent) =>
-                event.state === "initial"
-              }
-              resizableAccessor={({ event }: CalendarEvent) =>
-                event.state === "initial"
-              }
-            />
-            <CalendarFooter>
-              <Legend />
-              <LoginFragment
-                text={t("reservationCalendar:loginInfo")}
-                componentIfAuthenticated={
-                  <ReservationInfo
-                    reservationUnit={reservationUnit}
-                    begin={initialReservation?.begin}
-                    end={initialReservation?.end}
-                  />
-                }
-              />
-            </CalendarFooter>
-          </CalendarWrapper>
-        )}
         <MapWrapper>
           <StyledH2>{t("common:location")}</StyledH2>
           <Map
@@ -543,17 +276,15 @@ const ReservationUnit = ({
               <RelatedUnits
                 reservationUnitList={reservationUnitList}
                 units={relatedReservationUnits}
-                viewType={viewType}
+                viewType="recurring"
               />
             </BottomContainer>
           </>
         )}
       </BottomWrapper>
-      {viewType === "recurring" && (
-        <StartApplicationBar
-          count={reservationUnitList.reservationUnits.length}
-        />
-      )}
+      <StartApplicationBar
+        count={reservationUnitList.reservationUnits.length}
+      />
     </>
   ) : null;
 };
