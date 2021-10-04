@@ -12,10 +12,10 @@ import Container from "../../components/common/Container";
 import Breadcrumb from "../../components/common/Breadcrumb";
 import SearchForm from "../../components/single-search/SearchForm";
 import SearchResultList from "../../components/single-search/SearchResultList";
-import { ReservationUnitsParameters } from "../../modules/api";
 import { singleSearchUrl } from "../../modules/util";
 import { isBrowser, searchPrefix } from "../../modules/const";
 import { CenterSpinner } from "../../components/common/common";
+import { Query, QueryReservationUnitsArgs } from "../../modules/gql-types";
 
 const RESERVATION_UNITS = gql`
   query SearchReservationUnits(
@@ -103,13 +103,13 @@ const Search = (): JSX.Element => {
     null
   );
 
-  const { data, fetchMore, refetch, loading, error } = useQuery(
-    RESERVATION_UNITS,
-    {
-      variables: { ...values, limit: pagingLimit },
-      fetchPolicy: "network-only",
-    }
-  );
+  const { data, fetchMore, refetch, loading, error } = useQuery<
+    Query,
+    QueryReservationUnitsArgs
+  >(RESERVATION_UNITS, {
+    variables: { ...values, first: pagingLimit },
+    fetchPolicy: "network-only",
+  });
 
   const reservationUnits = data?.reservationUnits?.edges?.map(
     (edge) => edge.node
@@ -155,7 +155,7 @@ const Search = (): JSX.Element => {
 
   const history = useRouter();
 
-  const onSearch = async (criteria: ReservationUnitsParameters) => {
+  const onSearch = async (criteria: QueryReservationUnitsArgs) => {
     history.replace(singleSearchUrl(criteria));
   };
 
@@ -165,7 +165,7 @@ const Search = (): JSX.Element => {
       singleSearchUrl({
         ...newValues,
         // a hacky way to bypass query cache
-        search: !key || key.includes("search") ? "" : values.search || "",
+        textSearch: !key || key.includes("search") ? "" : values.search || "",
       })
     );
   };

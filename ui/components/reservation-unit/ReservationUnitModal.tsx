@@ -12,10 +12,7 @@ import React, { ChangeEvent, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import {
-  getReservationUnits,
-  ReservationUnitsParameters,
-} from "../../modules/api";
+import { getReservationUnits } from "../../modules/api";
 import {
   ApplicationRound,
   OptionType,
@@ -312,7 +309,7 @@ const ReservationUnitModal = ({
       ...(reservationUnitType && {
         reservationUnitType: reservationUnitType.value,
       }),
-    } as ReservationUnitsParameters;
+    };
 
     const reservationUnits = await getReservationUnits(searchCriteria);
     setResults(reservationUnits);
