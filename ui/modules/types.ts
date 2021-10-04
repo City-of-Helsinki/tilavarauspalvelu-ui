@@ -89,14 +89,14 @@ export type ReservationUnit = {
   images: Image[];
   location?: Location;
   reservationUnitType?: Parameter;
-  termsOfUse: string;
+  termsOfUse?: string;
   building: Building;
-  contactInformation: string;
+  contactInformation?: string;
   unitId: number;
-  minReservationDuration: string;
-  maxReservationDuration: string;
-  nextAvailableSlot: string;
-  openingHours: OpeningHours;
+  minReservationDuration?: string;
+  maxReservationDuration?: string;
+  nextAvailableSlot?: string;
+  openingHours?: OpeningHours;
   reservations?: Reservation[];
 };
 
