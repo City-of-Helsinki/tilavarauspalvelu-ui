@@ -30,6 +30,7 @@ import {
   ApplicationStatus,
   ReducedApplicationStatus,
 } from "./types";
+import { ReservationUnitImageType, ReservationUnitType } from "./gql-types";
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date().getTime();
@@ -197,7 +198,7 @@ export const getComboboxValues = (
 export const searchUrl = (params: ReservationUnitsParameters): string =>
   `${searchPrefix}/?${stringify(params)}`;
 
-export const singleSearchUrl = (params: ReservationUnitsParameters): string =>
+export const singleSearchUrl = (params: unknown): string =>
   `${singleSearchPrefix}/?${stringify(params)}`;
 
 export const applicationsUrl = `${applicationsPrefix}/`;
@@ -300,7 +301,9 @@ export const applicationEventSchedulesToCells = (
 
 const imagePriority = ["main", "map", "ground_plan", "other"];
 
-export const getMainImage = (ru: ReservationUnit): Image | null => {
+export const getMainImage = (
+  ru: ReservationUnit | ReservationUnitType
+): Image | ReservationUnitImageType | null => {
   if (!ru.images || ru.images.length === 0) {
     return null;
   }
@@ -313,7 +316,9 @@ export const getMainImage = (ru: ReservationUnit): Image | null => {
   return images[0];
 };
 
-export const getAddress = (ru: ReservationUnit): string | null => {
+export const getAddress = (
+  ru: ReservationUnit | ReservationUnitType
+): string | null => {
   if (!ru.location) {
     return null;
   }
