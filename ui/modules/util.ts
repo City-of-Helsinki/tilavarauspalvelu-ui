@@ -30,11 +30,7 @@ import {
   ApplicationStatus,
   ReducedApplicationStatus,
 } from "./types";
-import {
-  QueryReservationUnitsArgs,
-  ReservationUnitImageType,
-  ReservationUnitType,
-} from "./gql-types";
+import { ReservationUnitImageType, ReservationUnitType } from "./gql-types";
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date().getTime();
@@ -202,7 +198,7 @@ export const getComboboxValues = (
 export const searchUrl = (params: ReservationUnitsParameters): string =>
   `${searchPrefix}/?${stringify(params)}`;
 
-export const singleSearchUrl = (params: QueryReservationUnitsArgs): string =>
+export const singleSearchUrl = (params: unknown): string =>
   `${singleSearchPrefix}/?${stringify(params)}`;
 
 export const applicationsUrl = `${applicationsPrefix}/`;

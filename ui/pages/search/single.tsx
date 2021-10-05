@@ -24,8 +24,8 @@ const RESERVATION_UNITS = gql`
     $maxPersons: Float
     $unit: ID
     $reservationUnitType: ID
-    $limit: Int
-    $cursor: String
+    $first: Int
+    $after: String
   ) {
     reservationUnits(
       textSearch: $search
@@ -33,8 +33,8 @@ const RESERVATION_UNITS = gql`
       maxPersonsLte: $maxPersons
       reservationUnitType: $reservationUnitType
       unit: $unit
-      first: $limit
-      after: $cursor
+      first: $first
+      after: $after
     ) {
       edges {
         node {
@@ -165,7 +165,7 @@ const Search = (): JSX.Element => {
       singleSearchUrl({
         ...newValues,
         // a hacky way to bypass query cache
-        textSearch: !key || key.includes("search") ? "" : values.search || "",
+        search: !key || key.includes("search") ? "" : values.search || "",
       })
     );
   };
@@ -197,7 +197,7 @@ const Search = (): JSX.Element => {
           fetchMore={(cursor) => {
             const variables = {
               ...values,
-              cursor,
+              after: cursor,
             };
             fetchMore({
               variables,
