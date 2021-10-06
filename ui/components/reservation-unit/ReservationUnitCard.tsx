@@ -112,6 +112,18 @@ const Circle = styled.div<{ passive: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  button {
+    &:disabled {
+      color: var(--color-black-40);
+      cursor: default;
+    }
+
+    border: 0;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+  }
 `;
 
 const ReservationUnitCard = ({
