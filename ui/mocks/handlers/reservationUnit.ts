@@ -1,234 +1,220 @@
 import { graphql } from "msw";
 import {
-  OpeningHours,
-  OpeningTime,
-  ReservationUnit,
-  Reservation,
-  ReservationState,
-} from "../../modules/types";
+  OpeningTimesType,
+  Query,
+  QueryReservationUnitByPkArgs,
+  QueryReservationUnitsArgs,
+  ReservationType,
+  ReservationUnitByPkType,
+  PageInfo,
+  ReservationUnitByPkTypeOpeningHoursArgs,
+  ReservationUnitByPkTypeReservationsArgs,
+  ReservationUnitType,
+  ReservationUnitImageType,
+} from "../../modules/gql-types";
 import { toApiDate } from "../../modules/util";
 
-type Variables = {
-  pk: number;
-};
-
-type ReturnType = {
-  reservationUnit: ReservationUnit;
-};
-
-type OpeningHoursVariables = {
-  pk: number;
-  openingHoursFrom: string;
-  openingHoursTo: string;
-  reservationsFrom: string;
-  reservationsTo: string;
-  reservationState: [ReservationState];
-};
-
-type OpeningHoursReturnType = {
-  reservationUnit: OpeningHours;
-};
-
-const selectedReservationUnitQuery = graphql.query<ReturnType, Variables>(
-  "SelectedReservationUnit",
-  async (req, res, ctx) => {
-    const reservationUnit: ReservationUnit = {
-      resources: [],
-      services: [],
-      contactInformation: null,
-      unitId: 7,
-      id: 36,
-      name: { fi: "Pukinmäen nuorisotalon keittiö" },
-      images: [
+const selectedReservationUnitQuery = graphql.query<
+  Query,
+  QueryReservationUnitByPkArgs
+>("SelectedReservationUnit", async (req, res, ctx) => {
+  const reservationUnitByPk: ReservationUnitByPkType = {
+    resources: [],
+    services: [],
+    uuid: "",
+    contactInformation: null,
+    id: "UmVzZXJ2YXRpb25Vbml0QnlQa1R5cGU6MzY=",
+    pk: 36,
+    name: "Pukinmäen nuorisotalon keittiö",
+    images: [
+      {
+        imageUrl:
+          "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg",
+        mediumUrl:
+          "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg.384x384_q85_crop.jpg",
+        smallUrl:
+          "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg.250x250_q85_crop.jpg",
+        imageType: "MAIN",
+      },
+      {
+        imageUrl:
+          "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg",
+        mediumUrl:
+          "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg.384x384_q85_crop.jpg",
+        smallUrl:
+          "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg.250x250_q85_crop.jpg",
+        imageType: "OTHER",
+      },
+      {
+        imageUrl:
+          "http://localhost:8000/media/reservation_unit_images/575479-L.jpg",
+        mediumUrl:
+          "http://localhost:8000/media/reservation_unit_images/575479-L.jpg.384x384_q85_crop.jpg",
+        smallUrl:
+          "http://localhost:8000/media/reservation_unit_images/575479-L.jpg.250x250_q85_crop.jpg",
+        imageType: "OTHER",
+      },
+    ] as ReservationUnitImageType[],
+    description:
+      "<p>Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkil&ouml;&auml;..</p>",
+    termsOfUse:
+      "<p>Nuorisotilojen yleiset varausehdot</p>\r\n<p><strong>1 Soveltamisala</strong></p>\r\n<p>N&auml;m&auml; varausehdot koskevat Helsingin kaupungin nuorisopalveluiden hallinnoimien tilojen ja laitteiden varaamista, k&auml;ytt&ouml;vuoron hakemista Tilavaraus-palvelun kautta sek&auml; nuorisopalveluiden hallinnoimien tilojen ja laitteiden k&auml;ytt&ouml;&auml;. N&auml;m&auml; varausehdot t&auml;ydent&auml;v&auml;t Helsingin kaupungin tilojen ja laitteiden varausehtoja. Varaamalla resurssin tai hakemalla k&auml;ytt&ouml;vuoroa hyv&auml;ksyt n&auml;m&auml; ehdot.</p>",
+    reservationUnitType: {
+      id: "UmVzZXJ2YXRpb25Vbml0VHlwZVR5cGU6Mw==",
+      name: "Nuorisopalvelut",
+    },
+    maxPersons: 60,
+    unit: {
+      description: "",
+      email: "pukinmaen.nuorisotalo@hel.fi",
+      id: "VW5pdFR5cGU6Nw==",
+      pk: 7,
+      name: "Pukinmäen nuorisotalo",
+      phone: "+358 9 310 36707",
+      shortDescription: "",
+      webPage: "http://pukinmaki.munstadi.fi/",
+    },
+    location: {
+      id: "TG9jYXRpb25UeXBlOjI2",
+      latitude: "60.29429873400916",
+      longitude: "25.07080078125",
+      addressStreet: "Säterintie 2",
+      addressZip: "00720",
+      addressCity: "Helsinki",
+    },
+    minReservationDuration: "01:00:00",
+    maxReservationDuration: "01:30:00",
+    nextAvailableSlot: "2021-09-21T09:30:00Z",
+    spaces: [
+      {
+        id: "U3BhY2VUeXBlOjQx",
+        pk: 41,
+        name: "Sali",
+        code: "",
+        termsOfUse: "TErms of USEE",
+      },
+    ],
+    openingHours: {
+      openingTimePeriods: [
         {
-          imageUrl:
-            "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg",
-          mediumUrl:
-            "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg.384x384_q85_crop.jpg",
-          smallUrl:
-            "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg.250x250_q85_crop.jpg",
-          imageType: "main",
+          periodId: 38600,
+          startDate: "2020-10-12",
+          endDate: "2021-10-11",
+          resourceState: null,
+          timeSpans: [
+            {
+              startTime: "09:00:00",
+              endTime: "12:00:00",
+              weekdays: [6, 1, 7],
+              resourceState: "open",
+              endTimeOnNextDay: null,
+              name: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+              description: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+            },
+            {
+              startTime: "12:00:00",
+              endTime: "21:00:00",
+              weekdays: [7, 2],
+              resourceState: "open",
+              endTimeOnNextDay: null,
+              name: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+              description: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+            },
+          ],
+          name: {
+            fi: "Vakiovuorot",
+            en: "",
+            sv: "",
+          },
+          description: {
+            fi: "",
+            en: "",
+            sv: "",
+          },
         },
         {
-          imageUrl:
-            "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg",
-          mediumUrl:
-            "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg.384x384_q85_crop.jpg",
-          smallUrl:
-            "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg.250x250_q85_crop.jpg",
-          imageType: "other",
-        },
-        {
-          imageUrl:
-            "http://localhost:8000/media/reservation_unit_images/575479-L.jpg",
-          mediumUrl:
-            "http://localhost:8000/media/reservation_unit_images/575479-L.jpg.384x384_q85_crop.jpg",
-          smallUrl:
-            "http://localhost:8000/media/reservation_unit_images/575479-L.jpg.250x250_q85_crop.jpg",
-          imageType: "other",
+          periodId: 38601,
+          startDate: "2021-10-12",
+          endDate: "2021-10-30",
+          resourceState: null,
+          timeSpans: [
+            {
+              startTime: "09:00:00",
+              endTime: "21:00:00",
+              weekdays: [4, 5, 6],
+              resourceState: "open",
+              endTimeOnNextDay: null,
+              name: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+              description: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+            },
+            {
+              startTime: "09:00:00",
+              endTime: "21:00:00",
+              weekdays: [7],
+              resourceState: "open",
+              endTimeOnNextDay: null,
+              name: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+              description: {
+                fi: null,
+                en: null,
+                sv: null,
+              },
+            },
+          ],
+          name: {
+            fi: "Vakiovuorot",
+            en: "",
+            sv: "",
+          },
+          description: {
+            fi: "",
+            en: "",
+            sv: "",
+          },
         },
       ],
-      description:
-        "<p>Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkil&ouml;&auml;..</p>",
-      termsOfUse:
-        "<p>Nuorisotilojen yleiset varausehdot</p>\r\n<p><strong>1 Soveltamisala</strong></p>\r\n<p>N&auml;m&auml; varausehdot koskevat Helsingin kaupungin nuorisopalveluiden hallinnoimien tilojen ja laitteiden varaamista, k&auml;ytt&ouml;vuoron hakemista Tilavaraus-palvelun kautta sek&auml; nuorisopalveluiden hallinnoimien tilojen ja laitteiden k&auml;ytt&ouml;&auml;. N&auml;m&auml; varausehdot t&auml;ydent&auml;v&auml;t Helsingin kaupungin tilojen ja laitteiden varausehtoja. Varaamalla resurssin tai hakemalla k&auml;ytt&ouml;vuoroa hyv&auml;ksyt n&auml;m&auml; ehdot.</p>",
-      reservationUnitType: {
-        id: 1,
-        name: "Nuorisopalvelut",
-      },
-      maxPersons: 60,
-      building: {
-        id: 7,
-        name: "Pukinmäen nuorisotalo",
-      },
-      location: {
-        id: 1,
-        latitude: "60.29429873400916",
-        longitude: "25.07080078125",
-        addressStreet: "Säterintie 2",
-        addressZip: "00720",
-        addressCity: "Helsinki",
-      },
-      minReservationDuration: "01:00:00",
-      maxReservationDuration: "01:30:00",
-      nextAvailableSlot: "2021-09-21T09:30:00Z",
-      spaces: [
-        {
-          id: 41,
-          name: { fi: "Sali" },
-          termsOfUse: "TErms of USEE",
-          locationType: null,
-          surfaceArea: null,
-          districtId: null,
-          parentId: null,
-        },
-      ],
-      openingHours: {
-        openingTimePeriods: [
-          {
-            periodId: 38600,
-            startDate: "2020-10-12",
-            endDate: "2021-10-11",
-            resourceState: null,
-            timeSpans: [
-              {
-                startTime: "09:00:00",
-                endTime: "12:00:00",
-                weekdays: [6, 1, 7],
-                resourceState: "open",
-                endTimeOnNextDay: null,
-                name: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-                description: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-              },
-              {
-                startTime: "12:00:00",
-                endTime: "21:00:00",
-                weekdays: [7, 2],
-                resourceState: "open",
-                endTimeOnNextDay: null,
-                name: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-                description: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-              },
-            ],
-            name: {
-              fi: "Vakiovuorot",
-              en: "",
-              sv: "",
-            },
-            description: {
-              fi: "",
-              en: "",
-              sv: "",
-            },
-          },
-          {
-            periodId: 38601,
-            startDate: "2021-10-12",
-            endDate: "2021-10-30",
-            resourceState: null,
-            timeSpans: [
-              {
-                startTime: "09:00:00",
-                endTime: "21:00:00",
-                weekdays: [4, 5, 6],
-                resourceState: "open",
-                endTimeOnNextDay: null,
-                name: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-                description: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-              },
-              {
-                startTime: "09:00:00",
-                endTime: "21:00:00",
-                weekdays: [7],
-                resourceState: "open",
-                endTimeOnNextDay: null,
-                name: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-                description: {
-                  fi: null,
-                  en: null,
-                  sv: null,
-                },
-              },
-            ],
-            name: {
-              fi: "Vakiovuorot",
-              en: "",
-              sv: "",
-            },
-            description: {
-              fi: "",
-              en: "",
-              sv: "",
-            },
-          },
-        ],
-      },
-      requireIntroduction: false,
-    };
+    },
+    requireIntroduction: false,
+  };
 
-    return res(ctx.data({ reservationUnit }));
-  }
-);
+  return res(ctx.data({ reservationUnitByPk }));
+});
 
 const openingHoursQuery = graphql.query<
-  OpeningHoursReturnType,
-  OpeningHoursVariables
+  Query,
+  QueryReservationUnitByPkArgs &
+    ReservationUnitByPkTypeOpeningHoursArgs &
+    ReservationUnitByPkTypeReservationsArgs
 >("ReservationUnitOpeningHours", async (req, res, ctx) => {
-  const {
-    openingHoursFrom,
-    openingHoursTo,
-    reservationsFrom,
-    reservationsTo,
-    reservationState,
-  } = req.variables;
+  const { startDate, endDate, from, to, state } = req.variables;
 
   const reservationUnitOpeningHours = {
     data: {
@@ -491,8 +477,9 @@ const openingHoursQuery = graphql.query<
         },
         reservations: [
           {
-            id: 5,
-            state: "created" as ReservationState,
+            id: "UmVzZXJ2YXRpb25UeXBlOjU=",
+            pk: 5,
+            state: "CREATED",
             priority: "A_200",
             begin: "2021-10-27T12:50:31+00:00",
             end: "2021-10-27T13:50:35+00:00",
@@ -501,8 +488,9 @@ const openingHoursQuery = graphql.query<
               "http://localhost:8000/v1/reservation_calendar/5/?hash=aafe8cef803ea6aa3dc8c03307016b506554a62397a2c44828fc1d828fa7fee6",
           },
           {
-            id: 6,
-            state: "created" as ReservationState,
+            id: "UmV3ZXJ2YXRpb25UeXB3OjU=",
+            pk: 6,
+            state: "CREATED",
             priority: "A_200",
             begin: "2021-11-27T12:50:31+00:00",
             end: "2021-11-27T13:50:35+00:00",
@@ -510,39 +498,31 @@ const openingHoursQuery = graphql.query<
             calendarUrl:
               "http://localhost:8000/v1/reservation_calendar/5/?hash=aafe8cef803ea6aa3dc8c03307016b506554a62397a2c44828fc1d828fa7fee6",
           },
-        ],
+        ] as ReservationType[],
       },
     },
   };
 
-  const openingTimes: OpeningTime[] =
+  const openingTimes: OpeningTimesType[] =
     reservationUnitOpeningHours.data.reservationUnit.openingHours.openingTimes.filter(
-      (openingTime: OpeningTime) => {
-        return (
-          openingTime.date >= openingHoursFrom &&
-          openingTime.date <= openingHoursTo
-        );
+      (openingTime: OpeningTimesType) => {
+        return openingTime.date >= startDate && openingTime.date <= endDate;
       }
     );
 
-  const reservations: Reservation[] =
+  const reservations: ReservationType[] =
     reservationUnitOpeningHours.data.reservationUnit.reservations.filter(
       (reservation) => {
         let pass = false;
-        if (
-          toApiDate(new Date(reservation.begin)) >=
-          toApiDate(new Date(reservationsFrom))
-        )
+
+        if (toApiDate(new Date(reservation.begin)) >= toApiDate(new Date(from)))
           pass = true;
 
-        if (
-          toApiDate(new Date(reservation.begin)) <=
-          toApiDate(new Date(reservationsTo))
-        )
+        if (toApiDate(new Date(reservation.begin)) <= toApiDate(new Date(to)))
           pass = true;
 
-        if (reservationState) {
-          pass = reservationState.includes(reservation.state);
+        if (state) {
+          pass = state.includes(reservation.state);
         }
 
         return pass;
@@ -551,311 +531,137 @@ const openingHoursQuery = graphql.query<
 
   return res(
     ctx.data({
-      reservationUnit: {
+      reservationUnitByPk: {
+        id: "UmVzZXJ2YXRpb25Vbml0QnlQa1R5cGU6MzY=",
+        contactInformation: "",
+        description: "",
+        name: "",
+        requireIntroduction: false,
+        uuid: "",
         openingHours: { openingTimes },
         reservations,
-      } as OpeningHours,
+      },
     })
   );
 });
-
-type RelatedNode = {
-  node: ReservationUnit;
-};
-
-type RelatedEdges = {
-  edges: RelatedNode[];
-};
-
-type RelatedReservationUnitsReturnType = {
-  relatedReservationUnits: RelatedEdges;
-};
-
-type RelatedReservationUnitsArgs = {
-  id: string;
-};
 
 const relatedReservationUnitsData = {
   edges: [
     {
       node: {
-        id: 48,
-        services: [],
-        unitId: 1,
-        name: { fi: "Arabian nuorisotalon sali" },
+        id: "UmVzZXJ2YXRpb25Vbml0VHlwZTozNw==",
+        pk: 37,
+        name: "Pukinmäen nuorisotalon yläkerta",
         images: [],
-        building: {
-          id: 11,
-          name: "Arabian nuorisotalo",
+        unit: {
+          id: "VW5pdFR5cGU6Nw==",
+          pk: 7,
+          name: "Pukinmäen nuorisotalo",
+          description: "",
+          email: "pukinmaen.nuorisotalo@hel.fi",
+          shortDescription: "",
+          webPage: "http://pukinmaki.munstadi.fi/",
         },
         reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
+          pk: 3,
+          name: "Nuorisopalvelut",
         },
-        maxPersons: 100,
+        maxPersons: 45,
         location: {
-          id: 34,
-          addressStreet: "Arabianpolku 1 A 2",
-          addressZip: "00560",
+          pk: 25,
+          addressStreet: "Säterintie 2",
+          addressZip: "00720",
           addressCity: "Helsinki",
         },
         description: "",
         requireIntroduction: false,
         spaces: [
           {
-            name: { fi: "Sali" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
+            name: "Yläkerta",
           },
         ],
         resources: [],
-      },
+        contactInformation: "",
+      } as ReservationUnitType,
+      cursor: "YXJyYXljb25uZWN0aW9uOjA=",
     },
     {
       node: {
-        id: 45,
-        services: [],
-        unitId: 1,
-        name: { fi: "Hertsin nuorisotalon sali" },
-        images: [],
-        building: {
-          id: 13,
-          name: "Hertsin nuorisotila",
+        id: "UmVzZXJ2YXRpb25Vbml0VHlwZTozNg==",
+        pk: 36,
+        name: "Pukinmäen nuorisotalon sali",
+        images: [
+          {
+            imageUrl:
+              "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg",
+            smallUrl:
+              "http://localhost:8000/media/reservation_unit_images/lavenderhouse_1-x_large.jpg.250x250_q85_crop.jpg",
+            imageType: "MAIN",
+          },
+          {
+            imageUrl:
+              "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg",
+            smallUrl:
+              "http://localhost:8000/media/reservation_unit_images/external-content.duckduckgo.jpg.250x250_q85_crop.jpg",
+            imageType: "OTHER",
+          },
+          {
+            imageUrl:
+              "http://localhost:8000/media/reservation_unit_images/575479-L.jpg",
+            smallUrl:
+              "http://localhost:8000/media/reservation_unit_images/575479-L.jpg.250x250_q85_crop.jpg",
+            imageType: "OTHER",
+          },
+        ],
+        unit: {
+          id: "VW5pdFR5cGU6Nw==",
+          pk: 7,
+          name: "Pukinmäen nuorisotalo",
+          description: "",
+          email: "pukinmaen.nuorisotalo@hel.fi",
+          shortDescription: "",
+          webPage: "http://pukinmaki.munstadi.fi/",
         },
         reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
+          pk: 3,
+          name: "Nuorisopalvelut",
         },
-        maxPersons: 15,
+        maxPersons: 60,
         location: {
-          id: 38,
-          addressStreet: "Linnanrakentajantie 2",
-          addressZip: "00880",
+          pk: 26,
+          addressStreet: "Säterintie 2",
+          addressZip: "00720",
           addressCity: "Helsinki",
         },
         description: "",
         requireIntroduction: false,
         spaces: [
           {
-            name: { fi: "Sali" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
+            name: "Sali",
           },
         ],
         resources: [],
-      },
-    },
-    {
-      node: {
-        id: 40,
-        services: [],
-        unitId: 1,
-        name: { fi: "Jakomäen sydämen liikkumistila" },
-        images: [],
-        building: {
-          id: 14,
-          name: "Jakomäen nuorisotalo",
-        },
-        reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
-        },
-        maxPersons: 10,
-        location: {
-          id: 39,
-          addressStreet: "Jakomäenpolku 6",
-          addressZip: "00770",
-          addressCity: "Helsinki",
-        },
-        description: "",
-        requireIntroduction: false,
-        spaces: [
-          {
-            name: { fi: "Liikkumistila" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
-          },
-        ],
-        resources: [],
-      },
-    },
-    {
-      node: {
-        id: 53,
-        services: [],
-        unitId: 1,
-        name: { fi: "Pasilan nuorisotalon järjestötila" },
-        images: [],
-        building: {
-          id: 9,
-          name: "Pasilan nuorisotalo",
-        },
-        reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
-        },
-        maxPersons: 15,
-        location: {
-          id: 28,
-          addressStreet: "Pasilanraitio 6",
-          addressZip: "00240",
-          addressCity: "Helsinki",
-        },
-        description: "",
-        requireIntroduction: false,
-        spaces: [
-          {
-            name: { fi: "Järjestötila" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
-          },
-        ],
-        resources: [],
-      },
-    },
-    {
-      node: {
-        id: 52,
-        services: [],
-        unitId: 1,
-        name: { fi: "Koskelan nuorisotalon yläkerran ryhmätila 2" },
-        images: [],
-        building: {
-          id: 10,
-          name: "Koskelan nuorisotalo",
-        },
-        reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
-        },
-        maxPersons: 15,
-        location: {
-          id: 30,
-          addressStreet: "Antti Korpin tie 3 a",
-          addressZip: "00600",
-          addressCity: "Helsinki",
-        },
-        description: "",
-        requireIntroduction: false,
-        spaces: [
-          {
-            name: { fi: "Yläkerta/ryhmätila 2" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
-          },
-        ],
-        resources: [],
-      },
-    },
-    {
-      node: {
-        id: 51,
-        services: [],
-        unitId: 1,
-        name: { fi: "Koskelan nuorisotalon yläkerran ryhmätila 1" },
-        images: [],
-        building: {
-          id: 10,
-          name: "Koskelan nuorisotalo",
-        },
-        reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
-        },
-        maxPersons: 15,
-        location: {
-          id: 31,
-          addressStreet: "Antti Korpin tie 3 a",
-          addressZip: "00600",
-          addressCity: "Helsinki",
-        },
-        description: "",
-        requireIntroduction: false,
-        spaces: [
-          {
-            name: { fi: "Yläkerta/ryhmätila 1" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
-          },
-        ],
-        resources: [],
-      },
-    },
-    {
-      node: {
-        id: 35,
-        services: [],
-        unitId: 1,
-        name: { fi: "Malmin nuorisotalon alakerta" },
-        images: [],
-        building: {
-          id: 6,
-          name: "Malmin nuorisotalo",
-        },
-        reservationUnitType: {
-          id: 3,
-          name: { fi: "Nuorisopalvelut" },
-        },
-        maxPersons: 16,
-        location: {
-          id: 23,
-          addressStreet: "Kunnantie 3",
-          addressZip: "00700",
-          addressCity: "Helsinki",
-        },
-        description: "",
-        requireIntroduction: false,
-        spaces: [
-          {
-            name: { fi: "Alakerta" },
-            id: 1,
-            termsOfUse: "TErms of USEE",
-            locationType: null,
-            surfaceArea: null,
-            districtId: null,
-            parentId: null,
-          },
-        ],
-        resources: [],
-      },
+        contactInformation: "",
+      } as ReservationUnitType,
+      cursor: "YXJyYXljb25uZWN0aW9uOjE=",
     },
   ],
+  pageInfo: {
+    hasNextPage: false,
+    hasPreviousPage: false,
+  } as PageInfo,
 };
 
-const relatedReservationUnits = graphql.query<
-  RelatedReservationUnitsReturnType,
-  RelatedReservationUnitsArgs
->("RelatedReservationUnits", (req, res, ctx) => {
-  return res(
-    ctx.data({
-      relatedReservationUnits: relatedReservationUnitsData,
-    })
-  );
-});
+const relatedReservationUnits = graphql.query<Query, QueryReservationUnitsArgs>(
+  "RelatedReservationUnits",
+  (req, res, ctx) => {
+    return res(
+      ctx.data({
+        reservationUnits: relatedReservationUnitsData,
+      })
+    );
+  }
+);
 
 export const reservationUnitHandlers = [
   selectedReservationUnitQuery,

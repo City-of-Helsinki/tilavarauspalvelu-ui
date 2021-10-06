@@ -662,7 +662,7 @@ export type QueryReservationUnitsArgs = {
   maxPersonsLte?: Maybe<Scalars["Float"]>;
   reservationUnitType?: Maybe<Scalars["ID"]>;
   textSearch?: Maybe<Scalars["String"]>;
-  unit?: Maybe<Scalars["ID"]>;
+  unit?: Maybe<Scalars["Int"]>;
 };
 
 export type QueryResourceArgs = {

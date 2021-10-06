@@ -7,11 +7,7 @@ import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { subMinutes } from "date-fns";
 import Container from "../../../components/common/Container";
-import {
-  PendingReservation,
-  Reservation,
-  ReservationUnit as ReservationUnitType,
-} from "../../../modules/types";
+import { PendingReservation } from "../../../modules/types";
 import Head from "../../../components/reservation-unit/Head";
 import Address from "../../../components/reservation-unit/Address";
 import Sanitize from "../../../components/common/Sanitize";
@@ -38,19 +34,34 @@ import {
 } from "../../../modules/calendar";
 import Toolbar, { ToolbarProps } from "../../../components/calendar/Toolbar";
 import { getActiveOpeningTimes } from "../../../modules/openingHours";
+import {
+  Query,
+  QueryReservationUnitByPkArgs,
+  QueryReservationUnitsArgs,
+  ReservationType,
+  ReservationUnitByPkType,
+  ReservationUnitByPkTypeOpeningHoursArgs,
+  ReservationUnitByPkTypeReservationsArgs,
+  ReservationUnitType,
+  ReservationUnitTypeEdge,
+  ReservationState,
+} from "../../../modules/gql-types";
 
 type Props = {
-  reservationUnit: ReservationUnitType | null;
+  reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
   viewType: "recurring" | "single";
 };
 
 type WeekOptions = "day" | "week" | "month";
 
+type ReservationStateWithInitial = ReservationState | "INITIAL";
+
 const RESERVATION_UNIT = gql`
   query SelectedReservationUnit($pk: Int!) {
-    reservationUnit: reservationUnitByPk(pk: $pk) {
-      id: pk
+    reservationUnitByPk(pk: $pk) {
+      id
+      pk
       name
       images {
         imageUrl
@@ -64,8 +75,9 @@ const RESERVATION_UNIT = gql`
         name
       }
       maxPersons
-      building: unit {
-        id: pk
+      unit {
+        id
+        pk
         name
       }
       location {
@@ -79,7 +91,7 @@ const RESERVATION_UNIT = gql`
       maxReservationDuration
       nextAvailableSlot
       spaces {
-        id: pk
+        pk
         name
         termsOfUse
       }
@@ -104,18 +116,18 @@ const RESERVATION_UNIT = gql`
 const OPENING_HOURS = gql`
   query ReservationUnitOpeningHours(
     $pk: Int
-    $openingHoursFrom: Date
-    $openingHoursTo: Date
-    $reservationsFrom: Date
-    $reservationsTo: Date
-    $reservationState: [String]
+    $startDate: Date
+    $endDate: Date
+    $from: Date
+    $to: Date
+    $state: [String]
   ) {
-    reservationUnit: reservationUnitByPk(pk: $pk) {
+    reservationUnitByPk(pk: $pk) {
       openingHours(
         openingTimes: true
         periods: false
-        startDate: $openingHoursFrom
-        endDate: $openingHoursTo
+        startDate: $startDate
+        endDate: $endDate
       ) {
         openingTimes {
           date
@@ -125,12 +137,8 @@ const OPENING_HOURS = gql`
           periods
         }
       }
-      reservations(
-        state: $reservationState
-        from: $reservationsFrom
-        to: $reservationsTo
-      ) {
-        id: pk
+      reservations(state: $state, from: $from, to: $to) {
+        pk
         state
         priority
         begin
@@ -144,18 +152,18 @@ const OPENING_HOURS = gql`
 
 const RELATED_RESERVATION_UNITS = gql`
   query RelatedReservationUnits($unit: ID) {
-    relatedReservationUnits: reservationUnits(unit: $unit) {
+    reservationUnits(unit: $unit) {
       edges {
         node {
-          id: pk
+          pk
           name
           images {
             imageUrl
             smallUrl
             imageType
           }
-          building: unit {
-            id: pk
+          unit {
+            pk
             name
           }
           reservationUnitType {
@@ -171,7 +179,6 @@ const RELATED_RESERVATION_UNITS = gql`
   }
 `;
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getServerSideProps: GetServerSideProps = async ({
   locale,
   params,
@@ -182,7 +189,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   let relatedReservationUnits = [] as ReservationUnitType[];
 
   if (id) {
-    const { data: reservationUnitData } = await apolloClient.query({
+    const { data: reservationUnitData } = await apolloClient.query<
+      Query,
+      QueryReservationUnitByPkArgs
+    >({
       query: RESERVATION_UNIT,
       variables: {
         pk: id,
@@ -190,39 +200,47 @@ export const getServerSideProps: GetServerSideProps = async ({
     });
 
     const lastOpeningPeriodEndDate =
-      reservationUnitData.reservationUnit.openingHours.openingTimePeriods
+      reservationUnitData.reservationUnitByPk.openingHours.openingTimePeriods
         .map((period) => period.endDate)
         .sort()
         .reverse()[0];
 
-    const { data: additionalData } = await apolloClient.query({
+    const { data: additionalData } = await apolloClient.query<
+      Query,
+      QueryReservationUnitByPkArgs &
+        ReservationUnitByPkTypeOpeningHoursArgs &
+        ReservationUnitByPkTypeReservationsArgs
+    >({
       query: OPENING_HOURS,
       variables: {
         pk: id,
-        openingHoursFrom: today,
-        openingHoursTo: lastOpeningPeriodEndDate,
-        reservationsFrom: today,
-        reservationsTo: lastOpeningPeriodEndDate,
-        reservationState: ["created"],
+        startDate: today,
+        endDate: lastOpeningPeriodEndDate,
+        from: today,
+        to: lastOpeningPeriodEndDate,
+        state: ["CREATED"],
       },
     });
 
-    if (reservationUnitData.reservationUnit?.building?.id) {
-      const { data: relatedReservationUnitsData } = await apolloClient.query({
+    if (reservationUnitData.reservationUnitByPk?.unit?.pk) {
+      const { data: relatedReservationUnitsData } = await apolloClient.query<
+        Query,
+        QueryReservationUnitsArgs
+      >({
         query: RELATED_RESERVATION_UNITS,
-        variables: { unit: reservationUnitData.reservationUnit.building.id },
+        variables: { unit: reservationUnitData.reservationUnitByPk.unit.pk },
       });
 
       relatedReservationUnits =
-        relatedReservationUnitsData?.relatedReservationUnits?.edges
-          .map((n) => n.node)
+        relatedReservationUnitsData?.reservationUnits?.edges
+          .map((n: ReservationUnitTypeEdge) => n.node)
           .filter(
             (n: ReservationUnitType) =>
-              n.id !== reservationUnitData.reservationUnit.id
+              n.pk !== reservationUnitData.reservationUnitByPk.pk
           );
     }
 
-    if (!reservationUnitData.reservationUnit?.id) {
+    if (!reservationUnitData.reservationUnitByPk?.pk) {
       return {
         notFound: true,
       };
@@ -232,13 +250,13 @@ export const getServerSideProps: GetServerSideProps = async ({
       props: {
         ...(await serverSideTranslations(locale)),
         reservationUnit: {
-          ...reservationUnitData.reservationUnit,
+          ...reservationUnitData.reservationUnitByPk,
           openingHours: {
-            ...reservationUnitData.reservationUnit.openingHours,
+            ...reservationUnitData.reservationUnitByPk.openingHours,
             openingTimes:
-              additionalData.reservationUnit.openingHours.openingTimes,
+              additionalData.reservationUnitByPk.openingHours.openingTimes,
           },
-          reservations: additionalData.reservationUnit.reservations,
+          reservations: additionalData.reservationUnitByPk.reservations,
         },
         relatedReservationUnits,
       },
@@ -324,8 +342,10 @@ const eventStyleGetter = ({
   } as Record<string, string>;
   let className = "";
 
-  switch (event.state) {
-    case "initial":
+  const state = event.state as ReservationStateWithInitial;
+
+  switch (state) {
+    case "INITIAL":
       style.backgroundColor = "var(--color-success-dark)";
       className = "rbc-event-movable";
       break;
@@ -389,7 +409,7 @@ const ReservationUnit = ({
     setInitialReservation({
       begin: start.toISOString(),
       end: end.toISOString(),
-      state: "initial",
+      state: "INITIAL",
     } as PendingReservation);
     return true;
   };
@@ -402,11 +422,11 @@ const ReservationUnit = ({
 
   const calendarEvents = reservationUnit?.reservations
     ? [...reservationUnit.reservations, initialReservation]
-        .filter((n) => n)
-        .map((reservation: Reservation) => {
+        .filter((n: ReservationType) => n)
+        .map((reservation: ReservationType) => {
           const event = {
             title: `${
-              reservation.state === "cancelled"
+              reservation.state === "CANCELLED"
                 ? `${t("reservationCalendar:prefixForCancelled")}: `
                 : ""
             }`,
@@ -480,10 +500,10 @@ const ReservationUnit = ({
               onEventDrop={handleEventChange}
               onEventResize={handleEventChange}
               draggableAccessor={({ event }: CalendarEvent) =>
-                event.state === "initial"
+                (event.state as ReservationStateWithInitial) === "INITIAL"
               }
               resizableAccessor={({ event }: CalendarEvent) =>
-                event.state === "initial"
+                (event.state as ReservationStateWithInitial) === "INITIAL"
               }
             />
             <CalendarFooter>
@@ -504,7 +524,7 @@ const ReservationUnit = ({
         <MapWrapper>
           <StyledH2>{t("common:location")}</StyledH2>
           <Map
-            title={reservationUnit.building?.name}
+            title={reservationUnit.unit?.name}
             latitude={Number(reservationUnit.location?.latitude)}
             longitude={Number(reservationUnit.location?.longitude)}
           />
@@ -521,7 +541,7 @@ const ReservationUnit = ({
           <Accordion heading={t("reservationUnit:termsOfUseSpaces")}>
             <Content>
               {reservationUnit.spaces?.map((space) => (
-                <React.Fragment key={space.id}>
+                <React.Fragment key={space.pk}>
                   {reservationUnit.spaces.length > 1 && <h3>{space.name}</h3>}
                   <p>
                     <Sanitize html={space.termsOfUse} />

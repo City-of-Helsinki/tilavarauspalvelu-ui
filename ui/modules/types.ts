@@ -242,7 +242,7 @@ export type Reservation = {
 export type PendingReservation = {
   begin: string;
   end: string;
-  state: "initial";
+  state: "INITIAL";
 };
 
 export type RecurringReservation = {
@@ -346,4 +346,12 @@ export type OpeningTimePeriod = {
 export type OpeningHours = {
   openingTimes?: OpeningTime[];
   openingTimePeriods?: OpeningTimePeriod[];
+};
+
+export type Promotion = {
+  id: number;
+  heading: TranslationObject;
+  body?: TranslationObject;
+  image: string;
+  link: string;
 };

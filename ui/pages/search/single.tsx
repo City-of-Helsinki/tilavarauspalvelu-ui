@@ -193,6 +193,7 @@ const Search = (): JSX.Element => {
       ) : (
         <SearchResultList
           error={!!error}
+          loading={loading}
           reservationUnits={reservationUnits}
           fetchMore={(cursor) => {
             const variables = {

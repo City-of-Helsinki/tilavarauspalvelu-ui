@@ -16,7 +16,7 @@ export const Strong = styled.span`
   font-size: 700;
 `;
 
-export const Reqular = styled.span`
+export const Regular = styled.span`
   font-family: var(--font-bold);
   font-size: 400;
 `;
@@ -33,4 +33,32 @@ export const H2 = styled.h2`
   font-family: var(--font-bold);
   font-weight: 700;
   margin-bottom: var(--spacing-m);
+`;
+
+export const KebabHeading = styled.h2`
+  &:before,
+  &:after {
+    background-color: var(--color-black-90);
+    content: "";
+    display: flex;
+    align-self: center;
+    height: 1px;
+    position: relative;
+    width: 50%;
+  }
+
+  &:before {
+    right: var(--spacing-layout-l);
+    margin-left: -50%;
+  }
+
+  &:after {
+    left: var(--spacing-layout-l);
+    margin-right: -50%;
+  }
+
+  display: flex;
+  overflow: hidden;
+  text-align: center;
+  justify-content: center;
 `;

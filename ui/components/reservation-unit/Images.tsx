@@ -3,13 +3,13 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import dynamic from "next/dynamic";
 import { breakpoint } from "../../modules/style";
-import { Image } from "../../modules/types";
 import Carousel from "../Carousel";
 import { pixel } from "../../styles/util";
+import { ReservationUnitImageType } from "../../modules/gql-types";
 
 const Modal = dynamic(() => import("../common/Modal"));
 type Props = {
-  images: Image[];
+  images: ReservationUnitImageType[];
 };
 
 const StyledCarousel = styled(Carousel)`
@@ -82,7 +82,7 @@ const LargeImage = styled.img`
 const Images = ({ images }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
-  const [currentImage, setCurrentImage] = useState<Image>();
+  const [currentImage, setCurrentImage] = useState<ReservationUnitImageType>();
 
   if (images?.length === 0) {
     return <div />;

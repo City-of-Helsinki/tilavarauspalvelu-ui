@@ -1,7 +1,8 @@
 import { isBefore } from "date-fns";
 import { uniq } from "lodash";
 import { i18n } from "next-i18next";
-import { OpeningTimePeriod, TimeSpan } from "./types";
+import { PeriodType } from "./gql-types";
+import { TimeSpan } from "./types";
 import { toApiDate } from "./util";
 
 export type ActiveOpeningTime = {
@@ -20,9 +21,9 @@ export type OpeningHourRow = {
 const reservableStates = ["open"];
 
 export const getActiveOpeningTimePeriod = (
-  openingTimePeriods: OpeningTimePeriod[],
+  openingTimePeriods: PeriodType[],
   date: string
-): OpeningTimePeriod | undefined =>
+): PeriodType | undefined =>
   openingTimePeriods?.find(
     (openingTimePeriod) =>
       isBefore(new Date(openingTimePeriod.startDate), new Date(date)) &&
@@ -30,7 +31,7 @@ export const getActiveOpeningTimePeriod = (
   );
 
 export const getActiveOpeningTimes = (
-  openingTimePeriods: OpeningTimePeriod[]
+  openingTimePeriods?: PeriodType[]
 ): ActiveOpeningTime[] => {
   const result = [] as ActiveOpeningTime[];
   const activeOpeningTimePeriod = getActiveOpeningTimePeriod(

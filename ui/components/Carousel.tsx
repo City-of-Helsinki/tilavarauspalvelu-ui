@@ -12,6 +12,7 @@ type Props = {
   slidesToScroll?: number;
   cellSpacing?: number;
   wrapAround?: boolean;
+  hideCenterControls?: boolean;
 };
 
 const Button = styled(MediumButton).attrs({
@@ -77,7 +78,10 @@ const StyledCarousel = styled(NukaCarousel)<{ $showCenterControls: boolean }>`
   }
 `;
 
-const VerticalButton = styled(Button)<{ $disabled: boolean }>`
+const VerticalButton = styled(Button)<{
+  $disabled: boolean;
+  $side: "left" | "right";
+}>`
   ${({ $disabled }) =>
     $disabled
       ? `
@@ -87,9 +91,35 @@ const VerticalButton = styled(Button)<{ $disabled: boolean }>`
     &:hover {
       opacity: 1;
     }
-
     opacity: 0.5;
   `};
+
+  @media (min-width: calc(${breakpoint.xl} + 130px)) {
+    &:hover {
+      opacity: 0.5;
+    }
+
+    &:active {
+      opacity: 1;
+    }
+
+    position: absolute;
+    opacity: 1;
+    background-color: transparent !important;
+    color: var(--color-black-90) !important;
+    ${({ $side }) =>
+      $side === "left"
+        ? `
+      left: -70px;
+    `
+        : `
+      left: 70px;
+    `}
+
+    svg {
+      --icon-size: var(--spacing-2-xl) !important;
+    }
+  }
 `;
 
 const Carousel = ({
@@ -98,6 +128,7 @@ const Carousel = ({
   slidesToScroll = 1,
   cellSpacing = 1,
   wrapAround = true,
+  hideCenterControls = false,
   ...rest
 }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -109,11 +140,12 @@ const Carousel = ({
         return (
           <VerticalButton
             $disabled={isDisabled}
+            $side="left"
             type="button"
             onClick={previousSlide}
             aria-label={t("common:prev")}
           >
-            <IconAngleLeft />
+            <IconAngleLeft aria-label={t("common:prev")} />
           </VerticalButton>
         );
       }}
@@ -127,11 +159,12 @@ const Carousel = ({
         return (
           <VerticalButton
             $disabled={isDisabled}
+            $side="right"
             type="button"
             onClick={nextSlide}
             aria-label={t("common:next")}
           >
-            <IconAngleRight />
+            <IconAngleRight aria-label={t("common:next")} />
           </VerticalButton>
         );
       }}
@@ -140,7 +173,9 @@ const Carousel = ({
       slidesToShow={slidesToShow}
       slidesToScroll={slidesToScroll}
       cellSpacing={cellSpacing}
-      $showCenterControls={children?.length > slidesToShow}
+      $showCenterControls={
+        !hideCenterControls && children?.length > slidesToShow
+      }
       {...rest}
     >
       {children}

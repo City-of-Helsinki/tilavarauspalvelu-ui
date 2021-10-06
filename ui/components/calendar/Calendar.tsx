@@ -14,7 +14,7 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { useTranslation } from "react-i18next";
 import { parseDate } from "../../modules/util";
-import { Reservation } from "../../modules/types";
+import { ReservationType } from "../../modules/gql-types";
 
 // EventPropGetter<T> = (event: T, start: stringOrDate, end: stringOrDate, isSelected: boolean) => React.HTMLAttributes<HTMLDivElement>;
 export type CalendarEvent = {
@@ -22,7 +22,7 @@ export type CalendarEvent = {
   start: Date;
   end: Date;
   allDay: boolean;
-  event: Reservation;
+  event: ReservationType;
 };
 
 export type SlotProps = {

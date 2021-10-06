@@ -10,24 +10,34 @@ import { useTranslation } from "react-i18next";
 import router from "next/router";
 import Link from "next/link";
 import styled from "styled-components";
+import { useMedia } from "react-use";
 import { reservationUnitPath } from "../../modules/const";
 import useReservationUnitsList from "../../hooks/useReservationUnitList";
 import { breakpoint } from "../../modules/style";
-import { ReservationUnit } from "../../modules/types";
 import { getAddress, getMainImage, localizedValue } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
 import { MediumButton } from "../../styles/util";
+import Carousel from "../Carousel";
+import { ReservationUnitType } from "../../modules/gql-types";
 
 type PropsType = {
-  units: ReservationUnit[];
+  units: ReservationUnitType[];
   reservationUnitList: ReturnType<typeof useReservationUnitsList>;
   viewType: "recurring" | "single";
 };
 
-const Heading = styled.div`
-  margin-top: var(--spacing-s);
-  font-size: var(--fontsize-heading-m);
-  font-family: var(--font-bold);
+const Wrapper = styled.div`
+  margin: 0 var(--spacing-s);
+
+  @media (min-width: ${breakpoint.m}) {
+    margin: 0;
+  }
+`;
+
+const StyledCarousel = styled(Carousel)`
+  .slider-list {
+    cursor: default !important;
+  }
 `;
 
 const Content = styled.div`
@@ -59,18 +69,6 @@ const Building = styled.div`
   font-family: var(--font-regular);
   font-size: var(--fontsize-body-m);
   margin: var(--spacing-3-xs) 0 var(--spacing-xs);
-`;
-
-const Grid = styled.div`
-  margin-top: var(--spacing-layout-s);
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--spacing-s);
-
-  @media (max-width: ${breakpoint.m}) {
-    grid-template-columns: 1fr;
-    margin-top: 0;
-  }
 `;
 
 const Props = styled.div`
@@ -111,28 +109,33 @@ const RelatedUnits = ({
   viewType,
 }: PropsType): JSX.Element | null => {
   const { t, i18n } = useTranslation();
-
-  const {
-    selectReservationUnit,
-    containsReservationUnit,
-    removeReservationUnit,
-  } = reservationUnitList;
+  const isMobile = useMedia(`(max-width: ${breakpoint.m})`, false);
+  const isWideMobile = useMedia(`(max-width: ${breakpoint.l})`, false);
 
   if (units.length === 0) {
     return null;
   }
   return (
-    <>
-      <Heading>{t("reservationUnitCard:RelatedUnits.heading")}</Heading>
-      <Grid>
-        {units.slice(0, 3).map((unit) => (
-          <Unit key={unit.id}>
-            <Image src={getMainImage(unit)?.imageUrl} image-alt={unit.name} />
+    <Wrapper>
+      <StyledCarousel
+        slidesToShow={isMobile ? 1 : isWideMobile ? 2 : 3}
+        slidesToScroll={isMobile ? 1 : isWideMobile ? 2 : 3}
+        wrapAround={false}
+        hideCenterControls
+        cellSpacing={24}
+      >
+        {units.map((unit) => (
+          <Unit key={unit.pk}>
+            <Image
+              src={getMainImage(unit)?.imageUrl}
+              alt=""
+              style={{ marginTop: 0 }}
+            />
             <Content>
-              <Link href={reservationUnitPath(unit.id)} passHref>
+              <Link href={reservationUnitPath(unit.pk)} passHref>
                 <Name>{localizedValue(unit.name, i18n.language)}</Name>
               </Link>
-              <Building>{unit.building.name}</Building>
+              <Building>{unit.unit.name}</Building>
               <Props>
                 <StyledIconWithText
                   icon={
@@ -176,9 +179,11 @@ const RelatedUnits = ({
               </Props>
               {viewType === "recurring" && (
                 <Buttons>
-                  {containsReservationUnit(unit) ? (
+                  {reservationUnitList?.containsReservationUnit(unit) ? (
                     <MediumButton
-                      onClick={() => removeReservationUnit(unit)}
+                      onClick={() =>
+                        reservationUnitList.removeReservationUnit(unit)
+                      }
                       iconLeft={<IconCheck />}
                       className="margin-left-xs margin-top-s"
                     >
@@ -186,7 +191,9 @@ const RelatedUnits = ({
                     </MediumButton>
                   ) : (
                     <MediumButton
-                      onClick={() => selectReservationUnit(unit)}
+                      onClick={() =>
+                        reservationUnitList.selectReservationUnit(unit)
+                      }
                       iconLeft={<IconPlus />}
                       className="margin-left-s margin-top-s"
                       variant="secondary"
@@ -200,7 +207,7 @@ const RelatedUnits = ({
                 <Buttons>
                   <MediumButton
                     style={{ width: "100%" }}
-                    onClick={() => router.push(reservationUnitPath(unit.id))}
+                    onClick={() => router.push(reservationUnitPath(unit.pk))}
                     className="margin-left-xs margin-top-s"
                     variant="secondary"
                   >
@@ -211,8 +218,8 @@ const RelatedUnits = ({
             </Content>
           </Unit>
         ))}
-      </Grid>
-    </>
+      </StyledCarousel>
+    </Wrapper>
   );
 };
 

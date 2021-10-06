@@ -4,13 +4,13 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { differenceInMinutes, parseISO } from "date-fns";
 import { breakpoint } from "../../modules/style";
-import { ReservationUnit } from "../../modules/types";
 import { isReservationLongEnough } from "../../modules/calendar";
 import { formatDurationMinutes } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
+import { ReservationUnitByPkType } from "../../modules/gql-types";
 
 type Props = {
-  reservationUnit: ReservationUnit;
+  reservationUnit: ReservationUnitByPkType;
   begin?: string;
   end?: string;
 };

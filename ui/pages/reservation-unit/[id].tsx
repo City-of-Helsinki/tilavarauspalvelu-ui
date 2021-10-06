@@ -6,7 +6,6 @@ import { gql } from "@apollo/client";
 import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Container from "../../components/common/Container";
-import { ReservationUnit as ReservationUnitType } from "../../modules/types";
 import Head from "../../components/reservation-unit/Head";
 import Address from "../../components/reservation-unit/Address";
 import Sanitize from "../../components/common/Sanitize";
@@ -19,16 +18,25 @@ import apolloClient from "../../modules/apolloClient";
 import Map from "../../components/Map";
 import { H2 } from "../../modules/style/typography";
 import { getActiveOpeningTimes } from "../../modules/openingHours";
+import {
+  Query,
+  QueryReservationUnitByPkArgs,
+  QueryReservationUnitsArgs,
+  ReservationUnitByPkType,
+  ReservationUnitType,
+  ReservationUnitTypeEdge,
+} from "../../modules/gql-types";
 
 type Props = {
-  reservationUnit: ReservationUnitType | null;
+  reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
 };
 
 const RESERVATION_UNIT = gql`
   query SelectedReservationUnit($pk: Int!) {
-    reservationUnit: reservationUnitByPk(pk: $pk) {
-      id: pk
+    reservationUnitByPk(pk: $pk) {
+      id
+      pk
       name
       images {
         imageUrl
@@ -42,8 +50,9 @@ const RESERVATION_UNIT = gql`
         name
       }
       maxPersons
-      building: unit {
-        id: pk
+      unit {
+        id
+        pk
         name
       }
       location {
@@ -53,9 +62,8 @@ const RESERVATION_UNIT = gql`
         addressZip
         addressCity
       }
-      nextAvailableSlot
       spaces {
-        id: pk
+        pk
         name
         termsOfUse
       }
@@ -79,18 +87,18 @@ const RESERVATION_UNIT = gql`
 
 const RELATED_RESERVATION_UNITS = gql`
   query RelatedReservationUnits($unit: ID) {
-    relatedReservationUnits: reservationUnits(unit: $unit) {
+    reservationUnits(unit: $unit) {
       edges {
         node {
-          id: pk
+          pk
           name
           images {
             imageUrl
             smallUrl
             imageType
           }
-          building: unit {
-            id: pk
+          unit {
+            pk
             name
           }
           reservationUnitType {
@@ -115,29 +123,35 @@ export const getServerSideProps: GetServerSideProps = async ({
   let relatedReservationUnits = [] as ReservationUnitType[];
 
   if (id) {
-    const { data: reservationUnitData } = await apolloClient.query({
+    const { data: reservationUnitData } = await apolloClient.query<
+      Query,
+      QueryReservationUnitByPkArgs
+    >({
       query: RESERVATION_UNIT,
       variables: {
         pk: id,
       },
     });
 
-    if (reservationUnitData.reservationUnit?.building?.id) {
-      const { data: relatedReservationUnitsData } = await apolloClient.query({
+    if (reservationUnitData.reservationUnitByPk?.unit?.pk) {
+      const { data: relatedReservationUnitsData } = await apolloClient.query<
+        Query,
+        QueryReservationUnitsArgs
+      >({
         query: RELATED_RESERVATION_UNITS,
-        variables: { unit: reservationUnitData.reservationUnit.building.id },
+        variables: { unit: reservationUnitData.reservationUnitByPk.unit.pk },
       });
 
       relatedReservationUnits =
-        relatedReservationUnitsData?.relatedReservationUnits?.edges
-          .map((n) => n.node)
+        relatedReservationUnitsData?.reservationUnits?.edges
+          .map((n: ReservationUnitTypeEdge) => n.node)
           .filter(
             (n: ReservationUnitType) =>
-              n.id !== reservationUnitData.reservationUnit.id
+              n.pk !== reservationUnitData.reservationUnitByPk.pk
           );
     }
 
-    if (!reservationUnitData.reservationUnit?.id) {
+    if (!reservationUnitData.reservationUnitByPk?.pk) {
       return {
         notFound: true,
       };
@@ -146,7 +160,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         ...(await serverSideTranslations(locale)),
-        reservationUnit: reservationUnitData.reservationUnit,
+        reservationUnit: reservationUnitData.reservationUnitByPk,
         relatedReservationUnits,
       },
     };
@@ -239,7 +253,7 @@ const ReservationUnit = ({
         <MapWrapper>
           <StyledH2>{t("common:location")}</StyledH2>
           <Map
-            title={reservationUnit.building?.name}
+            title={reservationUnit.unit?.name}
             latitude={Number(reservationUnit.location?.latitude)}
             longitude={Number(reservationUnit.location?.longitude)}
           />
@@ -256,7 +270,7 @@ const ReservationUnit = ({
           <Accordion heading={t("reservationUnit:termsOfUseSpaces")}>
             <Content>
               {reservationUnit.spaces?.map((space) => (
-                <React.Fragment key={space.id}>
+                <React.Fragment key={space.pk}>
                   {reservationUnit.spaces.length > 1 && <h3>{space.name}</h3>}
                   <p>
                     <Sanitize html={space.termsOfUse} />

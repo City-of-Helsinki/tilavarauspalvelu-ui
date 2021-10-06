@@ -14,7 +14,6 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import useReservationUnitList from "../../hooks/useReservationUnitList";
 import { breakpoint } from "../../modules/style";
-import { ReservationUnit as ReservationUnitType } from "../../modules/types";
 import { formatDuration, localizedValue } from "../../modules/util";
 import Back from "../common/Back";
 import Container from "../common/Container";
@@ -27,9 +26,10 @@ import {
   getDayOpeningTimes,
 } from "../../modules/openingHours";
 import { MediumButton } from "../../styles/util";
+import { ReservationUnitByPkType } from "../../modules/gql-types";
 
 interface PropsType {
-  reservationUnit: ReservationUnitType;
+  reservationUnit: ReservationUnitByPkType;
   reservationUnitList: ReturnType<typeof useReservationUnitList>;
   activeOpeningTimes: ActiveOpeningTime[];
   viewType: "recurring" | "single";
@@ -143,7 +143,7 @@ const Head = ({
               {localizedValue(reservationUnit.name, i18n.language)}
             </ReservationUnitName>
             <BuildingName>
-              {localizedValue(reservationUnit.building?.name, i18n.language)}
+              {localizedValue(reservationUnit.unit?.name, i18n.language)}
             </BuildingName>
             <JustForMobile style={{ marginTop: "var(--spacing-l)" }}>
               <Images images={reservationUnit.images} />

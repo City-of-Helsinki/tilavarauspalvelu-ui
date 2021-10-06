@@ -1,12 +1,12 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { Location, ReservationUnit } from "../../modules/types";
 import { localizedValue } from "../../modules/util";
 import ExternalLink from "./ExternalLink";
+import { LocationType, ReservationUnitByPkType } from "../../modules/gql-types";
 
 type Props = {
-  reservationUnit: ReservationUnit;
+  reservationUnit: ReservationUnitByPkType;
 };
 
 const Container = styled.div`
@@ -37,7 +37,7 @@ const Links = styled.div`
   }
 `;
 
-const hslUrl = (locale: string, location: Location): string | null => {
+const hslUrl = (locale: string, location: LocationType): string | null => {
   if (!location) {
     return null;
   }
@@ -47,14 +47,14 @@ const hslUrl = (locale: string, location: Location): string | null => {
   )}`;
 };
 
-const googleUrl = (location: Location): string | null => {
+const googleUrl = (location: LocationType): string | null => {
   if (!location) {
     return null;
   }
   return `https://www.google.com/maps/dir/?api=1&destination=${location.addressStreet},${location.addressCity}`;
 };
 
-const mapUrl = (location: Location): string | null => {
+const mapUrl = (location: LocationType): string | null => {
   if (!location) {
     return null;
   }

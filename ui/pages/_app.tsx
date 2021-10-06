@@ -1,10 +1,10 @@
 import React from "react";
 import { appWithTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
-import { ApolloProvider } from "@apollo/client";
 import { format } from "date-fns";
 import { AppProps } from "next/app";
 import { fi } from "date-fns/locale";
+import { ApolloProvider } from "@apollo/client";
 import apolloClient from "../modules/apolloClient";
 import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";

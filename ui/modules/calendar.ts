@@ -9,12 +9,8 @@ import {
 } from "date-fns";
 import { TFunction } from "next-i18next";
 import { SlotProps } from "../components/calendar/Calendar";
-import {
-  ApplicationEvent,
-  OpeningTime,
-  OptionType,
-  Reservation,
-} from "./types";
+import { OpeningTimesType, ReservationType } from "./gql-types";
+import { ApplicationEvent, OptionType } from "./types";
 import {
   apiDurationToMinutes,
   endOfWeek,
@@ -91,7 +87,7 @@ export const isReservationLongEnough = (
 };
 
 const areOpeningTimesAvailable = (
-  openingHours: OpeningTime[],
+  openingHours: OpeningTimesType[],
   slotDate: Date
 ) => {
   return !!openingHours?.some((oh) => {
@@ -115,7 +111,7 @@ export const isSlotWithinTimeframe = (start: Date, bufferDays = 0): boolean => {
 
 export const areSlotsReservable = (
   slots: Date[],
-  openingHours: OpeningTime[],
+  openingHours: OpeningTimesType[],
   bufferDays?: number
 ): boolean => {
   return slots.every((slot) => {
@@ -128,7 +124,7 @@ export const areSlotsReservable = (
 };
 
 export const doReservationsCollide = (
-  reservations: Reservation[],
+  reservations: ReservationType[],
   newReservation: { start: Date; end: Date }
 ): boolean => {
   return reservations.some((reservation) =>
@@ -140,7 +136,7 @@ export const doReservationsCollide = (
 };
 
 export const getSlotPropGetter =
-  (openingHours: OpeningTime[], bufferDays?: number) =>
+  (openingHours: OpeningTimesType[], bufferDays?: number) =>
   (date: Date): SlotProps => {
     switch (areSlotsReservable([date], openingHours, bufferDays)) {
       case true:
