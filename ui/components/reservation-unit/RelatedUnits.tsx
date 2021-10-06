@@ -22,7 +22,7 @@ import { ReservationUnitType } from "../../modules/gql-types";
 
 type PropsType = {
   units: ReservationUnitType[];
-  reservationUnitList: ReturnType<typeof useReservationUnitsList>;
+  reservationUnitList?: ReturnType<typeof useReservationUnitsList>;
   viewType: "recurring" | "single";
 };
 

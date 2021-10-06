@@ -1,8 +1,7 @@
 import { isBefore } from "date-fns";
 import { uniq } from "lodash";
 import { i18n } from "next-i18next";
-import { PeriodType } from "./gql-types";
-import { TimeSpan } from "./types";
+import { PeriodType, TimeSpanType } from "./gql-types";
 import { toApiDate } from "./util";
 
 export type ActiveOpeningTime = {
@@ -45,7 +44,7 @@ export const getActiveOpeningTimes = (
     timeSpans?.reduce((acc, timeSpan) => acc.concat(timeSpan.weekdays), [])
   ).sort();
   weekdays.forEach((weekday) => {
-    const activeTimeSpans: TimeSpan[] = timeSpans?.filter((n) =>
+    const activeTimeSpans: TimeSpanType[] = timeSpans?.filter((n) =>
       n.weekdays.includes(weekday)
     );
     activeTimeSpans.forEach((timeSpan) => {
