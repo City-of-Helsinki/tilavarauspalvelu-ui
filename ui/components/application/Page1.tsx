@@ -223,7 +223,7 @@ const Page1 = ({
             applicationEvent={event}
             index={index}
             applicationRound={applicationRound}
-            optionTypes={options as OptionTypes}
+            optionTypes={options}
             selectedReservationUnits={selectedReservationUnits}
             onSave={form.handleSubmit((app: Application) =>
               onSubmit(app, event.id)
