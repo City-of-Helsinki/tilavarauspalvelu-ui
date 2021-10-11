@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { gql } from "@apollo/client";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import queryString from "query-string";
 import router from "next/router";
-import { isDate, isFinite } from "lodash";
-import { parseISO } from "date-fns";
+import { differenceInMinutes, parseISO } from "date-fns";
 import {
   IconCalendar,
   Koros,
@@ -16,27 +14,37 @@ import {
   IconCheckCircle,
 } from "hds-react";
 import { useForm } from "react-hook-form";
+import { GetServerSideProps } from "next";
+import { isFinite } from "lodash";
 import { Trans, useTranslation } from "react-i18next";
-import { ReservationUnit, UserProfile } from "../../../modules/types";
+import { UserProfile } from "../../../modules/types";
 import apolloClient from "../../../modules/apolloClient";
-import { H1, H2, Strong } from "../../../modules/style/typography";
+import {
+  fontRegular,
+  fontMedium,
+  H1,
+  H2,
+  Strong,
+} from "../../../modules/style/typography";
 import { breakpoint } from "../../../modules/style";
 import { TwoColumnContainer } from "../../../components/common/common";
 import { NarrowCenteredContainer } from "../../../modules/style/layout";
 import { AccordionWithState as Accordion } from "../../../components/common/Accordion";
 import { isBrowser } from "../../../modules/const";
-import { applicationErrorText } from "../../../modules/util";
+import {
+  applicationErrorText,
+  capitalize,
+  formatDurationMinutes,
+} from "../../../modules/util";
 import WithUserProfile from "../../../components/WithUserProfile";
 import { MediumButton } from "../../../styles/util";
+import { DataContext } from "../../../context/DataContext";
+import { ReservationUnitType } from "../../../modules/gql-types";
+import ErrorPage from "../../404";
 
 type Props = {
-  reservationUnit: ReservationUnit;
+  reservationUnit: ReservationUnitType;
   profile: UserProfile | null;
-};
-
-type QueryParams = {
-  begin: string;
-  end: string;
 };
 
 type Inputs = {
@@ -60,30 +68,26 @@ type Reservation = {
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getServerSideProps = async ({ locale, params, query }) => {
+export const getServerSideProps: GetServerSideProps = async ({
+  locale,
+  params,
+}) => {
   const id = Number(params.params[0]);
   const path = params.params[1];
-  const isValidDate = (date: string): boolean =>
-    !!date && isDate(new Date(date)) && isFinite(new Date(date).getTime());
 
   const RESERVATION_UNIT = gql`
     query SelectedReservationUnit($pk: Int) {
-      reservationUnit: reservationUnitByPk(pk: $pk) {
-        id: pk
+      reservationUnitByPk(pk: $pk) {
+        pk
         name
-        building: unit {
+        unit {
           name
         }
       }
     }
   `;
 
-  if (
-    isFinite(id) &&
-    path === "reservation" &&
-    isValidDate(query?.begin) &&
-    isValidDate(query?.end)
-  ) {
+  if (isFinite(id) && path === "reservation") {
     const { data } = await apolloClient.query({
       query: RESERVATION_UNIT,
       variables: { pk: id },
@@ -91,8 +95,8 @@ export const getServerSideProps = async ({ locale, params, query }) => {
 
     return {
       props: {
+        reservationUnit: data.reservationUnitByPk,
         ...(await serverSideTranslations(locale)),
-        reservationUnit: data.reservationUnit,
       },
     };
   }
@@ -110,11 +114,11 @@ const Head = styled.div`
 const Description = styled.div``;
 
 const DescriptionItem = styled.div`
-  text-transform: capitalize;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-xs);
+  ${fontMedium}
 `;
 
 const StyledKoros = styled(Koros)`
@@ -124,8 +128,7 @@ const StyledKoros = styled(Koros)`
 
 const BodyContainer = styled(NarrowCenteredContainer)`
   background-color: var(-color-gray);
-  font-family: var(--font-regular);
-  font-weight: 400;
+  ${fontRegular}
 
   a {
     color: var(--color-bus);
@@ -134,7 +137,7 @@ const BodyContainer = styled(NarrowCenteredContainer)`
 
 const StyledTextInput = styled(TextInput)`
   label {
-    font-family: var(--font-medium);
+    ${fontMedium}
   }
 `;
 
@@ -178,7 +181,6 @@ const AccordionContainer = styled.div`
   }
 
   white-space: pre-line;
-  font-family: var(--font-regular);
   line-height: var(--lineheight-l);
 
   button {
@@ -196,8 +198,6 @@ const ActionContainer = styled.div`
 
   button {
     margin-bottom: var(--spacing-m);
-    font-family: var(--font-medium);
-    font-weight: 500;
 
     @media (min-width: ${breakpoint.m}) {
       width: 18rem;
@@ -210,16 +210,24 @@ const ReservationUnitReservation = ({
   profile,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const { reservation: reservationData } = useContext(DataContext);
 
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
     "pending"
   );
   const [reservation, setReservation] = useState<Reservation | null>(null);
 
-  const searchParams = isBrowser ? window.location.search : "";
-  const { begin, end }: QueryParams = queryString.parse(
-    searchParams
-  ) as QueryParams;
+  const [areTermsSpaceAccepted, setAreTermsSpaceAccepted] = useState(false);
+  const [areTermsResourceAccepted, setAreTermsResourceAccepted] =
+    useState(false);
+
+  const { register, handleSubmit, errors } = useForm<Inputs>();
+
+  if (!reservationData?.begin || !reservationData?.end) {
+    return <ErrorPage />;
+  }
+
+  const { begin, end } = reservationData;
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -237,14 +245,21 @@ const ReservationUnitReservation = ({
     date: end && parseISO(end),
   });
 
-  const { register, handleSubmit, errors } = useForm<Inputs>();
+  const duration = differenceInMinutes(new Date(end), new Date(begin));
+  const timeString = `${beginDate} ${beginTime} - ${
+    endDate !== beginDate ? endDate : ""
+  }
+  ${endTime} (${t("common:duration", {
+    duration: formatDurationMinutes(duration),
+  })})`;
+
   const onSubmit = (data) => {
     // createReservation({ ...data, begin, end, profile, reservationUnit });
     setReservation({
       begin,
       end,
       user: profile.email,
-      reservationUnit: reservationUnit.id,
+      reservationUnit: reservationUnit.pk,
       reserver: data.reserver,
       phone: data.phone,
       reservationName: data.reservationName,
@@ -253,15 +268,6 @@ const ReservationUnitReservation = ({
     console.log(reservation); // eslint-disable-line no-console
     setFormStatus("sent");
   };
-
-  const timeString = `${beginDate} ${beginTime} - ${
-    endDate !== beginDate ? endDate : ""
-  }
-  ${endTime}`;
-
-  const [areTermsSpaceAccepted, setAreTermsSpaceAccepted] = useState(false);
-  const [areTermsResourceAccepted, setAreTermsResourceAccepted] =
-    useState(false);
 
   if (!isBrowser) {
     return null;
@@ -272,14 +278,11 @@ const ReservationUnitReservation = ({
       <Head>
         <NarrowCenteredContainer>
           <H1>{reservationUnit.name}</H1>
-          <H2>{reservationUnit.building.name}</H2>
+          <H2>{reservationUnit.unit.name}</H2>
           <Description>
             <DescriptionItem>
-              <IconCalendar /> {timeString}
+              <IconCalendar /> {capitalize(timeString)}
             </DescriptionItem>
-            {/* <DescriptionItem>
-              <IconTicket /> Hinta
-            </DescriptionItem> */}
           </Description>
         </NarrowCenteredContainer>
         <StyledKoros className="koros" type="wave" />
@@ -398,7 +401,7 @@ const ReservationUnitReservation = ({
                 variant="secondary"
                 iconLeft={<IconArrowLeft />}
                 onClick={() =>
-                  router.push(`/reservation-unit/${reservationUnit.id}`)
+                  router.push(`/reservation-unit/${reservationUnit.pk}`)
                 }
               >
                 {t("common:prev")}

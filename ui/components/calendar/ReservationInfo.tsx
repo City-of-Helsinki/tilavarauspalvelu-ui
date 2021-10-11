@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { differenceInMinutes, parseISO } from "date-fns";
@@ -8,6 +8,7 @@ import { isReservationLongEnough } from "../../modules/calendar";
 import { formatDurationMinutes } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
 import { ReservationUnitByPkType } from "../../modules/gql-types";
+import { DataContext } from "../../context/DataContext";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType;
@@ -60,6 +61,11 @@ const ReservationInfo = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { setReservation } = useContext(DataContext);
+
+  useEffect(() => {
+    setReservation({ begin, end });
+  }, [begin, end, setReservation]);
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -82,7 +88,7 @@ const ReservationInfo = ({
       <MediumButton
         onClick={() => {
           router.push(
-            `/reservation-unit/${reservationUnit.id}/reservation?begin=${begin}&end=${end}`
+            `/reservation-unit/single/${reservationUnit.pk}/reservation`
           );
         }}
         disabled={

@@ -475,37 +475,40 @@ const ReservationUnit = ({
         {viewType === "single" && (
           <CalendarWrapper ref={calendarRef}>
             <StyledH2>{t("reservations:reservationCalendar")}</StyledH2>
-            <Calendar
-              events={calendarEvents}
-              begin={focusDate}
-              onNavigate={(d: Date) => {
-                setFocusDate(d);
-              }}
-              customEventStyleGetter={eventStyleGetter}
-              slotPropGetter={slotPropGetter}
-              viewType={calendarViewType}
-              onView={(n: WeekOptions) => {
-                setCalendarViewType(n);
-              }}
-              onSelecting={(event: CalendarEvent) =>
-                handleEventChange(event, true)
-              }
-              showToolbar
-              reservable
-              toolbarComponent={
-                reservationUnit.nextAvailableSlot ? ToolbarWithProps : Toolbar
-              }
-              resizable
-              draggable
-              onEventDrop={handleEventChange}
-              onEventResize={handleEventChange}
-              draggableAccessor={({ event }: CalendarEvent) =>
-                (event.state as ReservationStateWithInitial) === "INITIAL"
-              }
-              resizableAccessor={({ event }: CalendarEvent) =>
-                (event.state as ReservationStateWithInitial) === "INITIAL"
-              }
-            />
+            <div aria-hidden>
+              <Calendar
+                events={calendarEvents}
+                begin={focusDate}
+                onNavigate={(d: Date) => {
+                  setFocusDate(d);
+                }}
+                customEventStyleGetter={eventStyleGetter}
+                slotPropGetter={slotPropGetter}
+                viewType={calendarViewType}
+                onView={(n: WeekOptions) => {
+                  setCalendarViewType(n);
+                }}
+                onSelecting={(event: CalendarEvent) =>
+                  handleEventChange(event, true)
+                }
+                showToolbar
+                reservable
+                toolbarComponent={
+                  reservationUnit.nextAvailableSlot ? ToolbarWithProps : Toolbar
+                }
+                resizable
+                draggable
+                onEventDrop={handleEventChange}
+                onEventResize={handleEventChange}
+                draggableAccessor={({ event }: CalendarEvent) =>
+                  (event.state as ReservationStateWithInitial) === "INITIAL"
+                }
+                resizableAccessor={({ event }: CalendarEvent) =>
+                  (event.state as ReservationStateWithInitial) === "INITIAL"
+                }
+                aria-hidden
+              />
+            </div>
             <CalendarFooter>
               <Legend />
               <LoginFragment

@@ -87,5 +87,6 @@
   "seeDetails": "Katso tiedot",
   "beginningWith": "Alkaen",
   "endingWith": "Päättyen",
-  "showMore": "Näytä enemmän"
+  "showMore": "Näytä enemmän",
+  "duration": "Kesto {{duration}}"
 }

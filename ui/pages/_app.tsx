@@ -15,6 +15,7 @@ import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
 import { TrackingWrapper } from "../modules/tracking";
 import { FullscreenSpinner } from "../components/common/FullscreenSpinner";
+import { DataContextProvider } from "../context/DataContext";
 
 if (mockRequests) {
   require("../mocks");
@@ -24,11 +25,13 @@ if (mockRequests) {
 function MyApp({ Component, pageProps }: AppProps) {
   if (!isBrowser) {
     return (
-      <ApolloProvider client={apolloClient}>
-        <PageWrapper>
-          <Component {...pageProps} />
-        </PageWrapper>
-      </ApolloProvider>
+      <DataContextProvider>
+        <ApolloProvider client={apolloClient}>
+          <PageWrapper>
+            <Component {...pageProps} />
+          </PageWrapper>
+        </ApolloProvider>
+      </DataContextProvider>
     );
   }
 
@@ -40,22 +43,24 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 
   return (
-    <TrackingWrapper>
-      <AuthenticationProvider
-        authenticating={FullscreenSpinner}
-        notAuthenticated={SessionLost}
-        sessionLostComponent={SessionLost}
-        configuration={oidcConfiguration}
-        isEnabled={authEnabled}
-        callbackComponentOverride={LoggingIn}
-      >
-        <ApolloProvider client={apolloClient}>
-          <PageWrapper>
-            <Component {...pageProps} />
-          </PageWrapper>
-        </ApolloProvider>
-      </AuthenticationProvider>
-    </TrackingWrapper>
+    <DataContextProvider>
+      <TrackingWrapper>
+        <AuthenticationProvider
+          authenticating={FullscreenSpinner}
+          notAuthenticated={SessionLost}
+          sessionLostComponent={SessionLost}
+          configuration={oidcConfiguration}
+          isEnabled={authEnabled}
+          callbackComponentOverride={LoggingIn}
+        >
+          <ApolloProvider client={apolloClient}>
+            <PageWrapper>
+              <Component {...pageProps} />
+            </PageWrapper>
+          </ApolloProvider>
+        </AuthenticationProvider>
+      </TrackingWrapper>
+    </DataContextProvider>
   );
 }
 

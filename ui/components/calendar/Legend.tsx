@@ -65,7 +65,7 @@ const Legend = ({ items = defaultItems }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <Wrapper>
+    <Wrapper aria-hidden>
       {items.map(({ title, color }) => (
         <LegendItem key={title} $color={color}>
           <LegendTitle>{t(`reservationCalendar:legend.${title}`)}</LegendTitle>
