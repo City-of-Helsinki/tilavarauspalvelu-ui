@@ -4,9 +4,8 @@ import {
   IconMenuHamburger,
   Notification,
 } from "hds-react";
-import { TFunction } from "i18next";
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, TFunction } from "react-i18next";
 import dynamic from "next/dynamic";
 import styled from "styled-components";
 import { useRouter } from "next/router";

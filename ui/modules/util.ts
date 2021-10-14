@@ -8,8 +8,7 @@ import {
   parse,
   isValid,
 } from "date-fns";
-import { i18n } from "next-i18next";
-import { TFunction } from "i18next";
+import { i18n, TFunction } from "next-i18next";
 import { stringify } from "query-string";
 import { isNumber, trim } from "lodash";
 import { ReservationUnitsParameters } from "./api";

@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import { useTranslation, TFunction } from "react-i18next";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { Card as HdsCard, Notification, Tag as HdsTag } from "hds-react";
