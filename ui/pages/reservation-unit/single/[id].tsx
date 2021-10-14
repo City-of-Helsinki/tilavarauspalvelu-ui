@@ -7,7 +7,7 @@ import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { subMinutes } from "date-fns";
 import Container from "../../../components/common/Container";
-import { PendingReservation } from "../../../modules/types";
+import { PendingReservation, Language } from "../../../modules/types";
 import Head from "../../../components/reservation-unit/Head";
 import Address from "../../../components/reservation-unit/Address";
 import Sanitize from "../../../components/common/Sanitize";
@@ -23,7 +23,7 @@ import Calendar, { CalendarEvent } from "../../../components/calendar/Calendar";
 import Legend from "../../../components/calendar/Legend";
 import LoginFragment from "../../../components/LoginFragment";
 import ReservationInfo from "../../../components/calendar/ReservationInfo";
-import { parseDate, toApiDate } from "../../../modules/util";
+import { getTranslation, parseDate, toApiDate } from "../../../modules/util";
 import {
   areSlotsReservable,
   doReservationsCollide,
@@ -62,38 +62,56 @@ const RESERVATION_UNIT = gql`
     reservationUnitByPk(pk: $pk) {
       id
       pk
-      name
+      nameFi
+      nameEn
+      nameSv
       images {
         imageUrl
         mediumUrl
         smallUrl
         imageType
       }
-      description
-      termsOfUse
+      descriptionFi
+      descriptionEn
+      descriptionSv
+      termsOfUseFi
+      termsOfUseEn
+      termsOfUseSv
       reservationUnitType {
-        name
+        nameFi
+        nameEn
+        nameSv
       }
       maxPersons
       unit {
         id
         pk
-        name
+        nameFi
+        nameEn
+        nameSv
       }
       location {
         latitude
         longitude
-        addressStreet
+        addressStreetFi
+        addressStreetEn
+        addressStreetSv
         addressZip
-        addressCity
+        addressCityFi
+        addressCityEn
+        addressCitySv
       }
       minReservationDuration
       maxReservationDuration
       nextAvailableSlot
       spaces {
         pk
-        name
-        termsOfUse
+        nameFi
+        nameEn
+        nameSv
+        termsOfUseFi
+        termsOfUseEn
+        termsOfUseSv
       }
       openingHours(openingTimes: false, periods: true) {
         openingTimePeriods {
@@ -151,12 +169,14 @@ const OPENING_HOURS = gql`
 `;
 
 const RELATED_RESERVATION_UNITS = gql`
-  query RelatedReservationUnits($unit: ID) {
+  query RelatedReservationUnits($unit: ID!) {
     reservationUnits(unit: $unit) {
       edges {
         node {
           pk
-          name
+          nameFi
+          nameEn
+          nameSv
           images {
             imageUrl
             smallUrl
@@ -164,14 +184,20 @@ const RELATED_RESERVATION_UNITS = gql`
           }
           unit {
             pk
-            name
+            nameFi
+            nameEn
+            nameSv
           }
           reservationUnitType {
-            name
+            nameFi
+            nameEn
+            nameSv
           }
           maxPersons
           location {
-            addressStreet
+            addressStreetFi
+            addressStreetEn
+            addressStreetSv
           }
         }
       }
@@ -228,7 +254,9 @@ export const getServerSideProps: GetServerSideProps = async ({
         QueryReservationUnitsArgs
       >({
         query: RELATED_RESERVATION_UNITS,
-        variables: { unit: reservationUnitData.reservationUnitByPk.unit.pk },
+        variables: {
+          unit: String(reservationUnitData.reservationUnitByPk.unit.pk),
+        },
       });
 
       relatedReservationUnits =
@@ -364,7 +392,7 @@ const ReservationUnit = ({
   relatedReservationUnits,
   viewType = "single", // TODO get rid of
 }: Props): JSX.Element | null => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [focusDate, setFocusDate] = useState(new Date());
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
@@ -464,7 +492,13 @@ const ReservationUnit = ({
           <div>
             <Accordion open heading={t("reservationUnit:description")}>
               <Content>
-                <Sanitize html={reservationUnit.description} />
+                <Sanitize
+                  html={getTranslation(
+                    reservationUnit,
+                    "description",
+                    i18n.language as Language
+                  )}
+                />
               </Content>
             </Accordion>
           </div>
@@ -527,7 +561,11 @@ const ReservationUnit = ({
         <MapWrapper>
           <StyledH2>{t("common:location")}</StyledH2>
           <Map
-            title={reservationUnit.unit?.name}
+            title={getTranslation(
+              reservationUnit.unit,
+              "name",
+              i18n.language as Language
+            )}
             latitude={Number(reservationUnit.location?.latitude)}
             longitude={Number(reservationUnit.location?.longitude)}
           />
@@ -537,7 +575,13 @@ const ReservationUnit = ({
           <div />
           <Accordion heading={t("reservationUnit:termsOfUse")}>
             <Content>
-              <Sanitize html={reservationUnit.termsOfUse} />
+              <Sanitize
+                html={getTranslation(
+                  reservationUnit,
+                  "termsOfUse",
+                  i18n.language as Language
+                )}
+              />
             </Content>
           </Accordion>
           <div />
@@ -545,9 +589,19 @@ const ReservationUnit = ({
             <Content>
               {reservationUnit.spaces?.map((space) => (
                 <React.Fragment key={space.pk}>
-                  {reservationUnit.spaces.length > 1 && <h3>{space.name}</h3>}
+                  {reservationUnit.spaces.length > 1 && (
+                    <h3>
+                      {getTranslation(space, "name", i18n.language as Language)}
+                    </h3>
+                  )}
                   <p>
-                    <Sanitize html={space.termsOfUse} />
+                    <Sanitize
+                      html={getTranslation(
+                        space,
+                        "termsOfUse",
+                        i18n.language as Language
+                      )}
+                    />
                   </p>
                 </React.Fragment>
               ))}

@@ -35,6 +35,7 @@ import {
   applicationErrorText,
   capitalize,
   formatDurationMinutes,
+  getTranslation,
 } from "../../../modules/util";
 import WithUserProfile from "../../../components/WithUserProfile";
 import { MediumButton } from "../../../styles/util";
@@ -79,9 +80,13 @@ export const getServerSideProps: GetServerSideProps = async ({
     query SelectedReservationUnit($pk: Int) {
       reservationUnitByPk(pk: $pk) {
         pk
-        name
+        nameFi
+        nameEn
+        nameSv
         unit {
-          name
+          nameFi
+          nameEn
+          nameSv
         }
       }
     }
@@ -209,7 +214,7 @@ const ReservationUnitReservation = ({
   reservationUnit,
   profile,
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { reservation: reservationData } = useContext(DataContext);
 
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
@@ -277,8 +282,8 @@ const ReservationUnitReservation = ({
     <>
       <Head>
         <NarrowCenteredContainer>
-          <H1>{reservationUnit.name}</H1>
-          <H2>{reservationUnit.unit.name}</H2>
+          <H1>{getTranslation(reservationUnit, "name", i18n.language)}</H1>
+          <H2>{getTranslation(reservationUnit.unit, "name", i18n.language)}</H2>
           <Description>
             <DescriptionItem>
               <IconCalendar /> {capitalize(timeString)}
@@ -497,7 +502,9 @@ const ReservationUnitReservation = ({
                 <Strong>
                   {t("reservationCalendar:label.reservationSpace")}
                 </Strong>
-                <div>{reservationUnit.name}</div>
+                <div>
+                  {getTranslation(reservationUnit, "name", i18n.language)}
+                </div>
               </p>
               <p>
                 <Strong>{t("common:phone")}</Strong>

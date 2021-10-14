@@ -6,6 +6,7 @@ import {
   startOfWeek as dateFnsStartOfWeek,
   endOfWeek as dateFnsEndOfWeek,
   parse,
+  isValid,
 } from "date-fns";
 import { i18n } from "next-i18next";
 import { TFunction } from "i18next";
@@ -29,6 +30,8 @@ import {
   Image,
   ApplicationStatus,
   ReducedApplicationStatus,
+  StringParameter,
+  Language,
 } from "./types";
 import { ReservationUnitImageType, ReservationUnitType } from "./gql-types";
 
@@ -61,7 +64,13 @@ export const applicationRoundState = (
 
 export const parseDate = (date: string): Date => parseISO(date);
 
-const toUIDate = (date: Date, formatStr = "d.M.yyyy"): string => {
+const isValidDate = (date: Date): boolean =>
+  isValid(date) && isAfter(date, new Date("1000-01-01"));
+
+export const toUIDate = (date: Date, formatStr = "d.M.yyyy"): string => {
+  if (!date || !isValidDate(date)) {
+    return "";
+  }
   return format(date, formatStr);
 };
 
@@ -120,6 +129,14 @@ export const formatDuration = (
   }${Number(time[1]) ? i18n.t(minuteKey, { count: Number(time[1]) }) : ""}`;
 };
 
+export const capitalize = (s: string): string => {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+export const isValidDateString = (date: string): boolean => {
+  return isValidDate(parse(date, "d.M.yyyy", new Date()));
+};
+
 export const formatApiDate = (date: string): string => {
   if (!date) {
     return "no date";
@@ -132,19 +149,28 @@ export const localizedValue = (
   lang: string
 ): string => {
   if (!name) {
-    return "???";
+    return "";
   }
   // needed until api stabilizes
   if (typeof name === "string") {
     return name;
   }
   return (
-    name[lang as LocalizationLanguages] ||
-    name.fi ||
-    name.en ||
-    name.sv ||
-    "???"
+    name[lang as LocalizationLanguages] || name.fi || name.en || name.sv || ""
   );
+};
+
+export const getTranslation = (
+  parent: unknown,
+  key: string,
+  lang: Language
+): string => {
+  const keyString = `${key}${capitalize(lang)}`;
+  if (parent && parent[keyString]) {
+    return parent[keyString];
+  }
+
+  return "";
 };
 
 const getLabel = (
@@ -161,7 +187,7 @@ const getLabel = (
 };
 
 export const mapOptions = (
-  src: Parameter[],
+  src: Parameter[] | StringParameter[],
   emptyOptionLabel?: string,
   lang = "fi"
 ): OptionType[] => {
@@ -324,7 +350,9 @@ export const getAddress = (
   }
 
   return trim(
-    `${ru.location.addressStreet || ""}, ${ru.location.addressCity || ""}`,
+    `${localizedValue(ru.location.addressStreet, i18n.language) || ""}, ${
+      localizedValue(ru.location.addressCity, i18n.language) || ""
+    }`,
     ", "
   );
 };
@@ -384,8 +412,4 @@ export const formatDurationMinutes = (
   }
 
   return p.join(" ");
-};
-
-export const capitalize = (s: string): string => {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 };

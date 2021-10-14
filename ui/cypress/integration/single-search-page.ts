@@ -9,10 +9,10 @@ import {
   formResetButton,
   paginationButton,
   inputUnitToggler,
-  inputUnit,
+  inputUnitOption,
 } from "../model/search";
 
-describe("Tilavaraus ui search page", () => {
+describe("Tilavaraus ui search page (single)", () => {
   beforeEach(() => {
     cy.fixture("v1/parameters/reservation_unit_type").then((json) => {
       cy.intercept("GET", "/v1/parameters/reservation_unit_type/*", json);
@@ -50,12 +50,9 @@ describe("Tilavaraus ui search page", () => {
       .siblings("ul")
       .children("li:nth-of-type(2)")
       .click();
-    inputUnitToggler()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(1)")
-      .click();
-    inputUnitToggler().siblings("ul").children("li:nth-of-type(3)").click();
+    inputUnitToggler().click();
+    inputUnitOption(1).click();
+    inputUnitOption(3).click();
     inputUnitToggler().click();
     searchButton().click();
 

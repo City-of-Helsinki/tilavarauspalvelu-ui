@@ -1,6 +1,6 @@
 import { searchButton, fullTextInput } from "../model/search";
 
-describe("Tilavaraus ui search page", () => {
+describe("Tilavaraus ui search page (recurring)", () => {
   beforeEach(() => {
     cy.fixture("v1/application_round").then((json) => {
       cy.intercept("GET", "/v1/application_round/*", json);

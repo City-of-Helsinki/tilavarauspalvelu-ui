@@ -14,7 +14,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import useReservationUnitList from "../../hooks/useReservationUnitList";
 import { breakpoint } from "../../modules/style";
-import { formatDuration, localizedValue } from "../../modules/util";
+import { formatDuration, getTranslation } from "../../modules/util";
 import Back from "../common/Back";
 import Container from "../common/Container";
 import IconWithText from "../common/IconWithText";
@@ -27,6 +27,7 @@ import {
 } from "../../modules/openingHours";
 import { MediumButton } from "../../styles/util";
 import { ReservationUnitByPkType } from "../../modules/gql-types";
+import { Language } from "../../modules/types";
 
 interface PropsType {
   reservationUnit: ReservationUnitByPkType;
@@ -132,18 +133,29 @@ const Head = ({
       <Notification applicationRound={null} />
       <Container>
         <Back
-          link={`/${
-            viewType === "single" ? "search/single" : "search"
-          }?restore`}
+          link={`/${viewType === "single" ? "search/single" : "search"}`}
           label="reservationUnit:backToSearch"
+          restore={
+            viewType === "single"
+              ? "reservationUnit-search-single"
+              : "reservationUnit-search"
+          }
         />
         <RightContainer>
           <div>
             <ReservationUnitName>
-              {localizedValue(reservationUnit.name, i18n.language)}
+              {getTranslation(
+                reservationUnit,
+                "name",
+                i18n.language as Language
+              )}
             </ReservationUnitName>
             <BuildingName>
-              {localizedValue(reservationUnit.unit?.name, i18n.language)}
+              {getTranslation(
+                reservationUnit.unit,
+                "name",
+                i18n.language as Language
+              )}
             </BuildingName>
             <JustForMobile style={{ marginTop: "var(--spacing-l)" }}>
               <Images images={reservationUnit.images} />
@@ -203,20 +215,23 @@ const Head = ({
                     icon={
                       <IconInfoCircle aria-label={t("reservationUnit:type")} />
                     }
-                    text={localizedValue(
-                      reservationUnit.reservationUnitType?.name,
-                      i18n.language
+                    text={getTranslation(
+                      reservationUnit.reservationUnitType,
+                      "name",
+                      i18n.language as Language
                     )}
                   />
                 ) : null}
-                <StyledIconWithText
-                  icon={
-                    <IconGroup aria-label={t("reservationUnit:maxPersons")} />
-                  }
-                  text={t("reservationUnitCard:maxPersons", {
-                    maxPersons: reservationUnit.maxPersons,
-                  })}
-                />
+                {reservationUnit.maxPersons && (
+                  <StyledIconWithText
+                    icon={
+                      <IconGroup aria-label={t("reservationUnit:maxPersons")} />
+                    }
+                    text={t("reservationUnitCard:maxPersons", {
+                      count: reservationUnit.maxPersons,
+                    })}
+                  />
+                )}
               </div>
             </Props>
             <ButtonContainer>

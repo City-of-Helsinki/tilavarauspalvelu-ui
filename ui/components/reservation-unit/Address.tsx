@@ -1,9 +1,10 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { localizedValue } from "../../modules/util";
+import { getTranslation } from "../../modules/util";
 import ExternalLink from "./ExternalLink";
 import { LocationType, ReservationUnitByPkType } from "../../modules/gql-types";
+import { Language } from "../../modules/types";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType;
@@ -43,52 +44,73 @@ const hslUrl = (locale: string, location: LocationType): string | null => {
   }
 
   return `https://www.reittiopas.fi/${locale}/?to=${encodeURI(
-    `${location.addressStreet},${location.addressCity}`
+    `${getTranslation(location, "addressStreet", locale)},${getTranslation(
+      location,
+      "addressCity",
+      locale
+    )}`
   )}`;
 };
 
-const googleUrl = (location: LocationType): string | null => {
+const googleUrl = (location: LocationType, locale: Language): string | null => {
   if (!location) {
     return null;
   }
-  return `https://www.google.com/maps/dir/?api=1&destination=${location.addressStreet},${location.addressCity}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${getTranslation(
+    location,
+    "addressStreet",
+    locale
+  )},${getTranslation(location, "addressCity", locale)}`;
 };
 
-const mapUrl = (location: LocationType): string | null => {
+const mapUrl = (location: LocationType, locale: Language): string | null => {
   if (!location) {
     return null;
   }
 
-  return `https://maps.google.com/?q=${location.addressStreet},${location.addressCity}`;
+  return `https://maps.google.com/?q=${getTranslation(
+    location,
+    "addressStreet",
+    locale
+  )},${getTranslation(location, "addressCity", locale)}`;
 };
 
 const Address = ({ reservationUnit }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
-  if (!reservationUnit?.location) {
+  const addressStreet = getTranslation(
+    reservationUnit.location,
+    "addressStreet",
+    i18n.language
+  );
+  const addressCity = getTranslation(
+    reservationUnit.location,
+    "addressCity",
+    i18n.language
+  );
+
+  if (!reservationUnit?.location || !addressStreet || !addressCity) {
     return <div />;
   }
+
   return (
     <Container>
-      <Name>{localizedValue(reservationUnit.name, i18n.language)}</Name>
-      {reservationUnit.location?.addressStreet ? (
-        <AddressLine>{reservationUnit.location?.addressStreet}</AddressLine>
-      ) : null}
-      {reservationUnit.location?.addressZip &&
-      reservationUnit.location?.addressCity ? (
+      <Name>{getTranslation(reservationUnit, "name", i18n.language)}</Name>
+      {addressStreet && <AddressLine>{addressStreet}</AddressLine>}
+      {reservationUnit.location?.addressZip && addressCity && (
         <AddressLine>
-          {`${reservationUnit.location?.addressZip} ${reservationUnit.location?.addressCity}`}
+          {`${reservationUnit.location?.addressZip} ${addressCity}`}
         </AddressLine>
-      ) : null}
+      )}
       <Links>
         <ExternalLink
-          href={mapUrl(reservationUnit.location)}
+          href={mapUrl(reservationUnit.location, i18n.language as Language)}
           name={t("reservationUnit:linkMap")}
         />
         <ExternalLink
-          href={googleUrl(reservationUnit.location)}
+          href={googleUrl(reservationUnit.location, i18n.language as Language)}
           name={t("reservationUnit:linkGoogle")}
-        />{" "}
+        />
         <ExternalLink
           href={hslUrl(i18n.language, reservationUnit.location)}
           name={t("reservationUnit:linkHSL")}

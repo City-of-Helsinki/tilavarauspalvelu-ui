@@ -13,13 +13,18 @@ import Breadcrumb from "../../components/common/Breadcrumb";
 import SearchForm from "../../components/single-search/SearchForm";
 import SearchResultList from "../../components/single-search/SearchResultList";
 import { singleSearchUrl } from "../../modules/util";
-import { isBrowser, searchPrefix } from "../../modules/const";
+import { isBrowser, singleSearchPrefix } from "../../modules/const";
 import { CenterSpinner } from "../../components/common/common";
-import { Query, QueryReservationUnitsArgs } from "../../modules/gql-types";
+import {
+  PageInfo,
+  Query,
+  QueryReservationUnitsArgs,
+  ReservationUnitType,
+} from "../../modules/gql-types";
 
 const RESERVATION_UNITS = gql`
   query SearchReservationUnits(
-    $search: String
+    $textSearch: String
     $minPersons: Float
     $maxPersons: Float
     $unit: ID
@@ -28,7 +33,7 @@ const RESERVATION_UNITS = gql`
     $after: String
   ) {
     reservationUnits(
-      textSearch: $search
+      textSearch: $textSearch
       maxPersonsGte: $minPersons
       maxPersonsLte: $maxPersons
       reservationUnitType: $reservationUnitType
@@ -39,18 +44,26 @@ const RESERVATION_UNITS = gql`
       edges {
         node {
           id: pk
-          name
+          nameFi
+          nameEn
+          nameSv
           reservationUnitType {
             id: pk
-            name
+            nameFi
+            nameEn
+            nameSv
           }
           unit {
             id: pk
-            name
+            nameFi
+            nameEn
+            nameSv
           }
           maxPersons
           location {
-            addressStreet
+            addressStreetFi
+            addressStreetEn
+            addressStreetSv
           }
           images {
             imageType
@@ -94,14 +107,14 @@ export const getServerSideProps = async ({ locale }) => {
   };
 };
 
-const Search = (): JSX.Element => {
+const SearchSingle = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [values, setValues] = useState({} as Record<string, string>);
-  const [storedValues, setStoredValues] = useLocalStorage(
-    "reservationUnit-search",
+  const setStoredValues = useLocalStorage(
+    "reservationUnit-search-single",
     null
-  );
+  )[1];
 
   const { data, fetchMore, refetch, loading, error } = useQuery<
     Query,
@@ -111,10 +124,9 @@ const Search = (): JSX.Element => {
     fetchPolicy: "network-only",
   });
 
-  const reservationUnits = data?.reservationUnits?.edges?.map(
-    (edge) => edge.node
-  );
-  const pageInfo = data?.reservationUnits?.pageInfo;
+  const reservationUnits: ReservationUnitType[] =
+    data?.reservationUnits?.edges?.map((edge) => edge.node);
+  const pageInfo: PageInfo = data?.reservationUnits?.pageInfo;
 
   const searchParams = isBrowser ? window.location.search : "";
 
@@ -141,17 +153,8 @@ const Search = (): JSX.Element => {
 
   useEffect(() => {
     const params = queryString.parse(searchParams);
-    if (!loading && !{}.propertyIsEnumerable.call(params, "restore")) {
-      setStoredValues(params);
-    }
-  }, [loading, setStoredValues, searchParams]);
-
-  useEffect(() => {
-    const params = queryString.parse(searchParams);
-    if ({}.propertyIsEnumerable.call(params, "restore")) {
-      window.location.search = queryString.stringify(storedValues);
-    }
-  }, [searchParams, storedValues]);
+    setStoredValues(params);
+  }, [setStoredValues, searchParams]);
 
   const history = useRouter();
 
@@ -165,7 +168,8 @@ const Search = (): JSX.Element => {
       singleSearchUrl({
         ...newValues,
         // a hacky way to bypass query cache
-        search: !key || key.includes("search") ? "" : values.search || "",
+        textSearch:
+          !key || key.includes("textSearch") ? "" : values.textSearch || "",
       })
     );
   };
@@ -176,7 +180,7 @@ const Search = (): JSX.Element => {
         <Container>
           <Breadcrumb
             root={{ label: "singleReservations" }}
-            current={{ label: "search", linkTo: searchPrefix }}
+            current={{ label: "search", linkTo: singleSearchPrefix }}
           />
           <Heading style={style}>{t("search:single.heading")}</Heading>
           <span className="text-lg">{t("search:single.text")}</span>
@@ -211,4 +215,4 @@ const Search = (): JSX.Element => {
   );
 };
 
-export default Search;
+export default SearchSingle;

@@ -52,6 +52,13 @@ export const participantCountOptions = [
   1, 2, 5, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200,
 ].map((v) => ({ label: `${v}`, value: v } as OptionType));
 
+export const DATE_TYPES = {
+  TODAY: "today",
+  TOMORROW: "tomorrow",
+  WEEKEND: "weekend",
+  THIS_WEEK: "this_week",
+};
+
 const option = (label: string, value: string): OptionType => {
   return { label, value };
 };

@@ -1,4 +1,4 @@
-describe("Tilavaraus ui reservation unit page", () => {
+describe("Tilavaraus ui reservation unit page (single)", () => {
   beforeEach(() => {
     cy.visit("/reservation-unit/single/36");
   });

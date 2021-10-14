@@ -14,7 +14,7 @@ import { useMedia } from "react-use";
 import { reservationUnitPath } from "../../modules/const";
 import useReservationUnitsList from "../../hooks/useReservationUnitList";
 import { breakpoint } from "../../modules/style";
-import { getAddress, getMainImage, localizedValue } from "../../modules/util";
+import { getAddress, getMainImage, getTranslation } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
 import { MediumButton } from "../../styles/util";
 import Carousel from "../Carousel";
@@ -133,7 +133,7 @@ const RelatedUnits = ({
             />
             <Content>
               <Link href={reservationUnitPath(unit.pk)} passHref>
-                <Name>{localizedValue(unit.name, i18n.language)}</Name>
+                <Name>{getTranslation(unit, "name", i18n.language)}</Name>
               </Link>
               <Building>{unit.unit.name}</Building>
               <Props>
@@ -143,8 +143,9 @@ const RelatedUnits = ({
                       aria-label={t("reservationUnitCard:type")}
                     />
                   }
-                  text={localizedValue(
-                    unit.reservationUnitType?.name,
+                  text={getTranslation(
+                    unit.reservationUnitType,
+                    "name",
                     i18n.language
                   )}
                 />

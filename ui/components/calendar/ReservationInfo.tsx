@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { differenceInMinutes, parseISO } from "date-fns";
 import { breakpoint } from "../../modules/style";
 import { isReservationLongEnough } from "../../modules/calendar";
-import { formatDurationMinutes } from "../../modules/util";
+import { capitalize, formatDurationMinutes } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
 import { ReservationUnitByPkType } from "../../modules/gql-types";
 import { DataContext } from "../../context/DataContext";
@@ -50,9 +50,7 @@ const DurationWrapper = styled.span`
   text-transform: lowercase;
 `;
 
-const TimeRange = styled.span`
-  text-transform: capitalize;
-`;
+const TimeRange = styled.span``;
 
 const ReservationInfo = ({
   reservationUnit,
@@ -83,6 +81,10 @@ const ReservationInfo = ({
 
   const duration = differenceInMinutes(new Date(end), new Date(begin));
 
+  const timeRange = `${beginDate} ${beginTime} - ${
+    endDate !== beginDate ? endDate : ""
+  } ${endTime} `;
+
   return (
     <Wrapper>
       <MediumButton
@@ -107,8 +109,7 @@ const ReservationInfo = ({
         <h3>{t("reservationCalendar:selectedTime")}:</h3>
         {begin && end ? (
           <TimeRange>
-            {beginDate} {beginTime} - {endDate !== beginDate && endDate}{" "}
-            {endTime}{" "}
+            {capitalize(timeRange)}
             <DurationWrapper>
               ({formatDurationMinutes(duration)})
             </DurationWrapper>

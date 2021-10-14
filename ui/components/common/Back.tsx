@@ -3,6 +3,8 @@ import React from "react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled from "styled-components";
+import queryString from "query-string";
+import { useLocalStorage } from "react-use";
 
 const Button = styled(HDSButton).attrs({
   style: {
@@ -23,11 +25,16 @@ const Button = styled(HDSButton).attrs({
 type Props = {
   link?: string;
   label?: string;
+  restore?: string;
 };
 
-const Back = ({ link, label = "common:prev" }: Props): JSX.Element => {
+const Back = ({ link, label = "common:prev", restore }: Props): JSX.Element => {
+  const [storedValues] = useLocalStorage(restore, null);
+
   const { t } = useTranslation();
   const { back, push } = useRouter();
+  const linkWithArgs =
+    restore && `${link}?${queryString.stringify(storedValues)}`;
 
   return (
     <Button
@@ -38,7 +45,7 @@ const Back = ({ link, label = "common:prev" }: Props): JSX.Element => {
       onClick={
         link
           ? () => {
-              push(link);
+              push(linkWithArgs);
             }
           : () => {
               back();

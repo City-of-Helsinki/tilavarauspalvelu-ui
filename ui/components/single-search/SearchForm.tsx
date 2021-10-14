@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
-import { Select, TextInput, IconSearch, Tag, Combobox } from "hds-react";
+import { Select, TextInput, IconSearch, Tag } from "hds-react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { gql, useQuery } from "@apollo/client";
@@ -10,12 +10,13 @@ import { getParameters } from "../../modules/api";
 import {
   mapOptions,
   getSelectedOption,
-  getComboboxValues,
+  getTranslation,
 } from "../../modules/util";
 import { emptyOption, participantCountOptions } from "../../modules/const";
-import { OptionType } from "../../modules/types";
 import { MediumButton } from "../../styles/util";
+import { OptionType, StringParameter } from "../../modules/types";
 import { Query } from "../../modules/gql-types";
+import MultiSelectDropdown from "../form/MultiselectDropdown";
 
 type Props = {
   onSearch: (search: Record<string, string>) => void;
@@ -29,7 +30,9 @@ const SEARCH_FORM_PARAMS = gql`
       edges {
         node {
           pk
-          name
+          nameFi
+          nameEn
+          nameSv
         }
       }
     }
@@ -136,21 +139,21 @@ const SearchForm = ({
   const [reservationUnitTypeOptions, setReservationUnitTypeOptions] = useState<
     OptionType[]
   >([]);
+  const [unitSearchInput, setUnitSearchInput] = useState<string>("");
 
   useQuery<Query>(SEARCH_FORM_PARAMS, {
     onCompleted: (res) => {
-      const units = res?.units?.edges?.map(({ node: { pk, name } }) => ({
-        id: pk,
-        name,
+      const units = res?.units?.edges?.map(({ node }) => ({
+        id: String(node.pk),
+        name: getTranslation(node, "name", i18n.language),
       }));
-      setUnitOptions(mapOptions(sortBy(units, "name")));
+      setUnitOptions(mapOptions(sortBy(units, "name") as StringParameter[]));
     },
   });
 
-  const { register, handleSubmit, setValue, getValues } = useForm();
+  const { register, watch, handleSubmit, setValue, getValues } = useForm();
 
   useEffect(() => {
-    register({ name: "district" });
     register({ name: "minPersons" });
     register({ name: "maxPersons" });
     register({ name: "unit" });
@@ -163,13 +166,7 @@ const SearchForm = ({
         "reservation_unit_type"
       );
 
-      setReservationUnitTypeOptions(
-        mapOptions(
-          fetchedReservationUnitTypes,
-          t("common:select"),
-          i18n.language
-        )
-      );
+      setReservationUnitTypeOptions(mapOptions(fetchedReservationUnitTypes));
     }
 
     fetchData();
@@ -188,7 +185,7 @@ const SearchForm = ({
       <Container>
         <TextInput
           id="search"
-          name="search"
+          name="textSearch"
           label={t("searchForm:textSearchLabel")}
           ref={register()}
           placeholder={t("searchForm:searchTermPlaceholder")}
@@ -197,7 +194,7 @@ const SearchForm = ({
               handleSubmit(search)();
             }
           }}
-          defaultValue={formValues.search}
+          defaultValue={formValues.textSearch}
         />
         <Group>
           <Select
@@ -238,7 +235,9 @@ const SearchForm = ({
         <Select
           id="reservationUnitTypeFilter"
           placeholder={t("common:select")}
-          options={reservationUnitTypeOptions}
+          options={[emptyOption(t("common:select"))].concat(
+            reservationUnitTypeOptions
+          )}
           label={t("searchForm:typeLabel")}
           onChange={(selection: OptionType): void => {
             setValue("reservationUnitType", selection.value);
@@ -254,24 +253,19 @@ const SearchForm = ({
             "reservationUnitType"
           )}${reservationUnitTypeOptions.map((n) => n.value).join(",")}`}
         />
-        <Combobox<OptionType>
+        <MultiSelectDropdown
           id="unitFilter"
-          clearButtonAriaLabel={t("searchForm:clearSelections")}
-          label={t("searchForm:unitFilter")}
-          multiselect
-          onChange={(selection: OptionType[]): void => {
-            setValue("unit", selection.map((sel) => sel.value).join(","));
+          checkboxName="unitFilter"
+          inputValue={unitSearchInput}
+          name="unit"
+          onChange={(selection: string[]): void => {
+            setValue("unit", selection.filter((n) => n !== "").join(","));
           }}
           options={unitOptions}
-          placeholder={t("common:select")}
-          selectedItemRemoveButtonAriaLabel={`${t(
-            "searchForm:removeSelection"
-          )} {value}`}
-          selectedItemSrLabel={`${t("searchForm:selectedElement")} {value}`}
-          toggleButtonAriaLabel={t("searchForm:openCombobox")}
-          defaultValue={getComboboxValues(getValues("unit"), unitOptions)}
-          key={`unit${getValues("unit")}`}
-          style={{ zIndex: 1 }}
+          setInputValue={setUnitSearchInput}
+          showSearch
+          title={t("searchForm:unitFilter")}
+          value={watch("unit")?.split(",") || [""]}
         />
       </Container>
       <Hr />
