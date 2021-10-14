@@ -214,7 +214,7 @@ const ReservationUnitReservation = ({
   reservationUnit,
   profile,
 }: Props): JSX.Element => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { reservation: reservationData } = useContext(DataContext);
 
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
@@ -282,8 +282,8 @@ const ReservationUnitReservation = ({
     <>
       <Head>
         <NarrowCenteredContainer>
-          <H1>{getTranslation(reservationUnit, "name", i18n.language)}</H1>
-          <H2>{getTranslation(reservationUnit.unit, "name", i18n.language)}</H2>
+          <H1>{getTranslation(reservationUnit, "name")}</H1>
+          <H2>{getTranslation(reservationUnit.unit, "name")}</H2>
           <Description>
             <DescriptionItem>
               <IconCalendar /> {capitalize(timeString)}
@@ -502,9 +502,7 @@ const ReservationUnitReservation = ({
                 <Strong>
                   {t("reservationCalendar:label.reservationSpace")}
                 </Strong>
-                <div>
-                  {getTranslation(reservationUnit, "name", i18n.language)}
-                </div>
+                <div>{getTranslation(reservationUnit, "name")}</div>
               </p>
               <p>
                 <Strong>{t("common:phone")}</Strong>

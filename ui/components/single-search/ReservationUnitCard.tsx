@@ -9,7 +9,6 @@ import { getMainImage, getTranslation } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
 import { MediumButton } from "../../styles/util";
 import { ReservationUnitType } from "../../modules/gql-types";
-import { Language } from "../../modules/types";
 
 interface Props {
   reservationUnit: ReservationUnitType;
@@ -125,26 +124,18 @@ const Image = styled.img`
   }
 `;
 const ReservationUnitCard = ({ reservationUnit }: Props): JSX.Element => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const link = `/reservation-unit/single/${reservationUnit.id}`;
   const address = `${
-    getTranslation(
-      reservationUnit.location,
-      "addressStreet",
-      i18n.language as Language
-    ) || ""
+    getTranslation(reservationUnit.location, "addressStreet") || ""
   }`;
 
   return (
     <Container>
       <Image
         alt={t("common:imgAltForSpace", {
-          name: getTranslation(
-            reservationUnit,
-            "name",
-            i18n.language as Language
-          ),
+          name: getTranslation(reservationUnit, "name"),
         })}
         src={
           getMainImage(reservationUnit)?.mediumUrl ||
@@ -153,26 +144,16 @@ const ReservationUnitCard = ({ reservationUnit }: Props): JSX.Element => {
       />
       <MainContent>
         <Name>
-          <Link href={link}>
-            {getTranslation(reservationUnit, "name", i18n.language as Language)}
-          </Link>
+          <Link href={link}>{getTranslation(reservationUnit, "name")}</Link>
         </Name>
         <Description>
-          {getTranslation(
-            reservationUnit.unit,
-            "name",
-            i18n.language as Language
-          )}
+          {getTranslation(reservationUnit.unit, "name")}
         </Description>
         <Bottom>
           {reservationUnit.reservationUnitType && (
             <StyledIconWithText
               icon={<IconHome aria-label={t("reservationUnitCard:type")} />}
-              text={getTranslation(
-                reservationUnit.reservationUnitType,
-                "name",
-                i18n.language as Language
-              )}
+              text={getTranslation(reservationUnit.reservationUnitType, "name")}
             />
           )}
           {reservationUnit.maxPersons && (

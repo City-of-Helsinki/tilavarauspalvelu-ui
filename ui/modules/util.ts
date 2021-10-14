@@ -30,7 +30,6 @@ import {
   ApplicationStatus,
   ReducedApplicationStatus,
   StringParameter,
-  Language,
 } from "./types";
 import { ReservationUnitImageType, ReservationUnitType } from "./gql-types";
 
@@ -159,12 +158,8 @@ export const localizedValue = (
   );
 };
 
-export const getTranslation = (
-  parent: unknown,
-  key: string,
-  lang: Language
-): string => {
-  const keyString = `${key}${capitalize(lang)}`;
+export const getTranslation = (parent: unknown, key: string): string => {
+  const keyString = `${key}${capitalize(i18n.language)}`;
   if (parent && parent[keyString]) {
     return parent[keyString];
   }
@@ -341,9 +336,7 @@ export const getMainImage = (
   return images[0];
 };
 
-export const getAddress = (
-  ru: ReservationUnit | ReservationUnitType
-): string | null => {
+export const getAddress = (ru: ReservationUnit): string | null => {
   if (!ru.location) {
     return null;
   }
@@ -351,6 +344,19 @@ export const getAddress = (
   return trim(
     `${localizedValue(ru.location.addressStreet, i18n.language) || ""}, ${
       localizedValue(ru.location.addressCity, i18n.language) || ""
+    }`,
+    ", "
+  );
+};
+
+export const getAddressAlt = (ru: ReservationUnitType): string | null => {
+  if (!ru.location) {
+    return null;
+  }
+
+  return trim(
+    `${getTranslation(ru.location, "addressStreet") || ""}, ${
+      getTranslation(ru.location, "addressCity") || ""
     }`,
     ", "
   );

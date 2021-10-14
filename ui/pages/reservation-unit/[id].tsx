@@ -27,7 +27,6 @@ import {
   ReservationUnitTypeEdge,
 } from "../../modules/gql-types";
 import { getTranslation } from "../../modules/util";
-import { Language } from "../../modules/types";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
@@ -249,7 +248,7 @@ const ReservationUnit = ({
   reservationUnit,
   relatedReservationUnits,
 }: Props): JSX.Element | null => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const activeOpeningTimes = getActiveOpeningTimes(
     reservationUnit.openingHours.openingTimePeriods
@@ -273,11 +272,7 @@ const ReservationUnit = ({
             <Accordion open heading={t("reservationUnit:description")}>
               <Content>
                 <Sanitize
-                  html={getTranslation(
-                    reservationUnit,
-                    "description",
-                    i18n.language as Language
-                  )}
+                  html={getTranslation(reservationUnit, "description")}
                 />
               </Content>
             </Accordion>
@@ -286,30 +281,22 @@ const ReservationUnit = ({
             <Address reservationUnit={reservationUnit} />
           </div>
         </TwoColumnLayout>
-        <MapWrapper>
-          <StyledH2>{t("common:location")}</StyledH2>
-          <Map
-            title={getTranslation(
-              reservationUnit.unit,
-              "name",
-              i18n.language as Language
-            )}
-            latitude={Number(reservationUnit.location?.latitude)}
-            longitude={Number(reservationUnit.location?.longitude)}
-          />
-        </MapWrapper>
+        {reservationUnit.location && (
+          <MapWrapper>
+            <StyledH2>{t("common:location")}</StyledH2>
+            <Map
+              title={getTranslation(reservationUnit.unit, "name")}
+              latitude={Number(reservationUnit.location?.latitude)}
+              longitude={Number(reservationUnit.location?.longitude)}
+            />
+          </MapWrapper>
+        )}
         <TwoColumnLayout>
           <Address reservationUnit={reservationUnit} />
           <div />
           <Accordion heading={t("reservationUnit:termsOfUse")}>
             <Content>
-              <Sanitize
-                html={getTranslation(
-                  reservationUnit,
-                  "termsOfUse",
-                  i18n.language as Language
-                )}
-              />
+              <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
             </Content>
           </Accordion>
           <div />
@@ -318,18 +305,10 @@ const ReservationUnit = ({
               {reservationUnit.spaces?.map((space) => (
                 <React.Fragment key={space.pk}>
                   {reservationUnit.spaces.length > 1 && (
-                    <h3>
-                      {getTranslation(space, "name", i18n.language as Language)}
-                    </h3>
+                    <h3>{getTranslation(space, "name")}</h3>
                   )}
                   <p>
-                    <Sanitize
-                      html={getTranslation(
-                        space,
-                        "termsOfUse",
-                        i18n.language as Language
-                      )}
-                    />
+                    <Sanitize html={getTranslation(space, "termsOfUse")} />
                   </p>
                 </React.Fragment>
               ))}

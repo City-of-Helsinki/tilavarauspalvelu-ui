@@ -133,7 +133,7 @@ const SearchForm = ({
   formValues,
   removeValue,
 }: Props): JSX.Element | null => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [unitOptions, setUnitOptions] = useState<OptionType[]>([]);
   const [reservationUnitTypeOptions, setReservationUnitTypeOptions] = useState<
@@ -145,7 +145,7 @@ const SearchForm = ({
     onCompleted: (res) => {
       const units = res?.units?.edges?.map(({ node }) => ({
         id: String(node.pk),
-        name: getTranslation(node, "name", i18n.language),
+        name: getTranslation(node, "name"),
       }));
       setUnitOptions(mapOptions(sortBy(units, "name") as StringParameter[]));
     },
@@ -170,7 +170,7 @@ const SearchForm = ({
     }
 
     fetchData();
-  }, [i18n.language, t]);
+  }, [t]);
 
   useEffect(() => {
     Object.keys(formValues).forEach((p) => setValue(p, formValues[p]));

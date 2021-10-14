@@ -558,6 +558,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
   edges: [
     {
       node: {
+        uuid: "fwaiofmawoiegnmaiwoeng",
+        isDraft: false,
         id: "UmVzZXJ2YXRpb25Vbml0VHlwZTozNw==",
         pk: 37,
         nameFi: "Pukinmäen nuorisotalon yläkerta Fi",
@@ -621,6 +623,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
     },
     {
       node: {
+        uuid: "fwaiofmawodiegnmaiwoeng",
+        isDraft: false,
         id: "UmVzZXJ2YXRpb25Vbml0VHlwZTozNg==",
         pk: 36,
         nameFi: "Pukinmäen nuorisotalon sali Fi",

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { getTranslation } from "../../modules/util";
 import ExternalLink from "./ExternalLink";
 import { LocationType, ReservationUnitByPkType } from "../../modules/gql-types";
-import { Language } from "../../modules/types";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType;
@@ -44,35 +43,32 @@ const hslUrl = (locale: string, location: LocationType): string | null => {
   }
 
   return `https://www.reittiopas.fi/${locale}/?to=${encodeURI(
-    `${getTranslation(location, "addressStreet", locale)},${getTranslation(
+    `${getTranslation(location, "addressStreet")},${getTranslation(
       location,
-      "addressCity",
-      locale
+      "addressCity"
     )}`
   )}`;
 };
 
-const googleUrl = (location: LocationType, locale: Language): string | null => {
+const googleUrl = (location: LocationType): string | null => {
   if (!location) {
     return null;
   }
   return `https://www.google.com/maps/dir/?api=1&destination=${getTranslation(
     location,
-    "addressStreet",
-    locale
-  )},${getTranslation(location, "addressCity", locale)}`;
+    "addressStreet"
+  )},${getTranslation(location, "addressCity")}`;
 };
 
-const mapUrl = (location: LocationType, locale: Language): string | null => {
+const mapUrl = (location: LocationType): string | null => {
   if (!location) {
     return null;
   }
 
   return `https://maps.google.com/?q=${getTranslation(
     location,
-    "addressStreet",
-    locale
-  )},${getTranslation(location, "addressCity", locale)}`;
+    "addressStreet"
+  )},${getTranslation(location, "addressCity")}`;
 };
 
 const Address = ({ reservationUnit }: Props): JSX.Element => {
@@ -80,14 +76,9 @@ const Address = ({ reservationUnit }: Props): JSX.Element => {
 
   const addressStreet = getTranslation(
     reservationUnit.location,
-    "addressStreet",
-    i18n.language
+    "addressStreet"
   );
-  const addressCity = getTranslation(
-    reservationUnit.location,
-    "addressCity",
-    i18n.language
-  );
+  const addressCity = getTranslation(reservationUnit.location, "addressCity");
 
   if (!reservationUnit?.location || !addressStreet || !addressCity) {
     return <div />;
@@ -95,7 +86,7 @@ const Address = ({ reservationUnit }: Props): JSX.Element => {
 
   return (
     <Container>
-      <Name>{getTranslation(reservationUnit, "name", i18n.language)}</Name>
+      <Name>{getTranslation(reservationUnit, "name")}</Name>
       {addressStreet && <AddressLine>{addressStreet}</AddressLine>}
       {reservationUnit.location?.addressZip && addressCity && (
         <AddressLine>
@@ -104,11 +95,11 @@ const Address = ({ reservationUnit }: Props): JSX.Element => {
       )}
       <Links>
         <ExternalLink
-          href={mapUrl(reservationUnit.location, i18n.language as Language)}
+          href={mapUrl(reservationUnit.location)}
           name={t("reservationUnit:linkMap")}
         />
         <ExternalLink
-          href={googleUrl(reservationUnit.location, i18n.language as Language)}
+          href={googleUrl(reservationUnit.location)}
           name={t("reservationUnit:linkGoogle")}
         />
         <ExternalLink

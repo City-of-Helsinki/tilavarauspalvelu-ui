@@ -27,7 +27,6 @@ import {
 } from "../../modules/openingHours";
 import { MediumButton } from "../../styles/util";
 import { ReservationUnitByPkType } from "../../modules/gql-types";
-import { Language } from "../../modules/types";
 
 interface PropsType {
   reservationUnit: ReservationUnitByPkType;
@@ -112,7 +111,7 @@ const Head = ({
     removeReservationUnit,
   } = reservationUnitList;
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const minReservationDuration = formatDuration(
     reservationUnit.minReservationDuration,
@@ -144,18 +143,10 @@ const Head = ({
         <RightContainer>
           <div>
             <ReservationUnitName>
-              {getTranslation(
-                reservationUnit,
-                "name",
-                i18n.language as Language
-              )}
+              {getTranslation(reservationUnit, "name")}
             </ReservationUnitName>
             <BuildingName>
-              {getTranslation(
-                reservationUnit.unit,
-                "name",
-                i18n.language as Language
-              )}
+              {getTranslation(reservationUnit.unit, "name")}
             </BuildingName>
             <JustForMobile style={{ marginTop: "var(--spacing-l)" }}>
               <Images images={reservationUnit.images} />
@@ -217,8 +208,7 @@ const Head = ({
                     }
                     text={getTranslation(
                       reservationUnit.reservationUnitType,
-                      "name",
-                      i18n.language as Language
+                      "name"
                     )}
                   />
                 ) : null}
