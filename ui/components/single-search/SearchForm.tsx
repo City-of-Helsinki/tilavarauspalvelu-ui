@@ -344,6 +344,11 @@ const SearchForm = ({
                       deleteButtonAriaLabel={t(`searchForm:removeFilter`, {
                         value: label,
                       })}
+                      theme={{
+                        "--tag-background": "var(--color-black-80)",
+                        "--tag-color": "var(--color-white)",
+                        "--tag-focus-outline-color": "var(--color-black-80)",
+                      }}
                     >
                       {label}
                     </Tag>
