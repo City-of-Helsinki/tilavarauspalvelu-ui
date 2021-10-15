@@ -4,6 +4,8 @@ import {
   SearchReservationUnitsQuery,
   SearchReservationUnitsQueryVariables,
   ReservationUnitImageType,
+  Query,
+  PurposeType,
 } from "../../modules/gql-types";
 
 export const reservationUnitSearchHandlers = [
@@ -306,24 +308,67 @@ export const reservationUnitSearchHandlers = [
       ctx.data({ reservationUnits: reservationUnitData.reservationUnits })
     );
   }),
-  graphql.query<SearchFormParamsQuery>("SearchFormParams", (req, res, ctx) => {
-    const response = [
-      { pk: 1, nameFi: "Tila #1" },
-      { pk: 1, nameEn: "Tila #1" },
-      { pk: 1, nameSv: "Tila #1" },
-      { pk: 2, nameFi: "Tila #2" },
-      { pk: 2, nameEn: "Tila #2" },
-      { pk: 2, nameSv: "Tila #2" },
-      { pk: 3, nameFi: "Tila #3" },
-      { pk: 3, nameEn: "Tila #3" },
-      { pk: 3, nameSv: "Tila #3" },
+  graphql.query<SearchFormParamsQuery>(
+    "SearchFormParamsUnit",
+    (req, res, ctx) => {
+      const response = [
+        { pk: 1, nameFi: "Tila #1", nameEn: "Tila #1", nameSv: "Tila #1" },
+        { pk: 2, nameFi: "Tila #2", nameEn: "Tila #2", nameSv: "Tila #2" },
+        { pk: 3, nameFi: "Tila #3", nameEn: "Tila #3", nameSv: "Tila #3" },
+      ];
+      return res(
+        ctx.data({
+          units: {
+            edges: response.map((n) => ({
+              node: n,
+            })),
+          },
+        })
+      );
+    }
+  ),
+  graphql.query<Query>("SearchFormParamsPurpose", (req, res, ctx) => {
+    const response: PurposeType[] = [
+      {
+        id: "UHVycG9zZVR5cGU6NQ==",
+        pk: 1,
+        nameFi: "Purpose #1",
+        nameEn: "Purpose #1",
+        nameSv: "Purpose #1",
+      },
+      {
+        id: "UHVycG9zZVR5cGU6NQ==",
+        pk: 2,
+        nameFi: "Purpose #2",
+        nameEn: "Purpose #2",
+        nameSv: "Purpose #2",
+      },
+      {
+        id: "UHVycG9zZVR5cGU6NQ==",
+        pk: 3,
+        nameFi: "Purpose #3",
+        nameEn: "Purpose #3",
+        nameSv: "Purpose #3",
+      },
+      {
+        id: "UHVycG9zZVR5cGU6NQ==",
+        pk: 4,
+        nameFi: "Purpose #11",
+        nameEn: "Purpose #11",
+        nameSv: "Purpose #11",
+      },
     ];
     return res(
       ctx.data({
-        units: {
+        purposes: {
           edges: response.map((n) => ({
             node: n,
+            cursor: "awioefja903",
           })),
+          pageInfo: {
+            hasPreviousPage: false,
+            hasNextPage: true,
+          },
         },
       })
     );

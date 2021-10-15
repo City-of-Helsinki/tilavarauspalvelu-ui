@@ -29,6 +29,7 @@ const RESERVATION_UNITS = gql`
     $maxPersons: Float
     $unit: ID
     $reservationUnitType: ID
+    $purposes: ID
     $first: Int
     $after: String
   ) {
@@ -37,6 +38,7 @@ const RESERVATION_UNITS = gql`
       maxPersonsGte: $minPersons
       maxPersonsLte: $maxPersons
       reservationUnitType: $reservationUnitType
+      purposes: $purposes
       unit: $unit
       first: $first
       after: $after

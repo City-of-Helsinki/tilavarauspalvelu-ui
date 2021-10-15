@@ -24,9 +24,24 @@ type Props = {
   removeValue: (key?: string[]) => void;
 };
 
-const SEARCH_FORM_PARAMS = gql`
-  query SearchFormParams {
+const SEARCH_FORM_PARAMS_UNIT = gql`
+  query SearchFormParamsUnit {
     units {
+      edges {
+        node {
+          pk
+          nameFi
+          nameEn
+          nameSv
+        }
+      }
+    }
+  }
+`;
+
+const SEARCH_FORM_PARAMS_PURPOSE = gql`
+  query SearchFormParamsPurpose {
+    purposes {
       edges {
         node {
           pk
@@ -46,7 +61,7 @@ const Container = styled.div`
   grid-template-columns: 1fr;
   grid-gap: var(--spacing-m);
   font-size: var(--fontsize-body-m);
-  height: 384px;
+  height: 450px;
   overflow: visible;
 
   label {
@@ -74,12 +89,12 @@ const Container = styled.div`
   }
 
   @media (min-width: ${breakpoint.m}) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
     height: 180px;
   }
 
   @media (min-width: ${breakpoint.xl}) {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
   }
 `;
 
@@ -128,6 +143,20 @@ const ResetButton = styled.button`
   margin-bottom: var(--spacing-s);
 `;
 
+const StyledMultiSelectDropdown = styled(MultiSelectDropdown)`
+  @media (min-width: ${breakpoint.m}) {
+    grid-column: 2/4;
+  }
+
+  @media (min-width: ${breakpoint.l}) {
+    grid-column: 2/3;
+  }
+
+  @media (min-width: ${breakpoint.xl}) {
+    grid-column: 2/4;
+  }
+`;
+
 const SearchForm = ({
   onSearch,
   formValues,
@@ -136,18 +165,32 @@ const SearchForm = ({
   const { t } = useTranslation();
 
   const [unitOptions, setUnitOptions] = useState<OptionType[]>([]);
+  const [purposeOptions, setPurposeOptions] = useState<OptionType[]>([]);
   const [reservationUnitTypeOptions, setReservationUnitTypeOptions] = useState<
     OptionType[]
   >([]);
   const [unitSearchInput, setUnitSearchInput] = useState<string>("");
+  const [purposeSearchInput, setPurposeSearchInput] = useState<string>("");
 
-  useQuery<Query>(SEARCH_FORM_PARAMS, {
+  useQuery<Query>(SEARCH_FORM_PARAMS_UNIT, {
     onCompleted: (res) => {
       const units = res?.units?.edges?.map(({ node }) => ({
         id: String(node.pk),
         name: getTranslation(node, "name"),
       }));
       setUnitOptions(mapOptions(sortBy(units, "name") as StringParameter[]));
+    },
+  });
+
+  useQuery<Query>(SEARCH_FORM_PARAMS_PURPOSE, {
+    onCompleted: (res) => {
+      const purposes = res?.purposes?.edges?.map(({ node }) => ({
+        id: String(node.pk),
+        name: getTranslation(node, "name"),
+      }));
+      setPurposeOptions(
+        mapOptions(sortBy(purposes, "name") as StringParameter[])
+      );
     },
   });
 
@@ -158,6 +201,7 @@ const SearchForm = ({
     register({ name: "maxPersons" });
     register({ name: "unit" });
     register({ name: "reservationUnitType" });
+    register({ name: "purposes" });
   }, [register]);
 
   useEffect(() => {
@@ -266,6 +310,20 @@ const SearchForm = ({
           showSearch
           title={t("searchForm:unitFilter")}
           value={watch("unit")?.split(",") || [""]}
+        />
+        <StyledMultiSelectDropdown
+          id="purposeFilter"
+          checkboxName="purposeFilter"
+          inputValue={purposeSearchInput}
+          name="purposes"
+          onChange={(selection: string[]): void => {
+            setValue("purposes", selection.filter((n) => n !== "").join(","));
+          }}
+          options={purposeOptions}
+          setInputValue={setPurposeSearchInput}
+          showSearch
+          title={t("searchForm:purposesFilter")}
+          value={watch("purposes")?.split(",") || [""]}
         />
       </Container>
       <Hr />
