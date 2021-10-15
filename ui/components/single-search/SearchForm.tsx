@@ -169,6 +169,8 @@ const SearchForm = ({
   const [reservationUnitTypeOptions, setReservationUnitTypeOptions] = useState<
     OptionType[]
   >([]);
+  const [reservationTypeSearchInput, setReservationTypeSearchInput] =
+    useState<string>("");
   const [unitSearchInput, setUnitSearchInput] = useState<string>("");
   const [purposeSearchInput, setPurposeSearchInput] = useState<string>("");
 
@@ -210,7 +212,14 @@ const SearchForm = ({
         "reservation_unit_type"
       );
 
-      setReservationUnitTypeOptions(mapOptions(fetchedReservationUnitTypes));
+      setReservationUnitTypeOptions(
+        mapOptions(
+          fetchedReservationUnitTypes.map((n) => ({
+            id: String(n.id),
+            name: n.name,
+          }))
+        )
+      );
     }
 
     fetchData();
@@ -276,26 +285,22 @@ const SearchForm = ({
             className="inputSm inputGroupEnd"
           />
         </Group>
-        <Select
+        <MultiSelectDropdown
           id="reservationUnitTypeFilter"
-          placeholder={t("common:select")}
-          options={[emptyOption(t("common:select"))].concat(
-            reservationUnitTypeOptions
-          )}
-          label={t("searchForm:typeLabel")}
-          onChange={(selection: OptionType): void => {
-            setValue("reservationUnitType", selection.value);
+          checkboxName="reservationUnitTypeFilter"
+          inputValue={reservationTypeSearchInput}
+          name="reservationType"
+          onChange={(selection: string[]): void => {
+            setValue(
+              "reservationUnitType",
+              selection.filter((n) => n !== "").join(",")
+            );
           }}
-          defaultValue={
-            getValues("reservationUnitType") &&
-            getSelectedOption(
-              getValues("reservationUnitType"),
-              reservationUnitTypeOptions
-            )
-          }
-          key={`reservationUnitType${getValues(
-            "reservationUnitType"
-          )}${reservationUnitTypeOptions.map((n) => n.value).join(",")}`}
+          options={reservationUnitTypeOptions}
+          setInputValue={setReservationTypeSearchInput}
+          showSearch
+          title={t("searchForm:typeLabel")}
+          value={watch("reservationUnitType")?.split(",") || [""]}
         />
         <MultiSelectDropdown
           id="unitFilter"
