@@ -34,7 +34,13 @@ export function inputMaxPersons(): Cypress.Chainable<JQuery<HTMLElement>> {
 export function inputReservationUnitType(): Cypress.Chainable<
   JQuery<HTMLElement>
 > {
-  return cy.get("#reservationUnitTypeFilter-toggle-button");
+  return cy.get("#reservationUnitTypeFilter");
+}
+
+export function inputReservationUnitTypeOption(
+  value: number
+): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get(`#reservationUnitTypeFilter_${value}`);
 }
 
 export function inputUnit(): Cypress.Chainable<JQuery<HTMLElement>> {

@@ -16,6 +16,7 @@ import {
   selectOptions,
   inputPurpose,
   selectClearButton,
+  inputReservationUnitTypeOption,
 } from "../model/search";
 
 describe("Tilavaraus ui search page (single)", () => {
@@ -51,11 +52,9 @@ describe("Tilavaraus ui search page (single)", () => {
       .siblings("ul")
       .children("li:nth-of-type(4)")
       .click();
-    inputReservationUnitType()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    inputReservationUnitType().click();
+    inputReservationUnitTypeOption(1).click();
+    inputReservationUnitType().click();
 
     inputUnitToggler().click();
     inputUnitOption(1).click();
