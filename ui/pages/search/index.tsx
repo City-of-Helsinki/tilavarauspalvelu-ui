@@ -19,14 +19,19 @@ import { searchUrl } from "../../modules/util";
 import { isBrowser, searchPrefix } from "../../modules/const";
 import { CenterSpinner } from "../../components/common/common";
 import ClientOnly from "../../components/ClientOnly";
+import { H1 } from "../../modules/style/typography";
 
 const HeadContainer = styled.div`
   background-color: white;
   padding-top: var(--spacing-layout-xs);
 `;
 
-const Title = styled.h1`
-  font-size: var(--fontsize-heading-l);
+const Title = styled(H1)`
+  && {
+    margin-top: var(--spacing-l);
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--fontsize-heading-l);
+  }
 `;
 
 const Ingress = styled.div`

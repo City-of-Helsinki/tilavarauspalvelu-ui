@@ -21,6 +21,7 @@ import {
   QueryReservationUnitsArgs,
   ReservationUnitType,
 } from "../../modules/gql-types";
+import { H1 } from "../../modules/style/typography";
 
 const RESERVATION_UNITS = gql`
   query SearchReservationUnits(
@@ -83,17 +84,21 @@ const RESERVATION_UNITS = gql`
 
 const pagingLimit = 10;
 
-const style = {
-  fontSize: "var(--fontsize-heading-l)",
-} as React.CSSProperties;
-
 const HeadContainer = styled.div`
   background-color: white;
   padding-top: var(--spacing-layout-xs);
 `;
 
-const Heading = styled.h1`
-  margin: var(--spacing-l) 0 var(--spacing-s);
+const Heading = styled(H1)`
+  && {
+    margin-top: var(--spacing-l);
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--fontsize-heading-l);
+  }
+`;
+
+const Subheading = styled.span`
+  font-size: var(--fontsize-heading-s);
 `;
 
 const StyledKoros = styled(Koros)`
@@ -184,8 +189,8 @@ const SearchSingle = (): JSX.Element => {
             root={{ label: "singleReservations" }}
             current={{ label: "search", linkTo: singleSearchPrefix }}
           />
-          <Heading style={style}>{t("search:single.heading")}</Heading>
-          <span className="text-lg">{t("search:single.text")}</span>
+          <Heading>{t("search:single.heading")}</Heading>
+          <Subheading>{t("search:single.text")}</Subheading>
           <SearchForm
             onSearch={onSearch}
             formValues={values}
