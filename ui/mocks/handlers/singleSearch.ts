@@ -1,6 +1,6 @@
 import { graphql } from "msw";
 import {
-  SearchFormParamsQuery,
+  SearchFormParamsUnitQuery,
   SearchReservationUnitsQuery,
   SearchReservationUnitsQueryVariables,
   ReservationUnitImageType,
@@ -308,7 +308,7 @@ export const reservationUnitSearchHandlers = [
       ctx.data({ reservationUnits: reservationUnitData.reservationUnits })
     );
   }),
-  graphql.query<SearchFormParamsQuery>(
+  graphql.query<SearchFormParamsUnitQuery>(
     "SearchFormParamsUnit",
     (req, res, ctx) => {
       const response = [

@@ -16,7 +16,7 @@ import { toApiDate } from "../../modules/util";
 const selectedReservationUnitQuery = graphql.query<
   Query,
   QueryReservationUnitByPkArgs
->("SelectedReservationUnit", async (req, res, ctx) => {
+>("ReservationUnit", async (req, res, ctx) => {
   const reservationUnitByPk: ReservationUnitByPkType = {
     resources: [],
     services: [],

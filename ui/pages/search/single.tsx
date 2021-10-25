@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Koros } from "hds-react";
 import { useTranslation } from "next-i18next";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import styled from "styled-components";
 import queryString from "query-string";
 import { useRouter } from "next/router";
@@ -22,65 +22,7 @@ import {
   ReservationUnitType,
 } from "../../modules/gql-types";
 import { H1 } from "../../modules/style/typography";
-
-const RESERVATION_UNITS = gql`
-  query SearchReservationUnits(
-    $textSearch: String
-    $minPersons: Float
-    $maxPersons: Float
-    $unit: ID
-    $reservationUnitType: ID
-    $purposes: ID
-    $first: Int
-    $after: String
-  ) {
-    reservationUnits(
-      textSearch: $textSearch
-      maxPersonsGte: $minPersons
-      maxPersonsLte: $maxPersons
-      reservationUnitType: $reservationUnitType
-      purposes: $purposes
-      unit: $unit
-      first: $first
-      after: $after
-    ) {
-      edges {
-        node {
-          id: pk
-          nameFi
-          nameEn
-          nameSv
-          reservationUnitType {
-            id: pk
-            nameFi
-            nameEn
-            nameSv
-          }
-          unit {
-            id: pk
-            nameFi
-            nameEn
-            nameSv
-          }
-          maxPersons
-          location {
-            addressStreetFi
-            addressStreetEn
-            addressStreetSv
-          }
-          images {
-            imageType
-            mediumUrl
-          }
-        }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-    }
-  }
-`;
+import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 
 const pagingLimit = 10;
 

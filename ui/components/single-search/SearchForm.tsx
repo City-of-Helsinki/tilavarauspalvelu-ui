@@ -3,7 +3,7 @@ import { useTranslation } from "next-i18next";
 import { Select, TextInput, IconSearch, Tag } from "hds-react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { sortBy } from "lodash";
 import { breakpoint } from "../../modules/style";
 import { getParameters } from "../../modules/api";
@@ -17,42 +17,16 @@ import { MediumButton } from "../../styles/util";
 import { OptionType, StringParameter } from "../../modules/types";
 import { Query } from "../../modules/gql-types";
 import MultiSelectDropdown from "../form/MultiselectDropdown";
+import {
+  SEARCH_FORM_PARAMS_PURPOSE,
+  SEARCH_FORM_PARAMS_UNIT,
+} from "../../modules/queries/params";
 
 type Props = {
   onSearch: (search: Record<string, string>) => void;
   formValues: { [key: string]: string };
   removeValue: (key?: string[]) => void;
 };
-
-const SEARCH_FORM_PARAMS_UNIT = gql`
-  query SearchFormParamsUnit {
-    units {
-      edges {
-        node {
-          pk
-          nameFi
-          nameEn
-          nameSv
-        }
-      }
-    }
-  }
-`;
-
-const SEARCH_FORM_PARAMS_PURPOSE = gql`
-  query SearchFormParamsPurpose {
-    purposes {
-      edges {
-        node {
-          pk
-          nameFi
-          nameEn
-          nameSv
-        }
-      }
-    }
-  }
-`;
 
 const Container = styled.div`
   margin-top: var(--spacing-l);

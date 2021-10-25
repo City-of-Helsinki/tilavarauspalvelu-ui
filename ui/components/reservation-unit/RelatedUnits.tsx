@@ -208,7 +208,11 @@ const RelatedUnits = ({
                 <Buttons>
                   <MediumButton
                     style={{ width: "100%" }}
-                    onClick={() => router.push(reservationUnitPath(unit.pk))}
+                    onClick={() =>
+                      router.push(
+                        reservationUnitPath(unit.pk, viewType === "single")
+                      )
+                    }
                     className="margin-left-xs margin-top-s"
                     variant="secondary"
                   >

@@ -1,5 +1,4 @@
 import React, { useContext, useState } from "react";
-import { gql } from "@apollo/client";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import router from "next/router";
@@ -42,6 +41,7 @@ import { MediumButton } from "../../../styles/util";
 import { DataContext } from "../../../context/DataContext";
 import { ReservationUnitType } from "../../../modules/gql-types";
 import ErrorPage from "../../404";
+import { RESERVATION_UNIT } from "../../../modules/queries/reservationUnit";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -75,22 +75,6 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   const id = Number(params.params[0]);
   const path = params.params[1];
-
-  const RESERVATION_UNIT = gql`
-    query SelectedReservationUnit($pk: Int) {
-      reservationUnitByPk(pk: $pk) {
-        pk
-        nameFi
-        nameEn
-        nameSv
-        unit {
-          nameFi
-          nameEn
-          nameSv
-        }
-      }
-    }
-  `;
 
   if (isFinite(id) && path === "reservation") {
     const { data } = await apolloClient.query({

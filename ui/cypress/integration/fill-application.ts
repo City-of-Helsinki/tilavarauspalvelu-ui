@@ -19,6 +19,8 @@ import {
 } from "../model/search";
 
 describe("application", () => {
+  Cypress.config("defaultCommandTimeout", 20000);
+
   beforeEach(() => {
     cy.fixture("v1/application_round").then((json) => {
       cy.intercept("GET", "/v1/application_round/*", json);
@@ -88,18 +90,15 @@ describe("application", () => {
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
     proceedToPage1Button().click();
-    cy.wait(
-      [
-        "@applicationPost",
-        "@applicationPage1",
-        "@applicationRound1",
-        "@purpose",
-        "@ageGroup",
-        "@abilityGroup",
-        "@reservationUnitType",
-      ],
-      { timeout: 20000 }
-    );
+    cy.wait([
+      "@applicationPost",
+      "@applicationPage1",
+      "@applicationRound1",
+      "@purpose",
+      "@ageGroup",
+      "@abilityGroup",
+      "@reservationUnitType",
+    ]);
 
     cy.get("h1").should("contain", "Vakiovuoron luominen");
 

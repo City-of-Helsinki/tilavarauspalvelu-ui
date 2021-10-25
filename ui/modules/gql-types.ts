@@ -37,6 +37,19 @@ export type Scalars = {
   UUID: any;
 };
 
+export type AbilityGroupType = {
+  __typename?: 'AbilityGroupType';
+  name: Scalars['String'];
+  pk?: Maybe<Scalars['Int']>;
+};
+
+export type AgeGroupType = {
+  __typename?: 'AgeGroupType';
+  maximum?: Maybe<Scalars['Int']>;
+  minimum: Scalars['Int'];
+  pk?: Maybe<Scalars['Int']>;
+};
+
 /** An enumeration. */
 export enum ApplicationRoundTargetGroup {
   /** Kaikki */
@@ -123,15 +136,15 @@ export type EquipmentCategoryCreateMutationPayload = {
   equipmentCategory?: Maybe<EquipmentCategoryType>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
+  pk?: Maybe<Scalars['Int']>;
 };
 
 export type EquipmentCategoryDeleteMutationInput = {
   clientMutationId?: Maybe<Scalars['String']>;
-  pk?: Maybe<Scalars['ID']>;
+  pk: Scalars['Int'];
 };
 
 export type EquipmentCategoryDeleteMutationPayload = {
@@ -182,7 +195,6 @@ export type EquipmentCategoryUpdateMutationPayload = {
   equipmentCategory?: Maybe<EquipmentCategoryType>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
@@ -190,7 +202,7 @@ export type EquipmentCategoryUpdateMutationPayload = {
 };
 
 export type EquipmentCreateMutationInput = {
-  categoryId: Scalars['String'];
+  categoryPk: Scalars['Int'];
   clientMutationId?: Maybe<Scalars['String']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
@@ -199,20 +211,20 @@ export type EquipmentCreateMutationInput = {
 
 export type EquipmentCreateMutationPayload = {
   __typename?: 'EquipmentCreateMutationPayload';
-  categoryId?: Maybe<Scalars['String']>;
+  categoryPk?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
   equipment?: Maybe<EquipmentType>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
+  pk?: Maybe<Scalars['Int']>;
 };
 
 export type EquipmentDeleteMutationInput = {
   clientMutationId?: Maybe<Scalars['String']>;
-  pk?: Maybe<Scalars['ID']>;
+  pk: Scalars['Int'];
 };
 
 export type EquipmentDeleteMutationPayload = {
@@ -251,7 +263,7 @@ export type EquipmentTypeEdge = {
 };
 
 export type EquipmentUpdateMutationInput = {
-  categoryId: Scalars['String'];
+  categoryPk: Scalars['Int'];
   clientMutationId?: Maybe<Scalars['String']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
@@ -261,12 +273,11 @@ export type EquipmentUpdateMutationInput = {
 
 export type EquipmentUpdateMutationPayload = {
   __typename?: 'EquipmentUpdateMutationPayload';
-  categoryId?: Maybe<Scalars['String']>;
+  categoryPk?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
   equipment?: Maybe<EquipmentType>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
@@ -383,7 +394,7 @@ export type Mutation = {
   createEquipment?: Maybe<EquipmentCreateMutationPayload>;
   createEquipmentCategory?: Maybe<EquipmentCategoryCreateMutationPayload>;
   createPurpose?: Maybe<PurposeCreateMutationPayload>;
-  createReservation?: Maybe<ReservationMutationPayload>;
+  createReservation?: Maybe<ReservationCreateMutationPayload>;
   createReservationUnit?: Maybe<ReservationUnitCreateMutationPayload>;
   createResource?: Maybe<ResourceCreateMutationPayload>;
   createSpace?: Maybe<SpaceCreateMutationPayload>;
@@ -394,6 +405,7 @@ export type Mutation = {
   updateEquipment?: Maybe<EquipmentUpdateMutationPayload>;
   updateEquipmentCategory?: Maybe<EquipmentCategoryUpdateMutationPayload>;
   updatePurpose?: Maybe<PurposeUpdateMutationPayload>;
+  updateReservation?: Maybe<ReservationUpdateMutationPayload>;
   updateReservationUnit?: Maybe<ReservationUnitUpdateMutationPayload>;
   updateResource?: Maybe<ResourceUpdateMutationPayload>;
   updateSpace?: Maybe<SpaceUpdateMutationPayload>;
@@ -417,7 +429,7 @@ export type MutationCreatePurposeArgs = {
 
 
 export type MutationCreateReservationArgs = {
-  input: ReservationMutationInput;
+  input: ReservationCreateMutationInput;
 };
 
 
@@ -468,6 +480,11 @@ export type MutationUpdateEquipmentCategoryArgs = {
 
 export type MutationUpdatePurposeArgs = {
   input: PurposeUpdateMutationInput;
+};
+
+
+export type MutationUpdateReservationArgs = {
+  input: ReservationUpdateMutationInput;
 };
 
 
@@ -622,6 +639,7 @@ export type Query = {
   reservationUnit?: Maybe<ReservationUnitType>;
   reservationUnitByPk?: Maybe<ReservationUnitByPkType>;
   reservationUnits?: Maybe<ReservationUnitTypeConnection>;
+  reservations?: Maybe<ReservationTypeConnection>;
   /** The ID of the object */
   resource?: Maybe<ResourceType>;
   resourceByPk?: Maybe<ResourceType>;
@@ -753,9 +771,20 @@ export type QueryReservationUnitsArgs = {
   last?: Maybe<Scalars['Int']>;
   maxPersonsGte?: Maybe<Scalars['Float']>;
   maxPersonsLte?: Maybe<Scalars['Float']>;
+  purposes?: Maybe<Scalars['ID']>;
   reservationUnitType?: Maybe<Scalars['ID']>;
   textSearch?: Maybe<Scalars['String']>;
   unit?: Maybe<Scalars['ID']>;
+};
+
+
+export type QueryReservationsArgs = {
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
+  begin?: Maybe<Scalars['DateTime']>;
+  end?: Maybe<Scalars['DateTime']>;
+  first?: Maybe<Scalars['Int']>;
+  last?: Maybe<Scalars['Int']>;
 };
 
 
@@ -851,23 +880,37 @@ export type RealEstateType = Node & {
   surfaceArea?: Maybe<Scalars['Float']>;
 };
 
-export type ReservationMutationInput = {
+export type RecurringReservationType = {
+  __typename?: 'RecurringReservationType';
+  abilityGroup?: Maybe<AbilityGroupType>;
+  ageGroup?: Maybe<AgeGroupType>;
+  applicationEventPk?: Maybe<Scalars['Int']>;
+  applicationPk?: Maybe<Scalars['Int']>;
+  pk?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+};
+
+export type ReservationCreateMutationInput = {
   begin: Scalars['DateTime'];
   bufferTimeAfter?: Maybe<Scalars['String']>;
   bufferTimeBefore?: Maybe<Scalars['String']>;
   clientMutationId?: Maybe<Scalars['String']>;
   end: Scalars['DateTime'];
-  id?: Maybe<Scalars['ID']>;
-  priority: Scalars['String'];
-  reservationUnit: Array<Maybe<Scalars['ID']>>;
-  state: Scalars['String'];
-  user: Scalars['ID'];
+  priority: Scalars['Int'];
+  reservationUnitPks: Array<Maybe<Scalars['Int']>>;
 };
 
-export type ReservationMutationPayload = {
-  __typename?: 'ReservationMutationPayload';
+export type ReservationCreateMutationPayload = {
+  __typename?: 'ReservationCreateMutationPayload';
+  begin?: Maybe<Scalars['DateTime']>;
+  bufferTimeAfter?: Maybe<Scalars['String']>;
+  bufferTimeBefore?: Maybe<Scalars['String']>;
   clientMutationId?: Maybe<Scalars['String']>;
+  end?: Maybe<Scalars['DateTime']>;
+  /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
+  pk?: Maybe<Scalars['Int']>;
+  priority?: Maybe<Scalars['Int']>;
   reservation?: Maybe<ReservationType>;
 };
 
@@ -879,22 +922,6 @@ export enum ReservationPriority {
   A_200 = 'A_200',
   /** High */
   A_300 = 'A_300'
-}
-
-/** An enumeration. */
-export enum ReservationState {
-  /** cancelled */
-  Cancelled = 'CANCELLED',
-  /** confirmed */
-  Confirmed = 'CONFIRMED',
-  /** created */
-  Created = 'CREATED',
-  /** denied */
-  Denied = 'DENIED',
-  /** requested */
-  Requested = 'REQUESTED',
-  /** waiting for payment */
-  WaitingForPayment = 'WAITING_FOR_PAYMENT'
 }
 
 export type ReservationType = Node & {
@@ -909,16 +936,27 @@ export type ReservationType = Node & {
   numPersons?: Maybe<Scalars['Int']>;
   pk?: Maybe<Scalars['Int']>;
   priority: ReservationPriority;
-  reservationUnit: ReservationUnitByPkTypeConnection;
-  state: ReservationState;
+  recurringReservation?: Maybe<RecurringReservationType>;
+  reservationUnits?: Maybe<Array<Maybe<ReservationUnitType>>>;
+  state?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
 };
 
+export type ReservationTypeConnection = {
+  __typename?: 'ReservationTypeConnection';
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ReservationTypeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+};
 
-export type ReservationTypeReservationUnitArgs = {
-  after?: Maybe<Scalars['String']>;
-  before?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  last?: Maybe<Scalars['Int']>;
+/** A Relay edge containing a `ReservationType` and its cursor. */
+export type ReservationTypeEdge = {
+  __typename?: 'ReservationTypeEdge';
+  /** A cursor for use in pagination */
+  cursor: Scalars['String'];
+  /** The item at the end of the edge */
+  node?: Maybe<ReservationType>;
 };
 
 export type ReservationUnitByPkType = Node & {
@@ -1007,7 +1045,7 @@ export type ReservationUnitCreateMutationInput = {
   descriptionEn?: Maybe<Scalars['String']>;
   descriptionFi?: Maybe<Scalars['String']>;
   descriptionSv?: Maybe<Scalars['String']>;
-  equipmentIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  equipmentPks?: Maybe<Array<Maybe<Scalars['Int']>>>;
   isDraft?: Maybe<Scalars['Boolean']>;
   maxPersons?: Maybe<Scalars['Int']>;
   maxReservationDuration?: Maybe<Scalars['String']>;
@@ -1015,18 +1053,18 @@ export type ReservationUnitCreateMutationInput = {
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
-  purposeIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  purposePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
   /** Determines if introduction is required in order to reserve this reservation unit. */
   requireIntroduction?: Maybe<Scalars['Boolean']>;
-  reservationUnitTypeId?: Maybe<Scalars['String']>;
-  resourceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
-  serviceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
-  spaceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reservationUnitTypePk?: Maybe<Scalars['Int']>;
+  resourcePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  servicePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  spacePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId: Scalars['String'];
+  unitPk: Scalars['Int'];
 };
 
 export type ReservationUnitCreateMutationPayload = {
@@ -1040,10 +1078,8 @@ export type ReservationUnitCreateMutationPayload = {
   descriptionEn?: Maybe<Scalars['String']>;
   descriptionFi?: Maybe<Scalars['String']>;
   descriptionSv?: Maybe<Scalars['String']>;
-  equipmentIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   /** Images of the reservation unit as nested related objects.  */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
   isDraft?: Maybe<Scalars['Boolean']>;
@@ -1055,28 +1091,25 @@ export type ReservationUnitCreateMutationPayload = {
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
-  purposeIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pk?: Maybe<Scalars['Int']>;
   purposes?: Maybe<Array<Maybe<PurposeType>>>;
   /** Determines if introduction is required in order to reserve this reservation unit. */
   requireIntroduction?: Maybe<Scalars['Boolean']>;
   reservationUnit?: Maybe<ReservationUnitType>;
   /** Type of the reservation unit as nested related object. */
   reservationUnitType?: Maybe<ReservationUnitTypeType>;
-  reservationUnitTypeId?: Maybe<Scalars['String']>;
-  resourceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reservationUnitTypePk?: Maybe<Scalars['Int']>;
   /** Resources included in the reservation unit as nested related objects. */
   resources?: Maybe<Array<Maybe<ResourceType>>>;
-  serviceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Services included in the reservation unit as nested related objects. */
   services?: Maybe<Array<Maybe<ServiceType>>>;
-  spaceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Spaces included in the reservation unit as nested related objects. */
   spaces?: Maybe<Array<Maybe<SpaceType>>>;
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
   uuid?: Maybe<Scalars['String']>;
 };
 
@@ -1192,7 +1225,7 @@ export type ReservationUnitUpdateMutationInput = {
   descriptionEn?: Maybe<Scalars['String']>;
   descriptionFi?: Maybe<Scalars['String']>;
   descriptionSv?: Maybe<Scalars['String']>;
-  equipmentIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  equipmentPks?: Maybe<Array<Maybe<Scalars['Int']>>>;
   isDraft?: Maybe<Scalars['Boolean']>;
   maxPersons?: Maybe<Scalars['Int']>;
   maxReservationDuration?: Maybe<Scalars['String']>;
@@ -1201,18 +1234,18 @@ export type ReservationUnitUpdateMutationInput = {
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
   pk: Scalars['Int'];
-  purposeIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  purposePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
   /** Determines if introduction is required in order to reserve this reservation unit. */
   requireIntroduction?: Maybe<Scalars['Boolean']>;
-  reservationUnitTypeId?: Maybe<Scalars['String']>;
-  resourceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
-  serviceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
-  spaceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reservationUnitTypePk?: Maybe<Scalars['Int']>;
+  resourcePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  servicePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  spacePks?: Maybe<Array<Maybe<Scalars['Int']>>>;
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
 };
 
 export type ReservationUnitUpdateMutationPayload = {
@@ -1226,10 +1259,8 @@ export type ReservationUnitUpdateMutationPayload = {
   descriptionEn?: Maybe<Scalars['String']>;
   descriptionFi?: Maybe<Scalars['String']>;
   descriptionSv?: Maybe<Scalars['String']>;
-  equipmentIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   /** Images of the reservation unit as nested related objects.  */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
   isDraft?: Maybe<Scalars['Boolean']>;
@@ -1242,29 +1273,50 @@ export type ReservationUnitUpdateMutationPayload = {
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
   pk?: Maybe<Scalars['Int']>;
-  purposeIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   purposes?: Maybe<Array<Maybe<PurposeType>>>;
   /** Determines if introduction is required in order to reserve this reservation unit. */
   requireIntroduction?: Maybe<Scalars['Boolean']>;
   reservationUnit?: Maybe<ReservationUnitType>;
   /** Type of the reservation unit as nested related object. */
   reservationUnitType?: Maybe<ReservationUnitTypeType>;
-  reservationUnitTypeId?: Maybe<Scalars['String']>;
-  resourceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  reservationUnitTypePk?: Maybe<Scalars['Int']>;
   /** Resources included in the reservation unit as nested related objects. */
   resources?: Maybe<Array<Maybe<ResourceType>>>;
-  serviceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Services included in the reservation unit as nested related objects. */
   services?: Maybe<Array<Maybe<ServiceType>>>;
-  spaceIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Spaces included in the reservation unit as nested related objects. */
   spaces?: Maybe<Array<Maybe<SpaceType>>>;
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
   uuid?: Maybe<Scalars['String']>;
+};
+
+export type ReservationUpdateMutationInput = {
+  begin?: Maybe<Scalars['DateTime']>;
+  bufferTimeAfter?: Maybe<Scalars['String']>;
+  bufferTimeBefore?: Maybe<Scalars['String']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+  end?: Maybe<Scalars['DateTime']>;
+  pk: Scalars['Int'];
+  priority?: Maybe<Scalars['Int']>;
+  reservationUnitPks?: Maybe<Array<Maybe<Scalars['Int']>>>;
+};
+
+export type ReservationUpdateMutationPayload = {
+  __typename?: 'ReservationUpdateMutationPayload';
+  begin?: Maybe<Scalars['DateTime']>;
+  bufferTimeAfter?: Maybe<Scalars['String']>;
+  bufferTimeBefore?: Maybe<Scalars['String']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+  end?: Maybe<Scalars['DateTime']>;
+  /** May contain more than one error for same field. */
+  errors?: Maybe<Array<Maybe<ErrorType>>>;
+  pk?: Maybe<Scalars['Int']>;
+  priority?: Maybe<Scalars['Int']>;
+  reservation?: Maybe<ReservationType>;
 };
 
 export type ResourceCreateMutationInput = {
@@ -1284,8 +1336,8 @@ export type ResourceCreateMutationInput = {
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
-  /** Id of related space for this resource. */
-  spaceId?: Maybe<Scalars['String']>;
+  /** PK of the related space for this resource. */
+  spacePk?: Maybe<Scalars['Int']>;
 };
 
 export type ResourceCreateMutationPayload = {
@@ -1303,20 +1355,20 @@ export type ResourceCreateMutationPayload = {
   descriptionSv?: Maybe<Scalars['String']>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   isDraft?: Maybe<Scalars['Boolean']>;
   locationType?: Maybe<Scalars['String']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
+  pk?: Maybe<Scalars['Int']>;
   resource?: Maybe<ResourceType>;
-  /** Id of related space for this resource. */
-  spaceId?: Maybe<Scalars['String']>;
+  /** PK of the related space for this resource. */
+  spacePk?: Maybe<Scalars['Int']>;
 };
 
 export type ResourceDeleteMutationInput = {
   clientMutationId?: Maybe<Scalars['String']>;
-  pk?: Maybe<Scalars['ID']>;
+  pk: Scalars['Int'];
 };
 
 export type ResourceDeleteMutationPayload = {
@@ -1388,8 +1440,8 @@ export type ResourceUpdateMutationInput = {
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
   pk: Scalars['Int'];
-  /** Id of related space for this resource. */
-  spaceId?: Maybe<Scalars['String']>;
+  /** PK of the related space for this resource. */
+  spacePk?: Maybe<Scalars['Int']>;
 };
 
 export type ResourceUpdateMutationPayload = {
@@ -1407,7 +1459,6 @@ export type ResourceUpdateMutationPayload = {
   descriptionSv?: Maybe<Scalars['String']>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   isDraft?: Maybe<Scalars['Boolean']>;
   locationType?: Maybe<Scalars['String']>;
   nameEn?: Maybe<Scalars['String']>;
@@ -1415,8 +1466,8 @@ export type ResourceUpdateMutationPayload = {
   nameSv?: Maybe<Scalars['String']>;
   pk?: Maybe<Scalars['Int']>;
   resource?: Maybe<ResourceType>;
-  /** Id of related space for this resource. */
-  spaceId?: Maybe<Scalars['String']>;
+  /** PK of the related space for this resource. */
+  spacePk?: Maybe<Scalars['Int']>;
 };
 
 /** An enumeration. */
@@ -1445,49 +1496,49 @@ export type ServiceType = Node & {
 export type SpaceCreateMutationInput = {
   clientMutationId?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
-  /** Id of district for this space. */
-  districtId?: Maybe<Scalars['String']>;
+  /** PK of the district for this space. */
+  districtPk?: Maybe<Scalars['Int']>;
   maxPersons?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi: Scalars['String'];
   nameSv?: Maybe<Scalars['String']>;
-  /** Id of parent space for this space. */
-  parentId?: Maybe<Scalars['String']>;
+  /** PK of the parent space for this space. */
+  parentPk?: Maybe<Scalars['Int']>;
   /** Surface area of the space as square meters */
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
 };
 
 export type SpaceCreateMutationPayload = {
   __typename?: 'SpaceCreateMutationPayload';
   clientMutationId?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
-  /** Id of district for this space. */
-  districtId?: Maybe<Scalars['String']>;
+  /** PK of the district for this space. */
+  districtPk?: Maybe<Scalars['Int']>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   maxPersons?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
-  /** Id of parent space for this space. */
-  parentId?: Maybe<Scalars['String']>;
+  /** PK of the parent space for this space. */
+  parentPk?: Maybe<Scalars['Int']>;
+  pk?: Maybe<Scalars['Int']>;
   space?: Maybe<SpaceType>;
   /** Surface area of the space as square meters */
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
 };
 
 export type SpaceDeleteMutationInput = {
   clientMutationId?: Maybe<Scalars['String']>;
-  pk?: Maybe<Scalars['ID']>;
+  pk: Scalars['Int'];
 };
 
 export type SpaceDeleteMutationPayload = {
@@ -1538,38 +1589,37 @@ export type SpaceTypeEdge = {
 export type SpaceUpdateMutationInput = {
   clientMutationId?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
-  /** Id of district for this space. */
-  districtId?: Maybe<Scalars['String']>;
+  /** PK of the district for this space. */
+  districtPk?: Maybe<Scalars['Int']>;
   maxPersons?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
-  /** Id of parent space for this space. */
-  parentId?: Maybe<Scalars['String']>;
+  /** PK of the parent space for this space. */
+  parentPk?: Maybe<Scalars['Int']>;
   pk: Scalars['Int'];
   /** Surface area of the space as square meters */
   surfaceArea?: Maybe<Scalars['Float']>;
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
 };
 
 export type SpaceUpdateMutationPayload = {
   __typename?: 'SpaceUpdateMutationPayload';
   clientMutationId?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
-  /** Id of district for this space. */
-  districtId?: Maybe<Scalars['String']>;
+  /** PK of the district for this space. */
+  districtPk?: Maybe<Scalars['Int']>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   maxPersons?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
-  /** Id of parent space for this space. */
-  parentId?: Maybe<Scalars['String']>;
+  /** PK of the parent space for this space. */
+  parentPk?: Maybe<Scalars['Int']>;
   pk?: Maybe<Scalars['Int']>;
   space?: Maybe<SpaceType>;
   /** Surface area of the space as square meters */
@@ -1577,7 +1627,7 @@ export type SpaceUpdateMutationPayload = {
   termsOfUseEn?: Maybe<Scalars['String']>;
   termsOfUseFi?: Maybe<Scalars['String']>;
   termsOfUseSv?: Maybe<Scalars['String']>;
-  unitId?: Maybe<Scalars['String']>;
+  unitPk?: Maybe<Scalars['Int']>;
 };
 
 export type TimeSpanType = {
@@ -1694,7 +1744,6 @@ export type UnitUpdateMutationPayload = {
   email?: Maybe<Scalars['String']>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  id?: Maybe<Scalars['Int']>;
   nameEn?: Maybe<Scalars['String']>;
   nameFi?: Maybe<Scalars['String']>;
   nameSv?: Maybe<Scalars['String']>;
@@ -1709,8 +1758,8 @@ export type UnitUpdateMutationPayload = {
 };
 
 
-export const SearchFormParamsDocument = gql`
-    query SearchFormParams {
+export const SearchFormParamsUnitDocument = gql`
+    query SearchFormParamsUnit {
   units {
     edges {
       node {
@@ -1725,33 +1774,74 @@ export const SearchFormParamsDocument = gql`
     `;
 
 /**
- * __useSearchFormParamsQuery__
+ * __useSearchFormParamsUnitQuery__
  *
- * To run a query within a React component, call `useSearchFormParamsQuery` and pass it any options that fit your needs.
- * When your component renders, `useSearchFormParamsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useSearchFormParamsUnitQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchFormParamsUnitQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useSearchFormParamsQuery({
+ * const { data, loading, error } = useSearchFormParamsUnitQuery({
  *   variables: {
  *   },
  * });
  */
-export function useSearchFormParamsQuery(baseOptions?: Apollo.QueryHookOptions<SearchFormParamsQuery, SearchFormParamsQueryVariables>) {
+export function useSearchFormParamsUnitQuery(baseOptions?: Apollo.QueryHookOptions<SearchFormParamsUnitQuery, SearchFormParamsUnitQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SearchFormParamsQuery, SearchFormParamsQueryVariables>(SearchFormParamsDocument, options);
+        return Apollo.useQuery<SearchFormParamsUnitQuery, SearchFormParamsUnitQueryVariables>(SearchFormParamsUnitDocument, options);
       }
-export function useSearchFormParamsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchFormParamsQuery, SearchFormParamsQueryVariables>) {
+export function useSearchFormParamsUnitLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchFormParamsUnitQuery, SearchFormParamsUnitQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SearchFormParamsQuery, SearchFormParamsQueryVariables>(SearchFormParamsDocument, options);
+          return Apollo.useLazyQuery<SearchFormParamsUnitQuery, SearchFormParamsUnitQueryVariables>(SearchFormParamsUnitDocument, options);
         }
-export type SearchFormParamsQueryHookResult = ReturnType<typeof useSearchFormParamsQuery>;
-export type SearchFormParamsLazyQueryHookResult = ReturnType<typeof useSearchFormParamsLazyQuery>;
-export type SearchFormParamsQueryResult = Apollo.QueryResult<SearchFormParamsQuery, SearchFormParamsQueryVariables>;
-export const ReservationUnitRecurringDocument = gql`
-    query ReservationUnitRecurring($pk: Int!) {
+export type SearchFormParamsUnitQueryHookResult = ReturnType<typeof useSearchFormParamsUnitQuery>;
+export type SearchFormParamsUnitLazyQueryHookResult = ReturnType<typeof useSearchFormParamsUnitLazyQuery>;
+export type SearchFormParamsUnitQueryResult = Apollo.QueryResult<SearchFormParamsUnitQuery, SearchFormParamsUnitQueryVariables>;
+export const SearchFormParamsPurposeDocument = gql`
+    query SearchFormParamsPurpose {
+  purposes {
+    edges {
+      node {
+        pk
+        nameFi
+        nameEn
+        nameSv
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useSearchFormParamsPurposeQuery__
+ *
+ * To run a query within a React component, call `useSearchFormParamsPurposeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchFormParamsPurposeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchFormParamsPurposeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSearchFormParamsPurposeQuery(baseOptions?: Apollo.QueryHookOptions<SearchFormParamsPurposeQuery, SearchFormParamsPurposeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchFormParamsPurposeQuery, SearchFormParamsPurposeQueryVariables>(SearchFormParamsPurposeDocument, options);
+      }
+export function useSearchFormParamsPurposeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchFormParamsPurposeQuery, SearchFormParamsPurposeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchFormParamsPurposeQuery, SearchFormParamsPurposeQueryVariables>(SearchFormParamsPurposeDocument, options);
+        }
+export type SearchFormParamsPurposeQueryHookResult = ReturnType<typeof useSearchFormParamsPurposeQuery>;
+export type SearchFormParamsPurposeLazyQueryHookResult = ReturnType<typeof useSearchFormParamsPurposeLazyQuery>;
+export type SearchFormParamsPurposeQueryResult = Apollo.QueryResult<SearchFormParamsPurposeQuery, SearchFormParamsPurposeQueryVariables>;
+export const ReservationUnitDocument = gql`
+    query ReservationUnit($pk: Int!) {
   reservationUnitByPk(pk: $pk) {
     id
     pk
@@ -1822,34 +1912,118 @@ export const ReservationUnitRecurringDocument = gql`
     `;
 
 /**
- * __useReservationUnitRecurringQuery__
+ * __useReservationUnitQuery__
  *
- * To run a query within a React component, call `useReservationUnitRecurringQuery` and pass it any options that fit your needs.
- * When your component renders, `useReservationUnitRecurringQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useReservationUnitQuery` and pass it any options that fit your needs.
+ * When your component renders, `useReservationUnitQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useReservationUnitRecurringQuery({
+ * const { data, loading, error } = useReservationUnitQuery({
  *   variables: {
  *      pk: // value for 'pk'
  *   },
  * });
  */
-export function useReservationUnitRecurringQuery(baseOptions: Apollo.QueryHookOptions<ReservationUnitRecurringQuery, ReservationUnitRecurringQueryVariables>) {
+export function useReservationUnitQuery(baseOptions: Apollo.QueryHookOptions<ReservationUnitQuery, ReservationUnitQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ReservationUnitRecurringQuery, ReservationUnitRecurringQueryVariables>(ReservationUnitRecurringDocument, options);
+        return Apollo.useQuery<ReservationUnitQuery, ReservationUnitQueryVariables>(ReservationUnitDocument, options);
       }
-export function useReservationUnitRecurringLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReservationUnitRecurringQuery, ReservationUnitRecurringQueryVariables>) {
+export function useReservationUnitLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReservationUnitQuery, ReservationUnitQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ReservationUnitRecurringQuery, ReservationUnitRecurringQueryVariables>(ReservationUnitRecurringDocument, options);
+          return Apollo.useLazyQuery<ReservationUnitQuery, ReservationUnitQueryVariables>(ReservationUnitDocument, options);
         }
-export type ReservationUnitRecurringQueryHookResult = ReturnType<typeof useReservationUnitRecurringQuery>;
-export type ReservationUnitRecurringLazyQueryHookResult = ReturnType<typeof useReservationUnitRecurringLazyQuery>;
-export type ReservationUnitRecurringQueryResult = Apollo.QueryResult<ReservationUnitRecurringQuery, ReservationUnitRecurringQueryVariables>;
+export type ReservationUnitQueryHookResult = ReturnType<typeof useReservationUnitQuery>;
+export type ReservationUnitLazyQueryHookResult = ReturnType<typeof useReservationUnitLazyQuery>;
+export type ReservationUnitQueryResult = Apollo.QueryResult<ReservationUnitQuery, ReservationUnitQueryVariables>;
+export const SearchReservationUnitsDocument = gql`
+    query SearchReservationUnits($textSearch: String, $minPersons: Float, $maxPersons: Float, $unit: ID, $reservationUnitType: ID, $purposes: ID, $first: Int, $after: String) {
+  reservationUnits(
+    textSearch: $textSearch
+    maxPersonsGte: $minPersons
+    maxPersonsLte: $maxPersons
+    reservationUnitType: $reservationUnitType
+    purposes: $purposes
+    unit: $unit
+    first: $first
+    after: $after
+  ) {
+    edges {
+      node {
+        id: pk
+        nameFi
+        nameEn
+        nameSv
+        reservationUnitType {
+          id: pk
+          nameFi
+          nameEn
+          nameSv
+        }
+        unit {
+          id: pk
+          nameFi
+          nameEn
+          nameSv
+        }
+        maxPersons
+        location {
+          addressStreetFi
+          addressStreetEn
+          addressStreetSv
+        }
+        images {
+          imageType
+          mediumUrl
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+    `;
+
+/**
+ * __useSearchReservationUnitsQuery__
+ *
+ * To run a query within a React component, call `useSearchReservationUnitsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchReservationUnitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchReservationUnitsQuery({
+ *   variables: {
+ *      textSearch: // value for 'textSearch'
+ *      minPersons: // value for 'minPersons'
+ *      maxPersons: // value for 'maxPersons'
+ *      unit: // value for 'unit'
+ *      reservationUnitType: // value for 'reservationUnitType'
+ *      purposes: // value for 'purposes'
+ *      first: // value for 'first'
+ *      after: // value for 'after'
+ *   },
+ * });
+ */
+export function useSearchReservationUnitsQuery(baseOptions?: Apollo.QueryHookOptions<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>(SearchReservationUnitsDocument, options);
+      }
+export function useSearchReservationUnitsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>(SearchReservationUnitsDocument, options);
+        }
+export type SearchReservationUnitsQueryHookResult = ReturnType<typeof useSearchReservationUnitsQuery>;
+export type SearchReservationUnitsLazyQueryHookResult = ReturnType<typeof useSearchReservationUnitsLazyQuery>;
+export type SearchReservationUnitsQueryResult = Apollo.QueryResult<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>;
 export const RelatedReservationUnitsDocument = gql`
-    query RelatedReservationUnits($unit: ID) {
+    query RelatedReservationUnits($unit: ID!) {
   reservationUnits(unit: $unit) {
     edges {
       node {
@@ -1901,7 +2075,7 @@ export const RelatedReservationUnitsDocument = gql`
  *   },
  * });
  */
-export function useRelatedReservationUnitsQuery(baseOptions?: Apollo.QueryHookOptions<RelatedReservationUnitsQuery, RelatedReservationUnitsQueryVariables>) {
+export function useRelatedReservationUnitsQuery(baseOptions: Apollo.QueryHookOptions<RelatedReservationUnitsQuery, RelatedReservationUnitsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<RelatedReservationUnitsQuery, RelatedReservationUnitsQueryVariables>(RelatedReservationUnitsDocument, options);
       }
@@ -1912,150 +2086,6 @@ export function useRelatedReservationUnitsLazyQuery(baseOptions?: Apollo.LazyQue
 export type RelatedReservationUnitsQueryHookResult = ReturnType<typeof useRelatedReservationUnitsQuery>;
 export type RelatedReservationUnitsLazyQueryHookResult = ReturnType<typeof useRelatedReservationUnitsLazyQuery>;
 export type RelatedReservationUnitsQueryResult = Apollo.QueryResult<RelatedReservationUnitsQuery, RelatedReservationUnitsQueryVariables>;
-export const SelectedReservationUnitDocument = gql`
-    query SelectedReservationUnit($pk: Int) {
-  reservationUnitByPk(pk: $pk) {
-    pk
-    nameFi
-    nameEn
-    nameSv
-    unit {
-      nameFi
-      nameEn
-      nameSv
-    }
-  }
-}
-    `;
-
-/**
- * __useSelectedReservationUnitQuery__
- *
- * To run a query within a React component, call `useSelectedReservationUnitQuery` and pass it any options that fit your needs.
- * When your component renders, `useSelectedReservationUnitQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSelectedReservationUnitQuery({
- *   variables: {
- *      pk: // value for 'pk'
- *   },
- * });
- */
-export function useSelectedReservationUnitQuery(baseOptions?: Apollo.QueryHookOptions<SelectedReservationUnitQuery, SelectedReservationUnitQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SelectedReservationUnitQuery, SelectedReservationUnitQueryVariables>(SelectedReservationUnitDocument, options);
-      }
-export function useSelectedReservationUnitLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SelectedReservationUnitQuery, SelectedReservationUnitQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SelectedReservationUnitQuery, SelectedReservationUnitQueryVariables>(SelectedReservationUnitDocument, options);
-        }
-export type SelectedReservationUnitQueryHookResult = ReturnType<typeof useSelectedReservationUnitQuery>;
-export type SelectedReservationUnitLazyQueryHookResult = ReturnType<typeof useSelectedReservationUnitLazyQuery>;
-export type SelectedReservationUnitQueryResult = Apollo.QueryResult<SelectedReservationUnitQuery, SelectedReservationUnitQueryVariables>;
-export const ReservationUnitSingleDocument = gql`
-    query ReservationUnitSingle($pk: Int!) {
-  reservationUnitByPk(pk: $pk) {
-    id
-    pk
-    nameFi
-    nameEn
-    nameSv
-    images {
-      imageUrl
-      mediumUrl
-      smallUrl
-      imageType
-    }
-    descriptionFi
-    descriptionEn
-    descriptionSv
-    termsOfUseFi
-    termsOfUseEn
-    termsOfUseSv
-    reservationUnitType {
-      nameFi
-      nameEn
-      nameSv
-    }
-    maxPersons
-    unit {
-      id
-      pk
-      nameFi
-      nameEn
-      nameSv
-    }
-    location {
-      latitude
-      longitude
-      addressStreetFi
-      addressStreetEn
-      addressStreetSv
-      addressZip
-      addressCityFi
-      addressCityEn
-      addressCitySv
-    }
-    minReservationDuration
-    maxReservationDuration
-    nextAvailableSlot
-    spaces {
-      pk
-      nameFi
-      nameEn
-      nameSv
-      termsOfUseFi
-      termsOfUseEn
-      termsOfUseSv
-    }
-    openingHours(openingTimes: false, periods: true) {
-      openingTimePeriods {
-        periodId
-        startDate
-        endDate
-        resourceState
-        timeSpans {
-          startTime
-          endTime
-          resourceState
-          weekdays
-        }
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useReservationUnitSingleQuery__
- *
- * To run a query within a React component, call `useReservationUnitSingleQuery` and pass it any options that fit your needs.
- * When your component renders, `useReservationUnitSingleQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useReservationUnitSingleQuery({
- *   variables: {
- *      pk: // value for 'pk'
- *   },
- * });
- */
-export function useReservationUnitSingleQuery(baseOptions: Apollo.QueryHookOptions<ReservationUnitSingleQuery, ReservationUnitSingleQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ReservationUnitSingleQuery, ReservationUnitSingleQueryVariables>(ReservationUnitSingleDocument, options);
-      }
-export function useReservationUnitSingleLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ReservationUnitSingleQuery, ReservationUnitSingleQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ReservationUnitSingleQuery, ReservationUnitSingleQueryVariables>(ReservationUnitSingleDocument, options);
-        }
-export type ReservationUnitSingleQueryHookResult = ReturnType<typeof useReservationUnitSingleQuery>;
-export type ReservationUnitSingleLazyQueryHookResult = ReturnType<typeof useReservationUnitSingleLazyQuery>;
-export type ReservationUnitSingleQueryResult = Apollo.QueryResult<ReservationUnitSingleQuery, ReservationUnitSingleQueryVariables>;
 export const ReservationUnitOpeningHoursDocument = gql`
     query ReservationUnitOpeningHours($pk: Int, $startDate: Date, $endDate: Date, $from: Date, $to: Date, $state: [String]) {
   reservationUnitByPk(pk: $pk) {
@@ -2118,120 +2148,43 @@ export function useReservationUnitOpeningHoursLazyQuery(baseOptions?: Apollo.Laz
 export type ReservationUnitOpeningHoursQueryHookResult = ReturnType<typeof useReservationUnitOpeningHoursQuery>;
 export type ReservationUnitOpeningHoursLazyQueryHookResult = ReturnType<typeof useReservationUnitOpeningHoursLazyQuery>;
 export type ReservationUnitOpeningHoursQueryResult = Apollo.QueryResult<ReservationUnitOpeningHoursQuery, ReservationUnitOpeningHoursQueryVariables>;
-export const SearchReservationUnitsDocument = gql`
-    query SearchReservationUnits($textSearch: String, $minPersons: Float, $maxPersons: Float, $unit: ID, $reservationUnitType: ID, $first: Int, $after: String) {
-  reservationUnits(
-    textSearch: $textSearch
-    maxPersonsGte: $minPersons
-    maxPersonsLte: $maxPersons
-    reservationUnitType: $reservationUnitType
-    unit: $unit
-    first: $first
-    after: $after
-  ) {
-    edges {
-      node {
-        id: pk
-        nameFi
-        nameEn
-        nameSv
-        reservationUnitType {
-          id: pk
-          nameFi
-          nameEn
-          nameSv
-        }
-        unit {
-          id: pk
-          nameFi
-          nameEn
-          nameSv
-        }
-        maxPersons
-        location {
-          addressStreetFi
-          addressStreetEn
-          addressStreetSv
-        }
-        images {
-          imageType
-          mediumUrl
-        }
-      }
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-  }
-}
-    `;
-
-/**
- * __useSearchReservationUnitsQuery__
- *
- * To run a query within a React component, call `useSearchReservationUnitsQuery` and pass it any options that fit your needs.
- * When your component renders, `useSearchReservationUnitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSearchReservationUnitsQuery({
- *   variables: {
- *      textSearch: // value for 'textSearch'
- *      minPersons: // value for 'minPersons'
- *      maxPersons: // value for 'maxPersons'
- *      unit: // value for 'unit'
- *      reservationUnitType: // value for 'reservationUnitType'
- *      first: // value for 'first'
- *      after: // value for 'after'
- *   },
- * });
- */
-export function useSearchReservationUnitsQuery(baseOptions?: Apollo.QueryHookOptions<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>(SearchReservationUnitsDocument, options);
-      }
-export function useSearchReservationUnitsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>(SearchReservationUnitsDocument, options);
-        }
-export type SearchReservationUnitsQueryHookResult = ReturnType<typeof useSearchReservationUnitsQuery>;
-export type SearchReservationUnitsLazyQueryHookResult = ReturnType<typeof useSearchReservationUnitsLazyQuery>;
-export type SearchReservationUnitsQueryResult = Apollo.QueryResult<SearchReservationUnitsQuery, SearchReservationUnitsQueryVariables>;
-export type SearchFormParamsQueryVariables = Exact<{ [key: string]: never; }>;
+export type SearchFormParamsUnitQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SearchFormParamsQuery = { __typename?: 'Query', units?: { __typename?: 'UnitTypeConnection', edges: Array<{ __typename?: 'UnitTypeEdge', node?: { __typename?: 'UnitType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined } | null | undefined> } | null | undefined };
+export type SearchFormParamsUnitQuery = { __typename?: 'Query', units?: { __typename?: 'UnitTypeConnection', edges: Array<{ __typename?: 'UnitTypeEdge', node?: { __typename?: 'UnitType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined } | null | undefined> } | null | undefined };
 
-export type ReservationUnitRecurringQueryVariables = Exact<{
+export type SearchFormParamsPurposeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SearchFormParamsPurposeQuery = { __typename?: 'Query', purposes?: { __typename?: 'PurposeTypeConnection', edges: Array<{ __typename?: 'PurposeTypeEdge', node?: { __typename?: 'PurposeType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined } | null | undefined> } | null | undefined };
+
+export type ReservationUnitQueryVariables = Exact<{
   pk: Scalars['Int'];
 }>;
 
 
-export type ReservationUnitRecurringQuery = { __typename?: 'Query', reservationUnitByPk?: { __typename?: 'ReservationUnitByPkType', id: string, pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, descriptionFi?: string | null | undefined, descriptionEn?: string | null | undefined, descriptionSv?: string | null | undefined, termsOfUseFi?: string | null | undefined, termsOfUseEn?: string | null | undefined, termsOfUseSv?: string | null | undefined, maxPersons?: number | null | undefined, images?: Array<{ __typename?: 'ReservationUnitImageType', imageUrl?: string | null | undefined, mediumUrl?: string | null | undefined, smallUrl?: string | null | undefined, imageType: ReservationUnitImageImageType } | null | undefined> | null | undefined, reservationUnitType?: { __typename?: 'ReservationUnitTypeType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, unit?: { __typename?: 'UnitType', id: string, pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, location?: { __typename?: 'LocationType', latitude?: string | null | undefined, longitude?: string | null | undefined, addressStreetFi?: string | null | undefined, addressStreetEn?: string | null | undefined, addressStreetSv?: string | null | undefined, addressZip: string, addressCityFi?: string | null | undefined, addressCityEn?: string | null | undefined, addressCitySv?: string | null | undefined } | null | undefined, spaces?: Array<{ __typename?: 'SpaceType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, termsOfUseFi?: string | null | undefined, termsOfUseEn?: string | null | undefined, termsOfUseSv?: string | null | undefined } | null | undefined> | null | undefined, openingHours?: { __typename?: 'OpeningHoursType', openingTimePeriods?: Array<{ __typename?: 'PeriodType', periodId?: number | null | undefined, startDate?: any | null | undefined, endDate?: any | null | undefined, resourceState?: string | null | undefined, timeSpans?: Array<{ __typename?: 'TimeSpanType', startTime?: any | null | undefined, endTime?: any | null | undefined, resourceState?: string | null | undefined, weekdays?: Array<number | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined } | null | undefined };
+export type ReservationUnitQuery = { __typename?: 'Query', reservationUnitByPk?: { __typename?: 'ReservationUnitByPkType', id: string, pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, descriptionFi?: string | null | undefined, descriptionEn?: string | null | undefined, descriptionSv?: string | null | undefined, termsOfUseFi?: string | null | undefined, termsOfUseEn?: string | null | undefined, termsOfUseSv?: string | null | undefined, maxPersons?: number | null | undefined, images?: Array<{ __typename?: 'ReservationUnitImageType', imageUrl?: string | null | undefined, mediumUrl?: string | null | undefined, smallUrl?: string | null | undefined, imageType: ReservationUnitImageImageType } | null | undefined> | null | undefined, reservationUnitType?: { __typename?: 'ReservationUnitTypeType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, unit?: { __typename?: 'UnitType', id: string, pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, location?: { __typename?: 'LocationType', latitude?: string | null | undefined, longitude?: string | null | undefined, addressStreetFi?: string | null | undefined, addressStreetEn?: string | null | undefined, addressStreetSv?: string | null | undefined, addressZip: string, addressCityFi?: string | null | undefined, addressCityEn?: string | null | undefined, addressCitySv?: string | null | undefined } | null | undefined, spaces?: Array<{ __typename?: 'SpaceType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, termsOfUseFi?: string | null | undefined, termsOfUseEn?: string | null | undefined, termsOfUseSv?: string | null | undefined } | null | undefined> | null | undefined, openingHours?: { __typename?: 'OpeningHoursType', openingTimePeriods?: Array<{ __typename?: 'PeriodType', periodId?: number | null | undefined, startDate?: any | null | undefined, endDate?: any | null | undefined, resourceState?: string | null | undefined, timeSpans?: Array<{ __typename?: 'TimeSpanType', startTime?: any | null | undefined, endTime?: any | null | undefined, resourceState?: string | null | undefined, weekdays?: Array<number | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined } | null | undefined };
+
+export type SearchReservationUnitsQueryVariables = Exact<{
+  textSearch?: Maybe<Scalars['String']>;
+  minPersons?: Maybe<Scalars['Float']>;
+  maxPersons?: Maybe<Scalars['Float']>;
+  unit?: Maybe<Scalars['ID']>;
+  reservationUnitType?: Maybe<Scalars['ID']>;
+  purposes?: Maybe<Scalars['ID']>;
+  first?: Maybe<Scalars['Int']>;
+  after?: Maybe<Scalars['String']>;
+}>;
+
+
+export type SearchReservationUnitsQuery = { __typename?: 'Query', reservationUnits?: { __typename?: 'ReservationUnitTypeConnection', edges: Array<{ __typename?: 'ReservationUnitTypeEdge', node?: { __typename?: 'ReservationUnitType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, maxPersons?: number | null | undefined, id?: number | null | undefined, reservationUnitType?: { __typename?: 'ReservationUnitTypeType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, id?: number | null | undefined } | null | undefined, unit?: { __typename?: 'UnitType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, id?: number | null | undefined } | null | undefined, location?: { __typename?: 'LocationType', addressStreetFi?: string | null | undefined, addressStreetEn?: string | null | undefined, addressStreetSv?: string | null | undefined } | null | undefined, images?: Array<{ __typename?: 'ReservationUnitImageType', imageType: ReservationUnitImageImageType, mediumUrl?: string | null | undefined } | null | undefined> | null | undefined } | null | undefined } | null | undefined>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null | undefined, hasNextPage: boolean } } | null | undefined };
 
 export type RelatedReservationUnitsQueryVariables = Exact<{
-  unit?: Maybe<Scalars['ID']>;
+  unit: Scalars['ID'];
 }>;
 
 
 export type RelatedReservationUnitsQuery = { __typename?: 'Query', reservationUnits?: { __typename?: 'ReservationUnitTypeConnection', edges: Array<{ __typename?: 'ReservationUnitTypeEdge', node?: { __typename?: 'ReservationUnitType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, maxPersons?: number | null | undefined, images?: Array<{ __typename?: 'ReservationUnitImageType', imageUrl?: string | null | undefined, smallUrl?: string | null | undefined, imageType: ReservationUnitImageImageType } | null | undefined> | null | undefined, unit?: { __typename?: 'UnitType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, reservationUnitType?: { __typename?: 'ReservationUnitTypeType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, location?: { __typename?: 'LocationType', addressStreetFi?: string | null | undefined, addressStreetEn?: string | null | undefined, addressStreetSv?: string | null | undefined } | null | undefined } | null | undefined } | null | undefined> } | null | undefined };
-
-export type SelectedReservationUnitQueryVariables = Exact<{
-  pk?: Maybe<Scalars['Int']>;
-}>;
-
-
-export type SelectedReservationUnitQuery = { __typename?: 'Query', reservationUnitByPk?: { __typename?: 'ReservationUnitByPkType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, unit?: { __typename?: 'UnitType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined } | null | undefined };
-
-export type ReservationUnitSingleQueryVariables = Exact<{
-  pk: Scalars['Int'];
-}>;
-
-
-export type ReservationUnitSingleQuery = { __typename?: 'Query', reservationUnitByPk?: { __typename?: 'ReservationUnitByPkType', id: string, pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, descriptionFi?: string | null | undefined, descriptionEn?: string | null | undefined, descriptionSv?: string | null | undefined, termsOfUseFi?: string | null | undefined, termsOfUseEn?: string | null | undefined, termsOfUseSv?: string | null | undefined, maxPersons?: number | null | undefined, minReservationDuration?: any | null | undefined, maxReservationDuration?: any | null | undefined, nextAvailableSlot?: any | null | undefined, images?: Array<{ __typename?: 'ReservationUnitImageType', imageUrl?: string | null | undefined, mediumUrl?: string | null | undefined, smallUrl?: string | null | undefined, imageType: ReservationUnitImageImageType } | null | undefined> | null | undefined, reservationUnitType?: { __typename?: 'ReservationUnitTypeType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, unit?: { __typename?: 'UnitType', id: string, pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined } | null | undefined, location?: { __typename?: 'LocationType', latitude?: string | null | undefined, longitude?: string | null | undefined, addressStreetFi?: string | null | undefined, addressStreetEn?: string | null | undefined, addressStreetSv?: string | null | undefined, addressZip: string, addressCityFi?: string | null | undefined, addressCityEn?: string | null | undefined, addressCitySv?: string | null | undefined } | null | undefined, spaces?: Array<{ __typename?: 'SpaceType', pk?: number | null | undefined, nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, termsOfUseFi?: string | null | undefined, termsOfUseEn?: string | null | undefined, termsOfUseSv?: string | null | undefined } | null | undefined> | null | undefined, openingHours?: { __typename?: 'OpeningHoursType', openingTimePeriods?: Array<{ __typename?: 'PeriodType', periodId?: number | null | undefined, startDate?: any | null | undefined, endDate?: any | null | undefined, resourceState?: string | null | undefined, timeSpans?: Array<{ __typename?: 'TimeSpanType', startTime?: any | null | undefined, endTime?: any | null | undefined, resourceState?: string | null | undefined, weekdays?: Array<number | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined } | null | undefined };
 
 export type ReservationUnitOpeningHoursQueryVariables = Exact<{
   pk?: Maybe<Scalars['Int']>;
@@ -2243,17 +2196,4 @@ export type ReservationUnitOpeningHoursQueryVariables = Exact<{
 }>;
 
 
-export type ReservationUnitOpeningHoursQuery = { __typename?: 'Query', reservationUnitByPk?: { __typename?: 'ReservationUnitByPkType', openingHours?: { __typename?: 'OpeningHoursType', openingTimes?: Array<{ __typename?: 'OpeningTimesType', date?: any | null | undefined, startTime?: any | null | undefined, endTime?: any | null | undefined, state?: string | null | undefined, periods?: Array<number | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined, reservations?: Array<{ __typename?: 'ReservationType', pk?: number | null | undefined, state: ReservationState, priority: ReservationPriority, begin: any, end: any, numPersons?: number | null | undefined, calendarUrl?: string | null | undefined } | null | undefined> | null | undefined } | null | undefined };
-
-export type SearchReservationUnitsQueryVariables = Exact<{
-  textSearch?: Maybe<Scalars['String']>;
-  minPersons?: Maybe<Scalars['Float']>;
-  maxPersons?: Maybe<Scalars['Float']>;
-  unit?: Maybe<Scalars['ID']>;
-  reservationUnitType?: Maybe<Scalars['ID']>;
-  first?: Maybe<Scalars['Int']>;
-  after?: Maybe<Scalars['String']>;
-}>;
-
-
-export type SearchReservationUnitsQuery = { __typename?: 'Query', reservationUnits?: { __typename?: 'ReservationUnitTypeConnection', edges: Array<{ __typename?: 'ReservationUnitTypeEdge', node?: { __typename?: 'ReservationUnitType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, maxPersons?: number | null | undefined, id?: number | null | undefined, reservationUnitType?: { __typename?: 'ReservationUnitTypeType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, id?: number | null | undefined } | null | undefined, unit?: { __typename?: 'UnitType', nameFi?: string | null | undefined, nameEn?: string | null | undefined, nameSv?: string | null | undefined, id?: number | null | undefined } | null | undefined, location?: { __typename?: 'LocationType', addressStreetFi?: string | null | undefined, addressStreetEn?: string | null | undefined, addressStreetSv?: string | null | undefined } | null | undefined, images?: Array<{ __typename?: 'ReservationUnitImageType', imageType: ReservationUnitImageImageType, mediumUrl?: string | null | undefined } | null | undefined> | null | undefined } | null | undefined } | null | undefined>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null | undefined, hasNextPage: boolean } } | null | undefined };
+export type ReservationUnitOpeningHoursQuery = { __typename?: 'Query', reservationUnitByPk?: { __typename?: 'ReservationUnitByPkType', openingHours?: { __typename?: 'OpeningHoursType', openingTimes?: Array<{ __typename?: 'OpeningTimesType', date?: any | null | undefined, startTime?: any | null | undefined, endTime?: any | null | undefined, state?: string | null | undefined, periods?: Array<number | null | undefined> | null | undefined } | null | undefined> | null | undefined } | null | undefined, reservations?: Array<{ __typename?: 'ReservationType', pk?: number | null | undefined, state?: string | null | undefined, priority: ReservationPriority, begin: any, end: any, numPersons?: number | null | undefined, calendarUrl?: string | null | undefined } | null | undefined> | null | undefined } | null | undefined };

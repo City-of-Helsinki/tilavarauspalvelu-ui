@@ -2,10 +2,9 @@ import React, { useMemo, useRef, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { gql } from "@apollo/client";
 import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { subMinutes } from "date-fns";
+import { addDays, subMinutes } from "date-fns";
 import Container from "../../../components/common/Container";
 import { PendingReservation } from "../../../modules/types";
 import Head from "../../../components/reservation-unit/Head";
@@ -44,8 +43,12 @@ import {
   ReservationUnitByPkTypeReservationsArgs,
   ReservationUnitType,
   ReservationUnitTypeEdge,
-  ReservationState,
 } from "../../../modules/gql-types";
+import {
+  OPENING_HOURS,
+  RELATED_RESERVATION_UNITS,
+  RESERVATION_UNIT,
+} from "../../../modules/queries/reservationUnit";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
@@ -55,155 +58,7 @@ type Props = {
 
 type WeekOptions = "day" | "week" | "month";
 
-type ReservationStateWithInitial = ReservationState | "INITIAL";
-
-const RESERVATION_UNIT = gql`
-  query SelectedReservationUnit($pk: Int!) {
-    reservationUnitByPk(pk: $pk) {
-      id
-      pk
-      nameFi
-      nameEn
-      nameSv
-      images {
-        imageUrl
-        mediumUrl
-        smallUrl
-        imageType
-      }
-      descriptionFi
-      descriptionEn
-      descriptionSv
-      termsOfUseFi
-      termsOfUseEn
-      termsOfUseSv
-      reservationUnitType {
-        nameFi
-        nameEn
-        nameSv
-      }
-      maxPersons
-      unit {
-        id
-        pk
-        nameFi
-        nameEn
-        nameSv
-      }
-      location {
-        latitude
-        longitude
-        addressStreetFi
-        addressStreetEn
-        addressStreetSv
-        addressZip
-        addressCityFi
-        addressCityEn
-        addressCitySv
-      }
-      minReservationDuration
-      maxReservationDuration
-      nextAvailableSlot
-      spaces {
-        pk
-        nameFi
-        nameEn
-        nameSv
-        termsOfUseFi
-        termsOfUseEn
-        termsOfUseSv
-      }
-      openingHours(openingTimes: false, periods: true) {
-        openingTimePeriods {
-          periodId
-          startDate
-          endDate
-          resourceState
-          timeSpans {
-            startTime
-            endTime
-            resourceState
-            weekdays
-          }
-        }
-      }
-    }
-  }
-`;
-
-const OPENING_HOURS = gql`
-  query ReservationUnitOpeningHours(
-    $pk: Int
-    $startDate: Date
-    $endDate: Date
-    $from: Date
-    $to: Date
-    $state: [String]
-  ) {
-    reservationUnitByPk(pk: $pk) {
-      openingHours(
-        openingTimes: true
-        periods: false
-        startDate: $startDate
-        endDate: $endDate
-      ) {
-        openingTimes {
-          date
-          startTime
-          endTime
-          state
-          periods
-        }
-      }
-      reservations(state: $state, from: $from, to: $to) {
-        pk
-        state
-        priority
-        begin
-        end
-        numPersons
-        calendarUrl
-      }
-    }
-  }
-`;
-
-const RELATED_RESERVATION_UNITS = gql`
-  query RelatedReservationUnits($unit: ID!) {
-    reservationUnits(unit: $unit) {
-      edges {
-        node {
-          pk
-          nameFi
-          nameEn
-          nameSv
-          images {
-            imageUrl
-            smallUrl
-            imageType
-          }
-          unit {
-            pk
-            nameFi
-            nameEn
-            nameSv
-          }
-          reservationUnitType {
-            nameFi
-            nameEn
-            nameSv
-          }
-          maxPersons
-          location {
-            addressStreetFi
-            addressStreetEn
-            addressStreetSv
-          }
-        }
-      }
-    }
-  }
-`;
+type ReservationStateWithInitial = string;
 
 export const getServerSideProps: GetServerSideProps = async ({
   locale,
@@ -225,11 +80,11 @@ export const getServerSideProps: GetServerSideProps = async ({
       },
     });
 
-    const lastOpeningPeriodEndDate =
+    const lastOpeningPeriodEndDate: string =
       reservationUnitData.reservationUnitByPk.openingHours.openingTimePeriods
         .map((period) => period.endDate)
         .sort()
-        .reverse()[0];
+        .reverse()[0] || toApiDate(addDays(new Date(), 1));
 
     const { data: additionalData } = await apolloClient.query<
       Query,

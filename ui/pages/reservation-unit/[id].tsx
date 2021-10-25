@@ -2,7 +2,6 @@ import React from "react";
 import { GetServerSideProps } from "next";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { gql } from "@apollo/client";
 import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Container from "../../components/common/Container";
@@ -27,119 +26,15 @@ import {
   ReservationUnitTypeEdge,
 } from "../../modules/gql-types";
 import { getTranslation } from "../../modules/util";
+import {
+  RELATED_RESERVATION_UNITS,
+  RESERVATION_UNIT,
+} from "../../modules/queries/reservationUnit";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
 };
-
-const RESERVATION_UNIT = gql`
-  query SelectedReservationUnit($pk: Int!) {
-    reservationUnitByPk(pk: $pk) {
-      id
-      pk
-      nameFi
-      nameEn
-      nameSv
-      images {
-        imageUrl
-        mediumUrl
-        smallUrl
-        imageType
-      }
-      descriptionFi
-      descriptionEn
-      descriptionSv
-      termsOfUseFi
-      termsOfUseEn
-      termsOfUseSv
-      reservationUnitType {
-        nameFi
-        nameEn
-        nameSv
-      }
-      maxPersons
-      unit {
-        id
-        pk
-        nameFi
-        nameEn
-        nameSv
-      }
-      location {
-        latitude
-        longitude
-        addressStreetFi
-        addressStreetEn
-        addressStreetSv
-        addressZip
-        addressCityFi
-        addressCityEn
-        addressCitySv
-      }
-      spaces {
-        pk
-        nameFi
-        nameEn
-        nameSv
-        termsOfUseFi
-        termsOfUseEn
-        termsOfUseSv
-      }
-      openingHours(openingTimes: false, periods: true) {
-        openingTimePeriods {
-          periodId
-          startDate
-          endDate
-          resourceState
-          timeSpans {
-            startTime
-            endTime
-            resourceState
-            weekdays
-          }
-        }
-      }
-    }
-  }
-`;
-
-const RELATED_RESERVATION_UNITS = gql`
-  query RelatedReservationUnits($unit: ID!) {
-    reservationUnits(unit: $unit) {
-      edges {
-        node {
-          pk
-          nameFi
-          nameEn
-          nameSv
-          images {
-            imageUrl
-            smallUrl
-            imageType
-          }
-          unit {
-            pk
-            nameFi
-            nameEn
-            nameSv
-          }
-          reservationUnitType {
-            nameFi
-            nameEn
-            nameSv
-          }
-          maxPersons
-          location {
-            addressStreetFi
-            addressStreetEn
-            addressStreetSv
-          }
-        }
-      }
-    }
-  }
-`;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getServerSideProps: GetServerSideProps = async ({
