@@ -1,4 +1,4 @@
-import { isBefore } from "date-fns";
+import { isWithinInterval } from "date-fns";
 import { uniq } from "lodash";
 import { i18n } from "next-i18next";
 import { PeriodType, TimeSpanType } from "./gql-types";
@@ -23,10 +23,11 @@ export const getActiveOpeningTimePeriod = (
   openingTimePeriods: PeriodType[],
   date: string
 ): PeriodType | undefined =>
-  openingTimePeriods?.find(
-    (openingTimePeriod) =>
-      isBefore(new Date(openingTimePeriod.startDate), new Date(date)) &&
-      isBefore(new Date(date), new Date(openingTimePeriod.endDate))
+  openingTimePeriods?.find((openingTimePeriod) =>
+    isWithinInterval(new Date(date), {
+      start: new Date(openingTimePeriod.startDate),
+      end: new Date(openingTimePeriod.endDate),
+    })
   );
 
 export const getActiveOpeningTimes = (

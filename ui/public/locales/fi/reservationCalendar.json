@@ -23,9 +23,11 @@
     "reservationAlertBody": "Älä koskaan täytä henkilötietoja tai muita arkaluontoisia tietoja näihin kenttiin."
   },
   "label": {
-    "reserver": "Varaaja",
-    "reservationName": "Varauksen nimi (julkinen)",
-    "reservationDescription": "Varauksen kuvaus",
+    "reserveeName": "Varaajan nimi",
+    "reserveeFirstName": "Varaajan etunimi",
+    "reserveeLastName": "Varaajan sukunimi",
+    "name": "Varauksen nimi (julkinen)",
+    "description": "Varauksen kuvaus",
     "termsSpace": "Olen lukenut ja hyväksynyt käyttösäännöt",
     "termsResource": "Olen lukenut ja hyväksynyt tilan resurssikohtaiset ehdot",
     "reservationDate": "Varauksen ajankohta",

@@ -538,7 +538,11 @@ type RecurringReservationType {
 }
 
 input ReservationCreateMutationInput {
-  priority: Int!
+  reserveeName: String
+  reserveePhone: String
+  name: String
+  description: String
+  priority: Int
   begin: DateTime!
   end: DateTime!
   bufferTimeBefore: String
@@ -549,6 +553,10 @@ input ReservationCreateMutationInput {
 
 type ReservationCreateMutationPayload {
   pk: Int
+  reserveeName: String
+  reserveePhone: String
+  name: String
+  description: String
   priority: Int
   begin: DateTime
   end: DateTime
@@ -574,6 +582,10 @@ enum ReservationPriority {
 }
 
 type ReservationType implements Node {
+  reserveeName: String
+  reserveePhone: String
+  name: String
+  description: String
   state: String
   priority: ReservationPriority!
   user: String
@@ -683,18 +695,18 @@ input ReservationUnitCreateMutationInput {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  contactInformationFi: String
-  contactInformationEn: String
-  contactInformationSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  contactInformationFi: String
+  contactInformationEn: String
+  contactInformationSv: String
   clientMutationId: String
 }
 
@@ -736,18 +748,18 @@ type ReservationUnitCreateMutationPayload {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  contactInformationFi: String
-  contactInformationEn: String
-  contactInformationSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  contactInformationFi: String
+  contactInformationEn: String
+  contactInformationSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -867,18 +879,18 @@ input ReservationUnitUpdateMutationInput {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  contactInformationFi: String
-  contactInformationEn: String
-  contactInformationSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  contactInformationFi: String
+  contactInformationEn: String
+  contactInformationSv: String
   clientMutationId: String
 }
 
@@ -920,18 +932,18 @@ type ReservationUnitUpdateMutationPayload {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  contactInformationFi: String
-  contactInformationEn: String
-  contactInformationSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  contactInformationFi: String
+  contactInformationEn: String
+  contactInformationSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -941,6 +953,10 @@ type ReservationUnitUpdateMutationPayload {
 
 input ReservationUpdateMutationInput {
   pk: Int!
+  reserveeName: String
+  reserveePhone: String
+  name: String
+  description: String
   priority: Int
   begin: DateTime
   end: DateTime
@@ -952,6 +968,10 @@ input ReservationUpdateMutationInput {
 
 type ReservationUpdateMutationPayload {
   pk: Int
+  reserveeName: String
+  reserveePhone: String
+  name: String
+  description: String
   priority: Int
   begin: DateTime
   end: DateTime
@@ -1390,15 +1410,15 @@ input UnitUpdateMutationInput {
   webPage: String
   email: String
   phone: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   clientMutationId: String
 }
 
@@ -1408,15 +1428,15 @@ type UnitUpdateMutationPayload {
   webPage: String
   email: String
   phone: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]

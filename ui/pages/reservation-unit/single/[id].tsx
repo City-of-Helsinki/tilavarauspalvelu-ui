@@ -6,7 +6,7 @@ import { Koros } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { addDays, subMinutes } from "date-fns";
 import Container from "../../../components/common/Container";
-import { PendingReservation } from "../../../modules/types";
+import { ApplicationRound, PendingReservation } from "../../../modules/types";
 import Head from "../../../components/reservation-unit/Head";
 import Address from "../../../components/reservation-unit/Address";
 import Sanitize from "../../../components/common/Sanitize";
@@ -49,10 +49,12 @@ import {
   RELATED_RESERVATION_UNITS,
   RESERVATION_UNIT,
 } from "../../../modules/queries/reservationUnit";
+import { getApplicationRounds } from "../../../modules/api";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
+  activeApplicationRounds: ApplicationRound[];
   viewType: "recurring" | "single";
 };
 
@@ -69,6 +71,11 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   let relatedReservationUnits = [] as ReservationUnitType[];
 
+  const applicationRounds = await getApplicationRounds();
+  const activeApplicationRounds = applicationRounds.filter((applicationRound) =>
+    applicationRound.reservationUnitIds.includes(id)
+  );
+
   if (id) {
     const { data: reservationUnitData } = await apolloClient.query<
       Query,
@@ -81,10 +88,10 @@ export const getServerSideProps: GetServerSideProps = async ({
     });
 
     const lastOpeningPeriodEndDate: string =
-      reservationUnitData.reservationUnitByPk.openingHours.openingTimePeriods
+      reservationUnitData?.reservationUnitByPk?.openingHours?.openingTimePeriods
         .map((period) => period.endDate)
         .sort()
-        .reverse()[0] || toApiDate(addDays(new Date(), 1));
+        .reverse()[0] || toApiDate(addDays(new Date(), 365));
 
     const { data: additionalData } = await apolloClient.query<
       Query,
@@ -99,7 +106,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         endDate: lastOpeningPeriodEndDate,
         from: today,
         to: lastOpeningPeriodEndDate,
-        state: ["CREATED"],
+        state: ["created"],
       },
     });
 
@@ -133,15 +140,18 @@ export const getServerSideProps: GetServerSideProps = async ({
       props: {
         ...(await serverSideTranslations(locale)),
         reservationUnit: {
-          ...reservationUnitData.reservationUnitByPk,
+          ...reservationUnitData?.reservationUnitByPk,
           openingHours: {
-            ...reservationUnitData.reservationUnitByPk.openingHours,
+            ...reservationUnitData?.reservationUnitByPk?.openingHours,
             openingTimes:
-              additionalData.reservationUnitByPk.openingHours.openingTimes,
+              additionalData?.reservationUnitByPk?.openingHours?.openingTimes ||
+              null,
           },
-          reservations: additionalData.reservationUnitByPk.reservations,
+          reservations:
+            additionalData?.reservationUnitByPk?.reservations.filter((n) => n),
         },
         relatedReservationUnits,
+        activeApplicationRounds,
       },
     };
   }
@@ -245,6 +255,7 @@ const eventStyleGetter = ({
 const ReservationUnit = ({
   reservationUnit,
   relatedReservationUnits,
+  activeApplicationRounds,
   viewType = "single", // TODO get rid of
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
@@ -259,8 +270,12 @@ const ReservationUnit = ({
   );
 
   const slotPropGetter = useMemo(
-    () => getSlotPropGetter(reservationUnit.openingHours.openingTimes),
-    [reservationUnit.openingHours.openingTimes]
+    () =>
+      getSlotPropGetter(
+        reservationUnit.openingHours.openingTimes,
+        activeApplicationRounds
+      ),
+    [reservationUnit.openingHours.openingTimes, activeApplicationRounds]
   );
 
   const handleEventChange = (
@@ -270,7 +285,8 @@ const ReservationUnit = ({
     if (
       !areSlotsReservable(
         [new Date(start), subMinutes(new Date(end), 1)],
-        reservationUnit.openingHours.openingTimes
+        reservationUnit.openingHours.openingTimes,
+        activeApplicationRounds
       ) ||
       (!skipLengthCheck &&
         !isReservationLongEnough(

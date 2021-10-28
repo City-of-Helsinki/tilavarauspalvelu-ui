@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useMutation } from "@apollo/client";
 import router from "next/router";
 import { differenceInMinutes, parseISO } from "date-fns";
 import {
@@ -29,7 +30,7 @@ import { breakpoint } from "../../../modules/style";
 import { TwoColumnContainer } from "../../../components/common/common";
 import { NarrowCenteredContainer } from "../../../modules/style/layout";
 import { AccordionWithState as Accordion } from "../../../components/common/Accordion";
-import { isBrowser } from "../../../modules/const";
+import { isBrowser, reservationUnitSinglePrefix } from "../../../modules/const";
 import {
   applicationErrorText,
   capitalize,
@@ -39,9 +40,13 @@ import {
 import WithUserProfile from "../../../components/WithUserProfile";
 import { MediumButton } from "../../../styles/util";
 import { DataContext } from "../../../context/DataContext";
-import { ReservationUnitType } from "../../../modules/gql-types";
-import ErrorPage from "../../404";
+import {
+  ReservationUnitType,
+  ReservationUpdateMutationInput,
+  ReservationUpdateMutationPayload,
+} from "../../../modules/gql-types";
 import { RESERVATION_UNIT } from "../../../modules/queries/reservationUnit";
+import { UPDATE_RESERVATION } from "../../../modules/queries/reservation";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -49,23 +54,27 @@ type Props = {
 };
 
 type Inputs = {
-  reserver: string;
-  phone: string;
-  reservationName: string;
-  reservationDescription: string;
+  pk: number;
+  reserveeFirstName: string;
+  reserveeLastName: string;
+  reserveePhone: string;
+  name: string;
+  description: string;
   spaceTerms: boolean;
   resourceTerms: boolean;
 };
 
 type Reservation = {
+  pk: number;
   begin: string;
   end: string;
-  user: string;
-  reservationUnit: number;
-  reserver: string;
-  phone: string;
-  reservationName: string;
-  reservationDescription: string;
+  reservationUnitPks: number[];
+  reserveeFirstName: string;
+  reserveeLastName: string;
+  reserveePhone: string;
+  name: string;
+  description: string;
+  calendarUrl?: string;
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -194,6 +203,16 @@ const ActionContainer = styled.div`
   }
 `;
 
+const Paragraph = styled.p`
+  & > span {
+    display: block;
+  }
+`;
+
+const ValueParagraph = styled(Paragraph).attrs({
+  "data-test": "reservation__confirmation--paragraph",
+})``;
+
 const ReservationUnitReservation = ({
   reservationUnit,
   profile,
@@ -205,6 +224,7 @@ const ReservationUnitReservation = ({
     "pending"
   );
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [areTermsSpaceAccepted, setAreTermsSpaceAccepted] = useState(false);
   const [areTermsResourceAccepted, setAreTermsResourceAccepted] =
@@ -212,11 +232,35 @@ const ReservationUnitReservation = ({
 
   const { register, handleSubmit, errors } = useForm<Inputs>();
 
-  if (!reservationData?.begin || !reservationData?.end) {
-    return <ErrorPage />;
+  const [updateReservation, { data, loading, error }] = useMutation<
+    { updateReservation: ReservationUpdateMutationPayload },
+    { input: ReservationUpdateMutationInput }
+  >(UPDATE_RESERVATION);
+
+  useEffect(() => {
+    if (!loading) {
+      if (error || data?.updateReservation?.errors?.length > 0) {
+        setErrorMsg(t("reservationUnit:reservationFailed"));
+      } else if (data) {
+        setReservation({
+          ...reservation,
+          calendarUrl: data?.updateReservation?.reservation?.calendarUrl,
+        });
+        setFormStatus("sent");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, loading, error]);
+
+  if (
+    isBrowser &&
+    (!reservationData?.pk || !reservationData?.begin || !reservationData?.end)
+  ) {
+    router.push(`${reservationUnitSinglePrefix}/${reservationUnit.pk}`);
+    return null;
   }
 
-  const { begin, end } = reservationData;
+  const { pk: reservationPk, begin, end } = reservationData || {};
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -237,25 +281,30 @@ const ReservationUnitReservation = ({
   const duration = differenceInMinutes(new Date(end), new Date(begin));
   const timeString = `${beginDate} ${beginTime} - ${
     endDate !== beginDate ? endDate : ""
-  }
-  ${endTime} (${t("common:duration", {
+  }${endTime} (${t("common:duration", {
     duration: formatDurationMinutes(duration),
   })})`;
 
-  const onSubmit = (data) => {
-    // createReservation({ ...data, begin, end, profile, reservationUnit });
-    setReservation({
+  const onSubmit = (payload) => {
+    const input = {
+      pk: reservationPk,
       begin,
       end,
-      user: profile.email,
-      reservationUnit: reservationUnit.pk,
-      reserver: data.reserver,
-      phone: data.phone,
-      reservationName: data.reservationName,
-      reservationDescription: data.reservationDescription,
+      reservationUnitPks: [reservationUnit.pk],
+      reserveeFirstName: payload.reserveeFirstName,
+      reserveeLastName: payload.reserveeLastName,
+      reserveePhone: payload.reserveePhone,
+      name: payload.name,
+      description: payload.description,
+    };
+
+    setReservation(input);
+
+    updateReservation({
+      variables: {
+        input,
+      },
     });
-    console.log(reservation); // eslint-disable-line no-console
-    setFormStatus("sent");
   };
 
   if (!isBrowser) {
@@ -266,10 +315,12 @@ const ReservationUnitReservation = ({
     <>
       <Head>
         <NarrowCenteredContainer>
-          <H1>{getTranslation(reservationUnit, "name")}</H1>
+          <H1 data-test="reservation__title">
+            {getTranslation(reservationUnit, "name")}
+          </H1>
           <H2>{getTranslation(reservationUnit.unit, "name")}</H2>
           <Description>
-            <DescriptionItem>
+            <DescriptionItem data-test="reservation__time-range">
               <IconCalendar /> {capitalize(timeString)}
             </DescriptionItem>
           </Description>
@@ -285,21 +336,33 @@ const ReservationUnitReservation = ({
             </H2>
             <TwoColumnContainer>
               <StyledTextInput
-                label={`${t("reservationCalendar:label.reserver")}*`}
-                id="reserver"
-                name="reserver"
+                label={`${t("reservationCalendar:label.reserveeFirstName")}*`}
+                id="reserveeFirstName"
+                name="reserveeFirstName"
                 ref={register({ required: true })}
                 errorText={
-                  errors.reserver && applicationErrorText(t, "requiredField")
+                  errors.reserveeFirstName &&
+                  applicationErrorText(t, "requiredField")
+                }
+              />
+              <StyledTextInput
+                label={`${t("reservationCalendar:label.reserveeLastName")}*`}
+                id="reserveeLastName"
+                name="reserveeLastName"
+                ref={register({ required: true })}
+                errorText={
+                  errors.reserveeLastName &&
+                  applicationErrorText(t, "requiredField")
                 }
               />
               <StyledTextInput
                 label={`${t("common:phone")}*`}
-                id="phone"
-                name="phone"
+                id="reserveePhone"
+                name="reserveePhone"
                 ref={register({ required: true })}
                 errorText={
-                  errors.phone && applicationErrorText(t, "requiredField")
+                  errors.reserveePhone &&
+                  applicationErrorText(t, "requiredField")
                 }
               />
             </TwoColumnContainer>
@@ -316,25 +379,21 @@ const ReservationUnitReservation = ({
             </StyledNotification>
             <OneColumnContainer>
               <StyledTextInput
-                label={`${t("reservationCalendar:label.reservationName")}*`}
-                id="reservationName"
-                name="reservationName"
+                label={`${t("reservationCalendar:label.name")}*`}
+                id="name"
+                name="name"
                 ref={register({ required: true })}
                 errorText={
-                  errors.reservationName &&
-                  applicationErrorText(t, "requiredField")
+                  errors.name && applicationErrorText(t, "requiredField")
                 }
               />
               <StyledTextInput
-                label={`${t(
-                  "reservationCalendar:label.reservationDescription"
-                )}*`}
-                id="reservationDescription"
-                name="reservationDescription"
+                label={`${t("reservationCalendar:label.description")}*`}
+                id="description"
+                name="description"
                 ref={register({ required: true })}
                 errorText={
-                  errors.reservationDescription &&
-                  applicationErrorText(t, "requiredField")
+                  errors.description && applicationErrorText(t, "requiredField")
                 }
               />
             </OneColumnContainer>
@@ -383,15 +442,22 @@ const ReservationUnitReservation = ({
               </TermContainer>
             </AccordionContainer>
             <ActionContainer>
-              <MediumButton variant="primary" type="submit">
+              <MediumButton
+                variant="primary"
+                type="submit"
+                data-test="reservation__button--update"
+              >
                 {t("reservationCalendar:saveReservation")}
               </MediumButton>
               <MediumButton
                 variant="secondary"
                 iconLeft={<IconArrowLeft />}
                 onClick={() =>
-                  router.push(`/reservation-unit/${reservationUnit.pk}`)
+                  router.push(
+                    `${reservationUnitSinglePrefix}/${reservationUnit.pk}`
+                  )
                 }
+                data-test="reservation__button--cancel"
               >
                 {t("common:prev")}
               </MediumButton>
@@ -407,28 +473,35 @@ const ReservationUnitReservation = ({
                 <IconCheckCircle size="m" />
                 {t("reservationUnit:reservationSuccessful")}
               </Heading>
-              <p>
+              <Paragraph>
                 <Trans
                   i18nKey="reservationUnit:reservationReminderText"
                   t={t}
                   values={{ profile }}
                   components={{
                     emailLink: (
-                      <a href={`mailto:${profile.email}`}>{profile.email}</a>
+                      <a href={`mailto:${profile?.email}`}>{profile?.email}</a>
                     ),
                   }}
                 />
-              </p>
-              <p>
+              </Paragraph>
+              <Paragraph>
                 <Trans
                   i18nKey="reservationUnit:loadReservationCalendar"
                   t={t}
                   components={{
-                    calendarLink: <a href="foobariavaan"> </a>, // TODO change
+                    calendarLink: (
+                      <a
+                        href={reservation?.calendarUrl}
+                        data-test="reservation__confirmation--calendar-url"
+                      >
+                        {" "}
+                      </a>
+                    ),
                   }}
                 />
-              </p>
-              <p>
+              </Paragraph>
+              <Paragraph>
                 {t("common:thanksForUsingVaraamo")}
                 <br />
                 <a
@@ -438,14 +511,8 @@ const ReservationUnitReservation = ({
                 >
                   {t("common:sendFeedback")}
                 </a>
-              </p>
+              </Paragraph>
               <ActionContainer style={{ marginTop: "var(--spacing-3-xl)" }}>
-                <MediumButton
-                  variant="primary"
-                  onClick={() => router.push("/applications")}
-                >
-                  {t("reservationUnit:gotoApplications")}
-                </MediumButton>
                 <MediumButton
                   variant="secondary"
                   onClick={() => router.push("/")}
@@ -457,44 +524,61 @@ const ReservationUnitReservation = ({
             </div>
             <div>
               <Subheading>{t("reservationUnit:additionalInfo")}</Subheading>
-              <p>
-                <Strong>
-                  {t("reservationCalendar:label.reservationName")}
-                </Strong>
-                <div>{reservation.reservationName}</div>
-              </p>
-              <p>
-                <Strong>{t("reservationCalendar:label.reserver")}</Strong>
-                <div>{reservation.reserver}</div>
-              </p>
-              <p>
-                <Strong>
-                  {t("reservationCalendar:label.reservationDescription")}
-                </Strong>
-                <div>{reservation.reservationDescription}</div>
-              </p>
-              <p>
+              <ValueParagraph>
+                <Strong>{t("reservationCalendar:label.name")}</Strong>
+                <span>{reservation.name}</span>
+              </ValueParagraph>
+              <ValueParagraph>
+                <Strong>{t("reservationCalendar:label.reserveeName")}</Strong>
+                <span>
+                  {`${reservation.reserveeFirstName || ""} ${
+                    reservation.reserveeLastName || ""
+                  }`.trim()}
+                </span>
+              </ValueParagraph>
+              <ValueParagraph>
+                <Strong>{t("reservationCalendar:label.description")}</Strong>
+                <span>{reservation.description}</span>
+              </ValueParagraph>
+              <ValueParagraph>
                 <Strong>
                   {t("reservationCalendar:label.reservationDate")}
                 </Strong>
-                <div style={{ textTransform: "capitalize" }}>
-                  {beginDate} {beginTime} - {endDate !== beginDate && endDate}{" "}
-                  {endTime}
-                </div>
-              </p>
-              <p>
+                <span>
+                  {capitalize(
+                    `${beginDate} ${beginTime} -${
+                      endDate !== beginDate ? ` ${endDate}` : ""
+                    } ${endTime}`
+                  )}
+                </span>
+              </ValueParagraph>
+              <ValueParagraph>
                 <Strong>
                   {t("reservationCalendar:label.reservationSpace")}
                 </Strong>
-                <div>{getTranslation(reservationUnit, "name")}</div>
-              </p>
-              <p>
+                <span>{getTranslation(reservationUnit, "name")}</span>
+              </ValueParagraph>
+              <ValueParagraph>
                 <Strong>{t("common:phone")}</Strong>
-                <div>{reservation.phone}</div>
-              </p>
+                <span>{reservation.reserveePhone}</span>
+              </ValueParagraph>
             </div>
           </TwoColumnContainer>
         </BodyContainer>
+      )}
+      {errorMsg && (
+        <Notification
+          type="error"
+          label={t("common:error.error")}
+          position="top-center"
+          autoClose={false}
+          displayAutoCloseProgress={false}
+          onClose={() => setErrorMsg(null)}
+          dismissible
+          closeButtonLabelText={t("common:error.closeErrorMsg")}
+        >
+          {errorMsg}
+        </Notification>
       )}
     </>
   );

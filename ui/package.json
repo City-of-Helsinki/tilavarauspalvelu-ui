@@ -71,7 +71,7 @@
     "eslint": "^7.29.0",
     "eslint-config-airbnb-typescript-prettier": "^4.2.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
-    "jest": "27.0.3",
+    "jest": "^27.3.1",
     "jest-axe": "^5.0.1",
     "jest-date-mock": "^1.0.8",
     "msw": "^0.35.0",

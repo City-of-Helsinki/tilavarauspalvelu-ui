@@ -6,6 +6,7 @@ export type DataContextProps = {
 };
 
 export type ReservationProps = {
+  pk: number | null;
   begin: string | null;
   end: string | null;
 };

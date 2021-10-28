@@ -42,7 +42,9 @@
   "minute": "{{count}} minuutti",
   "minute_plural": "{{count}} minuuttia",
   "error": {
-    "dataError": "Tietoja ei saatu haettua"
+    "dataError": "Tietoja ei saatu haettua",
+    "error": "Virhe",
+    "closeErrorMsg": "Sulje virheilmoitus"
   },
   "applicationNavigationName": "Hakemus",
   "applicationName": "Varaamo",

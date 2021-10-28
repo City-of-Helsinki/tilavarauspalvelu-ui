@@ -13,18 +13,23 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
   };
 };
 
+type Props = {
+  title?: string;
+  body?: string;
+};
+
 const Wrapper = styled.div`
   padding: var(--spacing-layout-xl) 0;
 `;
 
-const Custom404 = (): JSX.Element => {
+const Custom404 = ({ title, body }: Props): JSX.Element => {
   const { t } = useTranslation("errors");
 
   return (
     <Wrapper>
       <CenteredContainer>
-        <h1>404</h1>
-        <p>{t("404.body")}</p>
+        <h1>{title || "404"}</h1>
+        <p>{body || t("404.body")}</p>
       </CenteredContainer>
     </Wrapper>
   );

@@ -5,12 +5,13 @@ import {
   getISODay,
   isAfter,
   isBefore,
+  isWithinInterval,
   startOfDay,
 } from "date-fns";
 import { TFunction } from "next-i18next";
 import { SlotProps } from "../components/calendar/Calendar";
 import { OpeningTimesType, ReservationType } from "./gql-types";
-import { ApplicationEvent, OptionType } from "./types";
+import { ApplicationEvent, ApplicationRound, OptionType } from "./types";
 import {
   apiDurationToMinutes,
   endOfWeek,
@@ -105,20 +106,35 @@ const areOpeningTimesAvailable = (
 
 export const isSlotWithinTimeframe = (start: Date, bufferDays = 0): boolean => {
   return bufferDays
-    ? isAfter(new Date(start), startOfDay(addDays(new Date(), bufferDays)))
-    : isAfter(new Date(start), new Date());
+    ? isAfter(start, startOfDay(addDays(new Date(), bufferDays)))
+    : isAfter(start, new Date());
+};
+
+const doesSlotCollideWithApplicationRounds = (
+  applicationRounds: ApplicationRound[],
+  slot: Date
+): boolean => {
+  if (applicationRounds?.length < 1) return false;
+  return applicationRounds?.some((applicationRound) =>
+    isWithinInterval(slot, {
+      start: new Date(applicationRound.reservationPeriodBegin),
+      end: new Date(applicationRound.reservationPeriodEnd).setHours(23, 59, 59),
+    })
+  );
 };
 
 export const areSlotsReservable = (
   slots: Date[],
   openingHours: OpeningTimesType[],
+  activeApplicationRounds: ApplicationRound[] = [],
   bufferDays?: number
 ): boolean => {
   return slots.every((slot) => {
     const slotDate = new Date(slot);
     return (
       areOpeningTimesAvailable(openingHours, slotDate) &&
-      isSlotWithinTimeframe(slotDate, bufferDays)
+      isSlotWithinTimeframe(slotDate, bufferDays) &&
+      !doesSlotCollideWithApplicationRounds(activeApplicationRounds, slot)
     );
   });
 };
@@ -136,9 +152,20 @@ export const doReservationsCollide = (
 };
 
 export const getSlotPropGetter =
-  (openingHours: OpeningTimesType[], bufferDays?: number) =>
+  (
+    openingHours: OpeningTimesType[],
+    activeApplicationRounds: ApplicationRound[],
+    bufferDays?: number
+  ) =>
   (date: Date): SlotProps => {
-    switch (areSlotsReservable([date], openingHours, bufferDays)) {
+    switch (
+      areSlotsReservable(
+        [date],
+        openingHours,
+        activeApplicationRounds,
+        bufferDays
+      )
+    ) {
       case true:
         return {};
       default:

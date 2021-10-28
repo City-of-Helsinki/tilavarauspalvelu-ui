@@ -1,14 +1,21 @@
 import { useRouter } from "next/router";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { differenceInMinutes, parseISO } from "date-fns";
+import { Notification } from "hds-react";
+import { useMutation } from "@apollo/client";
 import { breakpoint } from "../../modules/style";
 import { isReservationLongEnough } from "../../modules/calendar";
 import { capitalize, formatDurationMinutes } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
-import { ReservationUnitByPkType } from "../../modules/gql-types";
+import {
+  ReservationCreateMutationInput,
+  ReservationCreateMutationPayload,
+  ReservationUnitByPkType,
+} from "../../modules/gql-types";
 import { DataContext } from "../../context/DataContext";
+import { CREATE_RESERVATION } from "../../modules/queries/reservation";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType;
@@ -60,10 +67,50 @@ const ReservationInfo = ({
   const { t } = useTranslation();
   const router = useRouter();
   const { setReservation } = useContext(DataContext);
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [addReservation, { data, loading, error }] = useMutation<
+    { createReservation: ReservationCreateMutationPayload },
+    { input: ReservationCreateMutationInput }
+  >(CREATE_RESERVATION);
 
   useEffect(() => {
-    setReservation({ begin, end });
-  }, [begin, end, setReservation]);
+    if (!loading) {
+      if (error || data?.createReservation?.errors?.length > 0) {
+        setErrorMsg(t("reservationUnit:reservationFailed"));
+      } else if (data) {
+        setIsRedirecting(true);
+        router.push(
+          `/reservation-unit/single/${reservationUnit.pk}/reservation`
+        );
+      }
+    }
+  }, [data, loading, error, t, router, reservationUnit]);
+
+  const createReservation = () => {
+    setErrorMsg(null);
+    const input = {
+      begin,
+      end,
+      reservationUnitPks: [reservationUnit.pk],
+    };
+
+    addReservation({
+      variables: {
+        input,
+      },
+    });
+  };
+
+  useEffect(() => {
+    setReservation({ pk: null, begin: null, end: null });
+  }, [setReservation]);
+
+  useEffect(() => {
+    setReservation({ pk: data?.createReservation?.pk, begin, end });
+  }, [begin, end, data, setReservation]);
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -72,26 +119,26 @@ const ReservationInfo = ({
   const beginTime = t("common:timeWithPrefix", {
     date: begin && parseISO(begin),
   });
+
   const endDate = t("common:dateWithWeekday", {
     date: end && parseISO(end),
   });
+
   const endTime = t("common:time", {
     date: end && parseISO(end),
   });
 
   const duration = differenceInMinutes(new Date(end), new Date(begin));
 
-  const timeRange = `${beginDate} ${beginTime} - ${
-    endDate !== beginDate ? endDate : ""
+  const timeRange = `${beginDate} ${beginTime} –${
+    endDate !== beginDate ? ` ${endDate}` : ""
   } ${endTime} `;
 
   return (
     <Wrapper>
       <MediumButton
         onClick={() => {
-          router.push(
-            `/reservation-unit/single/${reservationUnit.pk}/reservation`
-          );
+          createReservation();
         }}
         disabled={
           !begin ||
@@ -100,15 +147,18 @@ const ReservationInfo = ({
             new Date(begin),
             new Date(end),
             reservationUnit.minReservationDuration
-          )
+          ) ||
+          loading ||
+          isRedirecting
         }
+        data-test="reservation__button--submit"
       >
         {t("reservationCalendar:makeReservation")}
       </MediumButton>
       <div>
         <h3>{t("reservationCalendar:selectedTime")}:</h3>
         {begin && end ? (
-          <TimeRange>
+          <TimeRange data-test="reservation__selection--timerange">
             {capitalize(timeRange)}
             <DurationWrapper>
               ({formatDurationMinutes(duration)})
@@ -118,6 +168,20 @@ const ReservationInfo = ({
           "–"
         )}
       </div>
+      {errorMsg && (
+        <Notification
+          type="error"
+          label={t("common:error.error")}
+          position="top-center"
+          autoClose={false}
+          displayAutoCloseProgress={false}
+          onClose={() => setErrorMsg(null)}
+          dismissible
+          closeButtonLabelText={t("common:error.closeErrorMsg")}
+        >
+          {errorMsg}
+        </Notification>
+      )}
     </Wrapper>
   );
 };

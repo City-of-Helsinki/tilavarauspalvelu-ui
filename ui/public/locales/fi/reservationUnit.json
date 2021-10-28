@@ -18,5 +18,6 @@
   "loadReservationCalendar": "<calendarLink>Lataa tästä</calendarLink> kalenteriisi muistutus.",
   "gotoApplications": "Siirry omiin varauksiin",
   "openingTimes": "Aukioloajat",
-  "additionalInfo": "Varauksen lisätiedot"
+  "additionalInfo": "Varauksen lisätiedot",
+  "reservationFailed": "Varauksen luominen epäonnistui"
 }

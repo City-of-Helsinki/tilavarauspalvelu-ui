@@ -3,7 +3,7 @@ import { IconSignin } from "hds-react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { breakpoint } from "../modules/style";
-import { isBrowser } from "../modules/const";
+import { authEnabled, isBrowser } from "../modules/const";
 import { UserProfile } from "../modules/types";
 import RequireAuthentication from "./common/RequireAuthentication";
 import { MediumButton } from "../styles/util";
@@ -66,7 +66,7 @@ const LoginFragment = ({
   return (
     <WithOidc
       render={({ profile }: InnerProps) => {
-        return !profile ? (
+        return !profile && authEnabled ? (
           <Wrapper>
             <MediumButton
               iconLeft={<IconSignin />}
