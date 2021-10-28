@@ -6,22 +6,22 @@ export const SPACES_QUERY = gql`
       edges {
         node {
           pk
-          name
+          nameFi
           unit {
             pk
           }
           building {
-            name
+            nameFi
             district {
-              name
+              nameFi
             }
           }
           parent {
-            name
+            nameFi
             building {
-              name
+              nameFi
               district {
-                name
+                nameFi
               }
             }
           }
@@ -39,12 +39,16 @@ export const RESOURCES_QUERY = gql`
       edges {
         node {
           pk
-          name
+          nameFi
           locationType
+
           space {
-            name
             unit {
-              name
+              nameFi
+            }
+            nameFi
+            unit {
+              nameFi
             }
           }
         }
@@ -59,13 +63,14 @@ export const RESERVATION_UNITS_QUERY = gql`
       edges {
         node {
           pk
-          name
+          nameFi
           unit {
             pk
-            name
+            nameFi
           }
+
           reservationUnitType {
-            name
+            nameFi
           }
           maxPersons
           surfaceArea
@@ -89,12 +94,12 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
       edges {
         node {
           pk
-          name
+          nameFi
           unit {
-            name
+            nameFi
           }
           reservationUnitType {
-            name
+            nameFi
           }
           images {
             imageType
@@ -111,7 +116,7 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
 export const CREATE_SPACE = gql`
   mutation createSpace($input: SpaceCreateMutationInput!) {
     createSpace(input: $input) {
-      id
+      pk
       errors {
         field
         messages
@@ -123,7 +128,7 @@ export const CREATE_SPACE = gql`
 export const UPDATE_SPACE = gql`
   mutation updateSpace($input: SpaceUpdateMutationInput!) {
     updateSpace(input: $input) {
-      id
+      pk
       errors {
         field
         messages
@@ -138,7 +143,7 @@ export const SPACE_HIERARCHY_QUERY = gql`
       edges {
         node {
           pk
-          name
+          nameFi
           parent {
             pk
           }
@@ -156,7 +161,7 @@ export const UNITS_QUERY = gql`
     units {
       edges {
         node {
-          name
+          nameFi
           pk
           reservationUnits {
             pk
@@ -186,21 +191,21 @@ export const UNIT_QUERY = gql`
   query unit($pk: Int) {
     unitByPk(pk: $pk) {
       pk
-      name
+      nameFi
       tprekId
-      shortDescription
+      shortDescriptionFi
       reservationUnits {
         pk
-        name
+        nameFi
         maxPersons
         surfaceArea
         purposes {
           pk
-          name
+          nameFi
         }
         reservationUnitType {
           pk
-          name
+          nameFi
         }
         images {
           imageType
@@ -209,27 +214,27 @@ export const UNIT_QUERY = gql`
       }
       spaces {
         pk
-        name
+        nameFi
         maxPersons
         surfaceArea
         resources {
           pk
-          name
+          nameFi
           space {
             unit {
-              name
+              nameFi
             }
           }
         }
       }
       location {
-        addressStreet
+        addressStreetFi
         addressZip
-        addressCity
+        addressCityFi
         longitude
         latitude
       }
-      name
+      nameFi
     }
   }
 `;
@@ -238,21 +243,21 @@ export const UNIT_WITH_SPACES_AND_RESOURCES = gql`
   query unit($pk: Int) {
     unitByPk(pk: $pk) {
       pk
-      name
+      nameFi
       spaces {
         pk
-        name
+        nameFi
         maxPersons
         surfaceArea
         resources {
           pk
-          name
+          nameFi
         }
       }
       location {
-        addressStreet
+        addressStreetFi
         addressZip
-        addressCity
+        addressCityFi
       }
     }
   }
@@ -263,8 +268,17 @@ export const RESERVATION_UNIT_EDITOR_PARAMETERS = gql`
     equipments {
       edges {
         node {
-          name
+          nameFi
           pk
+        }
+      }
+    }
+
+    purposes {
+      edges {
+        node {
+          pk
+          nameFi
         }
       }
     }
@@ -275,31 +289,35 @@ export const RESERVATION_UNIT_EDITOR_PARAMETERS = gql`
 export const RESERVATIONUNIT_QUERY = gql`
   query reservationUnit($pk: Int) {
     reservationUnitByPk(pk: $pk) {
-      name
-      description
+      nameFi
+      nameSv
+      nameEn
+      descriptionFi
       spaces {
         pk
-        name
+        nameFi
       }
       resources {
         pk
-        name
+        nameFi
       }
       services {
         pk
-        name
+        nameFi
       }
       purposes {
         pk
-        name
+        nameFi
       }
       reservationUnitType {
         pk
-        name
+        nameFi
       }
       requireIntroduction
-      termsOfUse
-      contactInformation
+      termsOfUseFi
+      termsOfUseSv
+      termsOfUseEn
+      contactInformationFi
       maxReservationDuration
       minReservationDuration
       images {
@@ -308,21 +326,24 @@ export const RESERVATIONUNIT_QUERY = gql`
       }
       pk
       location {
-        addressStreet
+        addressStreetFi
         addressZip
-        addressCity
+        addressCityFi
         longitude
         latitude
       }
       equipment {
         pk
-        name
+        nameFi
       }
       unit {
         pk
       }
       maxPersons
       surfaceArea
+      descriptionFi
+      descriptionSv
+      descriptionEn
     }
   }
 `;
@@ -343,7 +364,7 @@ export const UPDATE_RESERVATION_UNIT = gql`
 export const CREATE_RESERVATION_UNIT = gql`
   mutation createReservationUnit($input: ReservationUnitCreateMutationInput!) {
     createReservationUnit(input: $input) {
-      id
+      pk
       errors {
         field
         messages
@@ -377,28 +398,28 @@ export const SPACE_QUERY = gql`
   query space($pk: Int) {
     spaceByPk(pk: $pk) {
       pk
-      name
+      nameFi
       surfaceArea
       maxPersons
       code
-      termsOfUse
+      termsOfUseFi
       unit {
         pk
-        name
-        description
+        nameFi
+        descriptionFi
         location {
-          addressStreet
+          addressStreetFi
           addressZip
-          addressCity
+          addressCityFi
         }
       }
       parent {
         pk
-        name
+        nameFi
         parent {
-          name
+          nameFi
           parent {
-            name
+            nameFi
           }
         }
       }

@@ -11,7 +11,7 @@ import {
   TimeInput,
 } from "hds-react";
 import i18next from "i18next";
-import { pick, sumBy } from "lodash";
+import { get, pick, sumBy, upperFirst } from "lodash";
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";
@@ -19,8 +19,8 @@ import styled from "styled-components";
 import { languages } from "../../common/const";
 import {
   EquipmentType,
+  PurposeType,
   Query,
-  QueryEquipmentsArgs,
   QueryReservationUnitByPkArgs,
   QueryUnitByPkArgs,
   ReservationUnitByPkType,
@@ -48,8 +48,8 @@ import SubPageHead from "../Unit/SubPageHead";
 import withMainMenu from "../withMainMenu";
 
 interface IProps {
-  reservationUnitId?: string;
-  unitId: string;
+  reservationUnitPk?: string;
+  unitPk: string;
 }
 
 type NotificationType = {
@@ -74,26 +74,35 @@ type Action =
   | { type: "setSpaces"; spaces: OptionType[] }
   | { type: "setResources"; resources: OptionType[] }
   | { type: "setEquipments"; equipments: OptionType[] }
-  | { type: "equipmentsLoaded"; equipments: EquipmentType[] };
+  | { type: "setPurposes"; purposes: OptionType[] }
+  | { type: "equipmentsLoaded"; equipments: EquipmentType[] }
+  | { type: "purposesLoaded"; purposes: PurposeType[] };
 
 type ReservationUnitEditorType = {
   pk: number;
-  name: string;
-  description: string;
-  spaceIds: number[];
-  resourceIds: number[];
-  equipmentIds: number[];
+  nameFi: string;
+  nameSv: string;
+  nameEn: string;
+  descriptionFi: string;
+  descriptionSv: string;
+  descriptionEn: string;
+  spacePks: number[];
+  resourcePks: number[];
+  equipmentPks: number[];
+  purposePks: number[];
   maxPersons: number;
   surfaceArea: number;
   requireIntroduction: boolean;
   maxReservationDuration: string;
   minReservationDuration: string;
-  termsOfUse: string;
+  termsOfUseFi: string;
+  termsOfUseSv: string;
+  termsOfUseEn: string;
 };
 
 type State = {
-  reservationUnitId?: number;
-  unitId: number;
+  reservationUnitPk?: number;
+  unitPk: number;
   notification: null | NotificationType;
   loading: boolean;
   reservationUnit: ReservationUnitByPkType | null;
@@ -107,12 +116,13 @@ type State = {
   spaceOptions: OptionType[];
   resourceOptions: OptionType[];
   equipmentOptions: OptionType[];
+  purposeOptions: OptionType[];
   unit?: UnitByPkType;
 };
 
-const getInitialState = (reservationUnitId: number, unitId: number): State => ({
-  reservationUnitId,
-  unitId,
+const getInitialState = (reservationUnitPk: number, unitPk: number): State => ({
+  reservationUnitPk,
+  unitPk,
   loading: true,
   notification: null,
   reservationUnit: null,
@@ -123,6 +133,7 @@ const getInitialState = (reservationUnitId: number, unitId: number): State => ({
   spaceOptions: [],
   equipmentOptions: [],
   resourceOptions: [],
+  purposeOptions: [],
 });
 
 const newReservationUnit = {} as ReservationUnitEditorType;
@@ -134,7 +145,8 @@ const withLoadingStatus = (state: State): State => {
     !hasError &&
     (state.spaceOptions.length === 0 ||
       state.reservationUnitEdit === null ||
-      state.equipmentOptions.length === 0);
+      state.equipmentOptions.length === 0 ||
+      state.purposeOptions.length === 0);
 
   return {
     ...state,
@@ -167,25 +179,37 @@ const reducer = (state: State, action: Action): State => {
         reservationUnitEdit: {
           ...(pick(reservationUnit, [
             "pk",
-            "name",
-            "termsOfUse",
+            "nameFi",
+            "nameSv",
+            "nameEn",
+            "descriptionFi",
+            "descriptionEn",
+            "descriptionSv",
+            "termsOfUseFi",
+            "termsOfUseSv",
+            "termsOfUseEn",
             "minReservationDuration",
             "maxReservationDuration",
             "requireIntroduction",
-            "description",
+            "descriptionFi",
+            "descriptionSv",
+            "descriptionEn",
             "surfaceArea",
             "maxPersons",
             "maxReservationDuration",
             "minReservationDuration",
             "requireIntroduction",
           ]) as ReservationUnitEditorType),
-          spaceIds: reservationUnit?.spaces?.map((s) =>
+          spacePks: reservationUnit?.spaces?.map((s) =>
             Number(s?.pk)
           ) as number[],
-          resourceIds: reservationUnit?.resources?.map((s) =>
+          resourcePks: reservationUnit?.resources?.map((s) =>
             Number(s?.pk)
           ) as number[],
-          equipmentIds: reservationUnit?.equipment?.map((s) =>
+          equipmentPks: reservationUnit?.equipment?.map((s) =>
+            Number(s?.pk)
+          ) as number[],
+          purposePks: reservationUnit?.purposes?.map((s) =>
             Number(s?.pk)
           ) as number[],
         },
@@ -199,7 +223,7 @@ const reducer = (state: State, action: Action): State => {
 
       const spaceOptions =
         unit?.spaces?.map((s) => ({
-          label: String(s?.name),
+          label: String(s?.nameFi),
           value: Number(s?.pk),
         })) || [];
 
@@ -210,7 +234,8 @@ const reducer = (state: State, action: Action): State => {
       const resourceOptions =
         unit?.spaces
           ?.flatMap((s) => s?.resources)
-          .map((r) => ({ label: String(r?.name), value: Number(r?.pk) })) || [];
+          .map((r) => ({ label: String(r?.nameFi), value: Number(r?.pk) })) ||
+        [];
 
       return withLoadingStatus({
         ...state,
@@ -229,7 +254,17 @@ const reducer = (state: State, action: Action): State => {
       return withLoadingStatus({
         ...state,
         equipmentOptions: action.equipments.map((e) => ({
-          label: e.name,
+          label: e.nameFi as string,
+          value: e.pk as number,
+        })),
+      });
+    }
+
+    case "purposesLoaded": {
+      return withLoadingStatus({
+        ...state,
+        purposeOptions: action.purposes.map((e) => ({
+          label: e.nameFi as string,
           value: e.pk as number,
         })),
       });
@@ -262,25 +297,30 @@ const reducer = (state: State, action: Action): State => {
       return modifyEditorState(state, { ...action.value });
     }
     case "setSpaces": {
-      const selectedSpaceIds = action.spaces.map((ot) => ot.value as number);
+      const selectedSpacePks = action.spaces.map((ot) => ot.value as number);
       const selectedSpaces = state.spaces.filter(
-        (s) => selectedSpaceIds.indexOf(Number(s.pk)) !== -1
+        (s) => selectedSpacePks.indexOf(Number(s.pk)) !== -1
       );
 
       return modifyEditorState(state, {
         surfaceArea: sumBy(selectedSpaces, "surfaceArea"),
         maxPersons: sumBy(selectedSpaces, "maxPersons"),
-        spaceIds: selectedSpaceIds,
+        spacePks: selectedSpacePks,
       });
     }
     case "setResources": {
       return modifyEditorState(state, {
-        resourceIds: action.resources.map((ot) => ot.value as number),
+        resourcePks: action.resources.map((ot) => ot.value as number),
       });
     }
     case "setEquipments": {
       return modifyEditorState(state, {
-        equipmentIds: action.equipments.map((ot) => ot.value as number),
+        equipmentPks: action.equipments.map((ot) => ot.value as number),
+      });
+    }
+    case "setPurposes": {
+      return modifyEditorState(state, {
+        purposePks: action.purposes.map((ot) => ot.value as number),
       });
     }
     default:
@@ -340,38 +380,23 @@ const TextInputWithPadding = styled(TextInput)`
   padding-bottom: var(--spacing-m);
 `;
 
-const getSelectedSpaces = (state: State): OptionType[] => {
-  if (!state.spaceOptions || !state.reservationUnitEdit?.spaceIds) {
+const getSelectedOptions = (
+  state: State,
+  optionsPropertyName: string,
+  valuePropName: string
+): OptionType[] => {
+  const fullPropName = `reservationUnitEdit.${valuePropName}`;
+  const options = get(state, optionsPropertyName);
+
+  if (!options || !get(state, fullPropName)) {
     return [];
   }
-
-  return state.reservationUnitEdit?.spaceIds
-    .map((space) => state.spaceOptions.find((so) => so.value === space))
-    .filter(Boolean) as OptionType[];
-};
-
-const getSelectedResources = (state: State): OptionType[] => {
-  if (!state.resourceOptions || !state.reservationUnitEdit?.resourceIds) {
-    return [];
-  }
-
-  return state.reservationUnitEdit?.resourceIds
-    .map((resourceId) =>
-      state.resourceOptions.find((so) => so.value === resourceId)
-    )
-    .filter(Boolean) as OptionType[];
-};
-
-const getSelectedEquipments = (state: State): OptionType[] => {
-  if (!state.equipmentOptions || !state.reservationUnitEdit?.equipmentIds) {
-    return [];
-  }
-
-  return state.reservationUnitEdit?.equipmentIds
-    .map((equipmentId) =>
-      state.equipmentOptions.find((so) => so.value === equipmentId)
-    )
-    .filter(Boolean) as OptionType[];
+  return (
+    get(state, fullPropName)
+      // eslint-disable-next-line
+      .map((optionPk: any) => options.find((so: any) => so.value === optionPk))
+      .filter(Boolean) as OptionType[]
+  );
 };
 
 const getDuration = (duration: string | undefined): string => {
@@ -388,13 +413,13 @@ const getDuration = (duration: string | undefined): string => {
 };
 
 const ReservationUnitEditor = (): JSX.Element | null => {
-  const { reservationUnitId, unitId } = useParams<IProps>();
+  const { reservationUnitPk, unitPk } = useParams<IProps>();
   const { t } = useTranslation();
   const history = useHistory();
 
   const [state, dispatch] = useReducer(
     reducer,
-    getInitialState(Number(reservationUnitId), Number(unitId))
+    getInitialState(Number(reservationUnitPk), Number(unitPk))
   );
 
   const onDataError = (text: string) => {
@@ -442,31 +467,39 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     const input = pick(
       {
         ...state.reservationUnitEdit,
-        unitId: String(state.unitId),
-        spaceIds: state.reservationUnitEdit?.spaceIds?.map(String),
-        resourceIds: state.reservationUnitEdit?.resourceIds?.map(String),
-        equipmentIds: state.reservationUnitEdit?.equipmentIds?.map(String),
+        spacePks: state.reservationUnitEdit?.spacePks?.map(String),
+        resourcePks: state.reservationUnitEdit?.resourcePks?.map(String),
+        equipmentPks: state.reservationUnitEdit?.equipmentPks?.map(String),
+        purposePks: state.reservationUnitEdit?.purposePks?.map(String),
         isDraft: !publish,
       },
       [
         "isDraft",
         "pk",
-        "unitId",
-        "name",
-        "spaceIds",
-        "resourceIds",
-        "equipmentIds",
+        "unitPk",
+        "nameFi",
+        "nameSv",
+        "nameEn",
+        "descriptionFi",
+        "descriptionSv",
+        "descriptionEn",
+        "spacePks",
+        "resourcePks",
+        "equipmentPks",
         "surfaceArea",
         "maxPersons",
-        "termsOfUse",
+        "termsOfUseFi",
+        "termsOfUseSv",
+        "termsOfUseEn",
         "maxReservationDuration",
         "minReservationDuration",
         "requireIntroduction",
+        "purposePks",
       ]
     );
 
     try {
-      if (state.reservationUnitId) {
+      if (state.reservationUnitPk) {
         const res = await updateReservationUnit(
           input as ReservationUnitUpdateMutationInput
         );
@@ -483,7 +516,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           onSave(t("ReservationUnitEditor.saved"));
           // todo notification
           history.replace(
-            `/unit/${unitId}/reservationUnit/edit/${res.data.createReservationUnit.id}`
+            `/unit/${unitPk}/reservationUnit/edit/${res.data.createReservationUnit.pk}`
           );
         }
       }
@@ -493,8 +526,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   };
 
   useQuery<Query, QueryReservationUnitByPkArgs>(RESERVATIONUNIT_QUERY, {
-    variables: { pk: Number(reservationUnitId) },
-    skip: !reservationUnitId,
+    variables: { pk: Number(reservationUnitPk) },
+    skip: !reservationUnitPk,
     onCompleted: ({ reservationUnitByPk }) => {
       if (reservationUnitByPk) {
         dispatch({ type: "dataLoaded", reservationUnit: reservationUnitByPk });
@@ -508,7 +541,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   });
 
   useQuery<Query, QueryUnitByPkArgs>(UNIT_WITH_SPACES_AND_RESOURCES, {
-    variables: { pk: Number(unitId) },
+    variables: { pk: Number(unitPk) },
     onCompleted: ({ unitByPk }) => {
       if (unitByPk) {
         dispatch({ type: "unitLoaded", unit: unitByPk });
@@ -521,14 +554,23 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     },
   });
 
-  useQuery<Query, QueryEquipmentsArgs>(RESERVATION_UNIT_EDITOR_PARAMETERS, {
-    onCompleted: ({ equipments }) => {
+  useQuery<Query>(RESERVATION_UNIT_EDITOR_PARAMETERS, {
+    onCompleted: ({ equipments, purposes }) => {
       if (equipments) {
         dispatch({
           type: "equipmentsLoaded",
           equipments: equipments?.edges.map((e) => e?.node as EquipmentType),
         });
-      } else {
+      }
+
+      if (purposes) {
+        dispatch({
+          type: "purposesLoaded",
+          purposes: purposes?.edges.map((e) => e?.node as PurposeType),
+        });
+      }
+
+      if (!equipments || !purposes) {
         onDataError(t("ReservationUnitEditor.errorEquipmentsNotAvailable"));
       }
     },
@@ -538,10 +580,10 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   });
 
   useEffect(() => {
-    if (!reservationUnitId) {
+    if (!reservationUnitPk) {
       dispatch({ type: "editNew" });
     }
-  }, [reservationUnitId]);
+  }, [reservationUnitPk]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setValue = (value: any) => {
@@ -595,7 +637,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           <SubPageHead
             unit={state.unit}
             title={
-              state.reservationUnitEdit.name ||
+              state.reservationUnitEdit.nameFi ||
               t("ReservationUnitEditor.defaultHeading")
             }
           />
@@ -608,37 +650,31 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             >
               <Section>
                 <TextInputWithPadding
-                  value={state.reservationUnitEdit.name}
+                  value={state.reservationUnitEdit.nameFi || ""}
                   required
-                  id="name"
+                  id="nameFi"
                   label={t("ReservationUnitEditor.nameLabel")}
                   helperText={t("ReservationUnitEditor.nameHelper")}
                   onChange={(e) => {
-                    setValue({ name: e.target.value });
+                    setValue({ nameFi: e.target.value });
                   }}
                 />
                 <TextInputWithPadding
-                  disabled
-                  value={
-                    "" // state.reservationUnitEdit.name_sv */
-                  }
+                  value={state.reservationUnitEdit.nameSv || ""}
                   required
                   id="nameSv"
                   label={t("ReservationUnitEditor.nameSvLabel")}
                   onChange={(e) => {
-                    setValue({ name_sv: e.target.value });
+                    setValue({ nameSv: e.target.value });
                   }}
                 />
                 <TextInputWithPadding
-                  disabled
-                  value={
-                    "" // state.reservationUnitEdit.name_en */
-                  }
+                  value={state.reservationUnitEdit.nameEn || ""}
                   required
                   id="nameEn"
                   label={t("ReservationUnitEditor.nameEnLabel")}
                   onChange={(e) => {
-                    setValue({ name_en: e.target.value });
+                    setValue({ nameEn: e.target.value });
                   }}
                 />
                 <EditorColumns>
@@ -655,7 +691,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       dispatch({ type: "setSpaces", spaces })
                     }
                     disabled={state.spaceOptions.length === 0}
-                    value={[...getSelectedSpaces(state)]}
+                    value={[
+                      ...getSelectedOptions(state, "spaceOptions", "spacePks"),
+                    ]}
                   />
                   <Combobox
                     multiselect
@@ -671,7 +709,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       dispatch({ type: "setResources", resources })
                     }
                     disabled={state.resourceOptions.length === 0}
-                    value={[...getSelectedResources(state)]}
+                    value={[
+                      ...getSelectedOptions(
+                        state,
+                        "resourceOptions",
+                        "resourcePks"
+                      ),
+                    ]}
                   />
                 </EditorColumns>
                 <Checkbox
@@ -733,6 +777,27 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               <EditorColumns>
                 <Combobox
                   multiselect
+                  label={t("ReservationUnitEditor.purposesLabel")}
+                  placeholder={t("ReservationUnitEditor.purposesPlaceholder")}
+                  options={state.purposeOptions}
+                  clearButtonAriaLabel={t("common.clearAllSelections")}
+                  selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
+                  toggleButtonAriaLabel={t("common.toggleMenu")}
+                  onChange={(purposes) =>
+                    dispatch({ type: "setPurposes", purposes })
+                  }
+                  disabled={state.resourceOptions.length === 0}
+                  value={[
+                    ...getSelectedOptions(
+                      state,
+                      "purposeOptions",
+                      "purposePks"
+                    ),
+                  ]}
+                />
+
+                <Combobox
+                  multiselect
                   label={t("ReservationUnitEditor.equipmentsLabel")}
                   placeholder={t("ReservationUnitEditor.equipmentsPlaceholder")}
                   options={state.equipmentOptions}
@@ -742,8 +807,14 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                   onChange={(equipments) =>
                     dispatch({ type: "setEquipments", equipments })
                   }
-                  disabled={state.resourceOptions.length === 0}
-                  value={[...getSelectedEquipments(state)]}
+                  disabled={state.equipmentOptions.length === 0}
+                  value={[
+                    ...getSelectedOptions(
+                      state,
+                      "equipmentOptions",
+                      "equipmentPks"
+                    ),
+                  ]}
                 />
               </EditorColumns>
               <EditorColumns>
@@ -768,7 +839,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 />
                 <TimeInput
                   id="maxReservationDuration"
-                  label={t("ReservationUnitEditor.minReservationDurationLabel")}
+                  label={t("ReservationUnitEditor.maxReservationDurationLabel")}
                   hoursLabel={t("common.hoursLabel")}
                   minutesLabel={t("common.minutesLabel")}
                   defaultValue={getDuration(
@@ -790,7 +861,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 <TextArea
                   key={lang}
                   required
-                  disabled={lang !== "fi"}
                   id={`description.${lang}`}
                   label={t("ReservationUnitEditor.descriptionLabel", {
                     lang,
@@ -801,25 +871,44 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       language: t(`language.${lang}`),
                     }
                   )}
-                  value={state.reservationUnitEdit?.description}
-                  onChange={(e) => setValue({ description: e.target.value })}
+                  value={get(
+                    state,
+                    `reservationUnitEdit.description${upperFirst(lang)}`,
+                    ""
+                  )}
+                  onChange={(e) =>
+                    setValue({
+                      [`description${upperFirst(lang)}`]: e.target.value,
+                    })
+                  }
                 />
               ))}
             </Accordion>
 
             <Accordion heading={t("ReservationUnitEditor.termsInstructions")}>
-              <TextArea
-                required
-                id="termsOfUse"
-                label={t("ReservationUnitEditor.termsOfUse")}
-                value={state.reservationUnitEdit.termsOfUse || ""}
-                helperText={t("ReservationUnitEditor.termsOfUseHelperText")}
-                onChange={(e) => {
-                  setValue({
-                    termsOfUse: e.target.value,
-                  });
-                }}
-              />
+              {languages.map((lang) => (
+                <TextArea
+                  key={lang}
+                  required
+                  id={`tos.${lang}`}
+                  label={t("ReservationUnitEditor.tosLabel", {
+                    lang,
+                  })}
+                  placeholder={t("ReservationUnitEditor.tosPlaceholder", {
+                    language: t(`language.${lang}`),
+                  })}
+                  value={get(
+                    state,
+                    `reservationUnitEdit.termsOfUse${upperFirst(lang)}`,
+                    ""
+                  )}
+                  onChange={(e) =>
+                    setValue({
+                      [`termsOfUse${upperFirst(lang)}`]: e.target.value,
+                    })
+                  }
+                />
+              ))}
             </Accordion>
             <Buttons>
               <Button
@@ -829,13 +918,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               >
                 {t("ReservationUnitEditor.cancel")}
               </Button>
-              <Button
+              <SaveButton
                 disabled={!state.hasChanges}
                 variant="secondary"
                 onClick={() => createOrUpdateReservationUnit(false)}
               >
                 {t("ReservationUnitEditor.saveAsDraft")}
-              </Button>
+              </SaveButton>
 
               <SaveButton
                 disabled={!state.hasChanges}

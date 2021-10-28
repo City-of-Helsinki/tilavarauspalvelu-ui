@@ -900,7 +900,8 @@ export type ReservationCreateMutationInput = {
   name?: Maybe<Scalars['String']>;
   priority?: Maybe<Scalars['Int']>;
   reservationUnitPks: Array<Maybe<Scalars['Int']>>;
-  reserveeName?: Maybe<Scalars['String']>;
+  reserveeFirstName?: Maybe<Scalars['String']>;
+  reserveeLastName?: Maybe<Scalars['String']>;
   reserveePhone?: Maybe<Scalars['String']>;
 };
 
@@ -918,7 +919,8 @@ export type ReservationCreateMutationPayload = {
   pk?: Maybe<Scalars['Int']>;
   priority?: Maybe<Scalars['Int']>;
   reservation?: Maybe<ReservationType>;
-  reserveeName?: Maybe<Scalars['String']>;
+  reserveeFirstName?: Maybe<Scalars['String']>;
+  reserveeLastName?: Maybe<Scalars['String']>;
   reserveePhone?: Maybe<Scalars['String']>;
 };
 
@@ -948,7 +950,8 @@ export type ReservationType = Node & {
   priority: ReservationPriority;
   recurringReservation?: Maybe<RecurringReservationType>;
   reservationUnits?: Maybe<Array<Maybe<ReservationUnitType>>>;
-  reserveeName?: Maybe<Scalars['String']>;
+  reserveeFirstName?: Maybe<Scalars['String']>;
+  reserveeLastName?: Maybe<Scalars['String']>;
   reserveePhone?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
@@ -1317,7 +1320,8 @@ export type ReservationUpdateMutationInput = {
   pk: Scalars['Int'];
   priority?: Maybe<Scalars['Int']>;
   reservationUnitPks?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  reserveeName?: Maybe<Scalars['String']>;
+  reserveeFirstName?: Maybe<Scalars['String']>;
+  reserveeLastName?: Maybe<Scalars['String']>;
   reserveePhone?: Maybe<Scalars['String']>;
 };
 
@@ -1335,7 +1339,8 @@ export type ReservationUpdateMutationPayload = {
   pk?: Maybe<Scalars['Int']>;
   priority?: Maybe<Scalars['Int']>;
   reservation?: Maybe<ReservationType>;
-  reserveeName?: Maybe<Scalars['String']>;
+  reserveeFirstName?: Maybe<Scalars['String']>;
+  reserveeLastName?: Maybe<Scalars['String']>;
   reserveePhone?: Maybe<Scalars['String']>;
 };
 
@@ -1897,6 +1902,46 @@ export function useCreateReservationMutation(baseOptions?: Apollo.MutationHookOp
 export type CreateReservationMutationHookResult = ReturnType<typeof useCreateReservationMutation>;
 export type CreateReservationMutationResult = Apollo.MutationResult<CreateReservationMutation>;
 export type CreateReservationMutationOptions = Apollo.BaseMutationOptions<CreateReservationMutation, CreateReservationMutationVariables>;
+export const UpdateReservationDocument = gql`
+    mutation updateReservation($input: ReservationUpdateMutationInput!) {
+  updateReservation(input: $input) {
+    reservation {
+      pk
+      calendarUrl
+    }
+    errors {
+      field
+      messages
+    }
+  }
+}
+    `;
+export type UpdateReservationMutationFn = Apollo.MutationFunction<UpdateReservationMutation, UpdateReservationMutationVariables>;
+
+/**
+ * __useUpdateReservationMutation__
+ *
+ * To run a mutation, you first call `useUpdateReservationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateReservationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateReservationMutation, { data, loading, error }] = useUpdateReservationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateReservationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateReservationMutation, UpdateReservationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateReservationMutation, UpdateReservationMutationVariables>(UpdateReservationDocument, options);
+      }
+export type UpdateReservationMutationHookResult = ReturnType<typeof useUpdateReservationMutation>;
+export type UpdateReservationMutationResult = Apollo.MutationResult<UpdateReservationMutation>;
+export type UpdateReservationMutationOptions = Apollo.BaseMutationOptions<UpdateReservationMutation, UpdateReservationMutationVariables>;
 export const ReservationUnitDocument = gql`
     query ReservationUnit($pk: Int!) {
   reservationUnitByPk(pk: $pk) {
@@ -2224,6 +2269,13 @@ export type CreateReservationMutationVariables = Exact<{
 
 
 export type CreateReservationMutation = { __typename?: 'Mutation', createReservation?: { __typename?: 'ReservationCreateMutationPayload', pk?: number | null | undefined, errors?: Array<{ __typename?: 'ErrorType', field: string, messages: Array<string> } | null | undefined> | null | undefined } | null | undefined };
+
+export type UpdateReservationMutationVariables = Exact<{
+  input: ReservationUpdateMutationInput;
+}>;
+
+
+export type UpdateReservationMutation = { __typename?: 'Mutation', updateReservation?: { __typename?: 'ReservationUpdateMutationPayload', reservation?: { __typename?: 'ReservationType', pk?: number | null | undefined, calendarUrl?: string | null | undefined } | null | undefined, errors?: Array<{ __typename?: 'ErrorType', field: string, messages: Array<string> } | null | undefined> | null | undefined } | null | undefined };
 
 export type ReservationUnitQueryVariables = Exact<{
   pk: Scalars['Int'];

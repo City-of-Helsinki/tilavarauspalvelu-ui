@@ -83,7 +83,7 @@ const SpaceHead = ({
               <Prop $disabled={!unit}>
                 <IconLocation />{" "}
                 {unit ? (
-                  <Link to={`/unit/${unit?.pk}`}>{unit?.name}</Link>
+                  <Link to={`/unit/${unit?.pk}`}>{unit?.nameFi}</Link>
                 ) : (
                   t("SpaceEditor.noUnit")
                 )}
@@ -92,7 +92,11 @@ const SpaceHead = ({
                 <IconGroup /> {maxPersons || t("SpaceEditor.noMaxPersons")}
               </Prop>
               <Prop $disabled={!surfaceArea}>
-                {`${surfaceArea} m²` || t("SpaceEditor.noSurfaceArea")}
+                {`${
+                  surfaceArea
+                    ? `${surfaceArea} m²`
+                    : t("SpaceEditor.noSurfaceArea")
+                }`}
               </Prop>
             </Props>
           </div>

@@ -538,7 +538,8 @@ type RecurringReservationType {
 }
 
 input ReservationCreateMutationInput {
-  reserveeName: String
+  reserveeFirstName: String
+  reserveeLastName: String
   reserveePhone: String
   name: String
   description: String
@@ -553,7 +554,8 @@ input ReservationCreateMutationInput {
 
 type ReservationCreateMutationPayload {
   pk: Int
-  reserveeName: String
+  reserveeFirstName: String
+  reserveeLastName: String
   reserveePhone: String
   name: String
   description: String
@@ -582,7 +584,8 @@ enum ReservationPriority {
 }
 
 type ReservationType implements Node {
-  reserveeName: String
+  reserveeFirstName: String
+  reserveeLastName: String
   reserveePhone: String
   name: String
   description: String
@@ -695,15 +698,15 @@ input ReservationUnitCreateMutationInput {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
@@ -748,15 +751,15 @@ type ReservationUnitCreateMutationPayload {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
@@ -879,15 +882,15 @@ input ReservationUnitUpdateMutationInput {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
@@ -932,15 +935,15 @@ type ReservationUnitUpdateMutationPayload {
   reservationUnitTypePk: Int
   surfaceArea: Float
   bufferTimeBetweenReservations: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
@@ -953,7 +956,8 @@ type ReservationUnitUpdateMutationPayload {
 
 input ReservationUpdateMutationInput {
   pk: Int!
-  reserveeName: String
+  reserveeFirstName: String
+  reserveeLastName: String
   reserveePhone: String
   name: String
   description: String
@@ -968,7 +972,8 @@ input ReservationUpdateMutationInput {
 
 type ReservationUpdateMutationPayload {
   pk: Int
-  reserveeName: String
+  reserveeFirstName: String
+  reserveeLastName: String
   reserveePhone: String
   name: String
   description: String
@@ -1184,12 +1189,12 @@ input SpaceCreateMutationInput {
   maxPersons: Int
   code: String
   unitPk: Int
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   nameFi: String!
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   clientMutationId: String
 }
 
@@ -1207,12 +1212,12 @@ type SpaceCreateMutationPayload {
   maxPersons: Int
   code: String
   unitPk: Int
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -1283,12 +1288,12 @@ input SpaceUpdateMutationInput {
   maxPersons: Int
   code: String
   unitPk: Int
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   clientMutationId: String
 }
 
@@ -1306,12 +1311,12 @@ type SpaceUpdateMutationPayload {
   maxPersons: Int
   code: String
   unitPk: Int
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -1410,15 +1415,15 @@ input UnitUpdateMutationInput {
   webPage: String
   email: String
   phone: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   shortDescriptionFi: String
   shortDescriptionEn: String
   shortDescriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   clientMutationId: String
 }
 
@@ -1428,15 +1433,15 @@ type UnitUpdateMutationPayload {
   webPage: String
   email: String
   phone: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   shortDescriptionFi: String
   shortDescriptionEn: String
   shortDescriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
