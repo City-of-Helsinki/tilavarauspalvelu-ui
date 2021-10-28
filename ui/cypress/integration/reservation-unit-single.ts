@@ -78,14 +78,12 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
   Cypress.config("defaultCommandTimeout", 20000);
 
   beforeEach(() => {
-    cy.visit("/reservation-unit/single/36");
+    cy.visit("/reservation-unit/single/48");
   });
 
-  // it("displays default elements", () => {
-  //   cy.get("h1").should("contain", "Pukinmäen nuorisotalon keittiö");
-  // });
-
   it("allows making a reservation", () => {
+    cy.get("h1").should("contain", "Pukinmäen nuorisotalon keittiö");
+
     drawReservation();
 
     reservationSubmitButton().click();
@@ -200,9 +198,6 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
 
     cancelButton().click();
 
-    cy.url().should(
-      "eq",
-      "https://local-tilavaraus.hel.fi:3000/reservation-unit/single/36"
-    );
+    cy.url().should("contain", "/reservation-unit/single/48");
   });
 });

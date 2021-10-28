@@ -45,12 +45,6 @@ describe("application", () => {
       cy.intercept("GET", "/v1/application/138/*", json).as("applicationPage1");
     });
 
-    cy.fixture("v1/parameters/reservation_unit_type").then((json) => {
-      cy.intercept("GET", "/v1/parameters/reservation_unit_type/*", json).as(
-        "reservationUnitType"
-      );
-    });
-
     cy.fixture("v1/parameters/ability_group").then((json) => {
       cy.intercept("GET", "/v1/parameters/ability_group/*", json).as(
         "abilityGroup"
@@ -96,7 +90,6 @@ describe("application", () => {
         "@purpose",
         "@ageGroup",
         "@abilityGroup",
-        "@reservationUnitType",
       ],
       { timeout: 20000 }
     );

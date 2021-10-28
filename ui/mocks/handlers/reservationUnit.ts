@@ -1,5 +1,5 @@
 import { addDays } from "date-fns";
-import { graphql } from "msw";
+import { graphql, rest } from "msw";
 import {
   OpeningTimesType,
   Query,
@@ -12,6 +12,7 @@ import {
   ReservationUnitImageType,
   ReservationUnitTypeConnection,
 } from "../../modules/gql-types";
+import { Parameter } from "../../modules/types";
 import { toApiDate } from "../../modules/util";
 
 const selectedReservationUnitQuery = graphql.query<
@@ -26,7 +27,7 @@ const selectedReservationUnitQuery = graphql.query<
     contactInformationEn: null,
     contactInformationSv: null,
     id: "UmVzZXJ2YXRpb25Vbml0QnlQa1R5cGU6MzY=",
-    pk: 36,
+    pk: 48,
     nameFi: "Pukinmäen nuorisotalon keittiö FI",
     nameEn: "Pukinmäen nuorisotalon keittiö EN",
     nameSv: "Pukinmäen nuorisotalon keittiö SV",
@@ -229,7 +230,7 @@ const openingHoursQuery = graphql.query<
             startTime: "09:00:00",
             endTime: "21:00:00",
             state: "open",
-            perioids: null,
+            periods: null,
           })),
         },
         reservations: [
@@ -380,7 +381,7 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         uuid: "fwaiofmawodiegnmaiwoeng",
         isDraft: false,
         id: "UmVzZXJ2YXRpb25Vbml0VHlwZTozNg==",
-        pk: 36,
+        pk: 48,
         nameFi: "Pukinmäen nuorisotalon sali Fi",
         nameEn: "Pukinmäen nuorisotalon sali En",
         nameSv: "Pukinmäen nuorisotalon sali Sv",
@@ -469,6 +470,12 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
   },
 };
 
+const reservationUnitTypeData: Parameter[] = [
+  { id: 4, name: "Tilan tyyppi" },
+  { id: 1, name: "Äänitysstudio" },
+  { id: 2, name: "Kokoustila" },
+];
+
 const relatedReservationUnits = graphql.query<Query, QueryReservationUnitsArgs>(
   "RelatedReservationUnits",
   (req, res, ctx) => {
@@ -480,8 +487,16 @@ const relatedReservationUnits = graphql.query<Query, QueryReservationUnitsArgs>(
   }
 );
 
+const reservationUnitTypes = rest.get<Parameter[]>(
+  "http://localhost:8000/v1/parameters/reservation_unit_type/",
+  (req, res, ctx) => {
+    return res(ctx.json(reservationUnitTypeData));
+  }
+);
+
 export const reservationUnitHandlers = [
   selectedReservationUnitQuery,
   openingHoursQuery,
   relatedReservationUnits,
+  reservationUnitTypes,
 ];

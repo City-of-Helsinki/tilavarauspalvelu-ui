@@ -6,17 +6,57 @@ export type TranslationObject = {
 
 export type Language = "fi" | "en" | "sv";
 
+export type ApplicationRoundStatus =
+  | "draft"
+  | "in_review"
+  | "review_done"
+  | "allocated"
+  | "handled"
+  | "validated"
+  | "approved";
+
+export type CustomerType = "business" | "nonprofit" | "individual";
+
+export type ApplicationRoundBasket = {
+  id: number;
+  name: string;
+  purposeIds: number[];
+  mustBeMainPurposeOfApplicant: boolean;
+  customerType: CustomerType[] | null;
+  ageGroupIds: number[];
+  allocationPercentage: number;
+  orderNumber: number;
+  homeCityId: number | null;
+};
+
+export type ApplicationRoundAggregatedData = {
+  totalHourCapacity: number;
+  totalReservationDuration: number;
+  allocationDurationTotal: number;
+  allocationResultEventsCount: number;
+};
+
 export type ApplicationRound = {
   id: number;
   name: string;
+  aggregatedData: ApplicationRoundAggregatedData;
   reservationUnitIds: number[];
   applicationPeriodBegin: string;
   applicationPeriodEnd: string;
   reservationPeriodBegin: string;
   reservationPeriodEnd: string;
+  publicDisplayBegin: string;
+  publicDisplayEnd: string;
   purposeIds: number[];
-  criteria: string;
+  serviceSectorId: number;
+  applicationRoundBaskets: ApplicationRoundBasket[];
+  status: ApplicationRoundStatus;
+  statusTimestamp: string;
+  allocating: boolean;
+  isAdmin: boolean;
   approvedBy: string;
+  applicationsSent: boolean;
+  criteria: string;
 };
 
 export type Space = {
