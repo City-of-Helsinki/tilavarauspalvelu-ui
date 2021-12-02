@@ -272,75 +272,46 @@ const Reservation = ({ reservation }: Props): JSX.Element => {
             {t("common:sendFeedback")}
           </a>
         </Paragraph>
-        <AccordionContainer>
-          <TermContainer>
-            <Accordion heading={t("reservations:reservationInfo")}>
-              <Paragraph data-testid="reservation__detail--name">
-                <Strong>{t("reservationCalendar:label.name")}</Strong>
-                <span>{reservation.name}</span>
-              </Paragraph>
-              <Paragraph data-testid="reservation__detail--reserveeName">
-                <Strong>{t("reservationCalendar:label.reserveeName")}</Strong>
-                <span>
-                  {`${reservation.reserveeFirstName || ""} ${
-                    reservation.reserveeLastName || ""
-                  }`.trim()}
-                </span>
-              </Paragraph>
-              <Paragraph data-testid="reservation__detail--description">
-                <Strong>{t("reservationCalendar:label.description")}</Strong>
-                <span>{reservation.description}</span>
-              </Paragraph>
-              <Paragraph data-testid="reservation__detail--date">
-                <Strong>
-                  {t("reservationCalendar:label.reservationDate")}
-                </Strong>
-                <span>
-                  {capitalize(
-                    `${beginDate} ${beginTime} -${
-                      endDate !== beginDate ? ` ${endDate}` : ""
-                    } ${endTime}`
+        {getTranslation(reservationUnit, "additionalInstructions") && (
+          <AccordionContainer>
+            <TermContainer>
+              <Accordion heading={t("reservations:reservationInfo")}>
+                {getTranslation(reservationUnit, "additionalInstructions")}
+              </Accordion>
+            </TermContainer>
+          </AccordionContainer>
+        )}
+        {getTranslation(reservationUnit, "termsOfUse") && (
+          <AccordionContainer>
+            <TermContainer>
+              <Accordion
+                initiallyOpen={false}
+                heading={t("reservationCalendar:heading.termsOfUse")}
+              >
+                <Sanitize
+                  html={getTranslation(reservationUnit, "termsOfUse")}
+                />
+              </Accordion>
+            </TermContainer>
+          </AccordionContainer>
+        )}
+        {getTranslation(reservationUnit.serviceSpecificTerms, "text") && (
+          <AccordionContainer>
+            <TermContainer>
+              <Accordion
+                initiallyOpen={false}
+                heading={t("reservationCalendar:heading.resourceTerms")}
+              >
+                <Sanitize
+                  html={getTranslation(
+                    reservationUnit.serviceSpecificTerms,
+                    "text"
                   )}
-                </span>
-              </Paragraph>
-              <Paragraph data-testid="reservation__detail--unit">
-                <Strong>
-                  {t("reservationCalendar:label.reservationSpace")}
-                </Strong>
-                <span>{getTranslation(reservationUnit, "name")}</span>
-              </Paragraph>
-              <Paragraph data-testid="reservation__detail--phone">
-                <Strong>{t("common:phone")}</Strong>
-                <span>{reservation.reserveePhone}</span>
-              </Paragraph>
-            </Accordion>
-          </TermContainer>
-        </AccordionContainer>
-        <AccordionContainer>
-          <TermContainer>
-            <Accordion
-              initiallyOpen={false}
-              heading={t("reservationCalendar:heading.termsOfUse")}
-            >
-              <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
-            </Accordion>
-          </TermContainer>
-        </AccordionContainer>
-        <AccordionContainer>
-          <TermContainer>
-            <Accordion
-              initiallyOpen={false}
-              heading={t("reservationCalendar:heading.resourceTerms")}
-            >
-              <Sanitize
-                html={getTranslation(
-                  reservationUnit.serviceSpecificTerms,
-                  "text"
-                )}
-              />
-            </Accordion>
-          </TermContainer>
-        </AccordionContainer>
+                />
+              </Accordion>
+            </TermContainer>
+          </AccordionContainer>
+        )}
         <MediumButton
           variant="secondary"
           onClick={() => router.push(reservationsUrl)}
