@@ -3,7 +3,6 @@ import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
-import { parseISO } from "date-fns";
 import { isFinite } from "lodash";
 import {
   Accordion,
@@ -16,15 +15,11 @@ import { Trans, useTranslation } from "react-i18next";
 import { ReservationType } from "../../modules/gql-types";
 import apolloClient from "../../modules/apolloClient";
 import { GET_RESERVATION } from "../../modules/queries/reservation";
-import { fontRegular, H1, H3, Strong } from "../../modules/style/typography";
+import { fontRegular, H1, H3 } from "../../modules/style/typography";
 import { NarrowCenteredContainer } from "../../modules/style/layout";
 import { breakpoint } from "../../modules/style";
 import Ticket from "../../components/reservation/Ticket";
-import {
-  capitalize,
-  getTranslation,
-  reservationsUrl,
-} from "../../modules/util";
+import { getTranslation, reservationsUrl } from "../../modules/util";
 import { TwoColumnContainer } from "../../components/common/common";
 import { MediumButton } from "../../styles/util";
 import Sanitize from "../../components/common/Sanitize";
@@ -156,24 +151,6 @@ const Reservation = ({ reservation }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const reservationUnit = reservation.reservationUnits[0];
-
-  const { begin, end } = reservation;
-
-  const beginDate = t("common:dateWithWeekday", {
-    date: begin && parseISO(begin),
-  });
-
-  const beginTime = t("common:timeWithPrefix", {
-    date: begin && parseISO(begin),
-  });
-
-  const endDate = t("common:dateWithWeekday", {
-    date: end && parseISO(end),
-  });
-
-  const endTime = t("common:time", {
-    date: end && parseISO(end),
-  });
 
   const isReservationCancelled = reservation.state === "CANCELLED";
   const ticketState = isReservationCancelled ? "error" : "complete";
