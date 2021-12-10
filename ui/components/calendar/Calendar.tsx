@@ -45,6 +45,7 @@ type Props = {
   onSelecting?: ({ start, end }: CalendarEvent) => void;
   onEventDrop?: (event: CalendarEvent) => void;
   onEventResize?: (event: CalendarEvent) => void;
+  onSelectSlot?: (event: CalendarEvent) => void;
   draggableAccessor?: (event: CalendarEvent) => boolean;
   resizableAccessor?: (event: CalendarEvent) => boolean;
   toolbarComponent?: React.ReactNode;
@@ -210,6 +211,9 @@ const StyledCalendar = styled(BigCalendar)<{
     }
 
     .rbc-day-slot {
+      .rbc-events-container {
+        margin: 0;
+      }
       .rbc-timeslot-group {
         .rbc-time-slot.rbc-timeslot-inactive {
           border-top: none;
@@ -227,9 +231,29 @@ const StyledCalendar = styled(BigCalendar)<{
     }
   }
 
+  .rbc-time-view {
+    overflow-x: scroll;
+
+    @media (min-width: ${(props) => props.overflowBreakpoint}) {
+      overflow-x: auto;
+    }
+  }
+
   &.view-day {
     &:after {
-      height: 698px;
+      height: ${({ step }) => {
+        switch (step) {
+          case 15:
+            return "888px";
+          case 30:
+          default:
+            return "730px";
+        }
+      }};
+    }
+
+    .rbc-time-view {
+      overflow-x: unset !important;
     }
   }
 
@@ -247,17 +271,13 @@ const StyledCalendar = styled(BigCalendar)<{
   position: relative;
   margin-bottom: var(--spacing-l);
 
+  /* stylelint-disable */
   .rbc-time-view,
   .rbc-month-view {
     background-color: var(--color-white);
     border-color: var(--color-black-30);
     position: relative;
-    overflow-x: scroll;
     width: 100%;
-
-    @media (min-width: ${(props) => props.overflowBreakpoint}) {
-      overflow-x: auto;
-    }
   }
 
   .rbc-month-view {
@@ -322,6 +342,7 @@ const Calendar = ({
   onSelectEvent = () => {},
   onEventDrop = () => {},
   onEventResize = () => {},
+  onSelectSlot = () => {},
   draggableAccessor = () => false,
   resizableAccessor = () => false,
   showToolbar = false,
@@ -354,6 +375,7 @@ const Calendar = ({
       className={`view-${viewType}`}
       components={{ toolbar: toolbarComponent }}
       onSelecting={onSelecting}
+      onSelectSlot={onSelectSlot}
       selectable={reservable}
       onSelectEvent={onSelectEvent}
       onEventResize={onEventResize}

@@ -20,6 +20,7 @@ import {
   minuteSelectorToggle,
   reservationEvent,
   durationSelectorToggle,
+  notificationCloseButton,
 } from "model/reservation-creation";
 
 const matchEvent = (): void => {
@@ -291,6 +292,15 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       .siblings("ul")
       .children("li:nth-of-type(2)")
       .click();
+
+    notificationCloseButton().should("be.visible").click();
+
+    minuteSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(3)")
+      .click();
+
     matchEvent();
 
     durationSelectorToggle()
