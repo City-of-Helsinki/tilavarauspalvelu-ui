@@ -112,7 +112,7 @@ describe("Tilavaraus user reservations", () => {
 
     reservationPriceContainer()
       .should("contain.text", "Varaus 4 t")
-      .should("contain.text", "(alv %)")
+      // .should("contain.text", "(alv %)")
       .should("contain.text", "42,00\u00a0€");
 
     returnButton().click();
@@ -153,7 +153,7 @@ describe("Tilavaraus user reservations", () => {
 
     reservationPriceContainer()
       .should("contain.text", "Varaus 2 t")
-      .should("contain.text", "(alv %)")
+      // .should("contain.text", "(alv %)")
       .should("contain.text", "42,00\u00a0€");
 
     secondBackButton().should("exist");
