@@ -22,7 +22,6 @@ export const RESERVATION_UNIT = gql`
       lowestPrice
       highestPrice
       priceUnit
-      taxPercentage
       termsOfUseFi
       termsOfUseEn
       termsOfUseSv
