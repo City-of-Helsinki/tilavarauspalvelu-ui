@@ -320,10 +320,12 @@ export const RESERVATION_UNIT_EDITOR_PARAMETERS = gql`
   }
 `;
 
-// WIP, incomplete
 export const RESERVATIONUNIT_QUERY = gql`
   query reservationUnit($pk: Int) {
     reservationUnitByPk(pk: $pk) {
+      lowestPrice
+      highestPrice
+      priceUnit
       haukiUrl {
         url
       }
@@ -359,6 +361,9 @@ export const RESERVATIONUNIT_QUERY = gql`
       termsOfUseFi
       termsOfUseSv
       termsOfUseEn
+      additionalInstructionsFi
+      additionalInstructionsSv
+      additionalInstructionsEn
       contactInformationFi
       maxReservationDuration
       minReservationDuration
