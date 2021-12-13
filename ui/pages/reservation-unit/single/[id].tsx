@@ -27,6 +27,7 @@ import {
   areSlotsReservable,
   doReservationsCollide,
   getSlotPropGetter,
+  getTimeslots,
   isReservationLongEnough,
   isReservationShortEnough,
   isSlotWithinTimeframe,
@@ -353,9 +354,12 @@ const ReservationUnit = ({
   };
 
   const handleSlotClick = (
-    { start }: CalendarEvent,
+    { start, action },
     skipLengthCheck = false
   ): boolean => {
+    if (action !== "click") {
+      return false;
+    }
     const [hours, minutes] = reservationUnit.minReservationDuration.split(":");
 
     const end = new Date(start);
@@ -486,6 +490,9 @@ const ReservationUnit = ({
                     (event.state as ReservationStateWithInitial) === "INITIAL"
                   }
                   step={15}
+                  timeslots={getTimeslots(
+                    reservationUnit.reservationStartInterval
+                  )}
                   aria-hidden
                 />
               </div>

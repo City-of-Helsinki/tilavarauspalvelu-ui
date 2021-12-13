@@ -83,7 +83,7 @@ const selectedReservationUnitQuery = graphql.query<
     additionalInstructionsEn: null,
     additionalInstructionsSv: null,
     reservationStartInterval:
-      "INTERVAL_30_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices,
+      "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices,
     serviceSpecificTerms: {
       id: "VGVybXNPZlVzZVR5cGU6Mw==",
       termsType: "SERVICE_TERMS" as TermsOfUseTermsOfUseTermsTypeChoices,

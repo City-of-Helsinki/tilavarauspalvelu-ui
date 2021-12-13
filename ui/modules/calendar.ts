@@ -240,3 +240,17 @@ export const getSlotPropGetter =
         };
     }
   };
+
+export const getTimeslots = (
+  interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
+): number => {
+  switch (interval) {
+    case "INTERVAL_90_MINS":
+      return 3;
+    case "INTERVAL_60_MINS":
+    case "INTERVAL_30_MINS":
+    case "INTERVAL_15_MINS":
+    default:
+      return 2;
+  }
+};
