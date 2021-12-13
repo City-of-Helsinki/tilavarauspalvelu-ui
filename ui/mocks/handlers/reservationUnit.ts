@@ -67,7 +67,6 @@ const selectedReservationUnitQuery = graphql.query<
     lowestPrice: 20,
     highestPrice: 20,
     priceUnit: "PER_15_MINS" as ReservationUnitsReservationUnitPriceUnitChoices,
-    taxPercentage: 24,
     descriptionFi:
       "<p>Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkil&ouml;&auml;..</p> Fi",
     descriptionEn:

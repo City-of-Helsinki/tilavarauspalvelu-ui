@@ -417,7 +417,7 @@ const ReservationUnitReservation = ({
                 state={formStatus === "sent" ? "complete" : "incomplete"}
                 isFree={!getPrice(reservationUnit)}
                 reservationPrice={reservationData.price}
-                taxPercentage={reservationUnit.taxPercentage}
+                // taxPercentage={reservationUnit.taxPercentage}
               />
             </div>
             <div>

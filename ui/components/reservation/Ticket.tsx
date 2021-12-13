@@ -223,12 +223,16 @@ const Ticket = ({
                     {t("reservations:reservationDuration", {
                       duration: formatDurationMinutes(duration),
                     })}
-                  </Strongish>{" "}
-                  (
-                  {t("prices:taxPercentage", {
-                    count: taxPercentage,
-                  })}
-                  )
+                  </Strongish>
+                  {taxPercentage && (
+                    <span>
+                      (
+                      {t("prices:taxPercentage", {
+                        count: taxPercentage,
+                      })}
+                      )
+                    </span>
+                  )}
                 </div>
                 <div>
                   {reservationUnitPrices.highestPrice && (
