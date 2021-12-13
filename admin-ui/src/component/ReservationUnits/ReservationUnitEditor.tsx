@@ -34,6 +34,7 @@ import {
   ErrorType,
   Maybe,
   TermsOfUseTermsOfUseTermsTypeChoices,
+  ReservationUnitsReservationUnitPriceUnitChoices,
 } from "../../common/gql-types";
 import {
   CREATE_RESERVATION_UNIT,
@@ -53,6 +54,7 @@ import RichTextInput from "../RichTextInput";
 import { useNotification } from "../../context/NotificationContext";
 import ActivationGroup from "./ActivationGroup";
 import { assertApiAccessTokenIsAvailable } from "../../common/auth/util";
+import EnumSelect from "./EnumSelect";
 
 interface IProps {
   reservationUnitPk?: string;
@@ -178,6 +180,9 @@ const modifyEditorState = (state: State, edit: any) => ({
   hasChanges: true,
 });
 
+const i18nFields = (baseName: string): string[] =>
+  languages.map((l) => baseName + upperFirst(l));
+
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "dataLoaded": {
@@ -190,25 +195,18 @@ const reducer = (state: State, action: Action): State => {
         reservationUnitEdit: {
           ...(pick(reservationUnit, [
             "pk",
-            "nameFi",
-            "nameSv",
-            "nameEn",
             "unitPk",
-            "descriptionFi",
-            "descriptionEn",
-            "descriptionSv",
-            "termsOfUseFi",
-            "termsOfUseSv",
-            "termsOfUseEn",
             "requireIntroduction",
-            "descriptionFi",
-            "descriptionSv",
-            "descriptionEn",
             "surfaceArea",
             "maxPersons",
             "maxReservationDuration",
             "minReservationDuration",
             "requireIntroduction",
+            "priceUnit",
+            ...i18nFields("name"),
+            ...i18nFields("description"),
+            ...i18nFields("termsOfUse"),
+            ...i18nFields("additionalInstructions"),
           ]) as ReservationUnitEditorType),
           spacePks: reservationUnit?.spaces?.map((s) =>
             Number(s?.pk)
@@ -226,6 +224,8 @@ const reducer = (state: State, action: Action): State => {
           reservationUnitTypePk: get(reservationUnit, "reservationUnitType.pk"),
           cancellationTermsPk: get(reservationUnit, "cancellationTerms.pk"),
           cancellationRulePk: get(reservationUnit, "cancellationRule.pk"),
+          lowestPrice: Number(reservationUnit.lowestPrice || 0),
+          highestPrice: Number(reservationUnit.highestPrice || 0),
           serviceSpecificTermsPk: get(
             reservationUnit,
             "serviceSpecificTerms.pk"
@@ -404,6 +404,22 @@ const EditorColumns = styled.div`
   padding-bottom: var(--spacing-m);
 `;
 
+const DenseEditorColumns = styled.div`
+  display: block;
+  @media (min-width: ${breakpoints.m}) {
+    grid-template-columns: 1fr 1fr;
+    display: grid;
+  }
+  @media (min-width: ${breakpoints.xl}) {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    display: grid;
+  }
+  align-items: baseline;
+  gap: 1em;
+  margin-top: var(--spacing-s);
+  padding-bottom: var(--spacing-m);
+`;
+
 const Editor = styled.div`
   @media (min-width: ${breakpoints.m}) {
     margin: 0 var(--spacing-layout-m);
@@ -548,9 +564,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     const input = pick(
       {
         ...omitBy(state.reservationUnitEdit, isNull),
-        spacePks: state.reservationUnitEdit?.spacePks?.map(String),
-        resourcePks: state.reservationUnitEdit?.resourcePks?.map(String),
-        equipmentPks: state.reservationUnitEdit?.equipmentPks?.map(String),
+        surfaceArea: Number(state.reservationUnitEdit?.surfaceArea),
         isDraft: !publish,
         cancellationRulePk: state.reservationUnitEdit?.cancellationRulePk,
       },
@@ -558,21 +572,12 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "isDraft",
         "pk",
         "unitPk",
-        "nameFi",
-        "nameSv",
-        "nameEn",
-        "descriptionFi",
-        "descriptionSv",
-        "descriptionEn",
         "spacePks",
         "purposePks",
         "resourcePks",
         "equipmentPks",
         "surfaceArea",
         "maxPersons",
-        "termsOfUseFi",
-        "termsOfUseSv",
-        "termsOfUseEn",
         "maxReservationDuration",
         "minReservationDuration",
         "requireIntroduction",
@@ -582,6 +587,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "cancellationTermsPk",
         "serviceSpecificTermsPk",
         "cancellationRulePk",
+        "lowestPrice",
+        "highestPrice",
+        "priceUnit",
+        ...i18nFields("name"),
+        ...i18nFields("description"),
+        ...i18nFields("termsOfUse"),
+        ...i18nFields("additionalInstructions"),
       ]
     );
 
@@ -722,7 +734,10 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     );
   }
 
-  const isReadyToPublish = hasTranslations(["description", "name"], state);
+  const isReadyToPublish = hasTranslations(
+    ["description", "name", "additionalInstructions"],
+    state
+  );
 
   if (state.error) {
     return (
@@ -1055,6 +1070,57 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 </SelectionGroup>
               </ActivationGroup>
             </Accordion>
+            <Accordion heading={t("ReservationUnitEditor.pricing")}>
+              <DenseEditorColumns>
+                <NumberInput
+                  value={state.reservationUnitEdit.lowestPrice || 0}
+                  id="lowestPrice"
+                  label={t("ReservationUnitEditor.lowestPriceLabel")}
+                  helperText={t("ReservationUnitEditor.lowestPriceHelperText")}
+                  minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
+                  plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
+                  onChange={(e) => {
+                    setValue({
+                      lowestPrice: Number(e.target.value),
+                      highestPrice: Math.max(
+                        Number(e.target.value),
+                        state.reservationUnitEdit.highestPrice || 0
+                      ),
+                    });
+                  }}
+                  step={1}
+                  type="number"
+                  min={0}
+                />
+                <NumberInput
+                  value={state.reservationUnitEdit.highestPrice || 0}
+                  id="highestPrice"
+                  label={t("ReservationUnitEditor.highestPriceLabel")}
+                  helperText={t("ReservationUnitEditor.highestPriceHelperText")}
+                  minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
+                  plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
+                  onChange={(e) => {
+                    setValue({
+                      highestPrice: Number(e.target.value),
+                      lowestPrice: Math.min(
+                        Number(e.target.value),
+                        state.reservationUnitEdit.lowestPrice || 0
+                      ),
+                    });
+                  }}
+                  step={1}
+                  type="number"
+                  min={0}
+                />
+                <EnumSelect
+                  id="priceUnit"
+                  value={state.reservationUnitEdit.priceUnit as string}
+                  label={t("ReservationUnitEditor.priceUnitLabel")}
+                  type={ReservationUnitsReservationUnitPriceUnitChoices}
+                  onChange={(priceUnit) => setValue({ priceUnit })}
+                />
+              </DenseEditorColumns>
+            </Accordion>
 
             <Accordion heading={t("ReservationUnitEditor.termsInstructions")}>
               {languages.map((lang) => (
@@ -1106,6 +1172,41 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 );
               })}
             </Accordion>
+            <Accordion heading={t("ReservationUnitEditor.communication")}>
+              {languages.map((lang) => (
+                <TextInputWithPadding
+                  key={lang}
+                  required
+                  id={`additionalInstructions.${lang}`}
+                  label={t(
+                    "ReservationUnitEditor.additionalInstructionsLabel",
+                    {
+                      lang,
+                    }
+                  )}
+                  placeholder={t(
+                    "ReservationUnitEditor.additionalInstructionsPlaceholder",
+                    {
+                      language: t(`language.${lang}`),
+                    }
+                  )}
+                  value={get(
+                    state,
+                    `reservationUnitEdit.additionalInstructions${upperFirst(
+                      lang
+                    )}`,
+                    ""
+                  )}
+                  onChange={(e) =>
+                    setValue({
+                      [`additionalInstructions${upperFirst(lang)}`]:
+                        e.target.value,
+                    })
+                  }
+                />
+              ))}
+            </Accordion>
+
             <Accordion heading={t("ReservationUnitEditor.openingHours")}>
               {state.reservationUnit?.haukiUrl?.url ? (
                 <>
