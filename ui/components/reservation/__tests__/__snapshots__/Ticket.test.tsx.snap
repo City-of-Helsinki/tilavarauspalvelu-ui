@@ -147,7 +147,7 @@ exports[`renders correctly 3`] = `
         <span
           class="typography__Strongish-sc-yczr8v-1 pEndj"
         >
-          prices:priceFree
+          reservationUnit:priceFree
         </span>
       </div>
     </div>
@@ -213,7 +213,7 @@ exports[`renders correctly 4`] = `
         <span
           class="typography__Strongish-sc-yczr8v-1 pEndj"
         >
-          prices:priceFree
+          reservationUnit:priceFree
         </span>
       </div>
     </div>
