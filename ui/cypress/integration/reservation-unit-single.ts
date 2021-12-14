@@ -104,7 +104,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     reservationInfoPrice()
       .invoke("text")
       .then((text) => {
-        expect(text).to.contain("80\u00a0€");
+        expect(text).to.contain("100\u00a0€");
       });
 
     cy.checkA11y(null, null, null, true);
