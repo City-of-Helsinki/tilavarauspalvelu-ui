@@ -22,8 +22,13 @@ import { DataContext } from "../../context/DataContext";
 import { CREATE_RESERVATION } from "../../modules/queries/reservation";
 import { fontBold, fontMedium } from "../../modules/style/typography";
 import { ApplicationRound, Language, OptionType } from "../../modules/types";
-import { secondsToHms, toUIDate } from "../../modules/util";
+import {
+  convertHMSToSeconds,
+  secondsToHms,
+  toUIDate,
+} from "../../modules/util";
 import { getDurationOptions } from "../../modules/reservation";
+import { getPrice } from "../../modules/reservationUnit";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType;
@@ -149,7 +154,11 @@ const ReservationInfo = ({
       if (error || data?.createReservation?.errors?.length > 0) {
         setErrorMsg(t("reservationUnit:reservationFailed"));
       } else if (data) {
-        setReservation({ ...reservation, pk: data.createReservation.pk });
+        setReservation({
+          ...reservation,
+          pk: data.createReservation.pk,
+          price: data.createReservation.price,
+        });
         setIsRedirecting(true);
         router.push(
           `/reservation-unit/single/${reservationUnit.pk}/reservation`
@@ -219,9 +228,10 @@ const ReservationInfo = ({
           pk: null,
           begin: startDate.toISOString(),
           end: endDate.toISOString(),
+          price: null,
         });
       } else {
-        setReservation({ pk: null, begin: null, end: null });
+        setReservation({ pk: null, begin: null, end: null, price: null });
         resetReservation();
       }
 
@@ -254,7 +264,7 @@ const ReservationInfo = ({
   }, [date, hours, minutes, duration]);
 
   useEffect(() => {
-    setReservation({ pk: null, begin: null, end: null });
+    setReservation({ pk: null, begin: null, end: null, price: null });
   }, [setReservation]);
 
   const hourOptions = Array.from(Array(24).keys()).map((n) => ({
@@ -266,6 +276,17 @@ const ReservationInfo = ({
     label: String(n).padEnd(2, "0"),
     value: String(n),
   }));
+
+  const isReservable =
+    begin &&
+    end &&
+    isReservationLongEnough(
+      new Date(begin),
+      new Date(end),
+      reservationUnit.minReservationDuration
+    ) &&
+    !loading &&
+    !isRedirecting;
 
   return (
     <Wrapper>
@@ -318,26 +339,24 @@ const ReservationInfo = ({
         helper={t("reservationCalendar:durationFormatAssist")}
       />
       <PriceWrapper>
-        <div>{t("reservationUnit:price")}:</div>
-        <h3 data-testid="reservation__price--value">
-          {t("reservationUnit:priceFree")}
-        </h3>
+        {isReservable && (
+          <>
+            <div>{t("reservationUnit:price")}:</div>
+            <h3 data-testid="reservation__price--value">
+              {duration &&
+                getPrice(
+                  reservationUnit,
+                  convertHMSToSeconds(`0${duration.value}:00`) / 60
+                )}
+            </h3>
+          </>
+        )}
       </PriceWrapper>
       <MediumButton
         onClick={() => {
           createReservation();
         }}
-        disabled={
-          !begin ||
-          !end ||
-          !isReservationLongEnough(
-            new Date(begin),
-            new Date(end),
-            reservationUnit.minReservationDuration
-          ) ||
-          loading ||
-          isRedirecting
-        }
+        disabled={!isReservable}
         data-test="reservation__button--submit"
       >
         {t("reservationCalendar:makeReservation")}

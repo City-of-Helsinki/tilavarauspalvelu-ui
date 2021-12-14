@@ -22,6 +22,7 @@ import {
   durationSelectorToggle,
   notificationCloseButton,
 } from "model/reservation-creation";
+import { textWithIcon } from "model/search";
 
 const matchEvent = (): void => {
   reservationEvent()
@@ -91,7 +92,20 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
   it("allows making a reservation", () => {
     cy.get("h1").should("contain", "Pukinmäen nuorisotalon keittiö");
 
+    textWithIcon(1).contains("Seuraavat vapaat 1 tunti 30 minuuttia:");
+    textWithIcon(2).contains("20 € / 15 min");
+    textWithIcon(3).contains("Min 1 tunti");
+    textWithIcon(3).contains("Max 1 tunti 30 minuuttia");
+    textWithIcon(4).contains("Nuorisopalvelut Fi");
+    textWithIcon(5).contains("60 henkilöä");
+
     drawReservation();
+
+    reservationInfoPrice()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.contain("80\u00a0€");
+      });
 
     cy.checkA11y(null, null, null, true);
 
@@ -236,12 +250,6 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
         expect(value).to.eq(today);
       });
 
-    reservationInfoPrice()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("Maksuton");
-      });
-
     dateSelector()
       .parent()
       .find('button[aria-label="Valitse päivämäärä"]')
@@ -309,6 +317,12 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       .children("li:nth-of-type(2)")
       .click();
     matchEvent();
+
+    reservationInfoPrice()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.contain("100\u00a0€");
+      });
 
     cy.checkA11y(null, null, null, true);
   });

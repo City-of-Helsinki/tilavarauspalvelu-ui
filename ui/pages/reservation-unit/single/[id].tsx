@@ -13,7 +13,6 @@ import Sanitize from "../../../components/common/Sanitize";
 import { breakpoint } from "../../../modules/style";
 import RelatedUnits from "../../../components/reservation-unit/RelatedUnits";
 import useReservationUnitsList from "../../../hooks/useReservationUnitList";
-import StartApplicationBar from "../../../components/common/StartApplicationBar";
 import { AccordionWithState as Accordion } from "../../../components/common/Accordion";
 import apolloClient from "../../../modules/apolloClient";
 import Map from "../../../components/Map";
@@ -58,7 +57,6 @@ type Props = {
   reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
   activeApplicationRounds: ApplicationRound[];
-  viewType: "recurring" | "single";
 };
 
 type WeekOptions = "day" | "week" | "month";
@@ -275,7 +273,6 @@ const ReservationUnit = ({
   reservationUnit,
   relatedReservationUnits,
   activeApplicationRounds,
-  viewType = "single", // TODO get rid of
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -430,7 +427,7 @@ const ReservationUnit = ({
         reservationUnit={reservationUnit}
         activeOpeningTimes={activeOpeningTimes}
         reservationUnitList={reservationUnitList}
-        viewType={viewType}
+        viewType="single"
         calendarRef={calendarRef}
       />
       <Container>
@@ -450,8 +447,7 @@ const ReservationUnit = ({
             <Address reservationUnit={reservationUnit} />
           </div>
         </TwoColumnLayout>
-        {viewType === "single" &&
-          reservationUnit.minReservationDuration &&
+        {reservationUnit.minReservationDuration &&
           reservationUnit.maxReservationDuration && (
             <CalendarWrapper ref={calendarRef}>
               <StyledH2>{t("reservations:reservationCalendar")}</StyledH2>
@@ -565,17 +561,12 @@ const ReservationUnit = ({
               <RelatedUnits
                 reservationUnitList={reservationUnitList}
                 units={relatedReservationUnits}
-                viewType={viewType}
+                viewType="single"
               />
             </BottomContainer>
           </>
         )}
       </BottomWrapper>
-      {viewType === "recurring" && (
-        <StartApplicationBar
-          count={reservationUnitList.reservationUnits.length}
-        />
-      )}
     </Wrapper>
   ) : null;
 };
