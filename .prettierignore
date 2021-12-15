@@ -1,4 +1,4 @@
 # generated files
 tilavaraus.graphql
 admin-ui/src/common/gql-types.ts
-ui/modules/gql-types
+ui/modules/gql-types.ts
