@@ -472,6 +472,12 @@ type Mutation {
   updateReservationUnit(
     input: ReservationUnitUpdateMutationInput!
   ): ReservationUnitUpdateMutationPayload
+  createReservationUnitImage(
+    input: ReservationUnitImageCreateMutationInput!
+  ): ReservationUnitImageCreateMutationPayload
+  deleteReservationUnitImage(
+    input: ReservationUnitImageDeleteMutationInput!
+  ): ReservationUnitImageDeleteMutationPayload
   createPurpose(
     input: PurposeCreateMutationInput!
   ): PurposeCreateMutationPayload
@@ -891,6 +897,14 @@ type Query {
     last: Int = null
     termsType: String = null
   ): TermsOfUseTypeConnection
+  taxPercentages(
+    offset: Int = null
+    before: String = null
+    after: String = null
+    first: Int = null
+    last: Int = null
+    value: Float = null
+  ): TaxPercentageTypeConnection
 }
 
 type RealEstateType implements Node {
@@ -1247,6 +1261,8 @@ type ReservationUnitByPkType implements Node {
   uuid: UUID!
   isDraft: Boolean!
   maxPersons: Int
+  bufferTimeBefore: Float
+  bufferTimeAfter: Float
 
   """
   Unit of the price
@@ -1262,11 +1278,12 @@ type ReservationUnitByPkType implements Node {
   Maximum price of the reservation unit
   """
   highestPrice: Decimal!
+  taxPercentage: TaxPercentageType
 
   """
   Determines the interval for the start time of the reservation. For example an
-  interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or
-  45. Possible values are interval_15_mins, interval_30_mins, interval_60_mins,
+  interval of 15 minutes means a reservation can begin at minutes 15, 30, 60, or
+  90. Possible values are interval_15_mins, interval_30_mins, interval_60_mins,
   interval_90_mins.
   """
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices!
@@ -1391,7 +1408,8 @@ input ReservationUnitCreateMutationInput {
   servicePks: [Int]
   reservationUnitTypePk: Int
   surfaceArea: Float
-  bufferTimeBetweenReservations: String
+  bufferTimeBefore: String
+  bufferTimeAfter: String
   cancellationRulePk: Int
   paymentTermsPk: String
   cancellationTermsPk: String
@@ -1419,21 +1437,22 @@ input ReservationUnitCreateMutationInput {
   interval_90_mins.
   """
   reservationStartInterval: String
+  taxPercentagePk: Int
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
   nameFi: String
   nameEn: String
   nameSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   clientMutationId: String
 }
 
@@ -1484,7 +1503,8 @@ type ReservationUnitCreateMutationPayload {
   isDraft: Boolean
   reservationUnitTypePk: Int
   surfaceArea: Float
-  bufferTimeBetweenReservations: String
+  bufferTimeBefore: String
+  bufferTimeAfter: String
   cancellationRulePk: Int
 
   """
@@ -1509,21 +1529,21 @@ type ReservationUnitCreateMutationPayload {
   interval_90_mins.
   """
   reservationStartInterval: String
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
   nameFi: String
   nameEn: String
   nameSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
 
   """
   May contain more than one error for same field.
@@ -1535,6 +1555,45 @@ type ReservationUnitCreateMutationPayload {
 
 type ReservationUnitHaukiUrlType {
   url: String
+}
+
+input ReservationUnitImageCreateMutationInput {
+  image: Upload
+  reservationUnitPk: Int!
+
+  """
+  Type of image. Value is one of image_type enum values: MAIN, GROUND_PLAN, MAP, OTHER.
+  """
+  imageType: String!
+  clientMutationId: String
+}
+
+type ReservationUnitImageCreateMutationPayload {
+  pk: Int
+  reservationUnitPk: Int
+
+  """
+  Type of image. Value is one of image_type enum values: MAIN, GROUND_PLAN, MAP, OTHER.
+  """
+  imageType: String
+
+  """
+  May contain more than one error for same field.
+  """
+  errors: [ErrorType]
+  reservationUnitImage: ReservationUnitImageType
+  clientMutationId: String
+}
+
+input ReservationUnitImageDeleteMutationInput {
+  pk: Int!
+  clientMutationId: String
+}
+
+type ReservationUnitImageDeleteMutationPayload {
+  deleted: Boolean
+  errors: String
+  clientMutationId: String
 }
 
 type ReservationUnitImageType {
@@ -1665,7 +1724,8 @@ type ReservationUnitType implements Node {
   isDraft: Boolean!
   maxPersons: Int
   surfaceArea: Int
-  bufferTimeBetweenReservations: Float
+  bufferTimeBefore: Float
+  bufferTimeAfter: Float
   cancellationRule: ReservationUnitCancellationRuleType
 
   """
@@ -1682,11 +1742,12 @@ type ReservationUnitType implements Node {
   Maximum price of the reservation unit
   """
   highestPrice: Decimal!
+  taxPercentage: TaxPercentageType
 
   """
   Determines the interval for the start time of the reservation. For example an
-  interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or
-  45. Possible values are interval_15_mins, interval_30_mins, interval_60_mins,
+  interval of 15 minutes means a reservation can begin at minutes 15, 30, 60, or
+  90. Possible values are interval_15_mins, interval_30_mins, interval_60_mins,
   interval_90_mins.
   """
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices!
@@ -1794,7 +1855,8 @@ input ReservationUnitUpdateMutationInput {
   servicePks: [Int]
   reservationUnitTypePk: Int
   surfaceArea: Float
-  bufferTimeBetweenReservations: String
+  bufferTimeBefore: String
+  bufferTimeAfter: String
   cancellationRulePk: Int
   paymentTermsPk: String
   cancellationTermsPk: String
@@ -1822,21 +1884,22 @@ input ReservationUnitUpdateMutationInput {
   interval_90_mins.
   """
   reservationStartInterval: String
+  taxPercentagePk: Int
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
   nameFi: String
   nameEn: String
   nameSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   clientMutationId: String
 }
 
@@ -1887,7 +1950,8 @@ type ReservationUnitUpdateMutationPayload {
   isDraft: Boolean
   reservationUnitTypePk: Int
   surfaceArea: Float
-  bufferTimeBetweenReservations: String
+  bufferTimeBefore: String
+  bufferTimeAfter: String
   cancellationRulePk: Int
 
   """
@@ -1912,21 +1976,21 @@ type ReservationUnitUpdateMutationPayload {
   interval_90_mins.
   """
   reservationStartInterval: String
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   contactInformationFi: String
   contactInformationEn: String
   contactInformationSv: String
   nameFi: String
   nameEn: String
   nameSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
 
   """
   May contain more than one error for same field.
@@ -2010,12 +2074,12 @@ input ResourceCreateMutationInput {
   """
   bufferTimeAfter: String
   isDraft: Boolean
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   clientMutationId: String
 }
 
@@ -2039,12 +2103,12 @@ type ResourceCreateMutationPayload {
   """
   bufferTimeAfter: String
   isDraft: Boolean
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
 
   """
   May contain more than one error for same field.
@@ -2148,12 +2212,12 @@ input ResourceUpdateMutationInput {
   """
   bufferTimeAfter: String
   isDraft: Boolean
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   clientMutationId: String
 }
 
@@ -2177,12 +2241,12 @@ type ResourceUpdateMutationPayload {
   """
   bufferTimeAfter: String
   isDraft: Boolean
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
 
   """
   May contain more than one error for same field.
@@ -2424,6 +2488,46 @@ enum state {
   DENIED
 }
 
+type TaxPercentageType implements Node {
+  """
+  The tax percentage for a price
+  """
+  value: Decimal!
+
+  """
+  The ID of the object
+  """
+  id: ID!
+  pk: Int
+}
+
+type TaxPercentageTypeConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+
+  """
+  Contains the nodes in this connection.
+  """
+  edges: [TaxPercentageTypeEdge]!
+}
+
+"""
+A Relay edge containing a `TaxPercentageType` and its cursor.
+"""
+type TaxPercentageTypeEdge {
+  """
+  The item at the end of the edge
+  """
+  node: TaxPercentageType
+
+  """
+  A cursor for use in pagination
+  """
+  cursor: String!
+}
+
 """
 An enumeration.
 """
@@ -2642,6 +2746,12 @@ type UnitUpdateMutationPayload {
   unit: UnitType
   clientMutationId: String
 }
+
+"""
+Create scalar that ignores normal serialization/deserialization, since
+that will be handled by the multipart request spec
+"""
+scalar Upload
 
 """
 Leverages the internal Python implementation of UUID (uuid.UUID) to provide native UUID objects
