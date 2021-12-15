@@ -28,7 +28,9 @@ export const RESERVATION_UNIT = gql`
       additionalInstructionsFi
       additionalInstructionsEn
       additionalInstructionsSv
-      reservationStartTimeInterval
+      bufferTimeBefore
+      bufferTimeAfter
+      reservationStartInterval
       serviceSpecificTerms {
         nameFi
         nameEn
