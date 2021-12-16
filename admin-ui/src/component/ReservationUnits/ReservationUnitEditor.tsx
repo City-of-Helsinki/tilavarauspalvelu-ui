@@ -8,7 +8,7 @@ import {
   Notification,
   NumberInput,
   RadioButton,
-  Select,
+  Select as HDSSelect,
   SelectionGroup,
   TextInput,
   TimeInput,
@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { languages, previewUrlPrefix } from "../../common/const";
+import Select from "./Select";
 import {
   Query,
   QueryReservationUnitByPkArgs,
@@ -143,11 +144,27 @@ const makeTermsOptions = (
 
   return [...options];
 };
+
 enum LoadingCompleted {
   "UNIT",
   "RESERVATION_UNIT",
   "PARAMS",
 }
+
+/*
+    INTERVAL_15_MINS: ["15 min välein"],
+    INTERVAL_30_MINS: ["30 min välein"],
+    INTERVAL_60_MINS: ["1 tunnin välein"],
+    INTERVAL_90_MINS: ["1,5 tunnin välein"],
+    */
+
+const durationOptions = [
+  { value: "00:15:00", label: "15 minuuttia" },
+  { value: "00:30:00", label: "30 minuuttia" },
+  { value: "01:00:00", label: "60 minuuttia" },
+  { value: "01:30:00", label: "90 minuuttia" },
+];
+
 const getInitialState = (reservationUnitPk: number): State => ({
   reservationUnitPk,
   loading: true,
@@ -231,6 +248,8 @@ const reducer = (state: State, action: Action): State => {
             "minReservationDuration",
             "reservationStartInterval",
             "requireIntroduction",
+            "bufferTimeBefore",
+            "bufferTimeAfter",
             "priceUnit",
             ...i18nFields("name"),
             ...i18nFields("description"),
@@ -548,7 +567,7 @@ const TextInputWithPadding = styled(TextInput)`
   padding-bottom: var(--spacing-m);
 `;
 
-const SelectWithPadding = styled(Select)`
+const SelectWithPadding = styled(HDSSelect)`
   padding-bottom: var(--spacing-m);
 `;
 
@@ -673,6 +692,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "lowestPrice",
         "highestPrice",
         "priceUnit",
+        "bufferTimeBefore",
+        "bufferTimeAfter",
         ...i18nFields("name"),
         ...i18nFields("description"),
         ...i18nFields("termsOfUse"),
@@ -839,6 +860,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   if (state.reservationUnitEdit === null) {
     return null;
   }
+
+  console.log("rendering with", state);
 
   return (
     <Wrapper>
@@ -1190,6 +1213,42 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       setValue({ reservationStartInterval })
                     }
                   />
+                </EditorColumns>
+                <EditorColumns>
+                  <ActivationGroup
+                    id="bufferTimeBeforeGroup"
+                    label={t("ReservationUnitEditor.befferTimeBefore")}
+                    initiallyOpen={Boolean(
+                      state.reservationUnitEdit.bufferTimeBefore
+                    )}
+                    onClose={() => setValue({ bufferTimeBefore: null })}
+                  >
+                    <Select
+                      id="bufferTimeBefore"
+                      options={durationOptions}
+                      label={t(
+                        "ReservationUnitEditor.bufferTimeBeforeDuration"
+                      )}
+                      onChange={(v) => setValue({ bufferTimeBefore: v })}
+                      value={state.reservationUnitEdit.bufferTimeBefore || ""}
+                    />
+                  </ActivationGroup>
+                  <ActivationGroup
+                    id="bufferTimeAfterGroup"
+                    label={t("ReservationUnitEditor.befferTimeAfter")}
+                    initiallyOpen={Boolean(
+                      state.reservationUnitEdit.bufferTimeAfter
+                    )}
+                    onClose={() => setValue({ bufferTimeAfter: null })}
+                  >
+                    <Select
+                      id="bufferTimeAfter"
+                      options={durationOptions}
+                      label={t("ReservationUnitEditor.bufferTimeAfterDuration")}
+                      onChange={(v) => setValue({ bufferTimeAfter: v })}
+                      value={state.reservationUnitEdit.bufferTimeAfter || ""}
+                    />
+                  </ActivationGroup>
                 </EditorColumns>
               </Accordion>
               <Accordion heading={t("ReservationUnitEditor.pricing")}>
