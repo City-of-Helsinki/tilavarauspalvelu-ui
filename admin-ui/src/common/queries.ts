@@ -281,6 +281,15 @@ export const RESERVATION_UNIT_EDITOR_PARAMETERS = gql`
       }
     }
 
+    taxPercentages {
+      edges {
+        node {
+          pk
+          value
+        }
+      }
+    }
+
     purposes {
       edges {
         node {
@@ -367,6 +376,7 @@ export const RESERVATIONUNIT_QUERY = gql`
       contactInformationFi
       maxReservationDuration
       minReservationDuration
+      reservationStartInterval
       images {
         imageType
         imageUrl
@@ -398,6 +408,9 @@ export const RESERVATIONUNIT_QUERY = gql`
         pk
       }
       serviceSpecificTerms {
+        pk
+      }
+      taxPercentage {
         pk
       }
     }
