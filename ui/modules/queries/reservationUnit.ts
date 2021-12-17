@@ -226,6 +226,8 @@ export const OPENING_HOURS = gql`
         end
         numPersons
         calendarUrl
+        bufferTimeBefore
+        bufferTimeAfter
       }
     }
   }

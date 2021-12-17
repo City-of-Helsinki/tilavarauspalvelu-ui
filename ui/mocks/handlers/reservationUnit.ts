@@ -1,4 +1,4 @@
-import { addDays } from "date-fns";
+import { addDays, endOfWeek, set } from "date-fns";
 import { graphql, rest } from "msw";
 import {
   OpeningTimesType,
@@ -35,6 +35,8 @@ const selectedReservationUnitQuery = graphql.query<
     nameFi: "Pukinmäen nuorisotalon keittiö FI",
     nameEn: "Pukinmäen nuorisotalon keittiö EN",
     nameSv: "Pukinmäen nuorisotalon keittiö SV",
+    bufferTimeBefore: "01:00:00",
+    bufferTimeAfter: "00:30:00",
     images: [
       {
         imageUrl:
@@ -83,7 +85,7 @@ const selectedReservationUnitQuery = graphql.query<
     additionalInstructionsEn: null,
     additionalInstructionsSv: null,
     reservationStartInterval:
-      "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices,
+      "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices,
     serviceSpecificTerms: {
       id: "VGVybXNPZlVzZVR5cGU6Mw==",
       termsType: "SERVICE_TERMS" as TermsOfUseTermsOfUseTermsTypeChoices,
@@ -263,22 +265,37 @@ const openingHoursQuery = graphql.query<
             pk: 5,
             state: "CREATED",
             priority: "A_200",
-            begin: "2021-10-27T12:50:31.521000+00:00",
-            end: "2021-10-27T13:50:35.521000+00:00",
+            begin: set(endOfWeek(new Date(), { weekStartsOn: 1 }), {
+              hours: 13,
+              minutes: 30,
+            }),
+            end: set(endOfWeek(new Date(), { weekStartsOn: 1 }), {
+              hours: 15,
+              minutes: 0,
+            }),
             numPersons: 3,
             calendarUrl:
               "http://localhost:8000/v1/reservation_calendar/5/?hash=aafe8cef803ea6aa3dc8c03307016b506554a62397a2c44828fc1d828fa7fee6",
+            bufferTimeBefore: "01:00:00",
+            bufferTimeAfter: "00:30:00",
           },
           {
             id: "UmV3ZXJ2YXRpb25UeXB3OjU=",
             pk: 6,
             state: "CREATED",
             priority: "A_200",
-            begin: "2021-11-27T12:50:31.521000+00:00",
-            end: "2021-11-27T13:50:35.521000+00:00",
+            begin: set(endOfWeek(new Date(), { weekStartsOn: 1 }), {
+              hours: 18,
+              minutes: 0,
+            }),
+            end: set(endOfWeek(new Date(), { weekStartsOn: 1 }), {
+              hours: 20,
+              minutes: 0,
+            }),
             numPersons: 3,
             calendarUrl:
               "http://localhost:8000/v1/reservation_calendar/5/?hash=aafe8cef803ea6aa3dc8c03307016b506554a62397a2c44828fc1d828fa7fee6",
+            bufferTimeAfter: "00:30:00",
           },
         ] as ReservationType[],
       },
