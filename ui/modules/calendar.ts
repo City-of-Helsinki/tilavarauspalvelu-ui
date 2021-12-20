@@ -164,7 +164,7 @@ export const doReservationsCollide = (
   return reservations.some((reservation) =>
     areIntervalsOverlapping(
       { start: new Date(reservation.begin), end: new Date(reservation.end) },
-      { start: addMinutes(start, 1), end: addMinutes(end, -1) }
+      { start, end }
     )
   );
 };
@@ -316,8 +316,8 @@ export const doesBufferCollide = (
   };
 
   const bufferedNewReservationInterval = {
-    start: addMinutes(bufferedNewReservation.start, 1),
-    end: addMinutes(bufferedNewReservation.end, -1),
+    start: bufferedNewReservation.start,
+    end: bufferedNewReservation.end,
   };
 
   return areIntervalsOverlapping(
