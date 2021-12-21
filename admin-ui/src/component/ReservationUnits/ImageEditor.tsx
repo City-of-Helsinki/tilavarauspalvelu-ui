@@ -15,7 +15,6 @@ import {
   ReservationUnitImageType,
   ReservationUnitsReservationUnitImageImageTypeChoices,
 } from "../../common/gql-types";
-import EnumSelect from "./EnumSelect";
 import { useNotification } from "../../context/NotificationContext";
 
 const Wrapper = styled.div`
@@ -95,9 +94,6 @@ const ImageEditor = ({
   const { setNotification } = useNotification();
   const { t } = useTranslation();
   const [images, setImages] = useState<ReservationUnitImageType[]>([]);
-  const [image, setImage] = useState<File | null>(null);
-  const [imageType, setImageType] =
-    useState<ReservationUnitsReservationUnitImageImageTypeChoices | null>(null);
 
   useQuery<Query, QueryReservationUnitByPkArgs>(RESERVATIONUNIT_IMAGES_QUERY, {
     variables: { pk: Number(reservationUnitPk) },
@@ -133,23 +129,20 @@ const ImageEditor = ({
     ReservationUnitImageDeleteMutationInput
   >(DELETE_IMAGE);
 */
-  function onChange(files: File[]) {
-    setImage(files[0]);
-  }
 
-  const addImage = () => {
-    if (!image || !imageType) return;
-
+  const addImage = (files: File[]) => {
+    const imageType =
+      images.length === 0
+        ? ReservationUnitsReservationUnitImageImageTypeChoices.Main
+        : ReservationUnitsReservationUnitImageImageTypeChoices.Other;
     create({
       variables: {
-        image,
+        image: files[0],
         reservationUnitPk,
-        imageType: imageType as string,
+        imageType,
       },
     }).then((a) => {
       if (!a.errors) {
-        setImage(null);
-        setImageType(null);
         const newImage =
           a.data?.createReservationUnitImage?.reservationUnitImage;
         if (newImage) {
@@ -180,32 +173,9 @@ const ImageEditor = ({
               dragAndDropInputLabel="tai"
               maxSize={15728640}
               infoText="info"
-              onChange={(f) => onChange(f)}
+              onChange={(files) => addImage(files)}
             />
           </FileInputContainer>
-          <EnumSelect
-            type={ReservationUnitsReservationUnitImageImageTypeChoices}
-            label={t("ImageEditor.imageType")}
-            id="imageType"
-            value=""
-            placeholder={t("common.select")}
-            disabled={image === null}
-            onChange={(type) => {
-              setImageType(
-                type as ReservationUnitsReservationUnitImageImageTypeChoices
-              );
-            }}
-          />
-          <Button
-            type="button"
-            disabled={imageType === null}
-            onClick={(e) => {
-              e.preventDefault();
-              addImage();
-            }}
-          >
-            {t("ImageEditor.addImage")}
-          </Button>
         </div>
       ) : (
         <>{t("ImageEditor.reservationUnitIsNotSaved")}</>
@@ -213,7 +183,14 @@ const ImageEditor = ({
       {images.map((i) => (
         <ReservationUnitImage>
           <Actions>
-            <span>{t(`imageType.${i.imageType}`)}</span>
+            {i.imageType ===
+            ReservationUnitsReservationUnitImageImageTypeChoices.Main ? (
+              <span>{t("ImageEditor.mainImage")}</span>
+            ) : (
+              <SmallButton variant="secondary">
+                {t("ImageEditor.useAsMainImage")}
+              </SmallButton>
+            )}
             <SmallButton variant="secondary">
               {t("ImageEditor.deleteImage")}
             </SmallButton>

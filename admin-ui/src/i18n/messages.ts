@@ -940,12 +940,8 @@ const translations: ITranslations = {
     errorLoadingImages: ["Kuvia ei saatu haettua"],
     addImage: ["Lisää kuva"],
     deleteImage: ["poista"],
-  },
-  imageType: {
-    GROUND_PLAN: ["Pohjapiirros"],
-    MAIN: ["Pääkuva"],
-    MAP: ["Kartta"],
-    OTHER: ["Muu"],
+    mainImage: ["Pääkuva"],
+    useAsMainImage: ["Käytä pääkuvana"],
   },
   priceUnit: {
     FIXED: ["Per kerta"],
