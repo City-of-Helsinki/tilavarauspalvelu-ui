@@ -2,24 +2,32 @@ import {
   ApolloClient,
   ApolloLink,
   fromPromise,
-  HttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+import { set } from "lodash";
+// eslint-disable-next-line
+
 import {
   getAccessToken,
   getApiAccessToken,
   updateApiAccessToken,
 } from "./auth/util";
 import { apiBaseUrl } from "./const";
+import { CustomFormData } from "./CustomFormData";
 
 const getNewToken = (): Promise<string> =>
   updateApiAccessToken(getAccessToken());
 
-const httpLink = new HttpLink({
+const uploadLinkOptions = {
   uri: `${apiBaseUrl}/graphql/`,
-});
+};
+
+set(uploadLinkOptions, "FormData", CustomFormData);
+
+const terminatingLink = createUploadLink(uploadLinkOptions);
 
 const authLink = setContext((ignore, { headers }) => {
   const token = getApiAccessToken();
@@ -71,7 +79,7 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: ApolloLink.from([errorLink, authLink, httpLink]),
+  link: ApolloLink.from([errorLink, authLink, terminatingLink]),
 });
 
 export default client;
