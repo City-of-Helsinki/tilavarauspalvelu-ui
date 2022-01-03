@@ -8,7 +8,6 @@ import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { set } from "lodash";
-// eslint-disable-next-line
 
 import {
   getAccessToken,

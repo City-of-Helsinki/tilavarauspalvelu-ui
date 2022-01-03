@@ -69,8 +69,6 @@ const FileInputContainer = styled.div`
   }
 `;
 
-// #accordion-32-content > div.sc-hQGFUq.iTdkNo > div.sc-gubKyX.hzvHKe > div > div.TextInput-module_inputWrapper__3Rvel.text-input_hds-text-input__input-wrapper__1OqYG > div > div.FileInput-module_dragAndDropHelperText__31Ljw
-
 const SmallButton = styled(Button)`
   border: 0;
   padding: 0;
@@ -121,14 +119,6 @@ const ImageEditor = ({
     Mutation,
     ReservationUnitImageCreateMutationInput
   >(CREATE_IMAGE);
-
-  /*
-  TODO, api does not provide pk yet.
-  const [delete] = useMutation<
-    Mutation,
-    ReservationUnitImageDeleteMutationInput
-  >(DELETE_IMAGE);
-*/
 
   const addImage = (files: File[]) => {
     const imageType =
