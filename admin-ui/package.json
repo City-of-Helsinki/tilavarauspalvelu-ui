@@ -18,6 +18,7 @@
     "@types/react-map-gl": "5.2.10",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.7",
+    "@types/apollo-upload-client": "^14.1.0",
     "apollo-link-token-refresh": "^0.3.2",
     "apollo-upload-client": "^17.0.0",
     "axios": "^0.21.1",
@@ -82,7 +83,6 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^2.2.0",
     "@graphql-codegen/typescript": "^2.2.2",
-    "@types/apollo-upload-client": "^14.1.0",
     "@types/jest-axe": "^3.5.1",
     "eslint-config-airbnb-typescript-prettier": "^4.1.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
