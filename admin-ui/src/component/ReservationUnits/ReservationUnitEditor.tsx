@@ -14,7 +14,7 @@ import {
   TimeInput,
 } from "hds-react";
 import i18next from "i18next";
-import { get, isNull, omitBy, pick, sumBy, uniq, upperFirst } from "lodash";
+import { get, omitBy, pick, sumBy, uniq, upperFirst } from "lodash";
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";
@@ -151,13 +151,6 @@ enum LoadingCompleted {
   "RESERVATION_UNIT",
   "PARAMS",
 }
-
-/*
-    INTERVAL_15_MINS: ["15 min välein"],
-    INTERVAL_30_MINS: ["30 min välein"],
-    INTERVAL_60_MINS: ["1 tunnin välein"],
-    INTERVAL_90_MINS: ["1,5 tunnin välein"],
-    */
 
 const durationOptions = [
   { value: "00:15:00", label: "15 minuuttia" },
@@ -664,10 +657,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   const createOrUpdateReservationUnit = async (publish: boolean) => {
     const input = pick(
       {
-        ...omitBy(state.reservationUnitEdit, isNull),
+        ...omitBy(state.reservationUnitEdit, (v) => v === ""),
         surfaceArea: Number(state.reservationUnitEdit?.surfaceArea),
         isDraft: !publish,
         cancellationRulePk: state.reservationUnitEdit?.cancellationRulePk,
+        priceUnit: state.reservationUnitEdit?.priceUnit?.toLocaleLowerCase(), /// due to api inconsistency
+        reservationStartInterval:
+          state.reservationUnitEdit?.reservationStartInterval?.toLocaleLowerCase(), /// due to api inconsistency
       },
       [
         "isDraft",
@@ -1221,7 +1217,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 <EditorColumns>
                   <ActivationGroup
                     id="bufferTimeBeforeGroup"
-                    label={t("ReservationUnitEditor.befferTimeBefore")}
+                    label={t("ReservationUnitEditor.bufferTimeBefore")}
                     initiallyOpen={Boolean(
                       state.reservationUnitEdit.bufferTimeBefore
                     )}
@@ -1239,7 +1235,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                   </ActivationGroup>
                   <ActivationGroup
                     id="bufferTimeAfterGroup"
-                    label={t("ReservationUnitEditor.befferTimeAfter")}
+                    label={t("ReservationUnitEditor.bufferTimeAfter")}
                     initiallyOpen={Boolean(
                       state.reservationUnitEdit.bufferTimeAfter
                     )}
