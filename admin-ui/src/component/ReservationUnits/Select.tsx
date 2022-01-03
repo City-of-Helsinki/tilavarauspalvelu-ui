@@ -6,7 +6,7 @@ import { OptionType } from "../../common/types";
 const StyledSelect = styled(HDSSelect)`
   padding-bottom: var(--spacing-m);
 `;
-const getSelectedOption = (options: OptionType[], value: string) =>
+const getSelectedOption = (options: OptionType[], value: string | number) =>
   options.find((o) => o.value === value) || {};
 
 const Select = ({
@@ -22,7 +22,7 @@ const Select = ({
   id: string;
   label: string;
   required?: boolean;
-  value: string;
+  value: string | number;
   onChange: (value: string) => void;
   options: OptionType[];
   placeholder?: string;

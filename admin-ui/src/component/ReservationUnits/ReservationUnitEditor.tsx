@@ -8,7 +8,6 @@ import {
   Notification,
   NumberInput,
   RadioButton,
-  Select as HDSSelect,
   SelectionGroup,
   TextInput,
   TimeInput,
@@ -561,10 +560,6 @@ const TextInputWithPadding = styled(TextInput)`
   padding-bottom: var(--spacing-m);
 `;
 
-const SelectWithPadding = styled(HDSSelect)`
-  padding-bottom: var(--spacing-m);
-`;
-
 const getSelectedOptions = (
   state: State,
   optionsPropertyName: string,
@@ -582,17 +577,6 @@ const getSelectedOptions = (
       .map((optionPk: any) => options.find((so: any) => so.value === optionPk))
       .filter(Boolean) as OptionType[]
   );
-};
-
-const getSelectedOption = (
-  state: State,
-  optionsPropertyName: string,
-  valuePropName: string
-): OptionType => {
-  const fullPropName = `reservationUnitEdit.${valuePropName}`;
-  const propValue = get(state, fullPropName);
-  const options = get(state, optionsPropertyName);
-  return options.find((o: OptionType) => o.value === propValue);
 };
 
 const getDuration = (duration: Maybe<string> | undefined): string => {
@@ -1028,28 +1012,24 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               </Accordion>
               <Accordion heading={t("ReservationUnitEditor.typesProperties")}>
                 <EditorColumns>
-                  <SelectWithPadding
+                  <Select
+                    id="reservationUnitType"
                     label={t(`ReservationUnitEditor.reservationUnitTypeLabel`)}
                     placeholder={t(
                       `ReservationUnitEditor.reservationUnitTypePlaceholder`
                     )}
                     options={state.reservationUnitTypeOptions}
-                    onChange={(unitType: unknown) => {
+                    onChange={(e) => {
                       setValue({
-                        reservationUnitTypePk: (unitType as OptionType).value,
+                        reservationUnitTypePk: e,
                       });
                     }}
-                    disabled={state.reservationUnitTypeOptions.length === 0}
                     helper={t(
                       `ReservationUnitEditor.reservationUnitTypeHelperText`
                     )}
-                    value={
-                      getSelectedOption(
-                        state,
-                        `reservationUnitTypeOptions`,
-                        `reservationUnitTypePk`
-                      ) || {}
-                    }
+                    value={Number(
+                      get(state.reservationUnitEdit, "reservationUnitTypePk")
+                    )}
                   />
                   <Combobox
                     multiselect
@@ -1308,21 +1288,20 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     type={ReservationUnitsReservationUnitPriceUnitChoices}
                     onChange={(priceUnit) => setValue({ priceUnit })}
                   />
-                  <SelectWithPadding
+                  <Select
+                    id="tacPercentage"
                     label={t(`ReservationUnitEditor.taxPercentageLabel`)}
                     options={state.taxPercentageOptions}
-                    onChange={(selectedVat: unknown) => {
+                    onChange={(selectedVat) => {
                       setValue({
-                        taxPercentagePk: (selectedVat as OptionType).value,
+                        taxPercentagePk: selectedVat,
                       });
                     }}
-                    disabled={state.taxPercentageOptions.length === 0}
                     value={
-                      getSelectedOption(
-                        state,
-                        `taxPercentageOptions`,
-                        `taxPercentagePk`
-                      ) || {}
+                      get(
+                        state.reservationUnitEdit,
+                        "taxPercentagePk"
+                      ) as number
                     }
                   />
                 </DenseEditorColumns>
@@ -1353,31 +1332,25 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                   {["serviceSpecific", "payment", "cancellation"].map(
                     (name) => {
                       const options = get(state, `${name}TermsOptions`);
+                      const propName = `${name}TermsPk`;
                       return (
-                        <SelectWithPadding
+                        <Select
+                          id={name}
                           key={name}
                           label={t(`ReservationUnitEditor.${name}TermsLabel`)}
                           placeholder={t(
                             `ReservationUnitEditor.${name}TermsPlaceholder`
                           )}
                           options={options}
-                          onChange={(selectedTerms: unknown) => {
+                          onChange={(selection) => {
                             setValue({
-                              [`${name}TermsPk`]: (selectedTerms as OptionType)
-                                .value,
+                              [propName]: selection,
                             });
                           }}
-                          disabled={options.length === 0}
                           helper={t(
                             `ReservationUnitEditor.${name}TermsHelperText`
                           )}
-                          value={
-                            getSelectedOption(
-                              state,
-                              `${name}TermsOptions`,
-                              `${name}TermsPk`
-                            ) || {}
-                          }
+                          value={get(state.reservationUnitEdit, propName)}
                         />
                       );
                     }
