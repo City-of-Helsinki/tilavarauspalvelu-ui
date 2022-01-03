@@ -57,6 +57,7 @@ import { useNotification } from "../../context/NotificationContext";
 import ActivationGroup from "./ActivationGroup";
 import { assertApiAccessTokenIsAvailable } from "../../common/auth/util";
 import EnumSelect from "./EnumSelect";
+import ImageEditor from "./ImageEditor";
 
 interface IProps {
   reservationUnitPk?: string;
@@ -1120,6 +1121,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     }
                   />
                 ))}
+                <ImageEditor
+                  reservationUnitPk={Number(state.reservationUnitPk)}
+                />
               </Accordion>
 
               <Accordion heading={t("ReservationUnitEditor.settings")}>

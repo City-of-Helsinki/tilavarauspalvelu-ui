@@ -28,7 +28,9 @@ export const RESERVATION_UNIT = gql`
       additionalInstructionsFi
       additionalInstructionsEn
       additionalInstructionsSv
-      reservationStartTimeInterval
+      bufferTimeBefore
+      bufferTimeAfter
+      reservationStartInterval
       serviceSpecificTerms {
         nameFi
         nameEn
@@ -224,6 +226,8 @@ export const OPENING_HOURS = gql`
         end
         numPersons
         calendarUrl
+        bufferTimeBefore
+        bufferTimeAfter
       }
     }
   }
