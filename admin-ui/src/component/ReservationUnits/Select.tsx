@@ -1,13 +1,11 @@
 import React from "react";
 import { Select as HDSSelect } from "hds-react";
-import styled from "styled-components";
 import { OptionType } from "../../common/types";
 
-const StyledSelect = styled(HDSSelect)`
-  padding-bottom: var(--spacing-m);
-`;
-const getSelectedOption = (options: OptionType[], value: string | number) =>
-  options.find((o) => o.value === value) || {};
+const getSelectedOption = (
+  options: OptionType[],
+  value: string | number
+): OptionType => options.find((o) => o.value === value) || ({} as OptionType);
 
 const Select = ({
   id,
@@ -23,20 +21,24 @@ const Select = ({
   label: string;
   required?: boolean;
   value: string | number;
-  onChange: (value: string) => void;
+  onChange: (value: string | number) => void;
   options: OptionType[];
   placeholder?: string;
   helper?: string;
 }): JSX.Element => {
   return (
-    <StyledSelect
+    <HDSSelect
+      style={{ paddingBottom: "var(--spacing-m)" }}
       id={id}
       label={label}
       placeholder={placeholder}
       options={options}
       required={required}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onChange={(e: any) => onChange(e.value)}
+      onChange={(e: OptionType) => {
+        if (e.value) {
+          onChange(e.value);
+        }
+      }}
       disabled={options.length === 0}
       helper={helper}
       value={getSelectedOption(options, value)}

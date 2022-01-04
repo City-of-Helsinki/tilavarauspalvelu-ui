@@ -1287,7 +1287,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     onChange={(priceUnit) => setValue({ priceUnit })}
                   />
                   <Select
-                    id="tacPercentage"
+                    id="taxPercentage"
                     label={t(`ReservationUnitEditor.taxPercentageLabel`)}
                     options={state.taxPercentageOptions}
                     onChange={(selectedVat) => {
