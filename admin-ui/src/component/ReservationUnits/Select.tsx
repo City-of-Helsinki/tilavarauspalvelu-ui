@@ -2,10 +2,14 @@ import React from "react";
 import { Select as HDSSelect } from "hds-react";
 import { OptionType } from "../../common/types";
 
+type NullableStringOrNumber = string | number | null;
+
 const getSelectedOption = (
   options: OptionType[],
-  value: string | number
-): OptionType => options.find((o) => o.value === value) || ({} as OptionType);
+  value: NullableStringOrNumber
+): OptionType => {
+  return options.find((o) => o.value === value) || ({} as OptionType);
+};
 
 const Select = ({
   id,
@@ -20,8 +24,8 @@ const Select = ({
   id: string;
   label: string;
   required?: boolean;
-  value: string | number;
-  onChange: (value: string | number) => void;
+  value: NullableStringOrNumber;
+  onChange: (value: NullableStringOrNumber) => void;
   options: OptionType[];
   placeholder?: string;
   helper?: string;
@@ -34,8 +38,9 @@ const Select = ({
       placeholder={placeholder}
       options={options}
       required={required}
+      defaultValue={null}
       onChange={(e: OptionType) => {
-        if (e.value) {
+        if (typeof e.value !== "undefined") {
           onChange(e.value);
         }
       }}
