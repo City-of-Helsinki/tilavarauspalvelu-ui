@@ -35,7 +35,6 @@ const DateTimeInput = ({
         minutesLabel="minutes"
         value={valueForTimeInput(value)}
         onChange={(e) => {
-          console.log("time changed", e.target.value);
           if (e.target.value.length !== 5) {
             return;
           }

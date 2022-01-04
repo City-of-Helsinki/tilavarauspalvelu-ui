@@ -377,7 +377,6 @@ export const valueForTimeInput = (from: string): string => {
 
 /* construct date from dateinput + time input */
 export const dateTime = (date: string, time: string): string => {
-  console.log("generating date from ", date, time);
   return parse(
     `${date} ${time || "12:00"}`,
     "dd.MM.yyyy HH:mm",
