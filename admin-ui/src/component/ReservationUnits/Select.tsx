@@ -38,7 +38,6 @@ const Select = ({
       placeholder={placeholder}
       options={options}
       required={required}
-      defaultValue={null}
       onChange={(e: OptionType) => {
         if (typeof e.value !== "undefined") {
           onChange(e.value);
