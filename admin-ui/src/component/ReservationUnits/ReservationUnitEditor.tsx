@@ -221,8 +221,10 @@ const withLoadingStatus = (
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const modifyEditorState = (state: State, edit: any) => ({
+const modifyEditorState = (
+  state: State,
+  edit: Partial<ReservationUnitEditorType>
+) => ({
   ...state,
   reservationUnitEdit: { ...state.reservationUnitEdit, ...edit },
   hasChanges: true,
@@ -359,12 +361,7 @@ const reducer = (state: State, action: Action): State => {
         ),
         cancellationRuleOptions: (
           action.parameters.reservationUnitCancellationRules?.edges || []
-        ).map((e) =>
-          makeOption({
-            pk: get(e, "node.pk", -1),
-            nameFi: get(e, "node.nameFi", "no-name"),
-          })
-        ),
+        ).map((e) => optionMaker(e)),
         metadataOptions: [nullOption].concat(
           (action.parameters.metadataSets?.edges || []).map((e) =>
             makeOption({
@@ -853,8 +850,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   if (state.reservationUnitEdit === null) {
     return null;
   }
-
-  console.log("rendering with", state);
 
   return (
     <Wrapper>
