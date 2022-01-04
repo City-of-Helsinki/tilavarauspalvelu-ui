@@ -18,7 +18,9 @@ import {
 import {
   OpeningTimesType,
   ReservationType,
+  ReservationUnitByPkType,
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
+  ReservationUnitType,
 } from "./gql-types";
 import {
   ApplicationEvent,
@@ -345,6 +347,7 @@ export const getEventBuffers = (
 ): CalendarEventBuffer[] => {
   const buffers: CalendarEventBuffer[] = [];
   events.forEach((event) => {
+    if (!event.begin || !event.end) return;
     const { bufferTimeBefore, bufferTimeAfter } = event;
     const begin = new Date(event.begin);
     const end = new Date(event.end);
@@ -370,4 +373,28 @@ export const getEventBuffers = (
   });
 
   return buffers;
+};
+
+export const isReservationUnitReservable = (
+  reservationUnit: ReservationUnitType | ReservationUnitByPkType,
+  now = new Date()
+): boolean => {
+  const isAfterReservationStart =
+    now >= new Date(reservationUnit.reservationBegins);
+  const isBeforeReservationEnd =
+    now <= new Date(reservationUnit.reservationEnds);
+  return (
+    (isAfterReservationStart || !reservationUnit.reservationBegins) &&
+    (isBeforeReservationEnd || !reservationUnit.reservationEnds)
+  );
+};
+
+export const isReservationStartInFuture = (
+  reservationUnit: ReservationUnitType | ReservationUnitByPkType,
+  now = new Date()
+): boolean => {
+  return (
+    !!reservationUnit.reservationBegins &&
+    now < new Date(reservationUnit.reservationBegins)
+  );
 };

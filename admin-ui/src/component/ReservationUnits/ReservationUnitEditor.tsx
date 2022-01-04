@@ -241,6 +241,10 @@ const reducer = (state: State, action: Action): State => {
             "maxReservationDuration",
             "minReservationDuration",
             "pk",
+            "reservationStartInterval",
+            "requireIntroduction",
+            "bufferTimeBefore",
+            "bufferTimeAfter",
             "priceUnit",
             "publishBegins",
             "publishEnds",
@@ -677,6 +681,15 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "spacePks",
         "taxPercentagePk",
         "unitPk",
+        "lowestPrice",
+        "highestPrice",
+        "priceUnit",
+        "bufferTimeBefore",
+        "bufferTimeAfter",
+        ...i18nFields("name"),
+        ...i18nFields("description"),
+        ...i18nFields("termsOfUse"),
+        ...i18nFields("additionalInstructions"),
       ]
     );
 
@@ -1396,7 +1409,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     onChange={(priceUnit) => setValue({ priceUnit })}
                   />
                   <Select
-                    id="tacPercentage"
+                    id="taxPercentage"
                     label={t(`ReservationUnitEditor.taxPercentageLabel`)}
                     options={state.taxPercentageOptions}
                     onChange={(selectedVat) => {
