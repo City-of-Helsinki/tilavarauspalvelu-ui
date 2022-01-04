@@ -1,4 +1,4 @@
-import { format, parse, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import i18next from "i18next";
 import trim from "lodash/trim";
 import upperFirst from "lodash/upperFirst";
@@ -363,23 +363,4 @@ export const filterData = <T>(data: T[], filters: DataFilterOption[]): T[] => {
       filters.filter((filter) => get(row, filter.key) === filter.value)
         .length === filters.length
   );
-};
-
-/* Convert api datetime to date required by date input, defaults to current date */
-export const valueForDateInput = (from: string): string => {
-  return formatDate(from || new Date().toISOString(), "d.M.yyyy") as string;
-};
-
-/* Convert api datetime to time required by time input,m defaults to current time */
-export const valueForTimeInput = (from: string): string => {
-  return formatDate(from || new Date().toISOString(), "HH:mm") as string;
-};
-
-/* construct date from dateinput + time input */
-export const dateTime = (date: string, time: string): string => {
-  return parse(
-    `${date} ${time || "12:00"}`,
-    "dd.MM.yyyy HH:mm",
-    new Date()
-  ).toISOString();
 };
