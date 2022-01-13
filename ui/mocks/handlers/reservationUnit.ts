@@ -247,6 +247,44 @@ const selectedReservationUnitQuery = graphql.query<
     reservationUnitByPk.maxReservationsPerUser = 30;
   }
 
+  if (req.variables.pk === 903) {
+    reservationUnitByPk.pk = 903;
+    reservationUnitByPk.metadataSet = {
+      id: "UmVzZXJ2YXRpb25NZXRhZGF0YVNldFR5cGU6MQ==",
+      name: "Test",
+      supportedFields: [
+        "reservee_type",
+        "reservee_first_name",
+        "reservee_last_name",
+        "reservee_organisation_name",
+        "reservee_phone",
+        "reservee_email",
+        "reservee_id",
+        "reservee_is_unregistered_association",
+        "reservee_address_street",
+        "reservee_address_city",
+        "reservee_address_zip",
+        "billing_first_name",
+        "billing_last_name",
+        "billing_phone",
+        "billing_email",
+        "billing_address_street",
+        "billing_address_city",
+        "billing_address_zip",
+        "home_city",
+        "age_group",
+        "applying_for_free_of_charge",
+        "free_of_charge_reason",
+        "name",
+        "description",
+        "num_persons",
+        "purpose",
+      ],
+      requiredFields: ["reservee_first_name", "billing_last_name"],
+      pk: 1,
+    };
+  }
+
   if (req.variables.pk === 999) {
     reservationUnitByPk.isDraft = true;
   }
@@ -268,8 +306,8 @@ const openingHoursQuery = graphql.query<
         openingHours: {
           openingTimes: Array.from(Array(100)).map((val, index) => ({
             date: toApiDate(addDays(new Date(), index)),
-            startTime: "09:00:00",
-            endTime: "21:00:00",
+            startTime: "07:00:00+00:00",
+            endTime: "19:00:00+00:00",
             state: "open",
             periods: null,
           })),

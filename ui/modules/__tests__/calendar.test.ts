@@ -85,16 +85,16 @@ test("areSlotsReservable", () => {
   const openingTimes = [
     {
       date: format(addDays(new Date(), 7), "yyyy-MM-dd"),
-      endTime: "21:00:00",
+      endTime: "21:00:00+00:00",
       periods: null,
-      startTime: "09:00:00",
+      startTime: "09:00:00+00:00",
       state: "open",
     },
     {
       date: format(addDays(new Date(), 8), "yyyy-MM-dd"),
-      endTime: "21:00:00",
+      endTime: "21:00:00+00:00",
       periods: null,
-      startTime: "09:00:00",
+      startTime: "09:00:00+00:00",
       state: "open",
     },
   ];
@@ -110,13 +110,13 @@ test("areSlotsReservable", () => {
     false
   );
   expect(
-    areSlotsReservable([addDays(new Date().setHours(6), 7)], openingTimes, [])
+    areSlotsReservable([addDays(new Date().setHours(9), 7)], openingTimes, [])
   ).toBe(false);
   expect(
-    areSlotsReservable([addDays(new Date().setHours(9), 7)], openingTimes, [])
-  ).toBe(true);
+    areSlotsReservable([addDays(new Date().setHours(10), 7)], openingTimes, [])
+  ).toBe(false);
   expect(
-    areSlotsReservable([addDays(new Date().setHours(9), 8)], openingTimes, [])
+    areSlotsReservable([addDays(new Date().setHours(11), 8)], openingTimes, [])
   ).toBe(true);
   expect(
     areSlotsReservable(
@@ -278,6 +278,16 @@ describe("isStartTimeWithinInterval", () => {
     expect(
       isStartTimeWithinInterval(
         new Date("2019-09-22T13:30:00+00:00"),
+        openingTimes,
+        "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+      )
+    ).toBe(false);
+  });
+
+  test("returns sane results", () => {
+    expect(
+      isStartTimeWithinInterval(
+        new Date("2019-09-22T12:30:00+00:00"),
         openingTimes,
         "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
       )
@@ -454,12 +464,14 @@ describe("getEventBuffers", () => {
   test("outputs correct buffers", () => {
     const events = [
       {
+        id: "1234",
         begin: new Date("2019-09-22T12:00:00+00:00"),
         end: new Date("2019-09-22T13:00:00+00:00"),
         bufferTimeBefore: "01:00:00",
         bufferTimeAfter: "01:30:00",
       },
       {
+        id: "3456",
         begin: new Date("2019-09-22T15:00:00+00:00"),
         end: new Date("2019-09-22T16:00:00+00:00"),
         bufferTimeBefore: null,
