@@ -2,11 +2,12 @@
   "title": "Uusi varausanomus",
   "titleSent": "Varausanomus jätetty",
   "applicationInfo": "Anomuksen tiedot",
+  "reserveeTypePrefix": "Luon hakemuksen",
   "reserveeTypes": {
     "labels": {
-      "nonprofit": "Luon hakemuksen yhdistyksen, järjestön, ryhmän tai yhteisön puolesta",
-      "business": "Luon hakemuksen yrityksen puolesta",
-      "individual": "Luon hakemuksen yksityishenkilönä"
+      "nonprofit": "yhdistyksen, järjestön, ryhmän tai yhteisön puolesta",
+      "business": "yrityksen puolesta",
+      "individual": "yksityishenkilönä"
     }
   },
   "label": {

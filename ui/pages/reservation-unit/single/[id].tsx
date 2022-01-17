@@ -605,21 +605,22 @@ const ReservationUnit = ({
             </span>
           </StyledNotification>
         )}
-        {reservationUnit.maxReservationsPerUser && (
-          <StyledNotification type="alert" label={t("common:fyiLabel")}>
-            <span data-testid="reservation-unit--notification__reservation-quota">
-              {t(
-                `reservationCalendar:reservationQuota${
-                  isReservationQuotaReached ? "Full" : ""
-                }`,
-                {
-                  count: userReservations?.length,
-                  total: reservationUnit.maxReservationsPerUser,
-                }
-              )}
-            </span>
-          </StyledNotification>
-        )}
+        {reservationUnit.maxReservationsPerUser &&
+          userReservations?.length > 0 && (
+            <StyledNotification type="alert" label={t("common:fyiLabel")}>
+              <span data-testid="reservation-unit--notification__reservation-quota">
+                {t(
+                  `reservationCalendar:reservationQuota${
+                    isReservationQuotaReached ? "Full" : ""
+                  }`,
+                  {
+                    count: userReservations?.length,
+                    total: reservationUnit.maxReservationsPerUser,
+                  }
+                )}
+              </span>
+            </StyledNotification>
+          )}
         {reservationUnit.location && (
           <MapWrapper>
             <StyledH2>{t("common:location")}</StyledH2>

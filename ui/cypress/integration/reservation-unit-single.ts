@@ -38,7 +38,6 @@ const matchEvent = (): void => {
     .find(".rbc-event-label")
     .invoke("text")
     .then((text) => {
-      const eventText = text.startsWith("0") ? text.substring(1) : text;
       startTimeSelectorToggle()
         .invoke("text")
         .then((startTimeLabel) => {
@@ -46,7 +45,7 @@ const matchEvent = (): void => {
             .invoke("text")
             .then((duration) => {
               const [hours, minutes] = startTimeLabel.split(".");
-              const startTime = `${hours}.${minutes}`;
+              const startTime = `${hours.padStart(2, "0")}.${minutes}`;
               const [durationHours, durationMinutes] = duration.split(":");
               const endTime = format(
                 addMinutes(
@@ -56,9 +55,9 @@ const matchEvent = (): void => {
                   ),
                   Number(durationMinutes)
                 ),
-                "H.mm"
+                "HH.mm"
               );
-              expect(eventText).to.eq(`${startTime} – ${endTime}`);
+              expect(text).to.eq(`${startTime} – ${endTime}`);
             });
         });
     });
@@ -88,6 +87,13 @@ const drawReservation = (): void => {
       .trigger("mousemove", 0, 40, { force: true });
     cy.get(".rbc-time-slot").eq(16).trigger("mouseup", { force: true });
   });
+
+  durationSelectorToggle()
+    .click()
+    .siblings("ul")
+    .children("li:nth-of-type(2)")
+    .click();
+
   reservationSubmitButton().should("not.disabled");
   matchEvent();
 };
@@ -301,7 +307,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       startTimeSelectorToggle()
         .click()
         .siblings("ul")
-        .children("li:nth-of-type(6)")
+        .children("li:nth-of-type(7)")
         .click();
       matchEvent();
 
@@ -326,7 +332,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       startTimeSelectorToggle()
         .click()
         .siblings("ul")
-        .children("li:nth-of-type(2)")
+        .children("li:nth-of-type(3)")
         .click();
       matchEvent();
 
@@ -345,7 +351,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       startTimeSelectorToggle()
         .click()
         .siblings("ul")
-        .children("li:nth-of-type(4)")
+        .children("li:nth-of-type(5)")
         .click();
 
       notificationContainer().contains(
@@ -355,7 +361,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       startTimeSelectorToggle()
         .click()
         .siblings("ul")
-        .children("li:nth-of-type(6)")
+        .children("li:nth-of-type(7)")
         .click();
 
       durationSelectorToggle()

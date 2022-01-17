@@ -170,10 +170,11 @@ export const getReservationApplicationFields = (
 };
 
 export const getReservationApplicationMutatationValues = (
-  payload: { [x: string]: string | number | boolean },
+  payload: Record<string, string | number | boolean>,
   supportedFields: string[],
   reserveeType: ReserveeType
-): { [x: string]: string | number } => {
+): Record<string, string | number | boolean> => {
+  const result = { reserveeType };
   const intValues = ["numPersons"];
   const changes = [
     { field: "homeCity", mutationField: "homeCityPk" },
@@ -185,15 +186,12 @@ export const getReservationApplicationMutatationValues = (
     reserveeType
   ).map(camelCase);
 
-  return fields.reduce(
-    (acc, field) => {
-      const key =
-        changes.find((c) => c.field === field)?.mutationField || field;
-      acc[key] = intValues.includes(field)
-        ? Number(payload[field])
-        : payload[field];
-      return acc;
-    },
-    { reserveeType }
-  );
+  fields.forEach((field: string) => {
+    const key = changes.find((c) => c.field === field)?.mutationField || field;
+    result[key as string] = intValues.includes(field)
+      ? Number(payload[field])
+      : payload[field];
+  });
+
+  return result;
 };

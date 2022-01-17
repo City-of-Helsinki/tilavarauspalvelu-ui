@@ -781,13 +781,18 @@ const ReservationUnitReservation = ({
             <ApplicationForm onSubmit={handleSubmit(onSubmitApplication1)}>
               <H2
                 style={{
-                  margin: "var(--spacing-layout-m) 0 var(--spacing-xl)",
+                  margin: "var(--spacing-layout-m) 0 var(--spacing-xs)",
                 }}
               >
                 {t("reservationApplication:applicationInfo")}
               </H2>
+              <p>{t("reservationApplication:reserveeTypePrefix")}</p>
               <OneColumnContainer
-                style={{ width: "100%", gap: "var(--spacing-xs)" }}
+                style={{
+                  width: "100%",
+                  gap: "var(--spacing-xs)",
+                  marginTop: "var(--spacing-xs)",
+                }}
               >
                 {["nonprofit", "individual", "business"].map(
                   (id: ReserveeType) => (

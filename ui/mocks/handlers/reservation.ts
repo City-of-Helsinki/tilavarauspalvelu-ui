@@ -17,6 +17,11 @@ import {
   ReservationsReservationStateChoices,
   ReservationUnitType,
   ReservationTypeEdge,
+  QueryReservationPurposesArgs,
+  ReservationPurposeTypeConnection,
+  AgeGroupTypeConnection,
+  QueryCitiesArgs,
+  CityTypeConnection,
 } from "../../modules/gql-types";
 
 const createReservation = graphql.mutation<
@@ -142,6 +147,111 @@ const reservationCancelReasons = graphql.query<Query, null>(
             },
           ],
         } as ReservationCancelReasonTypeConnection,
+      })
+    );
+  }
+);
+
+const reservationPurposes = graphql.query<Query, QueryReservationPurposesArgs>(
+  "ReservationPurposes",
+  (req, res, ctx) => {
+    return res(
+      ctx.data({
+        reservationPurposes: {
+          edges: [
+            {
+              node: {
+                pk: 1,
+                nameFi: "Liikkua tai pelata",
+                nameEn: null,
+                nameSv: null,
+              },
+            },
+            {
+              node: {
+                pk: 2,
+                nameFi: "Lukupiiri",
+                nameEn: null,
+                nameSv: null,
+              },
+            },
+            {
+              node: {
+                pk: 3,
+                nameFi: "Opastus",
+                nameEn: null,
+                nameSv: null,
+              },
+            },
+            {
+              node: {
+                pk: 4,
+                nameFi: "Pitää kokous",
+                nameEn: null,
+                nameSv: null,
+              },
+            },
+          ],
+        } as ReservationPurposeTypeConnection,
+      })
+    );
+  }
+);
+
+const ageGroups = graphql.query<Query, null>("AgeGroups", (req, res, ctx) => {
+  return res(
+    ctx.data({
+      ageGroups: {
+        edges: [
+          {
+            node: {
+              pk: 1,
+              minimum: 5,
+              maximum: 8,
+            },
+          },
+          {
+            node: {
+              pk: 2,
+              minimum: 9,
+              maximum: 12,
+            },
+          },
+          {
+            node: {
+              pk: 3,
+              minimum: 12,
+              maximum: 16,
+            },
+          },
+          {
+            node: {
+              pk: 4,
+              minimum: 17,
+              maximum: 20,
+            },
+          },
+        ],
+      } as AgeGroupTypeConnection,
+    })
+  );
+});
+
+const cities = graphql.query<Query, QueryCitiesArgs>(
+  "getCities",
+  (req, res, ctx) => {
+    return res(
+      ctx.data({
+        cities: {
+          edges: [
+            {
+              node: {
+                pk: 1,
+                name: "Helsinki",
+              },
+            },
+          ],
+        } as CityTypeConnection,
       })
     );
   }
@@ -961,4 +1071,7 @@ export const reservationHandlers = [
   cancelReservation,
   listReservations,
   reservationCancelReasons,
+  reservationPurposes,
+  ageGroups,
+  cities,
 ];

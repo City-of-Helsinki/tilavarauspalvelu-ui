@@ -1325,8 +1325,8 @@ export type ReservationType = Node & {
   billingFirstName: Scalars["String"];
   billingLastName: Scalars["String"];
   billingPhone: Scalars["String"];
-  bufferTimeAfter?: Maybe<Scalars["Float"]>;
-  bufferTimeBefore?: Maybe<Scalars["Float"]>;
+  bufferTimeAfter?: Maybe<Scalars["Time"]>;
+  bufferTimeBefore?: Maybe<Scalars["Time"]>;
   calendarUrl?: Maybe<Scalars["String"]>;
   description?: Maybe<Scalars["String"]>;
   end: Scalars["DateTime"];

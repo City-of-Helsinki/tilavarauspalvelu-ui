@@ -249,6 +249,8 @@ const selectedReservationUnitQuery = graphql.query<
 
   if (req.variables.pk === 903) {
     reservationUnitByPk.pk = 903;
+    reservationUnitByPk.lowestPrice = 0;
+    reservationUnitByPk.highestPrice = 0;
     reservationUnitByPk.metadataSet = {
       id: "UmVzZXJ2YXRpb25NZXRhZGF0YVNldFR5cGU6MQ==",
       name: "Test",
@@ -307,7 +309,7 @@ const openingHoursQuery = graphql.query<
           openingTimes: Array.from(Array(100)).map((val, index) => ({
             date: toApiDate(addDays(new Date(), index)),
             startTime: "07:00:00+00:00",
-            endTime: "19:00:00+00:00",
+            endTime: "20:00:00+00:00",
             state: "open",
             periods: null,
           })),
@@ -320,13 +322,13 @@ const openingHoursQuery = graphql.query<
             priority: "A_200",
             begin: set(endOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }), {
               hours: 13,
-              minutes: 30,
+              minutes: 0,
               seconds: 0,
               milliseconds: 0,
             }),
             end: set(endOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }), {
-              hours: 15,
-              minutes: 0,
+              hours: 14,
+              minutes: 30,
               seconds: 0,
               milliseconds: 0,
             }),
@@ -342,13 +344,13 @@ const openingHoursQuery = graphql.query<
             state: "CREATED",
             priority: "A_200",
             begin: set(endOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }), {
-              hours: 18,
-              minutes: 0,
+              hours: 17,
+              minutes: 30,
               seconds: 0,
               milliseconds: 0,
             }),
             end: set(endOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }), {
-              hours: 20,
+              hours: 19,
               minutes: 0,
               seconds: 0,
               milliseconds: 0,
@@ -359,7 +361,27 @@ const openingHoursQuery = graphql.query<
             bufferTimeBefore: null,
             bufferTimeAfter: "00:30:00",
           },
-        ] as ReservationType[],
+        ].map((n) => ({
+          ...n,
+          ageGroup: {
+            id: "1",
+            minimum: 3,
+          },
+          applyingForFreeOfCharge: undefined,
+          billingAddressStreet: "",
+          billingAddressZip: "",
+          billingAddressCity: "",
+          billingEmail: "",
+          billingFirstName: "",
+          billingLastName: "",
+          billingPhone: "",
+          reserveeId: "",
+          reserveeAddressStreet: "",
+          reserveeAddressZip: "",
+          reserveeAddressCity: "",
+          reserveeIsUnregisteredAssociation: undefined,
+          reserveeOrganisationName: "",
+        })) as ReservationType[],
       },
     },
   };
