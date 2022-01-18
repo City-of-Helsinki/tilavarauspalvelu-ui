@@ -179,43 +179,49 @@ export const getServerSideProps: GetServerSideProps = async ({
       variables: { pk: id },
     });
 
-    if (reservationUnitData.reservationUnitByPk?.metadataSet) {
-      const { data: reservationPurposesData } = await apolloClient.query<
-        Query,
-        QueryReservationPurposesArgs
-      >({
-        query: RESERVATION_PURPOSES,
-      });
-      reservationPurposes =
-        reservationPurposesData.reservationPurposes.edges?.map(
-          (edge) => edge.node
-        );
+    if (reservationUnitData?.reservationUnitByPk) {
+      if (reservationUnitData.reservationUnitByPk?.metadataSet) {
+        const { data: reservationPurposesData } = await apolloClient.query<
+          Query,
+          QueryReservationPurposesArgs
+        >({
+          query: RESERVATION_PURPOSES,
+        });
+        reservationPurposes =
+          reservationPurposesData.reservationPurposes.edges?.map(
+            (edge) => edge.node
+          );
 
-      const { data: ageGroupsData } = await apolloClient.query<
-        Query,
-        QueryAgeGroupsArgs
-      >({
-        query: AGE_GROUPS,
-      });
-      ageGroups = ageGroupsData.ageGroups.edges?.map((edge) => edge.node);
+        const { data: ageGroupsData } = await apolloClient.query<
+          Query,
+          QueryAgeGroupsArgs
+        >({
+          query: AGE_GROUPS,
+        });
+        ageGroups = ageGroupsData.ageGroups.edges?.map((edge) => edge.node);
 
-      const { data: citiesData } = await apolloClient.query<
-        Query,
-        QueryCitiesArgs
-      >({
-        query: GET_CITIES,
-      });
-      cities = citiesData.cities.edges?.map((edge) => edge.node);
+        const { data: citiesData } = await apolloClient.query<
+          Query,
+          QueryCitiesArgs
+        >({
+          query: GET_CITIES,
+        });
+        cities = citiesData.cities.edges?.map((edge) => edge.node);
+      }
+
+      return {
+        props: {
+          reservationUnit: reservationUnitData.reservationUnitByPk,
+          reservationPurposes,
+          ageGroups,
+          cities,
+          ...(await serverSideTranslations(locale)),
+        },
+      };
     }
 
     return {
-      props: {
-        reservationUnit: reservationUnitData.reservationUnitByPk,
-        reservationPurposes,
-        ageGroups,
-        cities,
-        ...(await serverSideTranslations(locale)),
-      },
+      notFound: true,
     };
   }
 
@@ -440,7 +446,7 @@ const ReservationUnitReservation = ({
     { input: ReservationConfirmMutationInput }
   >(CONFIRM_RESERVATION);
 
-  const doesReservationNeedApplication = !!reservationUnit.metadataSet?.id;
+  const doesReservationNeedApplication = !!reservationUnit?.metadataSet?.id;
 
   useEffect(() => {
     return () => {
