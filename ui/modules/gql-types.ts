@@ -947,6 +947,8 @@ export type QueryReservationsArgs = {
   first?: Maybe<Scalars["Int"]>;
   last?: Maybe<Scalars["Int"]>;
   offset?: Maybe<Scalars["Int"]>;
+  orderBy?: Maybe<Scalars["String"]>;
+  requested?: Maybe<Scalars["Boolean"]>;
   state?: Maybe<Scalars["String"]>;
 };
 
