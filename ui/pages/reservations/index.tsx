@@ -110,7 +110,11 @@ const Reservations = ({ reservations }: Props): JSX.Element => {
               <ReservationCard
                 key={reservation.pk}
                 reservation={reservation}
-                type="upcoming"
+                type={
+                  reservation.state === "REQUIRES_HANDLING"
+                    ? "requiresHandling"
+                    : "upcoming"
+                }
               />
             ))}
           </StyledTabPanel>

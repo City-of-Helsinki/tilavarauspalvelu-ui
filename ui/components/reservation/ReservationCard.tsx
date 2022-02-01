@@ -1,9 +1,9 @@
-import React from "react";
-import { IconLocation, IconHome, IconTicket, IconPlusCircle } from "hds-react";
+import React, { useMemo } from "react";
+import { IconTicket, IconPlusCircle } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { parseISO } from "date-fns";
 import router from "next/router";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { breakpoint } from "../../modules/style";
 import {
   getMainImage,
@@ -11,15 +11,16 @@ import {
   reservationsUrl,
 } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
-import { MediumButton } from "../../styles/util";
+import { MediumButton, truncatedText } from "../../styles/util";
 import { ReservationType } from "../../modules/gql-types";
 import { reservationUnitSinglePrefix } from "../../modules/const";
 import {
   canUserCancelReservation,
   getReservationPrice,
 } from "../../modules/reservation";
+import { fontMedium } from "../../modules/style/typography";
 
-type CardType = "upcoming" | "past";
+type CardType = "upcoming" | "past" | "requiresHandling";
 
 interface Props {
   reservation: ReservationType;
@@ -54,7 +55,7 @@ const MainContent = styled.div`
 const Name = styled.span`
   font-size: var(--fontsize-heading-m);
   font-weight: 700;
-  margin-bottom: var(--spacing-2-xs);
+  margin-bottom: 0;
 
   a,
   a:visited {
@@ -71,23 +72,26 @@ const Bottom = styled.span`
   font-size: var(--fontsize-body-m);
   flex-wrap: wrap;
   margin-top: var(--spacing-2-xs);
-
-  > div {
-    margin: 5px;
-  }
 `;
 
-const StyledIconWithText = styled(IconWithText)`
+const Address = styled.div`
+  ${fontMedium};
+  margin-bottom: var(--spacing-s);
+`;
+
+const Price = styled(IconWithText)`
   span {
     margin-left: var(--spacing-2-xs);
     font-family: var(--font-medium);
     font-weight: 500;
   }
+  margin-bottom: var(--spacing-2-xs);
 `;
 
 const Actions = styled.div`
-  display: block;
+  display: flex;
   padding: 0 var(--spacing-xs) var(--spacing-xs) var(--spacing-xs);
+  flex-direction: column-reverse;
 
   button {
     width: 100%;
@@ -96,12 +100,11 @@ const Actions = styled.div`
     font-weight: 500;
     margin-top: var(--spacing-s);
     white-space: nowrap;
+    ${truncatedText};
   }
 
   @media (min-width: ${breakpoint.m}) {
-    display: flex;
     align-self: flex-end;
-    flex-direction: column;
 
     button {
       min-width: 170px;
@@ -109,7 +112,7 @@ const Actions = styled.div`
   }
 
   @media (min-width: ${breakpoint.l}) {
-    padding: var(--spacing-s) var(--spacing-m);
+    padding: var(--spacing-m);
     flex-direction: row;
     gap: var(--spacing-m);
 
@@ -135,13 +138,35 @@ const Image = styled.img`
 `;
 
 const TimeStrip = styled.div<{ $type: CardType }>`
-  background-color: ${({ $type }) =>
-    $type === "upcoming" ? "var(--color-summer)" : "var(--color-black-10)"};
+  ${({ $type }) => {
+    switch ($type) {
+      case "requiresHandling":
+        return css`
+          background-color: var(--color-summer);
+        `;
+      case "upcoming":
+        return css`
+          background-color: var(--color-copper);
+        `;
+      default:
+        return css`
+          background-color: var(--color-black-10);
+        `;
+    }
+  }}
+  padding: var(--spacing-2-xs) var(--spacing-s);
+  font-size: var(--fontsize-body-s);
   position: absolute;
   top: 0;
+  left: 0;
   right: 0;
-  padding: var(--spacing-3-xs) var(--spacing-2-xs);
-  font-size: var(--fontsize-body-s);
+  text-align: center;
+  ${truncatedText};
+
+  @media (min-width: ${breakpoint.s}) {
+    position: relative;
+    max-width: fit-content;
+  }
 `;
 
 const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
@@ -153,27 +178,30 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
     getTranslation(reservationUnit.location, "addressStreet") || ""
   }`;
 
-  const beginDate = t("common:dateWithWeekday", {
-    date: reservation.begin && parseISO(reservation.begin),
-  });
+  const timeStripContent = useMemo(() => {
+    const beginDate = t("common:dateWithWeekday", {
+      date: reservation.begin && parseISO(reservation.begin),
+    });
 
-  const beginTime = t("common:timeWithPrefix", {
-    date: reservation.begin && parseISO(reservation.begin),
-  });
+    const beginTime = t("common:timeWithPrefix", {
+      date: reservation.begin && parseISO(reservation.begin),
+    });
 
-  const endDate = t("common:dateWithWeekday", {
-    date: reservation.end && parseISO(reservation.end),
-  });
+    const endDate = t("common:dateWithWeekday", {
+      date: reservation.end && parseISO(reservation.end),
+    });
 
-  const endTime = t("common:time", {
-    date: reservation.end && parseISO(reservation.end),
-  });
+    const endTime = t("common:time", {
+      date: reservation.end && parseISO(reservation.end),
+    });
 
-  const timeStripContent = `${t(
-    `reservations:${type}Slug`
-  )} ${beginDate} ${beginTime} -${
-    endDate !== beginDate ? ` ${endDate}` : ""
-  } ${endTime}`;
+    if (type === "requiresHandling") {
+      return t("reservationApplication:processLabels.handlingRequired");
+    }
+    return `${t(`reservations:${type}Slug`)} ${beginDate} ${beginTime} -${
+      endDate !== beginDate ? ` ${endDate}` : ""
+    } ${endTime}`;
+  }, [reservation, type, t]);
 
   return (
     <Container data-testid="reservation__card--container">
@@ -189,22 +217,16 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
       <MainContent>
         <Name>{getTranslation(reservationUnit, "name")}</Name>
         <Bottom>
-          <StyledIconWithText
-            icon={<IconHome aria-label={t("reservationUnitCard:type")} />}
-            text={getTranslation(reservationUnit.unit, "name")}
-            data-testid="reservation__card--unit"
-          />
-          {address && (
-            <StyledIconWithText
-              className="grow"
-              icon={
-                <IconLocation aria-label={t("reservationUnitCard:address")} />
-              }
-              text={address}
-              data-testid="reservation__card--address"
-            />
-          )}
-          <StyledIconWithText
+          <Address data-testid="reservation__card--unit">
+            {getTranslation(reservationUnit.unit, "name")}
+            {address && (
+              <span data-testid="reservation__card--address">, {address}</span>
+            )}
+          </Address>
+          <TimeStrip $type={type} data-testid="reservation__card--time">
+            {timeStripContent}
+          </TimeStrip>
+          <Price
             icon={<IconTicket aria-label={t("reservationUnit:price")} />}
             text={getReservationPrice(reservation.price)}
             data-testid="reservation__card--price"
@@ -245,9 +267,6 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
           {t("reservationUnitCard:seeMore")}
         </MediumButton>
       </Actions>
-      <TimeStrip $type={type} data-testid="reservation-card__time">
-        {timeStripContent}
-      </TimeStrip>
     </Container>
   );
 };

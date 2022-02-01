@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
-import { isFinite } from "lodash";
+import { get, isFinite } from "lodash";
 import {
   Accordion,
   IconArrowLeft,
@@ -20,7 +20,7 @@ import {
 } from "../../modules/gql-types";
 import apolloClient from "../../modules/apolloClient";
 import { GET_RESERVATION } from "../../modules/queries/reservation";
-import { fontRegular, H1, H3 } from "../../modules/style/typography";
+import { fontRegular, H1, H3, Strong } from "../../modules/style/typography";
 import { NarrowCenteredContainer } from "../../modules/style/layout";
 import { breakpoint } from "../../modules/style";
 import Ticket from "../../components/reservation/Ticket";
@@ -28,7 +28,11 @@ import { getTranslation, reservationsUrl } from "../../modules/util";
 import { TwoColumnContainer } from "../../components/common/common";
 import { MediumButton } from "../../styles/util";
 import Sanitize from "../../components/common/Sanitize";
-import { canUserCancelReservation } from "../../modules/reservation";
+import {
+  canUserCancelReservation,
+  getReservationApplicationFields,
+  ReserveeType,
+} from "../../modules/reservation";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
 
 type Props = {
@@ -174,7 +178,32 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
   const reservationUnit = reservation.reservationUnits[0];
 
   const isReservationCancelled = reservation.state === "CANCELLED";
-  const ticketState = isReservationCancelled ? "error" : "complete";
+  const isBeingHandled = reservation.state === "REQUIRES_HANDLING";
+  const ticketState = useMemo(() => {
+    if (isBeingHandled) {
+      return "incomplete";
+    }
+
+    return isReservationCancelled ? "error" : "complete";
+  }, [isBeingHandled, isReservationCancelled]);
+
+  const optionValues = {
+    purpose: getTranslation(reservation.purpose, "name"),
+    ageGroup: `${reservation.ageGroup?.minimum} - ${reservation.ageGroup?.maximum}`,
+    homeCity: reservation.homeCity?.name,
+  };
+
+  const headingSlug = isReservationCancelled
+    ? "reservations:reservationCancelledTitle"
+    : isBeingHandled
+    ? "reservationApplication:applicationInfo"
+    : "reservationCalendar:reservationInfo";
+  const subHeadingSlug = isBeingHandled
+    ? "reservationApplication:applicationSummary"
+    : "reservationCalendar:reservationSummary";
+
+  const reserveeType =
+    reservation.reserveeType && reservation.reserveeType.toLowerCase();
 
   return (
     <>
@@ -191,15 +220,7 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
               reservationPrice={reservation.price}
             />
             <div>
-              <H1>
-                {t(
-                  `${
-                    isReservationCancelled
-                      ? "reservations:reservationCancelledTitle"
-                      : "reservationCalendar:reservationInfo"
-                  }`
-                )}
-              </H1>
+              <H1>{t(headingSlug)}</H1>
               <Actions>
                 <MediumButton
                   variant="secondary"
@@ -218,7 +239,8 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
                   }
                   disabled={
                     !canUserCancelReservation(reservation) ||
-                    isReservationCancelled
+                    isReservationCancelled ||
+                    isBeingHandled
                   }
                   data-testid="reservation-detail__button--cancel"
                 >
@@ -231,54 +253,128 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
         <StyledKoros className="koros" type="wave" />
       </Head>
       <BodyContainer>
-        <H3>{t("reservationCalendar:reservationSummary")}</H3>
-        <Paragraph>
-          <Trans
-            i18nKey="reservationUnit:reservationReminderText"
-            t={t}
-            values={{ user: reservation?.user }}
-            components={{
-              emailLink: (
-                <a href={`mailto:${reservation?.user}`}>{reservation?.user}</a>
-              ),
-            }}
-          />
-        </Paragraph>
-        <Paragraph>
-          <Trans
-            i18nKey="reservationUnit:loadReservationCalendar"
-            t={t}
-            components={{
-              calendarLink: (
-                <a
-                  href={reservation?.calendarUrl}
-                  data-test="reservation__confirmation--calendar-url"
-                >
-                  {" "}
-                </a>
-              ),
-            }}
-          />
-        </Paragraph>
-        <Paragraph>
-          {t("common:thanksForUsingVaraamo")}
-          <br />
-          <a
-            href={t(`footer:Navigation.feedback.href`)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t("common:sendFeedback")}
-          </a>
-        </Paragraph>
+        <H3>{t(subHeadingSlug)}</H3>
+        {isBeingHandled ? (
+          <Paragraph>{t("reservationApplication:summaryIngress")}</Paragraph>
+        ) : (
+          <>
+            <Paragraph>
+              <Trans
+                i18nKey="reservationUnit:reservationReminderText"
+                t={t}
+                values={{ user: reservation?.user }}
+                components={{
+                  emailLink: (
+                    <a href={`mailto:${reservation?.user}`}>
+                      {reservation?.user}
+                    </a>
+                  ),
+                }}
+              />
+            </Paragraph>
+            <Paragraph>
+              <Trans
+                i18nKey="reservationUnit:loadReservationCalendar"
+                t={t}
+                components={{
+                  calendarLink: (
+                    <a
+                      href={reservation?.calendarUrl}
+                      data-test="reservation__confirmation--calendar-url"
+                    >
+                      {" "}
+                    </a>
+                  ),
+                }}
+              />
+            </Paragraph>
+            <Paragraph>
+              {t("common:thanksForUsingVaraamo")}
+              <br />
+              <a
+                href={t(`footer:Navigation.feedback.href`)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t("common:sendFeedback")}
+              </a>
+            </Paragraph>
+          </>
+        )}
         {getTranslation(reservationUnit, "additionalInstructions") && (
-          <AccordionContainer>
-            <TermContainer>
-              <Accordion heading={t("reservations:reservationInfo")}>
-                {getTranslation(reservationUnit, "additionalInstructions")}
-              </Accordion>
-            </TermContainer>
-          </AccordionContainer>
+          <TermContainer>
+            <H3>{t("reservations:reservationInfo")}</H3>
+            <Paragraph>
+              {getTranslation(reservationUnit, "additionalInstructions")}
+            </Paragraph>
+          </TermContainer>
+        )}
+        {reservation.reservationUnits[0]?.metadataSet?.supportedFields &&
+        reserveeType ? (
+          <>
+            {getReservationApplicationFields(
+              reservation.reservationUnits[0].metadataSet?.supportedFields,
+              reserveeType as ReserveeType,
+              true
+            )
+              .filter(
+                (key) =>
+                  !["", undefined, false, 0, null].includes(
+                    get(reservation, key)
+                  )
+              )
+              .map((key) => {
+                const rawValue = get(reservation, key);
+                const value = get(optionValues, key)
+                  ? get(optionValues, key)
+                  : typeof rawValue === "boolean"
+                  ? t(`common:${String(rawValue)}`)
+                  : rawValue;
+                return (
+                  <Paragraph key={`summary_${key}`}>
+                    <div>
+                      <Strong>
+                        {t(
+                          `reservationApplication:label.${reserveeType}.${key}`
+                        )}
+                      </Strong>
+                    </div>
+                    <div>{value}</div>
+                  </Paragraph>
+                );
+              })}
+          </>
+        ) : (
+          <>
+            <Paragraph>
+              <div>
+                <Strong>{t("reservationCalendar:label.reserveeName")}</Strong>
+              </div>
+              <div>
+                {`${reservation.reserveeFirstName || ""} ${
+                  reservation.reserveeLastName || ""
+                }`.trim()}
+              </div>
+            </Paragraph>
+            <Paragraph>
+              <div>
+                <Strong>{t("common:phone")}</Strong>
+                <div>{reservation.reserveePhone}</div>
+              </div>
+            </Paragraph>
+            <Paragraph style={{ gridColumn: "1 / -1" }}>
+              <div>
+                <Strong>{t("reservationCalendar:label.name")}</Strong>
+              </div>
+              <div>{reservation.name}</div>
+            </Paragraph>
+            <Paragraph>
+              <div>
+                <Strong>{t("reservationCalendar:label.description")}</Strong>
+              </div>
+              <div>{reservation.description}</div>
+            </Paragraph>
+          </>
         )}
         {getTranslation(reservationUnit, "termsOfUse") && (
           <AccordionContainer>
