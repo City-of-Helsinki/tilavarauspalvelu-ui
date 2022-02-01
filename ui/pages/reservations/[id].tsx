@@ -20,7 +20,13 @@ import {
 } from "../../modules/gql-types";
 import apolloClient from "../../modules/apolloClient";
 import { GET_RESERVATION } from "../../modules/queries/reservation";
-import { fontRegular, H1, H3, Strong } from "../../modules/style/typography";
+import {
+  fontRegular,
+  H1,
+  H2,
+  H3,
+  Strong,
+} from "../../modules/style/typography";
 import { NarrowCenteredContainer } from "../../modules/style/layout";
 import { breakpoint } from "../../modules/style";
 import Ticket from "../../components/reservation/Ticket";
@@ -145,9 +151,23 @@ const BodyContainer = styled(NarrowCenteredContainer)`
 
 const Paragraph = styled.p`
   white-space: pre-line;
+  margin-bottom: var(--spacing-xl);
 
   & > span {
     display: block;
+  }
+`;
+
+const ParagraphAlt = styled(Paragraph)`
+  margin-bottom: 0;
+`;
+
+const TermContainer = styled.div`
+  margin-bottom: var(--spacing-xl);
+  white-space: pre-line;
+
+  div[role="heading"] {
+    font-size: var(--fontsize-heading-s);
   }
 `;
 
@@ -158,18 +178,17 @@ const AccordionContainer = styled.div`
 
   line-height: var(--lineheight-l);
 
+  ${TermContainer} {
+    margin-bottom: 0;
+  }
+
   button {
     margin-bottom: var(--spacing-xs);
   }
 `;
 
-const TermContainer = styled.div`
-  margin-bottom: var(--spacing-xl);
-  white-space: pre-line;
-
-  div[role="heading"] {
-    font-size: var(--fontsize-heading-s);
-  }
+const ActionContainer = styled.div`
+  margin-top: var(--spacing-2-xl);
 `;
 
 const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
@@ -229,7 +248,11 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
                   disabled
                   data-testid="reservation-detail__button--edit"
                 >
-                  {t("reservations:modifyReservation")}
+                  {t(
+                    `reservations:modify${
+                      isBeingHandled ? "Application" : "Reservation"
+                    }`
+                  )}
                 </MediumButton>
                 <MediumButton
                   variant="secondary"
@@ -244,7 +267,11 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
                   }
                   data-testid="reservation-detail__button--cancel"
                 >
-                  {t("reservations:cancelReservation")}
+                  {t(
+                    `reservations:cancel${
+                      isBeingHandled ? "Application" : "Reservation"
+                    }`
+                  )}
                 </MediumButton>
               </Actions>
             </div>
@@ -253,7 +280,7 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
         <StyledKoros className="koros" type="wave" />
       </Head>
       <BodyContainer>
-        <H3>{t(subHeadingSlug)}</H3>
+        <H2>{t(subHeadingSlug)}</H2>
         {isBeingHandled ? (
           <Paragraph>{t("reservationApplication:summaryIngress")}</Paragraph>
         ) : (
@@ -309,73 +336,76 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
             </Paragraph>
           </TermContainer>
         )}
-        {reservation.reservationUnits[0]?.metadataSet?.supportedFields &&
-        reserveeType ? (
-          <>
-            {getReservationApplicationFields(
-              reservation.reservationUnits[0].metadataSet?.supportedFields,
-              reserveeType as ReserveeType,
-              true
-            )
-              .filter(
-                (key) =>
-                  !["", undefined, false, 0, null].includes(
-                    get(reservation, key)
-                  )
+        <H3>{t("reservationUnit:additionalInfo")}</H3>
+        <TermContainer>
+          {reservation.reservationUnits[0]?.metadataSet?.supportedFields &&
+          reserveeType ? (
+            <>
+              {getReservationApplicationFields(
+                reservation.reservationUnits[0].metadataSet?.supportedFields,
+                reserveeType as ReserveeType,
+                true
               )
-              .map((key) => {
-                const rawValue = get(reservation, key);
-                const value = get(optionValues, key)
-                  ? get(optionValues, key)
-                  : typeof rawValue === "boolean"
-                  ? t(`common:${String(rawValue)}`)
-                  : rawValue;
-                return (
-                  <Paragraph key={`summary_${key}`}>
-                    <div>
-                      <Strong>
-                        {t(
-                          `reservationApplication:label.${reserveeType}.${key}`
-                        )}
-                      </Strong>
-                    </div>
-                    <div>{value}</div>
-                  </Paragraph>
-                );
-              })}
-          </>
-        ) : (
-          <>
-            <Paragraph>
-              <div>
-                <Strong>{t("reservationCalendar:label.reserveeName")}</Strong>
-              </div>
-              <div>
-                {`${reservation.reserveeFirstName || ""} ${
-                  reservation.reserveeLastName || ""
-                }`.trim()}
-              </div>
-            </Paragraph>
-            <Paragraph>
-              <div>
-                <Strong>{t("common:phone")}</Strong>
-                <div>{reservation.reserveePhone}</div>
-              </div>
-            </Paragraph>
-            <Paragraph style={{ gridColumn: "1 / -1" }}>
-              <div>
-                <Strong>{t("reservationCalendar:label.name")}</Strong>
-              </div>
-              <div>{reservation.name}</div>
-            </Paragraph>
-            <Paragraph>
-              <div>
-                <Strong>{t("reservationCalendar:label.description")}</Strong>
-              </div>
-              <div>{reservation.description}</div>
-            </Paragraph>
-          </>
-        )}
+                .filter(
+                  (key) =>
+                    !["", undefined, false, 0, null].includes(
+                      get(reservation, key)
+                    )
+                )
+                .map((key) => {
+                  const rawValue = get(reservation, key);
+                  const value = get(optionValues, key)
+                    ? get(optionValues, key)
+                    : typeof rawValue === "boolean"
+                    ? t(`common:${String(rawValue)}`)
+                    : rawValue;
+                  return (
+                    <ParagraphAlt key={`summary_${key}`}>
+                      <div>
+                        <Strong>
+                          {t(
+                            `reservationApplication:label.${reserveeType}.${key}`
+                          )}
+                        </Strong>
+                      </div>
+                      <div>{value}</div>
+                    </ParagraphAlt>
+                  );
+                })}
+            </>
+          ) : (
+            <>
+              <ParagraphAlt>
+                <div>
+                  <Strong>{t("reservationCalendar:label.reserveeName")}</Strong>
+                </div>
+                <div>
+                  {`${reservation.reserveeFirstName || ""} ${
+                    reservation.reserveeLastName || ""
+                  }`.trim()}
+                </div>
+              </ParagraphAlt>
+              <ParagraphAlt>
+                <div>
+                  <Strong>{t("common:phone")}</Strong>
+                  <div>{reservation.reserveePhone}</div>
+                </div>
+              </ParagraphAlt>
+              <ParagraphAlt style={{ gridColumn: "1 / -1" }}>
+                <div>
+                  <Strong>{t("reservationCalendar:label.name")}</Strong>
+                </div>
+                <div>{reservation.name}</div>
+              </ParagraphAlt>
+              <ParagraphAlt>
+                <div>
+                  <Strong>{t("reservationCalendar:label.description")}</Strong>
+                </div>
+                <div>{reservation.description}</div>
+              </ParagraphAlt>
+            </>
+          )}
+        </TermContainer>
         {getTranslation(reservationUnit, "termsOfUse") && (
           <AccordionContainer>
             <TermContainer>
@@ -414,14 +444,16 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
             </TermContainer>
           </AccordionContainer>
         )}
-        <MediumButton
-          variant="secondary"
-          onClick={() => router.push(reservationsUrl)}
-          iconLeft={<IconArrowLeft />}
-          data-testid="reservation-detail__button--return"
-        >
-          {t("reservations:backToReservations")}
-        </MediumButton>
+        <ActionContainer>
+          <MediumButton
+            variant="secondary"
+            onClick={() => router.push(reservationsUrl)}
+            iconLeft={<IconArrowLeft />}
+            data-testid="reservation-detail__button--return"
+          >
+            {t("common:prev")}
+          </MediumButton>
+        </ActionContainer>
       </BodyContainer>
     </>
   );
