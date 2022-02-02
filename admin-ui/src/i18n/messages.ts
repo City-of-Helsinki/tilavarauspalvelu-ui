@@ -1043,6 +1043,8 @@ const translations: ITranslations = {
     },
     approve: ["Hyväksy anomus"],
     reject: ["Hylkää anomus"],
+    returnToHandling: ["Palauta käsiteltäväksi"],
+    cancel: ["Takaisin"],
     noPrice: ["ilmainen"],
     name: ["Varauksen nimi"],
     description: ["Varauksen kuvaus"],
@@ -1080,6 +1082,12 @@ const translations: ITranslations = {
       handlingDetails: ["Henkilökunnan kommentti"],
       price: ["Varauksen hinta"],
       missingPrice: ["Varauksen hinta puuttuu tai on virheellinen"],
+    },
+    ReturnToRequiresHandlingDialog: {
+      title: ["Palauta käsiteltäväksi"],
+      accept: ["Palauta käsiteltäväksi"],
+      returned: ["Anomus palautettu käsiteltäväksi"],
+      errorSaving: ["Palauttaminen ei onnistunut"],
     },
   },
 };

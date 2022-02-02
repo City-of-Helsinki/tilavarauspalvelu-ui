@@ -702,6 +702,17 @@ export const DENY_RESERVATION = gql`
   }
 `;
 
+export const REQUIRE_HANDLING_RESERVATION = gql`
+  mutation requireHandling($input: ReservationRequiresHandlingMutationInput!) {
+    requireHandlingForReservation(input: $input) {
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;
+
 export const RESERVATION_DENY_REASONS = gql`
   query reservationDenyReasons {
     reservationDenyReasons {

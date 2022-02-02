@@ -11,7 +11,7 @@ import {
 } from "hds-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
 import {
   Maybe,
@@ -20,6 +20,7 @@ import {
   QueryReservationByPkArgs,
   ReservationType,
   ReservationWorkingMemoMutationInput,
+  ReservationsReservationStateChoices,
 } from "../../common/gql-types";
 import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "../../common/queries";
 import { useNotification } from "../../context/NotificationContext";
@@ -39,6 +40,7 @@ import { ageGroup, reservationDateTime, reservationPrice } from "./util";
 import { useModal } from "../../context/ModalContext";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
+import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
 
 const ViewWrapper = styled.div`
   display: grid;
@@ -138,11 +140,13 @@ const SingleApplication = (): JSX.Element | null => {
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
+  const { goBack } = useHistory();
   const { setModalContent } = useModal();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     RESERVATION_QUERY,
     {
+      fetchPolicy: "no-cache",
       variables: {
         pk: Number(reservationPk),
       },
@@ -162,6 +166,15 @@ const SingleApplication = (): JSX.Element | null => {
 
   const updateMemo = (input: ReservationWorkingMemoMutationInput) =>
     updateWorkingMemo({ variables: { input } });
+
+  const closeDialog = () => {
+    setModalContent(null);
+  };
+
+  const closeDialogAndRefetch = () => {
+    closeDialog();
+    refetch();
+  };
 
   if (loading) {
     return <Loader />;
@@ -320,46 +333,73 @@ const SingleApplication = (): JSX.Element | null => {
           </ApplicationContent>
         </ViewWrapper>
         <ButtonsStripe>
-          <WhiteButton
-            variant="secondary"
-            disabled={false}
-            onClick={(e) => {
-              e.preventDefault();
-              setModalContent(
-                <DenyDialog
-                  reservation={reservation}
-                  onReject={() => {
-                    setModalContent(null);
-                    refetch();
-                  }}
-                  onClose={() => {
-                    setModalContent(null);
-                    refetch();
-                  }}
-                />,
-                true
-              );
-            }}
-          >
-            {t("SingleApplication.reject")}
-          </WhiteButton>
-          <WhiteButton
-            variant="primary"
-            disabled={false}
-            onClick={(e) => {
-              e.preventDefault();
-              setModalContent(
-                <ApproveDialog
-                  reservation={reservation}
-                  onAccept={() => setModalContent(null)}
-                  onClose={() => setModalContent(null)}
-                />,
-                true
-              );
-            }}
-          >
-            {t("SingleApplication.approve")}
-          </WhiteButton>
+          {reservation.state ===
+          ReservationsReservationStateChoices.RequiresHandling ? (
+            <>
+              <WhiteButton
+                variant="secondary"
+                disabled={false}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setModalContent(
+                    <DenyDialog
+                      reservation={reservation}
+                      onReject={closeDialogAndRefetch}
+                      onClose={closeDialog}
+                    />,
+                    true
+                  );
+                }}
+              >
+                {t("SingleApplication.reject")}
+              </WhiteButton>
+
+              <WhiteButton
+                variant="primary"
+                disabled={false}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setModalContent(
+                    <ApproveDialog
+                      reservation={reservation}
+                      onAccept={closeDialogAndRefetch}
+                      onClose={closeDialog}
+                    />,
+                    true
+                  );
+                }}
+              >
+                {t("SingleApplication.approve")}
+              </WhiteButton>
+            </>
+          ) : (
+            <>
+              <WhiteButton
+                variant="secondary"
+                disabled={false}
+                onClick={goBack}
+              >
+                {t("SingleApplication.cancel")}
+              </WhiteButton>
+              <WhiteButton
+                variant="primary"
+                disabled={false}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setModalContent(
+                    <ReturnToRequiredHandlingDialog
+                      reservation={reservation}
+                      onAccept={closeDialogAndRefetch}
+                      onClose={closeDialog}
+                    />,
+                    true
+                  );
+                }}
+              >
+                {t("SingleApplication.returnToHandling")}
+              </WhiteButton>
+            </>
+          )}
         </ButtonsStripe>
       </ContentContainer>
     </>
