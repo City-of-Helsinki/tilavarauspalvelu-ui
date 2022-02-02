@@ -53,10 +53,7 @@ describe("Tilavaraus user reservations", () => {
         }
       });
 
-    cancelButton().eq(0).should("be.disabled");
-    cancelButton().eq(1).should("be.disabled");
-    cancelButton().eq(2).should("be.disabled");
-    cancelButton().eq(3).should("not.be.disabled");
+    cancelButton().should("have.length", 1);
 
     reservationCards()
       .eq(0)
