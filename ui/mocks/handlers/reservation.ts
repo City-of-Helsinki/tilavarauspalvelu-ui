@@ -445,7 +445,26 @@ const listReservations = graphql.query<Query, QueryReservationUnitsArgs>(
                       needsHandling: false,
                     },
                     location: null,
-                    images: [],
+                    images: [
+                      {
+                        imageUrl:
+                          "https://tvp-core-dev.agw.arodevtest.hel.fi/media/reservation_unit_images/Leikkipuisto_2_4SSB34h.jpg",
+                        mediumUrl:
+                          "https://tvp-core-dev.agw.arodevtest.hel.fi/media/reservation_unit_images/Leikkipuisto_2_4SSB34h.jpg.384x384_q85_crop.jpg",
+                        smallUrl:
+                          "https://tvp-core-dev.agw.arodevtest.hel.fi/media/reservation_unit_images/Leikkipuisto_2_4SSB34h.jpg.250x250_q85_crop.jpg",
+                        imageType: "OTHER",
+                      },
+                      {
+                        imageUrl:
+                          "https://tvp-core-dev.agw.arodevtest.hel.fi/media/reservation_unit_images/Musiikki_2.jpg",
+                        mediumUrl:
+                          "https://tvp-core-dev.agw.arodevtest.hel.fi/media/reservation_unit_images/Musiikki_2.jpg.384x384_q85_crop.jpg",
+                        smallUrl:
+                          "https://tvp-core-dev.agw.arodevtest.hel.fi/media/reservation_unit_images/Musiikki_2.jpg.250x250_q85_crop.jpg",
+                        imageType: "MAIN",
+                      },
+                    ],
                   } as ReservationUnitType,
                 ],
               },

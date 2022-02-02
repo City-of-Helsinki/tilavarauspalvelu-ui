@@ -32,24 +32,44 @@ const Container = styled.div`
   margin-top: var(--spacing-s);
   position: relative;
 
-  @media (min-width: ${breakpoint.s}) {
+  @media (min-width: ${breakpoint.m}) {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 300px 1fr;
   }
 
-  @media (min-width: ${breakpoint.m}) {
-    grid-template-columns: 250px 5fr 3fr;
+  @media (min-width: ${breakpoint.l}) {
+    display: grid;
+    grid-template-columns: 300px auto;
+
+    & > div:nth-of-type(2) {
+      grid-column: unset;
+    }
   }
 `;
 
 const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  margin: var(--spacing-m) var(--spacing-m) var(--spacing-s) var(--spacing-m);
+  margin: var(--spacing-xs);
 
-  @media (max-width: ${breakpoint.s}) {
-    margin: var(--spacing-xs);
+  @media (min-width: ${breakpoint.s}) {
+    margin: var(--spacing-m);
   }
+
+  @media (min-width: ${breakpoint.m}) {
+    justify-content: space-between;
+    flex-direction: column;
+  }
+
+  @media (min-width: ${breakpoint.l}) {
+    white-space: pre;
+    flex-direction: row;
+  }
+`;
+
+const Details = styled.div`
+  width: 10px;
+  white-space: pre;
 `;
 
 const Name = styled.span`
@@ -90,12 +110,11 @@ const Price = styled(IconWithText)`
 
 const Actions = styled.div`
   display: flex;
-  padding: 0 var(--spacing-xs) var(--spacing-xs) var(--spacing-xs);
+  padding-bottom: var(--spacing-s);
   flex-direction: column-reverse;
 
   button {
     width: 100%;
-    height: 45px;
     font-family: var(--font-medium);
     font-weight: 500;
     margin-top: var(--spacing-s);
@@ -103,18 +122,24 @@ const Actions = styled.div`
     ${truncatedText};
   }
 
+  @media (min-width: ${breakpoint.s}) {
+    flex-direction: row;
+    padding-bottom: var(--spacing-m);
+    gap: var(--spacing-m);
+  }
+
   @media (min-width: ${breakpoint.m}) {
     align-self: flex-end;
+    justify-self: flex-end;
+    padding: 0;
 
     button {
-      min-width: 170px;
+      width: 170px;
     }
   }
 
   @media (min-width: ${breakpoint.l}) {
-    padding: var(--spacing-m);
-    flex-direction: row;
-    gap: var(--spacing-m);
+    margin-top: 120px;
 
     button {
       width: unset;
@@ -130,10 +155,16 @@ const Image = styled.img`
 
   @media (min-width: ${breakpoint.s}) {
     height: 100%;
+    max-height: 200px;
+  }
+
+  @media (min-width: ${breakpoint.m}) {
+    max-width: 300px;
+    max-height: unset;
   }
 
   @media (min-width: ${breakpoint.l}) {
-    height: 156px;
+    max-height: 240px;
   }
 `;
 
@@ -163,7 +194,7 @@ const TimeStrip = styled.div<{ $type: CardType }>`
   text-align: center;
   ${truncatedText};
 
-  @media (min-width: ${breakpoint.s}) {
+  @media (min-width: ${breakpoint.m}) {
     position: relative;
     max-width: fit-content;
   }
@@ -215,58 +246,63 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
         }
       />
       <MainContent>
-        <Name>{getTranslation(reservationUnit, "name")}</Name>
-        <Bottom>
-          <Address data-testid="reservation__card--unit">
-            {getTranslation(reservationUnit.unit, "name")}
-            {address && (
-              <span data-testid="reservation__card--address">, {address}</span>
+        <Details>
+          <Name>{getTranslation(reservationUnit, "name")}</Name>
+          <Bottom>
+            <Address data-testid="reservation__card--unit">
+              {getTranslation(reservationUnit.unit, "name")}
+              {address && (
+                <span data-testid="reservation__card--address">
+                  , {address}
+                </span>
+              )}
+            </Address>
+            <TimeStrip $type={type} data-testid="reservation__card--time">
+              {timeStripContent}
+            </TimeStrip>
+            <Price
+              icon={<IconTicket aria-label={t("reservationUnit:price")} />}
+              text={getReservationPrice(reservation.price)}
+              data-testid="reservation__card--price"
+            />
+          </Bottom>
+        </Details>
+        <Actions>
+          {["upcoming"].includes(type) &&
+            canUserCancelReservation(reservation) && (
+              <MediumButton
+                variant="secondary"
+                onClick={() =>
+                  router.push(`${reservationsUrl}${reservation.pk}/cancel`)
+                }
+                data-testid="reservation-card__button--cancel-reservation"
+              >
+                {t("reservations:cancelReservation")}
+              </MediumButton>
             )}
-          </Address>
-          <TimeStrip $type={type} data-testid="reservation__card--time">
-            {timeStripContent}
-          </TimeStrip>
-          <Price
-            icon={<IconTicket aria-label={t("reservationUnit:price")} />}
-            text={getReservationPrice(reservation.price)}
-            data-testid="reservation__card--price"
-          />
-        </Bottom>
+          {["past"].includes(type) && (
+            <MediumButton
+              variant="secondary"
+              onClick={() =>
+                router.push(
+                  `${reservationUnitSinglePrefix}/${reservationUnit.pk}`
+                )
+              }
+              iconLeft={<IconPlusCircle />}
+              data-testid="reservation-card__button--redo-reservation"
+            >
+              {t("reservations:redoReservation")}
+            </MediumButton>
+          )}
+          <MediumButton
+            variant="primary"
+            onClick={() => router.push(link)}
+            data-testid="reservation-card__button--goto-reservation"
+          >
+            {t("reservationUnitCard:seeMore")}
+          </MediumButton>
+        </Actions>
       </MainContent>
-      <Actions>
-        {type === "upcoming" ? (
-          <MediumButton
-            variant="secondary"
-            onClick={() =>
-              router.push(`${reservationsUrl}${reservation.pk}/cancel`)
-            }
-            disabled={!canUserCancelReservation(reservation)}
-            data-testid="reservation-card__button--cancel-reservation"
-          >
-            {t("reservations:cancelReservation")}
-          </MediumButton>
-        ) : (
-          <MediumButton
-            variant="secondary"
-            onClick={() =>
-              router.push(
-                `${reservationUnitSinglePrefix}/${reservationUnit.pk}`
-              )
-            }
-            iconLeft={<IconPlusCircle />}
-            data-testid="reservation-card__button--redo-reservation"
-          >
-            {t("reservations:redoReservation")}
-          </MediumButton>
-        )}
-        <MediumButton
-          variant="primary"
-          onClick={() => router.push(link)}
-          data-testid="reservation-card__button--goto-reservation"
-        >
-          {t("reservationUnitCard:seeMore")}
-        </MediumButton>
-      </Actions>
     </Container>
   );
 };

@@ -33,5 +33,7 @@
   "makeNewReservation": "Tee uusi varaus samaan tilaan",
   "reservationInfo": "Varauksen ohjeet",
   "gotoReservations": "Siirry omiin varauksiin",
-  "reservationDuration": "Varaus {{duration}}"
+  "reservationDuration": "Varaus {{duration}}",
+  "noUpcomingReservations": "Ei tulevia varauksia",
+  "noPastReservations": "Ei menneitä varauksia"
 }
