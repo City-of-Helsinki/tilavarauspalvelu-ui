@@ -95,7 +95,22 @@ const SearchSingle = (): JSX.Element => {
     QueryReservationUnitsArgs
   >(RESERVATION_UNITS, {
     variables: {
-      ...omit(values, ["order", "sort"]),
+      ...omit(values, [
+        "order",
+        "sort",
+        "minPersons",
+        "maxPersons",
+        "purposes",
+      ]),
+      ...(values.minPersons && {
+        minPersons: parseInt(values.minPersons, 10),
+      }),
+      ...(values.maxPersons && {
+        maxPersons: parseInt(values.maxPersons, 10),
+      }),
+      ...(values.purposes && {
+        purposes: values.purposes.split(","),
+      }),
       first: pagingLimit,
       orderBy: values.order === "desc" ? `-${values.sort}` : values.sort,
       isDraft: false,
