@@ -49,6 +49,7 @@ COPY --from=builder /app/ui/package.json /app/ui/package.json
 COPY --from=builder /app/package.json /app/package.json
 
 USER default
+RUN mkdir -p /app/ui/.next/cache/images
 
 EXPOSE 3000
 
