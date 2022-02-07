@@ -6,7 +6,6 @@ import ReactMapGL, {
   GeolocateControl,
 } from "react-map-gl";
 import { mapboxToken, mapStyle } from "../modules/const";
-import mapMarkerIcon from "../public/mapMarkerIcon.svg";
 
 type State = Record<string, number>;
 type Props = {
@@ -58,7 +57,7 @@ const Map = ({
     >
       <NavigationControl style={navControlStyle} showCompass={false} />
       <Marker key={title} longitude={longitude} latitude={latitude}>
-        <Image src={mapMarkerIcon} height="42" width="32" alt="" />
+        <Image src="/mapMarkerIcon.svg" height="42" width="32" alt="" />
       </Marker>
       <GeolocateControl
         style={geolocateControlStyle}
