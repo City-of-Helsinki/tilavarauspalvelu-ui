@@ -9,8 +9,6 @@ export const SPACES_QUERY = gql`
           nameFi
           unit {
             pk
-          }
-          unit {
             nameFi
           }
           parent {
@@ -95,6 +93,7 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
           nameFi
           unit {
             nameFi
+            pk
           }
           reservationUnitType {
             nameFi

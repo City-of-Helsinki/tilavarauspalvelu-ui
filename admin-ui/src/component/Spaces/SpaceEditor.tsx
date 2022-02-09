@@ -1,17 +1,20 @@
+import React, { useReducer, useState } from "react";
 import {
   Notification,
   NumberInput,
   TextInput,
   Select,
   Button,
+  ErrorSummary,
 } from "hds-react";
 import { get, omitBy, pick, upperFirst } from "lodash";
-import React, { useReducer } from "react";
+
 import { FetchResult, useMutation, useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Link } from "react-router-dom";
 import styled from "styled-components";
+import Joi from "joi";
 import { ContentContainer, IngressContainer } from "../../styles/layout";
 import { breakpoints } from "../../styles/util";
 import Loader from "../Loader";
@@ -35,6 +38,7 @@ import {
 } from "../../common/gql-types";
 import { languages } from "../../common/const";
 import { spacesAsHierarchy } from "./util";
+import { useNotification } from "../../context/NotificationContext";
 
 interface IProps {
   unitPk: string;
@@ -47,7 +51,7 @@ type NotificationType = {
   type: "success" | "error";
 };
 
-type ParentType = { label: string; value: SpaceType | null };
+type ParentType = { label: string; value: number | null };
 
 const independentSpaceOption = {
   label: i18next.t("SpaceEditor.noParent"),
@@ -60,6 +64,10 @@ type Action =
       notification: NotificationType;
     }
   | { type: "clearNotification" }
+  | {
+      type: "setValidatioErrors";
+      validationErrors: Joi.ValidationResult | null;
+    }
   | { type: "clearError" }
   | { type: "dataLoaded"; space: SpaceType }
   | { type: "hierarchyLoaded"; spaces: SpaceType[] }
@@ -81,6 +89,7 @@ type State = {
     message: string;
   };
   parentOptions: ParentType[];
+  validationErrors: Joi.ValidationResult | null;
 };
 
 const getInitialState = (spacePk: number, unitPk: number): State => ({
@@ -93,6 +102,24 @@ const getInitialState = (spacePk: number, unitPk: number): State => ({
   error: null,
   hasChanges: false,
   parentOptions: [independentSpaceOption],
+  validationErrors: null,
+});
+
+const schema = Joi.object({
+  nameFi: Joi.string().min(3).max(80),
+  nameSv: Joi.string().min(3).max(80),
+  nameEn: Joi.string().min(3).max(80),
+  surfaceArea: Joi.number().min(1),
+  maxPersons: Joi.number().min(1),
+  unitPk: Joi.number(),
+  pk: Joi.number(),
+  parentPk: Joi.number().allow(null),
+  code: Joi.string().allow("").optional(),
+}).options({
+  abortEarly: false,
+  messages: {
+    "*": "Virhe",
+  },
 });
 
 const modified = (d: State) => ({ ...d, hasChanges: true });
@@ -108,6 +135,28 @@ const getChildrenRecursive = (space: SpaceType, hierarchy: SpaceType[]) => {
   );
 };
 
+const withLoadingState = (state: State): State => {
+  let additionalOptions: ParentType[] = [];
+  if (state.unitSpaces && state.space) {
+    const children = getChildrenRecursive(state.space, state.unitSpaces).map(
+      (s) => s.pk
+    );
+
+    additionalOptions = state.unitSpaces
+      .filter((space) => space.pk !== state.spacePk)
+      .filter((space) => children.indexOf(space.pk) === -1)
+      .map((space) => ({
+        label: space.nameFi as string,
+        value: space.pk as number,
+      }));
+  }
+  return {
+    ...state,
+    parentOptions: [independentSpaceOption, ...additionalOptions],
+    loading: state.space === null || state.unitSpaces === undefined,
+  };
+};
+
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "clearNotification": {
@@ -118,30 +167,35 @@ const reducer = (state: State, action: Action): State => {
     }
     case "dataLoaded": {
       const { space } = action;
-      return {
+      return withLoadingState({
         ...state,
         space: {
           ...space,
         },
         spaceEdit: {
-          ...pick({ ...space, pk: space.pk as number }, [
-            "pk",
-            "nameFi",
-            "nameSv",
-            "nameEn",
-            "surfaceArea",
-            "maxPersons",
-            "code",
-            "termsOfUseFi",
-            "termsOfUseSv",
-            "termsOfUseEn",
-          ]),
+          ...pick(
+            {
+              ...space,
+              pk: space.pk,
+              maxPersons: space.maxPersons || 1,
+              surfaceArea: space.surfaceArea || 1,
+            },
+            [
+              "pk",
+              "nameFi",
+              "nameSv",
+              "nameEn",
+              "surfaceArea",
+              "maxPersons",
+              "code",
+            ]
+          ),
           parentPk: space.parent ? space.parent?.pk : null,
           unitPk: space.unit ? space.unit.pk : undefined,
         } as SpaceUpdateMutationInput,
-        loading: false,
         hasChanges: false,
-      };
+        validationErrors: null,
+      });
     }
     case "hierarchyLoaded": {
       const unitSpaces = spacesAsHierarchy(
@@ -151,24 +205,10 @@ const reducer = (state: State, action: Action): State => {
         "\u2007"
       );
 
-      const children = getChildrenRecursive(
-        state.space as SpaceType,
-        unitSpaces
-      ).map((s) => s.pk);
-
-      const additionalOptions = unitSpaces
-        .filter((space) => space.pk !== state.spacePk)
-        .filter((space) => children.indexOf(space.pk) === -1)
-        .map((space) => ({
-          label: space.nameFi as string,
-          value: space,
-        }));
-
-      return {
+      return withLoadingState({
         ...state,
         unitSpaces,
-        parentOptions: [independentSpaceOption, ...additionalOptions],
-      };
+      });
     }
     case "dataLoadError": {
       return {
@@ -192,6 +232,13 @@ const reducer = (state: State, action: Action): State => {
       });
     }
 
+    case "setValidatioErrors": {
+      return {
+        ...state,
+        validationErrors: action.validationErrors,
+      };
+    }
+
     default:
       return state;
   }
@@ -199,9 +246,6 @@ const reducer = (state: State, action: Action): State => {
 
 const Wrapper = styled.div``;
 
-const TextInputWithPadding = styled(TextInput)`
-  padding-bottom: var(--spacing-m);
-`;
 const StyledNotification = styled(Notification)`
   margin: var(--spacing-xs) var(--spacing-layout-2-xs);
   width: auto;
@@ -214,11 +258,17 @@ const EditorContainer = styled.div`
   margin: 0 var(--spacing-layout-m);
 `;
 
+const EditorRows = styled.div`
+  display: grid;
+  gap: var(--spacing-s);
+  grid-template-columns: 1fr;
+`;
+
 const EditorColumns = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: baseline;
-  gap: 1em;
+  gap: var(--spacing-s);
   margin-top: var(--spacing-s);
   padding-bottom: var(--spacing-m);
 `;
@@ -247,23 +297,49 @@ const SaveButton = styled(Button)`
   margin-left: auto;
 `;
 
+const MyErrorSummary = ({
+  validationErrors,
+}: {
+  validationErrors: Joi.ValidationResult | null;
+}) =>
+  !validationErrors ? null : (
+    <ErrorSummary label={i18next.t("SpaceEditor.errorSummary")} autofocus>
+      <ul>
+        {validationErrors.error?.details.map((error) => (
+          <li key={String(error.path)}>
+            <Link to={{ hash: `${error.path}` }}>
+              {i18next.t(`SpaceEditor.label.${error.path}`)}
+            </Link>
+            {": "}
+            {i18next.t(`validation.${error.type}`, { ...error.context })}
+          </li>
+        ))}
+      </ul>
+    </ErrorSummary>
+  );
+
 const getParent = (v: Maybe<number> | undefined, options: ParentType[]) =>
-  options.find((po) => po.value?.pk === v) || options[0];
+  options.find((po) => po.value === v) || options[0];
 
 const SpaceEditor = (): JSX.Element | null => {
   const { spacePk, unitPk } = useParams<IProps>();
+  const [saving, setSaving] = useState(false);
   const history = useHistory();
+
+  const { notifyError, notifySuccess } = useNotification();
 
   const [state, dispatch] = useReducer(
     reducer,
     getInitialState(Number(spacePk), Number(unitPk))
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const setValue = (value: any) => {
+    dispatch({ type: "set", value });
+  };
+
   const onDataError = (text: string) => {
-    dispatch({
-      type: "dataLoadError",
-      message: text,
-    });
+    dispatch({ type: "dataLoadError", message: text });
   };
 
   const [updateSpaceMutation] = useMutation<
@@ -278,7 +354,7 @@ const SpaceEditor = (): JSX.Element | null => {
 
   const { t } = useTranslation();
 
-  useQuery<Query, QuerySpaceByPkArgs>(SPACE_QUERY, {
+  const { refetch } = useQuery<Query, QuerySpaceByPkArgs>(SPACE_QUERY, {
     variables: { pk: Number(spacePk) },
     onCompleted: ({ spaceByPk }) => {
       if (spaceByPk) {
@@ -305,6 +381,31 @@ const SpaceEditor = (): JSX.Element | null => {
     },
   });
 
+  const onSave = async () => {
+    setSaving(true);
+    try {
+      const data = await updateSpace({
+        ...(omitBy(
+          state.spaceEdit,
+          (v) => v === ""
+        ) as SpaceUpdateMutationInput),
+        surfaceArea: Number(state.spaceEdit?.surfaceArea),
+      });
+      if (data?.data?.updateSpace.errors === null) {
+        notifySuccess(
+          t("SpaceEditor.spaceUpdated"),
+          t("SpaceEditor.spaceUpdatedNotification")
+        );
+        refetch();
+      } else {
+        notifyError(t("SpaceEditor.saveFailed"));
+      }
+    } catch {
+      notifyError(t("SpaceEditor.saveFailed"));
+    }
+    setSaving(false);
+  };
+
   if (state.loading) {
     return <Loader />;
   }
@@ -328,24 +429,23 @@ const SpaceEditor = (): JSX.Element | null => {
     );
   }
 
-  const onSave = (text?: string) =>
-    dispatch({
-      type: "setNotification",
-      notification: {
-        type: "success",
-        title: text || t("SpaceEditor.spaceUpdated"),
-        text: "SpaceEditor.spaceUpdatedNotification",
-      },
-    });
-
   if (state.space === null) {
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const setValue = (value: any) => {
-    dispatch({ type: "set", value });
+  const getValidationError = (name: string): string | undefined => {
+    const error = state.validationErrors?.error?.details.find((errorDetail) =>
+      errorDetail.path.find((path) => path === name)
+    );
+
+    if (!error) {
+      return undefined;
+    }
+
+    return t(`validation.${error.type}`, { ...error.context });
   };
+
+  console.log("rendering with ", state);
 
   return (
     <Wrapper>
@@ -372,6 +472,8 @@ const SpaceEditor = (): JSX.Element | null => {
         <EditorContainer>
           <H1>{t("SpaceEditor.details")}</H1>
           <Editor>
+            <MyErrorSummary validationErrors={state.validationErrors} />
+
             <Section>
               <SubHeading>{t("SpaceEditor.hierarchy")}</SubHeading>
               <SpaceHierarchy
@@ -390,37 +492,42 @@ const SpaceEditor = (): JSX.Element | null => {
                   state.parentOptions
                 )}
                 onChange={(selected: ParentType) =>
-                  setValue({ parentPk: selected.value?.pk })
+                  setValue({ parentPk: selected.value })
                 }
               />
             </Section>
             <Section>
               <SubHeading>{t("SpaceEditor.other")}</SubHeading>
-              {languages.map((lang) => (
-                <TextInputWithPadding
-                  key={lang}
-                  required
-                  id={`name${lang}`}
-                  label={t("SpaceEditor.nameLabel", {
-                    lang,
-                  })}
-                  value={get(state, `spaceEdit.name${upperFirst(lang)}`, "")}
-                  placeholder={t("SpaceEditor.namePlaceholder", {
-                    language: t(`language.${lang}`),
-                  })}
-                  onChange={(e) =>
-                    setValue({
-                      [`name${upperFirst(lang)}`]: e.target.value,
-                    })
-                  }
-                />
-              ))}
+              <EditorRows>
+                {languages.map((lang) => {
+                  const fieldName = `name${upperFirst(lang)}`;
+                  return (
+                    <TextInput
+                      key={lang}
+                      required
+                      id={fieldName}
+                      label={t(`SpaceEditor.label.${fieldName}`)}
+                      value={get(state, `spaceEdit.${fieldName}`, "")}
+                      placeholder={t("SpaceEditor.namePlaceholder", {
+                        language: t(`language.${lang}`),
+                      })}
+                      onChange={(e) =>
+                        setValue({
+                          [fieldName]: e.target.value,
+                        })
+                      }
+                      errorText={getValidationError(fieldName)}
+                      invalid={!!getValidationError(fieldName)}
+                    />
+                  );
+                })}
+              </EditorRows>
 
               <EditorColumns>
                 <NumberInput
                   value={state.spaceEdit?.surfaceArea || 0}
                   id="surfaceArea"
-                  label={t("SpaceModal.page2.surfaceAreaLabel")}
+                  label={t("SpaceEditor.label.maxPersons")}
                   helperText={t("SpaceModal.page2.surfaceAreaHelperText")}
                   minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
                   plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
@@ -431,11 +538,12 @@ const SpaceEditor = (): JSX.Element | null => {
                   type="number"
                   min={1}
                   required
+                  errorText={getValidationError("surfaceArea")}
                 />
                 <NumberInput
-                  value={state.spaceEdit?.maxPersons || ""}
+                  value={state.spaceEdit?.maxPersons || 0}
                   id="maxPersons"
-                  label={t("SpaceModal.page2.maxPersonsLabel")}
+                  label={t("SpaceEditor.label.maxPersons")}
                   minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
                   plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
                   onChange={(e) =>
@@ -446,6 +554,7 @@ const SpaceEditor = (): JSX.Element | null => {
                   min={1}
                   helperText={t("SpaceModal.page2.maxPersonsHelperText")}
                   required
+                  errorText={getValidationError("maxPersons")}
                 />
                 <TextInput
                   id="code"
@@ -466,24 +575,17 @@ const SpaceEditor = (): JSX.Element | null => {
               </Button>
               <SaveButton
                 disabled={!state.hasChanges}
-                onClick={async () => {
-                  try {
-                    const data = await updateSpace({
-                      ...(omitBy(
-                        state.spaceEdit,
-                        (v) => v === ""
-                      ) as SpaceUpdateMutationInput),
-                      surfaceArea: Number(state.spaceEdit?.surfaceArea),
-                    });
-                    if (data?.data?.updateSpace.errors === null) {
-                      onSave();
-                    } else {
-                      onDataError("Tietojen tallennus ei onnistunut!");
-                    }
-                  } catch {
-                    onDataError(t("SpaceEditor.saveFailed"));
+                onClick={(e) => {
+                  e.preventDefault();
+                  const validationErrors = schema.validate(state.spaceEdit);
+                  if (validationErrors.error) {
+                    dispatch({ type: "setValidatioErrors", validationErrors });
+                  } else {
+                    onSave();
                   }
                 }}
+                isLoading={saving}
+                loadingText={t("saving")}
               >
                 {t("SpaceEditor.save")}
               </SaveButton>

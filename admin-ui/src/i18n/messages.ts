@@ -741,7 +741,9 @@ const translations: ITranslations = {
     resourceDeletedNotification: ["Resurssi poistettu onnistuneesti"],
   },
   SpaceEditor: {
+    errorSummary: ["Korjaa ensin lomakkeen virheet"],
     noParent: ["Päätason tila"],
+    noUnit: ["Tilaa ei ole liitetty toimipisteeseen"],
     noAddress: ["Toimipisteellä ei ole osoitetta"],
     noSurfaceArea: ["Pinta-alaa ei ole asetettu"],
     details: ["Tilan tiedot"],
@@ -751,7 +753,14 @@ const translations: ITranslations = {
     cancel: ["Palaa tallentamatta tietoja"],
     save: ["Tallenna tiedot"],
     saveFailed: ["Tallennus ei onnistunut"],
-    nameLabel: ["Tilan nimi {{lang}}"],
+    label: {
+      nameFi: ["Tilan nimi suomeksi"],
+      nameEn: ["Tilan nimi englanniksi"],
+      nameSv: ["Tilan nimi ruotsiksi"],
+      surfaceArea: ["Pinta-ala"],
+      maxPersons: ["Maksimihenkilömäärä"],
+    },
+
     namePlaceholder: ["Tilan nimi {{language}}"],
     touLabel: ["Tilan ohjeet {{lang}}"],
     termsOfUseHelperText: ["Tilan käyttöehdot..."],
@@ -1096,6 +1105,18 @@ const translations: ITranslations = {
       accept: ["Palauta käsiteltäväksi"],
       returned: ["Anomus palautettu käsiteltäväksi"],
       errorSaving: ["Palauttaminen ei onnistunut"],
+    },
+  },
+  validation: {
+    string: {
+      min: ["minimipituus {{limit}}"],
+      max: ["maksimipituus {{limit}}"],
+      empty: ["pakollinen"],
+    },
+    number: {
+      min: ["pienin sallittu {{limit}}"],
+      max: ["suurin sallitty {{limit}}"],
+      empty: ["pakollinen"],
     },
   },
 };
