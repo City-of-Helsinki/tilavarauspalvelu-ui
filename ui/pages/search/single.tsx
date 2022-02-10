@@ -27,7 +27,7 @@ import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
 import { OptionType } from "../../modules/types";
 
-const pagingLimit = 3;
+const pagingLimit = 10;
 
 const HeadContainer = styled.div`
   background-color: white;
