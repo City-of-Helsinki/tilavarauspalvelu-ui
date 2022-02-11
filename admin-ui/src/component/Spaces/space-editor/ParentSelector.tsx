@@ -12,7 +12,6 @@ type Props = {
   spacePk: number | null;
   parentPk: number | null;
   onChange: (val: number | null, name?: string) => void;
-  onError: () => void;
 };
 
 type ParentType = { label: string; value: number | null };
@@ -41,7 +40,6 @@ const ParentSelector = ({
   spacePk,
   onChange,
   parentPk,
-  onError,
 }: Props): JSX.Element => {
   const [parentOptions, setParentOptions] = useState([] as ParentType[]);
 
@@ -73,7 +71,6 @@ const ParentSelector = ({
         setParentOptions([independentSpaceOption, ...additionalOptions]);
       }
     },
-    onError,
   });
 
   return (

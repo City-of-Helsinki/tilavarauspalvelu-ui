@@ -377,7 +377,6 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
                 parentPk={state.spaceEdit?.parentPk as number}
                 spacePk={space}
                 unitPk={unit}
-                onError={console.error}
               />
             </Section>
             <Section>

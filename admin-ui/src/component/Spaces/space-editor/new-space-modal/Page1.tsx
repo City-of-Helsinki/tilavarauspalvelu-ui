@@ -98,7 +98,6 @@ const Page1 = ({
             <br />
             <ParentSelector
               unitPk={unit.pk as number}
-              onError={console.error}
               spacePk={null}
               parentPk={editorState.parentPk || null}
               onChange={(parentPk) =>
