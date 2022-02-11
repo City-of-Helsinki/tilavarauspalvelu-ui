@@ -32,7 +32,7 @@ import {
   RoundTag,
   State,
   UnitInfo,
-} from "./NewSpaceModal";
+} from "./newSpaceModal";
 import { parseAddress } from "../../../../common/util";
 import { languages } from "../../../../common/const";
 

@@ -9,7 +9,7 @@ import {
   UnitByPkType,
 } from "../../../../common/gql-types";
 import { CREATE_SPACE } from "../queries";
-import { Action, SpaceMutationInputWithKey, State } from "./NewSpaceModal";
+import { Action, SpaceMutationInputWithKey, State } from "./newSpaceModal";
 import Page1 from "./Page1";
 import Page2 from "./Page2";
 

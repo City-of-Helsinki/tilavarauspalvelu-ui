@@ -26,7 +26,7 @@ import Units from "./component/Unit/Units";
 import Unit from "./component/Unit/Unit";
 import UnitMap from "./component/Unit/UnitMap";
 import SpacesResources from "./component/Unit/SpacesResources";
-import SpaceEditorView from "./component/Spaces/space-editor";
+import SpaceEditorView from "./component/Spaces/space-editor/SpaceEditorView";
 import ResourceEditor from "./component/Resources/ResourceEditor";
 import ReservationUnitEditor from "./component/ReservationUnits/ReservationUnitEditor";
 import ResourcesList from "./component/Resources/ResourcesList";
