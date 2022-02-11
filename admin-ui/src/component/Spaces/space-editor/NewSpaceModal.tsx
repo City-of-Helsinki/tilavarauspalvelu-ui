@@ -8,13 +8,12 @@ import {
   IconPlusCircleFill,
   IconTrash,
   NumberInput,
-  Select,
   Tag,
   TextInput,
 } from "hds-react";
 import i18next from "i18next";
 import styled from "styled-components";
-import { FetchResult, useMutation, useQuery } from "@apollo/client";
+import { FetchResult, useMutation } from "@apollo/client";
 import { useTranslation, TFunction } from "react-i18next";
 import { omit, set, startCase } from "lodash";
 import { parseAddress } from "../../../common/util";
@@ -23,16 +22,13 @@ import { CustomDialogHeader } from "../../Unit/CustomDialogHeader";
 import { languages } from "../../../common/const";
 import {
   Maybe,
-  Query,
   SpaceCreateMutationInput,
   SpaceCreateMutationPayload,
   SpaceType,
   UnitByPkType,
 } from "../../../common/gql-types";
-import { spacesAsHierarchy } from "./util";
-import { CREATE_SPACE, SPACE_HIERARCHY_QUERY } from "./queries";
-
-type ParentType = { label: string; value: SpaceType | null };
+import { CREATE_SPACE } from "./queries";
+import ParentSelector from "./ParentSelector";
 
 const defaultParentSpacePk = 1;
 interface IProps {
@@ -47,12 +43,11 @@ type SpaceMutationInputWithKey<T> = Partial<T> & { key: string };
 
 type State = {
   numSpaces: number;
-  parentSpace?: SpaceType | null;
+  parentPk?: number | null;
   spaces: SpaceMutationInputWithKey<SpaceCreateMutationInput>[];
   page: number;
   unitPk: number;
   unitSpaces?: SpaceType[];
-  parentOptions: ParentType[];
 };
 
 type Action =
@@ -61,13 +56,12 @@ type Action =
   | { type: "setSpaceSurfaceArea"; surfaceArea: number; index: number }
   | { type: "setSpaceMaxPersonCount"; maxPersonCount: number; index: number }
   | { type: "setSpaceCode"; code: string; index: number }
-  | { type: "setParentSpace"; parentSpace?: SpaceType | null }
+  | { type: "setParentPk"; parentPk: number | null }
   | { type: "setUnit"; unit: UnitByPkType }
   | { type: "nextPage" }
   | { type: "prevPage" }
   | { type: "addRow" }
-  | { type: "delete"; index: number }
-  | { type: "hierarchyLoaded"; spaces: SpaceType[] };
+  | { type: "delete"; index: number };
 
 const independentSpaceOption = {
   label: i18next.t("SpaceEditor.noParent"),
@@ -137,17 +131,14 @@ const reducer = (state: State, action: Action): State => {
     case "setUnit": {
       return set({ ...state }, "unitPk", action.unit.pk);
     }
-    case "setParentSpace": {
-      return set({ ...state }, "parentSpace", action.parentSpace);
+    case "setParentPk": {
+      return set({ ...state }, "parentPk", action.parentPk);
     }
     case "addRow": {
       return {
         ...state,
         spaces: state.spaces.concat([
-          initialSpace(
-            state.parentSpace?.pk || defaultParentSpacePk,
-            state.unitPk
-          ),
+          initialSpace(state.parentPk || defaultParentSpacePk, state.unitPk),
         ]),
       };
     }
@@ -167,33 +158,13 @@ const reducer = (state: State, action: Action): State => {
       // populate initial data for spaces
       if (nextState.spaces.length === 0) {
         nextState.spaces = Array.from(Array(state.numSpaces).keys()).map(() =>
-          initialSpace(state.parentSpace?.pk, state.unitPk)
+          initialSpace(state.parentPk, state.unitPk)
         );
       }
       return nextState;
     }
     case "prevPage": {
       return set({ ...state }, "page", 0);
-    }
-
-    case "hierarchyLoaded": {
-      const unitSpaces = spacesAsHierarchy(
-        action.spaces.filter((space) => {
-          return space.unit?.pk === state.unitPk;
-        }),
-        "\u2007"
-      );
-
-      const additionalOptions = unitSpaces.map((space) => ({
-        label: space.nameFi as string,
-        value: space,
-      }));
-
-      return {
-        ...state,
-        unitSpaces,
-        parentOptions: [independentSpaceOption, ...additionalOptions],
-      };
     }
 
     default:
@@ -295,7 +266,7 @@ function FirstPage({
   hasFixedParent: boolean;
 }): JSX.Element {
   const nextEnabled =
-    editorState.numSpaces > 0 && editorState.parentSpace !== undefined;
+    editorState.numSpaces > 0 && editorState.parentPk !== undefined;
 
   return (
     <>
@@ -318,7 +289,9 @@ function FirstPage({
           <div>
             <Name>{unit.nameFi}</Name>
             <Parent>
-              {editorState.parentSpace ? editorState.parentSpace.nameFi : null}
+              {editorState.parentPk
+                ? `TODO XDXD ${editorState.parentPk}`
+                : null}
             </Parent>
           </div>
           {unit.location ? (
@@ -348,17 +321,15 @@ function FirstPage({
         {!hasFixedParent ? (
           <>
             <br />
-            <Select
-              id="parent"
-              label={t("SpaceModal.page1.parentLabel")}
-              placeholder={t("SpaceModal.page1.parentPlaceholder")}
-              required
-              helper={t("SpaceModal.page1.parentHelperText")}
-              options={editorState.parentOptions}
-              onChange={(selected: ParentType) =>
+            <ParentSelector
+              unitPk={unit.pk as number}
+              onError={console.error}
+              spacePk={null}
+              parentPk={editorState.parentPk || null}
+              onChange={(parentPk) =>
                 dispatch({
-                  type: "setParentSpace",
-                  parentSpace: selected.value,
+                  type: "setParentPk",
+                  parentPk,
                 })
               }
             />
@@ -506,7 +477,7 @@ const SecondPage = ({
   hasFixedParent: boolean;
 }): JSX.Element => {
   const nextEnabled =
-    editorState.numSpaces > 0 && editorState.parentSpace !== undefined;
+    editorState.numSpaces > 0 && editorState.parentPk !== undefined;
 
   return (
     <>
@@ -533,8 +504,8 @@ const SecondPage = ({
           <div>
             <Name>{unit.nameFi}</Name>
             <Parent>
-              {editorState.parentSpace
-                ? editorState.parentSpace.nameFi
+              {editorState.parentPk
+                ? `XDXD TODO TODO${editorState.parentPk}`
                 : t("SpaceModal.page2.newRootSpace")}
             </Parent>
           </div>
@@ -625,7 +596,7 @@ const NewSpaceModal = ({
 
   useEffect(() => {
     if (parentSpace) {
-      dispatch({ type: "setParentSpace", parentSpace });
+      dispatch({ type: "setParentPk", parentPk: parentSpace.pk as number });
     }
   }, [parentSpace]);
 
@@ -634,21 +605,6 @@ const NewSpaceModal = ({
       dispatch({ type: "setUnit", unit });
     }
   }, [unit]);
-
-  useQuery<Query>(SPACE_HIERARCHY_QUERY, {
-    onCompleted: ({ spaces }) => {
-      const result = spaces?.edges.map((s) => s?.node as SpaceType);
-      if (result) {
-        dispatch({
-          type: "hierarchyLoaded",
-          spaces: result,
-        });
-      }
-    },
-    onError: (e) => {
-      onDataError(t("errors.errorFetchingData", { error: e }));
-    },
-  });
 
   const createSpaceMutation = useMutation<
     { createSpace: SpaceCreateMutationPayload },

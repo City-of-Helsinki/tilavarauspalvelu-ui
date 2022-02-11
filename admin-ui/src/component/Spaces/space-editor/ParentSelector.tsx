@@ -9,7 +9,7 @@ import { spacesAsHierarchy } from "./util";
 
 type Props = {
   unitPk: number;
-  spacePk: number;
+  spacePk: number | null;
   parentPk: number | null;
   onChange: (val: number | null) => void;
   onError: () => void;
@@ -58,9 +58,9 @@ const ParentSelector = ({
           "\u2007"
         );
 
-        const children = getChildrenRecursive(spacePk, unitSpaces).map(
-          (s) => s.pk
-        );
+        const children = spacePk
+          ? getChildrenRecursive(spacePk, unitSpaces).map((s) => s.pk)
+          : [];
 
         const additionalOptions = unitSpaces
           .filter((space) => space.pk !== spacePk)
