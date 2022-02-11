@@ -1,22 +1,14 @@
 import React, { memo, useReducer, useState } from "react";
-import {
-  Notification,
-  NumberInput,
-  TextInput,
-  Select,
-  Button,
-} from "hds-react";
+import { Notification, NumberInput, TextInput, Button } from "hds-react";
 import { get, isEqual, omitBy, pick, upperFirst } from "lodash";
 
 import { FetchResult, useMutation, useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import Joi from "joi";
 
 import {
-  Maybe,
   Query,
   QuerySpaceByPkArgs,
   SpaceType,
@@ -25,28 +17,22 @@ import {
   UnitType,
 } from "../../../common/gql-types";
 import { languages } from "../../../common/const";
-import { spacesAsHierarchy } from "./util";
+import { schema } from "./util";
 import { useNotification } from "../../../context/NotificationContext";
 import { breakpoints } from "../../../styles/util";
-import { SPACE_HIERARCHY_QUERY, SPACE_QUERY, UPDATE_SPACE } from "./queries";
+import { SPACE_QUERY, UPDATE_SPACE } from "./queries";
 import Loader from "../../Loader";
 import Head from "./Head";
 import { ContentContainer, IngressContainer } from "../../../styles/layout";
 import { H1 } from "../../../styles/typography";
 import FormErrorSummary from "./FormErrorSummary";
 import SpaceHierarchy from "./SpaceHierarchy";
+import ParentSelector from "./ParentSelector";
 
 type NotificationType = {
   title: string;
   text: string;
   type: "success" | "error";
-};
-
-type ParentType = { label: string; value: number | null };
-
-const independentSpaceOption = {
-  label: i18next.t("SpaceEditor.noParent"),
-  value: null,
 };
 
 type Action =
@@ -61,7 +47,6 @@ type Action =
     }
   | { type: "clearError" }
   | { type: "dataLoaded"; space: SpaceType }
-  | { type: "hierarchyLoaded"; spaces: SpaceType[] }
   | { type: "dataLoadError"; message: string }
   // eslint-disable-next-line
   | { type: "set"; value: any };
@@ -79,7 +64,6 @@ type State = {
   error: null | {
     message: string;
   };
-  parentOptions: ParentType[];
   validationErrors: Joi.ValidationResult | null;
 };
 
@@ -92,56 +76,15 @@ const getInitialState = (spacePk: number, unitPk: number): State => ({
   spaceEdit: null,
   error: null,
   hasChanges: false,
-  parentOptions: [independentSpaceOption],
   validationErrors: null,
-});
-
-const schema = Joi.object({
-  nameFi: Joi.string().min(3).max(80),
-  nameSv: Joi.string().allow("").allow(null).optional().max(80),
-  nameEn: Joi.string().allow("").allow(null).optional().max(80),
-  surfaceArea: Joi.number().min(1),
-  maxPersons: Joi.number().min(1),
-  unitPk: Joi.number(),
-  pk: Joi.number(),
-  parentPk: Joi.number().allow(null),
-  code: Joi.string().allow("").allow(null).optional(),
-}).options({
-  abortEarly: false,
 });
 
 const modified = (d: State) => ({ ...d, hasChanges: true });
 
-const getChildrenFor = (space: SpaceType, hierarchy: SpaceType[]) => {
-  return hierarchy.filter((s) => s.parent?.pk === space.pk);
-};
-
-const getChildrenRecursive = (space: SpaceType, hierarchy: SpaceType[]) => {
-  const newChildren = getChildrenFor(space, hierarchy);
-  return newChildren.concat(
-    newChildren.flatMap((s) => getChildrenFor(s, hierarchy))
-  );
-};
-
 const withLoadingState = (state: State): State => {
-  let additionalOptions: ParentType[] = [];
-  if (state.unitSpaces && state.space) {
-    const children = getChildrenRecursive(state.space, state.unitSpaces).map(
-      (s) => s.pk
-    );
-
-    additionalOptions = state.unitSpaces
-      .filter((space) => space.pk !== state.spacePk)
-      .filter((space) => children.indexOf(space.pk) === -1)
-      .map((space) => ({
-        label: space.nameFi as string,
-        value: space.pk as number,
-      }));
-  }
   return {
     ...state,
-    parentOptions: [independentSpaceOption, ...additionalOptions],
-    loading: state.space === null || state.unitSpaces === undefined,
+    loading: state.space === null,
   };
 };
 
@@ -183,19 +126,6 @@ const reducer = (state: State, action: Action): State => {
         } as SpaceUpdateMutationInput,
         hasChanges: false,
         validationErrors: null,
-      });
-    }
-    case "hierarchyLoaded": {
-      const unitSpaces = spacesAsHierarchy(
-        action.spaces.filter((space) => {
-          return space.unit?.pk === state.unitPk;
-        }),
-        "\u2007"
-      );
-
-      return withLoadingState({
-        ...state,
-        unitSpaces,
       });
     }
     case "dataLoadError": {
@@ -299,9 +229,6 @@ const SaveButton = styled(Button)`
   margin-left: auto;
 `;
 
-const getParent = (v: Maybe<number> | undefined, options: ParentType[]) =>
-  options.find((po) => po.value === v) || options[0];
-
 type Props = {
   space: number;
   unit: number;
@@ -341,21 +268,6 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
     onCompleted: ({ spaceByPk }) => {
       if (spaceByPk) {
         dispatch({ type: "dataLoaded", space: spaceByPk });
-      }
-    },
-    onError: (e) => {
-      displayError(t("errors.errorFetchingData", { error: e }));
-    },
-  });
-
-  useQuery<Query>(SPACE_HIERARCHY_QUERY, {
-    onCompleted: ({ spaces }) => {
-      const result = spaces?.edges.map((s) => s?.node as SpaceType);
-      if (result) {
-        dispatch({
-          type: "hierarchyLoaded",
-          spaces: result,
-        });
       }
     },
     onError: (e) => {
@@ -460,20 +372,12 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
                 space={state.space}
                 unitSpaces={state.unitSpaces}
               />
-              <Select
-                id="parent"
-                label={t("SpaceModal.page1.parentLabel")}
-                placeholder={t("SpaceModal.page1.parentPlaceholder")}
-                required
-                helper={t("SpaceModal.page1.parentHelperText")}
-                options={state.parentOptions}
-                value={getParent(
-                  state.spaceEdit?.parentPk,
-                  state.parentOptions
-                )}
-                onChange={(selected: ParentType) =>
-                  setValue({ parentPk: selected.value })
-                }
+              <ParentSelector
+                onChange={(parentPk) => setValue({ parentPk })}
+                parentPk={state.spaceEdit?.parentPk as number}
+                spacePk={space}
+                unitPk={unit}
+                onError={console.error}
               />
             </Section>
             <Section>
