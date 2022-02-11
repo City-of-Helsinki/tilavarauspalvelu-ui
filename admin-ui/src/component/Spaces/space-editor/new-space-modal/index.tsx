@@ -1,0 +1,181 @@
+import React, { useReducer, useEffect } from "react";
+import { set, startCase } from "lodash";
+import { FetchResult, useMutation } from "@apollo/client";
+import {
+  Maybe,
+  SpaceCreateMutationInput,
+  SpaceCreateMutationPayload,
+  SpaceType,
+  UnitByPkType,
+} from "../../../../common/gql-types";
+import { CREATE_SPACE } from "../queries";
+import { Action, SpaceMutationInputWithKey, State } from "./NewSpaceModal";
+import Page1 from "./Page1";
+import Page2 from "./Page2";
+
+type Props = {
+  unit: UnitByPkType;
+  parentSpace?: SpaceType;
+  closeModal: () => void;
+  onSave: () => void;
+  onDataError: (message: string) => void;
+};
+
+const initialState = {
+  numSpaces: 1,
+  parentSpace: undefined,
+  spaces: [],
+  page: 0,
+  unitPk: 0,
+  unitSpaces: [],
+} as State;
+
+let id = -1;
+
+const getId = (): string => {
+  id -= 1;
+  return String(id);
+};
+
+const initialSpace = (
+  parentSpacePk: Maybe<number> | undefined,
+  unitPk: number
+) =>
+  ({
+    unitPk,
+    key: getId(),
+    nameFi: "",
+    surfaceArea: 0,
+    maxPersons: 0,
+    locationType: "fixed",
+    parentPk: parentSpacePk,
+  } as SpaceMutationInputWithKey<SpaceCreateMutationInput>);
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "setNumSpaces": {
+      return set({ ...state }, "numSpaces", action.numSpaces);
+    }
+    case "setSpaceName": {
+      return set(
+        { ...state },
+        `spaces[${action.index}].name${startCase(action.lang)}`,
+        action.name
+      );
+    }
+    case "setSpaceCode": {
+      return set({ ...state }, `spaces[${action.index}].code`, action.code);
+    }
+    case "setSpaceMaxPersonCount": {
+      return set(
+        { ...state },
+        `spaces[${action.index}].maxPersons`,
+        action.maxPersonCount
+      );
+    }
+    case "setSpaceSurfaceArea": {
+      return set(
+        { ...state },
+        `spaces[${action.index}].surfaceArea`,
+        action.surfaceArea
+      );
+    }
+    case "setUnit": {
+      return set({ ...state }, "unitPk", action.unit.pk);
+    }
+    case "setParentPk": {
+      return set({ ...state }, "parentPk", action.parentPk);
+    }
+    case "addRow": {
+      return {
+        ...state,
+        spaces: state.spaces.concat([
+          initialSpace(state.parentPk || null, state.unitPk),
+        ]),
+      };
+    }
+    case "delete": {
+      return {
+        ...state,
+        spaces: state.spaces.filter((s, i) => action.index !== i),
+      };
+    }
+
+    case "nextPage": {
+      const nextState = {
+        ...state,
+        page: 1,
+      };
+
+      // populate initial data for spaces
+      if (nextState.spaces.length === 0) {
+        nextState.spaces = Array.from(Array(state.numSpaces).keys()).map(() =>
+          initialSpace(state.parentPk, state.unitPk)
+        );
+      }
+      return nextState;
+    }
+    case "prevPage": {
+      return set({ ...state }, "page", 0);
+    }
+
+    default:
+      return state;
+  }
+};
+
+const NewSpaceModal = ({
+  unit,
+  closeModal,
+  onSave,
+  onDataError,
+  parentSpace,
+}: Props): JSX.Element | null => {
+  const [editorState, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    if (parentSpace) {
+      dispatch({ type: "setParentPk", parentPk: parentSpace.pk as number });
+    }
+  }, [parentSpace]);
+
+  useEffect(() => {
+    if (unit) {
+      dispatch({ type: "setUnit", unit });
+    }
+  }, [unit]);
+
+  const createSpaceMutation = useMutation<
+    { createSpace: SpaceCreateMutationPayload },
+    { input: SpaceCreateMutationInput }
+  >(CREATE_SPACE);
+
+  const createSpace = (
+    input: SpaceCreateMutationInput
+  ): Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>> =>
+    createSpaceMutation[0]({ variables: { input } });
+
+  const hasFixedParent = Boolean(parentSpace);
+  return editorState.page === 0 ? (
+    <Page1
+      editorState={editorState}
+      unit={unit}
+      dispatch={dispatch}
+      closeModal={closeModal}
+      hasFixedParent={hasFixedParent}
+    />
+  ) : (
+    <Page2
+      editorState={editorState}
+      unit={unit}
+      dispatch={dispatch}
+      closeModal={closeModal}
+      createSpace={createSpace}
+      onSave={onSave}
+      onDataError={onDataError}
+      hasFixedParent={hasFixedParent}
+    />
+  );
+};
+
+export default NewSpaceModal;

@@ -11,7 +11,7 @@ type Props = {
   unitPk: number;
   spacePk: number | null;
   parentPk: number | null;
-  onChange: (val: number | null) => void;
+  onChange: (val: number | null, name?: string) => void;
   onError: () => void;
 };
 
@@ -85,7 +85,9 @@ const ParentSelector = ({
       helper={t("SpaceModal.page1.parentHelperText")}
       options={parentOptions}
       value={getParent(parentPk, parentOptions)}
-      onChange={(selected: ParentType) => onChange(selected.value)}
+      onChange={(selected: ParentType) =>
+        onChange(selected.value, selected.label)
+      }
     />
   );
 };
