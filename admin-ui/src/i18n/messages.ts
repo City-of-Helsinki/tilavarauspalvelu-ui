@@ -770,6 +770,7 @@ const translations: ITranslations = {
     noMaxPersons: ["Henkilömäärää ei asetettu"],
     spaceUpdated: ["Tiedot tallennettu"],
     spaceUpdatedNotification: ["Tilan tiedot tallennettu"],
+    area: ["{{surfaceArea}} m²"],
   },
   SpaceModal: {
     phase: ["Vaihe"],

@@ -17,10 +17,10 @@ import styled from "styled-components";
 import { FetchResult, useMutation, useQuery } from "@apollo/client";
 import { useTranslation, TFunction } from "react-i18next";
 import { omit, set, startCase } from "lodash";
-import { parseAddress } from "../../common/util";
-import { CREATE_SPACE, SPACE_HIERARCHY_QUERY } from "../../common/queries";
-import { CustomDialogHeader } from "./CustomDialogHeader";
-import { languages } from "../../common/const";
+import { parseAddress } from "../../../common/util";
+
+import { CustomDialogHeader } from "../../Unit/CustomDialogHeader";
+import { languages } from "../../../common/const";
 import {
   Maybe,
   Query,
@@ -28,8 +28,9 @@ import {
   SpaceCreateMutationPayload,
   SpaceType,
   UnitByPkType,
-} from "../../common/gql-types";
-import { spacesAsHierarchy } from "../Spaces/util";
+} from "../../../common/gql-types";
+import { spacesAsHierarchy } from "./util";
+import { CREATE_SPACE, SPACE_HIERARCHY_QUERY } from "./queries";
 
 type ParentType = { label: string; value: SpaceType | null };
 

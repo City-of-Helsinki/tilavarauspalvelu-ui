@@ -1,32 +1,20 @@
-import React, { useReducer, useState } from "react";
+import React, { memo, useReducer, useState } from "react";
 import {
   Notification,
   NumberInput,
   TextInput,
   Select,
   Button,
-  ErrorSummary,
 } from "hds-react";
-import { get, omitBy, pick, upperFirst } from "lodash";
+import { get, isEqual, omitBy, pick, upperFirst } from "lodash";
 
 import { FetchResult, useMutation, useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
-import { useParams, useHistory, Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import Joi from "joi";
-import { ContentContainer, IngressContainer } from "../../styles/layout";
-import { breakpoints } from "../../styles/util";
-import Loader from "../Loader";
-import withMainMenu from "../withMainMenu";
-import {
-  SPACE_HIERARCHY_QUERY,
-  SPACE_QUERY,
-  UPDATE_SPACE,
-} from "../../common/queries";
-import SpaceHead from "./SpaceHead";
-import { H1 } from "../../styles/typography";
-import SpaceHierarchy from "./SpaceHierarchy";
+
 import {
   Maybe,
   Query,
@@ -35,15 +23,18 @@ import {
   SpaceUpdateMutationInput,
   SpaceUpdateMutationPayload,
   UnitType,
-} from "../../common/gql-types";
-import { languages } from "../../common/const";
+} from "../../../common/gql-types";
+import { languages } from "../../../common/const";
 import { spacesAsHierarchy } from "./util";
-import { useNotification } from "../../context/NotificationContext";
-
-interface IProps {
-  unitPk: string;
-  spacePk: string;
-}
+import { useNotification } from "../../../context/NotificationContext";
+import { breakpoints } from "../../../styles/util";
+import { SPACE_HIERARCHY_QUERY, SPACE_QUERY, UPDATE_SPACE } from "./queries";
+import Loader from "../../Loader";
+import Head from "./Head";
+import { ContentContainer, IngressContainer } from "../../../styles/layout";
+import { H1 } from "../../../styles/typography";
+import FormErrorSummary from "./FormErrorSummary";
+import SpaceHierarchy from "./SpaceHierarchy";
 
 type NotificationType = {
   title: string;
@@ -255,7 +246,10 @@ const StyledNotification = styled(Notification)`
 `;
 
 const EditorContainer = styled.div`
-  margin: 0 var(--spacing-layout-m);
+  margin: 0;
+  @media (min-width: ${breakpoints.l}) {
+    margin: 0 var(--spacing-layout-m);
+  }
 `;
 
 const EditorRows = styled.div`
@@ -266,16 +260,27 @@ const EditorRows = styled.div`
 
 const EditorColumns = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
   align-items: baseline;
+  grid-template-columns: 1fr;
   gap: var(--spacing-s);
   margin-top: var(--spacing-s);
   padding-bottom: var(--spacing-m);
+
+  @media (min-width: ${breakpoints.m}) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (min-width: ${breakpoints.l}) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 `;
 
 const Editor = styled.div`
-  margin: 0 var(--spacing-layout-m);
+  margin: 0;
   max-width: 52rem;
+
+  @media (min-width: ${breakpoints.l}) {
+    margin: 0 var(--spacing-layout-m);
+  }
 `;
 
 const Section = styled.div`
@@ -297,41 +302,21 @@ const SaveButton = styled(Button)`
   margin-left: auto;
 `;
 
-const MyErrorSummary = ({
-  validationErrors,
-}: {
-  validationErrors: Joi.ValidationResult | null;
-}) =>
-  !validationErrors ? null : (
-    <ErrorSummary label={i18next.t("SpaceEditor.errorSummary")} autofocus>
-      <ul>
-        {validationErrors.error?.details.map((error) => (
-          <li key={String(error.path)}>
-            <Link to={{ hash: `${error.path}` }}>
-              {i18next.t(`SpaceEditor.label.${error.path}`)}
-            </Link>
-            {": "}
-            {i18next.t(`validation.${error.type}`, { ...error.context })}
-          </li>
-        ))}
-      </ul>
-    </ErrorSummary>
-  );
-
 const getParent = (v: Maybe<number> | undefined, options: ParentType[]) =>
   options.find((po) => po.value === v) || options[0];
 
-const SpaceEditor = (): JSX.Element | null => {
-  const { spacePk, unitPk } = useParams<IProps>();
+type Props = {
+  space: number;
+  unit: number;
+};
+
+const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
   const [saving, setSaving] = useState(false);
   const history = useHistory();
 
   const { notifyError, notifySuccess } = useNotification();
 
-  const [state, dispatch] = useReducer(
-    reducer,
-    getInitialState(Number(spacePk), Number(unitPk))
-  );
+  const [state, dispatch] = useReducer(reducer, getInitialState(space, unit));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setValue = (value: any) => {
@@ -355,7 +340,7 @@ const SpaceEditor = (): JSX.Element | null => {
   const { t } = useTranslation();
 
   const { refetch } = useQuery<Query, QuerySpaceByPkArgs>(SPACE_QUERY, {
-    variables: { pk: Number(spacePk) },
+    variables: { pk: space },
     onCompleted: ({ spaceByPk }) => {
       if (spaceByPk) {
         dispatch({ type: "dataLoaded", space: spaceByPk });
@@ -449,7 +434,7 @@ const SpaceEditor = (): JSX.Element | null => {
 
   return (
     <Wrapper>
-      <SpaceHead
+      <Head
         title={state.space.parent?.nameFi || t("SpaceEditor.noParent")}
         unit={state.space.unit as UnitType}
         maxPersons={state.spaceEdit?.maxPersons || undefined}
@@ -472,7 +457,7 @@ const SpaceEditor = (): JSX.Element | null => {
         <EditorContainer>
           <H1>{t("SpaceEditor.details")}</H1>
           <Editor>
-            <MyErrorSummary validationErrors={state.validationErrors} />
+            <FormErrorSummary validationErrors={state.validationErrors} />
 
             <Section>
               <SubHeading>{t("SpaceEditor.hierarchy")}</SubHeading>
@@ -522,7 +507,7 @@ const SpaceEditor = (): JSX.Element | null => {
                   );
                 })}
               </EditorRows>
-
+              <h2 id="surfaceArea">Introduction</h2>
               <EditorColumns>
                 <NumberInput
                   value={state.spaceEdit?.surfaceArea || 0}
@@ -613,4 +598,6 @@ const SpaceEditor = (): JSX.Element | null => {
   );
 };
 
-export default withMainMenu(SpaceEditor);
+export default memo(SpaceEditor, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps);
+});
