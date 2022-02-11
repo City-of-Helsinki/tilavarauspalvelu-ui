@@ -190,7 +190,7 @@ const Page2 = ({
             <Name>{unit.nameFi}</Name>
             <Parent>
               {editorState.parentPk
-                ? `XDXD TODO TODO${editorState.parentPk}`
+                ? editorState.parentName
                 : t("SpaceModal.page2.newRootSpace")}
             </Parent>
           </div>

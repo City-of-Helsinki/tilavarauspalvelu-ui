@@ -63,9 +63,7 @@ const Page1 = ({
           <div>
             <Name>{unit.nameFi}</Name>
             <Parent>
-              {editorState.parentPk
-                ? `TODO XDXD ${editorState.parentPk}`
-                : null}
+              {editorState.parentPk ? editorState.parentName : null}
             </Parent>
           </div>
           {unit.location ? (
@@ -100,10 +98,11 @@ const Page1 = ({
               unitPk={unit.pk as number}
               spacePk={null}
               parentPk={editorState.parentPk || null}
-              onChange={(parentPk) =>
+              onChange={(parentPk, parentName) =>
                 dispatch({
-                  type: "setParentPk",
+                  type: "setParent",
                   parentPk,
+                  parentName: parentName || null,
                 })
               }
             />

@@ -84,7 +84,8 @@ export type SpaceMutationInputWithKey<T> = Partial<T> & { key: string };
 
 export type State = {
   numSpaces: number;
-  parentPk?: number | null;
+  parentPk: number | null;
+  parentName: string | null;
   spaces: SpaceMutationInputWithKey<SpaceCreateMutationInput>[];
   page: number;
   unitPk: number;
@@ -97,7 +98,7 @@ export type Action =
   | { type: "setSpaceSurfaceArea"; surfaceArea: number; index: number }
   | { type: "setSpaceMaxPersonCount"; maxPersonCount: number; index: number }
   | { type: "setSpaceCode"; code: string; index: number }
-  | { type: "setParentPk"; parentPk: number | null }
+  | { type: "setParent"; parentPk: number | null; parentName: string | null }
   | { type: "setUnit"; unit: UnitByPkType }
   | { type: "nextPage" }
   | { type: "prevPage" }

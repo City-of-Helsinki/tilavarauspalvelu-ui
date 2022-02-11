@@ -2,7 +2,6 @@ import React, { useReducer, useEffect } from "react";
 import { set, startCase } from "lodash";
 import { FetchResult, useMutation } from "@apollo/client";
 import {
-  Maybe,
   SpaceCreateMutationInput,
   SpaceCreateMutationPayload,
   SpaceType,
@@ -23,7 +22,8 @@ type Props = {
 
 const initialState = {
   numSpaces: 1,
-  parentSpace: undefined,
+  parentPk: null,
+  parentName: null,
   spaces: [],
   page: 0,
   unitPk: 0,
@@ -37,10 +37,7 @@ const getId = (): string => {
   return String(id);
 };
 
-const initialSpace = (
-  parentSpacePk: Maybe<number> | undefined,
-  unitPk: number
-) =>
+const initialSpace = (parentPk: number | null, unitPk: number) =>
   ({
     unitPk,
     key: getId(),
@@ -48,7 +45,7 @@ const initialSpace = (
     surfaceArea: 0,
     maxPersons: 0,
     locationType: "fixed",
-    parentPk: parentSpacePk,
+    parentPk,
   } as SpaceMutationInputWithKey<SpaceCreateMutationInput>);
 
 const reducer = (state: State, action: Action): State => {
@@ -83,14 +80,18 @@ const reducer = (state: State, action: Action): State => {
     case "setUnit": {
       return set({ ...state }, "unitPk", action.unit.pk);
     }
-    case "setParentPk": {
-      return set({ ...state }, "parentPk", action.parentPk);
+    case "setParent": {
+      return {
+        ...state,
+        parentPk: action.parentPk,
+        parentName: action.parentName,
+      };
     }
     case "addRow": {
       return {
         ...state,
         spaces: state.spaces.concat([
-          initialSpace(state.parentPk || null, state.unitPk),
+          initialSpace(state.parentPk, state.unitPk),
         ]),
       };
     }
@@ -135,7 +136,11 @@ const NewSpaceModal = ({
 
   useEffect(() => {
     if (parentSpace) {
-      dispatch({ type: "setParentPk", parentPk: parentSpace.pk as number });
+      dispatch({
+        type: "setParent",
+        parentPk: parentSpace.pk as number,
+        parentName: parentSpace.nameFi as string,
+      });
     }
   }, [parentSpace]);
 
