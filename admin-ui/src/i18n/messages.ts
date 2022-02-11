@@ -744,7 +744,6 @@ const translations: ITranslations = {
     resourceDeletedNotification: ["Resurssi poistettu onnistuneesti"],
   },
   SpaceEditor: {
-    errorSummary: ["Korjaa ensin lomakkeen virheet"],
     noParent: ["Päätason tila"],
     noUnit: ["Tilaa ei ole liitetty toimipisteeseen"],
     noAddress: ["Toimipisteellä ei ole osoitetta"],
@@ -763,7 +762,6 @@ const translations: ITranslations = {
       surfaceArea: ["Pinta-ala"],
       maxPersons: ["Maksimihenkilömäärä"],
     },
-
     namePlaceholder: ["Tilan nimi {{language}}"],
     touLabel: ["Tilan ohjeet {{lang}}"],
     termsOfUseHelperText: ["Tilan käyttöehdot..."],
@@ -771,6 +769,10 @@ const translations: ITranslations = {
     spaceUpdated: ["Tiedot tallennettu"],
     spaceUpdatedNotification: ["Tilan tiedot tallennettu"],
     area: ["{{surfaceArea}} m²"],
+  },
+  FormErrorSummary: {
+    label: ["Korjaa ensin lomakkeen virheet"],
+    errorLabel: ["Virhe {{index}}"],
   },
   SpaceModal: {
     phase: ["Vaihe"],
@@ -1114,14 +1116,12 @@ const translations: ITranslations = {
   },
   validation: {
     string: {
-      min: ["minimipituus {{limit}}"],
-      max: ["maksimipituus {{limit}}"],
-      empty: ["pakollinen"],
+      max: ["Kenttään {{fieldName}} voi lisätä korkeintaan {{limit}} merkkiä."],
+      empty: ["{{fieldName}} on pakollinen tieto"],
     },
     number: {
-      min: ["pienin sallittu {{limit}}"],
-      max: ["suurin sallitty {{limit}}"],
-      empty: ["pakollinen"],
+      empty: ["{{fieldName}} on pakollinen tieto"],
+      min: ["{{fieldName}} pitää olla vähintään {{limit}}"],
     },
   },
 };

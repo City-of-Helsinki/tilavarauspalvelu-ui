@@ -15,13 +15,18 @@ const FormErrorSummary = ({ validationErrors }: Props): JSX.Element | null => {
   }
 
   return (
-    <ErrorSummary label={t("SpaceEditor.errorSummary")} autofocus>
+    <ErrorSummary label={t("FormErrorSummary.label")} autofocus>
       <ul>
-        {validationErrors.error?.details.map((error) => (
+        {validationErrors.error?.details.map((error, index) => (
           <li key={String(error.path)}>
-            <a href="#surfaceArea">{t(`SpaceEditor.label.${error.path}`)}</a>
+            <a href={`#${error.path}`}>
+              {t(`FormErrorSummary.errorLabel`, { index: index + 1 })}
+            </a>
             {": "}
-            {t(`validation.${error.type}`, { ...error.context })}
+            {t(`validation.${error.type}`, {
+              ...error.context,
+              fieldName: t(`SpaceEditor.label.${error.path}`),
+            })}
           </li>
         ))}
       </ul>

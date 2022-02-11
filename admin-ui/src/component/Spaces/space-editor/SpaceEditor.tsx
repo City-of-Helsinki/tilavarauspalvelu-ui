@@ -98,19 +98,16 @@ const getInitialState = (spacePk: number, unitPk: number): State => ({
 
 const schema = Joi.object({
   nameFi: Joi.string().min(3).max(80),
-  nameSv: Joi.string().min(3).max(80),
-  nameEn: Joi.string().min(3).max(80),
+  nameSv: Joi.string().allow("").allow(null).optional().max(80),
+  nameEn: Joi.string().allow("").allow(null).optional().max(80),
   surfaceArea: Joi.number().min(1),
   maxPersons: Joi.number().min(1),
   unitPk: Joi.number(),
   pk: Joi.number(),
   parentPk: Joi.number().allow(null),
-  code: Joi.string().allow("").optional(),
+  code: Joi.string().allow("").allow(null).optional(),
 }).options({
   abortEarly: false,
-  messages: {
-    "*": "Virhe",
-  },
 });
 
 const modified = (d: State) => ({ ...d, hasChanges: true });
@@ -323,7 +320,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
     dispatch({ type: "set", value });
   };
 
-  const onDataError = (text: string) => {
+  const displayError = (text: string) => {
     dispatch({ type: "dataLoadError", message: text });
   };
 
@@ -347,7 +344,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
       }
     },
     onError: (e) => {
-      onDataError(t("errors.errorFetchingData", { error: e }));
+      displayError(t("errors.errorFetchingData", { error: e }));
     },
   });
 
@@ -362,7 +359,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
       }
     },
     onError: (e) => {
-      onDataError(t("errors.errorFetchingData", { error: e }));
+      displayError(t("errors.errorFetchingData", { error: e }));
     },
   });
 
@@ -430,8 +427,6 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
     return t(`validation.${error.type}`, { ...error.context });
   };
 
-  console.log("rendering with ", state);
-
   return (
     <Wrapper>
       <Head
@@ -489,7 +484,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
                   return (
                     <TextInput
                       key={lang}
-                      required
+                      required={lang === "fi"}
                       id={fieldName}
                       label={t(`SpaceEditor.label.${fieldName}`)}
                       value={get(state, `spaceEdit.${fieldName}`, "")}
@@ -501,13 +496,13 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
                           [fieldName]: e.target.value,
                         })
                       }
+                      maxLength={80}
                       errorText={getValidationError(fieldName)}
                       invalid={!!getValidationError(fieldName)}
                     />
                   );
                 })}
               </EditorRows>
-              <h2 id="surfaceArea">Introduction</h2>
               <EditorColumns>
                 <NumberInput
                   value={state.spaceEdit?.surfaceArea || 0}
@@ -524,6 +519,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
                   min={1}
                   required
                   errorText={getValidationError("surfaceArea")}
+                  invalid={!!getValidationError("surfaceArea")}
                 />
                 <NumberInput
                   value={state.spaceEdit?.maxPersons || 0}
@@ -540,6 +536,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
                   helperText={t("SpaceModal.page2.maxPersonsHelperText")}
                   required
                   errorText={getValidationError("maxPersons")}
+                  invalid={!!getValidationError("maxPersons")}
                 />
                 <TextInput
                   id="code"
