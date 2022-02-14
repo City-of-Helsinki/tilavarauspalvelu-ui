@@ -5,7 +5,10 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { languages } from "../../../common/const";
 import { breakpoints } from "../../../styles/util";
-import { SpaceUpdateMutationInput } from "../../../common/gql-types";
+import {
+  SpaceCreateMutationInput,
+  SpaceUpdateMutationInput,
+} from "../../../common/gql-types";
 
 const EditorColumns = styled.div`
   display: grid;
@@ -29,11 +32,13 @@ const EditorRows = styled.div`
   grid-template-columns: 1fr;
 `;
 
+const Container = styled.div``;
+
 type Props = {
   getValidationError: (path: string) => string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setValue: (value: any) => void;
-  data: SpaceUpdateMutationInput | null;
+  data: SpaceCreateMutationInput | SpaceUpdateMutationInput | null;
 };
 
 const SpaceForm = ({
@@ -47,7 +52,7 @@ const SpaceForm = ({
     return null;
   }
   return (
-    <>
+    <Container>
       <EditorRows>
         {languages.map((lang) => {
           const fieldName = `name${upperFirst(lang)}`;
@@ -75,9 +80,9 @@ const SpaceForm = ({
       </EditorRows>
       <EditorColumns>
         <NumberInput
-          value={data.surfaceArea || 1}
+          value={data.surfaceArea || 0}
           id="surfaceArea"
-          label={t("SpaceEditor.label.maxPersons")}
+          label={t("SpaceEditor.label.surfaceArea")}
           helperText={t("SpaceModal.page2.surfaceAreaHelperText")}
           minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
           plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
@@ -112,7 +117,7 @@ const SpaceForm = ({
           onChange={(e) => setValue({ code: e.target.value })}
         />
       </EditorColumns>
-    </>
+    </Container>
   );
 };
 

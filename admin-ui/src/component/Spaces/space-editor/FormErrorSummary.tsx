@@ -5,30 +5,35 @@ import { useTranslation } from "react-i18next";
 
 type Props = {
   validationErrors: Joi.ValidationResult | null;
+  linkToError?: boolean;
 };
 
-const FormErrorSummary = ({ validationErrors }: Props): JSX.Element | null => {
+const FormErrorSummary = ({
+  validationErrors,
+  linkToError = true,
+}: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  if (!validationErrors) {
+  if (!validationErrors || !validationErrors.error) {
     return null;
   }
 
   return (
     <ErrorSummary label={t("FormErrorSummary.label")} autofocus>
       <ul>
-        {validationErrors.error?.details.map((error, index) => (
-          <li key={String(error.path)}>
-            <a href={`#${error.path}`}>
-              {t(`FormErrorSummary.errorLabel`, { index: index + 1 })}
-            </a>
-            {": "}
-            {t(`validation.${error.type}`, {
-              ...error.context,
-              fieldName: t(`SpaceEditor.label.${error.path}`),
-            })}
-          </li>
-        ))}
+        {validationErrors.error?.details.map((error, index) => {
+          const label = t(`FormErrorSummary.errorLabel`, { index: index + 1 });
+          return (
+            <li key={String(error.path)}>
+              {linkToError ? <a href={`#${error.path}`}>{label}</a> : label}
+              {": "}
+              {t(`validation.${error.type}`, {
+                ...error.context,
+                fieldName: t(`SpaceEditor.label.${error.path}`),
+              })}
+            </li>
+          );
+        })}
       </ul>
     </ErrorSummary>
   );

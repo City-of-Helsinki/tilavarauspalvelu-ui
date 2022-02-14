@@ -7,8 +7,6 @@ import {
   IconArrowLeft,
   IconCheck,
   IconPlusCircleFill,
-  NumberInput,
-  TextInput,
 } from "hds-react";
 import { FetchResult } from "@apollo/client";
 import {
@@ -22,8 +20,6 @@ import {
   ActionButtons,
   Address,
   ButtonContainer,
-  EditorColumns,
-  EditorContainer,
   IconDelete,
   Name,
   NewRowButton,
@@ -34,108 +30,51 @@ import {
   UnitInfo,
 } from "./newSpaceModal";
 import { parseAddress } from "../../../../common/util";
-import { languages } from "../../../../common/const";
+
+import SpaceForm from "../SpaceForm";
+import { schema } from "../util";
+import FormErrorSummary from "../FormErrorSummary";
 
 const SpaceEditor = ({
   space,
   index,
   dispatch,
+  getValidationError,
 }: {
   space: SpaceCreateMutationInput;
   index: number;
   dispatch: React.Dispatch<Action>;
+  getValidationError: (name: string) => string | undefined;
 }) => {
-  const { t } = useTranslation();
-
   return (
-    <>
-      <EditorContainer>
-        <div>
-          {languages.map((lang) => (
-            <TextInput
-              key={lang}
-              required
-              id={`name.${lang}`}
-              label={t("SpaceModal.nameLabel", { lang })}
-              placeholder={t("SpaceModal.namePlaceholder", {
-                language: t(`language.${lang}`),
-              })}
-              onBlur={(e) => {
-                dispatch({
-                  type: "setSpaceName",
-                  index,
-                  name: e.target.value,
-                  lang,
-                });
-              }}
-              defaultValue=""
-            />
-          ))}
-
-          <EditorColumns>
-            <NumberInput
-              defaultValue={space.surfaceArea || 0}
-              id={`surfaceArea[${index}]`}
-              label={t("SpaceModal.page2.surfaceAreaLabel")}
-              helperText={t("SpaceModal.page2.surfaceAreaHelperText")}
-              minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
-              plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
-              onChange={(e) => {
-                dispatch({
-                  type: "setSpaceSurfaceArea",
-                  index,
-                  surfaceArea: Number(e.target.value),
-                });
-              }}
-              step={1}
-              type="number"
-              min={0}
-              max={10}
-              required
-            />
-            <NumberInput
-              defaultValue={space.surfaceArea || 0}
-              id={`maxPersons[${index}]`}
-              label={t("SpaceModal.page2.maxPersonsLabel")}
-              minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
-              plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
-              onChange={(e) => {
-                dispatch({
-                  type: "setSpaceMaxPersonCount",
-                  index,
-                  maxPersonCount: Number(e.target.value),
-                });
-              }}
-              step={1}
-              type="number"
-              min={0}
-              helperText={t("SpaceModal.page2.maxPersonsHelperText")}
-              max={10}
-              required
-            />
-            <TextInput
-              id={`code[${index}]`}
-              label={t("SpaceModal.page2.codeLabel")}
-              placeholder={t("SpaceModal.page2.codePlaceholder")}
-              defaultValue=""
-              onChange={(e) => {
-                dispatch({
-                  type: "setSpaceCode",
-                  index,
-                  code: e.target.value,
-                });
-              }}
-            />
-          </EditorColumns>
-        </div>
-        <IconDelete
-          tabIndex={0}
-          onKeyPress={() => dispatch({ type: "delete", index })}
-          onClick={() => dispatch({ type: "delete", index })}
-        />
-      </EditorContainer>
-    </>
+    <div
+      style={{ display: "grid", gridTemplateColumns: "1fr var(--spacing-xl" }}
+    >
+      <SpaceForm
+        data={space}
+        setValue={(value) => dispatch({ type: "set", index, value })}
+        getValidationError={getValidationError}
+      />
+      <IconDelete
+        tabIndex={0}
+        onKeyPress={() => dispatch({ type: "delete", index })}
+        onClick={() => dispatch({ type: "delete", index })}
+      />
+    </div>
   );
+};
+
+type Props = {
+  editorState: State;
+  unit: UnitByPkType;
+  dispatch: React.Dispatch<Action>;
+  closeModal: () => void;
+  createSpace: (
+    variables: SpaceCreateMutationInput
+  ) => Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>>;
+  onSave: () => void;
+  onDataError: (message: string) => void;
+  hasFixedParent: boolean;
 };
 
 const Page2 = ({
@@ -147,22 +86,55 @@ const Page2 = ({
   onSave,
   onDataError,
   hasFixedParent,
-}: {
-  editorState: State;
-  unit: UnitByPkType;
-  dispatch: React.Dispatch<Action>;
-  closeModal: () => void;
-  createSpace: (
-    variables: SpaceCreateMutationInput
-  ) => Promise<FetchResult<{ createSpace: SpaceCreateMutationPayload }>>;
-  onSave: () => void;
-  onDataError: (message: string) => void;
-  hasFixedParent: boolean;
-}): JSX.Element => {
+}: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const nextEnabled =
     editorState.numSpaces > 0 && editorState.parentPk !== undefined;
+
+  function createSpaces() {
+    const promises = Promise.allSettled(
+      editorState.spaces.map((s) =>
+        createSpace({
+          ...(omit(s, ["key", "parentId"]) as SpaceCreateMutationInput),
+          unitPk: editorState.unitPk,
+        })
+      )
+    );
+
+    promises
+      .then((res) => {
+        const succesful = res.filter(
+          (r) => r.status === "fulfilled" && !r.value.errors
+        ) as PromiseFulfilledResult<
+          FetchResult<{ createSpace: SpaceCreateMutationPayload }>
+        >[];
+
+        if (succesful.length === editorState.spaces.length) {
+          onSave();
+          closeModal();
+        } else {
+          onDataError(t("SpaceModal.page2.saveFailed"));
+        }
+      })
+      .catch(() => {
+        onDataError(t("SpaceModal.page2.saveFailed"));
+      });
+  }
+
+  const getValidationError =
+    (index: number) =>
+    (name: string): string | undefined => {
+      const error = editorState.validationErrors[index]?.error?.details.find(
+        (errorDetail) => errorDetail.path.find((path) => path === name)
+      );
+
+      if (!error) {
+        return undefined;
+      }
+
+      return t(`validation.${error.type}`, { ...error.context });
+    };
 
   return (
     <>
@@ -199,12 +171,19 @@ const Page2 = ({
           ) : null}
         </UnitInfo>
         {editorState.spaces.map((space, i) => (
-          <SpaceEditor
-            index={i}
-            key={space.key}
-            space={space as SpaceCreateMutationInput}
-            dispatch={dispatch}
-          />
+          <div key={space.key}>
+            <FormErrorSummary
+              validationErrors={editorState.validationErrors[i] || null}
+              linkToError={false}
+            />
+            <SpaceEditor
+              index={i}
+              key={space.key}
+              space={space as SpaceCreateMutationInput}
+              dispatch={dispatch}
+              getValidationError={getValidationError(i)}
+            />
+          </div>
         ))}
         <ButtonContainer>
           <NewRowButton
@@ -227,38 +206,24 @@ const Page2 = ({
         <NextButton
           disabled={!nextEnabled}
           loadingText={t("SpaceModal.page2.saving")}
-          onClick={() => {
-            const promises = Promise.allSettled(
-              editorState.spaces.map((s) =>
-                createSpace({
-                  ...(omit(s, [
-                    "key",
-                    "locationType",
-                    "parentId",
-                  ]) as SpaceCreateMutationInput),
-                  unitPk: editorState.unitPk,
-                })
-              )
+          onClick={(e) => {
+            e.preventDefault();
+            const validationResults = editorState.spaces.map((space) =>
+              schema.validate(omit(space, ["key"]))
             );
 
-            promises
-              .then((res) => {
-                const succesful = res.filter(
-                  (r) => r.status === "fulfilled" && !r.value.errors
-                ) as PromiseFulfilledResult<
-                  FetchResult<{ createSpace: SpaceCreateMutationPayload }>
-                >[];
-
-                if (succesful.length === editorState.spaces.length) {
-                  onSave();
-                  closeModal();
-                } else {
-                  onDataError(t("SpaceModal.page2.saveFailed"));
-                }
-              })
-              .catch(() => {
-                onDataError(t("SpaceModal.page2.saveFailed"));
+            if (
+              validationResults.filter(
+                (result) => result !== null && result.error !== undefined
+              ).length > 0
+            ) {
+              dispatch({
+                type: "setValidatioErrors",
+                validationErrors: validationResults,
               });
+            } else {
+              createSpaces();
+            }
           }}
         >
           {t("SpaceModal.page2.createButton")}

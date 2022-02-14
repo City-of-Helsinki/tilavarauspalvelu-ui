@@ -1,4 +1,5 @@
 import { Button, IconTrash, Tag } from "hds-react";
+import Joi from "joi";
 import styled from "styled-components";
 import {
   SpaceCreateMutationInput,
@@ -90,16 +91,19 @@ export type State = {
   page: number;
   unitPk: number;
   unitSpaces?: SpaceType[];
+  validationErrors: (Joi.ValidationResult | null)[];
 };
 
 export type Action =
   | { type: "setNumSpaces"; numSpaces: number }
-  | { type: "setSpaceName"; name: string; index: number; lang: string }
-  | { type: "setSpaceSurfaceArea"; surfaceArea: number; index: number }
-  | { type: "setSpaceMaxPersonCount"; maxPersonCount: number; index: number }
-  | { type: "setSpaceCode"; code: string; index: number }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | { type: "set"; index: number; value: any }
   | { type: "setParent"; parentPk: number | null; parentName: string | null }
   | { type: "setUnit"; unit: UnitByPkType }
+  | {
+      type: "setValidatioErrors";
+      validationErrors: (Joi.ValidationResult | null)[];
+    }
   | { type: "nextPage" }
   | { type: "prevPage" }
   | { type: "addRow" }

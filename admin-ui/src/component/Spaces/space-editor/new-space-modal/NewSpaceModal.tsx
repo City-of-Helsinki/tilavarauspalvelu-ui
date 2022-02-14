@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect } from "react";
-import { set, startCase } from "lodash";
+import { set } from "lodash";
 import { FetchResult, useMutation } from "@apollo/client";
 import {
   SpaceCreateMutationInput,
@@ -28,6 +28,7 @@ const initialState = {
   page: 0,
   unitPk: 0,
   unitSpaces: [],
+  validationErrors: [],
 } as State;
 
 let id = -1;
@@ -42,9 +43,8 @@ const initialSpace = (parentPk: number | null, unitPk: number) =>
     unitPk,
     key: getId(),
     nameFi: "",
-    surfaceArea: 0,
-    maxPersons: 0,
-    locationType: "fixed",
+    surfaceArea: 1,
+    maxPersons: 1,
     parentPk,
   } as SpaceMutationInputWithKey<SpaceCreateMutationInput>);
 
@@ -53,29 +53,15 @@ const reducer = (state: State, action: Action): State => {
     case "setNumSpaces": {
       return set({ ...state }, "numSpaces", action.numSpaces);
     }
-    case "setSpaceName": {
-      return set(
-        { ...state },
-        `spaces[${action.index}].name${startCase(action.lang)}`,
-        action.name
-      );
-    }
-    case "setSpaceCode": {
-      return set({ ...state }, `spaces[${action.index}].code`, action.code);
-    }
-    case "setSpaceMaxPersonCount": {
-      return set(
-        { ...state },
-        `spaces[${action.index}].maxPersons`,
-        action.maxPersonCount
-      );
-    }
-    case "setSpaceSurfaceArea": {
-      return set(
-        { ...state },
-        `spaces[${action.index}].surfaceArea`,
-        action.surfaceArea
-      );
+    case "set": {
+      return {
+        ...state,
+        spaces: state.spaces.map((space, index) =>
+          index === action.index
+            ? { ...state.spaces[index], ...action.value }
+            : space
+        ),
+      };
     }
     case "setUnit": {
       return set({ ...state }, "unitPk", action.unit.pk);
@@ -101,7 +87,12 @@ const reducer = (state: State, action: Action): State => {
         spaces: state.spaces.filter((s, i) => action.index !== i),
       };
     }
-
+    case "setValidatioErrors": {
+      return {
+        ...state,
+        validationErrors: action.validationErrors,
+      };
+    }
     case "nextPage": {
       const nextState = {
         ...state,

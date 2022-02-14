@@ -34,7 +34,7 @@ export const spacesAsHierarchy = (
 };
 
 export const schema = Joi.object({
-  nameFi: Joi.string().min(3).max(80),
+  nameFi: Joi.string().max(80),
   nameSv: Joi.string().allow("").allow(null).optional().max(80),
   nameEn: Joi.string().allow("").allow(null).optional().max(80),
   surfaceArea: Joi.number().min(1),

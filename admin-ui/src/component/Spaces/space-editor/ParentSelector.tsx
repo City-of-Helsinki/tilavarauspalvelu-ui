@@ -41,7 +41,9 @@ const ParentSelector = ({
   onChange,
   parentPk,
 }: Props): JSX.Element => {
-  const [parentOptions, setParentOptions] = useState([] as ParentType[]);
+  const [parentOptions, setParentOptions] = useState([
+    independentSpaceOption,
+  ] as ParentType[]);
 
   const { t } = useTranslation();
 
