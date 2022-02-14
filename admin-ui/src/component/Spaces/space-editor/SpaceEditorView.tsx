@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { ContentContainer } from "../../../styles/layout";
 import withMainMenu from "../../withMainMenu";
@@ -11,16 +12,19 @@ type Props = {
 
 const SpaceEditorView = (): JSX.Element | null => {
   const { spacePk, unitPk } = useParams<Props>();
+  const { t } = useTranslation();
 
   const [space, unit] = [spacePk, unitPk].map(Number);
 
   if (!space) {
-    return <ContentContainer>tilan tunniste virheellinen</ContentContainer>;
+    return (
+      <ContentContainer>{t("SpaceEditorView.illegalSpace")}</ContentContainer>
+    );
   }
 
   if (!unit) {
     return (
-      <ContentContainer>Toimipisteen tunniste virheellinen</ContentContainer>
+      <ContentContainer>{t("SpaceEditorView.illegalUnit")}</ContentContainer>
     );
   }
 

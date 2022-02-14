@@ -743,6 +743,10 @@ const translations: ITranslations = {
     resourceDeletedTitle: ["Resurssi poistettu"],
     resourceDeletedNotification: ["Resurssi poistettu onnistuneesti"],
   },
+  SpaceEditorView: {
+    illegalSpace: ["Virheellinen tilan tunniste"],
+    illegalUnit: ["Virheellinen toimipisteen tunniste"],
+  },
   SpaceEditor: {
     noParent: ["Päätason tila"],
     noUnit: ["Tilaa ei ole liitetty toimipisteeseen"],
