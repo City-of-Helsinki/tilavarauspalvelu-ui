@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build image
+        env:
+          SENTRY_AUTH_TOKEN: ${{UI_SENTRY_AUTH_TOKEN}}
         run: |
           docker build -t tilavaraus-ui -f ui/Dockerfile .
       - name: Start container
