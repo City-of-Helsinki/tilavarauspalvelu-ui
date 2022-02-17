@@ -18,7 +18,6 @@ on:
   pull_request:
     branches:
       - "main"
-      - "TILA-663"
     paths:
       - "admin-ui/**"
       - "yarn.lock"
