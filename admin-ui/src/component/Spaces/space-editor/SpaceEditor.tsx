@@ -25,7 +25,7 @@ import Loader from "../../Loader";
 import Head from "./Head";
 import { ContentContainer, IngressContainer } from "../../../styles/layout";
 import { H1 } from "../../../styles/typography";
-import FormErrorSummary from "./FormErrorSummary";
+import FormErrorSummary from "../../../common/FormErrorSummary";
 import SpaceHierarchy from "./SpaceHierarchy";
 import ParentSelector from "./ParentSelector";
 import SpaceForm from "./SpaceForm";
