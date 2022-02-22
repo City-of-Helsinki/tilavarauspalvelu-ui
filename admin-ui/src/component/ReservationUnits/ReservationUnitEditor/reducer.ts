@@ -39,6 +39,7 @@ export const getInitialState = (reservationUnitPk: number): State => ({
   taxPercentageOptions: [],
   metadataOptions: [],
   images: [],
+  validationErrors: null,
 });
 
 const sortImages = (imagesToSort: Image[]): Image[] => {
@@ -359,6 +360,13 @@ export const reducer = (state: State, action: Action): State => {
         purposePks: action.purposes.map((ot) => ot.value as number),
       });
     }
+    case "setValidatioErrors": {
+      return {
+        ...state,
+        validationErrors: action.validationErrors,
+      };
+    }
+
     default:
       return state;
   }

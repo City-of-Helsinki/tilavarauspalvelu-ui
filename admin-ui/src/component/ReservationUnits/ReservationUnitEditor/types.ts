@@ -1,3 +1,4 @@
+import Joi from "joi";
 import {
   Maybe,
   Query,
@@ -40,6 +41,10 @@ export type Action =
   | { type: "setEquipments"; equipments: OptionType[] }
   | { type: "setPurposes"; purposes: OptionType[] }
   | { type: "parametersLoaded"; parameters: Query }
+  | {
+      type: "setValidatioErrors";
+      validationErrors: Joi.ValidationResult | null;
+    }
   | { type: "setImages"; images: Image[] };
 
 export type ReservationUnitEditorType =
@@ -77,6 +82,7 @@ export type State = {
   unit?: UnitByPkType;
   dataLoaded: LoadingCompleted[];
   images: Image[];
+  validationErrors: Joi.ValidationResult | null;
 };
 
 export type Image = {
@@ -87,3 +93,30 @@ export type Image = {
   bytes?: File;
   deleted?: boolean;
 };
+
+export const schema = Joi.object({
+  nameFi: Joi.string().max(80),
+  nameSv: Joi.string().max(80),
+  nameEn: Joi.string().max(80),
+  spacePks: Joi.array().min(1).items(Joi.number()),
+  resourcePks: Joi.array().items(Joi.number()),
+  surfaceArea: Joi.number().min(1).required(), // todo check against selected spaces surfaCe area
+  maxPersons: Joi.number().min(1).required(), // todo check against selected spaces maxPeersons
+  reservationUnitTypePk: Joi.number().required(),
+  descriptionFi: Joi.string().max(4000),
+  descriptionSv: Joi.string().max(4000),
+  descriptionEn: Joi.string().max(4000),
+  minReservationDuration: Joi.number().required(),
+  maxReservationDuration: Joi.number().required(),
+  reservationStartInterval: Joi.string().required(),
+  metadataSetPk: Joi.number().required(),
+  termsOfUseFi: Joi.string().max(10000),
+  termsOfUseSv: Joi.string().max(10000),
+  termsOfUseEn: Joi.string().max(10000),
+  additionalInstructionsFi: Joi.string().allow("").max(10000),
+  additionalInstructionsSv: Joi.string().allow("").max(10000),
+  additionalInstructionsEn: Joi.string().allow("").max(10000),
+}).options({
+  allowUnknown: true,
+  abortEarly: false,
+});
