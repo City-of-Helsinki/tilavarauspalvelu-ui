@@ -521,12 +521,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     (s) => state?.reservationUnitEdit?.spacePks?.indexOf(Number(s.pk)) !== -1
   );
 
-  console.log(
-    "rendering with",
-    state.reservationUnitEdit,
-    state.validationErrors
-  );
-
   const minSurfaceArea =
     sumBy(selectedSpaces, (s) => Number(s.surfaceArea) || 0) || 1; // default is 1 if no spaces selected
 
