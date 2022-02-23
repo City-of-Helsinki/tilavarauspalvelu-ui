@@ -95,24 +95,24 @@ export type Image = {
 };
 
 export const schema = Joi.object({
-  nameFi: Joi.string().max(80),
-  nameSv: Joi.string().max(80),
-  nameEn: Joi.string().max(80),
-  spacePks: Joi.array().min(1).items(Joi.number()),
+  nameFi: Joi.string().required().max(80),
+  nameSv: Joi.string().required().max(80),
+  nameEn: Joi.string().required().max(80),
+  spacePks: Joi.array().required().min(1).items(Joi.number()),
   resourcePks: Joi.array().items(Joi.number()),
-  surfaceArea: Joi.number().min(1).required(), // todo check against selected spaces surfaCe area
-  maxPersons: Joi.number().min(1).required(), // todo check against selected spaces maxPeersons
+  surfaceArea: Joi.number().min(1).required(), // checking against selected spaces is implemented in ui
+  maxPersons: Joi.number().min(1).required(), // checking against selected spaces is implemented in ui
   reservationUnitTypePk: Joi.number().required(),
-  descriptionFi: Joi.string().max(4000),
-  descriptionSv: Joi.string().max(4000),
-  descriptionEn: Joi.string().max(4000),
+  descriptionFi: Joi.string().required().max(4000),
+  descriptionSv: Joi.string().required().max(4000),
+  descriptionEn: Joi.string().required().max(4000),
   minReservationDuration: Joi.number().required(),
   maxReservationDuration: Joi.number().required(),
   reservationStartInterval: Joi.string().required(),
   metadataSetPk: Joi.number().required(),
-  termsOfUseFi: Joi.string().max(10000),
-  termsOfUseSv: Joi.string().max(10000),
-  termsOfUseEn: Joi.string().max(10000),
+  termsOfUseFi: Joi.string().required().max(10000),
+  termsOfUseSv: Joi.string().required().max(10000),
+  termsOfUseEn: Joi.string().required().max(10000),
   additionalInstructionsFi: Joi.string().allow("").max(10000),
   additionalInstructionsSv: Joi.string().allow("").max(10000),
   additionalInstructionsEn: Joi.string().allow("").max(10000),

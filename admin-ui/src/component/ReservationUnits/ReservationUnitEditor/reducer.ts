@@ -263,10 +263,10 @@ export const reducer = (state: State, action: Action): State => {
           action,
           TermsOfUseTermsOfUseTermsTypeChoices.PaymentTerms
         ),
-        taxPercentageOptions: (
-          action.parameters.taxPercentages?.edges || []
-        ).map(
-          (v) => ({ value: v?.node?.pk, label: v?.node?.value } as OptionType)
+        taxPercentageOptions: [nullOption].concat(
+          (action.parameters.taxPercentages?.edges || []).map(
+            (v) => ({ value: v?.node?.pk, label: v?.node?.value } as OptionType)
+          )
         ),
         serviceSpecificTermsOptions: makeTermsOptions(
           action,

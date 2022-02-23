@@ -534,7 +534,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     sumBy(selectedSpaces, (s) => Number(s.maxPersons) || 0) || 20; // default is 20 is no spaces selected
 
   return (
-    <Wrapper>
+    <Wrapper key={JSON.stringify(state.validationErrors)}>
       <MainMenuWrapper>
         <ContentContainer>
           {state.unit ? (
@@ -550,6 +550,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             <FormErrorSummary
               fieldNamePrefix="ReservationUnitEditor.label."
               validationErrors={state.validationErrors}
+              useDerivedIdsFor={[
+                "reservationUnitTypePk",
+                "metadataSetPk",
+                "minReservationDuration",
+                "maxReservationDuration",
+                "spacePks",
+              ]}
             />
 
             <Editor key={JSON.stringify(state.validationErrors)}>
@@ -1183,7 +1190,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     <NumberInput
                       value={state.reservationUnitEdit.highestPrice || 0}
                       id="highestPrice"
-                      label={t("ReservationUnitEditor.labnel.highestPrice")}
+                      label={t("ReservationUnitEditor.label.highestPrice")}
                       helperText={t(
                         "ReservationUnitEditor.highestPriceHelperText"
                       )}
@@ -1405,7 +1412,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               if (validationErrors.error) {
                 dispatch({ type: "setValidatioErrors", validationErrors });
               } else {
-                // saveReservationUnit(false);
+                dispatch({
+                  type: "setValidatioErrors",
+                  validationErrors: null,
+                });
+                saveReservationUnit(false);
               }
             }}
           >
