@@ -79,14 +79,17 @@ function App(): JSX.Element {
             <Route
               path="/applicationRound/:applicationRoundId/applications"
               component={Applications}
+              exact
             />
             <Route
               path="/applicationRound/:applicationRoundId/resolution"
               component={ResolutionReport}
+              exact
             />
             <Route
               path="/applicationRound/:applicationRoundId/criteria"
               component={Criteria}
+              exact
             />
             <Route
               path="/applicationRound/:applicationRoundId/reservationUnit/:reservationUnitId/reservations/summary"
@@ -115,10 +118,12 @@ function App(): JSX.Element {
             <Route
               path="/applicationRound/:applicationRoundId/approval"
               component={Approval}
+              exact
             />
             <Route
               path="/applicationRound/:applicationRoundId"
               component={ApplicationRound}
+              exact
             />
             <Route path="/spaces" component={SpacesList} />
             <Route
@@ -154,8 +159,13 @@ function App(): JSX.Element {
             <Route
               path="/singleApplications/:reservationPk"
               component={SingleApplication}
+              exact
             />
-            <Route path="/singleApplications" component={SingleApplications} />
+            <Route
+              path="/singleApplications"
+              exact
+              component={SingleApplications}
+            />
           </PrivateRoutes>
         </Switch>
       </PageWrapper>
