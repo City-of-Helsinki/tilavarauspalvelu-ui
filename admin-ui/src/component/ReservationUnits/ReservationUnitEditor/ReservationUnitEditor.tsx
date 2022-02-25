@@ -117,13 +117,6 @@ const getSelectedOptions = (
   );
 };
 
-const hasTranslations = (prefixes: string[], state: State): boolean =>
-  prefixes.every((p) =>
-    ["fi", "sv", "en"].every((l) =>
-      get(state, `reservationUnitEdit.${p}${upperFirst(l)}`)
-    )
-  );
-
 const ReservationUnitEditor = (): JSX.Element | null => {
   const { reservationUnitPk, unitPk } = useParams<IProps>();
   const [saving, setSaving] = useState(false);
@@ -471,17 +464,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     );
   }
 
-  const isReadyToPublish = hasTranslations(
-    [
-      "description",
-      "name",
-      "additionalInstructions",
-      "contactInformation",
-      "termsOfUse",
-    ],
-    state
-  );
-
   const { hasChanges } = state;
 
   if (state.error) {
@@ -525,7 +507,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     sumBy(selectedSpaces, (s) => Number(s.surfaceArea) || 0) || 1; // default is 1 if no spaces selected
 
   const maxPersons =
-    sumBy(selectedSpaces, (s) => Number(s.maxPersons) || 0) || 20; // default is 20 is no spaces selected
+    sumBy(selectedSpaces, (s) => Number(s.maxPersons) || 0) || 20; // default is 20 if no spaces selected
+
+  console.log(selectedSpaces, selectedSpaces, minSurfaceArea, maxPersons);
 
   return (
     <Wrapper key={JSON.stringify(state.validationErrors)}>
@@ -1399,26 +1383,15 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             loadingText={t("ReservationUnitEditor.saving")}
             onClick={(e) => {
               e.preventDefault();
-              const validationErrors = schema.validate(
-                state.reservationUnitEdit
-              );
-
-              if (validationErrors.error) {
-                dispatch({ type: "setValidatioErrors", validationErrors });
-              } else {
-                dispatch({
-                  type: "setValidatioErrors",
-                  validationErrors: null,
-                });
-                saveReservationUnit(false);
-              }
+              saveReservationUnit(false);
+              dispatch({ type: "setValidatioErrors", validationErrors: null });
             }}
           >
             {t("ReservationUnitEditor.saveAsDraft")}
           </WhiteButton>
           <WhiteButton
             variant="primary"
-            disabled={!isReadyToPublish || saving}
+            disabled={saving}
             onClick={(e) => {
               e.preventDefault();
               const validationErrors = schema.validate(
@@ -1429,6 +1402,10 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 dispatch({ type: "setValidatioErrors", validationErrors });
               } else {
                 saveReservationUnit(true);
+                dispatch({
+                  type: "setValidatioErrors",
+                  validationErrors: null,
+                });
               }
             }}
           >

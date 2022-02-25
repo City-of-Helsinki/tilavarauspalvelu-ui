@@ -832,6 +832,7 @@ const translations: ITranslations = {
       codeLabel: ["Tilan numero"],
       codePlaceholder: ["Numero tai koodi"],
       saving: ["Luodaan tilatietoja..."],
+      saveFailed: ["Tallennus ei onnistunut"],
     },
   },
   SpaceTable: {

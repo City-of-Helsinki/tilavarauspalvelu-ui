@@ -109,8 +109,8 @@ const reducer = (state: State, action: Action): State => {
             {
               ...space,
               pk: space.pk,
-              maxPersons: space.maxPersons || 1,
-              surfaceArea: space.surfaceArea || 1,
+              maxPersons: space.maxPersons || 0,
+              surfaceArea: space.surfaceArea || 0,
             },
             [
               "pk",
