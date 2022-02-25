@@ -509,8 +509,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   const maxPersons =
     sumBy(selectedSpaces, (s) => Number(s.maxPersons) || 0) || 20; // default is 20 if no spaces selected
 
-  console.log(selectedSpaces, selectedSpaces, minSurfaceArea, maxPersons);
-
   return (
     <Wrapper key={JSON.stringify(state.validationErrors)}>
       <MainMenuWrapper>
