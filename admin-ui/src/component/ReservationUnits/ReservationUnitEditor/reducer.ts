@@ -332,11 +332,11 @@ export const reducer = (state: State, action: Action): State => {
 
       const surfaceArea = sumBy(
         selectedSpaces,
-        (s) => Number(s.surfaceArea) || 0
+        (s) => Number(s.surfaceArea) || 1
       );
       const maxPersons = sumBy(
         selectedSpaces,
-        (s) => Number(s.maxPersons) || 0
+        (s) => Number(s.maxPersons) || 1
       );
 
       return modifyEditorState(state, {
