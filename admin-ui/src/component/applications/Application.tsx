@@ -57,7 +57,6 @@ import {
   applicationRoundApplications,
   applicationRoundUrl,
   applicationUrl,
-  prefixes,
 } from "../../common/urls";
 
 interface IRouteParams {
@@ -433,9 +432,7 @@ function Application(): JSX.Element | null {
               </StyledLink>
               {isApplicationRoundApproved && applicantId && hasReservations && (
                 <StyledLink
-                  to={`${prefixes.recurringReservations}/application-rounds/${
-                    applicationRound.id
-                  }/${
+                  to={`${applicationRoundUrl(applicationRound.id)}/${
                     application.organisation?.id ? "organisation" : "applicant"
                   }/${applicantId}`}
                 >
