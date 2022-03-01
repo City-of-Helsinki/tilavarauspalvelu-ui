@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { IconCheckCircle, IconInfoCircle, Notification } from "hds-react";
 import queryString from "query-string";
 import withMainMenu from "../withMainMenu";
-import ApplicationRoundCard from "./ApplicationRoundCard";
+import ApplicationRoundCard from "../recurring-reservations/ApplicationRoundCard";
 import { H1, H3 } from "../../styles/typography";
 import {
   WideContainer,
@@ -16,7 +16,7 @@ import { ApplicationRound as ApplicationRoundType } from "../../common/types";
 import { getApplicationRounds } from "../../common/api";
 import Loader from "../Loader";
 import { BasicLink, NotificationBox } from "../../styles/util";
-import Heading from "./Heading";
+import Heading from "../recurring-reservations/Heading";
 import Accordion from "../Accordion";
 import {
   applicationRoundApplications,

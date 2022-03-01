@@ -51,7 +51,7 @@ import {
 } from "../../common/util";
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
 import Accordion from "../Accordion";
-import RecommendedSlot from "../ApplicationRound/RecommendedSlot";
+import RecommendedSlot from "../recurring-reservations/RecommendedSlot";
 import {
   applicationDetailsUrl,
   applicationRoundApplications,

@@ -20,7 +20,7 @@ import {
 } from "../../common/types";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
 import { InlineRowLink, breakpoints, BasicLink } from "../../styles/util";
-import StatusRecommendation from "../Application/StatusRecommendation";
+import StatusRecommendation from "../applications/StatusRecommendation";
 import withMainMenu from "../withMainMenu";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";
 import TimeframeStatus from "./TimeframeStatus";

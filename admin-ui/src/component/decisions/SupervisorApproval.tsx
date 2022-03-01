@@ -1,29 +1,30 @@
 import React, { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import styled from "styled-components";
-import {
-  Button,
-  IconArrowRight,
-  IconCheckCircle,
-  Notification,
-} from "hds-react";
-import trim from "lodash/trim";
+import { useHistory } from "react-router-dom";
 import uniq from "lodash/uniq";
+import trim from "lodash/trim";
+import { Button, Checkbox, IconArrowRight, Notification } from "hds-react";
 import {
-  AllocationResult,
   Application as ApplicationType,
+  AllocationResult,
   ApplicationRound as ApplicationRoundType,
   ApplicationRoundStatus,
   DataFilterConfig,
+  ApplicationEventStatus,
 } from "../../common/types";
-import { IngressContainer, NarrowContainer } from "../../styles/layout";
+import {
+  ContentContainer,
+  IngressContainer,
+  NarrowContainer,
+} from "../../styles/layout";
 import { breakpoints } from "../../styles/util";
-import Heading from "./Heading";
-import StatusRecommendation from "../Application/StatusRecommendation";
+import StatusRecommendation from "../applications/StatusRecommendation";
 import withMainMenu from "../withMainMenu";
-import ApplicationRoundNavi from "./ApplicationRoundNavi";
-import TimeframeStatus from "./TimeframeStatus";
+import ApplicationRoundNavi from "../recurring-reservations/ApplicationRoundNavi";
+import TimeframeStatus from "../recurring-reservations/TimeframeStatus";
 import { ContentHeading, H3 } from "../../styles/typography";
 import DataTable, { CellConfig, OrderTypes } from "../DataTable";
 import Dialog from "../Dialog";
@@ -35,13 +36,23 @@ import {
   IAllocationCapacity,
 } from "../../common/AllocationResult";
 import BigRadio from "../BigRadio";
-import { getAllocationResults, getApplications } from "../../common/api";
+import LinkPrev from "../LinkPrev";
 import Loader from "../Loader";
-import { applicationDetailsUrl, prefixes } from "../../common/urls";
+import {
+  getApplicationRound,
+  getAllocationResults,
+  getApplications,
+  setApplicationEventStatuses,
+  patchApplicationRoundStatus,
+} from "../../common/api";
+import {
+  applicationDetailsUrl,
+  applicationRoundUrl,
+  prefixes,
+} from "../../common/urls";
 
 interface IProps {
-  applicationRound: ApplicationRoundType;
-  setApplicationRoundStatus: (status: ApplicationRoundStatus) => Promise<void>;
+  applicationRoundId: string;
 }
 
 const Wrapper = styled.div`
@@ -76,24 +87,6 @@ const TopIngress = styled.div`
   }
 `;
 
-const StyledNotification = styled(Notification)`
-  margin-top: var(--spacing-l);
-  padding-left: var(--spacing-xl);
-
-  h3 {
-    display: flex;
-    align-items: center;
-
-    svg {
-      margin-right: var(--spacing-2-xs);
-    }
-  }
-
-  div[role="heading"] {
-    display: none;
-  }
-`;
-
 const Recommendation = styled.div`
   margin: var(--spacing-m) 0;
 `;
@@ -114,14 +107,41 @@ const RecommendationValue = styled.div`
 const ActionContainer = styled.div`
   button {
     margin-top: var(--spacing-s);
+    width: 100%;
   }
 
   display: flex;
   justify-content: space-between;
   flex-direction: column-reverse;
 
+  @media (min-width: ${breakpoints.s}) {
+    button {
+      width: auto;
+    }
+  }
+
   @media (min-width: ${breakpoints.l}) {
+    & > * {
+      &:last-child {
+        margin-right: 0;
+      }
+
+      margin-right: var(--spacing-m);
+    }
+
     flex-direction: row;
+
+    button {
+      height: var(--spacing-3-xl);
+    }
+  }
+`;
+
+const ConfirmationCheckbox = styled(Checkbox)`
+  margin: var(--spacing-m) 0;
+
+  label {
+    user-select: none;
   }
 `;
 
@@ -157,6 +177,16 @@ const BoldValue = styled.span`
     display: inline;
   }
 `;
+
+// const ScheduleCount = styled.span`
+//   font-size: var(--fontsize-body-s);
+//   display: block;
+
+//   @media (min-width: ${breakpoints.m}) {
+//     margin-left: var(--spacing-xs);
+//     display: inline;
+//   }
+// `;
 
 const getCellConfig = (
   t: TFunction,
@@ -330,13 +360,15 @@ const getFilterConfig = (
   }
 };
 
-function PreApproval({
-  applicationRound,
-  setApplicationRoundStatus,
-}: IProps): JSX.Element {
+function SupervisorApproval({ applicationRoundId }: IProps): JSX.Element {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmationChecked, toggleIsConfirmationChecked] = useState(false);
+  const [applicationRound, setApplicationRound] =
+    useState<ApplicationRoundType | null>(null);
+  const [isCancelDialogVisible, setCancelDialogVisibility] =
+    useState<boolean>(false);
   const [isConfirmationDialogVisible, setConfirmationDialogVisibility] =
     useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [recommendations, setRecommendations] = useState<
     AllocationResult[] | []
   >([]);
@@ -353,25 +385,67 @@ function PreApproval({
     useState<CellConfig | null>(null);
   const [allocatedCellConfig, setAllocatedCellConfig] =
     useState<CellConfig | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>("allocated");
   const [capacity, setCapacity] = useState<IAllocationCapacity | null>(null);
   const [filteredApplicationsCount, setFilteredApplicationsCount] = useState<
     number | null
   >(null);
-  const [activeFilter, setActiveFilter] = useState<string>("allocated");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const { t } = useTranslation();
+  const history = useHistory();
+
+  const setApplicationRoundStatus = async (
+    id: number,
+    status: ApplicationRoundStatus,
+    followupUrl?: string
+  ) => {
+    try {
+      const result = await patchApplicationRoundStatus(id, status);
+      setApplicationRound(result);
+      if (followupUrl) {
+        history.push(followupUrl);
+      }
+    } catch (error) {
+      setErrorMsg("errors.errorSavingData");
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async (arId: number, ssId: number) => {
+    const fetchApplicationRound = async () => {
+      setErrorMsg(null);
+      setIsLoading(true);
+
+      try {
+        const result = await getApplicationRound({
+          id: Number(applicationRoundId),
+        });
+        setApplicationRound(result);
+      } catch (error) {
+        const msg =
+          (error as AxiosError).response?.status === 404
+            ? "errors.applicationRoundNotFound"
+            : "errors.errorFetchingData";
+        setErrorMsg(msg);
+        setIsLoading(false);
+      }
+    };
+
+    fetchApplicationRound();
+  }, [applicationRoundId, t]);
+
+  useEffect(() => {
+    const fetchRecommendationsAndApplications = async (
+      ar: ApplicationRoundType
+    ) => {
       try {
         const allocationResults = await getAllocationResults({
-          applicationRoundId: arId,
-          serviceSectorId: ssId,
+          applicationRoundId: ar.id,
+          serviceSectorId: ar.serviceSectorId,
         });
 
         const applicationsResult = await getApplications({
-          applicationRound: arId,
+          applicationRound: ar.id,
           status: "in_review,review_done,declined",
         });
 
@@ -395,7 +469,7 @@ function PreApproval({
           getCellConfig(t, applicationRound, "unallocated")
         );
         setAllocatedCellConfig(getCellConfig(t, applicationRound, "allocated"));
-        setRecommendations(processedResult || []);
+        setRecommendations(processAllocationResult(allocationResults) || []);
         setUnallocatedApplications(unallocatedApps);
       } catch (error) {
         setErrorMsg("errors.errorFetchingApplications");
@@ -405,18 +479,29 @@ function PreApproval({
     };
 
     if (typeof applicationRound?.id === "number") {
-      fetchData(applicationRound.id, applicationRound.serviceSectorId);
+      fetchRecommendationsAndApplications(applicationRound);
     }
   }, [applicationRound, t]);
 
-  const hasBeenSentForApproval = applicationRound.status === "validated";
+  useEffect(() => {
+    if (
+      applicationRound &&
+      ["approved", "sent"].includes(applicationRound.status)
+    ) {
+      history.push(applicationRoundUrl(applicationRound.id));
+    }
+  }, [applicationRound, history]);
+
+  const backLink = `${prefixes.recurringReservations}/application-rounds`;
+
+  const validatedRecommendations = recommendations.filter((n) =>
+    ["validated"].includes(n.applicationEvent.status)
+  );
 
   const filteredResults =
     activeFilter === "unallocated"
       ? unallocatedApplications
-      : recommendations.filter((n) =>
-          ["validated"].includes(n.applicationEvent.status)
-        );
+      : validatedRecommendations;
 
   if (isLoading) {
     return <Loader />;
@@ -436,13 +521,16 @@ function PreApproval({
 
   return (
     <Wrapper>
-      <Heading />
       {recommendations &&
+        applicationRound &&
         unAllocatedCellConfig &&
         allocatedCellConfig &&
         unAllocatedFilterConfig &&
         allocatedFilterConfig && (
           <>
+            <ContentContainer>
+              <LinkPrev route={backLink} />
+            </ContentContainer>
             <IngressContainer>
               <ApplicationRoundNavi applicationRoundId={applicationRound.id} />
               <TopIngress>
@@ -458,56 +546,49 @@ function PreApproval({
                 <div />
               </TopIngress>
             </IngressContainer>
-            <NarrowContainer style={{ marginBottom: "var(--spacing-4-xl)" }}>
-              {hasBeenSentForApproval && (
-                <StyledNotification
-                  type="success"
-                  label=""
-                  dismissible
-                  closeButtonLabelText={`${t("common.close")}`}
-                >
-                  <H3>
-                    <IconCheckCircle size="m" />{" "}
-                    {t("ApplicationRound.sentForApprovalNotificationHeader")}
-                  </H3>
-                  <p>{t("ApplicationRound.sentForApprovalNotificationBody")}</p>
-                </StyledNotification>
-              )}
+            <NarrowContainer style={{ marginBottom: "var(--spacing-xl)" }}>
               <Recommendation>
                 <RecommendationLabel>
                   {t("Application.recommendedStage")}:
                 </RecommendationLabel>
                 <RecommendationValue>
                   <StatusRecommendation
-                    status={
-                      hasBeenSentForApproval
-                        ? "approval"
-                        : "approvalPreparation"
-                    }
+                    status="supervisorApproval"
                     applicationRound={applicationRound}
                   />
                 </RecommendationValue>
               </Recommendation>
-              {!hasBeenSentForApproval && (
-                <ActionContainer>
+              <ActionContainer>
+                <div>
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={() => {
-                      setApplicationRoundStatus("allocated");
-                    }}
+                    onClick={() => setCancelDialogVisibility(true)}
                   >
-                    {t("ApplicationRound.navigateBackToHandling")}
+                    {t("ApplicationRound.cancelSupervisorApproval")}
                   </Button>
+                </div>
+                <div>
                   <Button
                     type="submit"
                     variant="primary"
                     onClick={() => setConfirmationDialogVisibility(true)}
+                    disabled={!isConfirmationChecked}
                   >
-                    {t("ApplicationRound.sendForApproval")}
+                    {t("ApplicationRound.approveAndSendToCustomers")}
                   </Button>
-                </ActionContainer>
-              )}
+                  <div>
+                    <ConfirmationCheckbox
+                      id="applicationsChecked"
+                      checked={isConfirmationChecked}
+                      onClick={() =>
+                        toggleIsConfirmationChecked(!isConfirmationChecked)
+                      }
+                      label={t("Application.iHaveCheckedApplications")}
+                    />
+                  </div>
+                </div>
+              </ActionContainer>
             </NarrowContainer>
             <IngressContainer>
               <IngressFooter>
@@ -523,7 +604,7 @@ function PreApproval({
                       {t("ApplicationRound.unallocatedApplications")}
                     </p>
                   </div>
-                )}
+                )}{" "}
                 {activeFilter === "allocated" && (
                   <div>
                     {capacity && (
@@ -552,7 +633,6 @@ function PreApproval({
                     )}
                   </div>
                 )}
-
                 <div>
                   <BigRadio
                     buttons={[
@@ -603,6 +683,45 @@ function PreApproval({
                 }}
               />
             )}
+            {isCancelDialogVisible && (
+              <Dialog
+                closeDialog={() => setCancelDialogVisibility(false)}
+                style={
+                  {
+                    "--padding": "var(--spacing-layout-s)",
+                  } as React.CSSProperties
+                }
+              >
+                <H3>
+                  {t("ApplicationRound.cancelSupervisorApprovalDialogHeader")}
+                </H3>
+                <p>
+                  {t("ApplicationRound.cancelSupervisorApprovalDialogBody")}
+                </p>
+                <ActionContainer>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setCancelDialogVisibility(false)}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    onClick={() => {
+                      setApplicationRoundStatus(
+                        Number(applicationRoundId),
+                        "allocated",
+                        `/applicationRounds/approvals?cancelled`
+                      );
+                    }}
+                  >
+                    {t("ApplicationRound.returnListToHandling")}
+                  </Button>
+                </ActionContainer>
+              </Dialog>
+            )}
             {isConfirmationDialogVisible && (
               <Dialog
                 closeDialog={() => setConfirmationDialogVisibility(false)}
@@ -612,25 +731,44 @@ function PreApproval({
                   } as React.CSSProperties
                 }
               >
-                <H3>{t("ApplicationRound.sentForApprovalDialogHeader")}</H3>
-                <p>{t("ApplicationRound.sentForApprovalDialogBody")}</p>
+                <H3>
+                  {t("ApplicationRound.approveRecommendationsDialogHeader")}
+                </H3>
+                <p>{t("ApplicationRound.approveRecommendationsDialogBody")}</p>
                 <ActionContainer>
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => setConfirmationDialogVisibility(false)}
                   >
-                    {t("Navigation.goBack")}
+                    {t("common.cancel")}
                   </Button>
                   <Button
                     type="submit"
                     variant="primary"
-                    onClick={() => {
-                      setApplicationRoundStatus("validated");
-                      setConfirmationDialogVisibility(false);
+                    onClick={async () => {
+                      try {
+                        const payload = uniq(
+                          validatedRecommendations.map(
+                            (n: AllocationResult) => n.applicationEvent.id
+                          )
+                        ).map((n: number) => ({
+                          status: "approved" as ApplicationEventStatus,
+                          applicationEventId: n,
+                        }));
+                        await setApplicationEventStatuses(payload);
+                        await setApplicationRoundStatus(
+                          Number(applicationRoundId),
+                          "approved",
+                          `/applicationRounds/approvals?approved&applicationRoundId=${applicationRoundId}`
+                        );
+                      } catch (error) {
+                        setConfirmationDialogVisibility(false);
+                        setErrorMsg("errors.errorSavingRecommendations");
+                      }
                     }}
                   >
-                    {t("ApplicationRound.deliverAction")}
+                    {t("common.approve")}
                   </Button>
                 </ActionContainer>
               </Dialog>
@@ -655,4 +793,4 @@ function PreApproval({
   );
 }
 
-export default withMainMenu(PreApproval);
+export default withMainMenu(SupervisorApproval);

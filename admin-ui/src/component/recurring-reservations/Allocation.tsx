@@ -15,7 +15,7 @@ import {
 import { ContentHeading } from "../../styles/typography";
 import { breakpoints, NotificationBox, Strong } from "../../styles/util";
 import Heading from "./Heading";
-import StatusRecommendation from "../Application/StatusRecommendation";
+import StatusRecommendation from "../applications/StatusRecommendation";
 import withMainMenu from "../withMainMenu";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";
 import TimeframeStatus from "./TimeframeStatus";

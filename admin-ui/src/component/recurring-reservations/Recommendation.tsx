@@ -41,7 +41,7 @@ import Loader from "../Loader";
 import withMainMenu from "../withMainMenu";
 import ApplicantBox from "./ApplicantBox";
 import RecommendedSlot from "./RecommendedSlot";
-import ApplicationEventStatusBlock from "../Application/ApplicationEventStatusBlock";
+import ApplicationEventStatusBlock from "../applications/ApplicationEventStatusBlock";
 import Dialog from "../Dialog";
 import { applicationRoundUrl, prefixes } from "../../common/urls";
 

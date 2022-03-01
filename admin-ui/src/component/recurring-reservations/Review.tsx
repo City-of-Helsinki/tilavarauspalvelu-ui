@@ -31,7 +31,7 @@ import {
   getNormalizedApplicationStatus,
   parseDuration,
 } from "../../common/util";
-import StatusRecommendation from "../Application/StatusRecommendation";
+import StatusRecommendation from "../applications/StatusRecommendation";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";
 import { applicationUrl } from "../../common/urls";
 
