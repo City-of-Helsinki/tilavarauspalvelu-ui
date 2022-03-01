@@ -288,7 +288,9 @@ const getCellConfig = (
     order: "asc" as OrderTypes,
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${applicationRoundUrl(
+            applicationRound.id
+          )}/recommendation/${applicationEventScheduleId}`
         : "";
     },
   };

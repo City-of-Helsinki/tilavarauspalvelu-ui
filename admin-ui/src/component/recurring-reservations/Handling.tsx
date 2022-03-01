@@ -53,7 +53,10 @@ import {
 import SelectionActionBar from "../SelectionActionBar";
 import RecommendationDataTableGroup from "./RecommendationDataTableGroup";
 import Heading from "./Heading";
-import { applicationRoundApplications, prefixes } from "../../common/urls";
+import {
+  applicationRoundApplications,
+  applicationRoundUrl,
+} from "../../common/urls";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
@@ -231,9 +234,9 @@ const getCellConfig = (
             applicantType === "individual" ? applicantName : organisationName;
           return index ? (
             <InlineRowLink
-              to={`${prefixes.recurringReservations}/application-rounds/${
-                applicationRound.id
-              }/${organisationId ? "organisation" : "applicant"}/${index}`}
+              to={`${applicationRoundUrl(applicationRound.id)}/${
+                organisationId ? "organisation" : "applicant"
+              }/${index}`}
             >
               {title}
             </InlineRowLink>
@@ -297,12 +300,16 @@ const getCellConfig = (
     order: "asc",
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${applicationRoundUrl(
+            applicationRound.id
+          )}/recommendation/${applicationEventScheduleId}`
         : "";
     },
     groupLink: ({ space }) =>
       applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/reservationUnit/${space?.id}`
+        ? `${applicationRoundUrl(applicationRound.id)}/reservationUnit/${
+            space?.id
+          }`
         : "",
   };
 };

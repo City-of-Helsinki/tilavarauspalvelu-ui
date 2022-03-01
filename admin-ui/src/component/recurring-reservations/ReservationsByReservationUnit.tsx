@@ -22,7 +22,7 @@ import { BasicLink, breakpoints, Divider, Strong } from "../../styles/util";
 import { formatDate, localizedValue } from "../../common/util";
 import { weekdays } from "../../common/const";
 import { ReactComponent as IconBulletList } from "../../images/icon_list-bullet.svg";
-import { prefixes } from "../../common/urls";
+import { applicationRoundUrl } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -168,7 +168,9 @@ function ReservationsByReservationUnit(): JSX.Element | null {
         <>
           <ContentContainer style={{ marginBottom: "var(--spacing-xl)" }}>
             <LinkPrev
-              route={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/reservationUnit/${reservationUnitId}`}
+              route={`${applicationRoundUrl(
+                applicationRoundId
+              )}/reservationUnit/${reservationUnitId}`}
             />
           </ContentContainer>
           <NarrowContainer>
@@ -189,7 +191,9 @@ function ReservationsByReservationUnit(): JSX.Element | null {
                 </div>
               </Location>
               <BasicLink
-                to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/reservationUnit/${reservationUnitId}/reservations/summary`}
+                to={`${applicationRoundUrl(
+                  applicationRoundId
+                )}/reservationUnit/${reservationUnitId}/reservations/summary`}
               >
                 <IconBulletList aria-hidden />{" "}
                 {t("Reservation.showSummaryOfReservations")}

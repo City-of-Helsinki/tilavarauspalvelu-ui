@@ -43,7 +43,7 @@ import ApplicantBox from "./ApplicantBox";
 import RecommendedSlot from "./RecommendedSlot";
 import ApplicationEventStatusBlock from "../applications/ApplicationEventStatusBlock";
 import Dialog from "../Dialog";
-import { applicationRoundUrl, prefixes } from "../../common/urls";
+import { applicationRoundUrl } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -488,7 +488,9 @@ function Recommendation(): JSX.Element {
             <Top>
               <div>
                 <LinkToOthers
-                  to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/applicant/${recommendation.applicantId}`}
+                  to={`${applicationRoundUrl(applicationRoundId)}/applicant/${
+                    recommendation.applicantId
+                  }`}
                 >
                   {t("Recommendation.linkToOtherRecommendations")}
                 </LinkToOthers>

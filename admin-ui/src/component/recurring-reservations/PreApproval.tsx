@@ -37,7 +37,7 @@ import {
 import BigRadio from "../BigRadio";
 import { getAllocationResults, getApplications } from "../../common/api";
 import Loader from "../Loader";
-import { applicationDetailsUrl, prefixes } from "../../common/urls";
+import { applicationDetailsUrl, applicationRoundUrl } from "../../common/urls";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
@@ -258,7 +258,9 @@ const getCellConfig = (
     order: "asc" as OrderTypes,
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${applicationRoundUrl(
+            applicationRound.id
+          )}/recommendation/${applicationEventScheduleId}`
         : "";
     },
   };

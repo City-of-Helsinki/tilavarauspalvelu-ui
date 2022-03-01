@@ -2,7 +2,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { ApplicationRoundStatus } from "../../common/types";
-import { applicationRoundApplications, prefixes } from "../../common/urls";
+import {
+  applicationRoundApplications,
+  applicationRoundUrl,
+} from "../../common/urls";
 import { BasicLink, breakpoints } from "../../styles/util";
 
 interface IProps {
@@ -41,7 +44,7 @@ function ApplicationRoundNavi({
       {applicationRoundStatus &&
         ["approved"].includes(applicationRoundStatus) && (
           <NaviItem
-            to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/resolution`}
+            to={`${applicationRoundUrl(applicationRoundId)}/resolution`}
           >
             {t("Application.showResolutions")}
           </NaviItem>
@@ -51,9 +54,7 @@ function ApplicationRoundNavi({
           {t("Application.showAllApplications")}
         </NaviItem>
       )}
-      <NaviItem
-        to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/criteria`}
-      >
+      <NaviItem to={`${applicationRoundUrl(applicationRoundId)}/criteria`}>
         {t("ApplicationRound.roundCriteria")}
       </NaviItem>
     </Wrapper>

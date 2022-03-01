@@ -34,11 +34,7 @@ import {
   getApplications,
 } from "../../common/api";
 import TimeframeStatus from "./TimeframeStatus";
-import {
-  applicationDetailsUrl,
-  applicationRoundUrl,
-  prefixes,
-} from "../../common/urls";
+import { applicationDetailsUrl, applicationRoundUrl } from "../../common/urls";
 
 interface IProps {
   applicationRoundId: string;
@@ -215,7 +211,9 @@ const getCellConfig = (
     order: "asc" as OrderTypes,
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${applicationRoundUrl(
+            applicationRound.id
+          )}/recommendation/${applicationEventScheduleId}`
         : "";
     },
   };

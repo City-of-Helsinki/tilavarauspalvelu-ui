@@ -41,11 +41,7 @@ import {
   modifyAllocationResults,
   processAllocationResult,
 } from "../../common/AllocationResult";
-import {
-  applicationDetailsUrl,
-  applicationRoundUrl,
-  prefixes,
-} from "../../common/urls";
+import { applicationDetailsUrl, applicationRoundUrl } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -148,7 +144,9 @@ const getCellConfig = (
         }: AllocationResult) => {
           return (
             <InlineRowLink
-              to={`${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/reservationUnit/${allocatedReservationUnitId}`}
+              to={`${applicationRoundUrl(
+                applicationRound.id
+              )}/reservationUnit/${allocatedReservationUnitId}`}
             >
               {unitName}, {allocatedReservationUnitName}
             </InlineRowLink>
@@ -177,12 +175,14 @@ const getCellConfig = (
     order: "asc",
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${applicationRoundUrl(
+            applicationRound.id
+          )}/recommendation/${applicationEventScheduleId}`
         : "/foobar";
     },
     groupLink: ({ space }) =>
       applicationRound
-        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/space/${space?.id}`
+        ? `${applicationRoundUrl(applicationRound.id)}/space/${space?.id}`
         : "",
   };
 };
