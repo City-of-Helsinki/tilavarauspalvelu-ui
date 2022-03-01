@@ -52,6 +52,13 @@ import {
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
 import Accordion from "../Accordion";
 import RecommendedSlot from "../ApplicationRound/RecommendedSlot";
+import {
+  applicationDetailsUrl,
+  applicationRoundApplications,
+  applicationRoundUrl,
+  applicationUrl,
+  prefixes,
+} from "../../common/urls";
 
 interface IRouteParams {
   applicationId: string;
@@ -411,22 +418,24 @@ function Application(): JSX.Element | null {
             <LinkPrev
               route={
                 isApplicationRoundApproved
-                  ? `/applicationRound/${application.applicationRoundId}/applications`
-                  : `/applicationRound/${application.applicationRoundId}`
+                  ? applicationRoundApplications(application.applicationRoundId)
+                  : applicationRoundUrl(application.applicationRoundId)
               }
             />
           </ContentContainer>
           <NarrowContainer>
             <TopLinkContainer>
               <StyledLink
-                to={`/application/${application.id}/details`}
+                to={applicationDetailsUrl(application.id)}
                 data-testid="application__link--details"
               >
                 {t("ApplicationRound.showClientApplication")}
               </StyledLink>
               {isApplicationRoundApproved && applicantId && hasReservations && (
                 <StyledLink
-                  to={`/applicationRound/${applicationRound.id}/${
+                  to={`${prefixes.recurringReservations}/application-rounds/${
+                    applicationRound.id
+                  }/${
                     application.organisation?.id ? "organisation" : "applicant"
                   }/${applicantId}`}
                 >
@@ -733,7 +742,11 @@ function Application(): JSX.Element | null {
                                 )}
                                 <ReservationListLinkWrapper>
                                   <ReservationListLink
-                                    to={`/application/${applicationId}/recurringReservation/${recurringReservation.id}`}
+                                    to={`${applicationUrl(
+                                      applicationId
+                                    )}/recurringReservation/${
+                                      recurringReservation.id
+                                    }`}
                                   >
                                     <IconCalendar aria-hidden />{" "}
                                     {t("Application.showDetailedResultList")}{" "}

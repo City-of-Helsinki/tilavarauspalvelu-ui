@@ -18,6 +18,11 @@ import Loader from "../Loader";
 import { BasicLink, NotificationBox } from "../../styles/util";
 import Heading from "./Heading";
 import Accordion from "../Accordion";
+import {
+  applicationRoundApplications,
+  applicationRoundUrl,
+  prefixes,
+} from "../../common/urls";
 
 const Wrapper = styled.div`
   margin-bottom: var(--spacing-layout-xl);
@@ -158,7 +163,9 @@ function ApplicationRoundApprovals(): JSX.Element {
                     </H3>
                     <p>
                       <BasicLink
-                        to={`/applicationRound/${approvedApplicationRoundId}/applications`}
+                        to={applicationRoundApplications(
+                          approvedApplicationRoundId
+                        )}
                         style={{ textDecoration: "underline" }}
                       >
                         {t("ApplicationRound.notificationResolutionDoneBody")}
@@ -196,7 +203,9 @@ function ApplicationRoundApprovals(): JSX.Element {
                     <ApplicationRoundCard
                       applicationRound={applicationRound}
                       key={applicationRound.id}
-                      getRoute={(id) => `/applicationRound/${id}/approval`}
+                      getRoute={(id) =>
+                        `${prefixes.recurringReservations}/decisions/${id}/approval`
+                      }
                     />
                   ))
                 ) : (
@@ -214,7 +223,7 @@ function ApplicationRoundApprovals(): JSX.Element {
                       <ApplicationRoundCard
                         applicationRound={applicationRound}
                         key={applicationRound.id}
-                        getRoute={(id) => `/applicationRound/${id}`}
+                        getRoute={applicationRoundUrl}
                       />
                     ))
                   ) : (

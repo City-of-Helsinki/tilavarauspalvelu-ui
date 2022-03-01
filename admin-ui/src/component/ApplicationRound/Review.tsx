@@ -33,6 +33,7 @@ import {
 } from "../../common/util";
 import StatusRecommendation from "../Application/StatusRecommendation";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";
+import { applicationUrl } from "../../common/urls";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
@@ -190,7 +191,7 @@ const getCellConfig = (
     index: "id",
     sorting: "organisation.name",
     order: "asc",
-    rowLink: ({ id }) => `/application/${id}`,
+    rowLink: ({ id }) => applicationUrl(id),
   };
 };
 

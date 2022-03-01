@@ -26,6 +26,7 @@ import {
   parseDuration,
 } from "../../common/util";
 import StatusCell from "../StatusCell";
+import { applicationUrl } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -156,7 +157,7 @@ const getCellConfig = (
     index: "id",
     sorting: "organisation.name",
     order: "asc",
-    rowLink: ({ id }) => `/application/${id}`,
+    rowLink: ({ id }) => applicationUrl(id),
   };
 };
 
@@ -233,7 +234,7 @@ function Applications(): JSX.Element {
       {applicationRound && (
         <>
           <ContentContainer>
-            <LinkPrev route={`/applicationRound/${applicationRoundId}`} />
+            <LinkPrev />
           </ContentContainer>
           <IngressContainer>
             <Title>{t("Application.allApplications")}</Title>

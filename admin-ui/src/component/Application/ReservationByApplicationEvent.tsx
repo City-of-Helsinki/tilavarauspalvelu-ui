@@ -25,6 +25,7 @@ import LinkPrev from "../LinkPrev";
 import { Divider, Strong } from "../../styles/util";
 import { formatDate, localizedValue } from "../../common/util";
 import { weekdays } from "../../common/const";
+import { applicationUrl } from "../../common/urls";
 
 interface IRouteParams {
   applicationId: string;
@@ -173,7 +174,7 @@ function ReservationByApplicationEvent(): JSX.Element | null {
         recurringReservation && (
           <>
             <ContentContainer style={{ marginBottom: "var(--spacing-xl)" }}>
-              <LinkPrev route={`/application/${applicationId}`} />
+              <LinkPrev route={applicationUrl(applicationId)} />
             </ContentContainer>
             <NarrowContainer>
               <p>{customerName}</p>
@@ -185,7 +186,9 @@ function ReservationByApplicationEvent(): JSX.Element | null {
               <Divider />
               <Location>
                 <IconLocation />
-                <H2>{reservationUnit.building.name}</H2>
+                <H2>
+                  {localizedValue(reservationUnit.building.name, i18n.language)}
+                </H2>
                 <span>
                   {localizedValue(reservationUnit.name, i18n.language)}
                 </span>

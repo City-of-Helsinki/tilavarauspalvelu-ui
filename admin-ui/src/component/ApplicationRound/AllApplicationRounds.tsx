@@ -12,6 +12,7 @@ import { getApplicationRounds } from "../../common/api";
 import Loader from "../Loader";
 import { NotificationBox } from "../../styles/util";
 import Heading from "./Heading";
+import { applicationRoundUrl, prefixes } from "../../common/urls";
 
 const Wrapper = styled.div``;
 
@@ -86,9 +87,9 @@ function AllApplicationRounds(): JSX.Element {
                     applicationRound.status === "validated" &&
                     applicationRound.isAdmin
                   ) {
-                    return `/applicationRound/${id}/approval`;
+                    return `${prefixes.recurringReservations}/decisions/${id}/approval`;
                   }
-                  return `/applicationRound/${id}`;
+                  return applicationRoundUrl(id);
                 };
                 return (
                   <ApplicationRoundCard

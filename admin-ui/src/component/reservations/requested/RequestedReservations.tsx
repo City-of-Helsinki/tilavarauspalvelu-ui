@@ -8,15 +8,15 @@ import {
   QueryReservationsArgs,
   ReservationsReservationStateChoices,
   ReservationType,
-} from "../../common/gql-types";
-import { RESERVATIONS_QUERY } from "../../common/queries";
-import { useNotification } from "../../context/NotificationContext";
-import DataTable, { CellConfig } from "../DataTable";
-import KorosHeading, { Heading, SubHeading } from "../KorosHeading";
-import Loader from "../Loader";
-import withMainMenu from "../withMainMenu";
+} from "../../../common/gql-types";
+import { RESERVATIONS_QUERY } from "../../../common/queries";
+import { useNotification } from "../../../context/NotificationContext";
+import DataTable, { CellConfig } from "../../DataTable";
+import KorosHeading, { Heading, SubHeading } from "../../KorosHeading";
+import Loader from "../../Loader";
+import withMainMenu from "../../withMainMenu";
 import { reservationDateTime } from "./util";
-import { useData } from "../../context/DataContext";
+import { useData } from "../../../context/DataContext";
 
 const Insight = ({
   count,
@@ -67,7 +67,7 @@ const getCellConfig = (t: TFunction): CellConfig => {
   return {
     cols: [
       {
-        title: t("SingleApplications.heading.unit"),
+        title: t("RequestedReservations.heading.unit"),
         key: "nameFi",
         transform: ({ reservationUnits, begin, end }: ReservationType) => (
           <>
@@ -94,7 +94,7 @@ const getCellConfig = (t: TFunction): CellConfig => {
         ),
       },
       {
-        title: t("SingleApplications.heading.applicant"),
+        title: t("RequestedReservations.heading.applicant"),
         key: "lastName",
         transform: ({
           reserveeFirstName,
@@ -110,16 +110,16 @@ const getCellConfig = (t: TFunction): CellConfig => {
         ),
       },
       {
-        title: t("SingleApplications.heading.name"),
+        title: t("RequestedReservations.heading.name"),
         key: "name",
       },
       {
-        title: t("SingleApplications.heading.price"),
+        title: t("RequestedReservations.heading.price"),
         key: "price",
         transform: ({ price }: ReservationType) => <div>{price || "-"}</div>,
       },
       {
-        title: t("SingleApplications.heading.state"),
+        title: t("RequestedReservations.heading.state"),
         key: "state",
         transform: ({ state }: ReservationType) => (
           <AlignVertically>
@@ -130,7 +130,7 @@ const getCellConfig = (t: TFunction): CellConfig => {
               ) : (
                 <span />
               )}
-              <div>{t(`SingleApplication.state.${state}`)}</div>
+              <div>{t(`RequestedReservation.state.${state}`)}</div>
             </AlignVertically>
             <IconArrowRight size="m" style={{ marginLeft: "1em" }} />
           </AlignVertically>
@@ -140,11 +140,11 @@ const getCellConfig = (t: TFunction): CellConfig => {
     index: "pk",
     sorting: "name",
     order: "asc",
-    rowLink: ({ pk }: ReservationType) => `/singleApplications/${pk}`,
+    rowLink: ({ pk }: ReservationType) => `/reservations/requested/${pk}`,
   };
 };
 
-const SingleApplicationsView = (): JSX.Element => {
+const RequestedReservationsView = (): JSX.Element => {
   const [loadedReservations, setReservations] = useState<ReservationType[]>([]);
   const { notifyError } = useNotification();
   const { t } = useTranslation();
@@ -185,19 +185,19 @@ const SingleApplicationsView = (): JSX.Element => {
         <Insights>
           <Insight
             count={`${handlingCount} kpl`}
-            label={t("SingleApplications.insightCountHandledApplications", {
+            label={t("RequestedReservations.insightCountHandledApplications", {
               count: handlingCount,
             })}
           />
           <Insight
             count={`${numHandledMonthlyApplications} kpl`}
             label={t(
-              "SingleApplications.insightCountMonthlyHandledApplications"
+              "RequestedReservations.insightCountMonthlyHandledApplications"
             )}
           />
           <Insight
             count={numApplications}
-            label={t("SingleApplications.insightCountTotalApplications")}
+            label={t("RequestedReservations.insightCountTotalApplications")}
           />
         </Insights>
       </KorosHeading>
@@ -215,4 +215,4 @@ const SingleApplicationsView = (): JSX.Element => {
   );
 };
 
-export const SingleApplications = withMainMenu(SingleApplicationsView);
+export default withMainMenu(RequestedReservationsView);

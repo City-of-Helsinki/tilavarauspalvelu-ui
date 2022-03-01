@@ -5,6 +5,7 @@ import { Application as ApplicationType } from "../../common/types";
 import { H2 } from "../../styles/typography";
 import { BasicLink, StatusDot } from "../../styles/util";
 import { ReactComponent as IconCustomers } from "../../images/icon_customers.svg";
+import { applicationDetailsUrl } from "../../common/urls";
 
 interface IProps {
   application: ApplicationType;
@@ -101,7 +102,7 @@ function ApplicantBox({ application, type }: IProps): JSX.Element {
         {details}
         <Status>
           <StatusDot status="review_done" size={16} />
-          <BasicLink to={`/application/${application.id}`}>
+          <BasicLink to={applicationDetailsUrl(application.id)}>
             {t("Applicant.inAllocation")}
           </BasicLink>
         </Status>

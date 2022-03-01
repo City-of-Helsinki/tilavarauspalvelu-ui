@@ -41,6 +41,11 @@ import {
   modifyAllocationResults,
   processAllocationResult,
 } from "../../common/AllocationResult";
+import {
+  applicationDetailsUrl,
+  applicationRoundUrl,
+  prefixes,
+} from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -143,7 +148,7 @@ const getCellConfig = (
         }: AllocationResult) => {
           return (
             <InlineRowLink
-              to={`/applicationRound/${applicationRound.id}/reservationUnit/${allocatedReservationUnitId}`}
+              to={`${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/reservationUnit/${allocatedReservationUnitId}`}
             >
               {unitName}, {allocatedReservationUnitName}
             </InlineRowLink>
@@ -172,12 +177,12 @@ const getCellConfig = (
     order: "asc",
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `/applicationRound/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
         : "/foobar";
     },
     groupLink: ({ space }) =>
       applicationRound
-        ? `/applicationRound/${applicationRound.id}/space/${space?.id}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/space/${space?.id}`
         : "",
   };
 };
@@ -369,7 +374,7 @@ function RecommendationsByApplicant(): JSX.Element {
   return (
     <Wrapper>
       <ContentContainer>
-        <LinkPrev route={`/applicationRound/${applicationRoundId}`} />
+        <LinkPrev route={applicationRoundUrl(applicationRoundId)} />
       </ContentContainer>
       {recommendations &&
         applicationRound &&
@@ -381,10 +386,9 @@ function RecommendationsByApplicant(): JSX.Element {
               <Top>
                 <div>
                   <LinkToOthers
-                    to={`/application/${get(
-                      recommendations,
-                      "[0].applicationId"
-                    )}/details`}
+                    to={applicationDetailsUrl(
+                      get(recommendations, "[0].applicationId")
+                    )}
                   >
                     {t("Recommendation.showOriginalApplication")}
                   </LinkToOthers>

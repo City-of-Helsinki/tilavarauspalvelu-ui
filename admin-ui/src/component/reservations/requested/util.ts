@@ -1,7 +1,11 @@
 import { isSameDay } from "date-fns";
 import { TFunction } from "i18next";
-import { AgeGroupType, Maybe, ReservationType } from "../../common/gql-types";
-import { formatDate, formatTime } from "../../common/util";
+import {
+  AgeGroupType,
+  Maybe,
+  ReservationType,
+} from "../../../common/gql-types";
+import { formatDate, formatTime } from "../../../common/util";
 
 export const reservationDateTime = (
   start: string,
@@ -27,7 +31,7 @@ export const reservationPrice = (
   t: TFunction
 ): string => {
   if (!reservation.price) {
-    return t("SingleApplication.noPrice");
+    return t("RequestedReservation.noPrice");
   }
   return `${String(reservation.price)}€`;
 };

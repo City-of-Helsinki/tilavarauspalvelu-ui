@@ -34,6 +34,11 @@ import {
   getApplications,
 } from "../../common/api";
 import TimeframeStatus from "./TimeframeStatus";
+import {
+  applicationDetailsUrl,
+  applicationRoundUrl,
+  prefixes,
+} from "../../common/urls";
 
 interface IProps {
   applicationRoundId: string;
@@ -155,7 +160,7 @@ const getCellConfig = (
     index: "id",
     sorting: "organisation.name",
     order: "asc" as OrderTypes,
-    rowLink: ({ id }: ApplicationType) => `/application/${id}/details`,
+    rowLink: ({ id }: ApplicationType) => applicationDetailsUrl(id),
   };
 
   const allocatedCellConfig = {
@@ -210,7 +215,7 @@ const getCellConfig = (
     order: "asc" as OrderTypes,
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `/applicationRound/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
         : "";
     },
   };
@@ -416,7 +421,7 @@ function ResolutionReport(): JSX.Element {
         allocatedFilterConfig && (
           <>
             <ContentContainer>
-              <LinkPrev route={`/applicationRound/${applicationRound.id}`} />
+              <LinkPrev route={applicationRoundUrl(applicationRound.id)} />
             </ContentContainer>
             <IngressContainer>
               <TopIngress>

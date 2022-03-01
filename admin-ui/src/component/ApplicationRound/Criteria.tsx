@@ -270,7 +270,7 @@ function Criteria(): JSX.Element {
       {applicationRound && ageGroups && purposes && cities && reservationUnits && (
         <>
           <ContentContainer>
-            <LinkPrev route={`/applicationRound/${applicationRound.id}`} />
+            <LinkPrev />
           </ContentContainer>
           <IngressContainer>
             <Title>{applicationRound.name}</Title>
@@ -420,7 +420,12 @@ function Criteria(): JSX.Element {
                     return (
                       <ReservationUnit key={reservationUnit.id}>
                         <div>
-                          <Strong>{reservationUnit.building.name}</Strong>
+                          <Strong>
+                            {localizedValue(
+                              reservationUnit.building.name,
+                              i18n.language
+                            )}
+                          </Strong>
                         </div>
                         <div>{getSpaceNames(reservationUnit)}</div>
                       </ReservationUnit>

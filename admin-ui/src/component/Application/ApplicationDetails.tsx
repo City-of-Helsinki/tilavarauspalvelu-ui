@@ -31,6 +31,7 @@ import {
 import ValueBox from "../ValueBox";
 import { weekdays } from "../../common/const";
 import i18n from "../../i18n";
+import { prefixes } from "../../common/urls";
 
 interface IRouteParams {
   applicationId: string;
@@ -182,7 +183,7 @@ function ApplicationDetails(): JSX.Element | null {
       {application && (
         <>
           <ContentContainer>
-            <LinkPrev route={`/application/${application.id}`} />
+            <LinkPrev route={`${prefixes.applications}/${application.id}`} />
           </ContentContainer>
           <HeadingContainer>
             <Heading data-testid="application-details__heading--main">

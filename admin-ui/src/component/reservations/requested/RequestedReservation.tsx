@@ -21,23 +21,26 @@ import {
   ReservationType,
   ReservationWorkingMemoMutationInput,
   ReservationsReservationStateChoices,
-} from "../../common/gql-types";
-import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "../../common/queries";
-import { useNotification } from "../../context/NotificationContext";
-import { ContentContainer } from "../../styles/layout";
+} from "../../../common/gql-types";
+import {
+  RESERVATION_QUERY,
+  UPDATE_WORKING_MEMO,
+} from "../../../common/queries";
+import { useNotification } from "../../../context/NotificationContext";
+import { ContentContainer } from "../../../styles/layout";
 import {
   breakpoints,
   ButtonsStripe,
   Divider,
   WhiteButton,
-} from "../../styles/util";
-import LinkPrev from "../LinkPrev";
-import Loader from "../Loader";
-import withMainMenu from "../withMainMenu";
-import { ReactComponent as IconCustomers } from "../../images/icon_customers.svg";
-import { H1 } from "../../styles/typography";
+} from "../../../styles/util";
+import LinkPrev from "../../LinkPrev";
+import Loader from "../../Loader";
+import withMainMenu from "../../withMainMenu";
+import { ReactComponent as IconCustomers } from "../../../images/icon_customers.svg";
+import { H1 } from "../../../styles/typography";
 import { ageGroup, reservationDateTime, reservationPrice } from "./util";
-import { useModal } from "../../context/ModalContext";
+import { useModal } from "../../../context/ModalContext";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
 import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
@@ -134,7 +137,7 @@ const ApplicationData = ({
     </div>
   ) : null;
 
-const SingleApplication = (): JSX.Element | null => {
+const RequestedReservation = (): JSX.Element | null => {
   const { reservationPk } = useParams() as { reservationPk: string };
   const [reservation, setReservation] = useState<ReservationType>();
   const [workingMemo, setWorkingMemo] = useState<string>();
@@ -157,7 +160,7 @@ const SingleApplication = (): JSX.Element | null => {
         }
       },
       onError: () => {
-        notifyError(t("SingleApplication.errorFetchingData"));
+        notifyError(t("RequestedReservation.errorFetchingData"));
       },
     }
   );
@@ -187,16 +190,16 @@ const SingleApplication = (): JSX.Element | null => {
   return (
     <>
       <ContentContainer style={{ minHeight: "100%" }}>
-        <LinkPrev route="/singleApplications" />
+        <LinkPrev route="/reservations/requested" />
         <ViewWrapper>
           <IconContainer>
             <IconCustomers />
           </IconContainer>
           <ApplicationContent>
             <AlignVertically>
-              <H1>{t("SingleApplication.heading")}</H1>
+              <H1>{t("RequestedReservation.heading")}</H1>
               <StyledTag>
-                {t(`SingleApplication.state.${reservation.state}`)}
+                {t(`RequestedReservation.state.${reservation.state}`)}
               </StyledTag>
             </AlignVertically>
             <ApplicationHeader>
@@ -225,13 +228,13 @@ const SingleApplication = (): JSX.Element | null => {
               </AlignVerticallySmallGap>
             </ApplicationHeader>
             <Accordion
-              heading={t("SingleApplication.workingMemo")}
+              heading={t("RequestedReservation.workingMemo")}
               initiallyOpen={get(reservation, "workingMemo.length") > 0}
             >
               <WorkingMemoContainer>
                 <TextArea
                   id="workingMemo"
-                  helperText={t("SingleApplication.workingMemoHelperText")}
+                  helperText={t("RequestedReservation.workingMemoHelperText")}
                   value={workingMemo}
                   onChange={(e) => setWorkingMemo(e.target.value)}
                 />
@@ -245,120 +248,122 @@ const SingleApplication = (): JSX.Element | null => {
                       });
                       if (!res.errors) {
                         refetch();
-                        notifySuccess(t("SingleApplication.savedWorkingMemo"));
+                        notifySuccess(
+                          t("RequestedReservation.savedWorkingMemo")
+                        );
                       } else {
                         notifyError(
-                          t("SingleApplication.errorSavingWorkingMemo")
+                          t("RequestedReservation.errorSavingWorkingMemo")
                         );
                       }
                     } catch (ex) {
                       notifyError(
-                        t("SingleApplication.errorSavingWorkingMemo")
+                        t("RequestedReservation.errorSavingWorkingMemo")
                       );
                     }
                   }}
                 >
-                  {t("SingleApplication.save")}
+                  {t("RequestedReservation.save")}
                 </Button>
               </WorkingMemoContainer>
             </Accordion>
-            <Accordion heading={t("SingleApplication.calendar")}>
+            <Accordion heading={t("RequestedReservation.calendar")}>
               TODO
             </Accordion>
-            <h2>{t("SingleApplication.summary")}</h2>
+            <h2>{t("RequestedReservation.summary")}</h2>
             <ApplicationDatas>
               <ApplicationData
-                label={t("SingleApplication.name")}
+                label={t("RequestedReservation.name")}
                 data={reservation.name}
               />
               <ApplicationData
-                label={t("SingleApplication.description")}
+                label={t("RequestedReservation.description")}
                 data={reservation.description}
                 wide
               />
               <ApplicationData
-                label={t("SingleApplication.purpose")}
+                label={t("RequestedReservation.purpose")}
                 data={reservation.purpose && String(reservation.purpose.nameFi)}
                 wide
               />
               <ApplicationData
-                label={t("SingleApplication.numPersons")}
+                label={t("RequestedReservation.numPersons")}
                 data={reservation.numPersons}
               />
               <ApplicationData
-                label={t("SingleApplication.ageGroup")}
+                label={t("RequestedReservation.ageGroup")}
                 data={ageGroup(reservation.ageGroup)}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeFirstName")}
+                label={t("RequestedReservation.reserveeFirstName")}
                 data={reservation.reserveeFirstName}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeLastName")}
+                label={t("RequestedReservation.reserveeLastName")}
                 data={reservation.reserveeLastName}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeAddressStreet")}
+                label={t("RequestedReservation.reserveeAddressStreet")}
                 data={reservation.reserveeAddressStreet}
                 wide
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeAddressZip")}
+                label={t("RequestedReservation.reserveeAddressZip")}
                 data={reservation.reserveeAddressZip}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeAddressCity")}
+                label={t("RequestedReservation.reserveeAddressCity")}
                 data={reservation.reserveeAddressCity}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeEmail")}
+                label={t("RequestedReservation.reserveeEmail")}
                 data={reservation.reserveeEmail}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveePhone")}
+                label={t("RequestedReservation.reserveePhone")}
                 data={reservation.reserveePhone}
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeOrganisationName")}
+                label={t("RequestedReservation.reserveeOrganisationName")}
                 data={reservation.reserveeOrganisationName}
                 wide
               />
               <ApplicationData
-                label={t("SingleApplication.reserveeId")}
+                label={t("RequestedReservation.reserveeId")}
                 data={reservation.reserveeId}
                 wide
               />
               <ApplicationData
-                label={t("SingleApplication.billingAddressStreet")}
+                label={t("RequestedReservation.billingAddressStreet")}
                 data={reservation.billingAddressStreet}
                 wide
               />
               <ApplicationData
-                label={t("SingleApplication.billingAddressZip")}
+                label={t("RequestedReservation.billingAddressZip")}
                 data={reservation.billingAddressZip}
               />
               <ApplicationData
-                label={t("SingleApplication.billingAddressCity")}
+                label={t("RequestedReservation.billingAddressCity")}
                 data={reservation.billingAddressCity}
               />
               <ApplicationData
-                label={t("SingleApplication.billingEmail")}
+                label={t("RequestedReservation.billingEmail")}
                 data={reservation.billingEmail}
               />
               <ApplicationData
-                label={t("SingleApplication.billingPhone")}
+                label={t("RequestedReservation.billingPhone")}
                 data={reservation.billingPhone}
               />
               <ApplicationData
-                label={t("SingleApplication.homeCity")}
+                label={t("RequestedReservation.homeCity")}
                 data={reservation.homeCity?.name}
               />
               <ApplicationData
-                label={t("SingleApplication.applyingForFreeOfCharge")}
+                label={t("RequestedReservation.applyingForFreeOfCharge")}
                 data={reservation.applyingForFreeOfCharge ? "Kyllä" : "Ei"}
               />
               <ApplicationData
-                label={t("SingleApplication.freeOfChargeReason")}
+                label={t("RequestedReservation.freeOfChargeReason")}
                 data={reservation.freeOfChargeReason}
               />
             </ApplicationDatas>
@@ -384,7 +389,7 @@ const SingleApplication = (): JSX.Element | null => {
                   );
                 }}
               >
-                {t("SingleApplication.reject")}
+                {t("RequestedReservation.reject")}
               </WhiteButton>
 
               <WhiteButton
@@ -402,7 +407,7 @@ const SingleApplication = (): JSX.Element | null => {
                   );
                 }}
               >
-                {t("SingleApplication.approve")}
+                {t("RequestedReservation.approve")}
               </WhiteButton>
             </>
           ) : (
@@ -412,7 +417,7 @@ const SingleApplication = (): JSX.Element | null => {
                 disabled={false}
                 onClick={goBack}
               >
-                {t("SingleApplication.cancel")}
+                {t("RequestedReservation.cancel")}
               </WhiteButton>
               <WhiteButton
                 variant="primary"
@@ -429,7 +434,7 @@ const SingleApplication = (): JSX.Element | null => {
                   );
                 }}
               >
-                {t("SingleApplication.returnToHandling")}
+                {t("RequestedReservation.returnToHandling")}
               </WhiteButton>
             </>
           )}
@@ -439,4 +444,4 @@ const SingleApplication = (): JSX.Element | null => {
   );
 };
 
-export default withMainMenu(SingleApplication);
+export default withMainMenu(RequestedReservation);

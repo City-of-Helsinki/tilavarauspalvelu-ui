@@ -6,10 +6,10 @@ import {
   Mutation,
   ReservationRequiresHandlingMutationInput,
   ReservationType,
-} from "../../common/gql-types";
-import { useModal } from "../../context/ModalContext";
-import { REQUIRE_HANDLING_RESERVATION } from "../../common/queries";
-import { useNotification } from "../../context/NotificationContext";
+} from "../../../common/gql-types";
+import { useModal } from "../../../context/ModalContext";
+import { REQUIRE_HANDLING_RESERVATION } from "../../../common/queries";
+import { useNotification } from "../../../context/NotificationContext";
 
 const DialogContent = ({
   reservation,
@@ -50,7 +50,9 @@ const DialogContent = ({
 
               if (!res.errors) {
                 notifySuccess(
-                  t("SingleApplication.ReturnToRequiresHandlingDialog.returned")
+                  t(
+                    "RequestedReservation.ReturnToRequiresHandlingDialog.returned"
+                  )
                 );
                 onAccept();
                 return;
@@ -59,11 +61,13 @@ const DialogContent = ({
               // noop
             }
             notifyError(
-              t("SingleApplication.ReturnToRequiresHandlingDialog.errorSaving")
+              t(
+                "RequestedReservation.ReturnToRequiresHandlingDialog.errorSaving"
+              )
             );
           }}
         >
-          {t("SingleApplication.ReturnToRequiresHandlingDialog.accept")}
+          {t("RequestedReservation.ReturnToRequiresHandlingDialog.accept")}
         </Button>
       </Dialog.ActionButtons>
     </>
@@ -94,7 +98,7 @@ const ReturnToRequiredHandlingDialog = ({
     >
       <Dialog.Header
         id="modal-header"
-        title={t("SingleApplication.ReturnToRequiresHandlingDialog.title")}
+        title={t("RequestedReservation.ReturnToRequiresHandlingDialog.title")}
         iconLeft={<IconInfoCircle aria-hidden="true" />}
       />
       <DialogContent

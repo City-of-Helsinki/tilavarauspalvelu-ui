@@ -36,6 +36,7 @@ import {
 } from "../../common/util";
 import { ReactComponent as IconBulletList } from "../../images/icon_list-bullet.svg";
 import RecommendedSlot from "./RecommendedSlot";
+import { prefixes } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -183,7 +184,7 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
         <>
           <ContentContainer style={{ marginBottom: "var(--spacing-xl)" }}>
             <LinkPrev
-              route={`/applicationRound/${applicationRoundId}/reservationUnit/${reservationUnitId}`}
+              route={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/reservationUnit/${reservationUnitId}`}
             />
           </ContentContainer>
           <NarrowContainer>
@@ -204,7 +205,7 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
                 </div>
               </Location>
               <BasicLink
-                to={`/applicationRound/${applicationRoundId}/reservationUnit/${reservationUnitId}/reservations`}
+                to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/reservationUnit/${reservationUnitId}/reservations`}
               >
                 <IconBulletList aria-hidden />{" "}
                 {t("Reservation.showReservations")}

@@ -43,6 +43,7 @@ import ApplicantBox from "./ApplicantBox";
 import RecommendedSlot from "./RecommendedSlot";
 import ApplicationEventStatusBlock from "../Application/ApplicationEventStatusBlock";
 import Dialog from "../Dialog";
+import { applicationRoundUrl, prefixes } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -265,7 +266,7 @@ function Recommendation(): JSX.Element {
     } catch (error) {
       setErrorMsg("errors.errorSavingRecommendation");
     } finally {
-      history.push(`/applicationRound/${applicationRoundId}`);
+      history.push(applicationRoundUrl(applicationRoundId));
     }
   };
 
@@ -301,7 +302,7 @@ function Recommendation(): JSX.Element {
 
       if (revert) {
         await deleteAllocationResult(rec.applicationEventScheduleId);
-        history.push(`/applicationRound/${applicationRoundId}`);
+        history.push(applicationRoundUrl(applicationRoundId));
       }
 
       setActionNotification(revert ? null : "ignored");
@@ -479,7 +480,7 @@ function Recommendation(): JSX.Element {
   return (
     <Wrapper>
       <ContentContainer>
-        <LinkPrev route={`/applicationRound/${applicationRoundId}`} />
+        <LinkPrev route={applicationRoundUrl(applicationRoundId)} />
       </ContentContainer>
       {application && recommendation && (
         <>
@@ -487,7 +488,7 @@ function Recommendation(): JSX.Element {
             <Top>
               <div>
                 <LinkToOthers
-                  to={`/applicationRound/${applicationRoundId}/applicant/${recommendation.applicantId}`}
+                  to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/applicant/${recommendation.applicantId}`}
                 >
                   {t("Recommendation.linkToOtherRecommendations")}
                 </LinkToOthers>

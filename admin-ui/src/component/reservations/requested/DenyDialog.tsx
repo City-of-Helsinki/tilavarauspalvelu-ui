@@ -9,16 +9,16 @@ import {
   QueryReservationDenyReasonsArgs,
   ReservationDenyMutationInput,
   ReservationType,
-} from "../../common/gql-types";
-import { useModal } from "../../context/ModalContext";
+} from "../../../common/gql-types";
+import { useModal } from "../../../context/ModalContext";
 import {
   DENY_RESERVATION,
   RESERVATION_DENY_REASONS,
-} from "../../common/queries";
-import { useNotification } from "../../context/NotificationContext";
-import Loader from "../Loader";
-import Select from "../ReservationUnits/ReservationUnitEditor/Select";
-import { OptionType } from "../../common/types";
+} from "../../../common/queries";
+import { useNotification } from "../../../context/NotificationContext";
+import Loader from "../../Loader";
+import Select from "../../ReservationUnits/ReservationUnitEditor/Select";
+import { OptionType } from "../../../common/types";
 
 const Fields = styled.div`
   display: flex;
@@ -65,7 +65,7 @@ const DialogContent = ({
       },
 
       onError: () => {
-        notifyError(t("SingleApplication.errorFetchingData"));
+        notifyError(t("RequestedReservation.errorFetchingData"));
       },
     }
   );
@@ -83,14 +83,14 @@ const DialogContent = ({
             id="denyReason"
             options={denyReasonOptions}
             placeholder={t("common.select")}
-            label={t("SingleApplication.DenyDialog.denyReason")}
+            label={t("RequestedReservation.DenyDialog.denyReason")}
             onChange={(v) => setDenyReason(Number(v))}
             value={denyReasonPk}
           />
           <TextArea
             value={handlingDetails}
             onChange={(e) => setHandlingDetails(e.target.value)}
-            label={t("SingleApplication.DenyDialog.handlingDetails")}
+            label={t("RequestedReservation.DenyDialog.handlingDetails")}
             id="handlingDetails"
           />
         </Fields>
@@ -112,17 +112,17 @@ const DialogContent = ({
               });
 
               if (res.errors) {
-                notifyError(t("SingleApplication.DenyDialog.errorSaving"));
+                notifyError(t("RequestedReservation.DenyDialog.errorSaving"));
               } else {
-                notifySuccess(t("SingleApplication.DenyDialog.denied"));
+                notifySuccess(t("RequestedReservation.DenyDialog.denied"));
                 onReject();
               }
             } catch (e) {
-              notifyError(t("SingleApplication.DenyDialog.errorSaving"));
+              notifyError(t("RequestedReservation.DenyDialog.errorSaving"));
             }
           }}
         >
-          {t("SingleApplication.DenyDialog.reject")}
+          {t("RequestedReservation.DenyDialog.reject")}
         </Button>
       </Dialog.ActionButtons>
     </>
@@ -152,7 +152,7 @@ const DenyDialog = ({
     >
       <Dialog.Header
         id="modal-header"
-        title={t("SingleApplication.DenyDialog.title")}
+        title={t("RequestedReservation.DenyDialog.title")}
         iconLeft={<IconInfoCircle aria-hidden="true" />}
       />
       <DialogContent

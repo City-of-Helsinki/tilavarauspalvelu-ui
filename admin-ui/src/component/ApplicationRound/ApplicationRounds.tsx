@@ -14,6 +14,7 @@ import { ApplicationRound as ApplicationRoundType } from "../../common/types";
 import { getApplicationRounds } from "../../common/api";
 import Loader from "../Loader";
 import { NotificationBox } from "../../styles/util";
+import { applicationRoundUrl, prefixes } from "../../common/urls";
 
 const Wrapper = styled.div``;
 
@@ -115,11 +116,11 @@ function ApplicationRounds(): JSX.Element {
                 <ApplicationRoundCard
                   applicationRound={applicationRound}
                   key={applicationRound.id}
-                  getRoute={(id) =>
-                    applicationRound.isAdmin
-                      ? `/applicationRound/${id}/approval`
-                      : `/applicationRound/${id}`
-                  }
+                  getRoute={(id) => {
+                    return applicationRound.isAdmin
+                      ? `${prefixes.recurringReservations}/decisions/${id}/approval`
+                      : applicationRoundUrl(id);
+                  }}
                 />
               );
             })}
@@ -147,7 +148,7 @@ function ApplicationRounds(): JSX.Element {
                 <ApplicationRoundCard
                   applicationRound={applicationRound}
                   key={applicationRound.id}
-                  getRoute={(id) => `/applicationRound/${id}`}
+                  getRoute={applicationRoundUrl}
                 />
               ))
             ) : (

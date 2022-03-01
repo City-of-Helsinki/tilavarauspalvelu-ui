@@ -53,6 +53,7 @@ import {
 import SelectionActionBar from "../SelectionActionBar";
 import RecommendationDataTableGroup from "./RecommendationDataTableGroup";
 import Heading from "./Heading";
+import { applicationRoundApplications, prefixes } from "../../common/urls";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
@@ -230,9 +231,9 @@ const getCellConfig = (
             applicantType === "individual" ? applicantName : organisationName;
           return index ? (
             <InlineRowLink
-              to={`/applicationRound/${applicationRound.id}/${
-                organisationId ? "organisation" : "applicant"
-              }/${index}`}
+              to={`${prefixes.recurringReservations}/application-rounds/${
+                applicationRound.id
+              }/${organisationId ? "organisation" : "applicant"}/${index}`}
             >
               {title}
             </InlineRowLink>
@@ -296,12 +297,12 @@ const getCellConfig = (
     order: "asc",
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `/applicationRound/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
         : "";
     },
     groupLink: ({ space }) =>
       applicationRound
-        ? `/applicationRound/${applicationRound.id}/reservationUnit/${space?.id}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/reservationUnit/${space?.id}`
         : "",
   };
 };
@@ -540,7 +541,7 @@ function Handling({
                 </H3>
                 <p>
                   <BasicLink
-                    to={`/applicationRound/${applicationRound.id}/applications`}
+                    to={applicationRoundApplications(applicationRound.id)}
                     style={{ textDecoration: "underline" }}
                   >
                     {t("ApplicationRound.notificationResolutionDoneBody")}

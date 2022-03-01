@@ -56,6 +56,7 @@ import i18n from "../../i18n";
 import SelectionActionBar from "../SelectionActionBar";
 import { ReactComponent as IconBulletList } from "../../images/icon_list-bullet.svg";
 import StatusCircle from "../StatusCircle";
+import { applicationRoundUrl, prefixes } from "../../common/urls";
 
 interface IRouteParams {
   applicationRoundId: string;
@@ -186,9 +187,9 @@ const getCellConfig = (
             applicantType === "individual" ? applicantName : organisationName;
           return index ? (
             <InlineRowLink
-              to={`/applicationRound/${applicationRound.id}/${
-                organisationId ? "organisation" : "applicant"
-              }/${index}`}
+              to={`${prefixes.recurringReservations}/application-rounds/${
+                applicationRound.id
+              }/${organisationId ? "organisation" : "applicant"}/${index}`}
             >
               {title}
             </InlineRowLink>
@@ -253,7 +254,7 @@ const getCellConfig = (
     order: "asc",
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `/applicationRound/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
         : "";
     },
   };
@@ -475,7 +476,7 @@ function RecommendationsByReservationUnit(): JSX.Element {
         cellConfig && (
           <>
             <ContentContainer style={{ paddingBottom: "var(--spacing-s)" }}>
-              <LinkPrev route={`/applicationRound/${applicationRoundId}`} />
+              <LinkPrev route={applicationRoundUrl(applicationRoundId)} />
               <IngressContainer>
                 <Ingress>
                   {mainImage ? (
@@ -561,7 +562,7 @@ function RecommendationsByReservationUnit(): JSX.Element {
                   />
                   {["approved"].includes(applicationRound.status) && (
                     <ReservationLink
-                      to={`/applicationRound/${applicationRoundId}/reservationUnit/${reservationUnitId}/reservations`}
+                      to={`${prefixes.recurringReservations}/application-rounds/${applicationRoundId}/reservationUnit/${reservationUnitId}/reservations`}
                     >
                       <IconBulletList aria-hidden />
                       {t(

@@ -45,6 +45,11 @@ import {
   setApplicationEventStatuses,
   patchApplicationRoundStatus,
 } from "../../common/api";
+import {
+  applicationDetailsUrl,
+  applicationRoundUrl,
+  prefixes,
+} from "../../common/urls";
 
 interface IProps {
   applicationRoundId: string;
@@ -228,7 +233,7 @@ const getCellConfig = (
     index: "id",
     sorting: "organisation.name",
     order: "asc" as OrderTypes,
-    rowLink: ({ id }: ApplicationType) => `/application/${id}/details`,
+    rowLink: ({ id }: ApplicationType) => applicationDetailsUrl(id),
   };
 
   const allocatedCellConfig = {
@@ -283,7 +288,7 @@ const getCellConfig = (
     order: "asc" as OrderTypes,
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
-        ? `/applicationRound/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
+        ? `${prefixes.recurringReservations}/application-rounds/${applicationRound.id}/recommendation/${applicationEventScheduleId}`
         : "";
     },
   };
@@ -483,11 +488,11 @@ function SupervisorApproval({ applicationRoundId }: IProps): JSX.Element {
       applicationRound &&
       ["approved", "sent"].includes(applicationRound.status)
     ) {
-      history.push(`/applicationRound/${applicationRound.id}`);
+      history.push(applicationRoundUrl(applicationRound.id));
     }
   }, [applicationRound, history]);
 
-  const backLink = "/applicationRounds";
+  const backLink = `${prefixes.recurringReservations}/application-rounds`;
 
   const validatedRecommendations = recommendations.filter((n) =>
     ["validated"].includes(n.applicationEvent.status)

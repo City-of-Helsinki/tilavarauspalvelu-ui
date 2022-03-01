@@ -7,10 +7,10 @@ import {
   Mutation,
   ReservationApproveMutationInput,
   ReservationType,
-} from "../../common/gql-types";
-import { useModal } from "../../context/ModalContext";
-import { APPROVE_RESERVATION } from "../../common/queries";
-import { useNotification } from "../../context/NotificationContext";
+} from "../../../common/gql-types";
+import { useModal } from "../../../context/ModalContext";
+import { APPROVE_RESERVATION } from "../../../common/queries";
+import { useNotification } from "../../../context/NotificationContext";
 
 const Fields = styled.div`
   display: flex;
@@ -56,11 +56,11 @@ const DialogContent = ({
               value={price}
               required
               id="name"
-              label={t("SingleApplication.ApproveDialog.price")}
+              label={t("RequestedReservation.ApproveDialog.price")}
               onChange={(e) => setPrice(e.target.value)}
               errorText={
                 !priceIsValid
-                  ? t("SingleApplication.ApproveDialog.missingPrice")
+                  ? t("RequestedReservation.ApproveDialog.missingPrice")
                   : undefined
               }
             />
@@ -69,7 +69,7 @@ const DialogContent = ({
             value={handlingDetails}
             onChange={(e) => setHandlingDetails(e.target.value)}
             required
-            label={t("SingleApplication.ApproveDialog.handlingDetails")}
+            label={t("RequestedReservation.ApproveDialog.handlingDetails")}
             id="handlingDetails"
           />
         </Fields>
@@ -90,17 +90,19 @@ const DialogContent = ({
               });
 
               if (res.errors) {
-                notifyError(t("SingleApplication.ApproveDialog.errorSaving"));
+                notifyError(
+                  t("RequestedReservation.ApproveDialog.errorSaving")
+                );
               } else {
-                notifySuccess(t("SingleApplication.ApproveDialog.approved"));
+                notifySuccess(t("RequestedReservation.ApproveDialog.approved"));
                 onAccept();
               }
             } catch (e) {
-              notifyError(t("SingleApplication.ApproveDialog.errorSaving"));
+              notifyError(t("RequestedReservation.ApproveDialog.errorSaving"));
             }
           }}
         >
-          {t("SingleApplication.ApproveDialog.accept")}
+          {t("RequestedReservation.ApproveDialog.accept")}
         </Button>
       </Dialog.ActionButtons>
     </>
@@ -131,7 +133,7 @@ const ApproveDialog = ({
     >
       <Dialog.Header
         id="modal-header"
-        title={t("SingleApplication.ApproveDialog.title")}
+        title={t("RequestedReservation.ApproveDialog.title")}
         iconLeft={<IconInfoCircle aria-hidden="true" />}
       />
       <DialogContent
