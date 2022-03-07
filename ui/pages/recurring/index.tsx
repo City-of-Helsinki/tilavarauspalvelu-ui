@@ -2,11 +2,11 @@ import React from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
-import { IconSearch, ImageWithCard, Koros } from "hds-react";
+import { IconSearch, ImageWithCard } from "hds-react";
 import { sortBy } from "lodash";
 import { useTranslation } from "react-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { H1, H3 } from "../../modules/style/typography";
+import { H1, HeroSubheading } from "../../modules/style/typography";
 import { breakpoint } from "../../modules/style";
 import { getApplicationRounds } from "../../modules/api";
 import { ApplicationRound } from "../../modules/types";
@@ -14,6 +14,7 @@ import ApplicationRoundCard from "../../components/index/ApplicationRoundCard";
 import { applicationRoundState } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
 import { searchPrefix } from "../../modules/const";
+import KorosDefault from "../../components/common/KorosDefault";
 
 type Props = {
   applicationRounds: ApplicationRound[];
@@ -43,7 +44,8 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
 const Wrapper = styled.div``;
 
 const HeadWrapper = styled.div`
-  background-color: var(--tilavaraus-header-background-color);
+  background-color: var(--tilavaraus-hero-background-color);
+  color: var(--color-white);
 `;
 
 const Head = styled.div`
@@ -53,21 +55,13 @@ const Head = styled.div`
     max-width: var(--container-width-xl);
     padding: var(--spacing-m);
     margin: 0 auto;
-    padding-bottom: var(--spacing-layout-xl);
+    padding-bottom: var(--spacing-layout-l);
   }
 `;
 
-const Heading = styled(H1)`
-  font-size: var(--fontsize-heading-xl);
-`;
+const Heading = styled(H1)``;
 
-const Ingress = styled.p``;
-
-const StyledKoros = styled(Koros)`
-  width: 100%;
-  background-color: var(--tilavaraus-header-background-color);
-  fill: var(--tilavaraus-gray);
-`;
+const SubHeading = styled(HeroSubheading)``;
 
 const Content = styled.div`
   padding: var(--spacing-s) var(--spacing-m) var(--spacing-xl);
@@ -85,7 +79,10 @@ const RoundList = styled.div`
 `;
 
 const RoundHeading = styled(H1)`
-  font-size: var(--fontsize-heading-l);
+  font-size: 1.75rem;
+  font-family: var(--font-bold);
+  font-weight: 700;
+  margin-bottom: var(--spacing-m);
 `;
 
 const StyledImageWithCard = styled(ImageWithCard)`
@@ -138,7 +135,10 @@ const ButtonContainer = styled.div`
 `;
 
 const CardHeading = styled(H1)`
-  font-size: var(--fontsize-heading-l);
+  font-size: 1.75rem;
+  font-family: var(--font-bold);
+  font-weight: 700;
+  margin-bottom: var(--spacing-m);
 `;
 
 const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
@@ -166,11 +166,13 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
       <HeadWrapper>
         <Head>
           <Heading>{t("recurringLander:heading")}</Heading>
-          <H3>{t("recurringLander:subHeading")}</H3>
-          <Ingress>{t("recurringLander:ingress")}</Ingress>
+          <SubHeading>{t("recurringLander:subHeading")}</SubHeading>
         </Head>
       </HeadWrapper>
-      <StyledKoros type="wave" />
+      <KorosDefault
+        from="var(--tilavaraus-hero-background-color)"
+        to="var(--tilavaraus-gray)"
+      />
       <Content>
         {activeApplicationRounds?.length > 0 && (
           <RoundList>

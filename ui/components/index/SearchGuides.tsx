@@ -6,13 +6,16 @@ import { Button, IconArrowRight, ImageWithCard } from "hds-react";
 import { breakpoint } from "../../modules/style";
 import Container from "../common/Container";
 import { singleSearchPrefix } from "../../modules/const";
+import { H2 } from "../../modules/style/typography";
 
 const Wrapper = styled(Container)`
   padding-top: var(--spacing-xl);
 `;
 
-const Heading = styled.h2`
+const Heading = styled(H2)`
   font-size: var(--fontsize-heading-l);
+  font-family: var(--font-bold);
+  font-weight: 700;
   margin-top: var(--spacing-s);
 `;
 
@@ -22,6 +25,7 @@ const StyledImageWithCard = styled(ImageWithCard)`
     --card-background-primary: var(--color-copper-medium-light);
     --card-background-secondary: var(--color-fog-medium-light);
     max-width: 100%;
+    width: unset;
     margin-bottom: var(--spacing-layout-xl);
 
     > :nth-child(2) > div {

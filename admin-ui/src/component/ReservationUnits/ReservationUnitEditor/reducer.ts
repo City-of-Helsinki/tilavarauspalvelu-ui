@@ -39,6 +39,7 @@ export const getInitialState = (reservationUnitPk: number): State => ({
   taxPercentageOptions: [],
   metadataOptions: [],
   images: [],
+  validationErrors: null,
 });
 
 const sortImages = (imagesToSort: Image[]): Image[] => {
@@ -147,6 +148,7 @@ export const reducer = (state: State, action: Action): State => {
         },
         reservationUnitEdit: {
           ...(pick(reservationUnit, [
+            "authentication",
             "bufferTimeAfter",
             "bufferTimeBefore",
             "maxReservationsPerUser",
@@ -164,8 +166,8 @@ export const reducer = (state: State, action: Action): State => {
             "reservationStartInterval",
             "surfaceArea",
             "unitPk",
+            "contactInformation",
             ...i18nFields("additionalInstructions"),
-            ...i18nFields("contactInformation"),
             ...i18nFields("description"),
             ...i18nFields("name"),
             ...i18nFields("termsOfUse"),
@@ -261,10 +263,10 @@ export const reducer = (state: State, action: Action): State => {
           action,
           TermsOfUseTermsOfUseTermsTypeChoices.PaymentTerms
         ),
-        taxPercentageOptions: (
-          action.parameters.taxPercentages?.edges || []
-        ).map(
-          (v) => ({ value: v?.node?.pk, label: v?.node?.value } as OptionType)
+        taxPercentageOptions: [nullOption].concat(
+          (action.parameters.taxPercentages?.edges || []).map(
+            (v) => ({ value: v?.node?.pk, label: v?.node?.value } as OptionType)
+          )
         ),
         serviceSpecificTermsOptions: makeTermsOptions(
           action,
@@ -330,11 +332,11 @@ export const reducer = (state: State, action: Action): State => {
 
       const surfaceArea = sumBy(
         selectedSpaces,
-        (s) => Number(s.surfaceArea) || 0
+        (s) => Number(s.surfaceArea) || 1
       );
       const maxPersons = sumBy(
         selectedSpaces,
-        (s) => Number(s.maxPersons) || 0
+        (s) => Number(s.maxPersons) || 1
       );
 
       return modifyEditorState(state, {
@@ -358,6 +360,13 @@ export const reducer = (state: State, action: Action): State => {
         purposePks: action.purposes.map((ot) => ot.value as number),
       });
     }
+    case "setValidatioErrors": {
+      return {
+        ...state,
+        validationErrors: action.validationErrors,
+      };
+    }
+
     default:
       return state;
   }

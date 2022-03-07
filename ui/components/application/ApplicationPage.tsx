@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { breakpoint } from "../../modules/style";
 import { Application } from "../../modules/types";
 import Container from "../common/Container";
-import RequireAuthentication from "../common/RequireAuthentication";
 import Head from "./Head";
 import Stepper from "./Stepper";
 
@@ -21,6 +20,7 @@ const InnerContainer = styled.div`
   display: grid;
   gap: 1em;
   grid-template-columns: 18em 1fr;
+  margin-top: var(--spacing-l);
 
   @media (max-width: ${breakpoint.l}) {
     grid-template-columns: 1fr;
@@ -47,7 +47,7 @@ const ApplicationPage = ({
   const { t } = useTranslation();
 
   return (
-    <RequireAuthentication>
+    <>
       <Head
         heading={t(`${translationKeyPrefix}.heading`)}
         breadCrumbText={breadCrumbText || ""}
@@ -60,7 +60,7 @@ const ApplicationPage = ({
           <Main>{children}</Main>
         </InnerContainer>
       </Container>
-    </RequireAuthentication>
+    </>
   );
 };
 

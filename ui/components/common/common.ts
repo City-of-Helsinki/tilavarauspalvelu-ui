@@ -15,6 +15,8 @@ export const TwoColumnContainer = styled.div`
 `;
 
 export const SpanTwoColumns = styled.span`
+  display: grid;
+  gap: var(--spacing-m);
   grid-column-start: 1;
   grid-column-end: 3;
 
@@ -47,7 +49,9 @@ export const HorisontalRule = styled.div`
   margin-top: var(--spacing-layout-m);
 `;
 
-export const CenterSpinner = styled(LoadingSpinner)`
+export const CenterSpinner = styled(LoadingSpinner).attrs({
+  "data-testid": "loading-spinner",
+})`
   margin: 0 auto var(--spacing-2-xl) auto;
 `;
 

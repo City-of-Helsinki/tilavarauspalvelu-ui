@@ -1,16 +1,11 @@
 import React from "react";
 import { Select } from "hds-react";
-import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 
 type OptionType = {
   label: string;
   value: string;
 };
-
-const StyledSelect = styled(Select)`
-  padding-bottom: var(--spacing-m);
-`;
 
 const EnumSelect = ({
   id,
@@ -21,6 +16,7 @@ const EnumSelect = ({
   placeholder,
   value,
   type,
+  errorText,
 }: {
   id: string;
   label: string;
@@ -30,6 +26,7 @@ const EnumSelect = ({
   value: string;
   onChange: (value: string) => void;
   type: { [key: string]: string };
+  errorText?: string;
 }): JSX.Element => {
   const { t } = useTranslation();
   const options: OptionType[] = Object.keys(type).map((key) => ({
@@ -38,7 +35,7 @@ const EnumSelect = ({
   }));
 
   return (
-    <StyledSelect
+    <Select
       label={label}
       required={required}
       options={options}
@@ -50,6 +47,8 @@ const EnumSelect = ({
       onChange={(e: any) => {
         onChange(e.value);
       }}
+      error={errorText}
+      invalid={!!errorText}
     />
   );
 };

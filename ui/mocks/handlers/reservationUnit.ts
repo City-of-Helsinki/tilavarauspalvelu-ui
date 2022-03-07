@@ -16,6 +16,8 @@ import {
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
   QueryTermsOfUseArgs,
   TermsOfUseTypeConnection,
+  QueryReservationUnitTypesArgs,
+  ReservationUnitsReservationUnitAuthenticationChoices,
 } from "../../modules/gql-types";
 import { Parameter } from "../../modules/types";
 import { toApiDate } from "../../modules/util";
@@ -29,9 +31,8 @@ const selectedReservationUnitQuery = graphql.query<
     services: [],
     uuid: "8e5275aa-8625-4458-88b4-d5b1b2df6619",
     isDraft: false,
-    contactInformationFi: null,
-    contactInformationEn: null,
-    contactInformationSv: null,
+    contactInformation: null,
+    authentication: ReservationUnitsReservationUnitAuthenticationChoices.Weak,
     id: "UmVzZXJ2YXRpb25Vbml0QnlQa1R5cGU6MzY=",
     pk: 1,
     nameFi: "Pukinmäen nuorisotalon keittiö FI",
@@ -123,6 +124,7 @@ const selectedReservationUnitQuery = graphql.query<
       shortDescriptionEn: "",
       shortDescriptionSv: "",
       webPage: "http://pukinmaki.munstadi.fi/",
+      tprekId: "123",
       location: {
         id: "TG9jYXRpb25UeXBlOjI2",
         latitude: "60.29429873400916",
@@ -425,9 +427,7 @@ const openingHoursQuery = graphql.query<
       reservationUnitByPk: {
         id: "UmVzZXJ2YXRpb25Vbml0QnlQa1R5cGU6MzY=",
         isDraft: false,
-        contactInformationFi: "",
-        contactInformationEn: "",
-        contactInformationSv: "",
+        contactInformation: "",
         descriptionFi: "",
         descriptionEn: "",
         descriptionSv: "",
@@ -454,6 +454,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         nameFi: "Pukinmäen nuorisotalon yläkerta Fi",
         nameEn: "Pukinmäen nuorisotalon yläkerta En",
         nameSv: "Pukinmäen nuorisotalon yläkerta Sv",
+        authentication:
+          ReservationUnitsReservationUnitAuthenticationChoices.Weak,
         images: [],
         lowestPrice: 12.34,
         highestPrice: 20,
@@ -510,9 +512,7 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
           },
         ],
         resources: [],
-        contactInformationFi: "",
-        contactInformationEn: "",
-        contactInformationSv: "",
+        contactInformation: "",
         requireReservationHandling: false,
       },
       cursor: "YXJyYXljb25uZWN0aW9uOjA=",
@@ -526,6 +526,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         nameFi: "Pukinmäen nuorisotalon sali Fi",
         nameEn: "Pukinmäen nuorisotalon sali En",
         nameSv: "Pukinmäen nuorisotalon sali Sv",
+        authentication:
+          ReservationUnitsReservationUnitAuthenticationChoices.Weak,
         lowestPrice: 3.34,
         highestPrice: 30,
         priceUnit:
@@ -604,9 +606,7 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
           },
         ],
         resources: [],
-        contactInformationFi: "",
-        contactInformationEn: "",
-        contactInformationSv: "",
+        contactInformation: "",
         requireReservationHandling: false,
       },
       cursor: "YXJyYXljb25uZWN0aW9uOjE=",
@@ -635,12 +635,36 @@ const relatedReservationUnits = graphql.query<Query, QueryReservationUnitsArgs>(
   }
 );
 
-const reservationUnitTypes = rest.get<Parameter[]>(
+const reservationUnitTypesRest = rest.get<Parameter[]>(
   "http://localhost:8000/v1/parameters/reservation_unit_type/",
   (req, res, ctx) => {
     return res(ctx.json(reservationUnitTypeData));
   }
 );
+
+const reservationUnitTypes = graphql.query<
+  Query,
+  QueryReservationUnitTypesArgs
+>("ReservationUnitTypes", (req, res, ctx) => {
+  const data = {
+    edges: reservationUnitTypeData.map((item) => ({
+      node: {
+        id: item.id.toString(),
+        pk: item.id,
+        nameFi: item.name as string,
+        nameEn: `${item.name} EN`,
+        nameSv: `${item.name} SV`,
+      },
+      cursor: "YXJyYXljb25uZWN0aW9uVHlwZTo=",
+    })),
+    pageInfo: {
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+  };
+
+  return res(ctx.data({ reservationUnitTypes: data }));
+});
 
 const termsOfUseData: TermsOfUseTypeConnection = {
   edges: [
@@ -721,6 +745,7 @@ export const reservationUnitHandlers = [
   selectedReservationUnitQuery,
   openingHoursQuery,
   relatedReservationUnits,
+  reservationUnitTypesRest,
   reservationUnitTypes,
   termsOfUse,
 ];

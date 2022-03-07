@@ -1482,13 +1482,13 @@ export type ReservationUnitByPkType = Node & {
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
   applicationRounds?: Maybe<Array<Maybe<ApplicationRoundType>>>;
+  /** Authentication required for reserving this reservation unit. */
+  authentication: ReservationUnitsReservationUnitAuthenticationChoices;
   bufferTimeAfter?: Maybe<Scalars["Duration"]>;
   bufferTimeBefore?: Maybe<Scalars["Duration"]>;
   cancellationRule?: Maybe<ReservationUnitCancellationRuleType>;
   cancellationTerms?: Maybe<TermsOfUseType>;
-  contactInformationEn?: Maybe<Scalars["String"]>;
-  contactInformationFi?: Maybe<Scalars["String"]>;
-  contactInformationSv?: Maybe<Scalars["String"]>;
+  contactInformation: Scalars["String"];
   descriptionEn?: Maybe<Scalars["String"]>;
   descriptionFi?: Maybe<Scalars["String"]>;
   descriptionSv?: Maybe<Scalars["String"]>;
@@ -1615,14 +1615,15 @@ export type ReservationUnitCreateMutationInput = {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
+  authentication?: Maybe<Scalars["String"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
   bufferTimeBefore?: Maybe<Scalars["Int"]>;
   cancellationRulePk?: Maybe<Scalars["Int"]>;
   cancellationTermsPk?: Maybe<Scalars["String"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
-  contactInformationEn?: Maybe<Scalars["String"]>;
-  contactInformationFi?: Maybe<Scalars["String"]>;
-  contactInformationSv?: Maybe<Scalars["String"]>;
+  /** Contact information for this reservation unit. */
+  contactInformation?: Maybe<Scalars["String"]>;
   descriptionEn?: Maybe<Scalars["String"]>;
   descriptionFi?: Maybe<Scalars["String"]>;
   descriptionSv?: Maybe<Scalars["String"]>;
@@ -1676,14 +1677,15 @@ export type ReservationUnitCreateMutationPayload = {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
+  authentication?: Maybe<Scalars["String"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
   bufferTimeBefore?: Maybe<Scalars["Int"]>;
   building?: Maybe<Scalars["String"]>;
   cancellationRulePk?: Maybe<Scalars["Int"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
-  contactInformationEn?: Maybe<Scalars["String"]>;
-  contactInformationFi?: Maybe<Scalars["String"]>;
-  contactInformationSv?: Maybe<Scalars["String"]>;
+  /** Contact information for this reservation unit. */
+  contactInformation?: Maybe<Scalars["String"]>;
   descriptionEn?: Maybe<Scalars["String"]>;
   descriptionFi?: Maybe<Scalars["String"]>;
   descriptionSv?: Maybe<Scalars["String"]>;
@@ -1812,13 +1814,13 @@ export type ReservationUnitType = Node & {
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
   applicationRounds?: Maybe<Array<Maybe<ApplicationRoundType>>>;
+  /** Authentication required for reserving this reservation unit. */
+  authentication: ReservationUnitsReservationUnitAuthenticationChoices;
   bufferTimeAfter?: Maybe<Scalars["Duration"]>;
   bufferTimeBefore?: Maybe<Scalars["Duration"]>;
   cancellationRule?: Maybe<ReservationUnitCancellationRuleType>;
   cancellationTerms?: Maybe<TermsOfUseType>;
-  contactInformationEn?: Maybe<Scalars["String"]>;
-  contactInformationFi?: Maybe<Scalars["String"]>;
-  contactInformationSv?: Maybe<Scalars["String"]>;
+  contactInformation: Scalars["String"];
   descriptionEn?: Maybe<Scalars["String"]>;
   descriptionFi?: Maybe<Scalars["String"]>;
   descriptionSv?: Maybe<Scalars["String"]>;
@@ -1932,14 +1934,15 @@ export type ReservationUnitUpdateMutationInput = {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
+  authentication?: Maybe<Scalars["String"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
   bufferTimeBefore?: Maybe<Scalars["Int"]>;
   cancellationRulePk?: Maybe<Scalars["Int"]>;
   cancellationTermsPk?: Maybe<Scalars["String"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
-  contactInformationEn?: Maybe<Scalars["String"]>;
-  contactInformationFi?: Maybe<Scalars["String"]>;
-  contactInformationSv?: Maybe<Scalars["String"]>;
+  /** Contact information for this reservation unit. */
+  contactInformation?: Maybe<Scalars["String"]>;
   descriptionEn?: Maybe<Scalars["String"]>;
   descriptionFi?: Maybe<Scalars["String"]>;
   descriptionSv?: Maybe<Scalars["String"]>;
@@ -1994,14 +1997,15 @@ export type ReservationUnitUpdateMutationPayload = {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
+  authentication?: Maybe<Scalars["String"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
   bufferTimeBefore?: Maybe<Scalars["Int"]>;
   building?: Maybe<Scalars["String"]>;
   cancellationRulePk?: Maybe<Scalars["Int"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
-  contactInformationEn?: Maybe<Scalars["String"]>;
-  contactInformationFi?: Maybe<Scalars["String"]>;
-  contactInformationSv?: Maybe<Scalars["String"]>;
+  /** Contact information for this reservation unit. */
+  contactInformation?: Maybe<Scalars["String"]>;
   descriptionEn?: Maybe<Scalars["String"]>;
   descriptionFi?: Maybe<Scalars["String"]>;
   descriptionSv?: Maybe<Scalars["String"]>;
@@ -2058,6 +2062,14 @@ export type ReservationUnitUpdateMutationPayload = {
   unitPk?: Maybe<Scalars["Int"]>;
   uuid?: Maybe<Scalars["String"]>;
 };
+
+/** An enumeration. */
+export enum ReservationUnitsReservationUnitAuthenticationChoices {
+  /** Strong */
+  Strong = "STRONG",
+  /** Weak */
+  Weak = "WEAK",
+}
 
 /** An enumeration. */
 export enum ReservationUnitsReservationUnitImageImageTypeChoices {
@@ -2471,7 +2483,7 @@ export type SpaceType = Node & {
   parent?: Maybe<SpaceType>;
   pk?: Maybe<Scalars["Int"]>;
   resources?: Maybe<Array<Maybe<ResourceType>>>;
-  surfaceArea?: Maybe<Scalars["Decimal"]>;
+  surfaceArea?: Maybe<Scalars["Float"]>;
   unit?: Maybe<UnitByPkType>;
 };
 

@@ -200,6 +200,7 @@ export type Application = {
   homeCityId: number | null;
   createdDate?: string;
   lastModifiedDate?: string;
+  additionalInformation?: string;
 };
 
 export type Organisation = {
@@ -257,11 +258,14 @@ export type EventReservationUnit = {
 
 export type DAY = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
+export type ApplicationEventSchedulePriority = 100 | 200 | 300;
+
 export type ApplicationEventSchedule = {
   id?: number;
   day: DAY;
   begin: string;
   end: string;
+  priority?: ApplicationEventSchedulePriority;
 };
 
 export type ReservationState =
@@ -346,7 +350,7 @@ export type AccordionState = {
 export type Cell = {
   hour: number;
   label: string;
-  state: boolean;
+  state: ApplicationEventSchedulePriority | false;
   key: string;
 };
 

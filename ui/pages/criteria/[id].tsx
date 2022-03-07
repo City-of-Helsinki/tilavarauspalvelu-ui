@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Koros } from "hds-react";
 import { GetServerSideProps } from "next";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -9,6 +8,7 @@ import { getApplicationRound } from "../../modules/api";
 import { ApplicationRound } from "../../modules/types";
 import Sanitize from "../../components/common/Sanitize";
 import Breadcrumb from "../../components/common/Breadcrumb";
+import KorosDefault from "../../components/common/KorosDefault";
 
 type Props = {
   applicationRound: ApplicationRound;
@@ -30,11 +30,12 @@ export const getServerSideProps: GetServerSideProps = async ({
 };
 
 const Head = styled.div`
-  background-color: var(--color-white);
+  background-color: var(--tilavaraus-hero-background-color);
+  color: var(--color-white);
 `;
 
 const HeadContent = styled.div`
-  padding: var(--spacing-l) var(--spacing-m) 0;
+  padding: var(--spacing-l) var(--spacing-m) var(--spacing-l);
   max-width: var(--container-width-xl);
   margin: 0 auto var(--spacing-2-xl) auto;
   font-size: var(--fontsize-body-xl);
@@ -42,10 +43,6 @@ const HeadContent = styled.div`
 
 const H1 = styled.h1`
   font-size: var(--fontsize-heading-l);
-`;
-
-const StyledKoros = styled(Koros)`
-  fill: var(--tilavaraus-gray);
 `;
 
 const Content = styled.div`
@@ -66,7 +63,10 @@ const Criteria = ({ applicationRound }: Props): JSX.Element => {
             {`${applicationRound?.name} ${t("applicationRound:criteria")}`}
           </H1>
         </HeadContent>
-        <StyledKoros className="koros" type="wave" />
+        <KorosDefault
+          from="var(--tilavaraus-hero-background-color)"
+          to="var(--tilavaraus-gray)"
+        />
       </Head>
       <Container>
         <Content>

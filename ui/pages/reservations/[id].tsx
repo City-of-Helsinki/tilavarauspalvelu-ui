@@ -1,16 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
 import { get, isFinite } from "lodash";
-import {
-  Accordion,
-  IconArrowLeft,
-  IconCrossCircle,
-  IconPen,
-  Koros,
-} from "hds-react";
+import { Accordion, IconArrowLeft, IconCrossCircle, IconPen } from "hds-react";
+import { useQuery } from "@apollo/client";
 import { Trans, useTranslation } from "react-i18next";
 import {
   Query,
@@ -31,7 +26,10 @@ import { NarrowCenteredContainer } from "../../modules/style/layout";
 import { breakpoint } from "../../modules/style";
 import Ticket from "../../components/reservation/Ticket";
 import { getTranslation, reservationsUrl } from "../../modules/util";
-import { TwoColumnContainer } from "../../components/common/common";
+import {
+  CenterSpinner,
+  TwoColumnContainer,
+} from "../../components/common/common";
 import { MediumButton } from "../../styles/util";
 import Sanitize from "../../components/common/Sanitize";
 import {
@@ -40,10 +38,11 @@ import {
   ReserveeType,
 } from "../../modules/reservation";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
+import KorosDefault from "../../components/common/KorosDefault";
 
 type Props = {
-  reservation: ReservationType;
   termsOfUse: Record<string, TermsOfUseType>;
+  id: number;
 };
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -53,11 +52,6 @@ export const getServerSideProps: GetServerSideProps = async ({
   const id = Number(params.id);
 
   if (isFinite(id)) {
-    const { data } = await apolloClient.query({
-      query: GET_RESERVATION,
-      variables: { pk: id },
-    });
-
     const { data: genericTermsData } = await apolloClient.query<
       Query,
       QueryTermsOfUseArgs
@@ -69,20 +63,14 @@ export const getServerSideProps: GetServerSideProps = async ({
     });
     const genericTerms = genericTermsData?.termsOfUse?.edges[0]?.node || {};
 
-    if (data) {
-      return {
-        props: {
-          ...(await serverSideTranslations(locale)),
-          reservation: data.reservationByPk,
-          termsOfUse: {
-            genericTerms,
-          },
-        },
-      };
-    }
-
     return {
-      notFound: true,
+      props: {
+        ...(await serverSideTranslations(locale)),
+        termsOfUse: {
+          genericTerms,
+        },
+        id,
+      },
     };
   }
 
@@ -91,17 +79,29 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
+const Spinner = styled(CenterSpinner)`
+  margin: var(--spacing-layout-xl) auto;
+`;
+
 const Head = styled.div`
   padding: var(--spacing-layout-m) 0 0;
   background-color: var(--color-white);
 `;
 
 const HeadWrapper = styled(NarrowCenteredContainer)`
-  padding: 0 var(--spacing-m);
+  padding: 0 var(--spacing-m) var(--spacing-layout-m);
 
   @media (min-width: ${breakpoint.m}) {
     max-width: 1000px;
+    margin-bottom: var(--spacing-layout-l);
   }
+`;
+
+const Heading = styled(H1)`
+  font-size: 1.75rem;
+  font-family: var(--font-bold);
+  font-weight: 700;
+  margin-bottom: var(--spacing-m);
 `;
 
 const HeadColumns = styled(TwoColumnContainer)`
@@ -129,9 +129,8 @@ const Actions = styled.div`
   }
 `;
 
-const StyledKoros = styled(Koros)`
+const StyledKoros = styled(KorosDefault)`
   margin-top: var(--spacing-layout-xl);
-  fill: var(--tilavaraus-gray);
 `;
 
 const BodyContainer = styled(NarrowCenteredContainer)`
@@ -147,6 +146,12 @@ const BodyContainer = styled(NarrowCenteredContainer)`
     max-width: 791px;
     padding-right: 219px;
   }
+`;
+
+const ContentHeading = styled(H2)`
+  font-size: var(--fontsize-heading-m);
+  font-family: var(--font-bold);
+  font-weight: 700;
 `;
 
 const Paragraph = styled.p`
@@ -191,13 +196,25 @@ const ActionContainer = styled.div`
   margin-top: var(--spacing-2-xl);
 `;
 
-const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
+const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const reservationUnit = reservation.reservationUnits[0];
+  const [reservation, setReservation] = useState<ReservationType>();
 
-  const isReservationCancelled = reservation.state === "CANCELLED";
-  const isBeingHandled = reservation.state === "REQUIRES_HANDLING";
+  useQuery(GET_RESERVATION, {
+    fetchPolicy: "no-cache",
+    variables: {
+      pk: id,
+    },
+    onCompleted: (data) => {
+      setReservation(data.reservationByPk);
+    },
+  });
+
+  const reservationUnit = reservation?.reservationUnits[0];
+
+  const isReservationCancelled = reservation?.state === "CANCELLED";
+  const isBeingHandled = reservation?.state === "REQUIRES_HANDLING";
   const ticketState = useMemo(() => {
     if (isBeingHandled) {
       return "incomplete";
@@ -205,6 +222,10 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
 
     return isReservationCancelled ? "error" : "complete";
   }, [isBeingHandled, isReservationCancelled]);
+
+  if (!reservation) {
+    return <Spinner />;
+  }
 
   const optionValues = {
     purpose: getTranslation(reservation.purpose, "name"),
@@ -239,7 +260,7 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
               reservationPrice={reservation.price}
             />
             <div>
-              <H1>{t(headingSlug)}</H1>
+              <Heading>{t(headingSlug)}</Heading>
               <Actions>
                 <MediumButton
                   variant="secondary"
@@ -277,10 +298,10 @@ const Reservation = ({ reservation, termsOfUse }: Props): JSX.Element => {
             </div>
           </HeadColumns>
         </HeadWrapper>
-        <StyledKoros className="koros" type="wave" />
+        <StyledKoros from="white" to="var(--tilavaraus-gray)" />
       </Head>
       <BodyContainer>
-        <H2>{t(subHeadingSlug)}</H2>
+        <ContentHeading>{t(subHeadingSlug)}</ContentHeading>
         {isBeingHandled ? (
           <Paragraph>{t("reservationApplication:summaryIngress")}</Paragraph>
         ) : (

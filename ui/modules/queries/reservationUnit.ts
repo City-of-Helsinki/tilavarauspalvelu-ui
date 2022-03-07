@@ -54,6 +54,7 @@ export const RESERVATION_UNIT = gql`
       unit {
         id
         pk
+        tprekId
         nameFi
         nameEn
         nameSv
@@ -260,6 +261,21 @@ export const TERMS_OF_USE = gql`
           textEn
           textSv
           termsType
+        }
+      }
+    }
+  }
+`;
+
+export const RESERVATION_UNIT_TYPES = gql`
+  query ReservationUnitTypes {
+    reservationUnitTypes {
+      edges {
+        node {
+          pk
+          nameFi
+          nameEn
+          nameSv
         }
       }
     }

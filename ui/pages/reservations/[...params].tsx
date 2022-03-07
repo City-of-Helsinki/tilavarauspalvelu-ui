@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import router from "next/router";
 import { isFinite } from "lodash";
 import { Controller, useForm } from "react-hook-form";
@@ -11,7 +11,6 @@ import {
   IconCheck,
   IconCrossCircle,
   IconPlusCircle,
-  Koros,
   Notification,
   Select,
   TextArea,
@@ -44,13 +43,17 @@ import {
   getTranslation,
   reservationsUrl,
 } from "../../modules/util";
-import { TwoColumnContainer } from "../../components/common/common";
+import {
+  CenterSpinner,
+  TwoColumnContainer,
+} from "../../components/common/common";
 import { MediumButton } from "../../styles/util";
 import { OptionType } from "../../modules/types";
 import { emptyOption, reservationUnitSinglePrefix } from "../../modules/const";
+import KorosDefault from "../../components/common/KorosDefault";
 
 type Props = {
-  reservation: ReservationType;
+  id: number;
   reasons: OptionType[];
 };
 
@@ -59,39 +62,29 @@ export const getServerSideProps: GetServerSideProps = async ({
   query,
 }) => {
   const id = Number(query.params[0]);
+  const slug = query.params[1];
 
-  if (isFinite(id)) {
-    const { data } = await apolloClient.query({
-      query: GET_RESERVATION,
-      variables: { pk: id },
+  if (isFinite(id) && slug === "cancel") {
+    const { data: reasonsData } = await apolloClient.query<
+      Query,
+      QueryReservationCancelReasonsArgs
+    >({
+      query: GET_RESERVATION_CANCEL_REASONS,
     });
 
-    if (data && data.reservationByPk.state !== "CANCELLED") {
-      const { data: reasonsData } = await apolloClient.query<
-        Query,
-        QueryReservationCancelReasonsArgs
-      >({
-        query: GET_RESERVATION_CANCEL_REASONS,
-      });
-
-      const reasons = reasonsData.reservationCancelReasons.edges.map(
-        (reason) => ({
-          label: getTranslation(reason.node, "reason"),
-          value: reason.node.pk,
-        })
-      );
-
-      return {
-        props: {
-          ...(await serverSideTranslations(locale)),
-          reservation: data.reservationByPk,
-          reasons,
-        },
-      };
-    }
+    const reasons = reasonsData.reservationCancelReasons.edges.map(
+      (reason) => ({
+        label: getTranslation(reason.node, "reason"),
+        value: reason.node.pk,
+      })
+    );
 
     return {
-      notFound: true,
+      props: {
+        ...(await serverSideTranslations(locale)),
+        reasons,
+        id,
+      },
     };
   }
 
@@ -100,16 +93,21 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
+const Spinner = styled(CenterSpinner)`
+  margin: var(--spacing-layout-xl) auto;
+`;
+
 const Head = styled.div`
   padding: var(--spacing-layout-m) 0 0;
   background-color: var(--color-white);
 `;
 
 const HeadWrapper = styled(NarrowCenteredContainer)`
-  padding: 0 var(--spacing-m);
+  padding: 0 var(--spacing-m) var(--spacing-layout-m);
 
   @media (min-width: ${breakpoint.m}) {
     max-width: 1000px;
+    margin-bottom: var(--spacing-layout-l);
   }
 `;
 
@@ -135,7 +133,10 @@ const Heading = styled.div`
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    font-size: 32px;
+    font-size: 1.75rem;
+    font-family: var(--font-bold);
+    font-weight: 700;
+    margin-bottom: var(--spacing-m);
   }
 `;
 
@@ -154,9 +155,7 @@ const Actions = styled.div`
   }
 `;
 
-const StyledKoros = styled(Koros)`
-  fill: var(--tilavaraus-gray);
-
+const StyledKoros = styled(KorosDefault)`
   @media (min-width: ${breakpoint.m}) {
     margin-top: var(--spacing-layout-xl);
   }
@@ -204,16 +203,22 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const ReservationCancellation = ({
-  reservation,
-  reasons,
-}: Props): JSX.Element => {
+const ReservationCancellation = ({ id, reasons }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
-  const [formState, setFormState] = React.useState<"unsent" | "sent">("unsent");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [formState, setFormState] = useState<"unsent" | "sent">("unsent");
+  const [reservation, setReservation] = useState<ReservationType>();
 
-  const reservationUnit = reservation.reservationUnits[0];
+  useQuery(GET_RESERVATION, {
+    fetchPolicy: "no-cache",
+    variables: {
+      pk: id,
+    },
+    onCompleted: (data) => {
+      setReservation(data.reservationByPk);
+    },
+  });
 
   const [cancelReservation, { data, loading, error }] = useMutation<
     { cancelReservation: ReservationCancellationMutationPayload },
@@ -222,22 +227,6 @@ const ReservationCancellation = ({
 
   const { register, handleSubmit, getValues, setValue, watch, control } =
     useForm();
-
-  const onSubmit = (formData: {
-    reason: { value: number };
-    description?: string;
-  }) => {
-    const { reason, description } = formData;
-    cancelReservation({
-      variables: {
-        input: {
-          pk: reservation.pk,
-          cancelReasonPk: reason.value,
-          cancelDetails: description,
-        },
-      },
-    });
-  };
 
   useEffect(() => {
     if (!loading) {
@@ -254,6 +243,28 @@ const ReservationCancellation = ({
     register({ name: "reason", required: true });
     register({ name: "description" });
   }, [register]);
+
+  if (!reservation) {
+    return <Spinner />;
+  }
+
+  const reservationUnit = reservation.reservationUnits[0];
+
+  const onSubmit = (formData: {
+    reason: { value: number };
+    description?: string;
+  }) => {
+    const { reason, description } = formData;
+    cancelReservation({
+      variables: {
+        input: {
+          pk: reservation.pk,
+          cancelReasonPk: reason.value,
+          cancelDetails: description,
+        },
+      },
+    });
+  };
 
   return (
     <>
@@ -287,7 +298,7 @@ const ReservationCancellation = ({
             </Heading>
           </HeadColumns>
         </HeadWrapper>
-        <StyledKoros className="koros" type="wave" />
+        <StyledKoros from="white" to="var(--tilavaraus-gray)" />
       </Head>
       {formState === "unsent" ? (
         <Body>

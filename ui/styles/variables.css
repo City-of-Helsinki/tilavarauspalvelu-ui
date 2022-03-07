@@ -1,5 +1,5 @@
 :root {
-  --tilavaraus-header-background-color: #ffe977;
+  --tilavaraus-header-background-color: white;
   --tilavaraus-header-color: rgb(26, 26, 26);
   --tilavaraus-background-color: white;
   --tilavaraus-content-text-color: rgb(26, 26, 26);
@@ -10,8 +10,10 @@
   --tilavaraus-blue: #0072c6;
   --tilavaraus-green: #007a64;
   --tilavaraus-yellow: #ffda07;
-  --tilavaraus-calendar-selected: var(--tilavaraus-blue);
+  --tilavaraus-calendar-selected: #0000ff;
+  --tilavaraus-calendar-selected-secondary: #ffe977;
   --font-regular: HelsinkiGrotesk, var(--font-default);
   --font-medium: HelsinkiGrotesk-Medium, var(--font-default);
   --font-bold: HelsinkiGrotesk-Bold, var(--font-default);
+  --tilavaraus-hero-background-color: var(--color-bus);
 }

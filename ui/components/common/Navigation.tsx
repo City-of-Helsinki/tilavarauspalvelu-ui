@@ -9,6 +9,7 @@ import { authEnabled, isBrowser } from "../../modules/const";
 import { breakpoint } from "../../modules/style";
 import { UserProfile } from "../../modules/types";
 import RequireAuthentication from "./RequireAuthentication";
+import { clearApiAccessToken } from "../../modules/auth/util";
 
 interface LanguageOption {
   label: string;
@@ -24,12 +25,16 @@ type MenuItem = {
 const languageOptions: LanguageOption[] = [{ label: "Suomeksi", value: "fi" }];
 
 const StyledNavigation = styled(HDSNavigation)`
-  --header-background-color: var(
-    --tilavaraus-header-background-color
-  ) !important;
-  --header-divider-color: var(--tilavaraus-header-background-color) !important;
+  --header-background-color: var(--tilavaraus-header-background-color);
+  --header-divider-color: var(--color-black-20);
 
   color: var(--tilavaraus-header-color);
+
+  .btn-logout {
+    display: flex;
+    margin-top: var(--spacing-m);
+    cursor: pointer;
+  }
 
   @media (max-width: ${breakpoint.s}) {
     position: fixed !important;
@@ -133,6 +138,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
             onSignIn={() => setShouldLogin(true)}
           >
             <HDSNavigation.Item
+              className="btn-logout"
               label={t("common:logout")}
               onClick={() => logout && logout()}
             />
@@ -175,7 +181,15 @@ const NavigationWithProfileAndLogout = (): JSX.Element => {
       render={(props: {
         profile: UserProfile | null;
         logout: (() => void) | undefined;
-      }) => <Navigation profile={props.profile} logout={props.logout} />}
+      }) => (
+        <Navigation
+          profile={props.profile}
+          logout={() => {
+            clearApiAccessToken();
+            props.logout();
+          }}
+        />
+      )}
     />
   );
 };

@@ -15,6 +15,7 @@ import Loader from "../components/common/Loader";
 import { minimalApplicationForInitialSave } from "../modules/application/applicationInitializer";
 import ApplicationPage from "../components/application/ApplicationPage";
 import { MediumButton } from "../styles/util";
+import RequireAuthentication from "../components/common/RequireAuthentication";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
@@ -26,6 +27,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 
 const Container = styled.div`
   margin-top: var(--spacing-layout-m);
+  padding-bottom: var(--spacing-layout-xl);
   font-size: var(--fontsize-body-m);
   gap: var(--spacing-l);
   display: grid;
@@ -82,50 +84,51 @@ const Intro = (): JSX.Element => {
   };
 
   return (
-    <ApplicationPage
-      translationKeyPrefix="application:Intro"
-      headContent={
-        <Container>
-          <Loader datas={[applicationRounds]}>
-            <Select
-              id="applicationRoundSelect"
-              placeholder={t("common:select")}
-              options={applicationRounds.transformed as OptionType[]}
-              label=""
-              onChange={(selection: OptionType): void => {
-                setApplicationRound(selection.value as number);
-              }}
-            />
-            <MediumButton
-              id="start-application"
-              disabled={!applicationRound || saving}
-              onClick={() => {
-                createNewApplication(applicationRound);
-              }}
-            >
-              {t("application:Intro.startNewApplication")}
-            </MediumButton>
-          </Loader>
-        </Container>
-      }
-    >
-      <Accordion heading={t("application:Intro.faq1.question")}>
-        <Preformatted>
-          {`
+    <RequireAuthentication>
+      <ApplicationPage
+        translationKeyPrefix="application:Intro"
+        headContent={
+          <Container>
+            <Loader datas={[applicationRounds]}>
+              <Select
+                id="applicationRoundSelect"
+                placeholder={t("common:select")}
+                options={applicationRounds.transformed as OptionType[]}
+                label=""
+                onChange={(selection: OptionType): void => {
+                  setApplicationRound(selection.value as number);
+                }}
+              />
+              <MediumButton
+                id="start-application"
+                disabled={!applicationRound || saving}
+                onClick={() => {
+                  createNewApplication(applicationRound);
+                }}
+              >
+                {t("application:Intro.startNewApplication")}
+              </MediumButton>
+            </Loader>
+          </Container>
+        }
+      >
+        <Accordion heading={t("application:Intro.faq1.question")}>
+          <Preformatted>
+            {`
 Luo hakemus YHDISTYKSENÄ tai RYHMÄNÄ, jos haet vuoroa esim. järjestölle, bändille, tanssi- tai teatteriryhmälle, asukasyhdistykselle tai muuhun ryhmä- tai yhteisötoimintaan. Valinta tehdään hakemuksen lopussa kohdassa 3 ”Varaajan perustiedot”.
 
 Hakijan tulee olla varausta tehdessään 15 vuotta täyttänyt. Omavalvontakäytössä sopijaosapuolen
 tulee aina olla 18 vuotta täyttänyt ja täysivaltainen.
 
 Tarkemman käyttöohjeen löydät `}
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://www.hel.fi/static/liitteet-2019/KuVa/nuoriso/Vakiovuorojen_sahkoinen_hakuohje2021.pdf"
-          >
-            täältä
-          </a>
-          {`
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://www.hel.fi/static/liitteet-2019/KuVa/nuoriso/Vakiovuorojen_sahkoinen_hakuohje2021.pdf"
+            >
+              täältä
+            </a>
+            {`
 
 NÄIN HAET VUOROA RYHMÄNÄ TAI JÄRJESTÖNÄ:
 
@@ -149,23 +152,23 @@ Oletuskausi on valmiiksi annettu. Jos haluat hakea lyhyempää kautta, muuta alo
 6. AIKATOIVE
 Valitse kalenterista KAIKKI ne ajankohdat, jolle vuorosi voidaan sijoittaa. Mitä useamman ajankohdan valitset, sitä helpommin löydämme sinulle vuoron toivomastasi tilasta.
 
-7. Valitse ”LUON HAKEMUKSEN YHDISTYKSEN, JÄRJESTÖN, RYHMÄN TAI YHTEISÖN PUOLESTA”. Ilmoita yhteystiedot ja sähköpostiosoite. Huomaa, että kaikki hakemukseen liittyvät viestit lähetetään tähän sähköpostiin. Jos yhteystietosi muuttuvat kesken kauden, ota yhteyttä toimipisteeseen!
+7. Valitse ”LUON HAKEMUKSEN JÄRJESTÖN, RYHMÄN TAI YHTEISÖN PUOLESTA”. Ilmoita yhteystiedot ja sähköpostiosoite. Huomaa, että kaikki hakemukseen liittyvät viestit lähetetään tähän sähköpostiin. Jos yhteystietosi muuttuvat kesken kauden, ota yhteyttä toimipisteeseen!
 
 8. Tarkista hakemuksesi tiedot, lue ja hyväksy käyttöehdot ja lähetä hakemus. Hakemuksesi käsitellään hakuajan päätyttyä.
 `}
-        </Preformatted>
-      </Accordion>
-      <Accordion heading={t("application:Intro.faq2.question")}>
-        <Preformatted>{`Voit täydentää hakemustasi ennen hakuajan päättymistä. Poista tarpeettomat hakemukset, sillä VIIMEISIN SAAPUNUT hakemus katsotaan voimassa olevaksi. Lähetetyn hakemuksen tunnistat
+          </Preformatted>
+        </Accordion>
+        <Accordion heading={t("application:Intro.faq2.question")}>
+          <Preformatted>{`Voit täydentää hakemustasi ennen hakuajan päättymistä. Poista tarpeettomat hakemukset, sillä VIIMEISIN SAAPUNUT hakemus katsotaan voimassa olevaksi. Lähetetyn hakemuksen tunnistat
 sinisestä KÄSITTELYSSÄ-symbolista. Paperisia käyttövuoroanomuksia tai myöhässä tulleita hakemuksia ei käsitellä.
 
 Päätökset vuoroista pyritään antamaan kuukauden kuluessa hakukierroksen päättymisestä. Kun hakemuksesi on käsitelty, saat viestin hakemuksella ilmoittamaasi sähköpostiosoitteeseen.Saatuasi päätöksen, ota yhteyttä siihen toimipisteeseen, josta vuoro on myönnetty. Sovi toimipisteen kanssa avainten noutamisesta ja perehdytyksestä tilojen käyttöön. Luovutamme tilat omavalvontakäyttöön vain perehdytyksen saaneelle henkilölle.
 
 Jos sinulle ei myönnetty vakiovuoroa hakemiisi tiloihin, voit tiedustella vapaaksi jääneitä aikoja suoraan muilta nuorisotaloiltamme. Muutoksenhakua ja hinnan kohtuullistamista tulee hakea kahden viikon kuluessa päätöksen antamisesta.`}</Preformatted>
-      </Accordion>
-      <Accordion heading={t("application:Intro.faq3.question")}>
-        <Preformatted>
-          {`Luo hakemus YKSITYISHENKILÖNÄ vain, jos haet vuoroa itsellesi, perheellesi tai järjestämääsi juhlaa tai tilaisuutta varten. Valinta tehdään hakemuksen lopussa kohdassa 3 ” Varaajan perustiedot”.
+        </Accordion>
+        <Accordion heading={t("application:Intro.faq3.question")}>
+          <Preformatted>
+            {`Luo hakemus YKSITYISHENKILÖNÄ vain, jos haet vuoroa itsellesi, perheellesi tai järjestämääsi juhlaa tai tilaisuutta varten. Valinta tehdään hakemuksen lopussa kohdassa 3 ” Varaajan perustiedot”.
 
 Luo hakemus YRITYKSENÄ, jos haet vuoroa yrityksesi tapahtumaa tai tilaisuutta varten. Valinta tehdään hakemuksen lopussa kohdassa 3 ” Varaajan perustiedot”.
 
@@ -183,43 +186,44 @@ NÄIN HAET VUOROA YKSITYISHENKILÖNÄ TAI YRITYKSENÄ:
 4. TILATOIVEET
 Lisää hakemukselle KAIKKI tilat, josta haluat anoa vakiovuoroa. Järjestä ne toivejärjestykseen nuolilla, ensisijaisin tila ylimmäiseksi.
 
-5. KAUSI JA KESTOOletuskausi on valmiiksi annettu. Jos haluat hakea lyhyempää kautta, muuta aloitus- ja lopetuspäivää. Valitse vuoron kesto ja määrä viikossa. Valitse vuoron kesto siten, että ehdit tehdä alkuvalmistelun ja loppusiivouksen vuoron aikana.
+5. KAUSI JA KESTO Oletuskausi on valmiiksi annettu. Jos haluat hakea lyhyempää kautta, muuta aloitus- ja lopetuspäivää. Valitse vuoron kesto ja määrä viikossa. Valitse vuoron kesto siten, että ehdit tehdä alkuvalmistelun ja loppusiivouksen vuoron aikana.
 
 6. AIKATOIVE
 Valitse kalenterista KAIKKI ne ajankohdat, jolle vuorosi voidaan sijoittaa. Mitä useamman ajankohdan valitset ja joustavampi olet, sitä helpommin löydämme sinulle vuoron toivomastasi tilasta.
 
-7. Valitse ”LUON HAKEMUKSEN YKSITYISHENILÖNÄ” tai ”LUON HAKEMUKSEN
+7. Valitse ”LUON HAKEMUKSEN YKSITYISHENKILÖNÄ” tai ”LUON HAKEMUKSEN
 YRITYKSENÄ”. Ilmoita yhteystiedot ja sähköpostiosoite. Huomaa, että kaikki hakemukseen liittyvät viestit lähetetään tähän sähköpostiin. Jos yhteystietosi muuttuvat kesken kauden, ota yhteyttä toimipisteeseen!
 
 8. Tarkista hakemuksesi tiedot, lue ja hyväksy käyttöehdot ja lähetä hakemus. Hakemuksesi käsitellään hakuajan päätyttyä.`}
-        </Preformatted>
-      </Accordion>
-      <Container>
-        <Loader datas={[applicationRounds]}>
-          <MediumButton
-            disabled={!applicationRound}
-            onClick={() => {
-              createNewApplication(applicationRound);
-            }}
+          </Preformatted>
+        </Accordion>
+        <Container>
+          <Loader datas={[applicationRounds]}>
+            <MediumButton
+              disabled={!applicationRound}
+              onClick={() => {
+                createNewApplication(applicationRound);
+              }}
+            >
+              {t("application:Intro.startNewApplication")}
+            </MediumButton>
+          </Loader>
+        </Container>
+        {error ? (
+          <Notification
+            type="error"
+            label={t("application:Intro.createFailedHeading")}
+            position="top-center"
+            autoClose
+            displayAutoCloseProgress={false}
+            onClose={() => setError(false)}
           >
-            {t("application:Intro.startNewApplication")}
-          </MediumButton>
-        </Loader>
-      </Container>
-      {error ? (
-        <Notification
-          type="error"
-          label={t("application:Intro.createFailedHeading")}
-          position="top-center"
-          autoClose
-          displayAutoCloseProgress={false}
-          onClose={() => setError(false)}
-        >
-          {t("application:Intro.createFailedContent")}
-          {error}
-        </Notification>
-      ) : null}
-    </ApplicationPage>
+            {t("application:Intro.createFailedContent")}
+            {error}
+          </Notification>
+        ) : null}
+      </ApplicationPage>
+    </RequireAuthentication>
   );
 };
 

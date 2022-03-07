@@ -31,6 +31,7 @@ import {
   calendarWrapper,
   reservationQuotaNotification,
 } from "model/reservation-creation";
+import { addressContainer } from "model/reservation-unit";
 import { textWithIcon } from "model/search";
 
 const matchEvent = (): void => {
@@ -107,8 +108,16 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       cy.injectAxe();
     });
 
-    it("allows making a reservation", () => {
+    it("contains default elements", () => {
       cy.get("h1").should("contain", "Pukinmäen nuorisotalon keittiö");
+
+      addressContainer().should("have.length", 2);
+
+      addressContainer(1).should("contain", "Säterintie 2 Fi");
+      addressContainer(1).should("contain", "00720 Helsinki Fi");
+      addressContainer(1).should("contain", "Avaa kartta uuteen ikkunaan");
+      addressContainer(1).should("contain", "Google reittiohjeet");
+      addressContainer(1).should("contain", "HSL Reittiopas");
 
       textWithIcon(1).contains("Seuraava vapaa aika:");
       textWithIcon(2).contains("20 € / 15 min");
@@ -116,7 +125,9 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       textWithIcon(3).contains("Max 1 tunti 30 minuuttia");
       textWithIcon(4).contains("Nuorisopalvelut Fi");
       textWithIcon(5).contains("60 henkilöä");
+    });
 
+    it("allows making a reservation", () => {
       gotoCalendarButton().should("exist");
 
       calendarWrapper().should("exist");
@@ -455,6 +466,13 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
 
   describe("with reservation quota notification", () => {
     it("should display apt notification if quota is set and full", () => {
+      cy.window().then(() => {
+        sessionStorage.setItem(
+          `oidc.apiToken.${Cypress.env("API_SCOPE")}`,
+          "foobar"
+        );
+      });
+
       cy.visit("/reservation-unit/single/901");
 
       gotoCalendarButton().should("exist");
@@ -469,9 +487,20 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
           "match",
           /^Sinulla on jo \d+ varausta tähän tilaan. Et voi tehdä uusia varauksia.$/
         );
+
+      cy.window().then(() => {
+        sessionStorage.removeItem(`oidc.apiToken.${Cypress.env("API_SCOPE")}`);
+      });
     });
 
     it("should display apt notification if quota is set but not full", () => {
+      cy.window().then(() => {
+        sessionStorage.setItem(
+          `oidc.apiToken.${Cypress.env("API_SCOPE")}`,
+          "foobar"
+        );
+      });
+
       cy.visit("/reservation-unit/single/902");
 
       gotoCalendarButton().should("exist");
@@ -481,6 +510,10 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       reservationQuotaNotification()
         .invoke("text")
         .should("match", /^Sinulla on jo \d+\/\d+ varausta tähän tilaan.$/);
+
+      cy.window().then(() => {
+        sessionStorage.removeItem(`oidc.apiToken.${Cypress.env("API_SCOPE")}`);
+      });
     });
   });
 

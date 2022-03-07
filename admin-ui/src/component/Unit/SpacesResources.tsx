@@ -18,9 +18,9 @@ import ResourcesTable from "./ResourcesTable";
 import SpacesTable from "./SpacesTable";
 import SubPageHead from "./SubPageHead";
 import Modal, { useModal as useHDSModal } from "../HDSModal";
-import NewSpaceModal from "./NewSpaceModal";
+import NewSpaceModal from "../Spaces/space-editor/new-space-modal/NewSpaceModal";
 import { breakpoints } from "../../styles/util";
-import NewResourceModal from "./NewResourceModal";
+import NewResourceModal from "../Resources/resource-editor/NewResourceModal";
 import { UNIT_QUERY } from "../../common/queries";
 import {
   Query,
@@ -342,7 +342,6 @@ const SpacesResources = (): JSX.Element | null => {
             onClick={() =>
               openWithContent(
                 <NewResourceModal
-                  spaces={(state.unit?.spaces as SpaceType[]) || []}
                   spacePk={0}
                   unit={state.unit as UnitType}
                   closeModal={() => {

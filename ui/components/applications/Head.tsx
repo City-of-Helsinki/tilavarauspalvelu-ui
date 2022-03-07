@@ -1,39 +1,43 @@
 import React from "react";
-import { Koros } from "hds-react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { breakpoint } from "../../modules/style";
+import { H1, HeroSubheading } from "../../modules/style/typography";
+import KorosDefault from "../common/KorosDefault";
 
-type Props = {
-  heading: string;
-};
-
-const Heading = styled.h1`
-  font-size: var(--fontsize-heading-l);
-`;
+const Heading = styled(H1)``;
 
 const Container = styled.div`
-  background-color: var(--color-white);
+  background-color: var(--tilavaraus-hero-background-color);
+  color: var(--color-white);
 `;
 
 const Content = styled.div`
-  background-color: var(--color-white);
-  padding: var(--spacing-l) var(--spacing-m) var(--spacing-m);
-  max-width: var(--container-width-xl);
-  margin: 0 auto;
-  font-size: var(--fontsize-heading-m);
+  padding: var(--spacing-s) var(--spacing-m) var(--spacing-xl);
+
+  @media (min-width: ${breakpoint.m}) {
+    max-width: var(--container-width-xl);
+    padding: var(--spacing-m);
+    margin: 0 auto;
+    padding-bottom: var(--spacing-layout-l);
+  }
 `;
 
-const StyledKoros = styled(Koros)`
-  background-color: var(--tilavaraus-gray);
-  fill: var(--color-white);
-`;
+const StyledKoros = styled(KorosDefault)``;
 
-const Head = ({ heading }: Props): JSX.Element => {
+const Head = (): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <Container>
       <Content>
-        <Heading>{heading}</Heading>
+        <Heading>{t("applications:heading")}</Heading>
+        <HeroSubheading>{t("applications:subHeading")}</HeroSubheading>
       </Content>
-      <StyledKoros flipHorizontal className="koros" type="wave" />
+      <StyledKoros
+        from="var(--tilavaraus-hero-background-color)"
+        to="var(--tilavaraus-gray)"
+      />
     </Container>
   );
 };

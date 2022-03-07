@@ -74,6 +74,7 @@ const Details = styled.div`
 
 const Name = styled.span`
   font-size: var(--fontsize-heading-m);
+  font-family: var(--font-bold);
   font-weight: 700;
   margin-bottom: 0;
 
@@ -299,7 +300,7 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
             onClick={() => router.push(link)}
             data-testid="reservation-card__button--goto-reservation"
           >
-            {t("reservationUnitCard:seeMore")}
+            {t("reservationList:seeMore")}
           </MediumButton>
         </Actions>
       </MainContent>
