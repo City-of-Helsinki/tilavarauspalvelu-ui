@@ -21,7 +21,7 @@
     "noEvents": "Lisää hakemukselle yksi tai useampi vakiovuoro"
   },
   "Intro": {
-    "startNewApplication": "Aloita hakemuksen täyttäminen",
+    "startNewApplication": "Täytä hakemus",
     "heading": "Vakiovuorohakemus",
     "createFailedHeading": "Hakemuksen luominen epäonnistui",
     "createFailedContent": "Yritä myöhemmin uudelleen",

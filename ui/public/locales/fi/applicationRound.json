@@ -1,6 +1,7 @@
 {
   "card": {
     "applyButton": "Hae tiloja",
+    "searchButton": "Selaa tiloja",
     "displayPastButton": "Näytä tilat",
     "criteria": "Hakukriteerit",
     "pending": "Haku avautuu {{openingDateTime}}",
