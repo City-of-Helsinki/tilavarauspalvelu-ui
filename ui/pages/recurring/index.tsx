@@ -29,7 +29,9 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   };
 };
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  background-color: var(--color-white);
+`;
 
 const HeadWrapper = styled.div`
   background-color: var(--tilavaraus-hero-background-color);

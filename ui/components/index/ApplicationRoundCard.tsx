@@ -26,7 +26,7 @@ const StyledCard = styled(Card)`
     grid-gap: var(--spacing-m);
     align-items: start;
     padding: var(--spacing-m);
-    margin-bottom: var(--spacing-s);
+    margin-bottom: var(--spacing-m);
 
     @media (max-width: ${breakpoint.s}) {
       grid-template-columns: 1fr;
@@ -41,6 +41,7 @@ const StyledContainer = styled(Container)`
 
 const Name = styled(H4)`
   margin-top: 0;
+  margin-bottom: var(--spacing-2-xs);
 `;
 
 const CardButton = styled(MediumButton)`
@@ -64,6 +65,7 @@ const StyledLink = styled.a`
 
   @media (min-width: ${breakpoint.s}) {
     margin-top: var(--spacing-l);
+    margin-bottom: var(--spacing-s);
   }
 `;
 
@@ -97,12 +99,14 @@ const ApplicationRoundCard = ({ applicationRound }: Props): JSX.Element => {
               closingDate: parseISO(applicationRound.applicationPeriodEnd),
             })}
         </div>
-        <Link href={`/criteria/${applicationRound.id}`} passHref>
-          <StyledLink>
-            <IconArrowRight />
-            {t("applicationRound:card.criteria")}
-          </StyledLink>
-        </Link>
+        {state !== "past" && (
+          <Link href={`/criteria/${applicationRound.id}`} passHref>
+            <StyledLink>
+              <IconArrowRight />
+              {t("applicationRound:card.criteria")}
+            </StyledLink>
+          </Link>
+        )}
       </StyledContainer>
       {state === "active" && (
         <CardButton
