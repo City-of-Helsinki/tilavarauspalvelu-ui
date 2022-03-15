@@ -59,7 +59,6 @@ const Content = styled.div`
 
   @media (min-width: ${breakpoint.m}) {
     max-width: var(--container-width-xl);
-    padding-bottom: var(--spacing-m);
     margin: 0 auto;
     padding-bottom: var(--spacing-layout-xl);
   }
@@ -115,7 +114,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
       />
       <Content>
         {activeApplicationRounds?.length > 0 ? (
-          <RoundList>
+          <RoundList data-testid="recurring-lander__application-round-container--active">
             <RoundHeading>
               {t("recurringLander:roundHeadings.active")}
             </RoundHeading>
@@ -127,7 +126,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
             ))}
           </RoundList>
         ) : (
-          <RoundList>
+          <RoundList data-testid="recurring-lander__application-round-container--active-empty">
             <RoundHeading>
               {t("recurringLander:roundHeadings.active")}
             </RoundHeading>
@@ -135,7 +134,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
           </RoundList>
         )}
         {pendingApplicationRounds?.length > 0 && (
-          <RoundList>
+          <RoundList data-testid="recurring-lander__application-round-container--pending">
             <RoundHeading>
               {t("recurringLander:roundHeadings.pending")}
             </RoundHeading>
@@ -148,7 +147,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
           </RoundList>
         )}
         {pastApplicationRounds?.length > 0 && (
-          <RoundList>
+          <RoundList data-testid="recurring-lander__application-round-container--past">
             <RoundHeading>
               {t("recurringLander:roundHeadings.past")}
             </RoundHeading>
