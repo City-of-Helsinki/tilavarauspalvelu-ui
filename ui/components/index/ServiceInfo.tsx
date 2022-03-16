@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { CenteredContainer } from "../common/Container";
+import { H3 } from "../../modules/style/typography";
 
 const BottomContainer = styled.div`
   background-color: var(--color-black-5);
@@ -25,7 +26,7 @@ const ServiceInfo = (): JSX.Element => {
   return (
     <BottomContainer>
       <StyledCenteredContainer>
-        <h1>{t("footer.heading")}</h1>
+        <H3>{t("footer.heading")}</H3>
         <p>{t("footer.body")}</p>
       </StyledCenteredContainer>
     </BottomContainer>
