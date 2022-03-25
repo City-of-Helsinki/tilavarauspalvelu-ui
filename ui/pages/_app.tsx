@@ -1,5 +1,5 @@
 import React from "react";
-import { appWithTranslation } from "next-i18next";
+import { appWithTranslation, UserConfig } from "next-i18next";
 import dynamic from "next/dynamic";
 import { format, isValid } from "date-fns";
 import { AppProps } from "next/app";
@@ -69,7 +69,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 export default appWithTranslation(MyApp, {
-  ...nextI18NextConfig,
+  ...(nextI18NextConfig as UserConfig),
   interpolation: {
     format: (value, fmt, lng) => {
       const locales = { fi };
