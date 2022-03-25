@@ -1,0 +1,32 @@
+{
+  "textSearchLabel": "Search term",
+  "searchTermPlaceholder": "Search with keyword",
+  "searchButton": "Search for premises",
+  "purposeLabel": "Purpose of use",
+  "roundLabel": "Application period",
+  "districtLabel": "District",
+  "priceLabel": "Price",
+  "participantCountLabel": "Number of participants at least",
+  "participantCountCombined": "Number of participants",
+  "typeLabel": "Type of facility",
+  "showMoreFilters": "Advanced search",
+  "showLessFilters": "Show less options",
+  "unitFilter": "Location",
+  "purposesFilter": "Purpose of use",
+  "resetForm": "Clear the search criteria",
+  "filters": {
+    "applicationRound": "Application period",
+    "textSearch": "\"{{value}}\"",
+    "minPersons": "Participants min",
+    "maxPersons": "Participants max",
+    "purposes": "Purpose",
+    "reservationUnitType": "Type",
+    "unit": "Location"
+  },
+  "all": "All",
+  "clearSelections": "Clear selections",
+  "removeSelection": "Clear selection",
+  "selectedElement": "Selection",
+  "searchForValue": "Search",
+  "removeFilter": "Remove filter \"{{value}}\""
+}

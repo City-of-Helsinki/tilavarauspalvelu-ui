@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Navigation as HDSNavigation } from "hds-react";
 import { useTranslation, TFunction } from "next-i18next";
 import { useLocalStorage } from "react-use";
@@ -21,8 +21,6 @@ type MenuItem = {
   path: string;
   condition?: boolean;
 };
-
-const languageOptions: LanguageOption[] = [{ label: "Suomeksi", value: "fi" }];
 
 const StyledNavigation = styled(HDSNavigation)`
   --header-background-color: var(--tilavaraus-header-background-color);
@@ -85,6 +83,15 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
   );
   const [shouldLogin, setShouldLogin] = React.useState(false);
 
+  const languageOptions: LanguageOption[] = useMemo(
+    () => [
+      { label: t("navigation:language.fi"), value: "fi" },
+      { label: t("navigation:language.en"), value: "en" },
+      // { label: t("navigation:language.sv"), value: "sv" },
+    ],
+    [t]
+  );
+
   const formatSelectedValue = (lang = DEFAULT_LANGUAGE): string =>
     lang.toUpperCase();
 
@@ -145,6 +152,9 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
                 ): void => {
                   e.preventDefault();
                   setLanguage(languageOption.value);
+                  router.push(router.route, router.route, {
+                    locale: languageOption.value,
+                  });
                 }}
               />
             ))}

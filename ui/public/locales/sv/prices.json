@@ -1,0 +1,14 @@
+{
+  "reservationUnitPriceLabel": "",
+  "priceUnits": {
+    "PER_15_MINS": "",
+    "PER_30_MINS": "",
+    "PER_HOUR": "",
+    "PER_HALF_DAY": "",
+    "PER_DAY": "",
+    "PER_WEEK": ""
+  },
+  "priceFree": "",
+  "taxPercentage": "",
+  "total": ""
+}

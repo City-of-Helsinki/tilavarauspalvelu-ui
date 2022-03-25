@@ -1,0 +1,15 @@
+{
+  "language": {
+    "fi": "Finnish",
+    "en": "English",
+    "sv": "Swedish"
+  },
+  "userNoName": "Anonymous User",
+  "Item": {
+    "spaceReservation": "Recurring reservation",
+    "reservationUnitSearch": "Individual reservations",
+    "reservations": "My reservations",
+    "applications": "My applications"
+  },
+  "skipToMainContent": "Skip to main content of the page"
+}

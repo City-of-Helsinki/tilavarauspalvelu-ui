@@ -1,0 +1,10 @@
+{
+  "heading": "Recurring reservation",
+  "subHeading": "Apply for the regular use of City of Helsinki premises. Learn about the premises and application deadlines on this page.",
+  "roundHeadings": {
+    "active": "Ongoing application periods",
+    "pending": "Upcoming application periods",
+    "past": "Past application periods"
+  },
+  "noRounds": "No active or upcoming application periods."
+}

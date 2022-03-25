@@ -1,0 +1,21 @@
+{
+  "cancelHeading": "",
+  "cancelContent": "",
+  "cancelFailed": "",
+  "edit": "",
+  "cancel": "",
+  "status": {
+    "draft": "",
+    "processing": "",
+    "sent": ""
+  },
+  "reservations": "",
+  "saved": "",
+  "person": "",
+  "organisation": "",
+  "applicantType": {
+    "community": "",
+    "association": "",
+    "company": ""
+  }
+}

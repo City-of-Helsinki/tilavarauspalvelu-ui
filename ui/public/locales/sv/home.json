@@ -1,0 +1,33 @@
+{
+  "head": {
+    "heading": "",
+    "text": "",
+    "searchPlaceholder": ""
+  },
+  "info": {
+    "heading": "",
+    "text": ""
+  },
+  "infoRecurring": {
+    "heading": "",
+    "text": ""
+  },
+  "browseReservationsButton": "",
+  "browseRecurringReservationsButton": "",
+  "footer": {
+    "heading": "",
+    "body": ""
+  },
+  "shortcutsHeadingMobile": "",
+  "shortcutsHeading": "",
+  "shortcuts": {
+    "organizeEvent": "",
+    "pictureOrSound": "",
+    "sports": "",
+    "tutoring": "",
+    "working": "",
+    "sauna": "",
+    "workshop": ""
+  },
+  "recommendations": ""
+}

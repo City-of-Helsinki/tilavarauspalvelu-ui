@@ -88,7 +88,6 @@
   "Page3": {
     "heading": "3. Täytä varaajan tiedot",
     "text": "Voit jättää hakemuksen yhteisönä, yksityishenkilönä tai yrityksenä. Viimeisin hakemus on voimassa.",
-    "asPrivatePersonSubHeading": "Varaan yksityishenkilönä",
     "firstName": "Etunimi",
     "homeCity": "Kotipaikka",
     "lastName": "Sukunimi",
@@ -168,9 +167,7 @@
       "end": "Kauden päätöspäivä",
       "minDuration": "Varauksen vähimmäiskesto",
       "maxDuration": "Varauksen enimmäiskesto",
-      "eventsPerWeek": "Varausten määrä viikossa",
-      "biweekly": "Kausivaraukset vain joka toinen viikko",
-      "reservationUnit": "Vaihtoehto {{order}}."
+      "eventsPerWeek": "Varausten määrä viikossa"
     },
     "applicationEventSchedules": "Toivotut ajat",
     "noData": {

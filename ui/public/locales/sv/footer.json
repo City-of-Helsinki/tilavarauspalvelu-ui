@@ -1,0 +1,26 @@
+{
+  "Navigation": {
+    "feedback": {
+      "label": "",
+      "href": ""
+    },
+    "terms": {
+      "label": "",
+      "href": ""
+    }
+  },
+  "Base": {
+    "Item": {
+      "privacyStatement": {
+        "label": "",
+        "href": ""
+      },
+      "accessibilityStatement": {
+        "label": "",
+        "href": ""
+      }
+    },
+    "copyrightHolder": "",
+    "copyrightText": ""
+  }
+}

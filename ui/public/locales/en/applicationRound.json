@@ -1,0 +1,12 @@
+{
+  "card": {
+    "applyButton": "Search for premises",
+    "searchButton": "Browse premises",
+    "displayPastButton": "Show premises",
+    "criteria": "Application criteria",
+    "pending": "Application period opens {{openingDateTime}}",
+    "open": "Application period open until {{until, d.M.yyyy',' H.mm}}",
+    "past": "Application period closed {{closingDate, d.M.yyyy',' H.mm}}"
+  },
+  "criteria": "application criteria"
+}

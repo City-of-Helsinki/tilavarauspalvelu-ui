@@ -1,0 +1,8 @@
+{
+  "granted": "Granted to group {{groupName}}",
+  "denied": "Exceptions when a season reservation is not available to you",
+  "headerWeekday": "Weekday",
+  "headerDate": "Date",
+  "headerTime": "Time",
+  "seeMore": "Show reservation"
+}

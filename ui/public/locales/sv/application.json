@@ -1,0 +1,200 @@
+{
+  "error": {
+    "saveFailed": "",
+    "required": "",
+    "requiredField": "",
+    "pattern": "",
+    "numPersonsMin": "",
+    "minDurationBiggerThanMaxDuration": "",
+    "maxDurationSmallerThanMinDuration": "",
+    "eventsPerWeekMin": "",
+    "beginAfterEnd": "",
+    "beginBeforePeriodBegin": "",
+    "beginAfterPeriodEnd": "",
+    "endAfterPeriodEnd": "",
+    "endBeforeBegin": "",
+    "endBeforePeriodBegin": "",
+    "missingSchedule": "",
+    "reservationUnitTooSmall": "",
+    "otherEventsHaveErrors": "",
+    "noReservationUnits": "",
+    "noEvents": ""
+  },
+  "Intro": {
+    "startNewApplication": "",
+    "heading": "",
+    "createFailedHeading": "",
+    "createFailedContent": "",
+    "faq1": {
+      "question": ""
+    },
+    "faq2": {
+      "question": ""
+    },
+
+    "faq3": {
+      "question": ""
+    }
+  },
+  "applicationEventSaved": "",
+  "Page1": {
+    "heading": "",
+    "text": "",
+    "basicInformationSubHeading": "",
+    "name": "",
+    "groupSize": "",
+    "ageGroup": "",
+    "abilityGroup": "",
+    "purpose": "",
+    "spacesSubHeading": "",
+    "applicationRoundSubHeading": "",
+    "periodStartDate": "",
+    "periodEndDate": "",
+    "minDuration": "",
+    "maxDuration": "",
+    "eventsPerWeek": "",
+    "biweekly": "",
+    "defaultDurationLabel": "",
+    "createNew": "",
+    "applicationEventName": "",
+    "applicationEventSummary": "",
+    "applicationEventSaved": "",
+    "saveEvent": "",
+    "deleteEvent": ""
+  },
+  "Page2": {
+    "heading": "",
+    "subHeading": "",
+    "info": "",
+    "text": "",
+    "copyTimes": "",
+    "resetTimes": "",
+    "summary": "",
+    "priorityLabels": {
+      "300": "",
+      "200": ""
+    },
+    "legend": {
+      "unavailable": "",
+      "selected-1": "",
+      "selected-2": ""
+    },
+    "primarySchedules": "",
+    "secondarySchedules": "",
+    "notification": {
+      "copyCells": ""
+    }
+  },
+  "Page3": {
+    "heading": "",
+    "text": "",
+    "firstName": "",
+    "homeCity": "",
+    "lastName": "",
+    "phoneNumber": "",
+    "email": "",
+    "emailNotification": "",
+    "subHeading": {
+      "basicInfo": "",
+      "postalAddress": "",
+      "billingAddress": "",
+      "contactInfo": ""
+    },
+    "as": {
+      "prefix": "",
+      "type": {
+        "organisation": "",
+        "company": "",
+        "individual": ""
+      }
+    },
+    "contactPerson": {
+      "firstName": "",
+      "lastName": "",
+      "phoneNumber": ""
+    },
+    "billingAddress": {
+      "streetAddress": "",
+      "postCode": "",
+      "city": ""
+    },
+    "company": {
+      "name": "",
+      "coreBusiness": "",
+      "registrationNumber": ""
+    },
+    "organisation": {
+      "name": "",
+      "coreBusiness": "",
+      "registrationNumber": "",
+      "streetAddress": "",
+      "postCode": "",
+      "city": "",
+      "notRegistered": "",
+      "separateInvoicingAddress": ""
+    },
+    "additionalInformation": ""
+  },
+  "preview": {
+    "applicantType": {
+      "community": "",
+      "company": "",
+      "individual": "",
+      "association": ""
+    },
+    "homeCity": "",
+    "heading": "",
+    "text": "",
+    "basicInfoSubHeading": "",
+    "firstName": "",
+    "lastName": "",
+    "applicantTypeLabel": "",
+    "email": "",
+    "phoneNumber": "",
+    "additionalInformation": "",
+    "organisation": {
+      "name": "",
+      "coreBusiness": ""
+    },
+    "applicationEvent": {
+      "name": "",
+      "numPersons": "",
+      "ageGroup": "",
+      "abilityGroup": "",
+      "purpose": "",
+      "additionalInfo": "",
+      "begin": "",
+      "end": "",
+      "minDuration": "",
+      "maxDuration": "",
+      "eventsPerWeek": ""
+    },
+    "applicationEventSchedules": "",
+    "noData": {
+      "heading": "",
+      "text": ""
+    },
+    "notification": {
+      "processing": "",
+      "body": ""
+    },
+    "reservationUnitTerms": "",
+    "termsOfService": "",
+    "userAcceptsTerms": "",
+    "subHeading": {
+      "applicationInfo": ""
+    }
+  },
+  "sent": {
+    "heading": "",
+    "faq1Question": "",
+    "faq2Question": "",
+    "faq3Question": ""
+  },
+  "navigation": {
+    "page1": "",
+    "page2": "",
+    "page3": "",
+    "preview": ""
+  }
+}

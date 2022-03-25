@@ -1,4 +1,9 @@
 {
+  "language": {
+    "fi": "Suomeksi",
+    "en": "Englanniksi",
+    "sv": "Ruotsiksi"
+  },
   "userNoName": "Nimetön Käyttäjä",
   "Item": {
     "spaceReservation": "Kausivaraus",

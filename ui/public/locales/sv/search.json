@@ -1,0 +1,23 @@
+{
+  "recurring": {
+    "heading": "",
+    "text": ""
+  },
+  "single": {
+    "heading": "",
+    "text": ""
+  },
+  "sorting": {
+    "action": {
+      "ascending": "",
+      "descending": ""
+    },
+    "ascendingLabel": "",
+    "descendingLabel": "",
+    "label": {
+      "name": "",
+      "type": "",
+      "unit": ""
+    }
+  }
+}

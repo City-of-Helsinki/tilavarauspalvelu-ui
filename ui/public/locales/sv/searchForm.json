@@ -1,0 +1,33 @@
+{
+  "textSearchLabel": "",
+  "searchTermPlaceholder": "",
+  "searchButton": "",
+  "purposeLabel": "",
+  "roundLabel": "",
+  "districtLabel": "",
+  "priceLabel": "",
+  "participantCountLabel": "",
+  "participantCountCombined": "",
+  "typeLabel": "",
+  "showMoreFilters": "",
+  "showLessFilters": "",
+  "unitFilter": "",
+  "purposesFilter": "",
+  "resetForm": "",
+  "filters": {
+    "applicationRound": "",
+    "textSearch": "",
+    "minPersons": "",
+    "maxPersons": "",
+    "purposes": "",
+    "reservationUnitType": "",
+    "unit": ""
+  },
+  "all": "",
+  "clearSelections": "",
+  "removeSelection": "",
+  "selectedElement": "",
+  "openCombobox": "",
+  "searchForValue": "",
+  "removeFilter": ""
+}
