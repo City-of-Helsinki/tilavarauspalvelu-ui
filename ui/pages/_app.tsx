@@ -16,7 +16,7 @@ import "../styles/global.scss";
 import { TrackingWrapper } from "../modules/tracking";
 import { FullscreenSpinner } from "../components/common/FullscreenSpinner";
 import { DataContextProvider } from "../context/DataContext";
-import ExternalScripts from "../components/ExtrenalScripts";
+import ExternalScripts from "../components/ExternalScripts";
 
 if (mockRequests) {
   require("../mocks");
