@@ -1,8 +1,8 @@
 {
-  "message": "You are making a reservation <1>{{name}}</1> for the period <4>{{startDate}} - {{endDate}}</4>. The total duration of the reservations is at least <4>{{hours}} h</4>.",
+  "message": "You are making a booking <1>{{name}}</1> for the period <4>{{startDate}} - {{endDate}}</4>. The total duration of the bookings is at least <4>{{hours}} h</4>.",
   "numPersons": "Group size is {{count}} persons",
-  "minDuration": "Minimum duration of a single reservation is {{minDuration}}",
-  "durations": "Duration of one reservation is from {{minDuration}} to {{maxDuration}}",
+  "minDuration": "Minimum duration of a single booking is {{minDuration}}",
+  "durations": "Duration of one booking is from {{minDuration}} to {{maxDuration}}",
   "eventsPerWeek": "{{count}} booking per week",
   "eventsPerWeek_plural": "{{count}} bookings per week"
 }

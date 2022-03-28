@@ -6,9 +6,9 @@
   },
   "userNoName": "Anonymous User",
   "Item": {
-    "spaceReservation": "Recurring reservation",
-    "reservationUnitSearch": "Individual reservations",
-    "reservations": "My reservations",
+    "spaceReservation": "Recurring booking",
+    "reservationUnitSearch": "Single booking",
+    "reservations": "My bookings",
     "applications": "My applications"
   },
   "skipToMainContent": "Skip to main content of the page"

@@ -1,7 +1,7 @@
 {
-  "home": "Recurring reservation",
+  "home": "Recurring booking",
   "search": "Search",
-  "application": "Recurring reservation application",
+  "application": "Recurring booking application",
   "criteria": "Search criteria",
-  "singleReservations": "Single reservations"
+  "singleReservations": "Single bookings"
 }

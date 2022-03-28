@@ -1,22 +1,22 @@
 {
   "head": {
-    "heading": "Premises and equipment available for booking",
-    "text": "Through Varaamo, you can reserve public premises and equipment for your own use",
-    "searchPlaceholder": "Search premises or equipment"
+    "heading": "Book spaces and equipment",
+    "text": "In Varaamo you can book spaces and equipment for one-time use or make seasonal bookings to use a space regularly.",
+    "searchPlaceholder": "Search spaces or equipment"
   },
   "info": {
-    "heading": "Individual reservations",
-    "text": "Make individual reservations at <0>varaamo.hel.fi</0>."
+    "heading": "Single booking",
+    "text": "Make single bookings at <0>varaamo.hel.fi</0>."
   },
   "infoRecurring": {
-    "heading": "Recurring reservations",
-    "text": "Apply to spaces and equipment for recurring use. You can browse spaces before the application period."
+    "heading": "Recurring booking",
+    "text": "Apply for spaces or equipment for recurring use. You can browse spaces before the application period."
   },
-  "browseReservationsButton": "Browse reservations units",
-  "browseRecurringReservationsButton": "Browse application periods",
+  "browseReservationsButton": "Browse spaces",
+  "browseRecurringReservationsButton": "Browse application rounds",
   "footer": {
     "heading": "About Varaamo",
-    "body": "Varaamo is an online service run by the City of Helsinki, through which you can reserve public premises and workstations for your use.\n\nThe revamped premises reservation service is in a pilot phase. New features and functionalities are being gradually introduced."
+    "body": "Varaamo is an online service run by the City of Helsinki, where you can reserve spaces and workstations for your use.\n\nThe re-designed space booking service is in a pilot phase. New features and functionalities are being gradually introduced."
   },
   "shortcutsHeadingMobile": "",
   "shortcutsHeading": "",

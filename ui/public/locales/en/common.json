@@ -50,7 +50,7 @@
   },
   "applicationNavigationName": "Application",
   "applicationName": "Varaamo",
-  "selectReservationUnit": "Add premises to the application",
+  "selectReservationUnit": "Add to application",
   "removeReservationUnit": "Added to application",
   "reservationUnitSelected": "Added to application",
   "next": "Next",
@@ -71,7 +71,7 @@
   "loginAlt": "Sign in",
   "logout": "Sign out",
   "cancel": "Cancel",
-  "imgAltForSpace": "Image of the premises {{name}}",
+  "imgAltForSpace": "Image of the spaces {{name}}",
   "address": {
     "streetAddress": "Address",
     "postCode": "Postal code",

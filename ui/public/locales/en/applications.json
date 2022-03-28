@@ -1,7 +1,7 @@
 {
   "heading": "My applications",
   "subHeading": "Manage your own applications",
-  "noApplications": "There are no applications",
+  "noApplications": "No applications",
   "group": {
     "draft": "Drafts",
     "processing": "In process",
