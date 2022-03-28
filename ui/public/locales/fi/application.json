@@ -16,7 +16,7 @@
     "endBeforePeriodBegin": "Kauden lopetuspäivä on liian aikainen",
     "missingSchedule": "Lisää kaikille kausivarauksille vähintään yksi aika",
     "reservationUnitTooSmall": "Tila on liian pieni ryhmän käyttöön",
-    "otherEventsHaveErrors": "Korjaa ensin validaatiovirheet",
+    "otherEventsHaveErrors": "Korjaa virheellisesti täytetyt kentät",
     "noReservationUnits": "Lisää hakemukselle yksi tai useampi tila",
     "noEvents": "Lisää hakemukselle yksi tai useampi kausivaraus"
   },
@@ -144,7 +144,7 @@
     },
     "homeCity": "Kotipaikka",
     "heading": "4. Tarkista ja lähetä hakemus",
-    "text": "Alla yhteenveto hakemuksestasi",
+    "text": "Yhteenveto hakemuksestasi",
     "basicInfoSubHeading": "Varaajan tiedot",
     "firstName": "Yhteyshenkilön etunimi",
     "lastName": "Yhteyshenkilön sukunimi",
@@ -172,7 +172,7 @@
     "applicationEventSchedules": "Toivotut ajat",
     "noData": {
       "heading": "Lomakkeen tietoja ei ole vielä olemassa",
-      "text": "Täytä ensin lomake."
+      "text": "Täytä ensin lomake"
     },
     "notification": {
       "processing": "Käsittely",

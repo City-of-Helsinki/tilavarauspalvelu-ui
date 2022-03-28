@@ -1,9 +1,9 @@
 {
-  "cancelHeading": "Oletko varma että haluat peruuttaa hakemuksesi?",
-  "cancelContent": "Jos peruutat hakemuksen et voi enää muokata tai lähettää sitä.",
-  "cancelFailed": "Hakemuksen peruuttaminen epäonnistui.",
+  "cancelHeading": "Oletko varma, että haluat perua hakemuksesi?",
+  "cancelContent": "Jos perut hakemuksen, et voi enää muokata tai lähettää sitä.",
+  "cancelFailed": "Hakemuksen peruminen epäonnistui",
   "edit": "Muokkaa hakemusta",
-  "cancel": "Peruuta hakemus",
+  "cancel": "Peru hakemus",
   "status": {
     "draft": "Kesken",
     "processing": "Käsittelyssä",
