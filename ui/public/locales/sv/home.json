@@ -1,21 +1,20 @@
 {
   "head": {
-    "heading": "",
-    "text": "",
-    "searchPlaceholder": ""
+    "heading": "Boka lokaler och utrustning",
+    "text": "Via Varaamo kan du boka offentliga lokaler eller utrustning för tillfällig eller regelbunden bruk",
+    "searchPlaceholder": "Sök lokaler eller utrustning"
   },
   "info": {
-    "heading": "",
-    "text": ""
+    "heading": "Enstaka bokningar",
+    "text": "Ifall du vill göra enstaka bokningar kan du använda <0>varaamo.hel.fi</0>."
   },
   "infoRecurring": {
-    "heading": "",
-    "text": ""
+    "heading": "Säsongsbokning",
+    "text": "Här kan du boka och få mer information om säsongbokningen och ansökningtider."
   },
-  "browseReservationsButton": "",
-  "browseRecurringReservationsButton": "",
+  "browseRecurringReservationsButton": "Se ansökningtider",
   "footer": {
-    "heading": "",
+    "heading": "Om Varaamo",
     "body": ""
   },
   "shortcutsHeadingMobile": "",
