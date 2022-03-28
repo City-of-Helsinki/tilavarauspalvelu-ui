@@ -2,17 +2,17 @@
   "cancelHeading": "",
   "cancelContent": "",
   "cancelFailed": "",
-  "edit": "",
-  "cancel": "",
+  "edit": "Redigera din ansökan",
+  "cancel": "Ångra ansökan",
   "status": {
     "draft": "",
-    "processing": "",
-    "sent": ""
+    "processing": "I behandling",
+    "sent": "Behandlad"
   },
-  "reservations": "",
-  "saved": "",
-  "person": "",
-  "organisation": "",
+  "reservations": "Bokningar",
+  "saved": "Senast sparad: {{date, dd.MM.yyyy 'kl' HH:mm}}",
+  "person": "Ansökan skapad: som privatperson",
+  "organisation": "Ansökan skapad: {{type}}, {{name}}",
   "applicantType": {
     "community": "",
     "association": "",

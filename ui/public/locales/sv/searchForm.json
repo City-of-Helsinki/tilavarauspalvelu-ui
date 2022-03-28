@@ -5,10 +5,10 @@
   "purposeLabel": "",
   "roundLabel": "",
   "districtLabel": "",
-  "priceLabel": "",
-  "participantCountLabel": "",
-  "participantCountCombined": "",
-  "typeLabel": "",
+  "priceLabel": "Pris",
+  "participantCountLabel": "Personantal minst",
+  "participantCountCombined": "Personantal",
+  "typeLabel": "Lokaltyp",
   "showMoreFilters": "",
   "showLessFilters": "",
   "unitFilter": "",
@@ -17,10 +17,10 @@
   "filters": {
     "applicationRound": "",
     "textSearch": "",
-    "minPersons": "",
-    "maxPersons": "",
+    "minPersons": "Personantal min",
+    "maxPersons": "Personantal max",
     "purposes": "",
-    "reservationUnitType": "",
+    "reservationUnitType": "Lokaltyp",
     "unit": ""
   },
   "all": "",
@@ -28,6 +28,6 @@
   "removeSelection": "",
   "selectedElement": "",
   "openCombobox": "",
-  "searchForValue": "",
+  "searchForValue": "Sök",
   "removeFilter": ""
 }

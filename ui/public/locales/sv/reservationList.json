@@ -1,8 +1,8 @@
 {
   "granted": "",
   "denied": "",
-  "headerWeekday": "",
-  "headerDate": "",
-  "headerTime": "",
+  "headerWeekday": "Veckodag",
+  "headerDate": "Datum",
+  "headerTime": "Tid",
   "seeMore": ""
 }

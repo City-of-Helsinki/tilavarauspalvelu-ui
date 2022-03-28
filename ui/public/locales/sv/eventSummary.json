@@ -1,14 +1,14 @@
 {
-  "space": "",
+  "space": "Lokal",
   "purpose": "",
   "begin": "",
   "end": "",
-  "weekDay": "",
-  "time": "",
+  "weekDay": "Dag",
+  "time": "Tid",
   "notAvailable": "",
-  "duration": "",
-  "everyWeek": "",
-  "everyOtherWeek": "",
+  "duration": "Bokningens varaktighet {{duration}}",
+  "everyWeek": "Varje vecka",
+  "everyOtherWeek": "Varannan vecka",
   "showList": "",
   "downloadCalendarFeed": ""
 }

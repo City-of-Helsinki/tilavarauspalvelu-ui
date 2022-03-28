@@ -1,10 +1,10 @@
 {
-  "selectReservationUnit": "",
+  "selectReservationUnit": "Lägg till ansökningen",
   "unSelectReservationUnit": "",
   "heading": "",
   "searchTermLabel": "",
   "searchPurposeLabel": "",
-  "searchReservationUnitTypeLabel": "",
+  "searchReservationUnitTypeLabel": "Lokaltyp",
   "openLinkToNewTab": "",
   "returnToApplication": ""
 }

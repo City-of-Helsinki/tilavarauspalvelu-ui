@@ -1,7 +1,7 @@
 {
   "error": {
-    "saveFailed": "",
-    "required": "",
+    "saveFailed": "Det gick inte att spara ansökningen",
+    "required": "Obligatorisk",
     "requiredField": "",
     "pattern": "",
     "numPersonsMin": "",
@@ -16,15 +16,15 @@
     "endBeforePeriodBegin": "",
     "missingSchedule": "",
     "reservationUnitTooSmall": "",
-    "otherEventsHaveErrors": "",
-    "noReservationUnits": "",
-    "noEvents": ""
+    "otherEventsHaveErrors": "Korrigera felaktigt ifyllda fält",
+    "noReservationUnits": "Lägg till en eller flera lokaler till ansökningen",
+    "noEvents": "Lägg till en eller flera säsongbokningar till ansökningen"
   },
   "Intro": {
-    "startNewApplication": "",
+    "startNewApplication": "Fyll i ansökan",
     "heading": "",
     "createFailedHeading": "",
-    "createFailedContent": "",
+    "createFailedContent": "Försök igen senare",
     "faq1": {
       "question": ""
     },
@@ -36,40 +36,40 @@
       "question": ""
     }
   },
-  "applicationEventSaved": "",
+  "applicationEventSaved": "Säsongsbokning sparad på ansökningen",
   "Page1": {
-    "heading": "",
+    "heading": "1. Fyll i bokningsuppgifter",
     "text": "",
-    "basicInformationSubHeading": "",
+    "basicInformationSubHeading": "Grundläggande bokningsinformation",
     "name": "",
-    "groupSize": "",
-    "ageGroup": "",
+    "groupSize": "Gruppstorlek",
+    "ageGroup": "Åldersgrupp",
     "abilityGroup": "",
-    "purpose": "",
-    "spacesSubHeading": "",
-    "applicationRoundSubHeading": "",
-    "periodStartDate": "",
-    "periodEndDate": "",
+    "purpose": "Användningsändamål",
+    "spacesSubHeading": "Önskade lokaler",
+    "applicationRoundSubHeading": "Period",
+    "periodStartDate": "Startdatum",
+    "periodEndDate": "Slutdatum",
     "minDuration": "",
     "maxDuration": "",
-    "eventsPerWeek": "",
+    "eventsPerWeek": "Antal bokningar per vecka",
     "biweekly": "",
-    "defaultDurationLabel": "",
+    "defaultDurationLabel": "1 timme 30 min",
     "createNew": "",
     "applicationEventName": "",
-    "applicationEventSummary": "",
-    "applicationEventSaved": "",
-    "saveEvent": "",
+    "applicationEventSummary": "Sammanfattning",
+    "applicationEventSaved": "Säsongbokningsönskemål sparat på ansökningen",
+    "saveEvent": "Spara",
     "deleteEvent": ""
   },
   "Page2": {
-    "heading": "",
+    "heading": "2. Välj bokningens tidpunkt",
     "subHeading": "",
-    "info": "",
+    "info": "Kontrollera öppethållningstiderna för de enskilda lokalerna i <0>ansökningsanvisningarna (FI)<0>. Välj de tider som du i första hand önskar. Välj också tider som alternativt passar för dig.",
     "text": "",
     "copyTimes": "",
     "resetTimes": "",
-    "summary": "",
+    "summary": "Sammanfattning",
     "priorityLabels": {
       "300": "",
       "200": ""
@@ -86,12 +86,12 @@
     }
   },
   "Page3": {
-    "heading": "",
-    "text": "",
-    "firstName": "",
-    "homeCity": "",
-    "lastName": "",
-    "phoneNumber": "",
+    "heading": "3. Kunduppgifter",
+    "text": "Du kan lämna ansökningen som ett samfund, en privatperson eller ett företag. Den senaste ansökningen gäller.",
+    "firstName": "Förnamn",
+    "homeCity": "Hemort",
+    "lastName": "Efternamn",
+    "phoneNumber": "Telefonnummer",
     "email": "",
     "emailNotification": "",
     "subHeading": {
@@ -109,74 +109,74 @@
       }
     },
     "contactPerson": {
-      "firstName": "",
-      "lastName": "",
-      "phoneNumber": ""
+      "firstName": "Kontaktpersonens förnamn",
+      "lastName": "Kontaktpersonens förnamn",
+      "phoneNumber": "Kontaktpersonens telefonnummer"
     },
     "billingAddress": {
-      "streetAddress": "",
-      "postCode": "",
-      "city": ""
+      "streetAddress": "Adress",
+      "postCode": "Postnummer",
+      "city": "Postanstalt"
     },
     "company": {
       "name": "",
       "coreBusiness": "",
-      "registrationNumber": ""
+      "registrationNumber": "Företagets kärnverksamhet"
     },
     "organisation": {
-      "name": "",
-      "coreBusiness": "",
-      "registrationNumber": "",
-      "streetAddress": "",
-      "postCode": "",
-      "city": "",
+      "name": "Officiella namnet",
+      "coreBusiness": "Kärnverksamhet",
+      "registrationNumber": "FO-nummer",
+      "streetAddress": "Adress",
+      "postCode": "Postnummer",
+      "city": "Postanstalt",
       "notRegistered": "",
-      "separateInvoicingAddress": ""
+      "separateInvoicingAddress": "Faktureringsadressen avviker från postadressen"
     },
-    "additionalInformation": ""
+    "additionalInformation": "Tilläggsinformation"
   },
   "preview": {
     "applicantType": {
-      "community": "",
-      "company": "",
-      "individual": "",
-      "association": ""
+      "community": "Oregistrerad förening",
+      "company": "Företag",
+      "individual": "Privatkund",
+      "association": "Registrerad förening"
     },
-    "homeCity": "",
-    "heading": "",
-    "text": "",
+    "homeCity": "Hemort",
+    "heading": "4. Kontrollera och lämna in ansökan",
+    "text": "Sammandrag av din ansökan",
     "basicInfoSubHeading": "",
-    "firstName": "",
-    "lastName": "",
-    "applicantTypeLabel": "",
-    "email": "",
-    "phoneNumber": "",
-    "additionalInformation": "",
+    "firstName": "Kontaktpersonens förnamn",
+    "lastName": "Kontaktpersonens efternamn",
+    "applicantTypeLabel": "Typ av ansökare",
+    "email": "E-postadress",
+    "phoneNumber": "Telefonnummer",
+    "additionalInformation": "Tilläggsinformation",
     "organisation": {
-      "name": "",
-      "coreBusiness": ""
+      "name": "Ansökarens namn",
+      "coreBusiness": "Kärnverksamhet"
     },
     "applicationEvent": {
       "name": "",
-      "numPersons": "",
-      "ageGroup": "",
+      "numPersons": "Gruppstorlek",
+      "ageGroup": "Åldersgrupp",
       "abilityGroup": "",
       "purpose": "",
       "additionalInfo": "",
       "begin": "",
-      "end": "",
+      "end": "Slutdatum",
       "minDuration": "",
       "maxDuration": "",
-      "eventsPerWeek": ""
+      "eventsPerWeek": "Antal bokningar per vecka"
     },
-    "applicationEventSchedules": "",
+    "applicationEventSchedules": "Önskade tider",
     "noData": {
-      "heading": "",
+      "heading": "Blankettens uppgifter existerar ännu inte",
       "text": ""
     },
     "notification": {
-      "processing": "",
-      "body": ""
+      "processing": "Behandling",
+      "body": "Behandlingen av ansökningarna börjar när ansökningstiden har löpt ut. Vi informerar dig om de olika skedena på e-postadressen som du har angett."
     },
     "reservationUnitTerms": "",
     "termsOfService": "",
@@ -186,13 +186,13 @@
     }
   },
   "sent": {
-    "heading": "",
+    "heading": "Din ansökan har skickats för behandling",
     "faq1Question": "",
     "faq2Question": "",
     "faq3Question": ""
   },
   "navigation": {
-    "page1": "",
+    "page1": "Bokningsinformation",
     "page2": "",
     "page3": "",
     "preview": ""

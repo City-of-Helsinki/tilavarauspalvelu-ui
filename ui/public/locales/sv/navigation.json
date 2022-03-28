@@ -1,14 +1,14 @@
 {
   "language": {
-    "fi": "Suomeksi",
-    "en": "Englanniksi",
-    "sv": "Ruotsiksi"
+    "fi": "På finska",
+    "en": "På engelska",
+    "sv": "På svenska"
   },
   "userNoName": "",
   "Item": {
-    "spaceReservation": "",
+    "spaceReservation": "Säsongsbokning",
     "reservationUnitSearch": "",
-    "reservations": "",
+    "reservations": "Mina bokningar",
     "applications": ""
   },
   "skipToMainContent": ""

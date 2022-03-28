@@ -1,10 +1,10 @@
 {
-  "count_plural": "",
-  "count": "",
+  "count_plural": "{{count}} resultat",
+  "count": "{{count}} resultat",
   "noResults": "",
   "error": "",
   "listButton": "",
   "mapButton": "",
-  "sortButtonLabel": "",
+  "sortButtonLabel": "Sortera",
   "sortButtonPlaceholder": ""
 }

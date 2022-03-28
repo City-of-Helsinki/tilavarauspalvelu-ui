@@ -1,10 +1,10 @@
 {
   "next": "",
   "nextShort": "",
-  "count_plural": "",
-  "count": "",
-  "countShort_plural": "",
-  "countShort": "",
+  "count_plural": "{{count}} lokaler valda",
+  "count": "{{count}} lokal vald",
+  "countShort_plural": "{{count}} valda",
+  "countShort": "{{count}} vald",
   "deleteSelections": "",
   "deleteSelectionsShort": ""
 }

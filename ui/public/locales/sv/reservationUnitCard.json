@@ -1,10 +1,10 @@
 {
-  "maxPersons": "",
-  "maxPersons_plural": "",
+  "maxPersons": "{{count}} person",
+  "maxPersons_plural": "{{count}} personer",
   "RelatedUnits": {
     "heading": ""
   },
-  "address": "",
+  "address": "Adress",
   "type": "",
-  "seeMore": ""
+  "seeMore": "Visa mer"
 }

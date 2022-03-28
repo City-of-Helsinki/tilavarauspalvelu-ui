@@ -1,8 +1,8 @@
 {
-  "option": "",
-  "buttonRemove": "",
-  "buttonUp": "",
-  "buttonDown": "",
-  "add": "",
+  "option": "Alternativ",
+  "buttonRemove": "Redigera",
+  "buttonUp": "Flytta upp",
+  "buttonDown": "Flytta ner",
+  "add": "Lägg till lokal",
   "infoReservationUnits": ""
 }
