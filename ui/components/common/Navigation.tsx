@@ -85,11 +85,11 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
 
   const languageOptions: LanguageOption[] = useMemo(
     () => [
-      { label: t("navigation:language.fi"), value: "fi" },
-      { label: t("navigation:language.en"), value: "en" },
-      // { label: t("navigation:language.sv"), value: "sv" },
+      { label: "Suomeksi", value: "fi" },
+      { label: "English", value: "en" },
+      // { label: "Svenska", value: "sv" },
     ],
-    [t]
+    []
   );
 
   const formatSelectedValue = (lang = DEFAULT_LANGUAGE): string =>
