@@ -97,6 +97,7 @@ describe("application", () => {
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
     proceedToPage1Button().click();
+
     cy.wait(
       [
         "@applicationPost",

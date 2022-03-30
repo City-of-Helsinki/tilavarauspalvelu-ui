@@ -21,7 +21,7 @@
     "noEvents": "Add one or more seasonal bookings to the application"
   },
   "Intro": {
-    "startNewApplication": "Start applying",
+    "startNewApplication": "Apply",
     "heading": "Seasonal booking application",
     "createFailedHeading": "Application creation failed",
     "createFailedContent": "Application creation failed",
@@ -55,7 +55,7 @@
     "eventsPerWeek": "Number of bookings per week",
     "biweekly": "",
     "defaultDurationLabel": "1 hour 30 min",
-    "createNew": "Create a new recurring booking",
+    "createNew": "Create a new season booking",
     "applicationEventName": "Untitled booking",
     "applicationEventSummary": "Summary",
     "applicationEventSaved": "Seasonal booking request saved",

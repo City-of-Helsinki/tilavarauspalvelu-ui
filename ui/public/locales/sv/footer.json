@@ -1,7 +1,7 @@
 {
   "Navigation": {
     "feedback": {
-      "label": "Skicka feedback",
+      "label": "Ge respons",
       "href": "https://app.helmet-kirjasto.fi/forms/?site=varaamopalaute&lang=sv&ref=https://tilavaraus.hel.fi/"
     },
     "terms": {
