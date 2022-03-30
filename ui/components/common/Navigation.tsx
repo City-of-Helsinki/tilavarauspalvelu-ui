@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { Navigation as HDSNavigation } from "hds-react";
 import { useTranslation, TFunction } from "next-i18next";
-import { useLocalStorage } from "react-use";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { applicationsUrl } from "../../modules/util";
@@ -56,8 +55,6 @@ const PreContent = styled.div`
   }
 `;
 
-const DEFAULT_LANGUAGE = "fi";
-
 type Props = {
   profile: UserProfile | null;
   logout?: () => void;
@@ -77,10 +74,7 @@ const getUserName = (profile: UserProfile | null, t: TFunction) => {
 const Navigation = ({ profile, logout }: Props): JSX.Element => {
   const { t, i18n } = useTranslation(["common", "navigation"]);
   const router = useRouter();
-  const [language, setLanguage] = useLocalStorage<string>(
-    "userLocale",
-    i18n.language
-  );
+
   const [shouldLogin, setShouldLogin] = React.useState(false);
 
   const languageOptions: LanguageOption[] = useMemo(
@@ -92,7 +86,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
     []
   );
 
-  const formatSelectedValue = (lang = DEFAULT_LANGUAGE): string =>
+  const formatSelectedValue = (lang = router.defaultLocale): string =>
     lang.toUpperCase();
 
   const menuItems: MenuItem[] = [
@@ -141,7 +135,9 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
               onClick={() => logout && logout()}
             />
           </HDSNavigation.User>
-          <HDSNavigation.LanguageSelector label={formatSelectedValue(language)}>
+          <HDSNavigation.LanguageSelector
+            label={formatSelectedValue(i18n.language)}
+          >
             {languageOptions.map((languageOption) => (
               <HDSNavigation.Item
                 key={languageOption.value}
@@ -151,8 +147,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
                   e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
                 ): void => {
                   e.preventDefault();
-                  setLanguage(languageOption.value);
-                  router.push(router.route, router.route, {
+                  router.push(router.pathname, router.asPath, {
                     locale: languageOption.value,
                   });
                 }}
