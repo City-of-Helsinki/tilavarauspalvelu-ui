@@ -1,10 +1,10 @@
 {
   "selectReservationUnit": "Lägg till ansökningen",
-  "unSelectReservationUnit": "",
-  "heading": "",
-  "searchTermLabel": "",
-  "searchPurposeLabel": "",
+  "unSelectReservationUnit": "Redigera",
+  "heading": "Lägg till lämpliga lokaler till ansökningen",
+  "searchTermLabel": "Sök med ord",
+  "searchPurposeLabel": "Användningsändamål",
   "searchReservationUnitTypeLabel": "Lokaltyp",
-  "openLinkToNewTab": "",
-  "returnToApplication": ""
+  "openLinkToNewTab": "Öppna på fliken",
+  "returnToApplication": "Återgå till ansökningen"
 }

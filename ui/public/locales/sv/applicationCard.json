@@ -1,11 +1,11 @@
 {
-  "cancelHeading": "",
-  "cancelContent": "",
-  "cancelFailed": "",
+  "cancelHeading": "Är du säker på att du vill ångra din ansökan?",
+  "cancelContent": "Om du ångrar din ansökan kan du inte längre redigera eller skicka den.",
+  "cancelFailed": "Ansökningen kunde inte ångras",
   "edit": "Redigera din ansökan",
   "cancel": "Ångra ansökan",
   "status": {
-    "draft": "",
+    "draft": "Inte slutförd",
     "processing": "I behandling",
     "sent": "Behandlad"
   },
@@ -14,8 +14,8 @@
   "person": "Ansökan skapad: som privatperson",
   "organisation": "Ansökan skapad: {{type}}, {{name}}",
   "applicantType": {
-    "community": "",
-    "association": "",
-    "company": ""
+    "community": "förening",
+    "association": "för en registrerad förening",
+    "company": "företag"
   }
 }

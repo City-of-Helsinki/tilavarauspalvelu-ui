@@ -1,7 +1,6 @@
 {
   "card": {
     "applyButton": "Search",
-    "searchButton": "Browse spaces",
     "displayPastButton": "Show spaces",
     "criteria": "Application criteria",
     "pending": "Application round opens {{openingDateTime}}",

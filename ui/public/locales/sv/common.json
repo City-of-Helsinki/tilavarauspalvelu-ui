@@ -44,15 +44,15 @@
   "minute": "{{count}} minut",
   "minute_plural": "{{count}} minuter",
   "error": {
-    "dataError": "",
+    "dataError": "Uppgifterna hittades inte",
     "error": "Fel",
-    "closeErrorMsg": ""
+    "closeErrorMsg": "Stäng felmeddelandet"
   },
   "applicationNavigationName": "Ansökan",
   "applicationName": "Varaamo",
-  "selectReservationUnit": "",
-  "removeReservationUnit": "",
-  "reservationUnitSelected": "",
+  "selectReservationUnit": "Mer utrymme för ansökningen",
+  "removeReservationUnit": "Lades till i ansökningen",
+  "reservationUnitSelected": "Lades till i ansökningen",
   "next": "Nästa",
   "prev": "Tillbaka",
   "submit": "Skicka",
@@ -88,12 +88,12 @@
   "sendFeedback": "Skicka feedback om tjänsten.",
   "gotoFrontpage": "Tillbaka till hemsidan",
   "readMore": "Läs mer",
-  "seeDetails": "",
+  "seeDetails": "Se uppgifterna",
   "beginningWith": "Från",
   "endingWith": "Till",
   "showMore": "Visa mer",
   "duration": "Varaktighet {{duration}}",
-  "fyiLabel": "",
+  "fyiLabel": "Till kännedom",
   "add": "addera",
   "subtract": "subtrahera"
 }

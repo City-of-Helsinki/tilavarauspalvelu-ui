@@ -1,10 +1,10 @@
 {
   "count_plural": "{{count}} resultat",
   "count": "{{count}} resultat",
-  "noResults": "",
-  "error": "",
-  "listButton": "",
-  "mapButton": "",
+  "noResults": "Inga sökresultat",
+  "error": "Ett fel uppstod när lokaler söktes",
+  "listButton": "Visa i listan",
+  "mapButton": "Visa på kartan",
   "sortButtonLabel": "Sortera",
-  "sortButtonPlaceholder": ""
+  "sortButtonPlaceholder": "Sortera efter läge"
 }

@@ -1,7 +1,7 @@
 {
-  "clearSelection": "",
-  "selectAll": "",
-  "inputPlaceholder": "",
+  "clearSelection": "Töm valen",
+  "selectAll": "Välj alla",
+  "inputPlaceholder": "Skriv sökord",
   "invalidEmail": "Ogiltig e-postadress",
-  "requiredField": ""
+  "requiredField": "Obligatorisk"
 }

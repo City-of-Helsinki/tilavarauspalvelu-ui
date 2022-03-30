@@ -2,7 +2,7 @@
   "maxPersons": "{{count}} person",
   "maxPersons_plural": "{{count}} personer",
   "RelatedUnits": {
-    "heading": ""
+    "heading": "Se även"
   },
   "address": "Adress",
   "type": "",

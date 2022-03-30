@@ -1,10 +1,10 @@
 {
-  "userNoName": "",
+  "userNoName": "Namnlös användare",
   "Item": {
     "spaceReservation": "Säsongsbokning",
-    "reservationUnitSearch": "",
+    "reservationUnitSearch": "Bokning av lokal",
     "reservations": "Mina bokningar",
-    "applications": ""
+    "applications": "Egna ansökningar"
   },
-  "skipToMainContent": ""
+  "skipToMainContent": "Gå till sidans huvudinnehåll"
 }

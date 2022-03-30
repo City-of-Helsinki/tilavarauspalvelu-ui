@@ -2,28 +2,28 @@
   "error": {
     "saveFailed": "Det gick inte att spara ansökningen",
     "required": "Obligatorisk",
-    "requiredField": "",
-    "pattern": "",
-    "numPersonsMin": "",
-    "minDurationBiggerThanMaxDuration": "",
-    "maxDurationSmallerThanMinDuration": "",
-    "eventsPerWeekMin": "",
-    "beginAfterEnd": "",
-    "beginBeforePeriodBegin": "",
-    "beginAfterPeriodEnd": "",
-    "endAfterPeriodEnd": "",
-    "endBeforeBegin": "",
-    "endBeforePeriodBegin": "",
-    "missingSchedule": "",
-    "reservationUnitTooSmall": "",
+    "requiredField": "Fältet är obligatoriskt",
+    "pattern": "Kontrollera form",
+    "numPersonsMin": "min",
+    "minDurationBiggerThanMaxDuration": "Minimal varaktighet är längre än maximal varaktighet",
+    "maxDurationSmallerThanMinDuration": "Maximal varaktighet är kortare än minimal varaktighet",
+    "eventsPerWeekMin": "Minst en bokning per vecka",
+    "beginAfterEnd": "Säsongsstart är senare än slutdagen",
+    "beginBeforePeriodBegin": "Säsongsstart är för tidigt",
+    "beginAfterPeriodEnd": "Säsongsstart är för sent",
+    "endAfterPeriodEnd": "Säsongsavslutning är för sent",
+    "endBeforeBegin": "Säsongsavslutning är tidigare än startdagen",
+    "endBeforePeriodBegin": "Säsongsavslutning är för tidigt",
+    "missingSchedule": "Ange åtminstone en tid för alla säsongbokningar",
+    "reservationUnitTooSmall": "Lokalen är för liten för gruppens användning",
     "otherEventsHaveErrors": "Korrigera felaktigt ifyllda fält",
     "noReservationUnits": "Lägg till en eller flera lokaler till ansökningen",
     "noEvents": "Lägg till en eller flera säsongbokningar till ansökningen"
   },
   "Intro": {
     "startNewApplication": "Fyll i ansökan",
-    "heading": "",
-    "createFailedHeading": "",
+    "heading": "Säsongbokningsansökan",
+    "createFailedHeading": "Kunde inte skapa en ansökan",
     "createFailedContent": "Försök igen senare",
     "faq1": {
       "question": ""
@@ -39,9 +39,9 @@
   "applicationEventSaved": "Säsongsbokning sparad på ansökningen",
   "Page1": {
     "heading": "1. Fyll i bokningsuppgifter",
-    "text": "",
+    "text": "Lägg till dina bokningsönskemål för nästa säsong",
     "basicInformationSubHeading": "Grundläggande bokningsinformation",
-    "name": "",
+    "name": "Säsongbokningens namn",
     "groupSize": "Gruppstorlek",
     "ageGroup": "Åldersgrupp",
     "abilityGroup": "",
@@ -50,39 +50,39 @@
     "applicationRoundSubHeading": "Period",
     "periodStartDate": "Startdatum",
     "periodEndDate": "Slutdatum",
-    "minDuration": "",
-    "maxDuration": "",
+    "minDuration": "Minsta bokningslängden",
+    "maxDuration": "Bokningens maximala varaktighet",
     "eventsPerWeek": "Antal bokningar per vecka",
     "biweekly": "",
     "defaultDurationLabel": "1 timme 30 min",
-    "createNew": "",
-    "applicationEventName": "",
+    "createNew": "Lägg till en bokning",
+    "applicationEventName": "Namnlös säsongbokning",
     "applicationEventSummary": "Sammanfattning",
     "applicationEventSaved": "Säsongbokningsönskemål sparat på ansökningen",
     "saveEvent": "Spara",
-    "deleteEvent": ""
+    "deleteEvent": "Ångra"
   },
   "Page2": {
     "heading": "2. Välj bokningens tidpunkt",
-    "subHeading": "",
+    "subHeading": "Välj alla de tidpunkter som du vill ha din bokning på.",
     "info": "Kontrollera öppethållningstiderna för de enskilda lokalerna i <0>ansökningsanvisningarna (FI)<0>. Välj de tider som du i första hand önskar. Välj också tider som alternativt passar för dig.",
-    "text": "",
-    "copyTimes": "",
-    "resetTimes": "",
+    "text": "Ange de tidpunkter du önskar för säsongbokningen",
+    "copyTimes": "Kopiera tiderna till alla önskemål",
+    "resetTimes": "Töm kalendern",
     "summary": "Sammanfattning",
     "priorityLabels": {
-      "300": "",
-      "200": ""
+      "300": "Välj prioriterade tidsönskemål",
+      "200": "Välj alternativa tidsönskemål"
     },
     "legend": {
-      "unavailable": "",
-      "selected-1": "",
-      "selected-2": ""
+      "unavailable": "Kan inte bokas",
+      "selected-1": "Prioriterat önskemål",
+      "selected-2": "Alternativt önskemål"
     },
-    "primarySchedules": "",
-    "secondarySchedules": "",
+    "primarySchedules": "Prioriterade tidsönskemål",
+    "secondarySchedules": "Alternativa tidsönskemål",
     "notification": {
-      "copyCells": ""
+      "copyCells": "Kopieringen av tiderna till alla bokningsönskemål lyckades"
     }
   },
   "Page3": {
@@ -92,20 +92,20 @@
     "homeCity": "Hemort",
     "lastName": "Efternamn",
     "phoneNumber": "Telefonnummer",
-    "email": "",
-    "emailNotification": "",
+    "email": "En e-postadress måste anges i ansökningen",
+    "emailNotification": "Alla meddelanden som har att göra med ansökningen skickas till nedanstående e-postadress",
     "subHeading": {
-      "basicInfo": "",
-      "postalAddress": "",
-      "billingAddress": "",
-      "contactInfo": ""
+      "basicInfo": "Bokningsinformation",
+      "postalAddress": "Postadress",
+      "billingAddress": "Fakturaadress",
+      "contactInfo": "Kontaktinformation"
     },
     "as": {
-      "prefix": "",
+      "prefix": "Skapa ansökan",
       "type": {
-        "organisation": "",
-        "company": "",
-        "individual": ""
+        "organisation": "för en organisation, grupp eller samfund",
+        "company": "för ett företag",
+        "individual": "som privatkund"
       }
     },
     "contactPerson": {
@@ -119,8 +119,8 @@
       "city": "Postanstalt"
     },
     "company": {
-      "name": "",
-      "coreBusiness": "",
+      "name": "Företagets officiella namn",
+      "coreBusiness": "Företagets kärnverksamhet",
       "registrationNumber": "Företagets kärnverksamhet"
     },
     "organisation": {
@@ -130,7 +130,7 @@
       "streetAddress": "Adress",
       "postCode": "Postnummer",
       "city": "Postanstalt",
-      "notRegistered": "",
+      "notRegistered": "Inget FO-nummer",
       "separateInvoicingAddress": "Faktureringsadressen avviker från postadressen"
     },
     "additionalInformation": "Tilläggsinformation"
@@ -145,7 +145,7 @@
     "homeCity": "Hemort",
     "heading": "4. Kontrollera och lämna in ansökan",
     "text": "Sammandrag av din ansökan",
-    "basicInfoSubHeading": "",
+    "basicInfoSubHeading": "Kontakt uppgifer",
     "firstName": "Kontaktpersonens förnamn",
     "lastName": "Kontaktpersonens efternamn",
     "applicantTypeLabel": "Typ av ansökare",
@@ -157,32 +157,32 @@
       "coreBusiness": "Kärnverksamhet"
     },
     "applicationEvent": {
-      "name": "",
+      "name": "Titel",
       "numPersons": "Gruppstorlek",
       "ageGroup": "Åldersgrupp",
       "abilityGroup": "",
-      "purpose": "",
-      "additionalInfo": "",
-      "begin": "",
+      "purpose": "Användningsändamål",
+      "additionalInfo": "Tilläggsuppgifter om bokningen",
+      "begin": "Start datum",
       "end": "Slutdatum",
-      "minDuration": "",
-      "maxDuration": "",
+      "minDuration": "Minsta bokningslängden",
+      "maxDuration": "Maximal bokningslängden",
       "eventsPerWeek": "Antal bokningar per vecka"
     },
     "applicationEventSchedules": "Önskade tider",
     "noData": {
       "heading": "Blankettens uppgifter existerar ännu inte",
-      "text": ""
+      "text": "Fyll i blanketten först"
     },
     "notification": {
       "processing": "Behandling",
       "body": "Behandlingen av ansökningarna börjar när ansökningstiden har löpt ut. Vi informerar dig om de olika skedena på e-postadressen som du har angett."
     },
-    "reservationUnitTerms": "",
-    "termsOfService": "",
-    "userAcceptsTerms": "",
+    "reservationUnitTerms": "Kompletterande bokningsuppgifter",
+    "termsOfService": "Bokningsvillkor för Helsingfors stads lokaler och utrustning",
+    "userAcceptsTerms": "Jag har läst avtalsvillkoren och de kompletterande bokningsvillkoren och godkänner dessa.",
     "subHeading": {
-      "applicationInfo": ""
+      "applicationInfo": "Bokningsinformation"
     }
   },
   "sent": {
@@ -193,8 +193,8 @@
   },
   "navigation": {
     "page1": "Bokningsinformation",
-    "page2": "",
-    "page3": "",
-    "preview": ""
+    "page2": "Bokningstidpunkt",
+    "page3": "Kontaktinformation",
+    "preview": "Kontrollera och skicka"
   }
 }
