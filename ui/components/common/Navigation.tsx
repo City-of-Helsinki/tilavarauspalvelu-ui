@@ -81,7 +81,7 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
     () => [
       { label: "Suomeksi", value: "fi" },
       { label: "English", value: "en" },
-      // { label: "Svenska", value: "sv" },
+      { label: "Svenska", value: "sv" },
     ],
     []
   );
