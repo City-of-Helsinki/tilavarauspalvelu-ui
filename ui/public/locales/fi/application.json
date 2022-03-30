@@ -47,6 +47,7 @@
     "abilityGroup": "Tasoryhmä",
     "purpose": "Varauksen käyttötarkoitus",
     "spacesSubHeading": "Toivotut tilat",
+    "defaultPeriodPrefix": "Käytä varauskauden oletuskestoa",
     "applicationRoundSubHeading": "Varauskausi",
     "periodStartDate": "Kauden aloituspäivä",
     "periodEndDate": "Kauden päätöspäivä",
@@ -60,7 +61,10 @@
     "applicationEventSummary": "Yhteenveto",
     "applicationEventSaved": "Kausivaraustoive tallennettu hakemukselle",
     "saveEvent": "Tallenna",
-    "deleteEvent": "Peru"
+    "deleteEvent": "Poista varaus",
+    "deleteEventCancel": "Palaa poistamatta",
+    "deleteEventHeading": "Oletko varma, että haluat poistaa varauksen?",
+    "deleteEventContent": "Kun varaus on peruttu, sen tietoja ei ole mahdollista palauttaa."
   },
   "Page2": {
     "heading": "2. Valitse varauksen ajankohta",
