@@ -192,9 +192,9 @@
     "faq3Question": ""
   },
   "navigation": {
-    "page1": "Bokningsinformation",
-    "page2": "Bokningstidpunkt",
-    "page3": "Kontaktinformation",
+    "page1": "Bokningsuppgifter",
+    "page2": "Bokningstider",
+    "page3": "Kontaktuppgifter",
     "preview": "Kontrollera och skicka"
   }
 }

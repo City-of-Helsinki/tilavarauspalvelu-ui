@@ -12,7 +12,7 @@
   "description": "Description",
   "equipment": "Equipment",
   "termsOfUse": "Terms of Agreement",
-  "termsOfUseSpaces": "Terms and conditions for each space",
+  "termsOfUseSpaces": "Additional terms and conditions",
   "backToSearch": "Back to results",
   "reservationSuccessful": "Booking successful",
   "reservationReminderText": "At your email (<emailLink>{{user}}</emailLink>) you will receive reminders of your bookings.\nYou can also find them on Varaamo’s My Bookings page.",

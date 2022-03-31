@@ -5,6 +5,6 @@
   "error": "Ett fel uppstod när lokaler söktes",
   "listButton": "Visa i listan",
   "mapButton": "Visa på kartan",
-  "sortButtonLabel": "Sortera",
+  "sortButtonLabel": "Sortera efter",
   "sortButtonPlaceholder": "Sortera efter läge"
 }
