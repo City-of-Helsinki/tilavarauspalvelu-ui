@@ -47,6 +47,7 @@
     "abilityGroup": "",
     "purpose": "Booking purpose",
     "spacesSubHeading": "Requested spaces",
+    "defaultPeriodPrefix": "Use the default booking period",
     "applicationRoundSubHeading": "Period",
     "periodStartDate": "Start date",
     "periodEndDate": "End date",
