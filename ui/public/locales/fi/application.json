@@ -191,10 +191,9 @@
     }
   },
   "sent": {
-    "heading": "Hakemuksesi on lähetetty käsiteltäväksi",
-    "faq1Question": "Kuinka hakemuksen käsittely etenee?",
-    "faq2Question": "Kuinka hakemuksen käsittely tapahtuu?",
-    "faq3Question": "Kohtuullistaminen, varauksen peruutus ja muutoksenhaku"
+    "heading": "Kiitos hakemuksesta!",
+    "subHeading": "Hakemuksesi on vastaanotettu ja siirtyy käsiteltäväksi hakuajan päätyttyä.",
+    "body": "Voit halutessasi muokata hakemustasi ennen hakuajan päättymistä. Vain viimeisin lähetetty hakemus huomioidaan. Poistathan aiemmin lähetetyt hakemukset.\n\nLähetetyn hakemuksen tunnistat sinisestä Käsittelyssä-symbolista."
   },
   "navigation": {
     "page1": "Varauksen tiedot",
