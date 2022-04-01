@@ -232,7 +232,6 @@ describe("application", () => {
     cy.a11yCheck();
 
     fillAsIndividual();
-    cy.wait(["@city"]);
 
     cy.fixture("v1/application/put_page_3").then((json) => {
       cy.intercept("PUT", "/v1/application/138", json);
@@ -240,7 +239,6 @@ describe("application", () => {
     });
 
     nextButton().click();
-    cy.wait(["@purpose", "@city", "@ageGroup"]);
 
     cy.get("h1").should("contain", "lähetä hakemus");
 
