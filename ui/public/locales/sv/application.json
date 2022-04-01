@@ -18,7 +18,8 @@
     "reservationUnitTooSmall": "Lokalen är för liten för gruppens användning",
     "otherEventsHaveErrors": "Korrigera felaktigt ifyllda fält",
     "noReservationUnits": "Lägg till en eller flera lokaler till ansökningen",
-    "noEvents": "Lägg till en eller flera säsongbokningar till ansökningen"
+    "noEvents": "Lägg till en eller flera säsongbokningar till ansökningen",
+    "maxLength": "Maximalt antal tecken: {{count}}"
   },
   "Intro": {
     "startNewApplication": "Fyll i ansökan",

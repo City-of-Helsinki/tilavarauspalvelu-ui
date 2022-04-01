@@ -18,7 +18,8 @@
     "reservationUnitTooSmall": "This space is too small for group",
     "otherEventsHaveErrors": "Fix incorrectly filled fields",
     "noReservationUnits": "Add one or more spaces to the application",
-    "noEvents": "Add one or more seasonal bookings to the application"
+    "noEvents": "Add one or more seasonal bookings to the application",
+    "maxLength": "Maximum length: {{count}}"
   },
   "Intro": {
     "startNewApplication": "Apply",
