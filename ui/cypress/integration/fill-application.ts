@@ -257,6 +257,6 @@ describe("application", () => {
 
     submitApplication();
 
-    cy.get("h1").should("contain", "Hakemuksesi on");
+    cy.get("h1").should("contain", "Kiitos hakemuksesta!");
   });
 });
