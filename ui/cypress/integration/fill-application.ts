@@ -102,7 +102,6 @@ describe("application", () => {
       [
         "@applicationPost",
         "@applicationPage1",
-        "@applicationRound1",
         "@purpose",
         "@ageGroup",
         "@abilityGroup",

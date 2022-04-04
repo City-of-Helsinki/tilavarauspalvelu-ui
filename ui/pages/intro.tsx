@@ -20,6 +20,7 @@ import RequireAuthentication from "../components/common/RequireAuthentication";
 import Head from "../components/application/Head";
 import { APPLICATION_ROUNDS } from "../modules/queries/applicationRound";
 import { Query, QueryApplicationRoundsArgs } from "../modules/gql-types";
+import { CenterSpinner } from "../components/common/common";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
@@ -94,16 +95,22 @@ const Intro = (): JSX.Element => {
     <RequireAuthentication>
       <Head noKoros heading={t("application:Intro.heading")} breadCrumbText="">
         <Container>
-          <Select
-            id="applicationRoundSelect"
-            placeholder={t("common:select")}
-            options={applicationRounds as OptionType[]}
-            label=""
-            onChange={(selection: OptionType): void => {
-              setApplicationRound(selection.value as number);
-            }}
-            value={applicationRounds?.find((n) => n.value === applicationRound)}
-          />
+          {applicationRounds.length > 0 ? (
+            <Select
+              id="applicationRoundSelect"
+              placeholder={t("common:select")}
+              options={applicationRounds as OptionType[]}
+              label=""
+              onChange={(selection: OptionType): void => {
+                setApplicationRound(selection.value as number);
+              }}
+              value={applicationRounds?.find(
+                (n) => n.value === applicationRound
+              )}
+            />
+          ) : (
+            <CenterSpinner />
+          )}
           <MediumButton
             id="start-application"
             disabled={!applicationRound || saving}

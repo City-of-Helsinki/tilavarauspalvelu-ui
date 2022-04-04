@@ -133,7 +133,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
             </RoundHeading>
             {activeApplicationRounds.map((applicationRound) => (
               <ApplicationRoundCard
-                key={applicationRound.id}
+                key={applicationRound.pk}
                 applicationRound={applicationRound}
               />
             ))}
@@ -153,7 +153,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
             </RoundHeading>
             {pendingApplicationRounds.map((applicationRound) => (
               <ApplicationRoundCard
-                key={applicationRound.id}
+                key={applicationRound.pk}
                 applicationRound={applicationRound}
               />
             ))}
@@ -166,7 +166,7 @@ const RecurringLander = ({ applicationRounds }: Props): JSX.Element => {
             </RoundHeading>
             {pastApplicationRounds.map((applicationRound) => (
               <ApplicationRoundCard
-                key={applicationRound.id}
+                key={applicationRound.pk}
                 applicationRound={applicationRound}
               />
             ))}

@@ -120,7 +120,7 @@ const ApplicationRoundCard = ({ applicationRound }: Props): JSX.Element => {
       {state === "active" && (
         <CardButton
           onClick={() =>
-            history.push(searchUrl({ applicationRound: applicationRound.id }))
+            history.push(searchUrl({ applicationRound: applicationRound.pk }))
           }
         >
           {t("application:Intro.startNewApplication")}
