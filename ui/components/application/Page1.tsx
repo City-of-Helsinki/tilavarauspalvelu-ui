@@ -8,7 +8,6 @@ import ApplicationEvent from "../applicationEvent/ApplicationEvent";
 import {
   Action,
   Application,
-  ApplicationRound,
   EditorState,
   OptionType,
 } from "../../modules/types";
@@ -18,10 +17,13 @@ import { breakpoint } from "../../modules/style";
 import { participantCountOptions } from "../../modules/const";
 import { CenterSpinner, HorisontalRule } from "../common/common";
 import { MediumButton } from "../../styles/util";
-import { ReservationUnitType } from "../../modules/gql-types";
+import {
+  ApplicationRoundType,
+  ReservationUnitType,
+} from "../../modules/gql-types";
 
 type Props = {
-  applicationRound: ApplicationRound;
+  applicationRound: ApplicationRoundType;
   editorState: EditorState;
   selectedReservationUnits: ReservationUnitType[];
   save: ({
