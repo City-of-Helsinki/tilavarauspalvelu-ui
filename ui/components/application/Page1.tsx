@@ -23,7 +23,7 @@ import {
   ApplicationRoundType,
   ReservationUnitType,
 } from "../../modules/gql-types";
-import { SEARCH_FORM_PARAMS_PURPOSE } from "../../modules/queries/params";
+import { RESERVATION_PURPOSES } from "../../modules/queries/params";
 
 type Props = {
   applicationRound: ApplicationRoundType;
@@ -68,9 +68,9 @@ const Page1 = ({
 
   const { application } = editorState;
 
-  useQuery<Query>(SEARCH_FORM_PARAMS_PURPOSE, {
+  useQuery<Query>(RESERVATION_PURPOSES, {
     onCompleted: (res) => {
-      const purposes = res?.purposes?.edges?.map(({ node }) => ({
+      const purposes = res?.reservationPurposes?.edges?.map(({ node }) => ({
         id: String(node.pk),
         name: getTranslation(node, "name"),
       }));

@@ -217,11 +217,12 @@ const SearchForm = ({
           onChange={(selection: OptionType): void => {
             setValue("applicationRound", selection.value);
           }}
-          value={getSelectedOption(
+          defaultValue={getSelectedOption(
             getValues("applicationRound"),
             applicationPeriodOptions
           )}
           label={t("searchForm:roundLabel")}
+          key={`minPersons${getValues("applicationRound")}`}
         />
         <TextInput
           id="search"
