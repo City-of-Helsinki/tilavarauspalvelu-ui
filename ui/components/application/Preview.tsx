@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { Checkbox, IconArrowLeft, Notification } from "hds-react";
+import { Checkbox, Notification } from "hds-react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { sortBy } from "lodash";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { Application, ReservationUnit, Parameter } from "../../modules/types";
+import {
+  Application,
+  ReservationUnit,
+  Parameter,
+  StringParameter,
+  OptionType,
+} from "../../modules/types";
 import {
   deepCopy,
   formatDuration,
   getTranslation,
   localizedValue,
+  mapOptions,
 } from "../../modules/util";
 import { getParameters, getReservationUnit } from "../../modules/api";
 import LabelValue from "../common/LabelValue";
 import TimePreview from "../common/TimePreview";
 import ApplicantInfoPreview from "./ApplicantInfoPreview";
-import { FormSubHeading, TwoColumnContainer } from "../common/common";
+import {
+  ButtonContainer,
+  FormSubHeading,
+  TwoColumnContainer,
+} from "../common/common";
 import { AccordionWithState as Accordion } from "../common/Accordion";
 import { breakpoint } from "../../modules/style";
 import { MediumButton } from "../../styles/util";
-import { TermsOfUseType } from "../../modules/gql-types";
+import { Query, TermsOfUseType } from "../../modules/gql-types";
 import { fontRegular } from "../../modules/style/typography";
+import { SEARCH_FORM_PARAMS_PURPOSE } from "../../modules/queries/params";
 
 type Props = {
   application: Application;
@@ -38,19 +52,8 @@ const mapArrayById = (
   }, {} as { [key: number]: Parameter | ReservationUnit });
 };
 
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin: var(--spacing-layout-l) 0;
-  justify-content: flex-end;
-
-  button {
-    margin-left: var(--spacing-layout-xs);
-  }
-`;
-
 const UnitList = styled.ol`
-  margin: 0;
+  margin: 0 0 var(--spacing-layout-l);
   padding: 0;
   ${fontRegular};
   width: 100%;
@@ -114,9 +117,6 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
   const [ageGroupOptions, setAgeGroupOptions] = useState<{
     [key: number]: Parameter;
   }>({});
-  const [purposeOptions, setPurposeOptions] = useState<{
-    [key: number]: Parameter;
-  }>({});
   const [reservationUnits, setReservationUnits] = useState<{
     [key: number]: ReservationUnit;
   }>({});
@@ -124,9 +124,23 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
     [key: number]: Parameter;
   }>({});
 
+  const [purposeOptions, setPurposeOptions] = useState<OptionType[]>([]);
+
   const [acceptTermsOfUse, setAcceptTermsOfUse] = useState(false);
   const { i18n } = useTranslation();
   const router = useRouter();
+
+  useQuery<Query>(SEARCH_FORM_PARAMS_PURPOSE, {
+    onCompleted: (res) => {
+      const purposes = res?.purposes?.edges?.map(({ node }) => ({
+        id: String(node.pk),
+        name: getTranslation(node, "name"),
+      }));
+      setPurposeOptions(
+        mapOptions(sortBy(purposes, "name") as StringParameter[])
+      );
+    },
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -154,10 +168,6 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
       const fetchedAgeGroupOptions = await getParameters("age_group");
       if (mounted) {
         setAgeGroupOptions(mapArrayById(fetchedAgeGroupOptions));
-      }
-      const fetchedPurposeOptions = await getParameters("purpose");
-      if (mounted) {
-        setPurposeOptions(mapArrayById(fetchedPurposeOptions));
       }
       const fetchedCityOptions = await getParameters("city");
       if (mounted) {
@@ -256,10 +266,7 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
                 label={t("application:preview.applicationEvent.purpose")}
                 value={
                   applicationEvent.purposeId != null
-                    ? localizedValue(
-                        purposeOptions[applicationEvent.purposeId].name,
-                        i18n.language
-                      )
+                    ? purposeOptions[applicationEvent.purposeId].label
                     : ""
                 }
               />
@@ -347,7 +354,6 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
       <ButtonContainer>
         <MediumButton
           variant="secondary"
-          iconLeft={<IconArrowLeft />}
           onClick={() => router.push(`${application.id}/page3`)}
         >
           {t("common:prev")}
