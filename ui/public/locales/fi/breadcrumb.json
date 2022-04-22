@@ -3,5 +3,9 @@
   "search": "Haku",
   "application": "Kausivaraushakemus",
   "criteria": "Hakuehdot",
-  "singleReservations": "Yksittäisvaraukset"
+  "singleReservations": "Yksittäisvaraukset",
+  "frontpage": "Etusivu",
+  "recurring": "Kausivaraus",
+  "applications": "Omat hakemukset",
+  "reservationUnit": "Varausyksikkö"
 }

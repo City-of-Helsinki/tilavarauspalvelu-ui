@@ -6,7 +6,6 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Container from "../../components/common/Container";
 import apolloClient from "../../modules/apolloClient";
 import Sanitize from "../../components/common/Sanitize";
-import Breadcrumb from "../../components/common/Breadcrumb";
 import KorosDefault from "../../components/common/KorosDefault";
 import { getTranslation } from "../../modules/util";
 import {
@@ -15,6 +14,7 @@ import {
   QueryApplicationRoundsArgs,
 } from "../../modules/gql-types";
 import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";
+import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
 
 type Props = {
   applicationRound: ApplicationRoundType;
@@ -68,10 +68,7 @@ const Criteria = ({ applicationRound }: Props): JSX.Element => {
   return (
     <>
       <Head>
-        <Breadcrumb
-          root={{ label: "home", linkTo: "/recurring" }}
-          current={{ label: "criteria" }}
-        />
+        <BreadcrumbWrapper route={["/recurring", "criteria"]} />
         <HeadContent>
           <H1>
             {`${getTranslation(applicationRound, "name")} ${t(
