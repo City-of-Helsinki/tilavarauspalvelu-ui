@@ -44,6 +44,7 @@ export const checkBreadcrumbs = (
   };
 
   Object.keys(breadcrumbs).forEach((key: string) => {
+    console.log();
     languageSelector()
       .click()
       .then(() => {
@@ -53,10 +54,7 @@ export const checkBreadcrumbs = (
           .click()
           .then(() => {
             const prefix = key === "fi" ? "" : `/${key}`;
-            cy.url().should(
-              "contain",
-              `https://local-tilavaraus.hel.fi:3000${prefix}${url}`
-            );
+            cy.url().should("contain", `:3000${prefix}${url}`);
             validateBreadcrumbContent(breadcrumbWrapper(), breadcrumbs[key]);
           });
       });
