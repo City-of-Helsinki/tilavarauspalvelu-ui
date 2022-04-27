@@ -25,6 +25,7 @@ import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
 import { OptionType } from "../../modules/types";
 import KorosDefault from "../../components/common/KorosDefault";
+import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
 
 const pagingLimit = 25;
 

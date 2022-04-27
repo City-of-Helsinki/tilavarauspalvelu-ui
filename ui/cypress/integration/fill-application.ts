@@ -1,3 +1,4 @@
+import { checkBreadcrumbs } from "model/breadcrumb";
 import {
   firstAvailableApplicationRound,
   selectApplicationRoundButton,
@@ -84,14 +85,39 @@ describe("application", () => {
     addReservationUnitButton(2).click();
     startApplicationButton().should("not.exist");
     addReservationUnitButton(2).click();
-    startApplicationButton().click();
 
     cy.get("h1").should("contain", "Varaa tila koko kaudeksi");
-
     cy.a11yCheck();
+
+    startApplicationButton().click();
+
+    cy.get("h1").should("contain", "Kausivaraushakemus");
+
+    const breadcrumbs = {
+      en: [
+        { title: "Home", url: "/en" },
+        { title: "Seasonal booking", url: "/en/recurring" },
+        { title: "Seasonal booking application" },
+      ],
+      sv: [
+        { title: "Hemsidan", url: "/sv" },
+        { title: "Säsongbokning", url: "/sv/recurring" },
+        { title: "Säsongbokningsansökan" },
+      ],
+      fi: [
+        { title: "Etusivu", url: "/" },
+        { title: "Kausivaraus", url: "/recurring" },
+        { title: "Kausivaraushakemus" },
+      ],
+    };
+
+    checkBreadcrumbs(breadcrumbs, "/intro");
 
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
+
+    cy.a11yCheck();
+
     proceedToPage1Button().click();
 
     cy.wait(
