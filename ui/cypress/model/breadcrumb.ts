@@ -24,7 +24,7 @@ export const checkBreadcrumbs = (
     breadcrumbs: Breadcrumb[]
   ) => {
     root
-      .children("div")
+      .find("> div")
       .each((el: Cypress.Chainable<JQuery<HTMLElement>>, index: number) => {
         if (breadcrumbs[index].url) {
           const anchor = el.find("a");
@@ -44,20 +44,10 @@ export const checkBreadcrumbs = (
   };
 
   Object.keys(breadcrumbs).forEach((key: string) => {
-    console.log();
-    languageSelector()
-      .click()
-      .then(() => {
-        languageSelectorMenu().should("be.visible");
-        languageSelectorMenuItem(key)
-          .should("be.visible")
-          .click()
-          .then(() => {
-            const prefix = key === "fi" ? "" : `/${key}`;
-            cy.url().should("contain", `:3000${prefix}${url}`);
-            validateBreadcrumbContent(breadcrumbWrapper(), breadcrumbs[key]);
-          });
-      });
+    const keyString = key === "fi" ? "" : `/${key}`;
+    cy.visit(`${keyString}${url}`);
+
+    validateBreadcrumbContent(breadcrumbWrapper(), breadcrumbs[key]);
   });
 };
 

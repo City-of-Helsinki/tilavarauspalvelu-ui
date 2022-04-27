@@ -93,26 +93,6 @@ describe("application", () => {
 
     cy.get("h1").should("contain", "Kausivaraushakemus");
 
-    const breadcrumbs = {
-      en: [
-        { title: "Home", url: "/en" },
-        { title: "Seasonal booking", url: "/en/recurring" },
-        { title: "Seasonal booking application" },
-      ],
-      sv: [
-        { title: "Hemsidan", url: "/sv" },
-        { title: "Säsongbokning", url: "/sv/recurring" },
-        { title: "Säsongbokningsansökan" },
-      ],
-      fi: [
-        { title: "Etusivu", url: "/" },
-        { title: "Kausivaraus", url: "/recurring" },
-        { title: "Kausivaraushakemus" },
-      ],
-    };
-
-    checkBreadcrumbs(breadcrumbs, "/intro");
-
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
 
@@ -271,5 +251,25 @@ describe("application", () => {
     submitApplication();
 
     cy.get("h1").should("contain", "Kiitos hakemuksesta!");
+
+    const breadcrumbs = {
+      en: [
+        { title: "Home", url: "/en" },
+        { title: "Seasonal booking", url: "/en/recurring" },
+        { title: "Seasonal booking application" },
+      ],
+      sv: [
+        { title: "Hemsidan", url: "/sv" },
+        { title: "Säsongbokning", url: "/sv/recurring" },
+        { title: "Säsongbokningsansökan" },
+      ],
+      fi: [
+        { title: "Etusivu", url: "/" },
+        { title: "Kausivaraus", url: "/recurring" },
+        { title: "Kausivaraushakemus" },
+      ],
+    };
+
+    checkBreadcrumbs(breadcrumbs, "/application/138/sent");
   });
 });

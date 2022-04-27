@@ -2,6 +2,10 @@ import { checkBreadcrumbs } from "model/breadcrumb";
 
 describe("applications", () => {
   beforeEach(() => {
+    cy.fixture("v1/current_user").then((json) => {
+      cy.intercept("GET", "/v1/users/current/*", json);
+    });
+
     cy.window().then((win) => {
       win.sessionStorage.clear();
       cy.visit("/applications");
