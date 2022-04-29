@@ -1,10 +1,11 @@
-import { useReactOidc } from "@axa-fr/react-oidc-context";
 import { Button, Link } from "hds-react";
 import React from "react";
 import styled from "styled-components";
+import { useAuthState } from "../context/AuthStateContext";
 import { H1 } from "../styles/new-typography";
 import { breakpoints } from "../styles/util";
 import { localLogout } from "./auth/util";
+import { publicUrl } from "./const";
 
 const Wrapper = styled.div`
   margin: 0 var(--spacing-s);
@@ -48,7 +49,7 @@ const ButtonContainer = styled.div`
 `;
 
 const Error403 = (): JSX.Element => {
-  const { oidcUser, logout } = useReactOidc();
+  const { authState } = useAuthState();
 
   return (
     <Wrapper>
@@ -70,12 +71,11 @@ const Error403 = (): JSX.Element => {
         >
           Anna palautetta
         </Link>
-        {oidcUser && (
+        {authState().state !== "NotAutenticated" && (
           <ButtonContainer>
             <Button
               onClick={() => {
                 localLogout();
-                logout();
               }}
             >
               Kirjaudu ulos
@@ -83,7 +83,7 @@ const Error403 = (): JSX.Element => {
           </ButtonContainer>
         )}
       </Content>
-      <Image src="/403.png" />
+      <Image src={`${publicUrl}/403.png`} />
     </Wrapper>
   );
 };

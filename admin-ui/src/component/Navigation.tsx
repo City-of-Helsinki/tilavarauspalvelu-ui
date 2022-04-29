@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import { Navigation as HDSNavigation } from "hds-react";
-// eslint-disable-next-line import/no-unresolved
-import { useReactOidc } from "@axa-fr/react-oidc-context";
-import { Profile } from "oidc-client";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import MainMenu from "./MainMenu";
 import { breakpoints, StyledHDSNavigation } from "../styles/util";
 import { authEnabled } from "../common/const";
-import { localLogout } from "../common/auth/util";
+import { CurrentUser } from "../common/types";
+import { useAuthState } from "../context/AuthStateContext";
 
 interface NavigationProps {
-  profile: Profile | null;
+  profile?: CurrentUser;
   login?: () => void;
   logout?: () => void;
 }
@@ -73,8 +71,8 @@ const Navigation = ({
           />
         </MobileNavigation>
         <UserMenu
-          userName={`${profile?.given_name || ""} ${
-            profile?.family_name || ""
+          userName={`${profile?.firstName || ""} ${
+            profile?.lastName || ""
           }`.trim()}
           authenticated={Boolean(profile)}
           label={t("Navigation.login")}
@@ -93,20 +91,16 @@ const Navigation = ({
 
 const NavigationWithProfileAndLogout = authEnabled
   ? () => {
-      const { oidcUser, login, logout } = useReactOidc();
-      const profile = oidcUser ? oidcUser.profile : null;
+      const { authState } = useAuthState();
 
       return (
         <Navigation
-          profile={profile}
-          login={() => login()}
-          logout={() => {
-            localLogout();
-            logout();
-          }}
+          profile={authState().user}
+          login={authState().login}
+          logout={authState().logout}
         />
       );
     }
-  : () => <Navigation profile={null} />;
+  : () => <Navigation />;
 
 export default NavigationWithProfileAndLogout;

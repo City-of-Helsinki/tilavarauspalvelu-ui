@@ -1,21 +1,32 @@
-import { OidcSecure } from "@axa-fr/react-oidc-context";
 import React from "react";
+import { useAuthState } from "../context/AuthStateContext";
 
-import { useData } from "../context/DataContext";
 import Error403 from "./Error403";
+import ErrorNotLoggedIn from "./ErrorNotAuthenticated";
 
 type Props = {
   children: React.ReactChild[] | React.ReactChild;
 };
 
 const PrivateRoutes = ({ children }: Props): JSX.Element => {
-  const { hasAnyPermissions } = useData();
+  const { authState } = useAuthState();
 
-  if (hasAnyPermissions()) {
-    return <OidcSecure>{children}</OidcSecure>;
+  switch (authState().state) {
+    case "Authenticated":
+      return <span>initializing......</span>;
+    case "Error":
+      return <span>500</span>;
+    case "NoPermissions":
+      return <Error403 />;
+    case "HasPermissions":
+      return <>{children}</>;
+    case "NotAutenticated":
+      return <ErrorNotLoggedIn />;
+    case "Unknown":
+      return <span>initializing...</span>;
+    default:
+      throw new Error(`Illegal auth state :'${authState().state}'`);
   }
-
-  return <Error403 />;
 };
 
 export default PrivateRoutes;

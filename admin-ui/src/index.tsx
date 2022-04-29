@@ -35,11 +35,28 @@ ReactDOM.render(
       notAuthorized={() => <AuthorizationNeeded />}
       authenticating={() => <Authenticating noNavigation />}
       configuration={oidcConfiguration}
-      loggerLevel={oidcLog.ERROR}
+      loggerLevel={oidcLog.DEBUG}
       isEnabled={authEnabled}
       callbackComponentOverride={() => <Authenticating />}
       sessionLostComponent={() => <MainLander withSiteWrapper />}
       UserStore={CustomUserStore}
+      customEvents={{
+        onUserLoaded: (u) =>
+          console.log("user loaded ***********************", u),
+        onUserUnloaded: () =>
+          console.log("on user unloaded ***************************"),
+        onSilentRenewError: (a) =>
+          console.log("on silent renew error ***************************", a),
+        onUserSignedOut: () =>
+          console.log("on user signed out ***************************"),
+        onUserSessionChanged: () =>
+          console.log("on user session changed ***************************"),
+        onAccessTokenExpired: (a) =>
+          console.log("on access token expired ***************************", a),
+        onAccessTokenExpiring: (a) => {
+          console.log("on access token expired ***************************", a);
+        },
+      }}
     >
       <App />
     </AuthenticationProvider>
