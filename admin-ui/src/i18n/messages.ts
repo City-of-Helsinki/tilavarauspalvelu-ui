@@ -202,6 +202,7 @@ const translations: ITranslations = {
   },
   Navigation: {
     login: ["Kirjaudu sisään", "Login", "Logga in"],
+    logging: ["Odota...", "Please hold", "Please hold"],
     logout: ["Kirjaudu ulos", "Logout", "Logga ut"],
     profile: ["Profiili", "Profile", "Profil"],
     languageSelection: ["Kielen valinta", "Language selection", "Språkval"],

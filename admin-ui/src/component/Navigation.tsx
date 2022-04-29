@@ -4,16 +4,8 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import MainMenu from "./MainMenu";
-import { breakpoints, StyledHDSNavigation } from "../styles/util";
-import { authEnabled } from "../common/const";
-import { CurrentUser } from "../common/types";
 import { useAuthState } from "../context/AuthStateContext";
-
-interface NavigationProps {
-  profile?: CurrentUser;
-  login?: () => void;
-  logout?: () => void;
-}
+import { breakpoints, StyledHDSNavigation } from "../styles/util";
 
 const MobileNavigation = styled.div`
   @media (min-width: ${breakpoints.m}) {
@@ -38,15 +30,16 @@ const UserMenu = styled(HDSNavigation.User)`
   }
 `;
 
-const Navigation = ({
-  profile,
-  login,
-  logout,
-}: NavigationProps): JSX.Element => {
+const Navigation = (): JSX.Element => {
   const { t } = useTranslation();
+  const { authState } = useAuthState();
+
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const [isMenuOpen, setMenuState] = useState(false);
   const history = useHistory();
+
+  const { state, user, login, logout } = authState();
 
   return (
     <StyledHDSNavigation
@@ -71,12 +64,20 @@ const Navigation = ({
           />
         </MobileNavigation>
         <UserMenu
-          userName={`${profile?.firstName || ""} ${
-            profile?.lastName || ""
+          userName={`${authState().user?.firstName || ""} ${
+            user?.lastName || ""
           }`.trim()}
-          authenticated={Boolean(profile)}
-          label={t("Navigation.login")}
-          onSignIn={() => login && login()}
+          authenticated={state === "HasPermissions"}
+          label={t(loggingIn ? "Navigation.logging" : "Navigation.login")}
+          onSignIn={() => {
+            setLoggingIn(true);
+            if (login) {
+              setLoggingIn(true);
+              login();
+            } else {
+              throw Error("cannot log in");
+            }
+          }}
         >
           <HDSNavigation.Item
             label={t("Navigation.logout")}
@@ -89,18 +90,4 @@ const Navigation = ({
   );
 };
 
-const NavigationWithProfileAndLogout = authEnabled
-  ? () => {
-      const { authState } = useAuthState();
-
-      return (
-        <Navigation
-          profile={authState().user}
-          login={authState().login}
-          logout={authState().logout}
-        />
-      );
-    }
-  : () => <Navigation />;
-
-export default NavigationWithProfileAndLogout;
+export default Navigation;
