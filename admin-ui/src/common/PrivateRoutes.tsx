@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuthState } from "../context/AuthStateContext";
 
 import Error403 from "./Error403";
@@ -11,20 +12,20 @@ type Props = {
 
 const PrivateRoutes = ({ children }: Props): JSX.Element => {
   const { authState } = useAuthState();
+  const { t } = useTranslation();
 
   switch (authState.state) {
-    case "Authenticated":
-      return <span>initializing......</span>;
+    case "HasPermissions":
+      return <>{children}</>;
     case "Error":
       return <Error5xx />;
     case "NoPermissions":
       return <Error403 />;
-    case "HasPermissions":
-      return <>{children}</>;
     case "NotAutenticated":
       return <ErrorNotLoggedIn />;
     case "Unknown":
-      return <span>initializing...</span>;
+    case "Authenticated":
+      return <span>{t("AuthState.initializing")}</span>;
     default:
       throw new Error(`Illegal auth state :'${authState.state}'`);
   }
