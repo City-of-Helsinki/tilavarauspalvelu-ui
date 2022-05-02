@@ -26,6 +26,7 @@ export const getAccessToken = (): string | undefined => {
  * @returns
  */
 export const updateApiAccessToken = async (): Promise<string | undefined> => {
+  console.log("->update apoi access token");
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Access token not available. Cannot update");
@@ -47,18 +48,18 @@ export const updateApiAccessToken = async (): Promise<string | undefined> => {
     const { data } = response;
 
     const apiAccessToken = data[apiScope];
+    console.log("setting api access token");
     setApiAccessToken(apiAccessToken);
+    console.log("returning api access token");
     return apiAccessToken;
   } catch (ex) {
-    clearApiAccessToken();
-    // could not fetch api token (for example 401)
-    return undefined;
+    throw new Error("No Token");
   }
 };
 
-export const localLogout = (): void => {
+export const localLogout = (clearAll = false): void => {
   Object.keys(apiAccessTokenStorage).forEach((key) => {
-    if (key != null && key.startsWith("oidc.api")) {
+    if (key != null && key.startsWith(clearAll ? "oidc." : "oidc.api")) {
       apiAccessTokenStorage.removeItem(key);
     }
   });

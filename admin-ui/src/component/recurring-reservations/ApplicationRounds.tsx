@@ -67,7 +67,7 @@ function ApplicationRounds(): JSX.Element {
       }
     };
 
-    if (authState().state === "HasPermissions") {
+    if (authState.state === "HasPermissions") {
       fetchApplicationRound();
     }
   }, [notifyError, authState]);
@@ -91,7 +91,7 @@ function ApplicationRounds(): JSX.Element {
   }
 
   let headingStr = t("User.welcome");
-  const name = authState().user?.firstName;
+  const name = authState.user?.firstName;
   if (name) {
     headingStr += `, ${name}`;
   }

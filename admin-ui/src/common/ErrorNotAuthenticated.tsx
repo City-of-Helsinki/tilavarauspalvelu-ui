@@ -76,7 +76,7 @@ function ErrorNotLoggedIn(): JSX.Element {
           isLoading={loading}
           onClick={() => {
             setLoading(true);
-            const login = authState()?.login;
+            const { login } = authState;
             if (login) {
               login();
             }

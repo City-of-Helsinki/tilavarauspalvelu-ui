@@ -35,7 +35,7 @@ ReactDOM.render(
       notAuthorized={() => <AuthorizationNeeded />}
       authenticating={() => <Authenticating noNavigation />}
       configuration={oidcConfiguration}
-      loggerLevel={oidcLog.DEBUG}
+      loggerLevel={oidcLog.ERROR}
       isEnabled={authEnabled}
       callbackComponentOverride={() => <Authenticating />}
       sessionLostComponent={() => <MainLander withSiteWrapper />}

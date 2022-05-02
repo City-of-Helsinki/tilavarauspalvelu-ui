@@ -2,6 +2,7 @@ import React from "react";
 import { useAuthState } from "../context/AuthStateContext";
 
 import Error403 from "./Error403";
+import Error5xx from "./Error5xx";
 import ErrorNotLoggedIn from "./ErrorNotAuthenticated";
 
 type Props = {
@@ -11,11 +12,11 @@ type Props = {
 const PrivateRoutes = ({ children }: Props): JSX.Element => {
   const { authState } = useAuthState();
 
-  switch (authState().state) {
+  switch (authState.state) {
     case "Authenticated":
       return <span>initializing......</span>;
     case "Error":
-      return <span>500</span>;
+      return <Error5xx />;
     case "NoPermissions":
       return <Error403 />;
     case "HasPermissions":
@@ -25,7 +26,7 @@ const PrivateRoutes = ({ children }: Props): JSX.Element => {
     case "Unknown":
       return <span>initializing...</span>;
     default:
-      throw new Error(`Illegal auth state :'${authState().state}'`);
+      throw new Error(`Illegal auth state :'${authState.state}'`);
   }
 };
 

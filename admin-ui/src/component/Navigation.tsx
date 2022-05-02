@@ -39,7 +39,7 @@ const Navigation = (): JSX.Element => {
   const [isMenuOpen, setMenuState] = useState(false);
   const history = useHistory();
 
-  const { state, user, login, logout } = authState();
+  const { state, user, login, logout } = authState;
 
   return (
     <StyledHDSNavigation
@@ -63,28 +63,28 @@ const Navigation = (): JSX.Element => {
             onItemSelection={() => setMenuState(false)}
           />
         </MobileNavigation>
-        <UserMenu
-          userName={`${authState().user?.firstName || ""} ${
-            user?.lastName || ""
-          }`.trim()}
-          authenticated={state === "HasPermissions"}
-          label={t(loggingIn ? "Navigation.logging" : "Navigation.login")}
-          onSignIn={() => {
-            setLoggingIn(true);
-            if (login) {
+        {state !== "Unknown" && (
+          <UserMenu
+            userName={`${user?.firstName || ""} ${user?.lastName || ""}`.trim()}
+            authenticated={state === "HasPermissions"}
+            label={t(loggingIn ? "Navigation.logging" : "Navigation.login")}
+            onSignIn={() => {
               setLoggingIn(true);
-              login();
-            } else {
-              throw Error("cannot log in");
-            }
-          }}
-        >
-          <HDSNavigation.Item
-            label={t("Navigation.logout")}
-            onClick={() => logout && logout()}
-            variant="primary"
-          />
-        </UserMenu>
+              if (login) {
+                setLoggingIn(true);
+                login();
+              } else {
+                throw Error("cannot log in");
+              }
+            }}
+          >
+            <HDSNavigation.Item
+              label={t("Navigation.logout")}
+              onClick={() => logout && logout()}
+              variant="primary"
+            />
+          </UserMenu>
+        )}
       </HDSNavigation.Actions>
     </StyledHDSNavigation>
   );

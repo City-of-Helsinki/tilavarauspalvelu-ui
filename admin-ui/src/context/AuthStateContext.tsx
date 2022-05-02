@@ -1,7 +1,11 @@
 import { User } from "oidc-client";
 import React, { useContext, useEffect } from "react";
 import { getCurrentUser } from "../common/api";
-import { assertApiAccessTokenIsAvailableAndFresh } from "../common/auth/util";
+import {
+  assertApiAccessTokenIsAvailableAndFresh,
+  clearApiAccessToken,
+  localLogout,
+} from "../common/auth/util";
 import {
   Auth,
   authStateReducer,
@@ -11,13 +15,11 @@ import {
 import OIDCLibIntegration from "./OIDCLibIntegration";
 
 export type AuthStateProps = {
-  authState: () => Auth;
+  authState: Auth;
 };
 
 export const AuthStateContext = React.createContext<AuthStateProps>({
-  authState: () => ({
-    state: "Unknown",
-  }),
+  authState: { state: "Unknown" },
 });
 
 export const useAuthState = (): AuthStateProps => useContext(AuthStateContext);
@@ -42,10 +44,16 @@ export const AuthStateContextProvider: React.FC = ({ children }) => {
         }
       } else {
         // token is not available and we failed to get one
+        console.log(
+          "no api acceess token avilable, setting error and clearing state!"
+        );
+        clearApiAccessToken();
+        localLogout(true);
         dispatch({ type: "error", message: "No Token Available" });
       }
     };
     if (authState.sid && !authState.user) {
+      console.log("doing auth check");
       check();
     }
   }, [authState.sid, authState.user]);
@@ -55,7 +63,7 @@ export const AuthStateContextProvider: React.FC = ({ children }) => {
   return (
     <AuthStateContext.Provider
       value={{
-        authState: () => authState,
+        authState,
       }}
     >
       {children}

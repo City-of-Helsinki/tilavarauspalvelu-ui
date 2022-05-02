@@ -73,7 +73,7 @@ function MainLander({ withSiteWrapper = false }: IProps): JSX.Element {
   const { authState } = useAuthState();
 
   useEffect(() => {
-    if (authState().sid) {
+    if (authState.sid) {
       const search = queryString.parse(window.location.search);
       if (typeof search.path === "string") {
         if (window.history) {
@@ -92,9 +92,9 @@ function MainLander({ withSiteWrapper = false }: IProps): JSX.Element {
         <Heading>{t("common.applicationName")}</Heading>
         <LoginBtn
           onClick={() => {
-            const f = authState()?.login;
-            if (f) {
-              f();
+            const { login } = authState;
+            if (login) {
+              login();
             }
           }}
         >

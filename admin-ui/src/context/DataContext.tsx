@@ -26,7 +26,7 @@ export const DataContextProvider: React.FC = ({ children }) => {
     HANDLING_COUNT_QUERY,
 
     {
-      skip: authState().state !== "HasPermissions",
+      skip: authState.state !== "HasPermissions",
       fetchPolicy: "no-cache",
       onCompleted: ({ reservations }) => {
         setHandlingCount(reservations?.edges?.length || 0);
@@ -35,7 +35,7 @@ export const DataContextProvider: React.FC = ({ children }) => {
   );
 
   useEffect(() => {
-    if (authState().state === "HasPermissions") {
+    if (authState.state === "HasPermissions") {
       const timer = setInterval(() => {
         refetch();
       }, 5 * 60000); // 5 min
