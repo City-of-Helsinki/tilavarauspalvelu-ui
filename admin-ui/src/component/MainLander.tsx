@@ -83,9 +83,6 @@ function MainLander({ withSiteWrapper = false }: IProps): JSX.Element {
       window.location.reload();
     }
   }, [authState]);
-
-  console.log("main lander rendering");
-
   const Lander = (
     <Wrapper>
       <KorosHeading heroImage={HeroImage}>

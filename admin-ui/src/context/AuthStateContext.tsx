@@ -44,21 +44,15 @@ export const AuthStateContextProvider: React.FC = ({ children }) => {
         }
       } else {
         // token is not available and we failed to get one
-        console.log(
-          "no api acceess token avilable, setting error and clearing state!"
-        );
         clearApiAccessToken();
         localLogout(true);
         dispatch({ type: "error", message: "No Token Available" });
       }
     };
     if (authState.sid && !authState.user) {
-      console.log("doing auth check");
       check();
     }
   }, [authState.sid, authState.user]);
-
-  console.log("rendering with state", authState.state);
 
   return (
     <AuthStateContext.Provider

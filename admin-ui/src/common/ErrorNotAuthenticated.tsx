@@ -66,8 +66,6 @@ function ErrorNotLoggedIn(): JSX.Element {
   const { authState } = useAuthState();
   const [loading, setLoading] = useState(false);
 
-  console.log("not logged in rendering");
-
   return (
     <Wrapper>
       <KorosHeading heroImage={HeroImage}>

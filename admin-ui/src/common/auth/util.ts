@@ -26,7 +26,6 @@ export const getAccessToken = (): string | undefined => {
  * @returns
  */
 export const updateApiAccessToken = async (): Promise<string | undefined> => {
-  console.log("->update apoi access token");
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Access token not available. Cannot update");
@@ -48,9 +47,7 @@ export const updateApiAccessToken = async (): Promise<string | undefined> => {
     const { data } = response;
 
     const apiAccessToken = data[apiScope];
-    console.log("setting api access token");
     setApiAccessToken(apiAccessToken);
-    console.log("returning api access token");
     return apiAccessToken;
   } catch (ex) {
     throw new Error("No Token");
@@ -69,14 +66,10 @@ export type ApiAccessTokenAvailable = "Available" | "Error";
 
 export const assertApiAccessTokenIsAvailableAndFresh =
   async (): Promise<ApiAccessTokenAvailable> => {
-    console.log("asserting api access token is available");
-
     try {
       await updateApiAccessToken();
-      console.log("api access token is available");
       return "Available";
     } catch (e) {
-      console.log("api access token is not available", e);
       return "Error";
     }
   };
