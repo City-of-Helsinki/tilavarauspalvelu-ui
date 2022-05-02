@@ -41,6 +41,7 @@ const translations: ITranslations = {
     WEAK: ["Heikko tunnistautuminen"],
     STRONG: ["Vahva tunnistautuminen"],
   },
+  AuthState: { initializing: ["Alustetaan..."] },
   ReserveeType: {
     INDIVIDUAL: ["Yksityishenkilö"],
     BUSINESS: ["Yritys"],
