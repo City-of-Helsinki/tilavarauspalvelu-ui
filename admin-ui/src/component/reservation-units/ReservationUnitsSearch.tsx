@@ -18,7 +18,7 @@ import { BasicLink } from "../../styles/util";
 import Loader from "../Loader";
 import withMainMenu from "../withMainMenu";
 import ReservationUnitCard from "./ReservationUnitCard";
-import SearchForm, { SearchArguments } from "./SearchForm";
+import SearchForm, { SearchArguments } from "../ReservationUnits/SearchForm";
 
 const Wrapper = styled.div`
   padding: var(--spacing-layout-2-xl) 0;
