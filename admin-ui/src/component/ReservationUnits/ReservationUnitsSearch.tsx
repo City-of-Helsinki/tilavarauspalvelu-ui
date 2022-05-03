@@ -10,6 +10,7 @@ import {
   ReservationUnitType,
 } from "../../common/gql-types";
 import { SEARCH_RESERVATION_UNITS_QUERY } from "../../common/queries";
+import { prefixes } from "../../common/urls";
 import { ReactComponent as IconList } from "../../images/icon_list.svg";
 import { IngressContainer } from "../../styles/layout";
 import { H1 } from "../../styles/typography";
@@ -105,7 +106,7 @@ const ReservationUnitsSearch = (): JSX.Element => {
         <H1>{t("ReservationUnits.reservationUnitListHeading")}</H1>
         <p>{t("ReservationUnits.reservationUnitListDescription")}</p>
         <SearchContainer>
-          <BasicLink to="/reservationUnits">
+          <BasicLink to={`${prefixes.reservationUnits}`}>
             <IconList />
             {t("ReservationUnits.switchToList")}
           </BasicLink>

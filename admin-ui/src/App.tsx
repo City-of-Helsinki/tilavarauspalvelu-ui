@@ -137,12 +137,12 @@ function App(): JSX.Element {
             />
             <Route path="/spaces" component={SpacesList} />
             <Route
-              path="/reservationUnits"
+              path={`${prefixes.reservationUnits}`}
               component={ReservationUnitsList}
               exact
             />
             <Route
-              path="/reservationUnits/search"
+              path={`${prefixes.reservationUnits}/search`}
               component={ReservationUnitsSearch}
             />
             <Route path="/resources" component={ResourcesList} />

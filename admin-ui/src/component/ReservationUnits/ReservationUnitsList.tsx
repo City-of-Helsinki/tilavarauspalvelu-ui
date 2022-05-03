@@ -20,6 +20,7 @@ import {
   QueryReservationUnitArgs,
   ReservationUnitType,
 } from "../../common/gql-types";
+import { prefixes } from "../../common/urls";
 
 const Wrapper = styled.div`
   padding: var(--spacing-layout-2-xl) 0;
@@ -202,7 +203,7 @@ const ReservationUnitsList = (): JSX.Element => {
         <H1>{t("ReservationUnits.reservationUnitListHeading")}</H1>
         <p>{t("ReservationUnits.reservationUnitListDescription")}</p>
         <SearchContainer>
-          <BasicLink to="/reservationUnits/search">
+          <BasicLink to={`${prefixes.reservationUnits}/search`}>
             <IconSearch />
             {t("ReservationUnits.switchToSearch")}
           </BasicLink>

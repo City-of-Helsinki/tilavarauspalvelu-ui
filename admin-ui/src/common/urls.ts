@@ -2,6 +2,7 @@ export const prefixes = {
   recurringReservations: "/recurring-reservations",
   reservations: "/reservations",
   applications: "/application",
+  reservationUnits: "/reservation-units/",
 };
 
 export const applicationRoundUrl = (
