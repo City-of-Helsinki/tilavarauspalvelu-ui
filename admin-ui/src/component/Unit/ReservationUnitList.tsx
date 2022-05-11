@@ -9,7 +9,7 @@ import { DataFilterConfig, DataFilterOption } from "../../common/types";
 import { filterData } from "../../common/util";
 import FilterContainer, { FilterBtn } from "../FilterContainer";
 import FilterControls from "../FilterControls";
-import ReservationUnitCard from "../reservation-units/ReservationUnitCard";
+import ReservationUnitCard from "./ReservationUnitCard";
 import { ContentContainer } from "../../styles/layout";
 import { ReservationUnitType } from "../../common/gql-types";
 

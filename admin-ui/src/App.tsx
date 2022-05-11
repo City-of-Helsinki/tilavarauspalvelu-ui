@@ -28,8 +28,7 @@ import SpaceEditorView from "./component/Spaces/space-editor/SpaceEditorView";
 import ResourceEditorView from "./component/Resources/resource-editor/ResourceEditorView";
 import ReservationUnitEditor from "./component/ReservationUnits/ReservationUnitEditor/ReservationUnitEditor";
 import ResourcesList from "./component/Resources/ResourcesList";
-import ReservationUnitsList from "./component/reservation-units/ReservationUnitsList";
-import ReservationUnitsSearch from "./component/reservation-units/ReservationUnitsSearch";
+import ReservationUnits from "./component/reservation-units/ReservationUnits";
 import { withGlobalContext } from "./context/GlobalContexts";
 
 import RequestedReservations from "./component/reservations/requested/RequestedReservations";
@@ -128,12 +127,8 @@ function App(): JSX.Element {
             <Route path="/spaces" component={SpacesList} />
             <Route
               path={`${prefixes.reservationUnits}`}
-              component={ReservationUnitsList}
+              component={ReservationUnits}
               exact
-            />
-            <Route
-              path={`${prefixes.reservationUnits}/search`}
-              component={ReservationUnitsSearch}
             />
             <Route path="/resources" component={ResourcesList} />
             <Route path="/units" component={Units} />
