@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { Table, TableProps } from "../../common/fork/table/Table";
+import { Table, TableProps } from "../../common/hds-fork/table/Table";
 import { breakpoints } from "../../styles/util";
 
 type TableWrapperProps = {

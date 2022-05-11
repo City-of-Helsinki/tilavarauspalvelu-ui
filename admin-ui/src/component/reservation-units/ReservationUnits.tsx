@@ -11,7 +11,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--spacing-layout-s);
-  padding: var(--spacing-layout-2-xs) 0 0 var(--spacing-layout-m);
+  padding: var(--spacing-layout-2-xs) 0 var(--spacing-layout-m)
+    var(--spacing-layout-m);
   max-width: var(--container-width-l);
 `;
 
