@@ -2,7 +2,7 @@ export const prefixes = {
   recurringReservations: "/recurring-reservations",
   reservations: "/reservations",
   applications: "/application",
-  reservationUnits: "/reservation-units/",
+  reservationUnits: "/reservation-units",
 };
 
 export const applicationRoundUrl = (
@@ -19,3 +19,6 @@ export const applicationDetailsUrl = (applicationId: number | string): string =>
 export const applicationRoundApplications = (
   applicationRoundId: number | string | null
 ): string => `${applicationRoundUrl(String(applicationRoundId))}/applications`;
+
+export const reservationUnitUrl = (reservationUnitId: number): string =>
+  `${prefixes.reservationUnits}/${reservationUnitId}`;

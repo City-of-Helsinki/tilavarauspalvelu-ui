@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { IconArrowRight, Notification, IconSearch, IconGroup } from "hds-react";
+import { IconSearch } from "hds-react";
 import { TFunction } from "i18next";
-import { uniq } from "lodash";
+import { memoize, truncate, uniq } from "lodash";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useQuery, ApolloError } from "@apollo/client";
@@ -11,19 +11,21 @@ import { IngressContainer } from "../../styles/layout";
 import { H1 } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import Loader from "../Loader";
-import DataTable, { CellConfig } from "../DataTable";
 import { localizedPropValue } from "../../common/util";
-import { BasicLink, Strong } from "../../styles/util";
+import { BasicLink } from "../../styles/util";
 import { RESERVATION_UNITS_QUERY } from "../../common/queries";
 import {
   Query,
   QueryReservationUnitArgs,
   ReservationUnitType,
 } from "../../common/gql-types";
-import { prefixes } from "../../common/urls";
+import { prefixes, reservationUnitUrl } from "../../common/urls";
+import { CustomTable, DataOrMessage, TableLink } from "./components";
+import { useNotification } from "../../context/NotificationContext";
 
 const Wrapper = styled.div`
-  padding: var(--spacing-layout-2-xl) 0;
+  padding: var(--spacing-layout-2-xl) 0 0 var(--spacing-xl);
+  max-width: var(--container-width-l);
 `;
 
 const SearchContainer = styled.div`
@@ -37,92 +39,55 @@ const ReservationUnitCount = styled.div`
   margin-bottom: var(--spacing-m);
 `;
 
-const getCellConfig = (
-  t: TFunction,
-  language: LocalizationLanguages
-): CellConfig => {
-  return {
-    cols: [
-      {
-        title: t("ReservationUnits.headings.name"),
-        key: "nameFi",
-        transform: ({ nameFi }: ReservationUnitType) => (
-          <Strong>{nameFi}</Strong>
-        ),
-      },
-      {
-        title: t("ReservationUnits.headings.unitName"),
-        key: "unit.nameFi",
-        transform: (resUnit: ReservationUnitType) =>
-          localizedPropValue(resUnit, "unit.name", language),
-      },
-      {
-        title: t("ReservationUnits.headings.district"),
-        key: "unit.district.nameFi",
-        transform: (resUnit: ReservationUnitType) =>
-          localizedPropValue(resUnit, "unit.district.name", language),
-      },
-      {
-        title: t("ReservationUnits.headings.reservationUnitType"),
-        key: "reservationUnitType.name",
-        transform: ({ reservationUnitType }: ReservationUnitType) => (
-          <div
-            style={{
-              display: "flex",
-              alignContent: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>
-              {localizedPropValue(reservationUnitType, "name", language)}
-            </span>
-            <IconArrowRight />
-          </div>
-        ),
-      },
-      {
-        title: t("ReservationUnits.headings.maxPersons"),
-        key: "maxPersons",
-        transform: ({ maxPersons }: ReservationUnitType) => (
-          <div
-            style={{
-              display: "flex",
-              alignContent: "center",
-              gap: "var(--spacing-xs)",
-            }}
-          >
-            <IconGroup />
-            <span>{maxPersons || "?"}</span>
-          </div>
-        ),
-      },
-      {
-        title: t("ReservationUnits.headings.surfaceArea"),
-        key: "surfaceArea",
-        transform: ({ surfaceArea }: ReservationUnitType) => (
-          <div
-            style={{
-              display: "flex",
-              alignContent: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>
-              {surfaceArea || "?"}
-              {t("common.areaUnitSquareMeter")}
-            </span>
-            <IconArrowRight />
-          </div>
-        ),
-      },
-    ],
-    index: "pk",
-    sorting: "name",
-    order: "asc",
-    rowLink: ({ pk, unit }: ReservationUnitType) =>
-      `/unit/${unit?.pk}/reservationUnit/edit/${pk}`,
-  };
-};
+const getColConfig = (t: TFunction, language: LocalizationLanguages) => [
+  {
+    headerName: t("ReservationUnits.headings.name"),
+    key: "nameFi",
+    transform: ({ nameFi, pk }: ReservationUnitType) => (
+      <TableLink to={reservationUnitUrl(pk as number)}>
+        {truncate(nameFi as string, {
+          length: 22,
+          omission: "...",
+        })}
+      </TableLink>
+    ),
+    isSortable: true,
+  },
+  {
+    headerName: t("ReservationUnits.headings.unitName"),
+    key: "unit.nameFi",
+    isSortable: true,
+    transform: (resUnit: ReservationUnitType) =>
+      localizedPropValue(resUnit, "unit.name", language),
+  },
+  {
+    headerName: t("ReservationUnits.headings.reservationUnitType"),
+    key: "reservationUnitType.name",
+    transform: ({ reservationUnitType }: ReservationUnitType) => (
+      <span>{localizedPropValue(reservationUnitType, "name", language)}</span>
+    ),
+  },
+  {
+    headerName: t("ReservationUnits.headings.maxPersons"),
+    key: "maxPersons",
+    transform: ({ maxPersons }: ReservationUnitType) => (
+      <span>{maxPersons || "-"}</span>
+    ),
+  },
+  {
+    headerName: t("ReservationUnits.headings.surfaceArea"),
+    key: "surfaceArea",
+    transform: ({ surfaceArea }: ReservationUnitType) =>
+      surfaceArea !== null ? (
+        <span>
+          {Number(surfaceArea).toLocaleString("fi") || "-"}
+          {t("common.areaUnitSquareMeter")}
+        </span>
+      ) : (
+        "-"
+      ),
+  },
+];
 
 const getFilterConfig = (
   reservationUnits: ReservationUnitType[],
@@ -157,43 +122,31 @@ const ReservationUnitsList = (): JSX.Element => {
   const [filterConfig, setFilterConfig] = useState<DataFilterConfig[] | null>(
     null
   );
-  const [cellConfig, setCellConfig] = useState<CellConfig | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { notifyError } = useNotification();
 
-  useQuery<Query, QueryReservationUnitArgs>(RESERVATION_UNITS_QUERY, {
-    onCompleted: (data) => {
-      const result = data?.reservationUnits?.edges?.map(
-        (ru) => ru?.node as ReservationUnitType
-      );
-      if (result) {
-        setReservationUnits(result);
-        setCellConfig(getCellConfig(t, i18n.language as LocalizationLanguages));
-        setFilterConfig(getFilterConfig(result, t));
-      }
-      setIsLoading(false);
-    },
-    onError: (err: ApolloError) => {
-      setErrorMsg(err.message);
-      setIsLoading(false);
-    },
-  });
-  if (errorMsg) {
-    <Notification
-      type="error"
-      label={t("errors.functionFailed")}
-      position="top-center"
-      autoClose={false}
-      dismissible
-      closeButtonLabelText={t("common.close")}
-      displayAutoCloseProgress={false}
-      onClose={() => setErrorMsg(null)}
-    >
-      {t(errorMsg)}
-    </Notification>;
-  }
+  const cols = memoize(() =>
+    getColConfig(t, i18n.language as LocalizationLanguages)
+  )();
 
-  if (isLoading || !reservationUnits || !filterConfig || !cellConfig) {
+  const { loading } = useQuery<Query, QueryReservationUnitArgs>(
+    RESERVATION_UNITS_QUERY,
+    {
+      onCompleted: (data) => {
+        const result = data?.reservationUnits?.edges?.map(
+          (ru) => ru?.node as ReservationUnitType
+        );
+        if (result) {
+          setReservationUnits(result);
+          setFilterConfig(getFilterConfig(result, t));
+        }
+      },
+      onError: (err: ApolloError) => {
+        notifyError(err.message);
+      },
+    }
+  );
+
+  if (loading || !reservationUnits || !filterConfig) {
     return <Loader />;
   }
 
@@ -212,13 +165,19 @@ const ReservationUnitsList = (): JSX.Element => {
           {reservationUnits.length} {t("common.volumeUnit")}
         </ReservationUnitCount>
       </IngressContainer>
-      <DataTable
-        groups={[{ id: 1, data: reservationUnits }]}
-        hasGrouping={false}
-        config={{ filtering: true, rowFilters: true }}
-        cellConfig={cellConfig}
-        filterConfig={filterConfig}
-      />
+      <DataOrMessage
+        data={reservationUnits}
+        filteredData={reservationUnits}
+        noData="Ei varausyksikköjä"
+        noFilteredData="Ei varausyksikköjä"
+      >
+        <CustomTable
+          setSort={(v) => console.log(v)}
+          indexKey="id"
+          rows={reservationUnits}
+          cols={cols}
+        />
+      </DataOrMessage>
     </Wrapper>
   );
 };
