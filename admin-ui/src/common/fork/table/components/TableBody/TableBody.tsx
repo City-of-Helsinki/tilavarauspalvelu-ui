@@ -11,7 +11,7 @@ export type TableBodyProps = {
 export const TableBody = ({
   children,
   textAlignContentRight,
-}: TableBodyProps) => {
+}: TableBodyProps): JSX.Element => {
   return (
     <tbody
       className={classNames(

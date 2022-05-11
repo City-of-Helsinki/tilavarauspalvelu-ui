@@ -48,6 +48,7 @@ export interface TableCustomTheme {
 }
 
 type SelectedRow = string | number;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = any;
 type Order = "asc" | "desc" | undefined;
 
@@ -286,8 +287,6 @@ export const Table = ({
     console.warn(
       "Cannot use caption prop when checkboxSelection is set to true. Use heading prop instead"
     );
-    // eslint-disable-next-line no-param-reassign
-    caption = undefined;
   }
 
   if (theme && theme["--background-color"]) {

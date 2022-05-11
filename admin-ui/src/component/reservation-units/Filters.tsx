@@ -228,7 +228,6 @@ const MyTextInput = ({
     label=" "
     onChange={(e) => {
       if (e.target.value.length > 0) {
-        console.log("setting value", id, e.target.value);
         dispatch({
           type: "set",
           value: { [id]: e.target.value },
