@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: var(--spacing-2xl);
 `;
 
 const Counts = styled.div`
