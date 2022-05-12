@@ -57,6 +57,11 @@ export const TableLink = styled(Link)`
   color: black;
 `;
 
+/**
+ *
+ * TODO revisit this and the usage when Rewiew is converted to gql
+ * (currently lacking info about is filters are enabled)
+ */
 export function DataOrMessage({
   data,
   filteredData,
@@ -65,18 +70,18 @@ export function DataOrMessage({
   noFilteredData,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[];
+  data?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filteredData: any[];
   children: JSX.Element;
-  noData: string;
+  noData?: string;
   noFilteredData: string;
 }): JSX.Element {
   if (filteredData.length) {
     return children;
   }
 
-  if (data.length === 0) {
+  if (data && data.length === 0) {
     return <NoDataMessage>{noData}</NoDataMessage>;
   }
 

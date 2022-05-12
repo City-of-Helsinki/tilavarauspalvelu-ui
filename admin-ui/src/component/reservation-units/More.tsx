@@ -27,10 +27,8 @@ export const More = ({ count, totalCount, fetchMore }: Props): JSX.Element => {
       {totalCount > count ? (
         <div style={{ textAlign: "center" }}>
           <Counts>
-            {t("ReservationUnits.numResults", {
+            {t("paging.numResults", {
               count,
-            })}{" "}
-            {t("ReservationUnits.numTotal", {
               totalCount,
             })}
           </Counts>
@@ -48,7 +46,7 @@ export const More = ({ count, totalCount, fetchMore }: Props): JSX.Element => {
       ) : (
         count > 0 && (
           <Counts>
-            {t("ReservationUnits.allResults", {
+            {t("paging.allResults", {
               count,
             })}
           </Counts>

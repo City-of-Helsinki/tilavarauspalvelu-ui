@@ -85,10 +85,8 @@ const ReservationUnitsTable = ({
   return (
     <>
       <DataOrMessage
-        data={reservationUnits}
         filteredData={reservationUnits}
-        noData="Ei varausyksikköjä"
-        noFilteredData="Ei varausyksikköjä"
+        noFilteredData={t("ReservationUnits.noFilteredReservationUnits")}
       >
         <>
           <CustomTable

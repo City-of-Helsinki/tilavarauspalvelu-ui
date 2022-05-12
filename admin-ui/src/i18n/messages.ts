@@ -55,6 +55,11 @@ const translations: ITranslations = {
     sv: ["ruotsiksi"],
     en: ["englanniksi"],
   },
+
+  paging: {
+    numResults: ["{{count}} tulosta {{totalCount}} tuloksesta näytetty"],
+    allResults: ["Kaikki {{totalCount}} tulosta näytetty"],
+  },
   common: {
     showMore: ["Näytä lisää"],
     clearAllSelections: ["Tyhjennä valinnat"],
@@ -893,8 +898,9 @@ const translations: ITranslations = {
     reservationUnitListDescription: [
       "Alla näet kaikki luodut varausyksiköt, jotka sinulla on oikeus nähdä. Uusia varausyksiköitä luodaan toimipisteisiin tai alueisiin liittyen.",
     ],
-    switchToSearch: ["Hae varausyksiköitä"],
-    switchToList: ["Selaa varausyksiköitä"],
+    noFilteredReservationUnits: [
+      "Valituilla suodattimilla ei löytynyt yhtään varausyksikköä. Valitse suodattimia uudelleen tai tyhjennä kaikki suodattimet.",
+    ],
     headings: {
       name: ["Nimi"],
       unitName: ["Toimipiste"],
@@ -903,10 +909,6 @@ const translations: ITranslations = {
       maxPersons: ["Hlömäärä (max)"],
       surfaceArea: ["Pinta-ala"],
     },
-
-    numResults: ["{{count}} tulosta"],
-    numTotal: ["{{totalCount}} tuloksesta näytetty"],
-    allResults: ["Kaikki {{totalCount}} tulosta näytetty"],
   },
   ReservationUnitsSearch: {
     resultCount: ["{{count}} hakutulos"],

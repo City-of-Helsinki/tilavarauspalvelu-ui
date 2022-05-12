@@ -10,7 +10,7 @@ import ReservationUnitsDataReader, { Sort } from "./ReservationUnitsDataLoader";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-layout-s);
+  gap: var(--spacing-layout-2-xs);
   padding: var(--spacing-layout-2-xs) 0 var(--spacing-layout-m)
     var(--spacing-layout-m);
   max-width: var(--container-width-l);

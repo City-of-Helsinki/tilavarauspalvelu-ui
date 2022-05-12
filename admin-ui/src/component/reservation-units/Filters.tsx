@@ -64,10 +64,11 @@ const Tags = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-layout-s);
+  gap: var(--spacing-layout-xs);
 `;
 
 const ThinButton = styled(Button)`
+  margin: var(--spacing-xs) 0 0 0;
   border: 0;
   padding-left: 0;
   span {
@@ -75,6 +76,8 @@ const ThinButton = styled(Button)`
     line-height: 1;
   }
 `;
+
+const Buttons = styled.div``;
 
 export const emptyState = { reservationUnitType: [], unit: [] };
 
@@ -326,7 +329,7 @@ const SearchForm = ({ onSearch }: Props): JSX.Element => {
         )}
       </Wrapper>
 
-      <div>
+      <Buttons>
         <ThinButton
           variant="supplementary"
           onClick={() => setMore(!more)}
@@ -338,7 +341,7 @@ const SearchForm = ({ onSearch }: Props): JSX.Element => {
               : "ReservationUnitsSearch.moreFilters"
           )}
         </ThinButton>
-      </div>
+      </Buttons>
       {tags.length ? (
         <Tags>
           {tags.map((tag) => (
