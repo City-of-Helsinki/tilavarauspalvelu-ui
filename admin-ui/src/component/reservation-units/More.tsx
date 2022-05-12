@@ -47,7 +47,7 @@ export const More = ({ count, totalCount, fetchMore }: Props): JSX.Element => {
         count > 0 && (
           <Counts>
             {t("paging.allResults", {
-              count,
+              totalCount,
             })}
           </Counts>
         )
