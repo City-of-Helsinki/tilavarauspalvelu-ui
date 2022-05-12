@@ -38,10 +38,6 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
           reservationUnitType {
             nameFi
           }
-          images {
-            imageType
-            mediumUrl
-          }
           maxPersons
           surfaceArea
         }

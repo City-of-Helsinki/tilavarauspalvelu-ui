@@ -22,8 +22,8 @@ const getColConfig = (t: TFunction, language: LocalizationLanguages) => [
   {
     headerName: t("ReservationUnits.headings.name"),
     key: "nameFi",
-    transform: ({ nameFi, pk }: ReservationUnitType) => (
-      <TableLink to={reservationUnitUrl(pk as number)}>
+    transform: ({ nameFi, pk, unit }: ReservationUnitType) => (
+      <TableLink to={reservationUnitUrl(pk as number, unit?.pk as number)}>
         {truncate(nameFi as string, {
           length: 22,
           omission: "...",
