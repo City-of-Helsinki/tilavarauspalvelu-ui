@@ -20,11 +20,12 @@ type Props = {
 const Wrapper = styled.div`
   display: block;
   background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-black-20);
 `;
 
 const BreadcrumbWrapper = ({ route, aliases }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const isMobile = useMedia(`(max-width: ${breakpoint.m})`);
+  const isMobile = useMedia(`(max-width: ${breakpoint.m})`, false);
 
   const routes =
     route
