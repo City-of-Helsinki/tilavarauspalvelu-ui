@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { Table, TableProps } from "../../common/hds-fork/table/Table";
 import { breakpoints } from "../../styles/util";
@@ -53,14 +52,22 @@ const NoDataMessage = styled.span`
   line-height: 4;
 `;
 
-export const TableLink = styled(Link)`
+const A = styled.a`
   color: black;
 `;
+
+export const TableLink = ({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}): JSX.Element => <A href={href}>{children}</A>;
 
 /**
  *
  * TODO revisit this and the usage when Rewiew is converted to gql
- * (currently lacking info about is filters are enabled)
+ * (currently lacking info about filters)
  */
 export function DataOrMessage({
   data,
