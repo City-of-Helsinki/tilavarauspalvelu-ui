@@ -3,7 +3,7 @@ import { Navigation as HDSNavigation } from "hds-react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
-import { LoggedInInfo } from "common";
+import { UserInfo } from "common";
 import MainMenu from "./MainMenu";
 import { useAuthState } from "../context/AuthStateContext";
 import { breakpoints, StyledHDSNavigation } from "../styles/util";
@@ -80,7 +80,7 @@ const Navigation = (): JSX.Element => {
             }}
           >
             {user && (
-              <LoggedInInfo
+              <UserInfo
                 name={
                   `${user.firstName} ${user.lastName}`.trim() ||
                   t("Navigation.noName")
