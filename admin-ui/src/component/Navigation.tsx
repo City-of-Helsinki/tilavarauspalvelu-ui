@@ -3,6 +3,7 @@ import { Navigation as HDSNavigation } from "hds-react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
+import { LoggedInInfo } from "common";
 import MainMenu from "./MainMenu";
 import { useAuthState } from "../context/AuthStateContext";
 import { breakpoints, StyledHDSNavigation } from "../styles/util";
@@ -10,45 +11,6 @@ import { breakpoints, StyledHDSNavigation } from "../styles/util";
 const MobileNavigation = styled.div`
   @media (min-width: ${breakpoints.m}) {
     display: none;
-  }
-`;
-
-const StyledNavigationItem = styled(HDSNavigation.Item)`
-  :hover {
-    cursor: default;
-    background: var(--color-white);
-    color: var(--color-black);
-  }
-  border: 0;
-  span {
-    padding: 0 0 var(--spacing-s) var(--spacing-m) !important;
-    color: black;
-    display: block;
-    width: 100%;
-  }
-
-  @media (min-width: ${breakpoints.m}) {
-    span {
-      padding: 0 !important;
-    }
-  }
-`;
-
-const Name = styled.div`
-  word-break: break-all;
-  display: none;
-  @media (min-width: ${breakpoints.m}) {
-    display: block;
-  }
-`;
-const Email = styled.div`
-  font-size: var(--fontsize-body-s);
-  word-break: break-all;
-  display: block;
-  width: 100%;
-  @media (min-width: ${breakpoints.m}) {
-    padding-bottom: var(--spacing-xs);
-    border-bottom: 1px solid var(--color-black-20);
   }
 `;
 
@@ -118,16 +80,17 @@ const Navigation = (): JSX.Element => {
             }}
           >
             {user && (
-              <StyledNavigationItem variant="secondary">
-                <Name>
-                  {`${user.firstName} ${user.lastName}`.trim() ||
-                    t("Navigation.noName")}
-                </Name>
-                <Email>{user?.email}</Email>
-              </StyledNavigationItem>
+              <LoggedInInfo
+                name={
+                  `${user.firstName} ${user.lastName}`.trim() ||
+                  t("Navigation.noName")
+                }
+                email={user.email}
+              />
             )}
 
             <HDSNavigation.Item
+              className="btn-logout"
               label={t("Navigation.logout")}
               onClick={() => logout && logout()}
               variant="primary"
