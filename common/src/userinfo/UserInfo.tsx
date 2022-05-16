@@ -14,7 +14,8 @@ const Wrapper = styled.div`
   border: 0;
 
   @media (min-width: ${breakpoints.m}) {
-    padding: var(--spacing-s) var(--spacing-s);
+    padding: var(--spacing-s) var(--spacing-s) var(--spacing-xs)
+      var(--spacing-s);
   }
 `;
 
