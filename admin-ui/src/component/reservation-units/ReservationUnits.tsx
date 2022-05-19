@@ -24,7 +24,7 @@ const HR = styled.hr`
   width: 100%;
 `;
 
-const ReservationUnitsSearch = (): JSX.Element => {
+const ReservationUnits = (): JSX.Element => {
   const [search, setSearch] = useState<FilterArguments>(emptyState);
   const [sort, setSort] = useState<Sort>();
   const debouncedSearch = debounce((value) => setSearch(value), 300);
@@ -59,4 +59,4 @@ const ReservationUnitsSearch = (): JSX.Element => {
   );
 };
 
-export default withMainMenu(ReservationUnitsSearch);
+export default withMainMenu(ReservationUnits);

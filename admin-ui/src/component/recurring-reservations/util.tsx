@@ -3,13 +3,10 @@ import styled from "styled-components";
 import { orderBy, trim, uniqBy } from "lodash";
 import { TFunction } from "react-i18next";
 import {
-  Application as ApplicationType,
-  ApplicationEventStatus,
   ApplicationRound as ApplicationRoundType,
   ApplicationRoundStatus,
-  ApplicationStatus,
-  Unit,
 } from "../../common/types";
+
 import {
   applicantName,
   applicationHours,
@@ -18,6 +15,11 @@ import {
 } from "../applications/util";
 import StatusCell from "../StatusCell";
 import { formatNumber } from "../../common/util";
+import {
+  ApplicationType,
+  ApplicationStatus,
+  UnitType,
+} from "../../common/gql-types";
 
 export type ApplicationView = {
   id: number;
@@ -28,11 +30,11 @@ export type ApplicationView = {
   name: string;
   nameSort: string;
   type: string;
-  units: Unit[];
+  units: UnitType[];
   unitsSort: string;
   applicationCount: string;
   applicationCountSort: number;
-  status: ApplicationStatus | ApplicationEventStatus;
+  status: ApplicationStatus;
   statusView: JSX.Element;
   statusType: ApplicationStatus;
 };
@@ -53,20 +55,21 @@ export const appMapper = (
 
   const units = orderBy(
     uniqBy(
-      app.applicationEvents
+      (app.applicationEvents || [])
         .flatMap((ae) => ae.eventReservationUnits)
         .flatMap((eru) => ({
-          ...eru.reservationUnitDetails.unit,
-          priority: eru.priority,
+          ...eru?.reservationUnitDetails?.unit,
+          priority: eru?.priority as number,
         })),
       "id"
     ),
     "priority",
     "asc"
-  );
+  ) as UnitType[];
 
-  const name = app.applicationEvents.find(() => true)?.name || "-";
-  const eventId = app.applicationEvents.find(() => true)?.id as number;
+  const name = app.applicationEvents?.find(() => true)?.name || "-";
+  const eventId = app.applicationEvents?.find(() => true)
+    ?.id as unknown as number;
 
   const StyledStatusCell = styled(StatusCell)`
     gap: 0 !important;
@@ -76,7 +79,7 @@ export const appMapper = (
   `;
 
   const status = getNormalizedApplicationStatus(
-    app.status,
+    app.status as ApplicationStatus,
     applicationStatusView
   );
 
@@ -84,7 +87,7 @@ export const appMapper = (
 
   return {
     key: `${app.id}-${eventId || "-"} `,
-    id: app.id,
+    id: app.pk as number,
     eventId,
     applicant,
     applicantSort: applicant.toLowerCase(),
@@ -92,10 +95,10 @@ export const appMapper = (
       ? t(`Application.applicantTypes.${app.applicantType}`)
       : "",
     units,
-    unitsSort: units.find(() => true)?.name.fi || "",
+    unitsSort: units.find(() => true)?.nameFi || "",
     name,
     nameSort: name.toLowerCase(),
-    status,
+    status: status as ApplicationStatus,
     statusView: (
       <StyledStatusCell
         status={status}
@@ -104,7 +107,7 @@ export const appMapper = (
         withArrow={false}
       />
     ),
-    statusType: app.status,
+    statusType: app.status as ApplicationStatus,
     applicationCount: trim(
       `${formatNumber(
         applicationTurns(app),
