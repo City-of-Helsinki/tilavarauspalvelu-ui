@@ -92,7 +92,7 @@ export const appMapper = (
     applicant,
     applicantSort: applicant.toLowerCase(),
     type: app.applicantType
-      ? t(`Application.applicantTypes.${app.applicantType}`)
+      ? t(`Application.applicantTypes.${app.applicantType.toLowerCase()}`)
       : "",
     units,
     unitsSort: units.find(() => true)?.nameFi || "",

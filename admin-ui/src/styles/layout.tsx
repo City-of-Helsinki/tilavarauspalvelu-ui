@@ -5,6 +5,8 @@ export const ContentContainer = styled.div`
   padding: var(--spacing-m);
 `;
 
+ContentContainer.displayName = "ContentContainer";
+
 export const IngressContainer = styled.div`
   padding: 0 var(--spacing-m) 0 var(--spacing-m);
 
@@ -16,6 +18,7 @@ export const IngressContainer = styled.div`
     padding-right: 8.333%;
   }
 `;
+IngressContainer.displayName = "IngressContainer";
 
 export const NarrowContainer = styled.div`
   padding: 0 var(--spacing-m) 0 var(--spacing-m);
@@ -29,9 +32,13 @@ export const NarrowContainer = styled.div`
   }
 `;
 
+NarrowContainer.displayName = "NarrowContainer";
+
 export const WideContainer = styled(IngressContainer)`
   padding-left: var(--spacing-m);
 `;
+
+WideContainer.displayName = "WideContainer";
 
 export const GridCol = styled.div`
   &:last-child {

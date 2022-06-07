@@ -6,15 +6,11 @@ import { TFunction, useTranslation } from "react-i18next";
 import i18next from "i18next";
 import styled from "styled-components";
 import { breakpoints } from "../../styles/util";
-import {
-  Query,
-  QueryReservationUnitTypesArgs,
-  QueryUnitsArgs,
-} from "../../common/gql-types";
-import { UNITS_QUERY } from "../../common/queries";
+import { Query, QueryReservationUnitTypesArgs } from "../../common/gql-types";
 import SortedCompobox from "../ReservationUnits/ReservationUnitEditor/SortedCompobox";
 import { RESERVATION_UNIT_TYPES_QUERY } from "./queries";
 import { OptionType } from "../../common/types";
+import UnitFilter from "../filters/UnitFilter";
 
 export type FilterArguments = {
   nameFi?: string;
@@ -27,7 +23,7 @@ export type FilterArguments = {
   sort?: string;
 };
 
-const arrayFileds = ["unit", "reservationUnitType"];
+const multivaluedFields = ["unit", "reservationUnitType"];
 
 type Props = {
   onSearch: (args: FilterArguments) => void;
@@ -97,7 +93,7 @@ const reducer = (state: FilterArguments, action: Action): FilterArguments => {
     }
 
     case "deleteTag": {
-      if (arrayFileds.includes(action.field)) {
+      if (multivaluedFields.includes(action.field)) {
         return {
           ...state,
           [action.field]: (state[action.field] as OptionType[]).filter(
@@ -113,38 +109,6 @@ const reducer = (state: FilterArguments, action: Action): FilterArguments => {
   }
 };
 
-type UnitComboboxProps = {
-  onChange: (units: OptionType[]) => void;
-  value: OptionType[];
-};
-
-const UnitCombobox = ({ onChange, value }: UnitComboboxProps): JSX.Element => {
-  const { t } = useTranslation();
-  const { data, loading } = useQuery<Query, QueryUnitsArgs>(UNITS_QUERY, {});
-
-  if (loading) {
-    return <>{t("ReservationUnitsSearch.unit")}</>;
-  }
-
-  return (
-    <SortedCompobox
-      sort
-      label={t("ReservationUnitsSearch.unitLabel")}
-      multiselect
-      placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
-      options={(data?.units?.edges || [])
-        .map((e) => e?.node)
-        .map((unit) => ({
-          label: unit?.nameFi as string,
-          value: String(unit?.pk as number),
-        }))}
-      value={value}
-      onChange={onChange}
-      id="reservation-unit-combobox"
-    />
-  );
-};
-
 type Tag = {
   key: string;
   value: string;
@@ -154,7 +118,7 @@ type Tag = {
 const toTags = (state: FilterArguments, t: TFunction): Tag[] => {
   return (Object.keys(state) as unknown as (keyof FilterArguments)[]).flatMap(
     (key) => {
-      if (arrayFileds.includes(key)) {
+      if (multivaluedFields.includes(key)) {
         return (get(state, key) as []).map(
           (v: OptionType) =>
             ({
@@ -252,7 +216,7 @@ const MyTextInput = ({
   />
 );
 
-const SearchForm = ({ onSearch }: Props): JSX.Element => {
+const Filters = ({ onSearch }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(reducer, emptyState);
   const [more, setMore] = useState(false);
@@ -282,7 +246,7 @@ const SearchForm = ({ onSearch }: Props): JSX.Element => {
             placeholder={t("ReservationUnitsSearch.textSearchPlaceHolder")}
             value={state.nameFi || ""}
           />
-          <UnitCombobox
+          <UnitFilter
             onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
             value={state.unit}
           />
@@ -364,4 +328,4 @@ const SearchForm = ({ onSearch }: Props): JSX.Element => {
   );
 };
 
-export default SearchForm;
+export default Filters;

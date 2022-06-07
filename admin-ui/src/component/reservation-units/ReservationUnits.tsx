@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { H1 } from "../../styles/new-typography";
 import withMainMenu from "../withMainMenu";
-import SearchForm, { FilterArguments, emptyState } from "./Filters";
+import Filters, { FilterArguments, emptyState } from "./Filters";
 import ReservationUnitsDataReader, { Sort } from "./ReservationUnitsDataLoader";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 
@@ -46,7 +46,7 @@ const ReservationUnits = (): JSX.Element => {
           <H1>{t("ReservationUnits.reservationUnitListHeading")}</H1>
           <p>{t("ReservationUnits.reservationUnitListDescription")}</p>
         </div>
-        <SearchForm onSearch={debouncedSearch} />
+        <Filters onSearch={debouncedSearch} />
         <HR />
         <ReservationUnitsDataReader
           key={JSON.stringify({ ...search, ...sort })}
