@@ -1,6 +1,6 @@
 import React from "react";
 import { TFunction, useTranslation } from "react-i18next";
-import { memoize, truncate } from "lodash";
+import { memoize } from "lodash";
 import { UnitType } from "../../common/gql-types";
 
 import { unitUrl } from "../../common/urls";
@@ -22,12 +22,7 @@ const getColConfig = (t: TFunction) => [
     headerName: t("Units.headings.name"),
     key: "nameFi",
     transform: ({ nameFi, pk }: UnitType) => (
-      <TableLink href={unitUrl(pk as number)}>
-        {truncate(nameFi as string, {
-          length: 22,
-          omission: "...",
-        })}
-      </TableLink>
+      <TableLink href={unitUrl(pk as number)}>{nameFi}</TableLink>
     ),
     width: "50%",
     isSortable: true,
