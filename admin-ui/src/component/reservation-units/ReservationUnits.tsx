@@ -7,6 +7,7 @@ import withMainMenu from "../withMainMenu";
 import Filters, { FilterArguments, emptyState } from "./Filters";
 import ReservationUnitsDataReader, { Sort } from "./ReservationUnitsDataLoader";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
+import { HR } from "../lists/components";
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,12 +17,6 @@ const Wrapper = styled.div`
   padding: var(--spacing-layout-2-xs) 0 var(--spacing-layout-m)
     var(--spacing-layout-m);
   max-width: var(--container-width-l);
-`;
-
-const HR = styled.hr`
-  border: 0;
-  border-top: 1px solid var(--color-black-20);
-  width: 100%;
 `;
 
 const ReservationUnits = (): JSX.Element => {

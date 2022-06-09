@@ -6,12 +6,11 @@ import { FilterArguments } from "./Filters";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import ApplicationsTable from "./ApplicationsTable";
-import { More } from "../../reservation-units/More";
+import { More } from "../../lists/More";
 import { LIST_PAGE_SIZE } from "../../../common/const";
+import { combineResults } from "../../../common/util";
 import {
   ApplicationType,
-  ApplicationTypeConnection,
-  ApplicationTypeEdge,
   Query,
   QueryApplicationsArgs,
 } from "../../../common/gql-types";
@@ -52,18 +51,7 @@ const updateQuery = (
     return previousResult;
   }
 
-  const prevApplications =
-    previousResult.applications as ApplicationTypeConnection;
-
-  return {
-    ...previousResult,
-    applications: {
-      ...prevApplications,
-      edges: (prevApplications.edges as ApplicationTypeEdge[]).concat(
-        (fetchMoreResult.applications?.edges || []) as ApplicationTypeEdge[]
-      ),
-    },
-  };
+  return combineResults(previousResult, fetchMoreResult, "applications");
 };
 
 const ApplicationDataLoader = ({
@@ -81,8 +69,6 @@ const ApplicationDataLoader = ({
   if (sort) {
     sortString = (sort?.sort ? "" : "-") + sort.field;
   }
-
-  console.log("sortString", sortString);
 
   const { fetchMore, loading, data } = useQuery<Query, QueryApplicationsArgs>(
     APPLICATIONS_QUERY,

@@ -1,8 +1,8 @@
-import { Button, IconAngleDown, IconAngleUp, Tag, TextInput } from "hds-react";
-import { get, isEmpty, omit } from "lodash";
+import { Button, IconAngleDown, IconAngleUp, TextInput } from "hds-react";
+import { isEmpty, omit } from "lodash";
 import React, { useEffect, useReducer, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { TFunction, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import styled from "styled-components";
 import { breakpoints } from "../../styles/util";
@@ -11,6 +11,7 @@ import SortedCompobox from "../ReservationUnits/ReservationUnitEditor/SortedComp
 import { RESERVATION_UNIT_TYPES_QUERY } from "./queries";
 import { OptionType } from "../../common/types";
 import UnitFilter from "../filters/UnitFilter";
+import Tags, { toTags } from "../lists/Tags";
 
 export type FilterArguments = {
   nameFi?: string;
@@ -49,12 +50,6 @@ const RangeContrainer = styled.div`
   grid-template-columns: 1fr 1fr;
   align-items: top;
   text-align: center;
-`;
-
-const Tags = styled.div`
-  display: flex;
-  gap: var(--spacing-s);
-  flex-wrap: wrap;
 `;
 
 const Wrapper = styled.div`
@@ -107,43 +102,6 @@ const reducer = (state: FilterArguments, action: Action): FilterArguments => {
     default:
       return { ...state };
   }
-};
-
-type Tag = {
-  key: string;
-  value: string;
-  ac: Action;
-};
-
-const toTags = (state: FilterArguments, t: TFunction): Tag[] => {
-  return (Object.keys(state) as unknown as (keyof FilterArguments)[]).flatMap(
-    (key) => {
-      if (multivaluedFields.includes(key)) {
-        return (get(state, key) as []).map(
-          (v: OptionType) =>
-            ({
-              key: `${key}.${v.value}`,
-              value: v.label,
-              ac: { type: "deleteTag", field: key, value: v.value },
-            } as Tag)
-        );
-      }
-
-      return [
-        {
-          key,
-          value:
-            key === "nameFi"
-              ? `"${state.nameFi}"`
-              : t(`ReservationUnitsSearch.filter.${key}`),
-          ac: {
-            type: "deleteTag",
-            field: key,
-          },
-        } as Tag,
-      ];
-    }
-  );
 };
 
 type TypeComboboxProps = {
@@ -226,7 +184,7 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const tags = toTags(state, t);
+  const tags = toTags(state, t, multivaluedFields);
 
   return (
     <div>
@@ -306,24 +264,7 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
           )}
         </ThinButton>
       </Buttons>
-      {tags.length ? (
-        <Tags>
-          {tags.map((tag) => (
-            <Tag id={tag.key} onDelete={() => dispatch(tag.ac)} key={tag.key}>
-              {tag.value}
-            </Tag>
-          ))}
-          {tags.length > 0 && (
-            <Tag
-              id="delete"
-              onDelete={() => dispatch({ type: "reset" })}
-              theme={{ "--tag-background": "transparent" }}
-            >
-              {t("ReservationUnitsSearch.clear")}
-            </Tag>
-          )}
-        </Tags>
-      ) : null}
+      <Tags tags={tags} t={t} dispatch={dispatch} />
     </div>
   );
 };

@@ -1,11 +1,7 @@
 import React from "react";
 import { TFunction, useTranslation } from "react-i18next";
 import { memoize } from "lodash";
-import {
-  CustomTable,
-  DataOrMessage,
-  TableLink,
-} from "../../reservation-units/components";
+import { CustomTable, DataOrMessage, TableLink } from "../../lists/components";
 
 import { ApplicationView, truncate } from "../util";
 import { applicationDetailsUrl } from "../../../common/urls";

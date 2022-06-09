@@ -952,6 +952,7 @@ type Query {
     id: ID!
   ): SpaceType
   spaceByPk(pk: Int = null): SpaceType
+  serviceSectors(offset: Int = null, before: String = null, after: String = null, first: Int = null, last: Int = null): ServiceSectorTypeConnection
   units(
     offset: Int = null
     before: String = null
@@ -1732,18 +1733,18 @@ input ReservationUnitCreateMutationInput {
 
   """Allow reservations without opening hours. Used for testing."""
   allowReservationsWithoutOpeningHours: Boolean
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
   clientMutationId: String
 }
 
@@ -1853,18 +1854,18 @@ type ReservationUnitCreateMutationPayload {
 
   """Allow reservations without opening hours. Used for testing."""
   allowReservationsWithoutOpeningHours: Boolean
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -2272,18 +2273,18 @@ input ReservationUnitUpdateMutationInput {
 
   """Allow reservations without opening hours. Used for testing."""
   allowReservationsWithoutOpeningHours: Boolean
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
   clientMutationId: String
 }
 
@@ -2393,18 +2394,18 @@ type ReservationUnitUpdateMutationPayload {
 
   """Allow reservations without opening hours. Used for testing."""
   allowReservationsWithoutOpeningHours: Boolean
+  additionalInstructionsFi: String
+  additionalInstructionsEn: String
+  additionalInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  additionalInstructionsFi: String
-  additionalInstructionsEn: String
-  additionalInstructionsSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -2562,12 +2563,12 @@ input ResourceCreateMutationInput {
   """
   bufferTimeAfter: Int
   isDraft: Boolean
-  nameFi: String
-  nameEn: String
-  nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   clientMutationId: String
 }
 
@@ -2590,12 +2591,12 @@ type ResourceCreateMutationPayload {
   """
   bufferTimeAfter: Int
   isDraft: Boolean
-  nameFi: String
-  nameEn: String
-  nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -2679,12 +2680,12 @@ input ResourceUpdateMutationInput {
   """
   bufferTimeAfter: Int
   isDraft: Boolean
-  nameFi: String
-  nameEn: String
-  nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   clientMutationId: String
 }
 
@@ -2707,12 +2708,12 @@ type ResourceUpdateMutationPayload {
   """
   bufferTimeAfter: Int
   isDraft: Boolean
-  nameFi: String
-  nameEn: String
-  nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -2727,6 +2728,24 @@ type ServiceSectorType implements Node {
   nameEn: String
   nameSv: String
   pk: Int
+}
+
+type ServiceSectorTypeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ServiceSectorTypeEdge]!
+  totalCount: Int
+}
+
+"""A Relay edge containing a `ServiceSectorType` and its cursor."""
+type ServiceSectorTypeEdge {
+  """The item at the end of the edge"""
+  node: ServiceSectorType
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 """An enumeration."""
@@ -3076,12 +3095,12 @@ input UnitUpdateMutationInput {
   webPage: String
   email: String
   phone: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   shortDescriptionFi: String
   shortDescriptionEn: String
   shortDescriptionSv: String
@@ -3094,12 +3113,12 @@ type UnitUpdateMutationPayload {
   webPage: String
   email: String
   phone: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   shortDescriptionFi: String
   shortDescriptionEn: String
   shortDescriptionSv: String
