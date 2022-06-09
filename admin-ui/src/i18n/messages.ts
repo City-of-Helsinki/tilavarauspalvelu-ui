@@ -743,6 +743,21 @@ const translations: ITranslations = {
       ],
     },
   },
+  Units: {
+    description: ["Toimipisteen tietoja hallitaan"],
+    descriptionLinkLabel: ["palvelukartan kautta"],
+    descriptionLinkHref: ["https://palvelukartta.hel.fi/fi/"],
+    filters: {
+      nameLabel: ["Toimipisteen nimi"],
+      serviceSector: ["Palvelu"],
+      serviceSectorTag: ["Palvelu: {{value}}"],
+    },
+    headings: {
+      name: ["Toimipisteen nimi"],
+      serviceSector: ["Palvelu"],
+      reservationUnitCount: ["Varausyksiköitä"],
+    },
+  },
   Unit: {
     headings: {
       name: ["Nimi"],
