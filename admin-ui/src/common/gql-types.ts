@@ -979,6 +979,7 @@ export type Query = {
   resource?: Maybe<ResourceType>;
   resourceByPk?: Maybe<ResourceType>;
   resources?: Maybe<ResourceTypeConnection>;
+  serviceSectors?: Maybe<ServiceSectorTypeConnection>;
   space?: Maybe<SpaceType>;
   spaceByPk?: Maybe<SpaceType>;
   spaces?: Maybe<SpaceTypeConnection>;
@@ -1258,6 +1259,14 @@ export type QueryResourcesArgs = {
   nameSv?: InputMaybe<Scalars["String"]>;
   nameSv_Icontains?: InputMaybe<Scalars["String"]>;
   nameSv_Istartswith?: InputMaybe<Scalars["String"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+};
+
+export type QueryServiceSectorsArgs = {
+  after?: InputMaybe<Scalars["String"]>;
+  before?: InputMaybe<Scalars["String"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  last?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
 };
 
@@ -2741,6 +2750,24 @@ export type ServiceSectorType = Node & {
   nameFi?: Maybe<Scalars["String"]>;
   nameSv?: Maybe<Scalars["String"]>;
   pk?: Maybe<Scalars["Int"]>;
+};
+
+export type ServiceSectorTypeConnection = {
+  __typename?: "ServiceSectorTypeConnection";
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ServiceSectorTypeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars["Int"]>;
+};
+
+/** A Relay edge containing a `ServiceSectorType` and its cursor. */
+export type ServiceSectorTypeEdge = {
+  __typename?: "ServiceSectorTypeEdge";
+  /** A cursor for use in pagination */
+  cursor: Scalars["String"];
+  /** The item at the end of the edge */
+  node?: Maybe<ServiceSectorType>;
 };
 
 export type ServiceType = Node & {
