@@ -30,17 +30,9 @@ type Props = {
   sortChanged: (field: string) => void;
 };
 
-const numberOrUndefined = (input?: string) =>
-  input ? Number(input) : undefined;
-
 const mapFilterParams = (params: FilterArguments) => ({
   ...params,
-  maxPersonsLte: numberOrUndefined(params.maxPersonsLte),
-  maxPersonsGte: numberOrUndefined(params.maxPersonsGte),
-  surfaceAreaLte: numberOrUndefined(params.surfaceAreaLte),
-  surfaceAreaGte: numberOrUndefined(params.surfaceAreaGte),
   unit: params.unit.map((u) => u.value as string),
-  reservationUnitType: params.reservationUnitType.map((u) => u.value as string),
 });
 
 const updateQuery = (
@@ -63,8 +55,6 @@ const ApplicationDataLoader = ({
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  console.log("filters", mapFilterParams(filters));
-
   let sortString;
   if (sort) {
     sortString = (sort?.sort ? "" : "-") + sort.field;
@@ -74,9 +64,11 @@ const ApplicationDataLoader = ({
     APPLICATIONS_QUERY,
     {
       variables: {
+        ...mapFilterParams(filters),
         applicationRound: String(applicationRound.id),
         offset: 0,
         first: LIST_PAGE_SIZE,
+        orderBy: sortString,
       },
       onError: (err: ApolloError) => {
         notifyError(err.message);
@@ -102,7 +94,7 @@ const ApplicationDataLoader = ({
       />
       <More
         key={applications.length}
-        totalCount={data?.reservationUnits?.totalCount || 0}
+        totalCount={data?.applications?.totalCount || 0}
         count={applications.length}
         fetchMore={() =>
           fetchMore({

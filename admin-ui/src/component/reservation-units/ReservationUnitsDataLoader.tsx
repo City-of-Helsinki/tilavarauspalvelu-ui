@@ -36,8 +36,10 @@ const mapFilterParams = (params: FilterArguments) => ({
   maxPersonsGte: numberOrUndefined(params.maxPersonsGte),
   surfaceAreaLte: numberOrUndefined(params.surfaceAreaLte),
   surfaceAreaGte: numberOrUndefined(params.surfaceAreaGte),
-  unit: params.unit.map((u) => u.value as string),
-  reservationUnitType: params.reservationUnitType.map((u) => u.value as string),
+  unit: params.unit?.map((u) => u.value as string),
+  reservationUnitType: params.reservationUnitType?.map(
+    (u) => u.value as string
+  ),
 });
 
 const updateQuery = (

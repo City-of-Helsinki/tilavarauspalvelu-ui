@@ -126,16 +126,16 @@ export type ApplicationEventType = Node & {
   __typename?: "ApplicationEventType";
   abilityGroup?: Maybe<AbilityGroupType>;
   abilityGroupId?: Maybe<Scalars["Int"]>;
-  ageGroupDisplay?: Maybe<AgeGroupType>;
+  ageGroup?: Maybe<AgeGroupType>;
   ageGroupId?: Maybe<Scalars["Int"]>;
   aggregatedData?: Maybe<ApplicationEventAggregatedDataType>;
-  applicationEventSchedules?: Maybe<Array<ApplicationEventScheduleType>>;
+  applicationEventSchedules?: Maybe<Array<Maybe<ApplicationEventScheduleType>>>;
   applicationId?: Maybe<Scalars["Int"]>;
   begin?: Maybe<Scalars["Date"]>;
   biweekly: Scalars["Boolean"];
   declinedReservationUnits?: Maybe<Array<ReservationUnitType>>;
   end?: Maybe<Scalars["Date"]>;
-  eventReservationUnits?: Maybe<Array<EventReservationUnitType>>;
+  eventReservationUnits?: Maybe<Array<Maybe<EventReservationUnitType>>>;
   eventsPerWeek?: Maybe<Scalars["Int"]>;
   /** The ID of the object */
   id: Scalars["ID"];
@@ -149,6 +149,24 @@ export type ApplicationEventType = Node & {
   status?: Maybe<ApplicationEventStatus>;
   uuid: Scalars["UUID"];
   weeklyAmountReductionsCount?: Maybe<Scalars["Int"]>;
+};
+
+export type ApplicationEventTypeConnection = {
+  __typename?: "ApplicationEventTypeConnection";
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ApplicationEventTypeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars["Int"]>;
+};
+
+/** A Relay edge containing a `ApplicationEventType` and its cursor. */
+export type ApplicationEventTypeEdge = {
+  __typename?: "ApplicationEventTypeEdge";
+  /** A cursor for use in pagination */
+  cursor: Scalars["String"];
+  /** The item at the end of the edge */
+  node?: Maybe<ApplicationEventType>;
 };
 
 export type ApplicationRoundAggregatedDataType = {
@@ -233,7 +251,7 @@ export type ApplicationType = Node & {
   applicantId?: Maybe<Scalars["Int"]>;
   applicantName?: Maybe<Scalars["String"]>;
   applicantType?: Maybe<ApplicationsApplicationApplicantTypeChoices>;
-  applicationEvents?: Maybe<Array<ApplicationEventType>>;
+  applicationEvents?: Maybe<Array<Maybe<ApplicationEventType>>>;
   applicationRoundId?: Maybe<Scalars["Int"]>;
   billingAddress?: Maybe<AddressType>;
   contactPerson?: Maybe<PersonType>;
@@ -558,7 +576,7 @@ export type EventReservationUnitType = Node & {
   id: Scalars["ID"];
   pk?: Maybe<Scalars["Int"]>;
   priority?: Maybe<Scalars["Int"]>;
-  reservationUnitDetails?: Maybe<ReservationUnitType>;
+  reservationUnit?: Maybe<ReservationUnitType>;
   reservationUnitId?: Maybe<Scalars["Int"]>;
 };
 
@@ -952,6 +970,7 @@ export type PurposeUpdateMutationPayload = {
 export type Query = {
   __typename?: "Query";
   ageGroups?: Maybe<AgeGroupTypeConnection>;
+  applicationEvents?: Maybe<ApplicationEventTypeConnection>;
   applicationRounds?: Maybe<ApplicationRoundTypeConnection>;
   applications?: Maybe<ApplicationTypeConnection>;
   cities?: Maybe<CityTypeConnection>;
@@ -996,6 +1015,22 @@ export type QueryAgeGroupsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+};
+
+export type QueryApplicationEventsArgs = {
+  after?: InputMaybe<Scalars["String"]>;
+  application?: InputMaybe<Scalars["ID"]>;
+  applicationRound?: InputMaybe<Scalars["ID"]>;
+  before?: InputMaybe<Scalars["String"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  last?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Scalars["String"]>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  reservationUnit?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  status?: InputMaybe<Scalars["String"]>;
+  unit?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  user?: InputMaybe<Scalars["ID"]>;
 };
 
 export type QueryApplicationRoundsArgs = {

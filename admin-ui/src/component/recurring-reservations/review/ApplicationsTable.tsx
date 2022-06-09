@@ -24,7 +24,7 @@ const getColConfig = (t: TFunction) => [
   {
     headerName: t("Application.headings.customer"),
     isSortable: true,
-    key: "applicantSort",
+    key: "applicant",
     transform: ({ applicant, id }: ApplicationView) => (
       <TableLink href={applicationDetailsUrl(id)}>
         <span title={applicant}>
@@ -35,12 +35,10 @@ const getColConfig = (t: TFunction) => [
   },
   {
     headerName: t("Application.headings.applicantType"),
-    isSortable: true,
     key: "type",
   },
   {
     headerName: t("Application.headings.unit"),
-    isSortable: true,
     key: "unitsSort",
     transform: ({ units }: ApplicationView) => {
       const allUnits = units.map((u) => u.nameFi).join(", ");
@@ -60,7 +58,6 @@ const getColConfig = (t: TFunction) => [
   },
   {
     headerName: t("Application.headings.applicationCount"),
-    isSortable: true,
     key: "applicationCountSort",
     transform: ({ applicationCount }: ApplicationView) => applicationCount,
   },

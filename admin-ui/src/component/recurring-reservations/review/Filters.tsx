@@ -7,31 +7,22 @@ import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { Span4 } from "../../ReservationUnits/ReservationUnitEditor/modules/reservationUnitEditor";
 
 export type FilterArguments = {
-  nameFi?: string;
-  maxPersonsGte?: string;
-  maxPersonsLte?: string;
-  surfaceAreaGte?: string;
-  surfaceAreaLte?: string;
   unit: OptionType[];
-  reservationUnitType: OptionType[];
-  sort?: string;
 };
 
-export const emptyFilterState = { reservationUnitType: [], unit: [] };
+export const emptyFilterState = { unit: [] };
 
-const multivaledFields = ["unit", "reservationUnitType"];
+const multivaledFields = ["unit"];
 
 type Props = {
   onSearch: (args: FilterArguments) => void;
 };
 
-export const emptyState = { reservationUnitType: [], unit: [] };
-
 const Filters = ({ onSearch }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(
-    getReducer<FilterArguments>(emptyState),
-    emptyState
+    getReducer<FilterArguments>(emptyFilterState),
+    emptyFilterState
   );
 
   useEffect(() => {
@@ -39,7 +30,7 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const tags = toTags(state, t, multivaledFields);
+  const tags = toTags(state, t, multivaledFields, "foo");
 
   return (
     <>

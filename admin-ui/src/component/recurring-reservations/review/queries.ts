@@ -1,18 +1,28 @@
 import { gql } from "@apollo/client";
 
 export const APPLICATIONS_QUERY = gql`
-  query getApplications($offset: Int, $first: Int, $applicationRound: ID) {
+  query getApplications(
+    $offset: Int
+    $first: Int
+    $applicationRound: ID
+    $unit: [ID]
+  ) {
     applications(
-      status: "in_review"
       first: $first
       offset: $offset
+      unit: $unit
       applicationRound: $applicationRound
+      status: "in_review"
     ) {
       edges {
         node {
           pk
           status
           applicantType
+          aggregatedData {
+            appliedMinDurationTotal
+            appliedReservationsTotal
+          }
           contactPerson {
             firstName
             lastName
@@ -22,12 +32,10 @@ export const APPLICATIONS_QUERY = gql`
             organisationType
           }
           applicationEvents {
-            eventsPerWeek
-            minDuration
             name
             eventReservationUnits {
               priority
-              reservationUnitDetails {
+              reservationUnit {
                 unit {
                   nameFi
                 }
@@ -36,6 +44,7 @@ export const APPLICATIONS_QUERY = gql`
           }
         }
       }
+      totalCount
       pageInfo {
         endCursor
         hasNextPage

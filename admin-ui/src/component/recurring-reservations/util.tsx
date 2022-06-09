@@ -9,8 +9,6 @@ import {
 
 import {
   applicantName,
-  applicationHours,
-  applicationTurns,
   getNormalizedApplicationStatus,
 } from "../applications/util";
 import StatusCell from "../StatusCell";
@@ -26,14 +24,10 @@ export type ApplicationView = {
   eventId: number;
   key: string;
   applicant?: string;
-  applicantSort: string;
   name: string;
-  nameSort: string;
   type: string;
   units: UnitType[];
-  unitsSort: string;
   applicationCount: string;
-  applicationCountSort: number;
   status: ApplicationStatus;
   statusView: JSX.Element;
   statusType: ApplicationStatus;
@@ -56,9 +50,9 @@ export const appMapper = (
   const units = orderBy(
     uniqBy(
       (app.applicationEvents || [])
-        .flatMap((ae) => ae.eventReservationUnits)
+        .flatMap((ae) => ae?.eventReservationUnits)
         .flatMap((eru) => ({
-          ...eru?.reservationUnitDetails?.unit,
+          ...eru?.reservationUnit?.unit,
           priority: eru?.priority as number,
         })),
       "id"
@@ -90,14 +84,11 @@ export const appMapper = (
     id: app.pk as number,
     eventId,
     applicant,
-    applicantSort: applicant.toLowerCase(),
     type: app.applicantType
       ? t(`Application.applicantTypes.${app.applicantType.toLowerCase()}`)
       : "",
     units,
-    unitsSort: units.find(() => true)?.nameFi || "",
     name,
-    nameSort: name.toLowerCase(),
     status: status as ApplicationStatus,
     statusView: (
       <StyledStatusCell
@@ -110,12 +101,13 @@ export const appMapper = (
     statusType: app.status as ApplicationStatus,
     applicationCount: trim(
       `${formatNumber(
-        applicationTurns(app),
+        app.aggregatedData?.appliedReservationsTotal,
         t("common.volumeUnit")
-      )} / ${applicationHours(app)} t`,
+      )} / ${formatNumber(
+        Number(app.aggregatedData?.appliedMinDurationTotal) / 3600
+      )} t`,
       " / "
     ),
-    applicationCountSort: applicationTurns(app) || 0,
   };
 };
 

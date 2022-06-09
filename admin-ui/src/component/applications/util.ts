@@ -108,25 +108,23 @@ export const applicationHours = (
   sum(
     (application.applicationEvents || []).map((ae) =>
       appEventHours(
-        ae.begin as string,
-        ae.end as string,
-        ae.biweekly,
-        ae.eventsPerWeek as number,
-        ae.minDuration as number
+        ae?.begin as string,
+        ae?.end as string,
+        ae?.biweekly as boolean,
+        ae?.eventsPerWeek as number,
+        ae?.minDuration as number
       )
     )
   );
 
-export const applicationTurns = (
-  application: Application | ApplicationType
-): number =>
+export const applicationTurns = (application: Application): number =>
   sum(
     (application.applicationEvents || []).map((ae) =>
       numTurns(
-        ae.begin as string,
-        ae.end as string,
-        ae.biweekly,
-        ae.eventsPerWeek as number
+        ae?.begin as string,
+        ae?.end as string,
+        ae?.biweekly as boolean,
+        ae?.eventsPerWeek as number
       )
     )
   );

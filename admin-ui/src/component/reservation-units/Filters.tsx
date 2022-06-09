@@ -1,5 +1,5 @@
 import { Button, IconAngleDown, IconAngleUp, TextInput } from "hds-react";
-import { isEmpty, omit } from "lodash";
+import { isEmpty } from "lodash";
 import React, { useEffect, useReducer, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
@@ -11,7 +11,7 @@ import SortedCompobox from "../ReservationUnits/ReservationUnitEditor/SortedComp
 import { RESERVATION_UNIT_TYPES_QUERY } from "./queries";
 import { OptionType } from "../../common/types";
 import UnitFilter from "../filters/UnitFilter";
-import Tags, { toTags } from "../lists/Tags";
+import Tags, { Action, getReducer, toTags } from "../lists/Tags";
 
 export type FilterArguments = {
   nameFi?: string;
@@ -21,7 +21,6 @@ export type FilterArguments = {
   surfaceAreaLte?: string;
   unit: OptionType[];
   reservationUnitType: OptionType[];
-  sort?: string;
 };
 
 const multivaluedFields = ["unit", "reservationUnitType"];
@@ -72,38 +71,6 @@ const Buttons = styled.div``;
 
 export const emptyState = { reservationUnitType: [], unit: [] };
 
-type Action =
-  | { type: "set"; value: Partial<FilterArguments> }
-  | { type: "deleteTag"; field: keyof FilterArguments; value?: string }
-  | { type: "reset" };
-
-const reducer = (state: FilterArguments, action: Action): FilterArguments => {
-  switch (action.type) {
-    case "set": {
-      return { ...state, ...action.value };
-    }
-
-    case "reset": {
-      return emptyState;
-    }
-
-    case "deleteTag": {
-      if (multivaluedFields.includes(action.field)) {
-        return {
-          ...state,
-          [action.field]: (state[action.field] as OptionType[]).filter(
-            (v) => v.value !== action.value
-          ),
-        };
-      }
-      return omit(state, action.field) as FilterArguments;
-    }
-
-    default:
-      return { ...state };
-  }
-};
-
 type TypeComboboxProps = {
   onChange: (reservationUnitType: OptionType[]) => void;
   value: OptionType[];
@@ -146,7 +113,7 @@ const MyTextInput = ({
 }: {
   id: keyof FilterArguments;
   value?: string;
-  dispatch: React.Dispatch<Action>;
+  dispatch: React.Dispatch<Action<FilterArguments>>;
 }) => (
   <TextInput
     id={id}
@@ -176,7 +143,10 @@ const MyTextInput = ({
 
 const Filters = ({ onSearch }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const [state, dispatch] = useReducer(reducer, emptyState);
+  const [state, dispatch] = useReducer(
+    getReducer<FilterArguments>(emptyState),
+    emptyState
+  );
   const [more, setMore] = useState(false);
 
   useEffect(() => {
