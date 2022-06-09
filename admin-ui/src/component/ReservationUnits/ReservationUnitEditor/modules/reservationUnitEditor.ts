@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Fieldset as HDSFieldset } from "hds-react";
 import { Grid, Span4 as DefaultSpan4 } from "../../../../styles/layout";
 import { breakpoints } from "../../../../styles/util";
 
@@ -85,4 +86,10 @@ export const Error = styled.div`
     flex-shrink: 0;
   }
   white-space: nowrap;
+`;
+
+export const Fieldset = styled(HDSFieldset)`
+  legend {
+    margin-bottom: var(--spacing-2-xs);
+  }
 `;
