@@ -11,6 +11,15 @@ export type Tag<T> = {
   ac: Action<T>;
 };
 
+const StyledTag = styled(HDSTag)`
+  border-radius: 30px;
+  padding: 0px 1em;
+`;
+
+const DeleteTag = styled(HDSTag)`
+  background: transparent;
+`;
+
 export type Action<T> =
   | { type: "set"; value: Partial<T> }
   | { type: "deleteTag"; field: keyof T; value?: string }
@@ -92,18 +101,18 @@ export default function Tags<T>({
   return tags.length ? (
     <Wrapper>
       {tags.map((tag) => (
-        <HDSTag id={tag.key} onDelete={() => dispatch(tag.ac)} key={tag.key}>
+        <StyledTag id={tag.key} onDelete={() => dispatch(tag.ac)} key={tag.key}>
           {tag.value}
-        </HDSTag>
+        </StyledTag>
       ))}
       {tags.length > 0 && (
-        <HDSTag
+        <DeleteTag
           id="delete"
           onDelete={() => dispatch({ type: "reset" })}
           theme={{ "--tag-background": "transparent" }}
         >
           {t("common.clear")}
-        </HDSTag>
+        </DeleteTag>
       )}
     </Wrapper>
   ) : null;
