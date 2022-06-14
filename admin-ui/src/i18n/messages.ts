@@ -745,8 +745,8 @@ const translations: ITranslations = {
   },
   Units: {
     description: ["Toimipisteen tietoja hallitaan"],
-    descriptionLinkLabel: ["palvelukartan kautta"],
-    descriptionLinkHref: ["https://palvelukartta.hel.fi/fi/"],
+    descriptionLinkLabel: ["toimipisterekisterin kautta"],
+    descriptionLinkHref: ["https://asiointi.hel.fi/tprperhe/etusivu/"],
     filters: {
       nameLabel: ["Toimipisteen nimi"],
       serviceSector: ["Palvelu"],
