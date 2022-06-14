@@ -20,6 +20,7 @@ test("Units are ordered according to priority", async () => {
               reservationUnit: {
                 unit: {
                   id: "100",
+                  pk: 1,
                   nameFi: "unit 100",
                 },
               },
@@ -29,6 +30,7 @@ test("Units are ordered according to priority", async () => {
               priority: 0,
               reservationUnit: {
                 unit: {
+                  pk: 2,
                   id: "200",
                   nameFi: "unit 200",
                 },
