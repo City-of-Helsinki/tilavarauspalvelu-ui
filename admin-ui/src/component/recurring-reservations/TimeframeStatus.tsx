@@ -17,7 +17,7 @@ interface IProps {
 const Wrapper = styled.span`
   display: flex;
   align-items: center;
-  gap: var(--spacing-s);
+  gap: var(--spacing-3-xs);
 
   svg {
     min-width: 24px;

@@ -126,16 +126,16 @@ export type ApplicationEventType = Node & {
   __typename?: "ApplicationEventType";
   abilityGroup?: Maybe<AbilityGroupType>;
   abilityGroupId?: Maybe<Scalars["Int"]>;
-  ageGroupDisplay?: Maybe<AgeGroupType>;
+  ageGroup?: Maybe<AgeGroupType>;
   ageGroupId?: Maybe<Scalars["Int"]>;
   aggregatedData?: Maybe<ApplicationEventAggregatedDataType>;
-  applicationEventSchedules?: Maybe<Array<ApplicationEventScheduleType>>;
+  applicationEventSchedules?: Maybe<Array<Maybe<ApplicationEventScheduleType>>>;
   applicationId?: Maybe<Scalars["Int"]>;
   begin?: Maybe<Scalars["Date"]>;
   biweekly: Scalars["Boolean"];
   declinedReservationUnits?: Maybe<Array<ReservationUnitType>>;
   end?: Maybe<Scalars["Date"]>;
-  eventReservationUnits?: Maybe<Array<EventReservationUnitType>>;
+  eventReservationUnits?: Maybe<Array<Maybe<EventReservationUnitType>>>;
   eventsPerWeek?: Maybe<Scalars["Int"]>;
   /** The ID of the object */
   id: Scalars["ID"];
@@ -149,6 +149,24 @@ export type ApplicationEventType = Node & {
   status?: Maybe<ApplicationEventStatus>;
   uuid: Scalars["UUID"];
   weeklyAmountReductionsCount?: Maybe<Scalars["Int"]>;
+};
+
+export type ApplicationEventTypeConnection = {
+  __typename?: "ApplicationEventTypeConnection";
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ApplicationEventTypeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars["Int"]>;
+};
+
+/** A Relay edge containing a `ApplicationEventType` and its cursor. */
+export type ApplicationEventTypeEdge = {
+  __typename?: "ApplicationEventTypeEdge";
+  /** A cursor for use in pagination */
+  cursor: Scalars["String"];
+  /** The item at the end of the edge */
+  node?: Maybe<ApplicationEventType>;
 };
 
 export type ApplicationRoundAggregatedDataType = {
@@ -183,7 +201,6 @@ export type ApplicationRoundType = Node & {
   applicationRoundBaskets?: Maybe<Array<Maybe<ApplicationRoundBasketType>>>;
   applicationsCount?: Maybe<Scalars["Int"]>;
   applicationsSent?: Maybe<Scalars["Boolean"]>;
-  approvedBy?: Maybe<Scalars["String"]>;
   criteriaEn?: Maybe<Scalars["String"]>;
   criteriaFi?: Maybe<Scalars["String"]>;
   criteriaSv?: Maybe<Scalars["String"]>;
@@ -233,7 +250,7 @@ export type ApplicationType = Node & {
   applicantId?: Maybe<Scalars["Int"]>;
   applicantName?: Maybe<Scalars["String"]>;
   applicantType?: Maybe<ApplicationsApplicationApplicantTypeChoices>;
-  applicationEvents?: Maybe<Array<ApplicationEventType>>;
+  applicationEvents?: Maybe<Array<Maybe<ApplicationEventType>>>;
   applicationRoundId?: Maybe<Scalars["Int"]>;
   billingAddress?: Maybe<AddressType>;
   contactPerson?: Maybe<PersonType>;
@@ -558,7 +575,7 @@ export type EventReservationUnitType = Node & {
   id: Scalars["ID"];
   pk?: Maybe<Scalars["Int"]>;
   priority?: Maybe<Scalars["Int"]>;
-  reservationUnitDetails?: Maybe<ReservationUnitType>;
+  reservationUnit?: Maybe<ReservationUnitType>;
   reservationUnitId?: Maybe<Scalars["Int"]>;
 };
 
@@ -952,6 +969,7 @@ export type PurposeUpdateMutationPayload = {
 export type Query = {
   __typename?: "Query";
   ageGroups?: Maybe<AgeGroupTypeConnection>;
+  applicationEvents?: Maybe<ApplicationEventTypeConnection>;
   applicationRounds?: Maybe<ApplicationRoundTypeConnection>;
   applications?: Maybe<ApplicationTypeConnection>;
   cities?: Maybe<CityTypeConnection>;
@@ -979,6 +997,7 @@ export type Query = {
   resource?: Maybe<ResourceType>;
   resourceByPk?: Maybe<ResourceType>;
   resources?: Maybe<ResourceTypeConnection>;
+  serviceSectors?: Maybe<ServiceSectorTypeConnection>;
   space?: Maybe<SpaceType>;
   spaceByPk?: Maybe<SpaceType>;
   spaces?: Maybe<SpaceTypeConnection>;
@@ -995,6 +1014,22 @@ export type QueryAgeGroupsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+};
+
+export type QueryApplicationEventsArgs = {
+  after?: InputMaybe<Scalars["String"]>;
+  application?: InputMaybe<Scalars["ID"]>;
+  applicationRound?: InputMaybe<Scalars["ID"]>;
+  before?: InputMaybe<Scalars["String"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  last?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Scalars["String"]>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  reservationUnit?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  status?: InputMaybe<Scalars["String"]>;
+  unit?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  user?: InputMaybe<Scalars["ID"]>;
 };
 
 export type QueryApplicationRoundsArgs = {
@@ -1198,6 +1233,7 @@ export type QueryReservationUnitsArgs = {
   applicationRound?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
+  isArchived?: InputMaybe<Scalars["Boolean"]>;
   isDraft?: InputMaybe<Scalars["Boolean"]>;
   isVisible?: InputMaybe<Scalars["Boolean"]>;
   keywordGroups?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
@@ -1261,6 +1297,14 @@ export type QueryResourcesArgs = {
   offset?: InputMaybe<Scalars["Int"]>;
 };
 
+export type QueryServiceSectorsArgs = {
+  after?: InputMaybe<Scalars["String"]>;
+  before?: InputMaybe<Scalars["String"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  last?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+};
+
 export type QuerySpaceArgs = {
   id: Scalars["ID"];
 };
@@ -1318,15 +1362,12 @@ export type QueryUnitsArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
   nameEn?: InputMaybe<Scalars["String"]>;
-  nameEn_Icontains?: InputMaybe<Scalars["String"]>;
-  nameEn_Istartswith?: InputMaybe<Scalars["String"]>;
   nameFi?: InputMaybe<Scalars["String"]>;
-  nameFi_Icontains?: InputMaybe<Scalars["String"]>;
-  nameFi_Istartswith?: InputMaybe<Scalars["String"]>;
   nameSv?: InputMaybe<Scalars["String"]>;
-  nameSv_Icontains?: InputMaybe<Scalars["String"]>;
-  nameSv_Istartswith?: InputMaybe<Scalars["String"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Scalars["String"]>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  serviceSector?: InputMaybe<Scalars["Float"]>;
 };
 
 export type RealEstateType = Node & {
@@ -1764,6 +1805,8 @@ export type ReservationUnitByPkType = Node & {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Is it possible to reserve this reservation unit when opening hours are not defined. */
+  allowReservationsWithoutOpeningHours: Scalars["Boolean"];
   applicationRounds?: Maybe<Array<Maybe<ApplicationRoundType>>>;
   /** Authentication required for reserving this reservation unit. */
   authentication: ReservationUnitsReservationUnitAuthenticationChoices;
@@ -1784,6 +1827,8 @@ export type ReservationUnitByPkType = Node & {
   /** The ID of the object */
   id: Scalars["ID"];
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
+  /** Is reservation unit archived. */
+  isArchived: Scalars["Boolean"];
   isDraft: Scalars["Boolean"];
   keywordGroups?: Maybe<Array<Maybe<KeywordGroupType>>>;
   location?: Maybe<LocationType>;
@@ -1889,6 +1934,8 @@ export type ReservationUnitCreateMutationInput = {
   additionalInstructionsEn?: InputMaybe<Scalars["String"]>;
   additionalInstructionsFi?: InputMaybe<Scalars["String"]>;
   additionalInstructionsSv?: InputMaybe<Scalars["String"]>;
+  /** Allow reservations without opening hours. Used for testing. */
+  allowReservationsWithoutOpeningHours?: InputMaybe<Scalars["Boolean"]>;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: InputMaybe<Scalars["String"]>;
   bufferTimeAfter?: InputMaybe<Scalars["Int"]>;
@@ -1906,6 +1953,8 @@ export type ReservationUnitCreateMutationInput = {
   equipmentPks?: InputMaybe<Array<InputMaybe<Scalars["Int"]>>>;
   /** Maximum price of the reservation unit */
   highestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Is reservation unit archived */
+  isArchived?: InputMaybe<Scalars["Boolean"]>;
   isDraft?: InputMaybe<Scalars["Boolean"]>;
   /** Minimum price of the reservation unit */
   lowestPrice?: InputMaybe<Scalars["Float"]>;
@@ -1958,6 +2007,8 @@ export type ReservationUnitCreateMutationPayload = {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Allow reservations without opening hours. Used for testing. */
+  allowReservationsWithoutOpeningHours?: Maybe<Scalars["Boolean"]>;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: Maybe<Scalars["String"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
@@ -1978,6 +2029,8 @@ export type ReservationUnitCreateMutationPayload = {
   highestPrice?: Maybe<Scalars["Float"]>;
   /** Images of the reservation unit as nested related objects.  */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
+  /** Is reservation unit archived */
+  isArchived?: Maybe<Scalars["Boolean"]>;
   isDraft?: Maybe<Scalars["Boolean"]>;
   /** Location of this reservation unit. Dynamically determined from spaces of the reservation unit. */
   location?: Maybe<Scalars["String"]>;
@@ -2102,6 +2155,8 @@ export type ReservationUnitType = Node & {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Is it possible to reserve this reservation unit when opening hours are not defined. */
+  allowReservationsWithoutOpeningHours: Scalars["Boolean"];
   applicationRounds?: Maybe<Array<Maybe<ApplicationRoundType>>>;
   /** Authentication required for reserving this reservation unit. */
   authentication: ReservationUnitsReservationUnitAuthenticationChoices;
@@ -2121,6 +2176,8 @@ export type ReservationUnitType = Node & {
   /** The ID of the object */
   id: Scalars["ID"];
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
+  /** Is reservation unit archived. */
+  isArchived: Scalars["Boolean"];
   isDraft: Scalars["Boolean"];
   keywordGroups?: Maybe<Array<Maybe<KeywordGroupType>>>;
   location?: Maybe<LocationType>;
@@ -2236,6 +2293,8 @@ export type ReservationUnitUpdateMutationInput = {
   additionalInstructionsEn?: InputMaybe<Scalars["String"]>;
   additionalInstructionsFi?: InputMaybe<Scalars["String"]>;
   additionalInstructionsSv?: InputMaybe<Scalars["String"]>;
+  /** Allow reservations without opening hours. Used for testing. */
+  allowReservationsWithoutOpeningHours?: InputMaybe<Scalars["Boolean"]>;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: InputMaybe<Scalars["String"]>;
   bufferTimeAfter?: InputMaybe<Scalars["Int"]>;
@@ -2253,6 +2312,8 @@ export type ReservationUnitUpdateMutationInput = {
   equipmentPks?: InputMaybe<Array<InputMaybe<Scalars["Int"]>>>;
   /** Maximum price of the reservation unit */
   highestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Is reservation unit archived */
+  isArchived?: InputMaybe<Scalars["Boolean"]>;
   isDraft?: InputMaybe<Scalars["Boolean"]>;
   /** Minimum price of the reservation unit */
   lowestPrice?: InputMaybe<Scalars["Float"]>;
@@ -2306,6 +2367,8 @@ export type ReservationUnitUpdateMutationPayload = {
   additionalInstructionsEn?: Maybe<Scalars["String"]>;
   additionalInstructionsFi?: Maybe<Scalars["String"]>;
   additionalInstructionsSv?: Maybe<Scalars["String"]>;
+  /** Allow reservations without opening hours. Used for testing. */
+  allowReservationsWithoutOpeningHours?: Maybe<Scalars["Boolean"]>;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: Maybe<Scalars["String"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
@@ -2326,6 +2389,8 @@ export type ReservationUnitUpdateMutationPayload = {
   highestPrice?: Maybe<Scalars["Float"]>;
   /** Images of the reservation unit as nested related objects.  */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
+  /** Is reservation unit archived */
+  isArchived?: Maybe<Scalars["Boolean"]>;
   isDraft?: Maybe<Scalars["Boolean"]>;
   /** Location of this reservation unit. Dynamically determined from spaces of the reservation unit. */
   location?: Maybe<Scalars["String"]>;
@@ -2734,6 +2799,24 @@ export type ServiceSectorType = Node & {
   pk?: Maybe<Scalars["Int"]>;
 };
 
+export type ServiceSectorTypeConnection = {
+  __typename?: "ServiceSectorTypeConnection";
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<ServiceSectorTypeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars["Int"]>;
+};
+
+/** A Relay edge containing a `ServiceSectorType` and its cursor. */
+export type ServiceSectorTypeEdge = {
+  __typename?: "ServiceSectorTypeEdge";
+  /** A cursor for use in pagination */
+  cursor: Scalars["String"];
+  /** The item at the end of the edge */
+  node?: Maybe<ServiceSectorType>;
+};
+
 export type ServiceType = Node & {
   __typename?: "ServiceType";
   bufferTimeAfter?: Maybe<Scalars["Duration"]>;
@@ -2984,6 +3067,7 @@ export type UnitByPkType = Node & {
   phone: Scalars["String"];
   pk?: Maybe<Scalars["Int"]>;
   reservationUnits?: Maybe<Array<Maybe<ReservationUnitType>>>;
+  serviceSectors?: Maybe<Array<Maybe<ServiceSectorType>>>;
   shortDescriptionEn?: Maybe<Scalars["String"]>;
   shortDescriptionFi?: Maybe<Scalars["String"]>;
   shortDescriptionSv?: Maybe<Scalars["String"]>;
@@ -3014,6 +3098,7 @@ export type UnitType = Node & {
   phone: Scalars["String"];
   pk?: Maybe<Scalars["Int"]>;
   reservationUnits?: Maybe<Array<Maybe<ReservationUnitType>>>;
+  serviceSectors?: Maybe<Array<Maybe<ServiceSectorType>>>;
   shortDescriptionEn?: Maybe<Scalars["String"]>;
   shortDescriptionFi?: Maybe<Scalars["String"]>;
   shortDescriptionSv?: Maybe<Scalars["String"]>;
@@ -3082,30 +3167,35 @@ export type UnitUpdateMutationPayload = {
 
 /** An enumeration. */
 export enum ApplicationEventStatus {
-  Allocated = "allocated",
   Approved = "approved",
   Created = "created",
   Declined = "declined",
-  Validated = "validated",
+  Failed = "failed",
+  Reserved = "reserved",
 }
 
 /** An enumeration. */
 export enum ApplicationRoundStatus {
   Allocated = "allocated",
-  Approved = "approved",
+  Archived = "archived",
   Draft = "draft",
   Handled = "handled",
   InReview = "in_review",
+  Reserving = "reserving",
   ReviewDone = "review_done",
-  Validated = "validated",
+  Sending = "sending",
+  Sent = "sent",
 }
 
 /** An enumeration. */
 export enum ApplicationStatus {
+  Allocated = "allocated",
   Cancelled = "cancelled",
-  Declined = "declined",
   Draft = "draft",
+  Expired = "expired",
+  Handled = "handled",
   InReview = "in_review",
+  Received = "received",
   ReviewDone = "review_done",
   Sent = "sent",
 }
