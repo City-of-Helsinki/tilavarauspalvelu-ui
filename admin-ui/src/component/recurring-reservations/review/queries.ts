@@ -37,6 +37,7 @@ export const APPLICATIONS_QUERY = gql`
               priority
               reservationUnit {
                 unit {
+                  pk
                   nameFi
                 }
               }

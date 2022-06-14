@@ -55,12 +55,11 @@ export const appMapper = (
           ...eru?.reservationUnit?.unit,
           priority: eru?.priority as number,
         })),
-      "id"
+      "pk"
     ),
     "priority",
     "asc"
   ) as UnitType[];
-
   const name = app.applicationEvents?.find(() => true)?.name || "-";
   const eventId = app.applicationEvents?.find(() => true)
     ?.id as unknown as number;

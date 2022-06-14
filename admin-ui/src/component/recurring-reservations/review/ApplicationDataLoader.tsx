@@ -32,7 +32,7 @@ type Props = {
 
 const mapFilterParams = (params: FilterArguments) => ({
   ...params,
-  unit: params.unit.map((u) => u.value as string),
+  unit: params.unit?.map((u) => u.value as string),
 });
 
 const updateQuery = (
