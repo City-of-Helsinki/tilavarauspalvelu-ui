@@ -37,6 +37,15 @@ const translations: ITranslations = {
     5: ["La"],
     6: ["Su"],
   },
+  dayLong: {
+    0: ["Maanantai"],
+    1: ["Tiistai"],
+    2: ["Keskiviikko"],
+    3: ["Torstai"],
+    4: ["Perjantai"],
+    5: ["Lauantai"],
+    6: ["Sunnuntai"],
+  },
   authentication: {
     WEAK: ["Heikko tunnistautuminen"],
     STRONG: ["Vahva tunnistautuminen"],
@@ -536,6 +545,11 @@ const translations: ITranslations = {
     primarySchedules: ["Ensisijaiset aikatoiveet"],
     secondarySchedules: ["Muut aikatoiveet"],
     noSchedule: ["ei aikatoiveita"],
+    priority: {
+      300: ["Ensisijaiset aikatoiveet"],
+      200: ["Muut aikatoiveet"],
+      all: ["Kaikki"],
+    },
   },
   Organisation: {
     activeParticipants: ["Aktiiviharrastajat"],
