@@ -41,7 +41,9 @@ function TimeframeStatus({
       date: formatDate(resolutionDate || ""),
     });
   } else if (isPast(dateBegin) && isFuture(dateEnd)) {
-    message = t("Application.timeframeCurrent");
+    message = t("Application.timeframeCurrent", {
+      date: formatDate(applicationPeriodEnd),
+    });
   } else if (isToday(dateEnd)) {
     message = `${t("Application.timeframePast", {
       date: formatDate(applicationPeriodEnd),

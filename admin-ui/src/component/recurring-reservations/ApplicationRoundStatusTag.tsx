@@ -10,28 +10,70 @@ interface IProps {
   applicationRound: ApplicationRoundType;
 }
 
-const getApplicationStatus = (applicationRound: ApplicationRoundType) => {
-  const cutOffDate = Date();
+type RoundStatus = {
+  color: string;
+  label: string;
+  group: string;
+};
+
+export const getApplicationRoundStatus = (
+  applicationRound: ApplicationRoundType
+): RoundStatus => {
+  const cutOffDate = new Date();
   switch (applicationRound.status) {
-    // ui has 5 groups
     case ApplicationRoundStatus.InReview:
-      return "g1";
+      return {
+        group: "g1",
+        color: "var(--color-gold-medium-light)",
+        label: "review",
+      };
     case ApplicationRoundStatus.ReviewDone:
-      return " ";
+      return {
+        group: "g1",
+        color: "var(--color-info-light)",
+        label: "handling",
+      };
     case ApplicationRoundStatus.Handled:
-      return "g2";
-    case ApplicationRoundStatus.Draft:
-      return cutOffDate < applicationRound.applicationPeriodBegin ? "g4" : "g3";
+      return { group: "g2", color: "var(--color-bus-light)", label: "handled" };
+    case ApplicationRoundStatus.Draft: {
+      if (cutOffDate < new Date(applicationRound.applicationPeriodBegin)) {
+        return {
+          group: "g4",
+          color: "var(--color-engel-light)",
+          label: "upcoming",
+        };
+      }
+
+      if (cutOffDate > new Date(applicationRound.applicationPeriodEnd)) {
+        return {
+          group: "g1",
+          color: "var(--color-info-light)",
+          label: "handling",
+        };
+      }
+
+      return { group: "g3", color: "var(--color-brick-light)", label: "open" };
+    }
+    case ApplicationRoundStatus.Sent:
+      return { group: "g5", color: "var(--color-black-05)", label: "sent" };
     default:
-      return "g5";
+      return { group: "g5", color: "white", label: "not implemented" };
   }
 };
 
 function ApplicationRoundStatusTag({ applicationRound }: IProps): JSX.Element {
   const { t } = useTranslation();
   return (
-    <Tag>
-      {t(`applicationRound.status${getApplicationStatus(applicationRound)}`)}
+    <Tag
+      theme={{
+        "--tag-background": getApplicationRoundStatus(applicationRound).color,
+      }}
+    >
+      {t(
+        `ApplicationRound.statuses.${
+          getApplicationRoundStatus(applicationRound).label
+        }`
+      )}
     </Tag>
   );
 }

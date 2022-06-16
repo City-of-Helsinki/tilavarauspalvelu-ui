@@ -49,36 +49,6 @@ export const CustomTable = (props: TableProps): JSX.Element => (
 
 export default CustomTable;
 
-const NoDataMessage = styled.span`
-  line-height: 4;
-`;
-
 export const TableLink = styled(Link)`
   color: black;
 `;
-
-export function DataOrMessage({
-  data,
-  filteredData,
-  children,
-  noData,
-  noFilteredData,
-}: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  filteredData: any[];
-  children: JSX.Element;
-  noData: string;
-  noFilteredData: string;
-}): JSX.Element {
-  if (filteredData.length) {
-    return children;
-  }
-
-  if (data.length === 0) {
-    return <NoDataMessage>{noData}</NoDataMessage>;
-  }
-
-  return <NoDataMessage>{noFilteredData}</NoDataMessage>;
-}

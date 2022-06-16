@@ -18,6 +18,7 @@ export const APPLICATION_ROUNDS_QUERY = gql`
           status
           applicationsCount
           reservationUnitCount
+          statusTimestamp
         }
       }
     }
@@ -35,7 +36,6 @@ export const APPLICATIONS_QUERY = gql`
             firstName
             lastName
           }
-
           organisation {
             name
             organisationType
