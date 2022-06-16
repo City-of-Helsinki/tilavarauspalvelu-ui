@@ -25,7 +25,6 @@ const Container = styled.div`
 const ServiceSector = styled.span``;
 const Name = styled.span`
   font-size: var(--fontsize-heading-s);
-  padding-bottom: var(--spacing-2-s);
 `;
 const Times = styled.div`
   display: flex;
