@@ -353,9 +353,7 @@ const translations: ITranslations = {
   ApplicationRound: {
     titleAllRecurringApplicationRounds: ["Kaikki vakiovuorojen hakukierrokset"],
     browseAllApplicationRounds: ["Selaa kaikkia"],
-    noUpcoming: [
-      "Ei tulossa olevia hakukierroksia, tee uusi hakukierros djangossa",
-    ],
+    noUpcoming: ["Ei tulossa olevia hakukierroksia."],
     statuses: {
       upcoming: ["Tulossa"],
       open: ["Haku avoinna"],
