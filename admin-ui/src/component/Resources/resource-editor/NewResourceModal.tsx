@@ -221,7 +221,7 @@ const NewResourceModal = ({
           }}
           variant="secondary"
         >
-          {t("ResourceModal.saveAsDraft")}
+          {t("ResourceModal.save")}
         </SaveButton>
       </Buttons>
     </>

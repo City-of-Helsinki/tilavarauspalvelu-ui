@@ -32,13 +32,14 @@ import {
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
   ReservationUnitImageCreateMutationInput,
   ReservationUnitsReservationUnitAuthenticationChoices,
+  ReservationUnitByPkType,
 } from "../../../common/gql-types";
 import {
   RESERVATION_UNIT_EDITOR_PARAMETERS,
   UNIT_WITH_SPACES_AND_RESOURCES,
 } from "../../../common/queries";
 import { OptionType } from "../../../common/types";
-import { ContentContainer } from "../../../styles/layout";
+import { ContentContainer, Span12, Span3, Span6 } from "../../../styles/layout";
 
 import { ButtonsStripe, WhiteButton } from "../../../styles/util";
 import Loader from "../../Loader";
@@ -52,18 +53,16 @@ import ImageEditor from "./ImageEditor";
 import DateTimeInput from "./DateTimeInput";
 import {
   ButtonsContainer,
-  Span3,
   Editor,
   EditorContainer,
   EditorGrid,
-  Span6,
   Preview,
   PublishingTime,
-  Span12,
   Wrapper,
   Span4,
   Error,
   Fieldset,
+  ArchiveButton,
 } from "./modules/reservationUnitEditor";
 import { IProps, schema, State } from "./types";
 import { getInitialState, i18nFields, reducer } from "./reducer";
@@ -77,6 +76,8 @@ import {
 } from "./queries";
 import FormErrorSummary from "../../../common/FormErrorSummary";
 import SortedCompobox from "./SortedCompobox";
+import { useModal } from "../../../context/ModalContext";
+import ArchiveDialog from "./ArchiveDialog";
 
 const bufferTimeOptions = [
   { value: 900, label: "15 minuuttia" },
@@ -164,7 +165,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     createReservationUnitMutation({ variables: { input } });
 
   const createOrUpdateReservationUnit = async (
-    publish: boolean
+    publish: boolean,
+    archive = false
   ): Promise<number | undefined> => {
     const input = pick(
       {
@@ -178,6 +180,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           ?.maxReservationsPerUser
           ? Number(state.reservationUnitEdit?.maxReservationsPerUser)
           : null,
+        isArchived: archive,
       },
       [
         "reservationKind",
@@ -218,6 +221,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "canApplyFreeOfCharge",
         "reservationsMinDaysBefore",
         "reservationsMaxDaysBefore",
+        "isArchived",
         ...i18nFields("additionalInstructions"),
         ...i18nFields("description"),
         ...i18nFields("name"),
@@ -454,6 +458,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   const setValue = (value: any) => {
     dispatch({ type: "set", value });
   };
+
+  const { setModalContent } = useModal();
 
   if (state.loading) {
     return <Loader />;
@@ -1556,6 +1562,40 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                   </p>
                 )}
               </Accordion>
+              <ArchiveButton
+                onClick={() =>
+                  setModalContent(
+                    <ArchiveDialog
+                      reservationUnit={
+                        state.reservationUnit as ReservationUnitByPkType
+                      }
+                      onAccept={async () => {
+                        try {
+                          const r = await createOrUpdateReservationUnit(
+                            state.reservationUnit?.isDraft || false,
+                            true
+                          );
+
+                          if (r) {
+                            setModalContent(null);
+                            notifySuccess(
+                              t("ArchiveReservationUnitDialog.success")
+                            );
+                            history.replace("/reservation-units");
+                          }
+                        } catch (e) {
+                          // noop
+                        }
+                      }}
+                      onClose={() => setModalContent(null)}
+                    />,
+                    true
+                  )
+                }
+                variant="secondary"
+              >
+                {t("ReservationUnitEditor.archive")}
+              </ArchiveButton>
             </Editor>
           </EditorContainer>
         </ContentContainer>
