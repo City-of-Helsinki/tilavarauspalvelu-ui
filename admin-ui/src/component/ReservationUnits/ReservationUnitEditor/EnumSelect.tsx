@@ -28,7 +28,6 @@ const EnumSelect = ({
   type,
   errorText,
   sort = false,
-  multiselect = false,
 }: {
   id: string;
   label: string;
@@ -40,10 +39,8 @@ const EnumSelect = ({
   type: { [key: string]: string };
   errorText?: string;
   sort?: boolean;
-  multiselect?: boolean;
 }): JSX.Element => {
   const { t } = useTranslation();
-  console.log("multiselect", multiselect);
 
   const options: OptionType[] = Object.keys(type).map((key) => ({
     value: type[key],

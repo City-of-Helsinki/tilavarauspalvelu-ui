@@ -76,22 +76,12 @@ export const getReducer =
 
       case "deleteTag": {
         if (!action.value) {
-          console.log("deleting global tag", action.field, action.value);
           return omit(state as Partial<T>, action.field) as unknown as T;
         }
 
         const filtered = (
           state[action.field] as unknown as [OptionType]
         ).filter((e) => e.value !== action.value);
-
-        console.log(
-          "deleting one tag from ",
-          action.field,
-          "now",
-          state[action.field],
-          "after",
-          filtered
-        );
 
         return {
           ...state,
@@ -125,7 +115,6 @@ export default function Tags<T>({
         <StyledTag
           id={tag.key}
           onDelete={() => {
-            console.log("dispatching delete for:", tag);
             dispatch(tag.ac);
           }}
           key={tag.key}
