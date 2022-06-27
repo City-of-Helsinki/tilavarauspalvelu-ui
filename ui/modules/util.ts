@@ -27,15 +27,12 @@ import {
   TranslationObject,
   ReservationUnit,
   Image,
+  ApplicationStatus,
   ReducedApplicationStatus,
   StringParameter,
   ApplicationEventSchedulePriority,
 } from "./types";
-import {
-  ApplicationStatus,
-  ReservationUnitImageType,
-  ReservationUnitType,
-} from "./gql-types";
+import { ReservationUnitImageType, ReservationUnitType } from "./gql-types";
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date().getTime();
@@ -417,13 +414,13 @@ export const getReducedApplicationStatus = (
 ): ReducedApplicationStatus => {
   switch (status) {
     case "in_review":
-    case "expired":
-    case "received":
     case "review_done":
+    case "allocating":
     case "allocated":
+    case "validated":
       return "processing";
     default:
-      return status as ReducedApplicationStatus;
+      return status;
   }
 };
 
