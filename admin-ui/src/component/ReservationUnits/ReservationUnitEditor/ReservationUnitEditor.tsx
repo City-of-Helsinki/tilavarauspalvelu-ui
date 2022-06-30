@@ -578,7 +578,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 </Span12>
                 {["DIRECT_AND_SEASON", "DIRECT", "SEASON"].map(
                   (kind, index) => (
-                    <Span4>
+                    <Span4 key={kind}>
                       <RadioButton
                         id={`reservationKind.${kind}`}
                         name="reservationKind"
@@ -603,9 +603,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 {languages.map((lang) => {
                   const fieldName = `name${upperFirst(lang)}`;
                   return (
-                    <Span12>
+                    <Span12 key={lang}>
                       <TextInput
-                        key={lang}
                         required
                         id={fieldName}
                         label={t(`ReservationUnitEditor.label.${fieldName}`)}
@@ -818,9 +817,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 {languages.map((lang) => {
                   const fieldName = `description${upperFirst(lang)}`;
                   return (
-                    <Span12>
+                    <Span12 key={lang}>
                       <RichTextInput
-                        key={lang}
                         required
                         id={fieldName}
                         label={t(`ReservationUnitEditor.label.${fieldName}`)}
@@ -1380,9 +1378,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                   {languages.map((lang) => {
                     const fieldName = `termsOfUse${upperFirst(lang)}`;
                     return (
-                      <Span12>
+                      <Span12 key={lang}>
                         <RichTextInput
-                          key={lang}
                           id={fieldName}
                           label={t(`ReservationUnitEditor.label.${fieldName}`)}
                           value={get(
@@ -1405,11 +1402,10 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       const options = get(state, `${name}TermsOptions`);
                       const propName = `${name}TermsPk`;
                       return (
-                        <Span6>
+                        <Span6 key={name}>
                           <Select
                             sort
                             id={name}
-                            key={name}
                             label={t(`ReservationUnitEditor.label.${propName}`)}
                             placeholder={t(
                               `ReservationUnitEditor.${name}TermsPlaceholder`
