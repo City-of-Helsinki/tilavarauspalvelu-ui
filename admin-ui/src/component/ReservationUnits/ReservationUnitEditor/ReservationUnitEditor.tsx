@@ -1526,6 +1526,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     <TextInput
                       id="contactInformation"
                       label={t("ReservationUnitEditor.contactInformationLabel")}
+                      helperText={t(
+                        "ReservationUnitEditor.contactInformationHelperText"
+                      )}
                       value={state.reservationUnitEdit.contactInformation || ""}
                       onChange={(e) =>
                         setValue({
