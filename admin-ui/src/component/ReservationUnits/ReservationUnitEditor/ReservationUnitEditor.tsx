@@ -1440,9 +1440,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                         lang
                       )}`;
                       return (
-                        <Span12>
+                        <Span12 key={lang}>
                           <TextArea
-                            key={lang}
                             id={fieldName}
                             label={t(
                               `ReservationUnitEditor.label.${fieldName}`
