@@ -108,9 +108,58 @@ export const APPLICATIONS_BY_APPLICATION_ROUND_QUERY = gql`
               day
               begin
               end
+              applicationEventScheduleResult {
+                pk
+                accepted
+                declined
+                allocatedReservationUnit {
+                  pk
+                }
+                allocatedDay
+                allocatedBegin
+                allocatedEnd
+              }
             }
           }
         }
+      }
+    }
+  }
+`;
+
+export const CREATE_APPLICATION_EVENT_SCHEDULE_RESULT = gql`
+  mutation createApplicationEventScheduleResult(
+    $input: ApplicationEventScheduleResultCreateMutationInput!
+  ) {
+    createApplicationEventScheduleResult(input: $input) {
+      applicationEventSchedule
+      accepted
+      declined
+      allocatedReservationUnit
+      allocatedDay
+      allocatedBegin
+      allocatedEnd
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;
+
+export const UPDATE_APPLICATION_EVENT_SCHEDULE_RESULT = gql`
+  mutation ($input: ApplicationEventScheduleResultUpdateMutationInput!) {
+    updateApplicationEventScheduleResult(input: $input) {
+      applicationEventSchedule
+      accepted
+      declined
+      allocatedReservationUnit
+      allocatedDay
+      allocatedBegin
+      allocatedEnd
+      errors {
+        field
+        messages
       }
     }
   }

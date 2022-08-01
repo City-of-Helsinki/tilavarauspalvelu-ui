@@ -13,6 +13,7 @@ import {
   Query,
   ApplicationEventType,
   ReservationUnitType,
+  ApplicationStatus,
 } from "../../../common/gql-types";
 import { ApplicationRound, OptionType } from "../../../common/types";
 import { useNotification } from "../../../context/NotificationContext";
@@ -23,6 +24,7 @@ import { getFilteredApplicationEvents } from "../modules/applicationRoundAllocat
 import ApplicationRoundAllocationApplicationEvents from "./ApplicationRoundAllocationApplicationEvents";
 import LinkPrev from "../../LinkPrev";
 import { FontMedium } from "../../../styles/typography";
+import { useAllocationContext } from "../../../context/AllocationContext";
 
 type Props = {
   applicationRoundId: string;
@@ -62,9 +64,16 @@ const ReservationUnits = styled(Tabs.TabList)`
   ${FontMedium};
 `;
 
-const Tab = styled(Tabs.Tab)``;
+const Tab = styled(Tabs.Tab)`
+  && > span:before {
+    z-index: 1;
+  }
+`;
 
 function ApplicationRoundAllocation(): JSX.Element {
+  const { refreshApplicationEvents, setRefreshApplicationEvents } =
+    useAllocationContext();
+
   const [isLoading, setIsLoading] = useState(true);
   const { notifyError } = useNotification();
   const [applicationRound, setApplicationRound] =
@@ -104,24 +113,36 @@ function ApplicationRoundAllocation(): JSX.Element {
     };
 
     fetchApplicationRound();
-  }, [applicationRoundId, notifyError, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applicationRoundId, t]);
 
-  const { loading: loadingApplications } = useQuery<
-    Query,
-    QueryApplicationsArgs
-  >(APPLICATIONS_BY_APPLICATION_ROUND_QUERY, {
-    variables: {
-      applicationRound: applicationRoundId,
-      // TODO: filter states
-    },
-    onCompleted: ({ applications: applicationsData }) => {
-      if (applicationsData?.edges?.length) {
-        setApplications(
-          applicationsData.edges.map((n) => n?.node) as ApplicationType[]
-        );
-      }
-    },
-  });
+  const {
+    loading: loadingApplications,
+    data: applicationsData,
+    refetch,
+  } = useQuery<Query, QueryApplicationsArgs>(
+    APPLICATIONS_BY_APPLICATION_ROUND_QUERY,
+    {
+      variables: {
+        applicationRound: applicationRoundId,
+        status: [
+          ApplicationStatus.Allocated,
+          ApplicationStatus.Expired,
+          ApplicationStatus.Handled,
+          ApplicationStatus.InReview,
+          ApplicationStatus.Received,
+          ApplicationStatus.ReviewDone,
+          ApplicationStatus.Sent,
+        ],
+      },
+    }
+  );
+
+  useEffect(() => {
+    const loadedApplications =
+      applicationsData?.applications?.edges.map((n) => n?.node) || [];
+    setApplications(loadedApplications as ApplicationType[]);
+  }, [applicationsData]);
 
   const units = useMemo(
     () =>
@@ -186,7 +207,14 @@ function ApplicationRoundAllocation(): JSX.Element {
   );
 
   useEffect(() => {
-    return setApplicationEvents(
+    if (refreshApplicationEvents) {
+      refetch();
+      setRefreshApplicationEvents(false);
+    }
+  }, [refetch, refreshApplicationEvents, setRefreshApplicationEvents]);
+
+  useEffect(() => {
+    setApplicationEvents(
       getFilteredApplicationEvents(
         applications,
         unitFilter,

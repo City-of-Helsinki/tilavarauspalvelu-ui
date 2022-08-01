@@ -6,25 +6,29 @@ import { ALLOCATION_CALENDAR_TIMES } from "../../../common/const";
 import {
   ApplicationEventType,
   ApplicationType,
+  ReservationUnitType,
 } from "../../../common/gql-types";
 import { OptionType } from "../../../common/types";
 import Accordion from "../../Accordion";
 import {
+  ApplicationEventScheduleResultStatuses,
+  getSelectedApplicationEvents,
   getSlotApplicationEvents,
   getTimeSlotOptions,
 } from "../modules/applicationRoundAllocation";
 import ApplicationEventScheduleCard from "./ApplicationEventScheduleCard";
-import { parseDuration } from "../../../common/util";
 import { FontBold, FontMedium } from "../../../styles/typography";
 
 type Props = {
   applications: ApplicationType[];
   applicationEvents: ApplicationEventType[];
+  reservationUnit: ReservationUnitType;
   paintedApplicationEvents: ApplicationEventType[];
   paintApplicationEvents: (val: ApplicationEventType[]) => void;
   selection: string[] | null;
   setSelection: (val: string[]) => void;
   isSelecting: boolean;
+  applicationEventScheduleResultStatuses: ApplicationEventScheduleResultStatuses;
 };
 
 const Wrapper = styled.div`
@@ -133,11 +137,13 @@ const getTimeLabel = (selection: string[], t: TFunction): string => {
 const ApplicationRoundAllocationActions = ({
   applications,
   applicationEvents,
+  reservationUnit,
   paintedApplicationEvents,
   paintApplicationEvents,
   selection,
   setSelection,
   isSelecting,
+  applicationEventScheduleResultStatuses,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -155,18 +161,13 @@ const ApplicationRoundAllocationActions = ({
   const timeSlotStartOptions = useMemo(() => getOptions("start"), [getOptions]);
   const timeSlotEndOptions = useMemo(() => getOptions("end"), [getOptions]);
 
-  const selectionDuration = useMemo(
-    () => selection && parseDuration(selection.length * 30 * 60),
-    [selection]
-  );
-
   // eslint-disable-next-line consistent-return
-  const setSelectedTime = (startValue?: number, endValue?: number): void => {
+  const setSelectedTime = (startValue?: string, endValue?: string): void => {
     if (!selection) return undefined;
     const start = startValue || selection[0];
     const end = endValue || selection[selection.length - 1];
-    const [, startHours, startMinutes] = start.toString().split("-");
-    const [, endHours, endMinutes] = end.toString().split("-");
+    const [, startHours, startMinutes] = start?.toString().split("-");
+    const [, endHours, endMinutes] = end?.toString().split("-");
     const timeSlots = getTimeSlotOptions(
       selection[0].split("-")[0],
       Number(startHours),
@@ -183,24 +184,14 @@ const ApplicationRoundAllocationActions = ({
 
   const primaryApplicationEvents = useMemo(
     () =>
-      paintedApplicationEvents.filter((applicationEvent) =>
-        applicationEvent.applicationEventSchedules?.some(
-          (applicationEventSchedule) =>
-            applicationEventSchedule?.priority === 300
-        )
-      ),
-    [paintedApplicationEvents]
+      getSelectedApplicationEvents(paintedApplicationEvents, selection, 300),
+    [paintedApplicationEvents, selection]
   );
 
   const otherApplicationEvents = useMemo(
     () =>
-      paintedApplicationEvents.filter((applicationEvent) =>
-        applicationEvent.applicationEventSchedules?.some(
-          (applicationEventSchedule) =>
-            applicationEventSchedule?.priority === 200
-        )
-      ),
-    [paintedApplicationEvents]
+      getSelectedApplicationEvents(paintedApplicationEvents, selection, 200),
+    [paintedApplicationEvents, selection]
   );
 
   if (isSelecting) return null;
@@ -233,9 +224,11 @@ const ApplicationRoundAllocationActions = ({
               const startIndex = timeSlotStartOptions.indexOf(val);
               const endValue =
                 startTime >= endTime
-                  ? (timeSlotEndOptions[startIndex + 1].value as number)
-                  : undefined;
-              setSelectedTime(val.value as number, endValue);
+                  ? (timeSlotEndOptions[startIndex + 1].value as string)
+                  : (timeSlotEndOptions.find(
+                      (n) => n.value === selection[selection.length - 1]
+                    )?.value as string);
+              setSelectedTime(val.value as string, endValue);
             }}
           />
           <Select
@@ -245,7 +238,7 @@ const ApplicationRoundAllocationActions = ({
               (n) => n.value === selection[selection.length - 1]
             )}
             onChange={(val: OptionType) =>
-              setSelectedTime(undefined, val.value as number)
+              setSelectedTime(undefined, val.value as string)
             }
             isOptionDisabled={(option) => {
               const [startHours, startMinutes] = timeSlotStartOptions
@@ -273,7 +266,11 @@ const ApplicationRoundAllocationActions = ({
                 key={applicationEvent.pk}
                 applications={applications}
                 applicationEvent={applicationEvent}
-                selectionDuration={selectionDuration}
+                reservationUnit={reservationUnit}
+                selection={selection}
+                applicationEventScheduleResultStatuses={
+                  applicationEventScheduleResultStatuses
+                }
               />
             ))
           ) : (
@@ -292,7 +289,11 @@ const ApplicationRoundAllocationActions = ({
               key={applicationEvent.pk}
               applications={applications}
               applicationEvent={applicationEvent}
-              selectionDuration={selectionDuration}
+              reservationUnit={reservationUnit}
+              selection={selection}
+              applicationEventScheduleResultStatuses={
+                applicationEventScheduleResultStatuses
+              }
             />
           ))}
         </StyledAccordion>

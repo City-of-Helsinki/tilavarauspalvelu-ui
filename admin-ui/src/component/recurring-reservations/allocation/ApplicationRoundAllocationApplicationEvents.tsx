@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { sortBy } from "lodash";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
-  ApplicationEventStatus,
   ApplicationEventType,
   ApplicationType,
   ReservationUnitType,
 } from "../../../common/gql-types";
 import { H5 } from "../../../styles/new-typography";
 import Accordion from "../../Accordion";
+import { getApplicationEventScheduleResultStatuses } from "../modules/applicationRoundAllocation";
 import AllocationCalendar from "./AllocationCalendar";
 import ApplicationRoundAllocationActions from "./ApplicationRoundAllocationActions";
 import ApplicationRoundApplicationApplicationEventGroupList from "./ApplicationRoundApplicationApplicationEventGroupList";
@@ -72,7 +73,7 @@ const ApplicationRoundAllocationApplicationEvents = ({
   >([]);
 
   useEffect(
-    () => setSelectedApplicationEvent(applicationEvents[0]),
+    () => setSelectedApplicationEvent(undefined),
     [reservationUnit, applicationEvents]
   );
 
@@ -80,34 +81,47 @@ const ApplicationRoundAllocationApplicationEvents = ({
 
   useEffect(() => setSelection([]), [reservationUnit]);
 
-  const allocatedApplicationEvents = applicationEvents.filter(
-    (applicationEvent) =>
-      [ApplicationEventStatus.Approved].includes(
-        applicationEvent.status as ApplicationEventStatus
+  const allocatedApplicationEvents = sortBy(
+    applicationEvents.filter((applicationEvent) =>
+      applicationEvent?.applicationEventSchedules?.some(
+        (applicationEventSchedule) =>
+          applicationEventSchedule?.applicationEventScheduleResult?.accepted ===
+          true
       )
+    ),
+    "name"
   );
 
   // explicitly declined application events and those that are blocked from current reservation unit
-  const declinedApplicationEvents = applicationEvents.filter(
-    (applicationEvent) =>
-      [ApplicationEventStatus.Declined].includes(
-        applicationEvent.status as ApplicationEventStatus
-      ) ||
-      applicationEvent?.declinedReservationUnits?.some(
-        (declinedReservationUnit) =>
-          declinedReservationUnit.pk === reservationUnit.pk
+  const declinedApplicationEvents = sortBy(
+    applicationEvents.filter((applicationEvent) =>
+      applicationEvent?.applicationEventSchedules?.some(
+        (applicationEventSchedule) =>
+          applicationEventSchedule?.applicationEventScheduleResult?.declined ===
+          true
       )
+    ),
+    "name"
   );
 
   // take certain states and omit colliding application events
-  const unallocatedApplicationEvents = applicationEvents.filter(
-    (applicationEvent) =>
-      [
-        ApplicationEventStatus.Approved,
-        ApplicationEventStatus.Created,
-      ].includes(applicationEvent.status as ApplicationEventStatus) &&
-      !allocatedApplicationEvents.find((n) => n.pk === applicationEvent.pk) &&
-      !declinedApplicationEvents.find((n) => n.pk === applicationEvent.pk)
+  const unallocatedApplicationEvents = sortBy(
+    applicationEvents.filter((applicationEvent) =>
+      applicationEvent?.applicationEventSchedules?.some(
+        (applicationEventSchedule) =>
+          applicationEventSchedule?.applicationEventScheduleResult === null ||
+          (applicationEventSchedule?.applicationEventScheduleResult
+            ?.accepted === false &&
+            applicationEventSchedule?.applicationEventScheduleResult
+              ?.declined === false)
+      )
+    ),
+    "name"
+  );
+
+  const applicationEventScheduleResultStatuses = useMemo(
+    () => getApplicationEventScheduleResultStatuses(applicationEvents),
+    [applicationEvents]
   );
 
   const paintApplicationEvents = (appEvents: ApplicationEventType[]) => {
@@ -161,15 +175,22 @@ const ApplicationRoundAllocationApplicationEvents = ({
           setSelection={setSelection}
           isSelecting={isSelecting}
           setIsSelecting={setIsSelecting}
+          applicationEventScheduleResultStatuses={
+            applicationEventScheduleResultStatuses
+          }
         />
         <ApplicationRoundAllocationActions
           applications={applications}
           applicationEvents={applicationEvents}
+          reservationUnit={reservationUnit}
           paintedApplicationEvents={paintedApplicationEvents}
           paintApplicationEvents={paintApplicationEvents}
           selection={selection}
           setSelection={setSelection}
           isSelecting={isSelecting}
+          applicationEventScheduleResultStatuses={
+            applicationEventScheduleResultStatuses
+          }
         />
       </Content>
     </Wrapper>

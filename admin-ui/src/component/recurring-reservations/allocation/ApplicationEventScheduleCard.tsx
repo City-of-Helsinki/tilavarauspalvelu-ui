@@ -1,24 +1,38 @@
+import { useMutation } from "@apollo/client";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import {
+  ApplicationEventScheduleType,
   ApplicationEventType,
   ApplicationType,
+  Mutation,
+  MutationCreateApplicationEventScheduleResultArgs,
+  MutationUpdateApplicationEventScheduleResultArgs,
+  ReservationUnitType,
 } from "../../../common/gql-types";
-import {
-  parseApplicationEventScheduleTime,
-  parseDuration,
-} from "../../../common/util";
+import { parseDuration } from "../../../common/util";
+import { useAllocationContext } from "../../../context/AllocationContext";
 import { SmallRoundButton } from "../../../styles/buttons";
 import { FontBold } from "../../../styles/typography";
 import {
+  ApplicationEventScheduleResultStatuses,
   getApplicantName,
   getApplicationByApplicationEvent,
+  getApplicationEventScheduleTimeString,
+  getMatchingApplicationEventSchedules,
+  timeSlotKeyToScheduleTime,
 } from "../modules/applicationRoundAllocation";
+import {
+  CREATE_APPLICATION_EVENT_SCHEDULE_RESULT,
+  UPDATE_APPLICATION_EVENT_SCHEDULE_RESULT,
+} from "../queries";
 
 type Props = {
   applicationEvent: ApplicationEventType;
   applications: ApplicationType[];
-  selectionDuration: string | null;
+  reservationUnit: ReservationUnitType;
+  selection: string[];
+  applicationEventScheduleResultStatuses: ApplicationEventScheduleResultStatuses;
 };
 
 const Wrapper = styled.div`
@@ -66,8 +80,27 @@ const Actions = styled.div`
 const ApplicationEventScheduleCard = ({
   applicationEvent,
   applications,
-  selectionDuration,
+  reservationUnit,
+  selection,
+  applicationEventScheduleResultStatuses,
 }: Props): JSX.Element => {
+  const { setRefreshApplicationEvents } = useAllocationContext();
+
+  const [acceptApplicationEvent] = useMutation<
+    Mutation,
+    MutationCreateApplicationEventScheduleResultArgs
+  >(CREATE_APPLICATION_EVENT_SCHEDULE_RESULT);
+
+  const [acceptExistingApplicationEventScheduleResult] = useMutation<
+    Mutation,
+    MutationUpdateApplicationEventScheduleResultArgs
+  >(UPDATE_APPLICATION_EVENT_SCHEDULE_RESULT);
+
+  const selectionDuration = useMemo(
+    () => selection && parseDuration(selection.length * 30 * 60),
+    [selection]
+  );
+
   const application = useMemo(
     () =>
       getApplicationByApplicationEvent(
@@ -93,28 +126,38 @@ const ApplicationEventScheduleCard = ({
   );
 
   const primaryTimes = useMemo(() => {
-    const schedules = applicationEvent?.applicationEventSchedules?.filter(
-      (applicationEventSchedule) => applicationEventSchedule?.priority === 300
-    );
-
-    return schedules
-      ?.map(
-        (schedule) => schedule && parseApplicationEventScheduleTime(schedule)
-      )
-      .join(", ");
+    return applicationEvent?.applicationEventSchedules
+      ? getApplicationEventScheduleTimeString(
+          applicationEvent.applicationEventSchedules as ApplicationEventScheduleType[],
+          300
+        )
+      : "";
   }, [applicationEvent?.applicationEventSchedules]);
 
   const secondaryTimes = useMemo(() => {
-    const schedules = applicationEvent?.applicationEventSchedules?.filter(
-      (applicationEventSchedule) => applicationEventSchedule?.priority === 200
-    );
-
-    return schedules
-      ?.map(
-        (schedule) => schedule && parseApplicationEventScheduleTime(schedule)
-      )
-      .join(", ");
+    return applicationEvent?.applicationEventSchedules
+      ? getApplicationEventScheduleTimeString(
+          applicationEvent.applicationEventSchedules as ApplicationEventScheduleType[],
+          200
+        )
+      : "";
   }, [applicationEvent?.applicationEventSchedules]);
+
+  const matchingApplicationEventSchedule: ApplicationEventScheduleType =
+    useMemo(() => {
+      return getMatchingApplicationEventSchedules(
+        selection,
+        applicationEvent?.applicationEventSchedules as ApplicationEventScheduleType[]
+      )[0];
+    }, [selection, applicationEvent?.applicationEventSchedules]);
+
+  const isReservable = useMemo(
+    () =>
+      !selection.some((slot) =>
+        applicationEventScheduleResultStatuses.acceptedSlots.includes(slot)
+      ),
+    [selection, applicationEventScheduleResultStatuses]
+  );
 
   return (
     <Wrapper>
@@ -135,7 +178,46 @@ const ApplicationEventScheduleCard = ({
         <span>{secondaryTimes || "-"}</span>
       </DetailRow>
       <Actions>
-        <SmallRoundButton variant="primary">
+        <SmallRoundButton
+          variant="primary"
+          disabled={
+            !reservationUnit.pk ||
+            !matchingApplicationEventSchedule ||
+            !isReservable
+          }
+          onClick={() => {
+            const allocatedBegin = timeSlotKeyToScheduleTime(selection[0]);
+            const allocatedEnd = timeSlotKeyToScheduleTime(
+              selection[selection.length - 1],
+              true
+            );
+            const input = {
+              accepted: true,
+              allocatedReservationUnit: reservationUnit.pk as number,
+              applicationEventSchedule:
+                matchingApplicationEventSchedule?.pk as number,
+              allocatedDay: matchingApplicationEventSchedule?.day,
+              allocatedBegin,
+              allocatedEnd,
+            };
+            if (
+              matchingApplicationEventSchedule.applicationEventScheduleResult
+            ) {
+              acceptExistingApplicationEventScheduleResult({
+                variables: {
+                  input,
+                },
+              });
+            } else {
+              acceptApplicationEvent({
+                variables: {
+                  input,
+                },
+              });
+            }
+            setRefreshApplicationEvents(true);
+          }}
+        >
           Jaa {selectionDuration} vuoro
         </SmallRoundButton>
       </Actions>

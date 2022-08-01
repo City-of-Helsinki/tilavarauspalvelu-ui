@@ -1,4 +1,4 @@
-import { uniq } from "lodash";
+import { IconCheck, IconCross } from "hds-react";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled, { css } from "styled-components";
@@ -12,10 +12,13 @@ import {
   applicationEventSchedulesToCells,
   getSlotApplicationEventCount,
   getSlotApplicationEvents,
+  getTimeSeries,
   getTimeSlots,
-  isSlotAdjacent,
   isSlotFirst,
   isSlotLast,
+  timeSlotKeyToTime,
+  ApplicationEventScheduleResultStatuses,
+  areSlotsOnStatus,
 } from "../modules/applicationRoundAllocation";
 
 type Props = {
@@ -26,6 +29,7 @@ type Props = {
   setSelection: (val: string[]) => void;
   isSelecting: boolean;
   setIsSelecting: (val: boolean) => void;
+  applicationEventScheduleResultStatuses: ApplicationEventScheduleResultStatuses;
 };
 
 const Wrapper = styled.div`
@@ -43,8 +47,14 @@ const DayLabel = styled.div`
   height: var(--spacing-l);
 `;
 
-const Slot = styled.div<{ $selected?: boolean; $eventCount?: number }>`
+const Slot = styled.div<{
+  $selected?: boolean;
+  $eventCount?: number;
+  $isAccepted?: boolean;
+  $isDeclined?: boolean;
+}>`
   ${FontMedium};
+  font-size: var(--fontsize-body-m);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -54,7 +64,7 @@ const Slot = styled.div<{ $selected?: boolean; $eventCount?: number }>`
   background-color: var(--color-black-10);
   margin-bottom: 4px;
   cursor: pointer;
-  ${({ $eventCount }) =>
+  ${({ $eventCount, $isAccepted, $isDeclined }) =>
     $eventCount && $eventCount > 10
       ? css`
           background-color: var(--color-gold-dark);
@@ -70,6 +80,16 @@ const Slot = styled.div<{ $selected?: boolean; $eventCount?: number }>`
       : $eventCount && $eventCount > 0
       ? css`
           background-color: var(--color-tram-light);
+        `
+      : $isDeclined
+      ? css`
+          background-color: var(--color-black-30);
+          color: var(--color-black);
+        `
+      : $isAccepted
+      ? css`
+          background-color: var(--color-success);
+          color: var(--color-white);
         `
       : css``}
 `;
@@ -97,8 +117,8 @@ const Selection = styled.div<{ $isFirst: boolean; $isLast: boolean }>`
 const Active = styled.div<{ $isFirst: boolean; $isLast: boolean }>`
   position: absolute;
   width: calc(100% - 2px);
-  height: calc(100% + 2px);
-  border: 2px dashed var(--color-metro);
+  height: calc(100% - 2px);
+  border: 2px dashed var(--color-bus);
   border-top-width: 0;
   border-bottom-width: 0;
   ${({ $isFirst }) =>
@@ -116,7 +136,7 @@ const Active = styled.div<{ $isFirst: boolean; $isLast: boolean }>`
 const HourLabel = styled(Slot)<{ $hour?: boolean }>`
   border-top: 1px solid transparent;
   ${({ $hour }) => $hour && "border-color: var(--color-black-20);"}
-  width: var(--spacing-l);
+  width: var(--fontsize-heading-l);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,6 +144,7 @@ const HourLabel = styled(Slot)<{ $hour?: boolean }>`
   box-sizing: border-box;
   font-family: var(--font-medium);
   font-weight: 500;
+  font-size: var(--fontsize-body-m);
 `;
 
 const AllocationCalendar = ({
@@ -134,6 +155,7 @@ const AllocationCalendar = ({
   setSelection,
   isSelecting,
   setIsSelecting,
+  applicationEventScheduleResultStatuses,
 }: Props): JSX.Element => {
   const [cells] = useState(
     applicationEventSchedulesToCells(
@@ -173,9 +195,20 @@ const AllocationCalendar = ({
           {cells[i].map((cell) => {
             const isSlotRequested =
               getSlotApplicationEventCount([cell.key], applicationEvents) > 0;
-            const slotEventCount = isSlotRequested
-              ? getSlotApplicationEventCount([cell.key], applicationEvents)
-              : 0;
+            const isSlotAccepted = areSlotsOnStatus(
+              [cell.key],
+              applicationEventScheduleResultStatuses,
+              "accepted"
+            );
+            const isSlotDeclined = areSlotsOnStatus(
+              [cell.key],
+              applicationEventScheduleResultStatuses,
+              "declined"
+            );
+            const slotEventCount =
+              isSlotRequested && !isSlotAccepted && !isSlotDeclined
+                ? getSlotApplicationEventCount([cell.key], applicationEvents)
+                : 0;
             return (
               <Slot
                 key={cell.key}
@@ -192,24 +225,28 @@ const AllocationCalendar = ({
                   paintApplicationEvents(slotApplicationEvents);
                 }}
                 onMouseEnter={() => {
-                  if (isSelecting && isSlotAdjacent(selection, cell.key)) {
-                    const newSelection = uniq(
-                      [...selection, cell.key].sort((a, b) => {
-                        const [, aHours, aMinutes] = a.split("-");
-                        const [, bHours, bMinutes] = b.split("-");
-                        return (
-                          Number(aHours) * 60 +
-                          Number(aMinutes) -
-                          (Number(bHours) * 60 + Number(bMinutes))
-                        );
-                      })
+                  if (isSelecting) {
+                    const [day] = selection
+                      ? selection[0].split("-")
+                      : cell.key.split("-");
+                    const timeSeries = [...selection, cell.key].sort((a, b) => {
+                      return timeSlotKeyToTime(a) - timeSlotKeyToTime(b);
+                    });
+                    const newSelection = getTimeSeries(
+                      day,
+                      timeSeries[0],
+                      timeSeries[timeSeries.length - 1]
                     );
                     setSelection(newSelection);
                   }
                 }}
                 $eventCount={slotEventCount}
+                $isAccepted={isSlotAccepted}
+                $isDeclined={isSlotDeclined}
               >
                 {slotEventCount > 0 && slotEventCount}
+                {isSlotAccepted && !isSlotDeclined && <IconCheck />}
+                {isSlotDeclined && <IconCross />}
                 {selection.includes(cell.key) && (
                   <Selection
                     $isFirst={isSlotFirst(selection, cell.key)}
