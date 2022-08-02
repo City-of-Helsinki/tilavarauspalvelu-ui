@@ -1306,7 +1306,7 @@ const translations: ITranslations = {
     secondaryTimes: ["Muut ajat"],
     acceptSlot: ["Jaa {{duration}} vuoro"],
     acceptingSlot: ["Jaetaan vuoroa.."],
-    acceptingSuccess: ['Vuoro varaukselle "{{applicationEvent}}" jaettu'],
+    acceptingSuccess: ['Vuoro varaukselle "{{applicationEvent}}" jaettu.'],
     filters: {
       unit: ["Toimipiste"],
       selectUnits: ["Valitse toimipisteet"],
@@ -1320,7 +1320,7 @@ const translations: ITranslations = {
       acceptingFailed: [
         'Vuoron jakaminen varaukselle "{{applicationEvent}}" epäonnistui. Tarkista, ettei kyseiselle ajalle ole jo jaettu vuoroa, tai kokeile myöhemmin uudelleen.',
       ],
-      noPermission: ["Sinulla ei ole riittäviä oikeuksia jakaa vuoroa"],
+      noPermission: ["Sinulla ei ole riittäviä oikeuksia jakaa vuoroa."],
     },
   },
   validation: {
