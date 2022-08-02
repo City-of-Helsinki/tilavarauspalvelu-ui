@@ -231,7 +231,7 @@ const ApplicationEventScheduleCard = ({
             !matchingApplicationEventSchedule ||
             !isReservable
           }
-          onClick={() => {
+          onClick={async () => {
             setProcessingResult(true);
             const allocatedBegin = timeSlotKeyToScheduleTime(selection[0]);
             const allocatedEnd = timeSlotKeyToScheduleTime(
@@ -250,13 +250,13 @@ const ApplicationEventScheduleCard = ({
             if (
               matchingApplicationEventSchedule.applicationEventScheduleResult
             ) {
-              acceptExistingApplicationEventScheduleResult({
+              await acceptExistingApplicationEventScheduleResult({
                 variables: {
                   input,
                 },
               });
             } else {
-              acceptApplicationEvent({
+              await acceptApplicationEvent({
                 variables: {
                   input,
                 },
