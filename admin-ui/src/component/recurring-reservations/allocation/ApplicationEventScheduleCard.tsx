@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
@@ -89,6 +89,8 @@ const ApplicationEventScheduleCard = ({
   const { setRefreshApplicationEvents } = useAllocationContext();
   const { notifyError } = useNotification();
   const { t } = useTranslation();
+
+  const [processingResult, setProcessingResult] = useState(false);
 
   const [acceptApplicationEvent] = useMutation<
     Mutation,
@@ -206,6 +208,7 @@ const ApplicationEventScheduleCard = ({
             !isReservable
           }
           onClick={() => {
+            setProcessingResult(true);
             const allocatedBegin = timeSlotKeyToScheduleTime(selection[0]);
             const allocatedEnd = timeSlotKeyToScheduleTime(
               selection[selection.length - 1],
@@ -238,7 +241,9 @@ const ApplicationEventScheduleCard = ({
             setRefreshApplicationEvents(true);
           }}
         >
-          Jaa {selectionDuration} vuoro
+          {processingResult
+            ? "Jaetaan vuoroa.."
+            : `Jaa ${selectionDuration} vuoro`}
         </SmallRoundButton>
       </Actions>
     </Wrapper>
