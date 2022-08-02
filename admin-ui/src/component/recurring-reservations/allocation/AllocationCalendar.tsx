@@ -22,7 +22,7 @@ import {
 } from "../modules/applicationRoundAllocation";
 
 type Props = {
-  applicationEvents: ApplicationEventType[];
+  applicationEvents: ApplicationEventType[] | null;
   selectedApplicationEvent?: ApplicationEventType;
   paintApplicationEvents: (val: ApplicationEventType[]) => void;
   selection: string[];

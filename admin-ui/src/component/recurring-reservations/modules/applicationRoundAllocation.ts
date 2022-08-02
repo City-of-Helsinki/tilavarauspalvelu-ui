@@ -65,7 +65,7 @@ export const getFilteredApplicationEvents = (
     );
   }
 
-  return applicationEvents;
+  return applicationEvents || [];
 };
 
 export const getApplicationByApplicationEvent = (
@@ -184,12 +184,12 @@ export const getMatchingApplicationEventSchedules = (
 
 export const getSlotApplicationEventCount = (
   slots: string[],
-  applicationEvents: ApplicationEventType[]
+  applicationEvents: ApplicationEventType[] | null
 ): number => {
-  const applicationEventSchedules = applicationEvents.flatMap(
+  const applicationEventSchedules = applicationEvents?.flatMap(
     (applicationEvent) => applicationEvent.applicationEventSchedules
   );
-  const schedules = applicationEventSchedules.filter(
+  const schedules = applicationEventSchedules?.filter(
     (applicationEventSchedule) =>
       applicationEventSchedule &&
       doSomeSlotsFitApplicationEventSchedule(applicationEventSchedule, slots)
@@ -301,15 +301,20 @@ export const getApplicantName = (
 
 export const getSlotApplicationEvents = (
   slots: string[] | null,
-  applicationEvents: ApplicationEventType[]
+  applicationEvents: ApplicationEventType[] | null
 ): ApplicationEventType[] => {
   if (!slots) return [];
-  return applicationEvents.filter((applicationEvent) =>
-    applicationEvent?.applicationEventSchedules?.some(
-      (applicationEventSchedule) =>
-        applicationEventSchedule &&
-        doSomeSlotsFitApplicationEventSchedule(applicationEventSchedule, slots)
-    )
+  return (
+    applicationEvents?.filter((applicationEvent) =>
+      applicationEvent?.applicationEventSchedules?.some(
+        (applicationEventSchedule) =>
+          applicationEventSchedule &&
+          doSomeSlotsFitApplicationEventSchedule(
+            applicationEventSchedule,
+            slots
+          )
+      )
+    ) || []
   );
 };
 
@@ -407,7 +412,7 @@ export type ApplicationEventScheduleResultStatuses = {
 };
 
 export const getApplicationEventScheduleResultStatuses = (
-  applicationEvents: ApplicationEventType[]
+  applicationEvents: ApplicationEventType[] | null
 ): ApplicationEventScheduleResultStatuses => {
   const getResultTimeSlots = (
     day: number,
@@ -422,7 +427,7 @@ export const getApplicationEventScheduleResultStatuses = (
     return getTimeSlots([allocationResult as ApplicationEventScheduleType]);
   };
 
-  const schedules = applicationEvents.flatMap(
+  const schedules = applicationEvents?.flatMap(
     (applicationEvent) => applicationEvent.applicationEventSchedules
   ) as ApplicationEventScheduleType[];
 

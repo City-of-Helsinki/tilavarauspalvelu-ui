@@ -80,8 +80,8 @@ function ApplicationRoundAllocation(): JSX.Element {
     useState<ApplicationRound | null>(null);
   const [applications, setApplications] = useState<ApplicationType[]>([]);
   const [applicationEvents, setApplicationEvents] = useState<
-    ApplicationEventType[]
-  >([]);
+    ApplicationEventType[] | null
+  >(null);
   const [selectedReservationUnit, setSelectedReservationUnit] =
     useState<ReservationUnitType | null>(null);
 
@@ -181,11 +181,20 @@ function ApplicationRoundAllocation(): JSX.Element {
   const orderOptions = [
     {
       value: 1,
-      label: "1. tilatoive",
+      label: `1. ${t("Allocation.filters.reservationUnitApplication")}`,
     },
-    { value: 2, label: "2. tilatoive" },
-    { value: 3, label: "3. tilatoive" },
-    { value: 4, label: "4. tilatoive" },
+    {
+      value: 2,
+      label: `2. ${t("Allocation.filters.reservationUnitApplication")}`,
+    },
+    {
+      value: 3,
+      label: `3. ${t("Allocation.filters.reservationUnitApplication")}`,
+    },
+    {
+      value: 4,
+      label: `4. ${t("Allocation.filters.reservationUnitApplication")}`,
+    },
   ];
 
   const reservationUnits: ReservationUnitType[] = useMemo(
@@ -239,19 +248,19 @@ function ApplicationRoundAllocation(): JSX.Element {
   return (
     <Wrapper>
       <LinkPrev />
-      <Heading>Vuorojen jako</Heading>
+      <Heading>{t("Allocation.allocationTitle")}</Heading>
       <Ingress>{applicationRound?.name}</Ingress>
       <Filters>
         <Select
           clearButtonAriaLabel={t("common.clearAllSelections")}
-          label="Toimipiste"
+          label={t("Allocation.filters.unit")}
           onChange={(val: OptionType) => {
             setUnitFilter(val);
             setSelectedReservationUnit(null);
           }}
           options={unitOptions as OptionType[]}
           value={unitFilter}
-          placeholder="Valitse toimipisteet"
+          placeholder={t("Allocation.filters.selectUnits")}
           selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
         />
         <Select
@@ -261,8 +270,8 @@ function ApplicationRoundAllocation(): JSX.Element {
           options={timeOptions}
           multiselect
           value={[...timeFilter]}
-          label="Aikatoive"
-          placeholder="Valitse aikatoive"
+          label={t("Allocation.filters.schedules")}
+          placeholder={t("Allocation.filters.selectSchedules")}
           clearButtonAriaLabel={t("common.clearAllSelections")}
           selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
         />
@@ -270,11 +279,11 @@ function ApplicationRoundAllocation(): JSX.Element {
           onChange={(val) => {
             setOrderFilter(val);
           }}
-          label="Tilatoivejärjestys"
+          label={t("Allocation.filters.reservationUnitOrder")}
           multiselect
           options={orderOptions}
           value={[...orderFilter]}
-          placeholder="Valitse tilatoivejärjestys"
+          placeholder={t("Allocation.filters.selectReservationUnitOrder")}
           clearButtonAriaLabel={t("common.clearAllSelections")}
           selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
         />
@@ -293,7 +302,8 @@ function ApplicationRoundAllocation(): JSX.Element {
           ))}
         </ReservationUnits>
       </Tabs>
-      {applicationEvents?.length > 0 ? (
+      {Object.prototype.hasOwnProperty.call(applicationEvents, "length") &&
+      unitFilter ? (
         <ApplicationRoundAllocationApplicationEvents
           applications={applications}
           applicationEvents={applicationEvents}

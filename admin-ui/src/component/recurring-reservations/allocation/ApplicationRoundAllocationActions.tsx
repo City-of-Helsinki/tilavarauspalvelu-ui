@@ -21,7 +21,7 @@ import { FontBold, FontMedium } from "../../../styles/typography";
 
 type Props = {
   applications: ApplicationType[];
-  applicationEvents: ApplicationEventType[];
+  applicationEvents: ApplicationEventType[] | null;
   reservationUnit: ReservationUnitType;
   paintedApplicationEvents: ApplicationEventType[];
   paintApplicationEvents: (val: ApplicationEventType[]) => void;
@@ -117,7 +117,7 @@ const StyledAccordion = styled(Accordion)`
 `;
 
 const EmptyState = styled.div`
-  font-size: var(--fontsize-body-l);
+  font-size: var(--fontsize-body-m);
   margin-bottom: var(--spacing-m);
 `;
 
@@ -202,10 +202,10 @@ const ApplicationRoundAllocationActions = ({
         <IconCross />
       </CloseBtn>
       <TimeLabel>{getTimeLabel(selection, t)}</TimeLabel>
-      <TimeAccordion heading="Muuta aikaa">
+      <TimeAccordion heading={t("Allocation.changeTime")}>
         <TimeSelectWrapper>
           <Select
-            label="Aloitusaika"
+            label={t("Allocation.startingTime")}
             options={timeSlotStartOptions}
             value={timeSlotStartOptions.find((n) => n.value === selection[0])}
             onChange={(val: OptionType) => {
@@ -232,7 +232,7 @@ const ApplicationRoundAllocationActions = ({
             }}
           />
           <Select
-            label="Päättymisaika"
+            label={t("Allocation.endingTime")}
             options={timeSlotEndOptions}
             value={timeSlotEndOptions.find(
               (n) => n.value === selection[selection.length - 1]
@@ -259,7 +259,7 @@ const ApplicationRoundAllocationActions = ({
       {(primaryApplicationEvents?.length > 0 ||
         otherApplicationEvents?.length > 0) && (
         <>
-          <Heading>Ensisijaiset</Heading>
+          <Heading>{t("Allocation.primaryItems")}</Heading>
           {primaryApplicationEvents?.length > 0 ? (
             primaryApplicationEvents?.map((applicationEvent) => (
               <ApplicationEventScheduleCard
@@ -274,13 +274,13 @@ const ApplicationRoundAllocationActions = ({
               />
             ))
           ) : (
-            <EmptyState>Ei ensisijaisia aikatoiveita.</EmptyState>
+            <EmptyState>{t("Allocation.noPrimaryItems")}</EmptyState>
           )}
         </>
       )}
       {otherApplicationEvents?.length > 0 && (
         <StyledAccordion
-          heading="Muut"
+          heading={t("Allocation.secondaryItems")}
           defaultOpen={primaryApplicationEvents?.length === 0}
           key={selection.join("-")}
         >
@@ -300,7 +300,7 @@ const ApplicationRoundAllocationActions = ({
       )}
       {primaryApplicationEvents?.length === 0 &&
         otherApplicationEvents?.length === 0 && (
-          <EmptyState>Ei aikatoiveita.</EmptyState>
+          <EmptyState>{t("Allocation.noRequestedTimes")}</EmptyState>
         )}
     </Wrapper>
   ) : null;

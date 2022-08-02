@@ -1,5 +1,6 @@
 import { IconAngleDown, IconAngleUp, Link, RadioButton } from "hds-react";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
   ApplicationEventType,
@@ -114,6 +115,8 @@ const ApplicationEventCard = ({
   reservationUnit,
   type,
 }: Props): JSX.Element => {
+  const { t } = useTranslation();
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   const application = getApplicationByApplicationEvent(
@@ -154,22 +157,26 @@ const ApplicationEventCard = ({
           <StyledLink
             href={`/application/${application?.pk}/details`}
             external
-            openInExternalDomainAriaLabel="Avaa uuteen välilehteen"
+            openInExternalDomainAriaLabel={t("common.openToNewTab")}
           >
-            Avaa hakemus
+            {t("Allocation.openApplication")}
           </StyledLink>
           <DetailRow>
-            <span>Ikäryhmä:</span>
-            <span>{ageGroup(applicationEvent.ageGroup)} vuotiaat</span>
+            <span>{t("Allocation.ageGroup")}:</span>
+            <span>
+              {t("common.agesSuffix", {
+                range: ageGroup(applicationEvent.ageGroup),
+              })}
+            </span>
           </DetailRow>
           <DetailRow>
-            <span>Vuorotoive / viikko:</span>
+            <span>{t("Allocation.applicationsWeek")}:</span>
             <span>
               {parsedDuration}, {applicationEvent.eventsPerWeek}x
             </span>
           </DetailRow>
           <DetailRow>
-            <span>Muut toivotut tilat:</span>
+            <span>{t("Allocation.otherReservationUnits")}:</span>
             <span>{otherReservationUnits || "-"}</span>
           </DetailRow>
         </Details>

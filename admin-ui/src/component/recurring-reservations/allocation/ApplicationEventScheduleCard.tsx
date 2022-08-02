@@ -87,7 +87,7 @@ const ApplicationEventScheduleCard = ({
   applicationEventScheduleResultStatuses,
 }: Props): JSX.Element => {
   const { setRefreshApplicationEvents } = useAllocationContext();
-  const { notifyError } = useNotification();
+  const { notifySuccess, notifyError } = useNotification();
   const { t } = useTranslation();
 
   const [processingResult, setProcessingResult] = useState(false);
@@ -96,12 +96,24 @@ const ApplicationEventScheduleCard = ({
     Mutation,
     MutationCreateApplicationEventScheduleResultArgs
   >(CREATE_APPLICATION_EVENT_SCHEDULE_RESULT, {
+    onCompleted: () => {
+      notifySuccess(
+        "",
+        t("Allocation.acceptingSuccess", {
+          applicationEvent: applicationEvent.name,
+        }),
+        { dismissible: false }
+      );
+    },
     onError: (error) => {
       const msg =
         error.message === "No permission to mutate"
-          ? "errors.authorizationNeeded"
-          : "";
-      notifyError(t("errors.functionFailed"), t(msg));
+          ? "Allocation.errors.noPermission"
+          : "Allocation.errors.acceptingFailed";
+      notifyError("", t(msg, { applicationEvent: applicationEvent.name }), {
+        dismissible: false,
+      });
+      setProcessingResult(false);
     },
   });
 
@@ -109,12 +121,24 @@ const ApplicationEventScheduleCard = ({
     Mutation,
     MutationUpdateApplicationEventScheduleResultArgs
   >(UPDATE_APPLICATION_EVENT_SCHEDULE_RESULT, {
+    onCompleted: () => {
+      notifySuccess(
+        "",
+        t("Allocation.acceptingSuccess", {
+          applicationEvent: applicationEvent.name,
+        }),
+        { dismissible: false }
+      );
+    },
     onError: (error) => {
       const msg =
         error.message === "No permission to mutate"
-          ? "errors.authorizationNeeded"
-          : "";
-      notifyError(t("errors.functionFailed"), t(msg));
+          ? "Allocation.errors.noPermission"
+          : "Allocation.errors.acceptingFailed";
+      notifyError("", t(msg, { applicationEvent: applicationEvent.name }), {
+        dismissible: false,
+      });
+      setProcessingResult(false);
     },
   });
 
@@ -186,17 +210,17 @@ const ApplicationEventScheduleCard = ({
       <ApplicationEventName>{applicationEvent.name}</ApplicationEventName>
       <Applicant>{applicantName}</Applicant>
       <DetailRow>
-        <span>Vuorotoive / viikko:</span>
+        <span>{t("Allocation.applicationsWeek")}:</span>
         <span>
           {parsedDuration}, {applicationEvent.eventsPerWeek}x
         </span>
       </DetailRow>
       <DetailRow>
-        <span>Ensisijaiset ajat:</span>
+        <span>{t("Allocation.primaryTimes")}:</span>
         <span>{primaryTimes || "-"}</span>
       </DetailRow>
       <DetailRow>
-        <span>Muut ajat:</span>
+        <span>{t("Allocation.secondaryTimes")}:</span>
         <span>{secondaryTimes || "-"}</span>
       </DetailRow>
       <Actions>
@@ -242,8 +266,8 @@ const ApplicationEventScheduleCard = ({
           }}
         >
           {processingResult
-            ? "Jaetaan vuoroa.."
-            : `Jaa ${selectionDuration} vuoro`}
+            ? t("Allocation.acceptingSlot")
+            : t("Allocation.acceptSlot", { duration: selectionDuration })}
         </SmallRoundButton>
       </Actions>
     </Wrapper>

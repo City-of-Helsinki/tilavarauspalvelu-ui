@@ -1,5 +1,6 @@
 import { sortBy } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
   ApplicationEventType,
@@ -15,7 +16,7 @@ import ApplicationRoundApplicationApplicationEventGroupList from "./ApplicationR
 
 type Props = {
   applications: ApplicationType[];
-  applicationEvents: ApplicationEventType[];
+  applicationEvents: ApplicationEventType[] | null;
   reservationUnit: ReservationUnitType;
 };
 
@@ -63,6 +64,8 @@ const ApplicationRoundAllocationApplicationEvents = ({
   applicationEvents,
   reservationUnit,
 }: Props): JSX.Element | null => {
+  const { t } = useTranslation();
+
   const [isSelecting, setIsSelecting] = useState(false);
   const [selection, setSelection] = useState<string[]>([]);
   const [selectedApplicationEvent, setSelectedApplicationEvent] = useState<
@@ -82,7 +85,7 @@ const ApplicationRoundAllocationApplicationEvents = ({
   useEffect(() => setSelection([]), [reservationUnit]);
 
   const allocatedApplicationEvents = sortBy(
-    applicationEvents.filter((applicationEvent) =>
+    applicationEvents?.filter((applicationEvent) =>
       applicationEvent?.applicationEventSchedules?.some(
         (applicationEventSchedule) =>
           applicationEventSchedule?.applicationEventScheduleResult?.accepted ===
@@ -94,7 +97,7 @@ const ApplicationRoundAllocationApplicationEvents = ({
 
   // explicitly declined application events and those that are blocked from current reservation unit
   const declinedApplicationEvents = sortBy(
-    applicationEvents.filter((applicationEvent) =>
+    applicationEvents?.filter((applicationEvent) =>
       applicationEvent?.applicationEventSchedules?.some(
         (applicationEventSchedule) =>
           applicationEventSchedule?.applicationEventScheduleResult?.declined ===
@@ -106,7 +109,7 @@ const ApplicationRoundAllocationApplicationEvents = ({
 
   // take certain states and omit colliding application events
   const unallocatedApplicationEvents = sortBy(
-    applicationEvents.filter((applicationEvent) =>
+    applicationEvents?.filter((applicationEvent) =>
       applicationEvent?.applicationEventSchedules?.some(
         (applicationEventSchedule) =>
           applicationEventSchedule?.applicationEventScheduleResult === null ||
@@ -133,8 +136,8 @@ const ApplicationRoundAllocationApplicationEvents = ({
       <Content>
         <ApplicationEventList>
           <Heading>
-            <StyledH5>Hakijat</StyledH5>
-            <p>Valitse hakija nähdäksesi hakijan toivomat ajat kalenterissa.</p>
+            <StyledH5>{t("Allocation.applicants")}</StyledH5>
+            <p>{t("Allocation.selectApplicant")}</p>
           </Heading>
           <ApplicationEvents>
             <ApplicationRoundApplicationApplicationEventGroupList
@@ -145,8 +148,8 @@ const ApplicationRoundAllocationApplicationEvents = ({
               reservationUnit={reservationUnit}
               type="unallocated"
             />
-            <StyledAccordion heading="Muut hakijat">
-              <p>Vuoron saaneet</p>
+            <StyledAccordion heading={t("Allocation.otherApplicants")}>
+              <p>{t("Allocation.allocatedApplicants")}</p>
               <ApplicationRoundApplicationApplicationEventGroupList
                 applicationEvents={allocatedApplicationEvents}
                 selectedApplicationEvent={selectedApplicationEvent}
@@ -155,7 +158,7 @@ const ApplicationRoundAllocationApplicationEvents = ({
                 reservationUnit={reservationUnit}
                 type="allocated"
               />
-              <p>Hylätyt</p>
+              <p>{t("Allocation.declinedApplicants")}</p>
               <ApplicationRoundApplicationApplicationEventGroupList
                 applicationEvents={declinedApplicationEvents}
                 selectedApplicationEvent={selectedApplicationEvent}
