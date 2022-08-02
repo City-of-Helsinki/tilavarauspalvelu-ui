@@ -1,5 +1,6 @@
 import { useMutation } from "@apollo/client";
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
   ApplicationEventScheduleType,
@@ -12,6 +13,7 @@ import {
 } from "../../../common/gql-types";
 import { parseDuration } from "../../../common/util";
 import { useAllocationContext } from "../../../context/AllocationContext";
+import { useNotification } from "../../../context/NotificationContext";
 import { SmallRoundButton } from "../../../styles/buttons";
 import { FontBold } from "../../../styles/typography";
 import {
@@ -85,16 +87,34 @@ const ApplicationEventScheduleCard = ({
   applicationEventScheduleResultStatuses,
 }: Props): JSX.Element => {
   const { setRefreshApplicationEvents } = useAllocationContext();
+  const { notifyError } = useNotification();
+  const { t } = useTranslation();
 
   const [acceptApplicationEvent] = useMutation<
     Mutation,
     MutationCreateApplicationEventScheduleResultArgs
-  >(CREATE_APPLICATION_EVENT_SCHEDULE_RESULT);
+  >(CREATE_APPLICATION_EVENT_SCHEDULE_RESULT, {
+    onError: (error) => {
+      const msg =
+        error.message === "No permission to mutate"
+          ? "errors.authorizationNeeded"
+          : "";
+      notifyError(t("errors.functionFailed"), t(msg));
+    },
+  });
 
   const [acceptExistingApplicationEventScheduleResult] = useMutation<
     Mutation,
     MutationUpdateApplicationEventScheduleResultArgs
-  >(UPDATE_APPLICATION_EVENT_SCHEDULE_RESULT);
+  >(UPDATE_APPLICATION_EVENT_SCHEDULE_RESULT, {
+    onError: (error) => {
+      const msg =
+        error.message === "No permission to mutate"
+          ? "errors.authorizationNeeded"
+          : "";
+      notifyError(t("errors.functionFailed"), t(msg));
+    },
+  });
 
   const selectionDuration = useMemo(
     () => selection && parseDuration(selection.length * 30 * 60),
