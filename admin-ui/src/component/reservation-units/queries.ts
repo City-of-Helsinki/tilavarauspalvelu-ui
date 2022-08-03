@@ -13,6 +13,7 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
     $orderBy: String
     $offset: Int
     $first: Int
+    $state: [String]
   ) {
     reservationUnits(
       first: $first
@@ -21,11 +22,14 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
       nameFi: $nameFi
       after: $after
       maxPersonsGte: $maxPersonsGte
+      minPersonsGte: $maxPersonsGte
       maxPersonsLte: $maxPersonsLte
+      minPersonsLte: $maxPersonsLte
       surfaceAreaGte: $surfaceAreaGte
       surfaceAreaLte: $surfaceAreaLte
       unit: $unit
       reservationUnitType: $reservationUnitType
+      state: $state
     ) {
       edges {
         node {
@@ -40,6 +44,7 @@ export const SEARCH_RESERVATION_UNITS_QUERY = gql`
           }
           maxPersons
           surfaceArea
+          state
         }
       }
       pageInfo {

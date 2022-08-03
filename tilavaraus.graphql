@@ -59,6 +59,17 @@ type AgeGroupTypeEdge {
   cursor: String!
 }
 
+"""An enumeration."""
+enum allocatedDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 type ApplicationAggregatedDataType {
   appliedMinDurationTotal: Float
   appliedReservationsTotal: Float

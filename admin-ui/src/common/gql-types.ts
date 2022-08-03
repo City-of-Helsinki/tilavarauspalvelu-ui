@@ -3631,6 +3631,17 @@ export type UnitUpdateMutationPayload = {
 };
 
 /** An enumeration. */
+export enum AllocatedDay {
+  Friday = "FRIDAY",
+  Monday = "MONDAY",
+  Saturday = "SATURDAY",
+  Sunday = "SUNDAY",
+  Thursday = "THURSDAY",
+  Tuesday = "TUESDAY",
+  Wednesday = "WEDNESDAY",
+}
+
+/** An enumeration. */
 export enum ApplicationEventStatus {
   Approved = "approved",
   Created = "created",

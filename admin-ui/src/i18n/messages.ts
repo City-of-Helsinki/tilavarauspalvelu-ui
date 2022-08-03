@@ -277,13 +277,14 @@ const translations: ITranslations = {
     unhandledApplications: ["{{count}} hakemusta"],
     unhandledApplicationEvents: ["{{count}} haettua vuoroa"],
     headings: {
+      id: ["id"],
       customer: ["Hakija"],
       unit: ["Toimipiste"],
       phase: ["Vaihe"],
       name: ["Vuoro"],
       participants: ["Harrastajat"],
       applicantType: ["Hakijatyyppi"],
-      applicationCount: ["Hakumäärä"],
+      applicationCount: ["Haettu"],
       applicationStatus: ["Hakemuksen status"],
       reviewStatus: ["Esitarkastuksen tulos"],
       resolutionStatus: ["Päätöksen status"],
@@ -968,6 +969,12 @@ const translations: ITranslations = {
     noFilteredReservationUnits: [
       "Valituilla suodattimilla ei löytynyt yhtään varausyksikköä. Valitse suodattimia uudelleen tai tyhjennä kaikki suodattimet.",
     ],
+    state: {
+      DRAFT: ["Luonnos"],
+      SCHEDULED_PUBLISHING: ["Julkaisu ajastettu"],
+      SCHEDULED_RESERVATION: ["Julkaistu, varaus ajastettu"],
+      PUBLISHED: ["Julkaistu"],
+    },
     headings: {
       name: ["Nimi"],
       unitName: ["Toimipiste"],
@@ -975,6 +982,7 @@ const translations: ITranslations = {
       reservationUnitType: ["Tilatyyppi"],
       maxPersons: ["Hlömäärä (max)"],
       surfaceArea: ["Pinta-ala"],
+      state: ["Tila"],
     },
   },
   ReservationUnitsSearch: {
@@ -990,6 +998,7 @@ const translations: ITranslations = {
     maxPersonsGtePlaceHolder: ["Vähintään"],
     maxPersonsLtePlaceHolder: ["Enintään"],
     surfaceAreaLabel: ["Pinta-ala"],
+    stateLabel: ["Tila"],
     surfaceAreaLtePlaceHolder: ["Vähintään"],
     surfaceAreaGtePlaceHolder: ["Enintään"],
     notANumber: ["Ei ole numero"],
@@ -1118,6 +1127,9 @@ const translations: ITranslations = {
     communication: ["Viestintä"],
     additionalInstructionsPlaceholder: ["Lisäohjeteksti {{language}}"],
     contactInformationLabel: ["Vastuuhenkilön yhteystiedot"],
+    contactInformationHelperText: [
+      "Vain sisäiseen käyttöön, tiedot eivät näy varaajalle",
+    ],
     contactInformationPlaceholder: ["Vastuuhenkilön yhteystiedot"],
     noPreviewUnsavedChangesTooltip: ["Tallenna ensin muutokset"],
     previewTooltip: ["Varausyksikön esikatselu"],
