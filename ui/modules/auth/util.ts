@@ -1,23 +1,43 @@
 import axios from "axios";
-import { oidcUrl, oidcClientId, apiScope, isBrowser } from "../const";
+import { oidcUrl, apiScope, isBrowser } from "../const";
 
-export const getApiAccessToken = (): string | null =>
-  isBrowser && sessionStorage.getItem(`oidc.apiToken.${apiScope}`);
-
-const setApiAccessToken = (accessToken: string): void =>
-  isBrowser && sessionStorage.setItem(`oidc.apiToken.${apiScope}`, accessToken);
-
-export const clearApiAccessToken = (): void =>
-  isBrowser && sessionStorage.removeItem(`oidc.apiToken.${apiScope}`);
-
-export const getAccessToken = (): string | null => {
-  const key = `oidc.user:${oidcUrl}/:${oidcClientId}`;
+export const getApiAccessToken = (): string | null => {
+  const key = `oidc.apiToken.${apiScope}`;
   const data = isBrowser && sessionStorage.getItem(key);
 
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      return parsed.access_token;
+      return parsed?.apiAccessToken;
+    } catch (Exception) {
+      return undefined;
+    }
+  }
+  return undefined;
+};
+
+const setApiAccessToken = (accessToken: string): void => {
+  return (
+    isBrowser &&
+    sessionStorage.setItem(
+      `oidc.apiToken.${apiScope}`,
+      JSON.stringify({ apiAccessToken: accessToken })
+    )
+  );
+};
+
+export const clearApiAccessToken = (): void => {
+  return isBrowser && sessionStorage.removeItem(`oidc.apiToken.${apiScope}`);
+};
+
+export const getAccessToken = (): string | null => {
+  const key = "oidc.default";
+  const data = isBrowser && sessionStorage.getItem(key);
+
+  if (data) {
+    try {
+      const parsed = JSON.parse(data);
+      return parsed?.tokens?.accessToken;
     } catch (Exception) {
       return undefined;
     }
@@ -37,7 +57,7 @@ export const updateApiAccessToken = async (
   const response = await axios.request({
     responseType: "json",
     method: "POST",
-    url: `${oidcUrl}/api-tokens/`,
+    url: `${oidcUrl.replace("/openid", "")}/api-tokens/`,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/x-www-form-urlencoded",

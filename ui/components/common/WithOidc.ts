@@ -1,17 +1,17 @@
 // eslint-disable-next-line import/no-unresolved
-import { useReactOidc } from "@axa-fr/react-oidc-context";
-import { Profile } from "oidc-client";
+import { useOidc, useOidcUser } from "@axa-fr/react-oidc-context";
 
-export type RenderPropsType = { profile: Profile; logout: () => void };
+export type RenderPropsType = { profile: unknown; logout: () => void };
 type Props = { render: (props: RenderPropsType) => JSX.Element };
 
 const WithOidc = ({ render }: Props): JSX.Element => {
-  const { oidcUser, logout } = useReactOidc();
+  const { oidcUser } = useOidcUser();
+  const { logout } = useOidc();
   let profile = null;
   if (oidcUser) {
     profile = oidcUser.profile;
   }
-  return render({ profile, logout } as RenderPropsType);
+  return render({ profile, logout });
 };
 
 export default WithOidc;

@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import { Navigation as HDSNavigation } from "hds-react";
+import { useOidc, useOidcUser } from "@axa-fr/react-oidc-context";
 import { useTranslation, TFunction } from "next-i18next";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { UserInfo } from "common";
 import { applicationsUrl } from "../../modules/util";
-import { authEnabled, isBrowser } from "../../modules/const";
 import { breakpoint } from "../../modules/style";
 import { UserProfile } from "../../modules/types";
 import RequireAuthentication from "./RequireAuthentication";
@@ -57,11 +57,6 @@ const PreContent = styled.div`
   }
 `;
 
-type Props = {
-  profile: UserProfile | null;
-  logout?: () => void;
-};
-
 const getUserName = (profile: UserProfile | null, t: TFunction) => {
   if (profile === null) {
     return "";
@@ -73,7 +68,11 @@ const getUserName = (profile: UserProfile | null, t: TFunction) => {
   return `${profile?.given_name || ""} ${profile?.family_name || ""}`;
 };
 
-const Navigation = ({ profile, logout }: Props): JSX.Element => {
+const Navigation = (): JSX.Element => {
+  const { oidcUser: profile } = useOidcUser();
+
+  const { logout } = useOidc();
+
   const { t, i18n } = useTranslation(["common", "navigation"]);
   const router = useRouter();
 
@@ -136,7 +135,10 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
             )}
             <HDSNavigation.Item
               label={t("common:logout")}
-              onClick={() => logout && logout()}
+              onClick={async () => {
+                await logout();
+                clearApiAccessToken();
+              }}
             />
           </HDSNavigation.User>
           <HDSNavigation.LanguageSelector
@@ -172,29 +174,4 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
   );
 };
 
-const NavigationWithProfileAndLogout = (): JSX.Element => {
-  if (!isBrowser || !authEnabled) {
-    return <Navigation profile={null} />;
-  }
-
-  const WithOidc = require("./WithOidc").default;
-
-  return (
-    <WithOidc
-      render={(props: {
-        profile: UserProfile | null;
-        logout: (() => void) | undefined;
-      }) => (
-        <Navigation
-          profile={props.profile}
-          logout={() => {
-            clearApiAccessToken();
-            props.logout();
-          }}
-        />
-      )}
-    />
-  );
-};
-
-export default NavigationWithProfileAndLogout;
+export default Navigation;

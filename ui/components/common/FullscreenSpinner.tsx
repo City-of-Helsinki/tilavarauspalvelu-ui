@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { LoadingSpinner } from "hds-react";
 
-const Wrapper = styled.div`
-  background-color: rgba(0, 0, 0, 0.5);
+const Wrapper = styled.div<{ $isTransparent?: boolean }>`
+  background-color: ${({ $isTransparent }) =>
+    $isTransparent ? "transparent" : "rgba(0, 0, 0, 0.5)"};
   position: fixed;
   top: 0;
   right: 0;
@@ -21,6 +22,14 @@ const StyledLoadingSpinner = styled(LoadingSpinner)`
 export const FullscreenSpinner = (): JSX.Element => {
   return (
     <Wrapper>
+      <StyledLoadingSpinner />
+    </Wrapper>
+  );
+};
+
+export const TransparentFullscreenSpinner = (): JSX.Element => {
+  return (
+    <Wrapper $isTransparent>
       <StyledLoadingSpinner />
     </Wrapper>
   );

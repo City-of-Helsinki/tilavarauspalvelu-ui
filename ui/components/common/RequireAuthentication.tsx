@@ -1,5 +1,5 @@
 import React from "react";
-import dynamic from "next/dynamic";
+import { OidcSecure } from "@axa-fr/react-oidc-context";
 import { isBrowser } from "../../modules/const";
 
 type Props = {
@@ -10,11 +10,6 @@ const RequireAuthentication = ({ children }: Props): JSX.Element => {
   if (!isBrowser) {
     return null;
   }
-
-  const OidcSecure = dynamic(() =>
-    // eslint-disable-next-line import/no-unresolved
-    import("@axa-fr/react-oidc-context").then((mod) => mod.OidcSecure)
-  );
 
   return <OidcSecure>{children}</OidcSecure>;
 };

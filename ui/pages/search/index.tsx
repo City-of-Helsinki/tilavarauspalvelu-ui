@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { GetServerSideProps } from "next";
@@ -7,18 +7,12 @@ import { useLocalStorage } from "react-use";
 import { Notification } from "hds-react";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { isEqual, omit, pick, sortBy } from "lodash";
-import { NetworkStatus, useQuery } from "@apollo/client";
+import { omit, pick, sortBy } from "lodash";
+import { NetworkStatus, useLazyQuery } from "@apollo/client";
 import Container from "../../components/common/Container";
 import SearchForm from "../../components/search/SearchForm";
 import { OptionType } from "../../modules/types";
-import {
-  applicationRoundState,
-  capitalize,
-  searchUrl,
-} from "../../modules/util";
-import { isBrowser } from "../../modules/const";
-import ClientOnly from "../../components/ClientOnly";
+import { applicationRoundState, capitalize } from "../../modules/util";
 import { H1, HeroSubheading } from "../../modules/style/typography";
 import KorosDefault from "../../components/common/KorosDefault";
 import {
@@ -106,7 +100,39 @@ const StyledSorting = styled(Sorting)`
   }
 `;
 
-const processVariables = (values: Record<string, string>, language: string) => {
+const args = [
+  "textSearch",
+  "minPersons",
+  "maxPersons",
+  "purposes",
+  "unit",
+  "reservationUnitType",
+  "applicationRound",
+  // "first",
+  "orderBy",
+  // "isDraft",
+  // "isVisible",
+  "reservationKind",
+];
+
+type QueryArgs = {
+  minPersons?: number;
+  maxPersons?: number;
+  purposes?: string[];
+  unit?: string[];
+  reservationUnitType?: string[];
+  applicationRound?: string[];
+  first?: number;
+  orderBy?: string;
+  isDraft?: false;
+  isVisible?: true;
+  reservationKind?: ReservationUnitsReservationUnitReservationKindChoices;
+};
+
+const processVariables = (
+  values: Record<string, string>,
+  language: string
+): QueryArgs => {
   const sortCriteria = ["name", "unitName"].includes(values.sort)
     ? `${values.sort}${capitalize(language)}`
     : values.sort;
@@ -149,6 +175,8 @@ const processVariables = (values: Record<string, string>, language: string) => {
 };
 
 const Search = ({ applicationRounds }: Props): JSX.Element => {
+  const router = useRouter();
+
   const {
     reservationUnits: selectedReservationUnits,
     selectReservationUnit,
@@ -178,30 +206,32 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
   );
 
   const [values, setValues] = useState({} as Record<string, string>);
+  const [reservationUnits, setReservationUnits] = useState<
+    ReservationUnitType[] | null
+  >(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageInfo, setPageInfo] = useState<PageInfo>(null);
+
   const setStoredValues = useLocalStorage("reservationUnit-search", null)[1];
 
-  const { data, fetchMore, loading, error, networkStatus } = useQuery<
-    Query,
-    QueryReservationUnitsArgs
-  >(RESERVATION_UNITS, {
-    variables: processVariables(values, i18n.language),
-    fetchPolicy: "cache-and-network",
-    skip: Object.keys(values).length === 0,
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const searchParams = isBrowser ? window.location.search : "";
-  const parsedParams = queryString.parse(searchParams);
-
-  const reservationUnits: ReservationUnitType[] =
-    data?.reservationUnits?.edges?.map((edge) => edge.node);
-  const totalCount = data?.reservationUnits?.totalCount;
-
-  const pageInfo: PageInfo = data?.reservationUnits?.pageInfo;
+  const [runQuery, { data, fetchMore, loading, error, networkStatus }] =
+    useLazyQuery<Query, QueryReservationUnitsArgs>(RESERVATION_UNITS, {
+      fetchPolicy: "network-only",
+    });
 
   useEffect(() => {
-    if (parsedParams) {
-      const parsed = parsedParams;
+    setReservationUnits(
+      data?.reservationUnits?.edges?.map((edge) => edge.node)
+    );
+    setTotalCount(data?.reservationUnits?.totalCount);
+    setPageInfo(data?.reservationUnits?.pageInfo);
+  }, [data]);
+
+  const handleRouteChange = useCallback(
+    (url: string | null) => {
+      const { query } = queryString.parseUrl(url);
+      setStoredValues(query);
+      const parsed = query;
       if (!parsed.sort) parsed.sort = "name";
       if (!parsed.order) parsed.order = "asc";
 
@@ -215,30 +245,58 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
         return p;
       }, {} as Record<string, string>);
 
-      if (!isEqual(values, newValues)) {
-        setValues(newValues);
-      }
-    }
-  }, [parsedParams, values, i18n.language]);
+      // if (!isEqual(values, newValues)) {
+      setValues(newValues);
+      const processedVariables = processVariables(newValues, i18n.language);
+      const vars = args.reduce((acc, cur) => {
+        return Object.prototype.hasOwnProperty.call(processedVariables, cur)
+          ? { ...acc, [cur]: processedVariables[cur] }
+          : { ...acc, [cur]: undefined };
+      }, processedVariables);
+      runQuery({ variables: vars });
+    },
+    [setStoredValues, setValues, runQuery, i18n.language]
+  );
 
   useEffect(() => {
-    const params = queryString.parse(searchParams);
-    setStoredValues(params);
-  }, [setStoredValues, searchParams]);
+    handleRouteChange(
+      `${router.pathname}?${queryString.stringify(router.query)}`
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [
+    router.events,
+    router,
+    i18n.language,
+    setStoredValues,
+    setValues,
+    runQuery,
+    reservationUnits,
+    handleRouteChange,
+  ]);
 
   const loadingMore = useMemo(
     () => networkStatus === NetworkStatus.fetchMore,
     [networkStatus]
   );
 
-  const history = useRouter();
+  const omitEmptyKeys = (obj: { [s: string]: unknown } | ArrayLike<unknown>) =>
+    Object.entries(obj).reduce(
+      (acc, [k, v]) => (v ? { ...acc, [k]: v } : acc),
+      {}
+    );
 
   const onSearch = async (criteria: QueryReservationUnitsArgs) => {
-    const sortingCriteria = pick(queryString.parse(searchParams), [
-      "sort",
-      "order",
-    ]);
-    history.replace(searchUrl({ ...criteria, ...sortingCriteria }));
+    const sortingCriteria = pick(router.query, ["sort", "order"]);
+    const filteredCriteria = omitEmptyKeys(criteria);
+    router.replace({ query: { ...filteredCriteria, ...sortingCriteria } });
   };
 
   const onRemove = (key?: string[], subItemKey?: string) => {
@@ -255,19 +313,17 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
       newValues = omit(values, key);
     }
 
-    const sortingCriteria = pick(queryString.parse(searchParams), [
-      "sort",
-      "order",
-    ]);
-    history.replace(
-      searchUrl({
-        ...newValues,
+    const sortingCriteria = pick(router.query, ["sort", "order"]);
+    const route = {
+      query: {
+        ...omitEmptyKeys(newValues),
         ...sortingCriteria,
         // a hacky way to bypass query cache
         textSearch:
           !key || key.includes("textSearch") ? "" : values.textSearch || "",
-      })
-    );
+      },
+    };
+    router.replace(route);
   };
 
   const isOrderingAsc = values.order !== "desc";
@@ -285,6 +341,7 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
           <Title>{t("search:recurring.heading")}</Title>
           <Ingress>{t("search:recurring.text")}</Ingress>
           <SearchForm
+            key={JSON.stringify(values)}
             applicationRounds={applicationRounds}
             onSearch={onSearch}
             formValues={omit(values, ["order", "sort"])}
@@ -293,60 +350,58 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
         </Container>
       </HeadContainer>
       <KorosDefault from="white" to="var(--tilavaraus-gray)" />
-      <ClientOnly>
-        <>
-          <ListWithPagination
-            id="searchResultList"
-            items={reservationUnits?.map((ru) => (
-              <ReservationUnitCard
-                selectReservationUnit={selectReservationUnit}
-                containsReservationUnit={containsReservationUnit}
-                removeReservationUnit={removeReservationUnit}
-                reservationUnit={ru}
-                key={ru.id}
-              />
-            ))}
-            loading={loading}
-            loadingMore={loadingMore}
-            pageInfo={pageInfo}
-            totalCount={totalCount}
-            fetchMore={(cursor) => {
-              const variables = {
-                ...values,
-                after: cursor,
-              };
-              fetchMore({
-                variables: processVariables(variables, i18n.language),
-              });
-            }}
-            sortingComponent={
-              <StyledSorting
-                value={values.sort}
-                sortingOptions={sortingOptions}
-                setSorting={(val: OptionType) => {
-                  const params = {
-                    ...values,
-                    sort: String(val.value),
-                  };
-                  history.replace(searchUrl(params));
-                }}
-                isOrderingAsc={isOrderingAsc}
-                setIsOrderingAsc={(isAsc: boolean) => {
-                  const params = {
-                    ...values,
-                    order: isAsc ? "asc" : "desc",
-                  };
-                  history.replace(searchUrl(params));
-                }}
-              />
-            }
-          />
-          <StartApplicationBar
-            count={selectedReservationUnits.length}
-            clearSelections={clearSelections}
-          />
-        </>
-      </ClientOnly>
+      <>
+        <ListWithPagination
+          id="searchResultList"
+          items={reservationUnits?.map((ru) => (
+            <ReservationUnitCard
+              selectReservationUnit={selectReservationUnit}
+              containsReservationUnit={containsReservationUnit}
+              removeReservationUnit={removeReservationUnit}
+              reservationUnit={ru}
+              key={ru.id}
+            />
+          ))}
+          loading={loading}
+          loadingMore={loadingMore}
+          pageInfo={pageInfo}
+          totalCount={totalCount}
+          fetchMore={(cursor) => {
+            const variables = {
+              ...values,
+              after: cursor,
+            };
+            fetchMore({
+              variables: processVariables(variables, i18n.language),
+            });
+          }}
+          sortingComponent={
+            <StyledSorting
+              value={values.sort}
+              sortingOptions={sortingOptions}
+              setSorting={(val: OptionType) => {
+                const params = {
+                  ...values,
+                  sort: String(val.value),
+                };
+                router.replace({ query: params });
+              }}
+              isOrderingAsc={isOrderingAsc}
+              setIsOrderingAsc={(isAsc: boolean) => {
+                const params = {
+                  ...values,
+                  order: isAsc ? "asc" : "desc",
+                };
+                router.replace({ query: params });
+              }}
+            />
+          }
+        />
+        <StartApplicationBar
+          count={selectedReservationUnits.length}
+          clearSelections={clearSelections}
+        />
+      </>
     </Wrapper>
   );
 };
