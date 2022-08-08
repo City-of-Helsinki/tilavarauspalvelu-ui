@@ -1288,7 +1288,7 @@ const translations: ITranslations = {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],
       subventionReason: ["Varaajan antamat subvention perusteet"],
       accept: ["Hyväksy varaus"],
-      errorSaving: ["Hyväksyminen ei onnistunut."],
+      errorSaving: ["Hyväksyminen ei onnistunut. {{error}}"],
       approved: ["Varaus hyväksytty."],
       handlingDetails: ["Henkilökunnan kommentti"],
       price: ["Varauksen hinta"],

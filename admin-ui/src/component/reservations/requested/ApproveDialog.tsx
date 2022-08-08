@@ -135,9 +135,13 @@ const DialogContent = ({
                 handlingDetails,
               });
 
-              if (res.errors) {
+              if (res.data?.approveReservation?.errors) {
                 notifyError(
-                  t("RequestedReservation.ApproveDialog.errorSaving")
+                  t("RequestedReservation.ApproveDialog.errorSaving", {
+                    error: res.data?.approveReservation?.errors
+                      .map((e) => `${e?.field}: ${e?.messages}`)
+                      .join(", "),
+                  })
                 );
               } else {
                 notifySuccess(t("RequestedReservation.ApproveDialog.approved"));
