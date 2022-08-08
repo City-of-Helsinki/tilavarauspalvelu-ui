@@ -46,7 +46,7 @@ export const reservationPrice = (
 export const getReservationPriceDetails = (
   reservation: ReservationType,
   t: TFunction
-) => {
+): string => {
   const durationMinutes = differenceInMinutes(
     new Date(reservation.end),
     new Date(reservation.begin)
