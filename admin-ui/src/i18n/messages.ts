@@ -1244,7 +1244,7 @@ const translations: ITranslations = {
       CANCELLED: ["Peruutettu"],
     },
     approve: ["Hyväksy varaus"],
-    reject: ["Hylkää Varaus"],
+    reject: ["Hylkää varaus"],
     returnToHandling: ["Palauta käsiteltäväksi"],
     cancel: ["Takaisin"],
     noPrice: ["ilmainen"],
