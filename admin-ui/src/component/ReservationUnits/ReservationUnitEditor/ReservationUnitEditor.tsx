@@ -1633,19 +1633,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             setModalContent(
               <DiscardChangesDialog
                 onAccept={async () => {
-                  try {
-                    const r = await createOrUpdateReservationUnit(
-                      state.reservationUnit?.isDraft || false,
-                      true
-                    );
-
-                    if (r) {
-                      setModalContent(null);
-                      history.go(-1);
-                    }
-                  } catch (e) {
-                    // noop
-                  }
+                  history.go(-1);
                 }}
                 onClose={() => setModalContent(null)}
               />,
