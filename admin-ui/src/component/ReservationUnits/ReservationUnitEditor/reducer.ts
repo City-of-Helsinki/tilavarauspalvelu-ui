@@ -398,7 +398,6 @@ export const reducer = (state: State, action: Action): State => {
       });
     }
     case "setEquipments": {
-      console.log("setting equipment", action.equipments);
       return modifyEditorState(state, {
         equipmentPks: action.equipments.map((ot) => ot.value as number),
       });
