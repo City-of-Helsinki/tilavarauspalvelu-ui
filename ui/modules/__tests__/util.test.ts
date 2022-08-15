@@ -13,6 +13,7 @@ import {
   convertHMSToSeconds,
   formatDuration,
   getReadableList,
+  omitEmptyKeys,
 } from "../util";
 
 jest.mock("next/config", () => () => ({
@@ -183,4 +184,13 @@ test("getReadableList", () => {
   expect(getReadableList(["a", "b", "c"])).toEqual("a, b common:and c");
   expect(getReadableList([])).toEqual("");
   expect(getReadableList(undefined)).toEqual("");
+});
+
+test("omitEmptyKeys", () => {
+  expect(
+    omitEmptyKeys({ foo: "", bar: "bar", baz: null, oi: undefined })
+  ).toEqual({
+    bar: "bar",
+  });
+  expect(omitEmptyKeys({})).toEqual({});
 });

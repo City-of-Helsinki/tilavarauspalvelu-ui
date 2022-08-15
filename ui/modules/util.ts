@@ -506,3 +506,11 @@ export const getReadableList = (list: string[]): string => {
 
   return `${list.slice(0, -1).join(", ")} ${andStr} ${list[list.length - 1]}`;
 };
+
+export const omitEmptyKeys = (
+  obj: { [s: string]: unknown } | ArrayLike<unknown>
+): Record<string, unknown> =>
+  Object.entries(obj).reduce(
+    (acc, [k, v]) => (v ? { ...acc, [k]: v } : acc),
+    {}
+  );

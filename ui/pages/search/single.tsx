@@ -1,18 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "next-i18next";
-import { NetworkStatus, useQuery } from "@apollo/client";
+import { NetworkStatus, useLazyQuery } from "@apollo/client";
 import { GetServerSideProps } from "next";
 import styled from "styled-components";
 import queryString from "query-string";
 import { useRouter } from "next/router";
 import { Notification } from "hds-react";
 import { useLocalStorage } from "react-use";
-import { isEqual, omit, pick } from "lodash";
+import { omit, pick } from "lodash";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Container from "../../components/common/Container";
 import SearchForm from "../../components/single-search/SearchForm";
-import { capitalize, singleSearchUrl } from "../../modules/util";
-import { isBrowser } from "../../modules/const";
+import { capitalize, omitEmptyKeys, singleSearchUrl } from "../../modules/util";
 import {
   PageInfo,
   Query,
@@ -25,7 +24,6 @@ import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
 import { OptionType } from "../../modules/types";
 import KorosDefault from "../../components/common/KorosDefault";
-import ClientOnly from "../../components/ClientOnly";
 import ListWithPagination from "../../components/common/ListWithPagination";
 import ReservationUnitCard from "../../components/single-search/ReservationUnitCard";
 
@@ -64,7 +62,24 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   };
 };
 
-const processVariables = (values: Record<string, string>, language: string) => {
+type QueryArgs = {
+  minPersons?: number;
+  maxPersons?: number;
+  purposes?: string[];
+  unit?: string[];
+  reservationUnitType?: string[];
+  applicationRound?: string[];
+  first?: number;
+  orderBy?: string;
+  isDraft?: false;
+  isVisible?: true;
+  reservationKind?: ReservationUnitsReservationUnitReservationKindChoices;
+};
+
+const processVariables = (
+  values: Record<string, string>,
+  language: string
+): QueryArgs => {
   const sortCriteria = ["name", "unitName"].includes(values.sort)
     ? `${values.sort}${capitalize(language)}`
     : values.sort;
@@ -104,6 +119,8 @@ const processVariables = (values: Record<string, string>, language: string) => {
 };
 
 const SearchSingle = (): JSX.Element => {
+  const router = useRouter();
+
   const { t, i18n } = useTranslation();
 
   const sortingOptions = useMemo(
@@ -125,33 +142,34 @@ const SearchSingle = (): JSX.Element => {
   );
 
   const [values, setValues] = useState({} as Record<string, string>);
+  const [reservationUnits, setReservationUnits] = useState<
+    ReservationUnitType[] | null
+  >(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageInfo, setPageInfo] = useState<PageInfo>(null);
   const setStoredValues = useLocalStorage(
     "reservationUnit-search-single",
     null
   )[1];
 
-  const { data, fetchMore, loading, error, networkStatus } = useQuery<
-    Query,
-    QueryReservationUnitsArgs
-  >(RESERVATION_UNITS, {
-    variables: processVariables(values, i18n.language),
-    fetchPolicy: "cache-and-network",
-    skip: Object.keys(values).length === 0,
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const reservationUnits: ReservationUnitType[] =
-    data?.reservationUnits?.edges?.map((edge) => edge.node);
-  const totalCount = data?.reservationUnits?.totalCount;
-
-  const pageInfo: PageInfo = data?.reservationUnits?.pageInfo;
-
-  const searchParams = isBrowser ? window.location.search : "";
-  const parsedParams = queryString.parse(searchParams);
+  const [runQuery, { data, fetchMore, loading, error, networkStatus }] =
+    useLazyQuery<Query, QueryReservationUnitsArgs>(RESERVATION_UNITS, {
+      fetchPolicy: "network-only",
+    });
 
   useEffect(() => {
-    if (parsedParams) {
-      const parsed = parsedParams;
+    setReservationUnits(
+      data?.reservationUnits?.edges?.map((edge) => edge.node)
+    );
+    setTotalCount(data?.reservationUnits?.totalCount);
+    setPageInfo(data?.reservationUnits?.pageInfo);
+  }, [data]);
+
+  const handleRouteChange = useCallback(
+    (url: string | null) => {
+      const { query } = queryString.parseUrl(url);
+      setStoredValues(query);
+      const parsed = query;
       if (!parsed.sort) parsed.sort = "name";
       if (!parsed.order) parsed.order = "asc";
 
@@ -165,16 +183,51 @@ const SearchSingle = (): JSX.Element => {
         return p;
       }, {} as Record<string, string>);
 
-      if (!isEqual(values, newValues)) {
-        setValues(newValues);
-      }
-    }
-  }, [parsedParams, values, i18n.language]);
+      setValues(newValues);
+      const processedVariables = processVariables(newValues, i18n.language);
+      const vars = [
+        "textSearch",
+        "minPersons",
+        "maxPersons",
+        "purposes",
+        "unit",
+        "reservationUnitType",
+        "applicationRound",
+        "orderBy",
+        "reservationKind",
+      ].reduce((acc, cur) => {
+        return Object.prototype.hasOwnProperty.call(processedVariables, cur)
+          ? { ...acc, [cur]: processedVariables[cur] }
+          : { ...acc, [cur]: undefined };
+      }, processedVariables);
+      runQuery({ variables: vars });
+    },
+    [setStoredValues, setValues, runQuery, i18n.language]
+  );
 
   useEffect(() => {
-    const params = queryString.parse(searchParams);
-    setStoredValues(params);
-  }, [setStoredValues, searchParams]);
+    handleRouteChange(
+      `${router.pathname}?${queryString.stringify(router.query)}`
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [
+    router.events,
+    router,
+    i18n.language,
+    setStoredValues,
+    setValues,
+    runQuery,
+    reservationUnits,
+    handleRouteChange,
+  ]);
 
   const loadingMore = useMemo(
     () => networkStatus === NetworkStatus.fetchMore,
@@ -184,14 +237,12 @@ const SearchSingle = (): JSX.Element => {
   const history = useRouter();
 
   const onSearch = async (criteria: QueryReservationUnitsArgs) => {
-    const sortingCriteria = pick(queryString.parse(searchParams), [
-      "sort",
-      "order",
-    ]);
-    history.replace(singleSearchUrl({ ...criteria, ...sortingCriteria }));
+    const sortingCriteria = pick(router.query, ["sort", "order"]);
+    const filteredCriteria = omitEmptyKeys(criteria);
+    router.replace({ query: { ...filteredCriteria, ...sortingCriteria } });
   };
 
-  const onRemove = (key: string[], subItemKey?: string) => {
+  const onRemove = (key?: string[], subItemKey?: string) => {
     let newValues = {};
     if (subItemKey) {
       newValues = {
@@ -205,19 +256,17 @@ const SearchSingle = (): JSX.Element => {
       newValues = omit(values, key);
     }
 
-    const sortingCriteria = pick(queryString.parse(searchParams), [
-      "sort",
-      "order",
-    ]);
-    history.replace(
-      singleSearchUrl({
-        ...newValues,
+    const sortingCriteria = pick(router.query, ["sort", "order"]);
+    const route = {
+      query: {
+        ...omitEmptyKeys(newValues),
         ...sortingCriteria,
         // a hacky way to bypass query cache
         textSearch:
           !key || key.includes("textSearch") ? "" : values.textSearch || "",
-      })
-    );
+      },
+    };
+    router.replace(route);
   };
 
   const isOrderingAsc = values.order !== "desc";
@@ -234,6 +283,7 @@ const SearchSingle = (): JSX.Element => {
           <Heading>{t("search:single.heading")}</Heading>
           <Subheading>{t("search:single.text")}</Subheading>
           <SearchForm
+            key={JSON.stringify(values)}
             onSearch={onSearch}
             formValues={omit(values, ["order", "sort"])}
             removeValue={onRemove}
@@ -241,50 +291,46 @@ const SearchSingle = (): JSX.Element => {
         </Container>
       </HeadContainer>
       <KorosDefault from="white" to="var(--tilavaraus-gray)" />
-      <ClientOnly>
-        <>
-          <ListWithPagination
-            id="searchResultList"
-            items={reservationUnits?.map((ru) => (
-              <ReservationUnitCard reservationUnit={ru} key={ru.id} />
-            ))}
-            loading={loading}
-            loadingMore={loadingMore}
-            pageInfo={pageInfo}
-            totalCount={totalCount}
-            fetchMore={(cursor) => {
-              const variables = {
+      <ListWithPagination
+        id="searchResultList"
+        items={reservationUnits?.map((ru) => (
+          <ReservationUnitCard reservationUnit={ru} key={ru.id} />
+        ))}
+        loading={loading}
+        loadingMore={loadingMore}
+        pageInfo={pageInfo}
+        totalCount={totalCount}
+        fetchMore={(cursor) => {
+          const variables = {
+            ...values,
+            after: cursor,
+          };
+          fetchMore({
+            variables: processVariables(variables, i18n.language),
+          });
+        }}
+        sortingComponent={
+          <StyledSorting
+            value={values.sort}
+            sortingOptions={sortingOptions}
+            setSorting={(val: OptionType) => {
+              const params = {
                 ...values,
-                after: cursor,
+                sort: String(val.value),
               };
-              fetchMore({
-                variables: processVariables(variables, i18n.language),
-              });
+              history.replace(singleSearchUrl(params));
             }}
-            sortingComponent={
-              <StyledSorting
-                value={values.sort}
-                sortingOptions={sortingOptions}
-                setSorting={(val: OptionType) => {
-                  const params = {
-                    ...values,
-                    sort: String(val.value),
-                  };
-                  history.replace(singleSearchUrl(params));
-                }}
-                isOrderingAsc={isOrderingAsc}
-                setIsOrderingAsc={(isAsc: boolean) => {
-                  const params = {
-                    ...values,
-                    order: isAsc ? "asc" : "desc",
-                  };
-                  history.replace(singleSearchUrl(params));
-                }}
-              />
-            }
+            isOrderingAsc={isOrderingAsc}
+            setIsOrderingAsc={(isAsc: boolean) => {
+              const params = {
+                ...values,
+                order: isAsc ? "asc" : "desc",
+              };
+              history.replace(singleSearchUrl(params));
+            }}
           />
-        </>
-      </ClientOnly>
+        }
+      />
     </Wrapper>
   );
 };

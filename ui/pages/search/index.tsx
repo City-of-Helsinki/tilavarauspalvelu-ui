@@ -12,7 +12,11 @@ import { NetworkStatus, useLazyQuery } from "@apollo/client";
 import Container from "../../components/common/Container";
 import SearchForm from "../../components/search/SearchForm";
 import { OptionType } from "../../modules/types";
-import { applicationRoundState, capitalize } from "../../modules/util";
+import {
+  applicationRoundState,
+  capitalize,
+  omitEmptyKeys,
+} from "../../modules/util";
 import { H1, HeroSubheading } from "../../modules/style/typography";
 import KorosDefault from "../../components/common/KorosDefault";
 import {
@@ -99,21 +103,6 @@ const StyledSorting = styled(Sorting)`
     display: flex;
   }
 `;
-
-const args = [
-  "textSearch",
-  "minPersons",
-  "maxPersons",
-  "purposes",
-  "unit",
-  "reservationUnitType",
-  "applicationRound",
-  // "first",
-  "orderBy",
-  // "isDraft",
-  // "isVisible",
-  "reservationKind",
-];
 
 type QueryArgs = {
   minPersons?: number;
@@ -245,10 +234,19 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
         return p;
       }, {} as Record<string, string>);
 
-      // if (!isEqual(values, newValues)) {
       setValues(newValues);
       const processedVariables = processVariables(newValues, i18n.language);
-      const vars = args.reduce((acc, cur) => {
+      const vars = [
+        "textSearch",
+        "minPersons",
+        "maxPersons",
+        "purposes",
+        "unit",
+        "reservationUnitType",
+        "applicationRound",
+        "orderBy",
+        "reservationKind",
+      ].reduce((acc, cur) => {
         return Object.prototype.hasOwnProperty.call(processedVariables, cur)
           ? { ...acc, [cur]: processedVariables[cur] }
           : { ...acc, [cur]: undefined };
@@ -286,12 +284,6 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
     () => networkStatus === NetworkStatus.fetchMore,
     [networkStatus]
   );
-
-  const omitEmptyKeys = (obj: { [s: string]: unknown } | ArrayLike<unknown>) =>
-    Object.entries(obj).reduce(
-      (acc, [k, v]) => (v ? { ...acc, [k]: v } : acc),
-      {}
-    );
 
   const onSearch = async (criteria: QueryReservationUnitsArgs) => {
     const sortingCriteria = pick(router.query, ["sort", "order"]);
@@ -350,58 +342,56 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
         </Container>
       </HeadContainer>
       <KorosDefault from="white" to="var(--tilavaraus-gray)" />
-      <>
-        <ListWithPagination
-          id="searchResultList"
-          items={reservationUnits?.map((ru) => (
-            <ReservationUnitCard
-              selectReservationUnit={selectReservationUnit}
-              containsReservationUnit={containsReservationUnit}
-              removeReservationUnit={removeReservationUnit}
-              reservationUnit={ru}
-              key={ru.id}
-            />
-          ))}
-          loading={loading}
-          loadingMore={loadingMore}
-          pageInfo={pageInfo}
-          totalCount={totalCount}
-          fetchMore={(cursor) => {
-            const variables = {
-              ...values,
-              after: cursor,
-            };
-            fetchMore({
-              variables: processVariables(variables, i18n.language),
-            });
-          }}
-          sortingComponent={
-            <StyledSorting
-              value={values.sort}
-              sortingOptions={sortingOptions}
-              setSorting={(val: OptionType) => {
-                const params = {
-                  ...values,
-                  sort: String(val.value),
-                };
-                router.replace({ query: params });
-              }}
-              isOrderingAsc={isOrderingAsc}
-              setIsOrderingAsc={(isAsc: boolean) => {
-                const params = {
-                  ...values,
-                  order: isAsc ? "asc" : "desc",
-                };
-                router.replace({ query: params });
-              }}
-            />
-          }
-        />
-        <StartApplicationBar
-          count={selectedReservationUnits.length}
-          clearSelections={clearSelections}
-        />
-      </>
+      <ListWithPagination
+        id="searchResultList"
+        items={reservationUnits?.map((ru) => (
+          <ReservationUnitCard
+            selectReservationUnit={selectReservationUnit}
+            containsReservationUnit={containsReservationUnit}
+            removeReservationUnit={removeReservationUnit}
+            reservationUnit={ru}
+            key={ru.id}
+          />
+        ))}
+        loading={loading}
+        loadingMore={loadingMore}
+        pageInfo={pageInfo}
+        totalCount={totalCount}
+        fetchMore={(cursor) => {
+          const variables = {
+            ...values,
+            after: cursor,
+          };
+          fetchMore({
+            variables: processVariables(variables, i18n.language),
+          });
+        }}
+        sortingComponent={
+          <StyledSorting
+            value={values.sort}
+            sortingOptions={sortingOptions}
+            setSorting={(val: OptionType) => {
+              const params = {
+                ...values,
+                sort: String(val.value),
+              };
+              router.replace({ query: params });
+            }}
+            isOrderingAsc={isOrderingAsc}
+            setIsOrderingAsc={(isAsc: boolean) => {
+              const params = {
+                ...values,
+                order: isAsc ? "asc" : "desc",
+              };
+              router.replace({ query: params });
+            }}
+          />
+        }
+      />
+      <StartApplicationBar
+        count={selectedReservationUnits.length}
+        clearSelections={clearSelections}
+      />
     </Wrapper>
   );
 };
