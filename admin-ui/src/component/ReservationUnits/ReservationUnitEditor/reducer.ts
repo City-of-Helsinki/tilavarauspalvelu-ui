@@ -26,7 +26,9 @@ export const getInitialState = (reservationUnitPk: number): State => ({
   hasChanges: false,
   loading: true,
   paymentTermsOptions: [],
+  pricingTermsOptions: [],
   purposeOptions: [],
+  qualifierOptions: [],
   reservationUnit: null,
   reservationUnitEdit: {},
   reservationUnitPk,
@@ -157,6 +159,7 @@ export const reducer = (state: State, action: Action): State => {
             "maxReservationDuration",
             "minReservationDuration",
             "pk",
+            "paymentType",
             "priceUnit",
             "publishBegins",
             "publishEnds",
@@ -189,7 +192,11 @@ export const reducer = (state: State, action: Action): State => {
           purposePks: reservationUnit?.purposes?.map((s) =>
             Number(s?.pk)
           ) as number[],
+          qualifierPks: reservationUnit?.qualifiers?.map((s) =>
+            Number(s?.pk)
+          ) as number[],
           paymentTermsPk: get(reservationUnit, "paymentTerms.pk"),
+          pricingTermsPk: get(reservationUnit, "pricingTerms.pk"),
           reservationUnitTypePk: get(reservationUnit, "reservationUnitType.pk"),
           cancellationTermsPk: get(reservationUnit, "cancellationTerms.pk"),
           cancellationRulePk: get(reservationUnit, "cancellationRule.pk"),
@@ -201,6 +208,7 @@ export const reducer = (state: State, action: Action): State => {
             "serviceSpecificTerms.pk"
           ),
           metadataSetPk: get(reservationUnit, "metadataSet.pk", null),
+          pricingType: get(reservationUnit, "pricingType") || undefined, // update api does not allow null
         },
         hasChanges: false,
         images: sortImages(
@@ -213,6 +221,13 @@ export const reducer = (state: State, action: Action): State => {
           )
         ),
       });
+    }
+    case "created": {
+      return {
+        ...state,
+        reservationUnitPk: action.pk,
+        reservationUnitEdit: { ...state.reservationUnitEdit, pk: action.pk },
+      };
     }
     case "unitLoaded": {
       const { unit } = action;
@@ -261,12 +276,19 @@ export const reducer = (state: State, action: Action): State => {
         purposeOptions: (action.parameters.purposes?.edges || []).map(
           optionMaker
         ),
+        qualifierOptions: (action.parameters.qualifiers?.edges || []).map(
+          optionMaker
+        ),
         reservationUnitTypeOptions: (
           action.parameters.reservationUnitTypes?.edges || []
         ).map(optionMaker),
         paymentTermsOptions: makeTermsOptions(
           action,
           TermsOfUseTermsOfUseTermsTypeChoices.PaymentTerms
+        ),
+        pricingTermsOptions: makeTermsOptions(
+          action,
+          TermsOfUseTermsOfUseTermsTypeChoices.PricingTerms
         ),
         taxPercentageOptions: [nullOption].concat(
           (action.parameters.taxPercentages?.edges || []).map(
@@ -384,6 +406,11 @@ export const reducer = (state: State, action: Action): State => {
     case "setPurposes": {
       return modifyEditorState(state, {
         purposePks: action.purposes.map((ot) => ot.value as number),
+      });
+    }
+    case "setQualifiers": {
+      return modifyEditorState(state, {
+        qualifierPks: action.qualifiers.map((ot) => ot.value as number),
       });
     }
     case "setValidatioErrors": {

@@ -103,7 +103,7 @@ const ListWithPagination = ({
             <HitCountSummary data-testid="list-with-pagination__pagination--summary">
               {shouldShowPaginationButton
                 ? t("searchResultList:paginationSummary", {
-                    count: items.length,
+                    count: items?.length,
                     totalCount,
                   })
                 : t("searchResultList:paginationSummaryEnd", {

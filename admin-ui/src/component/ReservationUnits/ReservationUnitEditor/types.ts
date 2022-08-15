@@ -36,10 +36,12 @@ export type Action =
   | { type: "dataInitializationError"; message: string }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | { type: "set"; value: any }
+  | { type: "created"; pk: number }
   | { type: "setSpaces"; spaces: OptionType[] }
   | { type: "setResources"; resources: OptionType[] }
   | { type: "setEquipments"; equipments: OptionType[] }
   | { type: "setPurposes"; purposes: OptionType[] }
+  | { type: "setQualifiers"; qualifiers: OptionType[] }
   | { type: "parametersLoaded"; parameters: Query }
   | { type: "setMaxPersons"; maxPersons: number }
   | { type: "setReservationsMaxDaysBefore"; reservationsMaxDaysBefore: number }
@@ -74,8 +76,10 @@ export type State = {
   resourceOptions: OptionType[];
   equipmentOptions: OptionType[];
   purposeOptions: OptionType[];
+  qualifierOptions: OptionType[];
   reservationUnitTypeOptions: OptionType[];
   paymentTermsOptions: OptionType[];
+  pricingTermsOptions: OptionType[];
   cancellationTermsOptions: OptionType[];
   serviceSpecificTermsOptions: OptionType[];
   cancellationRuleOptions: OptionType[];
@@ -102,6 +106,11 @@ const requiredForSingle = (then: Joi.SchemaLike) =>
     then,
   });
 
+const requiredForNonFree = (then: Joi.SchemaLike) =>
+  Joi.when("pricingType", {
+    not: "FREE",
+    then,
+  });
 export const schema = Joi.object({
   reservationKind: Joi.string().required(),
   nameFi: Joi.string().required().max(80),
@@ -129,6 +138,11 @@ export const schema = Joi.object({
   additionalInstructionsFi: Joi.string().allow("").max(10000),
   additionalInstructionsSv: Joi.string().allow("").max(10000),
   additionalInstructionsEn: Joi.string().allow("").max(10000),
+  pricingType: Joi.string().required(),
+  lowestPrice: requiredForNonFree(Joi.number().required()),
+  priceUnit: requiredForNonFree(Joi.string().required()),
+  paymentType: requiredForNonFree(Joi.string().required()),
+  taxPercentagePk: requiredForNonFree(Joi.number().required()),
 }).options({
   allowUnknown: true,
   abortEarly: false,
