@@ -1,6 +1,6 @@
 import React from "react";
 import { OidcSecure } from "@axa-fr/react-oidc-context";
-import { isBrowser } from "../../modules/const";
+import { authEnabled, isBrowser } from "../../modules/const";
 
 type Props = {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ const RequireAuthentication = ({ children }: Props): JSX.Element => {
     return null;
   }
 
-  return <OidcSecure>{children}</OidcSecure>;
+  return authEnabled ? <OidcSecure>{children}</OidcSecure> : <>{children}</>;
 };
 
 export default RequireAuthentication;

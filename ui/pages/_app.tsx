@@ -1,25 +1,21 @@
 import React from "react";
 import { appWithTranslation, UserConfig } from "next-i18next";
-import { OidcProvider } from "@axa-fr/react-oidc-context";
-// eslint-disable-next-line import/no-extraneous-dependencies
+import queryString from "query-string"; // eslint-disable-next-line import/no-extraneous-dependencies
 import { CustomHistory } from "@axa-fr/react-oidc/dist/core/routes/withRouter";
-import queryString from "query-string";
 import { format, isValid } from "date-fns";
 import { useRouter } from "next/router";
 import { AppProps } from "next/app";
 import { fi } from "date-fns/locale";
 import { ApolloProvider } from "@apollo/client";
 import apolloClient from "../modules/apolloClient";
-import SessionLost from "../components/common/SessionLost";
 import PageWrapper from "../components/common/PageWrapper";
-import { mockRequests } from "../modules/const";
-import oidcConfiguration from "../modules/auth/configuration";
+import { authEnabled, mockRequests } from "../modules/const";
 import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
 import { TrackingWrapper } from "../modules/tracking";
-import { TransparentFullscreenSpinner } from "../components/common/FullscreenSpinner";
 import { DataContextProvider } from "../context/DataContext";
 import ExternalScripts from "../components/ExternalScripts";
+import OidcProviderWrapper from "../components/auth/OidcProviderWrapper";
 
 if (mockRequests) {
   require("../mocks");
@@ -46,21 +42,16 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <DataContextProvider>
         <TrackingWrapper>
-          <OidcProvider
-            callbackSuccessComponent={TransparentFullscreenSpinner}
-            authenticatingComponent={TransparentFullscreenSpinner}
-            loadingComponent={TransparentFullscreenSpinner}
-            authenticatingErrorComponent={SessionLost}
-            sessionLostComponent={SessionLost}
-            configuration={oidcConfiguration}
+          <OidcProviderWrapper
             withCustomHistory={withCustomHistory}
+            isEnabled={authEnabled}
           >
             <ApolloProvider client={apolloClient}>
               <PageWrapper {...pageProps}>
                 <Component {...pageProps} />
               </PageWrapper>
             </ApolloProvider>
-          </OidcProvider>
+          </OidcProviderWrapper>
         </TrackingWrapper>
       </DataContextProvider>
       <ExternalScripts />

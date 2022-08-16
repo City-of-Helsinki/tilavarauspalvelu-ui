@@ -499,6 +499,7 @@ const SearchForm = ({
                     onClick={() => removeValue()}
                     onDelete={() => removeValue()}
                     data-test-id="search-form__reset-button"
+                    deleteButtonAriaLabel={t("searchForm:resetForm")}
                   >
                     {t("searchForm:resetForm")}
                   </ResetButton>

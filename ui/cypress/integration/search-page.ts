@@ -114,7 +114,6 @@ describe("Tilavaraus ui search page (recurring)", () => {
   });
 
   it("search results is accessible", () => {
-    cy.a11yCheck();
     fullTextInput().type("search terms");
     searchButton().click();
     cy.a11yCheck();
