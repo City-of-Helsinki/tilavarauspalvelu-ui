@@ -78,7 +78,7 @@ const ReservationUnitsDataReader = ({
       if (sort.asc) {
         sortString = "begin,end";
       } else {
-        sortString = "-bein,-end";
+        sortString = "-begin,-end";
       }
     } else {
       sortString = `${(sort?.asc ? "" : "-") + sort.field},begin,end`;
