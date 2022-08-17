@@ -65,6 +65,7 @@ import {
   Error,
   Fieldset,
   ArchiveButton,
+  ExpandLink,
 } from "./modules/reservationUnitEditor";
 import { IProps, schema, State } from "./types";
 import { getInitialState, i18nFields, reducer } from "./reducer";
@@ -83,6 +84,7 @@ import { useModal } from "../../../context/ModalContext";
 import ArchiveDialog from "./ArchiveDialog";
 import ReservationUnitStateTag from "./ReservationUnitStateTag";
 import DiscardChangesDialog from "./DiscardChangesDialog";
+import { SlimH4 } from "../../../styles/new-typography";
 
 const bufferTimeOptions = [
   { value: 900, label: "15 minuuttia" },
@@ -230,7 +232,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "reservationsMinDaysBefore",
         "reservationsMaxDaysBefore",
         "isArchived",
-        ...i18nFields("additionalInstructions"),
+        ...i18nFields("reservationPendingInstructions"),
+        ...i18nFields("reservationConfirmedInstructions"),
+        ...i18nFields("reservationCancelledInstructions"),
         ...i18nFields("description"),
         ...i18nFields("name"),
         ...i18nFields("termsOfUse"),
@@ -539,6 +543,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     ["DIRECT_AND_SEASON", "DIRECT"].includes(
       state.reservationUnitEdit.reservationKind as string
     ) || false;
+
+  const requiresHandling = state.reservationUnitEdit.requireReservationHandling;
 
   return (
     <Wrapper key={JSON.stringify(state.validationErrors)}>
@@ -1530,11 +1536,16 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               initiallyOpen={state.validationErrors != null}
               heading={t("ReservationUnitEditor.communication")}
             >
-              <EditorGrid>
-                {onlyForDirect && (
+              <Grid>
+                {requiresHandling && (
                   <>
+                    <Span12>
+                      <SlimH4>
+                        {t("ReservationUnitEditor.pendingInstructions")}
+                      </SlimH4>
+                    </Span12>
                     {languages.map((lang) => {
-                      const fieldName = `additionalInstructions${upperFirst(
+                      const fieldName = `reservationPendingInstructions${upperFirst(
                         lang
                       )}`;
                       return (
@@ -1542,17 +1553,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           <TextArea
                             id={fieldName}
                             label={t(
-                              `ReservationUnitEditor.label.${fieldName}`
-                            )}
-                            placeholder={t(
-                              "ReservationUnitEditor.additionalInstructionsPlaceholder",
-                              {
-                                language: t(`language.${lang}`),
-                              }
+                              `ReservationUnitEditor.label.instructions${upperFirst(
+                                lang
+                              )}`
                             )}
                             value={get(
                               state,
-                              `reservationUnitEdit.additionalInstructions${upperFirst(
+                              `reservationUnitEdit.reservationPendingInstructions${upperFirst(
                                 lang
                               )}`,
                               ""
@@ -1570,6 +1577,86 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     })}
                   </>
                 )}
+
+                <Span12>
+                  <SlimH4>
+                    {t("ReservationUnitEditor.confirmedInstructions")}
+                  </SlimH4>
+                </Span12>
+                {languages.map((lang) => {
+                  const fieldName = `reservationConfirmedInstructions${upperFirst(
+                    lang
+                  )}`;
+                  return (
+                    <Span12 key={lang}>
+                      <TextArea
+                        id={fieldName}
+                        label={t(
+                          `ReservationUnitEditor.label.instructions${upperFirst(
+                            lang
+                          )}`
+                        )}
+                        value={get(
+                          state,
+                          `reservationUnitEdit.reservationConfirmedInstructions${upperFirst(
+                            lang
+                          )}`,
+                          ""
+                        )}
+                        onChange={(e) =>
+                          setValue({
+                            [fieldName]: e.target.value,
+                          })
+                        }
+                        errorText={getValidationError(fieldName)}
+                        invalid={!!getValidationError(fieldName)}
+                      />
+                    </Span12>
+                  );
+                })}
+                <Span12>
+                  <ExpandLink
+                    initiallyOpen={state.validationErrors != null}
+                    heading={t("ReservationUnitEditor.cancelledExpandLink")}
+                  >
+                    <Span12>
+                      <SlimH4>
+                        {t("ReservationUnitEditor.cancelledInstructions")}
+                      </SlimH4>
+                    </Span12>
+                    {languages.map((lang) => {
+                      const fieldName = `reservationCancelledInstructions${upperFirst(
+                        lang
+                      )}`;
+                      return (
+                        <Span12 key={lang}>
+                          <TextArea
+                            id={fieldName}
+                            label={t(
+                              `ReservationUnitEditor.label.instructions${upperFirst(
+                                lang
+                              )}`
+                            )}
+                            value={get(
+                              state,
+                              `reservationUnitEdit.reservationCancelledInstructions${upperFirst(
+                                lang
+                              )}`,
+                              ""
+                            )}
+                            onChange={(e) =>
+                              setValue({
+                                [fieldName]: e.target.value,
+                              })
+                            }
+                            errorText={getValidationError(fieldName)}
+                            invalid={!!getValidationError(fieldName)}
+                          />
+                        </Span12>
+                      );
+                    })}
+                  </ExpandLink>
+                </Span12>
                 <Span12>
                   <TextInput
                     id="contactInformation"
@@ -1585,7 +1672,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     )}
                   />
                 </Span12>
-              </EditorGrid>
+              </Grid>
             </Accordion>
             <Accordion
               initiallyOpen={state.validationErrors != null}
