@@ -113,38 +113,3 @@ export const RESERVATION_DENY_REASONS = gql`
     }
   }
 `;
-
-/*
-
-(
-    $nameFi: String
-    $after: String
-    $maxPersonsGte: Float
-    $maxPersonsLte: Float
-    $surfaceAreaGte: Float
-    $surfaceAreaLte: Float
-    $unit: [ID]
-    $reservationUnitType: [ID]
-    $orderBy: String
-    $offset: Int
-    $first: Int
-    $state: [String]
-  ) {
-    reservationUnits(
-      first: $first
-      offset: $offset
-      orderBy: $orderBy
-      nameFi: $nameFi
-      after: $after
-      maxPersonsGte: $maxPersonsGte
-      minPersonsGte: $maxPersonsGte
-      maxPersonsLte: $maxPersonsLte
-      minPersonsLte: $maxPersonsLte
-      surfaceAreaGte: $surfaceAreaGte
-      surfaceAreaLte: $surfaceAreaLte
-      unit: $unit
-      reservationUnitType: $reservationUnitType
-      state: $state
-    )
-
-*/
