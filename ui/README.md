@@ -119,8 +119,9 @@ You can write handlers for rest and graphql requests in '/mocks/handlers.ts'. Ca
 | NEXT_PUBLIC_SENTRY_DSN           | Sentry dsn                                                    |
 | NEXT_PUBLIC_SENTRY_ENVIRONMENT   | Sentry environment, for example 'test', 'prod'                |
 | NEXT_PUBLIC_OIDC_CLIENT_ID       | Oidc client id                                                |
-| NEXT_PUBLIC_OIDC_URL             | https://api.hel.fi/sso                                        |
-| NEXT_PUBLIC_OIDC_SCOPE           | openid profile email https://api.hel.fi/auth/tilavarausapidev |
+| NEXT_PUBLIC_OIDC_URL             | https://tunnistamo.test.hel.ninja/openid                      |
+| NEXT_PUBLIC_OIDC_SCOPE           | openid profile email offline_access
+                                       https://api.hel.fi/auth/tilavarausapidev                    |
 | NEXT_PUBLIC_TILAVARAUS_API_SCOPE | https://api.hel.fi/auth/tilavarausapidev                      |
 | NEXT_PUBLIC_MAPBOX_TOKEN         | token tor mapbox service                                      |
 | NEXT_PUBLIC_MOCK_REQUESTS        | 'true' enables network level request mocking                  |
