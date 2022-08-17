@@ -114,41 +114,6 @@ export const RESERVATION_DENY_REASONS = gql`
   }
 `;
 
-/*
-
-(
-    $nameFi: String
-    $after: String
-    $maxPersonsGte: Float
-    $maxPersonsLte: Float
-    $surfaceAreaGte: Float
-    $surfaceAreaLte: Float
-    $unit: [ID]
-    $reservationUnitType: [ID]
-    $orderBy: String
-    $offset: Int
-    $first: Int
-    $state: [String]
-  ) {
-    reservationUnits(
-      first: $first
-      offset: $offset
-      orderBy: $orderBy
-      nameFi: $nameFi
-      after: $after
-      maxPersonsGte: $maxPersonsGte
-      minPersonsGte: $maxPersonsGte
-      maxPersonsLte: $maxPersonsLte
-      minPersonsLte: $maxPersonsLte
-      surfaceAreaGte: $surfaceAreaGte
-      surfaceAreaLte: $surfaceAreaLte
-      unit: $unit
-      reservationUnitType: $reservationUnitType
-      state: $state
-    )
-
-*/
-
 export const RESERVATIONS_QUERY = gql`
   query reservations(
     $after: String
@@ -158,6 +123,11 @@ export const RESERVATIONS_QUERY = gql`
     $offset: Int
     $first: Int
     $state: [String]
+    $textSearch: String
+    $minPrice: Float
+    $maxPrice: Float
+    $begin: DateTime
+    $end: DateTime
   ) {
     reservations(
       first: $first
@@ -167,6 +137,11 @@ export const RESERVATIONS_QUERY = gql`
       unit: $unit
       reservationUnitType: $reservationUnitType
       state: $state
+      textSearch: $textSearch
+      priceLte: $maxPrice
+      priceGte: $minPrice
+      begin: $begin
+      end: $end
     ) {
       edges {
         node {
@@ -188,6 +163,12 @@ export const RESERVATIONS_QUERY = gql`
           price
         }
       }
+      pageInfo {
+        hasNextPage
+        endCursor
+        hasNextPage
+      }
+      totalCount
     }
   }
 `;

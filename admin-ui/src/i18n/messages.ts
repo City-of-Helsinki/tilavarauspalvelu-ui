@@ -196,6 +196,8 @@ const translations: ITranslations = {
     "reservation-units": ["Varausyksiköt"],
     spaces: ["Tilat"],
     resources: ["Resurssit"],
+    reservations: ["Varaukset"],
+    "requested-reservations": ["Varaustoiveet"],
     units: ["Toimipisteet"],
   },
 
@@ -997,7 +999,7 @@ const translations: ITranslations = {
     resultCount_plural: ["{{count}} hakutulosta"],
     textSearchLabel: ["Varausyksikön nimi"],
     textSearchPlaceHolder: ["Hae"],
-    typeLabel: ["Tilatyyppi"],
+    typeLabel: ["Tilan tyyppi"],
     typePlaceHolder: ["Suodata"],
     unitLabel: ["Toimipiste"],
     unitPlaceHolder: ["Suodata"],
@@ -1019,6 +1021,17 @@ const translations: ITranslations = {
       surfaceAreaLte: ["Maksimi pinta-ala"],
     },
   },
+  ReservationStateFilter: {
+    label: ["Käsittelytila"],
+    state: {
+      CANCELLED: "",
+    },
+  },
+
+  ReservationUnitsFilter: {
+    label: ["Varausyksikkö"],
+  },
+
   ReservationUnitCard: {
     spaceOnly: ["Tila"],
     spaceAndResource: ["Tila ja resurssi"],
@@ -1231,6 +1244,7 @@ const translations: ITranslations = {
     removeSuccess: ["Resurssi poistettu."],
   },
   RequestedReservations: {
+    // todo remove this
     insightCountHandledApplications: ["tarkastettava anomus"],
     insightCountHandledApplications_plural: ["tarkastettavaa anomusta"],
     insightCountMonthlyHandledApplications: ["käsiteltyä anomusta / kk"],
@@ -1243,6 +1257,36 @@ const translations: ITranslations = {
       state: ["Varauksen tila"],
     },
   },
+  Reservations: {
+    reservationListHeading: ["Varaustoiveet"],
+    reservationListDescription: [
+      "Alla näet kaikki käsiteltävät varaustoiveet.",
+    ],
+    headings: {
+      id: ["id"],
+      name: ["Varauksen nimi"],
+      reservationUnit: ["Varausyksikkö"],
+      unit: ["Toimipiste"],
+      datetime: ["Aika"],
+      state: ["Käsittelytila"],
+    },
+  },
+
+  ReservationsSearch: {
+    textSearch: ["Hae varausta"],
+    textSearchPlaceholder: ["Hae nimellä tai idllä"],
+    minPrice: ["Hinta vähintään"],
+    maxPrice: ["Hinta enintään"],
+    begin: ["Alkaen"],
+    end: ["Asti"],
+    filters: {
+      minPriceTag: ["Hinta vähintään: {{value}}"],
+      maxPriceTag: ["Hinta enintään: {{value}}"],
+      beginTag: ["Alkaen: {{value}}"],
+      endTag: ["Asti: {{value}}"],
+    },
+  },
+
   RequestedReservation: {
     errorFetchingData: ["Tietoja ei saatu haettua"],
     heading: ["Varauksen tarkastelu"],
@@ -1253,6 +1297,7 @@ const translations: ITranslations = {
       CONFIRMED: ["Hyväksytty"],
       DENIED: ["Hylätty"],
       CANCELLED: ["Peruutettu"],
+      CREATED: ["Kesken"],
     },
     approve: ["Hyväksy varaus"],
     reject: ["Hylkää varaus"],
