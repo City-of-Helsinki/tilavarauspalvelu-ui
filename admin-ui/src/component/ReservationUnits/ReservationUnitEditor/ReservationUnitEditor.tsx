@@ -34,6 +34,7 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   ReservationUnitByPkType,
   ReservationUnitState,
+  ReservationUnitsReservationUnitPaymentTypeChoices,
 } from "../../../common/gql-types";
 import { UNIT_WITH_SPACES_AND_RESOURCES } from "../../../common/queries";
 import { OptionType } from "../../../common/types";
@@ -204,6 +205,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "maxReservationDuration",
         "minReservationDuration",
         "pk",
+        "paymentType",
         "pricingType",
         "priceUnit",
         "pricingTermsPk",
@@ -1424,6 +1426,17 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                             "taxPercentagePk"
                           ) as number
                         }
+                      />
+                    </Span3>
+                    <Span3>
+                      <EnumSelect
+                        id="paymentType"
+                        required
+                        placeholder={t("common.select")}
+                        value={state.reservationUnitEdit.paymentType as string}
+                        label={t("ReservationUnitEditor.label.paymentType")}
+                        type={ReservationUnitsReservationUnitPaymentTypeChoices}
+                        onChange={(paymentType) => setValue({ paymentType })}
                       />
                     </Span3>
                     <Span12>
