@@ -59,6 +59,11 @@ const translations: ITranslations = {
       UNREGISTERED: ["Yhdistys, rekisteröimätön"],
     },
   },
+  paymentType: {
+    INVOICE: ["Laskutus"],
+    ONLINE: ["Verkkomaksu"],
+    ON_SITE: ["Maksu paikan päällä"],
+  },
   language: {
     fi: ["suomeksi"],
     sv: ["ruotsiksi"],
@@ -1078,6 +1083,7 @@ const translations: ITranslations = {
       serviceSpecificTermsPk: ["Palvelukohtaiset täydentävät ehdot"],
       cancellationTermsPk: ["Peruutusehdot"],
       paymentTermsPk: ["Maksuehdot"],
+      paymentType: ["Maksutapa"],
       additionalInstructionsFi: ["Sähköpostin lisäohjeteksti fi"],
       additionalInstructionsSv: ["Sähköpostin lisäohjeteksti sv"],
       additionalInstructionsEn: ["Sähköpostin lisäohjeteksti en"],
@@ -1336,9 +1342,13 @@ const translations: ITranslations = {
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],
+      denyReasonHelper: [
+        "Ilmoitus hylkäyksestä ja syy lähetetään tiedoksi varaajalle",
+      ],
       denied: ["Varaus hylätty"],
-      title: ["Vahvista hylkäys"],
+      title: ["Vahvista varauksen hylkäys"],
       handlingDetails: ["Tarkempi syy hylkäykselle"],
+      handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
     },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],
