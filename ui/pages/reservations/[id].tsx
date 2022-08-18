@@ -224,8 +224,6 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     [reservation?.state]
   );
 
-  console.log(instructionsKey, reservation);
-
   const isReservationCancelled = reservation?.state === "CANCELLED";
   const isBeingHandled = reservation?.state === "REQUIRES_HANDLING";
   const ticketState = useMemo(() => {
