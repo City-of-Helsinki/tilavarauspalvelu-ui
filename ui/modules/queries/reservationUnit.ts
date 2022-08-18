@@ -59,6 +59,7 @@ export const RESERVATION_UNIT = gql`
       minReservationDuration
       maxReservationDuration
       maxReservationsPerUser
+      reservationsMinDaysBefore
       nextAvailableSlot
       unit {
         id

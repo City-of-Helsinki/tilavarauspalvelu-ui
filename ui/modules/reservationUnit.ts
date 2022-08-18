@@ -56,11 +56,11 @@ export const isReservationUnitPublished = (
   let beginOK = true;
   let endOK = true;
 
-  if (reservationUnit.publishBegins) {
+  if (reservationUnit?.publishBegins) {
     beginOK = new Date(reservationUnit.publishBegins) <= now;
   }
 
-  if (reservationUnit.publishEnds) {
+  if (reservationUnit?.publishEnds) {
     endOK = new Date(reservationUnit.publishEnds) >= now;
   }
 

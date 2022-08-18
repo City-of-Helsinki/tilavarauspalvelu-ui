@@ -203,7 +203,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       },
     });
 
-    const previewPass = uuid === reservationUnitData.reservationUnitByPk.uuid;
+    const previewPass = uuid === reservationUnitData.reservationUnitByPk?.uuid;
 
     if (
       !isReservationUnitPublished(reservationUnitData.reservationUnitByPk) &&
@@ -500,9 +500,14 @@ const ReservationUnit = ({
     () =>
       getSlotPropGetter(
         reservationUnit.openingHours?.openingTimes,
-        activeApplicationRounds
+        activeApplicationRounds,
+        reservationUnit.reservationsMinDaysBefore
       ),
-    [reservationUnit.openingHours?.openingTimes, activeApplicationRounds]
+    [
+      reservationUnit.openingHours?.openingTimes,
+      activeApplicationRounds,
+      reservationUnit.reservationsMinDaysBefore,
+    ]
   );
 
   const isReservationQuotaReached = useMemo(() => {
@@ -534,7 +539,8 @@ const ReservationUnit = ({
       !areSlotsReservable(
         [new Date(start), subMinutes(new Date(end), 1)],
         reservationUnit.openingHours?.openingTimes,
-        activeApplicationRounds
+        activeApplicationRounds,
+        reservationUnit.reservationsMinDaysBefore
       ) ||
       (!skipLengthCheck &&
         !isReservationLongEnough(

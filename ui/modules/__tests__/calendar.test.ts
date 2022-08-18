@@ -158,6 +158,27 @@ describe("areSlotsReservable", () => {
       areSlotsReservable([addDays(new Date(), 10)], openingTimes, [])
     ).toBe(false);
   });
+
+  test("Buffer days", () => {
+    const hours = 11 + tzOffset;
+    expect(
+      areSlotsReservable(
+        [addDays(new Date().setUTCHours(hours), 7)],
+        openingTimes,
+        [],
+        7
+      )
+    ).toBe(true);
+
+    expect(
+      areSlotsReservable(
+        [addDays(new Date().setUTCHours(hours), 7)],
+        openingTimes,
+        [],
+        8
+      )
+    ).toBe(false);
+  });
 });
 
 test("doReservationsCollide", () => {
