@@ -144,6 +144,7 @@ export const getUnitName = (
   unit: UnitType,
   language: string = i18n.language
 ): string => {
+  if (!unit) return null;
   const key = `name${capitalize(language)}`;
   return unit[key] || unit.nameFi;
 };

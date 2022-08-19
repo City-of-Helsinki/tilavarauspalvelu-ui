@@ -239,6 +239,8 @@ const ReservationInfo = ({
           [startDate, subMinutes(endDate, 1)],
           reservationUnit.openingHours?.openingTimes,
           activeApplicationRounds,
+          reservationUnit.reservationBegins,
+          reservationUnit.reservationEnds,
           reservationUnit.reservationsMinDaysBefore
         )
       ) {
