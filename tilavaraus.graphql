@@ -2366,21 +2366,21 @@ input ReservationUnitCreateMutationInput {
   Possible values are ONLINE, INVOICE, ON_SITE.
   """
   paymentType: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -2510,21 +2510,21 @@ type ReservationUnitCreateMutationPayload {
   Possible values are ONLINE, INVOICE, ON_SITE.
   """
   paymentType: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -3002,21 +3002,21 @@ input ReservationUnitUpdateMutationInput {
   Possible values are ONLINE, INVOICE, ON_SITE.
   """
   paymentType: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -3146,21 +3146,21 @@ type ReservationUnitUpdateMutationPayload {
   Possible values are ONLINE, INVOICE, ON_SITE.
   """
   paymentType: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -3845,12 +3845,12 @@ input UnitUpdateMutationInput {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   clientMutationId: String
 }
 
@@ -3863,12 +3863,12 @@ type UnitUpdateMutationPayload {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
