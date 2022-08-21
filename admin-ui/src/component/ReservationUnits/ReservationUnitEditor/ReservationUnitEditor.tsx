@@ -450,7 +450,12 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             dispatch({ type: "created", pk: resUnitPk });
           }
           notifySuccess(
-            t("ReservationUnitEditor.reservationUnitUpdatedNotification")
+            t(
+              state.reservationUnitPk
+                ? "ReservationUnitEditor.reservationUnitUpdatedNotification"
+                : "ReservationUnitEditor.reservationUnitCreatedNotification",
+              { name: state.reservationUnitEdit.nameFi }
+            )
           );
         } else {
           notifyError("jokin meni pieleen");

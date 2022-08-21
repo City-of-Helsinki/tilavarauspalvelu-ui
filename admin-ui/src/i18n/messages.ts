@@ -1155,7 +1155,10 @@ const translations: ITranslations = {
     saving: ["Tallennetaan..."],
     saved: ["Tiedot tallennettu."],
     saveAsDraft: ["Tallenna luonnoksena"],
-    reservationUnitUpdatedNotification: ["Varausyksikön tiedot tallennettu."],
+    reservationUnitCreatedNotification: ["Varausyksikkö {{name}} luotu"],
+    reservationUnitUpdatedNotification: [
+      "Varausyksikön muutokset tallennettu.",
+    ],
     saveFailed: ["Varausyksikön tietoja ei saatu tallennettua. {{error}}"],
     saveAndPublish: ["Julkaise järjestelmässä"],
     settings: ["Varausasetukset"],
