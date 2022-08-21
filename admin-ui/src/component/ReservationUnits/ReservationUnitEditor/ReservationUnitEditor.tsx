@@ -3,6 +3,7 @@ import {
   Accordion,
   Checkbox,
   IconAlertCircleFill,
+  IconArrowLeft,
   Link,
   Notification,
   NumberInput,
@@ -1754,8 +1755,10 @@ const ReservationUnitEditor = (): JSX.Element | null => {
       </MainMenuWrapper>
       <ButtonsStripe>
         <WhiteButton
+          size="small"
           disabled={saving}
-          variant="secondary"
+          variant="supplementary"
+          iconLeft={<IconArrowLeft />}
           onClick={() =>
             setModalContent(
               <DiscardChangesDialog
@@ -1768,10 +1771,26 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             )
           }
         >
-          {t("ReservationUnitEditor.cancel")}
+          {t("common.prev")}
         </WhiteButton>
         <ButtonsContainer>
+          <Preview
+            target="_blank"
+            rel="noopener noreferrer"
+            disabled={saving || !state.reservationUnitPk}
+            href={`${previewUrlPrefix}/${state.reservationUnit?.pk}?ru=${state.reservationUnit?.uuid}`}
+            onClick={(e) => state.hasChanges && e.preventDefault()}
+            title={t(
+              state.hasChanges
+                ? "ReservationUnitEditor.noPreviewUnsavedChangesTooltip"
+                : "ReservationUnitEditor.previewTooltip"
+            )}
+          >
+            <span>{t("ReservationUnitEditor.preview")}</span>
+          </Preview>
+
           <WhiteButton
+            size="small"
             disabled={saving}
             variant="secondary"
             isLoading={saving}
@@ -1806,20 +1825,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           >
             {t("ReservationUnitEditor.saveAndPublish")}
           </WhiteButton>
-          <Preview
-            target="_blank"
-            rel="noopener noreferrer"
-            disabled={saving}
-            href={`${previewUrlPrefix}/${state.reservationUnit?.pk}?ru=${state.reservationUnit?.uuid}`}
-            onClick={(e) => state.hasChanges && e.preventDefault()}
-            title={t(
-              state.hasChanges
-                ? "ReservationUnitEditor.noPreviewUnsavedChangesTooltip"
-                : "ReservationUnitEditor.previewTooltip"
-            )}
-          >
-            {t("ReservationUnitEditor.preview")}
-          </Preview>
         </ButtonsContainer>
       </ButtonsStripe>
     </Wrapper>
