@@ -553,7 +553,12 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     ) || false;
 
   const requiresHandling = state.reservationUnitEdit.requireReservationHandling;
-
+  const reservationUnitState =
+    Number(state?.reservationUnitPk) > 0 ? (
+      <ReservationUnitStateTag
+        state={state.reservationUnit?.state as ReservationUnitState}
+      />
+    ) : undefined;
   return (
     <Wrapper key={JSON.stringify(state.validationErrors)}>
       <MainMenuWrapper>
@@ -565,11 +570,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 state.reservationUnitEdit.nameFi ||
                 t("ReservationUnitEditor.defaultHeading")
               }
-              state={
-                <ReservationUnitStateTag
-                  state={state.reservationUnit?.state as ReservationUnitState}
-                />
-              }
+              state={reservationUnitState}
             />
           ) : null}
           <FormErrorSummary
