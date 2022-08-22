@@ -89,6 +89,15 @@ export const apiDurationToMinutes = (duration: string): number => {
   return Number(parts[0]) * 60 + Number(parts[1]);
 };
 
+/**
+ *
+ * @param startDate @
+ * @param endDate
+ * @param biWeekly
+ * @param eventsPerWeek
+ * @param minDuration  in seconds
+ * @returns
+ */
 export const appEventHours = (
   startDate: string,
   endDate: string,
@@ -97,9 +106,7 @@ export const appEventHours = (
   minDuration: number
 ): number => {
   const turns = numTurns(startDate, endDate, biWeekly, eventsPerWeek);
-
-  const hours = (turns * minDuration) / 60;
-  return hours;
+  return (turns * minDuration) / 3600;
 };
 
 export const applicationHours = (
