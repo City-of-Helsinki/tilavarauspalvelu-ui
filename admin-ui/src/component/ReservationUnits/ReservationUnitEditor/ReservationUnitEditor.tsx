@@ -41,6 +41,7 @@ import { UNIT_WITH_SPACES_AND_RESOURCES } from "../../../common/queries";
 import { OptionType } from "../../../common/types";
 import {
   ContentContainer,
+  DenseVerticalFlex,
   Grid,
   Span12,
   Span3,
@@ -913,43 +914,47 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           })
                         }
                       >
-                        <ActivationGroup
-                          id="publishBegins"
-                          label={t("ReservationUnitEditor.publishBegins")}
-                          initiallyOpen={Boolean(
-                            state.reservationUnitEdit.publishBegins
-                          )}
-                          onClose={() => setValue({ publishBegins: null })}
-                          noIndent
-                        >
-                          <DateTimeInput
-                            value={state.reservationUnitEdit.publishBegins}
-                            setValue={(v) =>
-                              setValue({
-                                publishBegins: v,
-                              })
-                            }
-                          />
-                        </ActivationGroup>
+                        <DenseVerticalFlex>
+                          <ActivationGroup
+                            id="publishBegins"
+                            label={t("ReservationUnitEditor.publishBegins")}
+                            initiallyOpen={Boolean(
+                              state.reservationUnitEdit.publishBegins
+                            )}
+                            onClose={() => setValue({ publishBegins: null })}
+                            noIndent
+                            noMargin
+                          >
+                            <DateTimeInput
+                              value={state.reservationUnitEdit.publishBegins}
+                              setValue={(v) =>
+                                setValue({
+                                  publishBegins: v,
+                                })
+                              }
+                            />
+                          </ActivationGroup>
 
-                        <ActivationGroup
-                          id="publishEnds"
-                          label={t("ReservationUnitEditor.publishEnds")}
-                          initiallyOpen={Boolean(
-                            state.reservationUnitEdit.publishEnds
-                          )}
-                          onClose={() => setValue({ publishEnds: null })}
-                          noIndent
-                        >
-                          <DateTimeInput
-                            value={state.reservationUnitEdit.publishEnds}
-                            setValue={(v) =>
-                              setValue({
-                                publishEnds: v,
-                              })
-                            }
-                          />
-                        </ActivationGroup>
+                          <ActivationGroup
+                            id="publishEnds"
+                            label={t("ReservationUnitEditor.publishEnds")}
+                            initiallyOpen={Boolean(
+                              state.reservationUnitEdit.publishEnds
+                            )}
+                            onClose={() => setValue({ publishEnds: null })}
+                            noIndent
+                            noMargin
+                          >
+                            <DateTimeInput
+                              value={state.reservationUnitEdit.publishEnds}
+                              setValue={(v) =>
+                                setValue({
+                                  publishEnds: v,
+                                })
+                              }
+                            />
+                          </ActivationGroup>
+                        </DenseVerticalFlex>
                       </ActivationGroup>
                     </Fieldset>
                   </Span12>

@@ -94,7 +94,8 @@ export const Error = styled.div`
 `;
 
 export const Fieldset = styled(HDSFieldset)`
+  padding-top: var(--spacing-s);
   legend {
-    margin-bottom: var(--spacing-2-xs);
+    padding: 0;
   }
 `;

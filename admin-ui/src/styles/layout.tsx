@@ -102,6 +102,14 @@ export const DataGrid = styled.div`
   }
 `;
 
+export const DenseVerticalFlex = styled.div`
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-direction: column;
+`;
+
+DenseVerticalFlex.displayName = "DenseVerticalFlex";
+
 export const VerticalFlex = styled.div`
   display: flex;
   gap: var(--spacing-m);
