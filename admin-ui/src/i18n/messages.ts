@@ -231,7 +231,8 @@ const translations: ITranslations = {
   },
   MainMenu: {
     reservations: ["Varaukset"],
-    requestedReservations: ["Alustavat varaukset"],
+    requestedReservations: ["Varaustoiveet"],
+    allReservations: ["Kaikki varaukset"],
     recurringReservations: ["Kausivaraaminen"],
     applicatioNROunds: ["Hakukierrokset"],
     clients: ["Asiakkaat"],
@@ -1279,6 +1280,10 @@ const translations: ITranslations = {
     ],
     reservationListDescription: [
       "Alla näet kaikki käsiteltävät varaustoiveet.",
+    ],
+    allReservationListHeading: ["Kaikki varaukset"],
+    allReservationListDescription: [
+      "Alla näet kaikki tulevat varaukset ja käsittelemättömät varaustoiveet. Voit hakea tai suodattaa varauksia. Klikkaa varauksen nimeä nähdäksesi tarkemmat tiedot varauksesta.",
     ],
     headings: {
       id: ["id"],
