@@ -203,6 +203,7 @@ const translations: ITranslations = {
     resources: ["Resurssit"],
     reservations: ["Varaukset"],
     "requested-reservations": ["Varaustoiveet"],
+    "all-reservations": ["Kaikki varaukset"],
     units: ["Toimipisteet"],
   },
 
