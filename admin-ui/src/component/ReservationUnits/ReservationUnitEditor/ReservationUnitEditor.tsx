@@ -11,6 +11,7 @@ import {
   SelectionGroup,
   TextArea,
   TextInput,
+  Tooltip,
 } from "hds-react";
 import { get, omitBy, pick, sumBy, upperFirst } from "lodash";
 import i18next from "i18next";
@@ -43,12 +44,13 @@ import {
   ContentContainer,
   DenseVerticalFlex,
   Grid,
+  HorisontalFlex,
   Span12,
   Span3,
   Span6,
 } from "../../../styles/layout";
 
-import { ButtonsStripe, WhiteButton } from "../../../styles/util";
+import { ButtonsStripe, Strong, WhiteButton } from "../../../styles/util";
 import Loader from "../../Loader";
 import SubPageHead from "../../Unit/SubPageHead";
 import { MainMenuWrapper } from "../../withMainMenu";
@@ -593,9 +595,14 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             >
               <EditorGrid>
                 <Span12>
-                  <span id="reservationKind">
-                    {t("ReservationUnitEditor.label.reservationKind")} *
-                  </span>
+                  <HorisontalFlex>
+                    <span id="reservationKind">
+                      {t("ReservationUnitEditor.label.reservationKind")} *
+                    </span>
+                    <Tooltip>
+                      {t("ReservationUnitEditor.tooltip.reservationKind")}
+                    </Tooltip>
+                  </HorisontalFlex>
                 </Span12>
                 {["DIRECT_AND_SEASON", "DIRECT", "SEASON"].map(
                   (kind, index) => (
@@ -634,6 +641,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           `reservationUnitEdit.${fieldName}`,
                           ""
                         )}
+                        tooltipText={
+                          lang === "fi"
+                            ? t("ReservationUnitEditor.tooltip.nameFi")
+                            : undefined
+                        }
                         onChange={(e) =>
                           setValue({
                             [fieldName]: e.target.value,
@@ -662,6 +674,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     ]}
                     error={getValidationError("spacePks")}
                     invalid={!!getValidationError("spacePks")}
+                    tooltipText={t("ReservationUnitEditor.tooltip.spacePks")}
                   />
                 </Span6>
                 <Span6>
@@ -686,6 +699,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     ]}
                     error={getValidationError("resourcePks")}
                     invalid={!!getValidationError("resourcePks")}
+                    tooltipText={t("ReservationUnitEditor.tooltip.resourcePks")}
                   />
                 </Span6>
                 <Span4>
@@ -711,6 +725,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     required
                     errorText={getValidationError("surfaceArea")}
                     invalid={!!getValidationError("surfaceArea")}
+                    tooltipText={t("ReservationUnitEditor.tooltip.surfaceArea")}
                   />
                 </Span4>
                 <Span4>
@@ -736,6 +751,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     errorText={getValidationError("maxPersons")}
                     invalid={!!getValidationError("maxPersons")}
                     required
+                    tooltipText={t("ReservationUnitEditor.tooltip.maxPersons")}
                   />
                 </Span4>
                 <Span4>
@@ -758,6 +774,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     max={state.reservationUnitEdit.maxPersons || 1}
                     errorText={getValidationError("minPersons")}
                     invalid={!!getValidationError("minPersons")}
+                    tooltipText={t("ReservationUnitEditor.tooltip.minPersons")}
                   />
                 </Span4>
               </EditorGrid>
@@ -791,6 +808,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       get(state.reservationUnitEdit, "reservationUnitTypePk")
                     )}
                     errorText={getValidationError("reservationUnitTypePk")}
+                    tooltipText={t(
+                      "ReservationUnitEditor.tooltip.reservationUnitTypePk"
+                    )}
                   />
                 </Span6>
                 <Span6>
@@ -811,6 +831,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                         "purposePks"
                       ),
                     ]}
+                    tooltipText={t("ReservationUnitEditor.tooltip.purposes")}
                   />
                 </Span6>
                 <Span6>
@@ -833,6 +854,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                         "equipmentPks"
                       ),
                     ]}
+                    tooltipText={t("ReservationUnitEditor.tooltip.equipments")}
                   />
                 </Span6>
                 <Span6>
@@ -855,6 +877,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                         "qualifierPks"
                       ),
                     ]}
+                    tooltipText={t("ReservationUnitEditor.tooltip.qualifiers")}
                   />
                 </Span6>
 
@@ -876,6 +899,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           })
                         }
                         errorText={getValidationError(fieldName)}
+                        tooltipText={
+                          lang === "fi"
+                            ? t("ReservationUnitEditor.tooltip.description")
+                            : ""
+                        }
                       />
                     </Span12>
                   );
@@ -897,126 +925,143 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               >
                 <EditorGrid>
                   <Span12>
-                    <Fieldset
-                      heading={t("ReservationUnitEditor.publishingSettings")}
+                    <HorisontalFlex
+                      style={{
+                        justifyContent: "space-between",
+                        width: "100%",
+                      }}
                     >
-                      <ActivationGroup
-                        id="useScheduledPublishing"
-                        label={t("ReservationUnitEditor.scheduledPublishing")}
-                        initiallyOpen={
-                          Boolean(state.reservationUnitEdit.publishBegins) ||
-                          Boolean(state.reservationUnitEdit.publishEnds)
-                        }
-                        onClose={() =>
-                          setValue({
-                            publishBegins: null,
-                            publishEnds: null,
-                          })
-                        }
-                      >
-                        <DenseVerticalFlex>
-                          <ActivationGroup
-                            id="publishBegins"
-                            label={t("ReservationUnitEditor.publishBegins")}
-                            initiallyOpen={Boolean(
-                              state.reservationUnitEdit.publishBegins
-                            )}
-                            onClose={() => setValue({ publishBegins: null })}
-                            noIndent
-                            noMargin
-                          >
-                            <DateTimeInput
-                              value={state.reservationUnitEdit.publishBegins}
-                              setValue={(v) =>
-                                setValue({
-                                  publishBegins: v,
-                                })
-                              }
-                            />
-                          </ActivationGroup>
+                      <Strong>
+                        {t("ReservationUnitEditor.publishingSettings")}
+                      </Strong>
+                      <Tooltip>
+                        {t("ReservationUnitEditor.tooltip.publishingSettings")}
+                      </Tooltip>
+                    </HorisontalFlex>
+                    <ActivationGroup
+                      id="useScheduledPublishing"
+                      label={t("ReservationUnitEditor.scheduledPublishing")}
+                      initiallyOpen={
+                        Boolean(state.reservationUnitEdit.publishBegins) ||
+                        Boolean(state.reservationUnitEdit.publishEnds)
+                      }
+                      onClose={() =>
+                        setValue({
+                          publishBegins: null,
+                          publishEnds: null,
+                        })
+                      }
+                    >
+                      <DenseVerticalFlex>
+                        <ActivationGroup
+                          id="publishBegins"
+                          label={t("ReservationUnitEditor.publishBegins")}
+                          initiallyOpen={Boolean(
+                            state.reservationUnitEdit.publishBegins
+                          )}
+                          onClose={() => setValue({ publishBegins: null })}
+                          noIndent
+                          noMargin
+                        >
+                          <DateTimeInput
+                            value={state.reservationUnitEdit.publishBegins}
+                            setValue={(v) =>
+                              setValue({
+                                publishBegins: v,
+                              })
+                            }
+                          />
+                        </ActivationGroup>
 
-                          <ActivationGroup
-                            id="publishEnds"
-                            label={t("ReservationUnitEditor.publishEnds")}
-                            initiallyOpen={Boolean(
-                              state.reservationUnitEdit.publishEnds
-                            )}
-                            onClose={() => setValue({ publishEnds: null })}
-                            noIndent
-                            noMargin
-                          >
-                            <DateTimeInput
-                              value={state.reservationUnitEdit.publishEnds}
-                              setValue={(v) =>
-                                setValue({
-                                  publishEnds: v,
-                                })
-                              }
-                            />
-                          </ActivationGroup>
-                        </DenseVerticalFlex>
-                      </ActivationGroup>
-                    </Fieldset>
+                        <ActivationGroup
+                          id="publishEnds"
+                          label={t("ReservationUnitEditor.publishEnds")}
+                          initiallyOpen={Boolean(
+                            state.reservationUnitEdit.publishEnds
+                          )}
+                          onClose={() => setValue({ publishEnds: null })}
+                          noIndent
+                          noMargin
+                        >
+                          <DateTimeInput
+                            value={state.reservationUnitEdit.publishEnds}
+                            setValue={(v) =>
+                              setValue({
+                                publishEnds: v,
+                              })
+                            }
+                          />
+                        </ActivationGroup>
+                      </DenseVerticalFlex>
+                    </ActivationGroup>
                   </Span12>
 
                   <Span12>
-                    <Fieldset
-                      heading={t("ReservationUnitEditor.reservationSettings")}
+                    <HorisontalFlex
+                      style={{
+                        justifyContent: "space-between",
+                        width: "100%",
+                      }}
+                    >
+                      <Strong>
+                        {t("ReservationUnitEditor.reservationSettings")}
+                      </Strong>
+                      <Tooltip>
+                        {t("ReservationUnitEditor.tooltip.reservationSettings")}
+                      </Tooltip>
+                    </HorisontalFlex>
+
+                    <ActivationGroup
+                      id="useScheduledReservation"
+                      label={t("ReservationUnitEditor.scheduledReservation")}
+                      initiallyOpen={
+                        Boolean(state.reservationUnitEdit.reservationBegins) ||
+                        Boolean(state.reservationUnitEdit.reservationEnds)
+                      }
+                      onClose={() =>
+                        setValue({
+                          reservationBegins: null,
+                          reservationEnds: null,
+                        })
+                      }
                     >
                       <ActivationGroup
-                        id="useScheduledReservation"
-                        label={t("ReservationUnitEditor.scheduledReservation")}
-                        initiallyOpen={
-                          Boolean(
-                            state.reservationUnitEdit.reservationBegins
-                          ) ||
-                          Boolean(state.reservationUnitEdit.reservationEnds)
-                        }
-                        onClose={() =>
-                          setValue({
-                            reservationBegins: null,
-                            reservationEnds: null,
-                          })
-                        }
+                        id="reservationBegins"
+                        label={t("ReservationUnitEditor.reservationBegins")}
+                        initiallyOpen={Boolean(
+                          state.reservationUnitEdit.reservationBegins
+                        )}
+                        onClose={() => setValue({ reservationBegins: null })}
+                        noIndent
                       >
-                        <ActivationGroup
-                          id="reservationBegins"
-                          label={t("ReservationUnitEditor.reservationBegins")}
-                          initiallyOpen={Boolean(
-                            state.reservationUnitEdit.reservationBegins
-                          )}
-                          onClose={() => setValue({ reservationBegins: null })}
-                          noIndent
-                        >
-                          <DateTimeInput
-                            value={state.reservationUnitEdit.reservationBegins}
-                            setValue={(v) =>
-                              setValue({
-                                reservationBegins: v,
-                              })
-                            }
-                          />
-                        </ActivationGroup>
-                        <ActivationGroup
-                          id="reservationEnds"
-                          label={t("ReservationUnitEditor.reservationEnds")}
-                          initiallyOpen={Boolean(
-                            state.reservationUnitEdit.reservationEnds
-                          )}
-                          onClose={() => setValue({ reservationEnds: null })}
-                          noIndent
-                        >
-                          <DateTimeInput
-                            value={state.reservationUnitEdit.reservationEnds}
-                            setValue={(v) =>
-                              setValue({
-                                reservationEnds: v,
-                              })
-                            }
-                          />
-                        </ActivationGroup>
+                        <DateTimeInput
+                          value={state.reservationUnitEdit.reservationBegins}
+                          setValue={(v) =>
+                            setValue({
+                              reservationBegins: v,
+                            })
+                          }
+                        />
                       </ActivationGroup>
-                    </Fieldset>
+                      <ActivationGroup
+                        id="reservationEnds"
+                        label={t("ReservationUnitEditor.reservationEnds")}
+                        initiallyOpen={Boolean(
+                          state.reservationUnitEdit.reservationEnds
+                        )}
+                        onClose={() => setValue({ reservationEnds: null })}
+                        noIndent
+                      >
+                        <DateTimeInput
+                          value={state.reservationUnitEdit.reservationEnds}
+                          setValue={(v) =>
+                            setValue({
+                              reservationEnds: v,
+                            })
+                          }
+                        />
+                      </ActivationGroup>
+                    </ActivationGroup>
                   </Span12>
                   <Span6>
                     <Select
@@ -1032,6 +1077,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                         state.reservationUnitEdit.minReservationDuration || ""
                       }
                       errorText={getValidationError("minReservationDuration")}
+                      tooltipText={t(
+                        "ReservationUnitEditor.tooltip.minReservationDuration"
+                      )}
                     />
                   </Span6>
                   <Span6>

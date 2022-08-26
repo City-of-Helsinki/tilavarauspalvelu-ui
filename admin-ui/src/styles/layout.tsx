@@ -116,6 +116,12 @@ export const VerticalFlex = styled.div`
   flex-direction: column;
 `;
 
+export const HorisontalFlex = styled.div`
+  display: flex;
+  gap: var(--spacing-m);
+  flex-direction: row;
+`;
+
 VerticalFlex.displayName = "VerticalFlex";
 
 export const SparseVerticalFlex = styled.div`

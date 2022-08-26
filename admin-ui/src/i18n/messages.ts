@@ -1107,6 +1107,95 @@ const translations: ITranslations = {
         FREE: ["Maksuton"],
       },
     },
+
+    tooltip: {
+      reservationKind: [
+        `Valitse miten varausyksikköä annetaan varattavaksi.
+        "Vain kausivarattavat" tilat eivät näy yksittäisvarauspuolella.`,
+      ],
+      nameFi: [
+        `Nimi kirjoitetaan ilman toimipisteen nimeä muodossa
+      TILAT:
+      -Tilan nimi
+      -Tilan nimi nro
+      -Tilan nimi, toisen tilan nimi ja kolmannen tilan nimi
+      -Tilan nimi nro ja nro
+      LAITTEET:
+      - Laitteentyyppi nro (malli suluissa)
+      esim. Ompelukone 2 (Bernina 1008)
+      Kirjoitusasusta:
+      -Nimen ensimmäinen kirjain isolla
+      -Nimen tulee olla yksilöllinen ja kuvaava, jos mahdollista
+      esim. Työhuone Klarinetti
+      -jos samassa varausyksikössä on useampi tila, tilat erotetaan toisistaan pilkulla tai ja-sanalla.
+      -Tilan nimi käännetään, jos kyseessä ei ole erisnimi, esim.
+      Aalto-sauna / Aalto-bastu / Aalto-sauna
+      -Tilan numero tilan nimen jälkeen. Jos tiloilla on sama ”kantanimi”, nimi laitetaan vain kerran
+      esim. Tähtihuone 1 ja 2 / Stjärnrummet 1 och 2 / Star Room 1 and 2
+      - Jos toimipisteen opasteet ovat vain suomeksi, tilan suomenkielinen nimi tulee näkyä joko tilan nimessä tai kuvauksessa
+      esim. ruotsiksi Rantasauna [Strandbastu]`,
+      ],
+      spacePks: [
+        `Varausyksikkö voi koostua yhdestä tai useammasta tilasta. Jokainen resurssi tai laite tarvitsee oman tilansa.
+      Huomioi tilahierarkia ja että tila ei voi koskaan olla samanaikaisesti varattuna kuin kerran.
+      Tilahierarkiaa pääset muokkaamaan toimipisteen sivulla.`,
+      ],
+      resourcePks: [
+        "Valitse tilaan liitettävät resurssit ja laitteet. Luo laitteille tarvittaessa uusi alitila toimipisteen sivulla.",
+      ],
+      surfaceArea: [
+        "Pinta-ala lasketaan automaattisesti  varausyksikköön kuuluvien tilojen lattiapinta-alan perusteella.",
+      ],
+      maxPersons: [
+        "Enimmäishenkilömäärä lasketaan automaattisesti  varausyksikköön kuuluvien tilojen  henkilömäärien perusteella. Ilmoitetut henkilömäärät perustuvat paloturvallisuusmääräyksiin. Pienennä varausyksikön henkilömäärää tarvittaessa.",
+      ],
+      minPersons: [
+        "Minimihenkilömäärä voidaan ilmoittaa, jos tilan käyttöä halutaan ohjata riittävän suuriin varauksiin. Esimerkki: 100hlö sali  halutaan tarjota vähintään 30hlön tilaisuuksiin tai yksin työskentelyä halutaan välttää ryhmätiloissa (min 2 hlö). Suositus: jätetään tyhjäksi",
+      ],
+      reservationUnitTypePk: [
+        `Valitse varausyksikköä parhaiten kuvaava tilatyyppi. Valinnalla on vaikutusta hakutulokseen.
+        TILAT:
+        Valitse “MONITOIMITILA”, jos et löydä listalta sopivaa tyyppiä.
+        LAITTEET:
+        valitse “Laitteet ja välineet”
+        SOITTIMET:
+        valitse “soittimet”`,
+      ],
+
+      purposes: [
+        `Valitse käyttötarkoitukset, joihin varausyksikkö aidosti sopii. Voit valita useita. Valinta vaikuttaa hakutuloksiin.
+      LAITTEET:
+      valitse “Laitteiden käyttö”`,
+      ],
+
+      equipments: [
+        `Valitse varusteet, jotka ovat kaikkien käyttäjien saatavilla. Jos tiettyä varustusta voi käyttää vain erikseen kysymällä, sitä ei tule listata.
+        Täydennyksiä varustelistaan voi pyytää ylläpidolta. `,
+      ],
+      qualifiers: [
+        `Lisää tarvittaessa tilan ikärajoja tai sisäänpääsyä kuvaavat tarkenteet.
+      Sopimusehtojen mukaisesti alle 15-vuotiaat eivät voi varta tiloja ellei sitä ole erikseen sallittu.
+      Lasten ja nuorten (peli)tilat:
+      valitse “varattavissa alle 15-vuotiaille”`,
+      ],
+      description: [
+        `Kuvaus kirjoitetaan standardointipohjan mukaisesti.
+      Lisää linkkejä ulkoisille verkkosivuille kuten käyttöohjeisiin vain tarvittaessa. Tarkista linkkien toimivuus ja saavutettavuus säännöllisesti. Käytäthän muotoiluja harkiten. `,
+      ],
+      images: [
+        `Liitä vähintään kolme kuvaa. Kuvien tulisi olla todenmukaisia ja hyvälaatuisia.
+      Suositus:
+      lisää ensisijaisesti vaakatasossa kuvattuja kuvia, ei kuitenkaan panoramoja. jpeg/jpg ja png, max 1 M
+      Kuvissa näkyviltä ihmisiltä tulee olla kuvauslupa. Kuvissa ei saa näkyä turvakameroita.`,
+      ],
+      publishingSettings: [
+        `Voit ajastaa varausyksikön julkaistavaksi tai piilotettavaksi asiakkailta tiettynä ajankohtana.`,
+      ],
+      reservationSettings: [
+        `Voit ajastaa varauskalenterin avattaksi tai suljettavaksi tiettynä ajankohtana. Kalenterin ollessa suljettu, asiakkaat eivät voi varata varausyksikköä käyttöönsä.`,
+      ],
+      minReservationDuration: [``],
+    },
     cancelledExpandLink: ["Täydennä peruutusviestiä"],
     authenticationLabel: ["Tunnistautuminen"],
     defaultHeading: ["Uusi varausyksikkö"],
