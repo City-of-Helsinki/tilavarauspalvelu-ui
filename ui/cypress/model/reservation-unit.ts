@@ -4,6 +4,14 @@ export function accordion(
   return cy.get(`[data-testid="reservation-unit__accordion--${modifier}"]`);
 }
 
+export function description(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-unit__description"]');
+}
+
+export function equipment(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-unit__equipment"]');
+}
+
 export function addressContainer(
   order?: number
 ): Cypress.Chainable<JQuery<HTMLElement>> {
