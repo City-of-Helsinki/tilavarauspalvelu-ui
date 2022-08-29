@@ -15,7 +15,7 @@ import {
   IconSliders,
 } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import get from "lodash/get";
 import isEqual from "lodash/isEqual";
 import pullAll from "lodash/pullAll";
@@ -37,7 +37,6 @@ import {
   filterData,
 } from "../common/util";
 import FilterContainer, { FilterBtn } from "./FilterContainer";
-import { publicUrl } from "../common/const";
 
 export type OrderTypes = "asc" | "desc";
 
@@ -228,7 +227,7 @@ export const Heading = styled.thead`
   }
 `;
 
-const A = styled.a`
+const A = styled(Link)`
   &,
   :visited,
   :hover,
@@ -777,6 +776,7 @@ function DataTable({
                                 }
                               } else if (cellConfig.rowLink) {
                                 const link: string = cellConfig.rowLink(row);
+                                console.log("link", link);
                                 history.push(link);
                               }
                             }}
@@ -829,10 +829,7 @@ function DataTable({
                                 return (
                                   <Cell key={colKey}>
                                     {link ? (
-                                      <A
-                                        href={`${publicUrl}${link}`}
-                                        className="cellContent"
-                                      >
+                                      <A to={`${link}`} className="cellContent">
                                         <span className="cellContent">
                                           {value}
                                         </span>
