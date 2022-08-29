@@ -12,6 +12,22 @@ export function equipment(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get('[data-testid="reservation-unit__equipment"]');
 }
 
+export function reservationInfo(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-unit__reservation-info"]');
+}
+
+export function paymentAndCancellationTerms(): Cypress.Chainable<
+  JQuery<HTMLElement>
+> {
+  return cy.get(
+    '[data-testid="reservation-unit__payment-and-cancellation-terms"]'
+  );
+}
+
+export function termsOfUse(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-unit__terms-of-use"]');
+}
+
 export function addressContainer(
   order?: number
 ): Cypress.Chainable<JQuery<HTMLElement>> {

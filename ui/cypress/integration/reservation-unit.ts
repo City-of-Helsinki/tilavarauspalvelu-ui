@@ -32,6 +32,9 @@ import {
   addressContainer,
   description,
   equipment,
+  paymentAndCancellationTerms,
+  reservationInfo,
+  termsOfUse,
 } from "model/reservation-unit";
 import { textWithIcon } from "model/search";
 
@@ -131,6 +134,28 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       textWithIcon(1).contains("60 henkilöä");
       textWithIcon(2).contains("20 € / 15 min");
       textWithIcon(3).contains("1 t – 1 t 30 min");
+
+      reservationInfo().contains(
+        "Voit tehdä varauksen aikaisintaan 12 kuukautta ja viimeistään 2 päivää etukäteen."
+      );
+      reservationInfo().contains("Varauskalenteri on auki 8.9.2022 asti.");
+      reservationInfo().contains(
+        "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuuttia."
+      );
+      reservationInfo().contains(
+        "Sinulla voi olla samanaikaisesti enintään yksi varaus."
+      );
+
+      paymentAndCancellationTerms().find("> button").contains("Peruutusehdot");
+      paymentAndCancellationTerms().should("contain.text", "Peruutusehdot Fi");
+      paymentAndCancellationTerms().should("not.contain.text", "Maksuehgot Fi");
+
+      termsOfUse().find("> button").contains("Sopimusehdot");
+      termsOfUse().should(
+        "contain.text",
+        "Palveluehto Palveluehto Palveluehto Palveluehto Palveluehto Palveluehto Palveluehto"
+      );
+      termsOfUse().should("contain.text", "Sopparijuttuja");
     });
 
     it("allows making a reservation", () => {
@@ -453,6 +478,18 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     });
   });
 
+  describe("with payment terms", () => {
+    it("does display an accordion for both cancellation and payment terms", () => {
+      cy.visit("/reservation-unit/801");
+
+      paymentAndCancellationTerms()
+        .find("> button")
+        .contains("Maksu- ja peruutusehdot");
+      paymentAndCancellationTerms().contains("Maksuehdot Fi");
+      paymentAndCancellationTerms().contains("Peruutusehdot Fi");
+    });
+  });
+
   describe("preview", () => {
     Cypress.config("defaultCommandTimeout", 20000);
 
@@ -502,6 +539,10 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
           /^Sinulla on jo \d+ varausta tähän tilaan. Et voi tehdä uusia varauksia.$/
         );
 
+      reservationInfo().contains(
+        "Sinulla voi olla samanaikaisesti enintään 10 varausta."
+      );
+
       cy.window().then(() => {
         sessionStorage.removeItem(`oidc.apiToken.${Cypress.env("API_SCOPE")}`);
       });
@@ -522,6 +563,10 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       reservationQuotaNotification()
         .invoke("text")
         .should("match", /^Sinulla on jo \d+\/\d+ varausta tähän tilaan.$/);
+
+      reservationInfo().contains(
+        "Sinulla voi olla samanaikaisesti enintään 30 varausta."
+      );
 
       cy.window().then(() => {
         sessionStorage.removeItem(`oidc.apiToken.${Cypress.env("API_SCOPE")}`);

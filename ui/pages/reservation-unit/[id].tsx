@@ -825,7 +825,7 @@ const ReservationUnit = ({
                 <Subheading $withBorder>
                   {t("reservationCalendar:reservationInfo")}
                 </Subheading>
-                <Content>
+                <Content data-testid="reservation-unit__reservation-info">
                   {(reservationUnit.reservationsMaxDaysBefore ||
                     reservationUnit.reservationsMinDaysBefore) && (
                     <p>
@@ -953,7 +953,10 @@ const ReservationUnit = ({
                     )}
                   {reservationUnit.maxReservationsPerUser && (
                     <p>
-                      <Trans i18nKey="reservationUnit:reservationInfo4">
+                      <Trans
+                        i18nKey="reservationUnit:reservationInfo4"
+                        count={reservationUnit.maxReservationsPerUser}
+                      >
                         Sinulla voi olla samanaikaisesti{" "}
                         <strong>
                           enintään{" "}
@@ -995,6 +998,7 @@ const ReservationUnit = ({
                   }`
                 )}
                 theme="thin"
+                data-testid="reservation-unit__payment-and-cancellation-terms"
               >
                 {paymentTermsContent && (
                   <PaddedContent>
@@ -1006,7 +1010,11 @@ const ReservationUnit = ({
                 </PaddedContent>
               </Accordion>
             )}
-            <Accordion heading={t("reservationUnit:termsOfUse")} theme="thin">
+            <Accordion
+              heading={t("reservationUnit:termsOfUse")}
+              theme="thin"
+              data-testid="reservation-unit__terms-of-use"
+            >
               {serviceSpecificTermsContent && (
                 <PaddedContent>
                   <Sanitize html={serviceSpecificTermsContent} />
