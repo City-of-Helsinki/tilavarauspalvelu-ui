@@ -31,10 +31,10 @@ export const reservationUnitUrl = (
   unitId: number
 ): string => `/unit/${unitId}/reservationUnit/edit/${reservationUnitId}`;
 
-export const spaceUrl = (spaceId: number, unitId: number) =>
+export const spaceUrl = (spaceId: number, unitId: number): string =>
   `/unit/${unitId}/space/edit/${spaceId}`;
 
-export const resourceUrl = (resourceId: number, unitId: number) =>
+export const resourceUrl = (resourceId: number, unitId: number): string =>
   `/unit/${unitId}/resource/edit/${resourceId}`;
 
 export const unitUrl = (unitId: number): string => `/unit/${unitId}`;

@@ -776,7 +776,6 @@ function DataTable({
                                 }
                               } else if (cellConfig.rowLink) {
                                 const link: string = cellConfig.rowLink(row);
-                                console.log("link", link);
                                 history.push(link);
                               }
                             }}
