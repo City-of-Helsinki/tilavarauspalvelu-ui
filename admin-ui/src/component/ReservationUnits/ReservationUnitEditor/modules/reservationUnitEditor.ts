@@ -32,6 +32,8 @@ export const ArchiveButton = styled(Button)`
 `;
 
 export const ExpandLink = styled(Accordion)`
+  border-bottom: none !important;
+
   > div:nth-of-type(1) > div {
     display: flex;
     flex-direction: row;

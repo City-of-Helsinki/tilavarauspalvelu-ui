@@ -1685,19 +1685,21 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             >
               <Grid>
                 {requiresHandling && (
-                  <>
-                    <Span12>
+                  <Span12>
+                    <ExpandLink
+                      initiallyOpen={state.validationErrors != null}
+                      heading={t("ReservationUnitEditor.pendingExpandLink")}
+                    >
                       <SlimH4>
                         {t("ReservationUnitEditor.pendingInstructions")}
                       </SlimH4>
-                    </Span12>
-                    {languages.map((lang) => {
-                      const fieldName = `reservationPendingInstructions${upperFirst(
-                        lang
-                      )}`;
-                      return (
-                        <Span12 key={lang}>
+                      {languages.map((lang) => {
+                        const fieldName = `reservationPendingInstructions${upperFirst(
+                          lang
+                        )}`;
+                        return (
                           <TextArea
+                            key={lang}
                             id={fieldName}
                             label={t(
                               `ReservationUnitEditor.label.instructions${upperFirst(
@@ -1726,10 +1728,10 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                                 : ""
                             }
                           />
-                        </Span12>
-                      );
-                    })}
-                  </>
+                        );
+                      })}
+                    </ExpandLink>
+                  </Span12>
                 )}
 
                 <Span12>

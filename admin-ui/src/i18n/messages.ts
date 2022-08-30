@@ -1358,6 +1358,7 @@ const translations: ITranslations = {
       ],
     },
     cancelledExpandLink: ["Täydennä peruutusviestiä"],
+    pendingExpandLink: ["Täydennä alustavan varauksen viestiä"],
     authenticationLabel: ["Tunnistautuminen"],
     defaultHeading: ["Uusi varausyksikkö"],
     basicInformation: ["Perustiedot"],
