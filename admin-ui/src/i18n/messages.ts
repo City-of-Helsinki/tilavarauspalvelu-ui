@@ -1083,7 +1083,9 @@ const translations: ITranslations = {
       reservationsMaxDaysBefore: ["Varattavissa alkaen"],
       lowestPrice: ["Alin hinta (euroa)"],
       highestPrice: ["Ylin hinta (euroa)"],
-      canApplyFreeOfCharge: ["Varausyksikköön voi anoa subventiota"],
+      canApplyFreeOfCharge: [
+        "Asiakas voi pyytää hinnan alennusta tai maksuttomuutta",
+      ],
       metadataSetPk: ["Varauslomake"],
       termsOfUseFi: ["Varausyksikkökohtaiset lisätiedot fi"],
       termsOfUseSv: ["Varausyksikkökohtaiset lisätiedot sv"],
@@ -1376,7 +1378,9 @@ const translations: ITranslations = {
     qualifiersLabel: ["Tarkenne"],
     qualifiersPlaceholder: ["Valitse"],
     resourcesPlaceholder: ["Liitä tarvittavat resurssit"],
-    requireReservationHandling: ["Haluan käsitellä kaikki varausanomukset"],
+    requireReservationHandling: [
+      "Haluan käsitellä kaikki varaukset. Varaukset tulee aina käsitellä - hyväksyä tai hylätä -luvatussa ajassa, usein kolmen arkipäivän kuluessa.",
+    ],
     requireIntroductionLabel: ["Varausyksikkö vaatii pakollisen perehdytyksen"],
     surfaceAreaHelperText: ["Tilojen yhteenlaskettua alaa ei voi pienentää"],
     maxPersonsHelperText: [
