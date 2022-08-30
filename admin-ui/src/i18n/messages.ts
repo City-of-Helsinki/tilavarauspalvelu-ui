@@ -1194,7 +1194,166 @@ const translations: ITranslations = {
       reservationSettings: [
         `Voit ajastaa varauskalenterin avattaksi tai suljettavaksi tiettynä ajankohtana. Kalenterin ollessa suljettu, asiakkaat eivät voi varata varausyksikköä käyttöönsä.`,
       ],
-      minReservationDuration: [``],
+      minReservationDuration: [
+        `Suosituksia:
+      Kokoustilat, työpisteet: 30min tai 60min
+      Itsenäisen käytön tilat: 60min tai 90min
+      pelitilat, liikuntapaikat: 30min
+      studiot: 60min
+      saunavuorot ja muut kiinteäkestoiset vuorot: keston mukaan, jolloin min=max
+      tapahtumatilat, kokopäiväksi varattavat: 60min tai harkinnan mukaan
+      soittimet, laitteet: 30min tai harkinnan mukaan`,
+      ],
+      maxReservationDuration: [
+        `Jos käyttöaste on matala, mahdollista pitkät varaukset.
+      Suosituksia:
+      ruuhkaiset kokoustilat, työpisteet: 2-4tuntia tai harkinnan mukaan.
+      itsenäisen käytön tilat: harkinnan mukaan
+      Kokopäiväksi varattavat tilat: maksimi aukioloajan mukaan, esim. klo 8-20=12tuntia tai 7-22=15tuntia
+      pelitilat, tenniskentät: 2tuntia
+      saunavuorot ja muut kiinteäkestoiset vuorot: keston mukaan, jolloin min=max
+      laitteet: arvioidun työskentelykeston tai harkinnan mukaan
+      soittimet: 2tuntia`,
+      ],
+      reservationsMaxDaysBefore: [
+        `Valitse, kuinka paljon etukäteen varausyksikön voi varata.
+      Esimerkki: Jos valitset “6kk”, varauskalenteri on auki tästä hetkestä puolenvuoden päähän.
+      Suosituksia:
+      Yleinen suositus: 3 kk
+      tenniskentät: 2 vko
+      (ulko)tapahtumatilat, kesätilat: 6 kk
+      taideseinät: 12kk tai harkinnan mukaan `,
+      ],
+      reservationsMinDaysBefore: [
+        `Valitse, kuinka paljon etukäteen varausyksikkö pitää viimeistään varata.
+        Suosituksia:
+        0, jos varuksen voi tehdä samalle päivälle (kaikki kirjastojen suoravarattavat tilat)
+        1, jos varaus tulee tehdä viim. edellisenä päivänä. Huomio vuorokausiraja on keskiyöllä klo 23.59.
+        3 / 5 vrk, jos varaus edellyttää käsittelyä
+        7 / 14 vrk, jos itsenäinen käyttö ja varaus tulee sekä käsitellä ja asiakas maksaa ja noutaa avaimet
+        tapahtumatilat: harkinnan mukaan`,
+      ],
+      reservationStartInterval: [
+        `Voit määrittää, minkä ajan välein varaukset voivat alkaa.
+      Esimerkki:
+      Jos varauksen aloitukset ovat 30min välein, varaukset voivat alkaa vain tasa- ja puolitunnein.
+      suositus:
+      30min
+      15min välein - jos käytät 15min taukoja tai olet asettanut tilan aukioloajat 15min tarkkuudella`,
+      ],
+      bufferSettings: [
+        `Voit asettaa automaattiset tauot varauksen alkuun tai loppuun, mikäli haluat esim. tuulettaa tai tarkistaa tilan varausten välissä. Tauko lisätään jokaiseen varaukseen ja seuraava varaus voi alkaa vasta tauon päätyttyä.
+      Esimerkki:
+      Varaus tehdään 12.00-13.00 ja vuoron jälkeen on asetettu 30min tauko. Seuraava varaus voi alkaa vasta 13.30.
+      suositus:
+      tauotusta ei käytetä`,
+      ],
+      cancellationSettings: [
+        `Valitse asetus, jos varauksen voi peruuttaa ja määritä aika, jota ennen asiakas voi perua varauksensa järjestelmässä.
+      Asiakkaalle näkyvä kirjallinen peruutusehto valitaan erikseen kohdassa “Ehdot ja ohjeet”.
+      Huomioi maksullisten tilojen hallinnollinen päätös.
+      Suositukset:
+      ei peruutusmahdollisuutta – asiakkaan sitouttavat maksulliset varaukset, mm. tenniskentät
+      varauksen alkuun asti – yleinen suositus mm. kirjaston maksuttomille tiloille ja laitteille
+      14vrk – tyypillisesti maksulliset tilat
+      1kk (30 vrk) – tapahtumatilat
+      8vko (55 vrk) – leirikeskukset
+      Jos peruutukset on käsiteltävä, ota yhteyttä ylläpitoon.`,
+      ],
+      metadataSetPk: [
+        `Lomake määrittää varauksessa asiakkaalta kysyttävät kentät.
+      Jos et löydä tarvitsemaasi lomaketta, ota yhteyttä palvelusi Varaamo-tuoteomistajaan tai ylläpitoon.`,
+      ],
+      authentication: [
+        `Voit määrittää, vaatiiko varauksen tekeminen varausyksikölle vahvan vai heikon tunnistautumisen. Vahva tunnistautuminen vaatii, että asiakkaan profiili on varmennettu esimerkiksi pankkitunnuksin.
+      Heikko tunnistautuminen kysyy ainoastaan sähköpostia ja salasanaa.
+      Suositukset:
+      HEIKKO – toimipisteen aukioloaikana tapahtuva käyttö, edulliset maksulliset tilat, työpisteet, laitteet, ensisijaisesti alaikäisten käyttöön tarkoitetut (peli)tilat
+      VAHVA – kaikki itsenäinen käyttö, tapahtumatilat, kalliimmat maksulliset tilat, tilat tai laitteet, joiden käytössä on merkittävä taloudellinen riski`,
+      ],
+      maxReservationsPerUser: [
+        `Voit määrittää, kuinka monta  voimassaolevaa varausta käyttäjällä voi samanaikaisesti olla tähän varausyksikköön.
+      Älä rajoita määrää tarpeettomasti. Väärinkäytösten ehkäisemiseksi suositus max 30/varausyksikkö. `,
+      ],
+      introductionSettings: [
+        `Toiminnallisuus ei ole vielä käytössä.
+      Suositus:
+      jätä tyhjäksi`,
+      ],
+      handlingSettings: [
+        `Voit valita kaikki varaukset käsiteltäviksi ennen hyväksymistä.
+      Varaukset, joissa anotaan maksuttomuutta tai alennusta, tulevat automaattisesti käsittelyyn.`,
+      ],
+      pricingType: [
+        `Maksuton varausyksikkö on aina maksuton kaikille.
+      Jos varausyksikkö on maksullinen, siihen on mahdollista hakea maksutonta käyttöä tai hinnan alennusta. ks. subventio`,
+      ],
+      lowestPrice: [
+        `Alimman hinnan tulisi olla joko maksuttoman käytön (0) tai mahdollisen alennetun hinnan määrä.
+      Jos tilalla on kiinteä hinta esim 30e, ilmoita alin=ylin hinta`,
+      ],
+      highestPrice: [
+        `Varausyksikön normaali hinta, kun maksutonta käyttöä tai hinnan alennusta ei haeta.
+      Jos tilalla on kiinteä hinta esim 30e, ilmoita alin=ylin hinta`,
+      ],
+      priceUnit: [
+        `Suositus:
+      Per tunti`,
+      ],
+      paymentType: [
+        `Kertoo asiakkaalle käytössä olevat maksutavat.
+      suositukset
+      TILAT:
+      verkkomaksu
+      LAITTEET:
+      maksu paikan päällä – silloin, kun laitteista peritään maksu`,
+      ],
+      canApplyFreeOfCharge: [
+        `Valitse, jos asiakas voi anoa maksutonta käyttöä tai hinnan alennusta.
+      Alennuspyynnöt tulevat automaattisesti käsiteltäväksi.
+      Jos et ole valinnut käsittelyä kohdassa “Haluan käsitellä kaikki varausanomukset”, normaalihintaisia varauksia ei käsitellä.`,
+      ],
+      pricingTermsPk: [
+        `Valitse listalta palvelussasi noudatettavat hinnoittelu- ja maksuttomuusperiaateet.
+      Asiakkaan hinnanalennuspyyntö perustuu näihin periaatteisiin.
+      Ota tarvittaessa yhteys ylläpitoon.`,
+      ],
+      serviceSpecificTermsPk: [
+        `Helsingin kaupungin tilojen ja laitteiden varausehdot liitetään kaikkiin varausyksiköihin automaattisesti.
+      Täydennä ehtoja tarvittaessa palvelusi ehdoilla.`,
+      ],
+      paymentTermsPk: [
+        `Jos varausyksikkösi on maksullinen valitse maksuehdot.`,
+      ],
+      cancellationTermsPk: [
+        `Valitse kirjallinen peruutusehto.
+      Varmista, että peruutusasetukset kohdassa “Varauksen peruutus > Peruutus mahdollista” vastaa tässä valittua ehtoa.`,
+      ],
+      termsOfUseFi: [
+        `Voit antaa asiakkaalle varuksen teon kannalta oleellisia lisätietoja. Tiedot näkyvät Huomioi varattaessa -otsikon alla varauslomaketta täytettäessä.
+      Suositus:
+      käytä vain tarvittaessa.
+      Korkeintaan kolme varaajan kannalta oleellista asiaa.
+      Esimerkki:
+      Varmista tarvittaessa yhteysaluksen liikennöinti ennen varauksen tekoa. Jos teet varauksen samalla päivälle, ilmoitathan siitä aina myös puhelimitse henkilökunnalle [puh nro].
+      tai
+      Käsittelemme varauksia vain arkipäivisin. Tilan avaimen voit noutaa arkisin klo 7.30-8.30 välillä. Varaudu esittämään henkilöllisyystodistus.`,
+      ],
+      reservationPendingInstructionsFi: [
+        `Tämä varausvahvistus lähetetään asiakkaalle sähköpostilla, kun varaus on lähetetty  käsittelyyn.
+      Voit täydentää automaattista varausvahvistusta toimipisteen tiedoilla.`,
+      ],
+      reservationConfirmedInstructionsFi: [
+        `Tämä varausvahvistus lähetetään asiakkaalle sähköpostilla, kun varaus on hyväksytty.
+      Voit täydentää automaattista varausvahvistusta toimipisteen tiedoilla.`,
+      ],
+      reservationCancelledInstructionsFi: [
+        `Tämä varausvahvistus lähetetään asiakkaalle sähköpostilla, kun varaus on hylätty tai peruutettu.
+      Voit täydentää automaattista varausvahvistusta toimipisteen tiedoilla.`,
+      ],
+      contactInformation: [
+        `Lisää nimesi ja yhteystietosi, jotta palvelusi tuoteomistaja tai Varaamon ylläpito tietää kehen tarvittaessa yhteyttä.`,
+      ],
     },
     cancelledExpandLink: ["Täydennä peruutusviestiä"],
     authenticationLabel: ["Tunnistautuminen"],
