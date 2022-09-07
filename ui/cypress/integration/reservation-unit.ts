@@ -68,10 +68,7 @@ const matchEvent = (): void => {
     });
 };
 
-const nextWeek = format(
-  endOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }),
-  "d.M.yyyy"
-);
+const reservationEnds = format(addDays(new Date(), 10), "d.M.yyyy");
 
 const drawReservation = (): void => {
   hzNavigationFwd().click();
@@ -138,7 +135,9 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       reservationInfo().contains(
         "Voit tehdä varauksen aikaisintaan 12 kuukautta ja viimeistään 2 päivää etukäteen."
       );
-      reservationInfo().contains("Varauskalenteri on auki 8.9.2022 asti.");
+      reservationInfo().contains(
+        `Varauskalenteri on auki ${reservationEnds} asti.`
+      );
       reservationInfo().contains(
         "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuuttia."
       );
