@@ -517,12 +517,14 @@ export const printErrorMessages = (error: ApolloError): string => {
 
   return errors
     .reduce((acc, cur) => {
-      const code = i18n.t(`errors:${cur?.extensions?.error_code}`);
+      const code = cur?.extensions?.error_code
+        ? i18n.t(`errors:${cur?.extensions?.error_code}`)
+        : "";
       const message =
-        code === cur?.extensions?.error_code
+        code === cur?.extensions?.error_code || !cur?.extensions?.error_code
           ? i18n.t("errors:general_error")
-          : code;
-      return `${acc}${message}\n`; /// contains non-breaking space
+          : code || "";
+      return message ? `${acc}${message}\n` : acc; /// contains non-breaking space
     }, "")
     .trim();
 };

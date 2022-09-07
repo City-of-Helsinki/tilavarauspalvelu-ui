@@ -37,7 +37,7 @@ const StyledNavigation = styled(HDSNavigation)`
 
   @media (max-width: ${breakpoint.xs}) {
     position: fixed !important;
-    z-index: 100 !important;
+    z-index: var(--tilavaraus-stack-order-navigation) !important;
   }
 `;
 

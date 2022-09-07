@@ -1,5 +1,6 @@
 import {
   addDays,
+  addMinutes,
   addSeconds,
   areIntervalsOverlapping,
   differenceInSeconds,
@@ -31,6 +32,7 @@ import {
 import {
   convertHMSToSeconds,
   endOfWeek,
+  formatSecondDuration,
   parseDate,
   secondsToHms,
   startOfWeek,
@@ -245,7 +247,8 @@ export const isStartTimeWithinInterval = (
 ): boolean => {
   if (openingTimes?.length < 1) return false;
   if (!interval) return true;
-  const startHMS = toUIDate(start, "HH:mm:ss");
+
+  const startHMS = `${toUIDate(start, "HH:mm")}:00`;
   const { startTime: dayStartTime, endTime: dayEndTime } =
     openingTimes?.find((n) => n.date === toApiDate(start)) || {};
 
@@ -297,7 +300,6 @@ export const getTimeslots = (
 ): number => {
   switch (interval) {
     case "INTERVAL_90_MINS":
-      return 3;
     case "INTERVAL_60_MINS":
     case "INTERVAL_30_MINS":
     case "INTERVAL_15_MINS":
@@ -412,7 +414,11 @@ export const isReservationUnitReservable = (
     now >= addDays(new Date(reservationUnit.reservationBegins), negativeBuffer);
   const isBeforeReservationEnd =
     now <= new Date(reservationUnit.reservationEnds);
+
   return (
+    // reservationUnit.openingHours?.openingTimes?.length > 0 &&
+    !!reservationUnit.minReservationDuration &&
+    !!reservationUnit.maxReservationDuration &&
     (isAfterReservationStart || !reservationUnit.reservationBegins) &&
     (isBeforeReservationEnd || !reservationUnit.reservationEnds)
   );
@@ -441,4 +447,20 @@ export const getNormalizedReservationBeginTime = (
     new Date(reservationUnit.reservationBegins),
     negativeBuffer
   ).toISOString();
+};
+
+export const parseTimeframeLength = (begin: string, end: string): string => {
+  const beginDate = new Date(begin);
+  const endDate = new Date(end);
+  const diff = differenceInSeconds(endDate, beginDate);
+  return formatSecondDuration(diff);
+};
+
+export const getMaxReservation = (
+  begin: Date,
+  duration: number
+): { begin: Date; end: Date } => {
+  const slots = duration / (30 * 60);
+  const end = addMinutes(begin, slots * 30);
+  return { begin, end };
 };

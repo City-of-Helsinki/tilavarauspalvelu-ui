@@ -65,6 +65,7 @@ type Props = {
   draggableAccessor?: (event: CalendarEvent) => boolean;
   resizableAccessor?: (event: CalendarEvent) => boolean;
   toolbarComponent?: React.ReactNode;
+  eventWrapperComponent?: React.ReactNode;
   showToolbar?: boolean;
   reservable?: boolean;
   draggable?: boolean;
@@ -82,14 +83,11 @@ export const eventStyleGetter = ({
     opacity: "0.8",
     color: "var(--color-white)",
     display: "block",
+    backgroundColor: "var(--color-success-dark)",
   } as Record<string, string>;
 
-  style.backgroundColor =
-    event.state.toLowerCase() === "cancelled"
-      ? "var(--color-error-dark)"
-      : "var(--color-success-dark)";
-
   if (event.state.toLowerCase() === "cancelled") {
+    style.backgroundColor = "var(--color-error-dark)";
     style.textDecoration = "line-through";
   }
 
@@ -123,9 +121,18 @@ const StyledCalendar = styled(BigCalendar)<{
     }
   }}
 
+  .rbc-current-time-indicator {
+    border-top: 4px dotted #551a8b;
+    background-color: transparent;
+  }
+
   .rbc-timeslot-group {
-    z-index: 2;
     border-bottom: 0;
+    &:nth-child(1n) {
+      border-bottom: 1px solid var(--color-black-20);
+    }
+
+    z-index: 2;
     min-height: ${({ step }) => {
       switch (step) {
         case 15:
@@ -135,36 +142,14 @@ const StyledCalendar = styled(BigCalendar)<{
           return "40px";
       }
     }};
-    border-top-color: var(--color-black-10);
+    border-top-color: var(--color-black-20);
   }
 
   .rbc-time-gutter {
-    z-index: 4;
+    z-index: 100;
     position: sticky;
     left: 0;
-
-    /* stylelint-disable */
-    .rbc-timeslot-group,
-    .rbc-time-slot {
-      background-color: var(--color-white) !important;
-      padding-bottom: 1px;
-    }
-    /* stylelint-enable */
-
-    .rbc-timeslot-group {
-      .rbc-time-slot {
-        &:first-of-type {
-          border-color: var(--color-black-20);
-        }
-
-        &:last-of-type {
-          border: none;
-        }
-
-        border-top: 1px solid var(--color-black-10);
-        flex: none;
-      }
-    }
+    margin-top: -1px;
 
     .rbc-label {
       padding: 0 var(--spacing-s) 0 var(--spacing-s);
@@ -172,9 +157,54 @@ const StyledCalendar = styled(BigCalendar)<{
       font-weight: 400;
       font-size: var(--fontsize-body-s);
     }
+
+    /* stylelint-disable */
+    .rbc-timeslot-group,
+    .rbc-time-slot {
+      background-color: var(--color-white) !important;
+      padding-bottom: 1px;
+
+      .rbc-label {
+        position: relative;
+        top: var(--spacing-xs);
+      }
+    }
+    /* stylelint-enable */
+
+    .rbc-timeslot-group {
+      .rbc-time-slot {
+        border-top: 1px solid var(--color-black-20);
+        border-left: none;
+        flex: none;
+
+        &:first-of-type {
+          border-color: var(--color-black-20);
+        }
+
+        &:last-of-type {
+          border: none;
+        }
+      }
+
+      &:first-of-type {
+        .rbc-time-slot {
+          border-top: 0;
+        }
+      }
+
+      border: 0;
+    }
   }
 
   .rbc-time-header {
+    .rbc-today {
+      background-color: transparent;
+    }
+
+    .rbc-time-header-content {
+      border: 0;
+    }
+
     .rbc-time-header-gutter {
       z-index: 5;
       position: sticky;
@@ -182,6 +212,7 @@ const StyledCalendar = styled(BigCalendar)<{
       background-color: var(--color-white);
     }
 
+    /* stylelint-disable-next-line */
     .rbc-timeslot-group {
       background-color: var(--color-white);
     }
@@ -189,11 +220,11 @@ const StyledCalendar = styled(BigCalendar)<{
     .rbc-header {
       font-family: var(--font-regular);
       font-weight: 400;
-      font-size: var(--fontsize-body-m);
+      font-size: var(--fontsize-body-s);
       text-transform: capitalize;
       border-bottom: 0;
       padding: var(--spacing-2-xs) 0;
-      border-left-color: var(--color-black-40);
+      border: 0;
     }
 
     .rbc-allday-cell {
@@ -203,42 +234,59 @@ const StyledCalendar = styled(BigCalendar)<{
 
   .rbc-time-content {
     & > * + * > * {
-      border-left-color: var(--color-black-40);
+      border-left-color: var(--color-black-20);
     }
 
-    border-top: 1px solid var(--color-black-40);
+    border-top: 1px solid var(--color-black-20);
   }
 
   &.view-week,
   &.view-day {
-    &:after {
-      content: "";
-      display: block;
-      box-shadow: 5px 0px 13px 0px rgb(0 0 0 / 15%);
-      width: 69px;
-      height: calc(100% - 90px);
-      position: absolute;
-      z-index: 20;
-      bottom: 0px;
-      left: 0px;
+    .rbc-time-column {
+      padding-top: 1px;
     }
 
     .rbc-day-slot {
+      &.rbc-today {
+        background-color: #f6f3f9;
+      }
+
+      /* stylelint-disable-next-line */
+      .rbc-time-slot {
+        border-top: none;
+      }
+
       .rbc-events-container {
         margin: 0;
+
+        .rbc-event-buffer {
+          &:first-of-type {
+            &:before {
+              border-top: 4px double var(--color-black-40);
+              content: "";
+              position: absolute;
+              width: calc(100% + 4px);
+              top: 0px;
+              left: -4px;
+            }
+          }
+
+          &:last-of-type {
+            &:before {
+              border-bottom: 4px double var(--color-black-40);
+              content: "";
+              position: absolute;
+              width: calc(100% + 4px);
+              bottom: 0;
+              left: -4px;
+            }
+          }
+        }
       }
+
       .rbc-timeslot-group {
         .rbc-time-slot.rbc-timeslot-inactive {
           border-top: none;
-        }
-        &:nth-of-type(2n) {
-          .rbc-time-slot:last-of-type {
-            border-bottom: 1px solid var(--color-black-10);
-          }
-
-          .rbc-time-slot.rbc-timeslot-inactive:last-of-type {
-            border-bottom: 1px solid var(--color-black-20);
-          }
         }
       }
     }
@@ -246,6 +294,7 @@ const StyledCalendar = styled(BigCalendar)<{
 
   .rbc-time-view {
     overflow-x: scroll;
+    overflow-y: visible;
 
     @media (min-width: ${(props) => props.overflowBreakpoint}) {
       overflow-x: auto;
@@ -264,12 +313,16 @@ const StyledCalendar = styled(BigCalendar)<{
     .rbc-time-content,
     .rbc-month-header,
     .rbc-month-row {
-      min-width: 800px;
+      min-width: 550px;
       overflow: visible;
 
       @media (min-width: ${(props) => props.overflowBreakpoint}) {
         min-width: unset;
       }
+    }
+
+    .rbc-show-more {
+      display: none;
     }
   }
 
@@ -280,7 +333,7 @@ const StyledCalendar = styled(BigCalendar)<{
   .rbc-time-view,
   .rbc-month-view {
     background-color: var(--color-white);
-    border-color: var(--color-black-30);
+    border: 0;
     position: relative;
     width: 100%;
   }
@@ -304,7 +357,8 @@ const StyledCalendar = styled(BigCalendar)<{
   }
 
   .rbc-timeslot-inactive {
-    background-color: var(--color-black-10);
+    background-color: var(--color-black-5);
+    border-left: 2px solid var(--color-black-30);
   }
 
   .rbc-event {
@@ -321,17 +375,51 @@ const StyledCalendar = styled(BigCalendar)<{
     width: 100% !important;
     left: 0 !important;
     z-index: 2 !important;
+    padding-top: var(--spacing-2-xs);
   }
 
   .rbc-event-buffer {
-    color: var(--color-black-10) !important;
+    color: var(--color-black-5) !important;
     border-top: none !important;
     border-bottom: none !important;
     border-color: var(--color-black-20) !important;
     border-right-color: var(--color-black-10) !important;
-    border-left-color: var(--color-black-40) !important;
+    border-left-color: var(--color-black-20) !important;
     z-index: 1 !important;
     opacity: 1 !important;
+  }
+
+  .rbc-event-movable {
+    overflow: visible !important;
+
+    .rbc-addons-dnd-resize-ns-anchor {
+      &:first-child {
+        top: -15px;
+      }
+
+      &:last-child {
+        bottom: 3px;
+      }
+
+      .rbc-addons-dnd-resize-ns-icon {
+        &:after {
+          content: "";
+          position: absolute;
+          border: 2px solid var(--color-bus);
+          border-radius: 50%;
+          width: 12px;
+          height: 12px;
+          left: 43%;
+          background-color: var(--tilavaraus-event-initial-color);
+        }
+
+        border: 0 !important;
+      }
+    }
+  }
+
+  .rbc-slot-selection {
+    display: none;
   }
 `;
 
@@ -357,6 +445,7 @@ const Calendar = ({
   viewType = "week",
   onSelecting,
   toolbarComponent,
+  eventWrapperComponent,
   onNavigate = () => {},
   onView = () => {},
   onSelectEvent = () => {},
@@ -381,6 +470,7 @@ const Calendar = ({
       culture={i18n.language}
       formats={{
         dayFormat: "EEEEEE d.M.",
+        timeGutterFormat: "H",
       }}
       eventPropGetter={customEventStyleGetter || eventStyleGetter}
       events={events}
@@ -394,7 +484,10 @@ const Calendar = ({
       toolbar={showToolbar}
       views={["day", "week", "month"]}
       className={`view-${viewType}`}
-      components={{ toolbar: toolbarComponent }}
+      components={{
+        toolbar: toolbarComponent,
+        eventWrapper: eventWrapperComponent,
+      }}
       onSelecting={onSelecting}
       onSelectSlot={onSelectSlot}
       selectable={reservable}

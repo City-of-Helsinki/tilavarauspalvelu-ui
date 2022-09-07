@@ -381,12 +381,12 @@ describe("isStartTimeWithinInterval", () => {
 });
 
 describe("getTimeslots", () => {
-  test("returns 3 for 90min interval", () => {
+  test("returns 2 for 90min interval", () => {
     expect(
       getTimeslots(
         ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
       )
-    ).toBe(3);
+    ).toBe(2);
   });
 
   test("returns 2 for all rest", () => {
@@ -584,24 +584,35 @@ describe("isReservationUnitReservable", () => {
   test("returns true for a unit that is reservable", () => {
     expect(
       isReservationUnitReservable({
+        minReservationDuration: 3600,
+        maxReservationDuration: 3600,
         reservationBegins: addMinutes(new Date(), -10),
       } as ReservationUnitType)
     ).toBe(true);
 
     expect(
       isReservationUnitReservable({
+        minReservationDuration: 3600,
+        maxReservationDuration: 3600,
         reservationEnds: addMinutes(new Date(), 10),
       } as ReservationUnitType)
     ).toBe(true);
 
     expect(
       isReservationUnitReservable({
+        minReservationDuration: 3600,
+        maxReservationDuration: 3600,
         reservationBegins: addMinutes(new Date(), -10),
         reservationEnds: addMinutes(new Date(), 10),
       } as ReservationUnitType)
     ).toBe(true);
 
-    expect(isReservationUnitReservable({} as ReservationUnitType)).toBe(true);
+    expect(
+      isReservationUnitReservable({
+        minReservationDuration: 3600,
+        maxReservationDuration: 3600,
+      } as ReservationUnitType)
+    ).toBe(true);
   });
 
   test("returns false for a unit that is not reservable", () => {
@@ -628,6 +639,8 @@ describe("isReservationUnitReservable", () => {
   test("returns correct value with buffer days", () => {
     expect(
       isReservationUnitReservable({
+        minReservationDuration: 3600,
+        maxReservationDuration: 3600,
         reservationBegins: addDays(new Date(), 5),
         reservationsMaxDaysBefore: 5,
       } as ReservationUnitType)
