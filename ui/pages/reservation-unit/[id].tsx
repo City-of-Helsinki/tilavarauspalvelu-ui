@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { GetServerSideProps } from "next";
 import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
@@ -565,136 +572,148 @@ const ReservationUnit = ({
       reservationUnit.maxReservationsPerUser &&
       userReservations?.length >= reservationUnit.maxReservationsPerUser
     );
-  }, [reservationUnit, userReservations]);
+  }, [reservationUnit.maxReservationsPerUser, userReservations]);
 
-  const isSlotReservable = (
-    start: Date,
-    end: Date,
-    skipLengthCheck = false
-  ): boolean => {
-    const {
-      reservations,
-      bufferTimeBefore,
-      bufferTimeAfter,
-      openingHours,
-      maxReservationDuration,
-      minReservationDuration,
-      reservationStartInterval,
-      reservationsMinDaysBefore,
-      reservationBegins,
-      reservationEnds,
-    } = reservationUnit;
-
-    if (
-      !isValid(start) ||
-      !isValid(end) ||
-      doBuffersCollide(reservations, {
-        start,
-        end,
+  const isSlotReservable = useCallback(
+    (start: Date, end: Date, skipLengthCheck = false): boolean => {
+      const {
+        reservations,
         bufferTimeBefore,
         bufferTimeAfter,
-      }) ||
-      !isStartTimeWithinInterval(
-        start,
-        openingHours?.openingTimes,
-        reservationStartInterval
-      ) ||
-      !areSlotsReservable(
-        [new Date(start), subMinutes(new Date(end), 1)],
-        openingHours?.openingTimes,
-        activeApplicationRounds,
+        openingHours,
+        maxReservationDuration,
+        minReservationDuration,
+        reservationStartInterval,
+        reservationsMinDaysBefore,
         reservationBegins,
         reservationEnds,
-        reservationsMinDaysBefore
-      ) ||
-      (!skipLengthCheck &&
-        !isReservationLongEnough(start, end, minReservationDuration)) ||
-      !isReservationShortEnough(start, end, maxReservationDuration) ||
-      doReservationsCollide(reservations, { start, end })
-      // || !isSlotWithinTimeframe(start, reservationsMinDaysBefore, start, end)
-    ) {
-      return false;
-    }
+      } = reservationUnit;
 
-    return true;
-  };
+      if (
+        !isValid(start) ||
+        !isValid(end) ||
+        doBuffersCollide(reservations, {
+          start,
+          end,
+          bufferTimeBefore,
+          bufferTimeAfter,
+        }) ||
+        !isStartTimeWithinInterval(
+          start,
+          openingHours?.openingTimes,
+          reservationStartInterval
+        ) ||
+        !areSlotsReservable(
+          [new Date(start), subMinutes(new Date(end), 1)],
+          openingHours?.openingTimes,
+          activeApplicationRounds,
+          reservationBegins,
+          reservationEnds,
+          reservationsMinDaysBefore
+        ) ||
+        (!skipLengthCheck &&
+          !isReservationLongEnough(start, end, minReservationDuration)) ||
+        !isReservationShortEnough(start, end, maxReservationDuration) ||
+        doReservationsCollide(reservations, { start, end })
+        // || !isSlotWithinTimeframe(start, reservationsMinDaysBefore, start, end)
+      ) {
+        return false;
+      }
 
-  const handleEventChange = (
-    { start, end }: CalendarEvent<Reservation | ReservationType>,
-    skipLengthCheck = false
-  ): boolean => {
-    const newReservation = {
-      begin: start?.toISOString(),
-      end: end?.toISOString(),
-    } as PendingReservation;
-    if (
-      !isReservationShortEnough(
-        start,
-        end,
-        reservationUnit.maxReservationDuration
-      )
-    ) {
-      const { end: newEnd } = getMaxReservation(
-        start,
-        reservationUnit.maxReservationDuration
+      return true;
+    },
+    [activeApplicationRounds, reservationUnit]
+  );
+
+  const handleEventChange = useCallback(
+    (
+      { start, end }: CalendarEvent<Reservation | ReservationType>,
+      skipLengthCheck = false
+    ): boolean => {
+      const newReservation = {
+        begin: start?.toISOString(),
+        end: end?.toISOString(),
+      } as PendingReservation;
+      if (
+        !isReservationShortEnough(
+          start,
+          end,
+          reservationUnit.maxReservationDuration
+        )
+      ) {
+        const { end: newEnd } = getMaxReservation(
+          start,
+          reservationUnit.maxReservationDuration
+        );
+        newReservation.end = newEnd?.toISOString();
+      } else if (
+        !isSlotReservable(start, end, skipLengthCheck) ||
+        isReservationQuotaReached
+      ) {
+        return false;
+      }
+
+      setInitialReservation({
+        begin: newReservation.begin,
+        end: newReservation.end,
+        state: "INITIAL",
+      } as PendingReservation);
+      return true;
+    },
+    [
+      isReservationQuotaReached,
+      isSlotReservable,
+      reservationUnit.maxReservationDuration,
+    ]
+  );
+
+  const handleSlotClick = useCallback(
+    ({ start, action }, skipLengthCheck = false): boolean => {
+      if (action !== "click" || isReservationQuotaReached) {
+        return false;
+      }
+
+      const end = addSeconds(
+        new Date(start),
+        reservationUnit.minReservationDuration || 0
       );
-      newReservation.end = newEnd?.toISOString();
-    } else if (
-      !isSlotReservable(start, end, skipLengthCheck) ||
-      isReservationQuotaReached
-    ) {
-      return false;
-    }
 
-    setInitialReservation({
-      begin: newReservation.begin,
-      end: newReservation.end,
-      state: "INITIAL",
-    } as PendingReservation);
-    return true;
-  };
+      if (!isSlotReservable(start, end, skipLengthCheck)) {
+        return false;
+      }
 
-  const handleSlotClick = (
-    { start, action },
-    skipLengthCheck = false
-  ): boolean => {
-    if (action !== "click" || isReservationQuotaReached) {
-      return false;
-    }
-
-    const end = addSeconds(
-      new Date(start),
-      reservationUnit.minReservationDuration || 0
-    );
-
-    if (!isSlotReservable(start, end, skipLengthCheck)) {
-      return false;
-    }
-
-    setInitialReservation({
-      begin: start.toISOString(),
-      end: end.toISOString(),
-      state: "INITIAL",
-    } as PendingReservation);
-    return true;
-  };
+      setInitialReservation({
+        begin: start.toISOString(),
+        end: end.toISOString(),
+        state: "INITIAL",
+      } as PendingReservation);
+      return true;
+    },
+    [
+      isReservationQuotaReached,
+      isSlotReservable,
+      reservationUnit.minReservationDuration,
+    ]
+  );
 
   useEffect(() => {
     const start = reservation?.begin ? new Date(reservation.begin) : null;
     const end = reservation?.end ? new Date(reservation.end) : null;
 
-    handleEventChange(
-      { start, end } as CalendarEvent<Reservation | ReservationType>,
-      true
-    );
-
     if (start && end) {
+      handleEventChange(
+        { start, end } as CalendarEvent<Reservation | ReservationType>,
+        true
+      );
       setStoredReservation({ ...reservation, pk: reservationUnit.pk });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservation?.begin, reservation?.end]);
 
-  const shouldDisplayBottomWrapper = relatedReservationUnits?.length > 0;
+  const shouldDisplayBottomWrapper = useMemo(
+    () => relatedReservationUnits?.length > 0,
+    [relatedReservationUnits?.length]
+  );
 
   const calendarEvents: CalendarEvent<Reservation | ReservationType>[] =
     useMemo(() => {
@@ -766,7 +785,7 @@ const ReservationUnit = ({
     createReservationError,
     t,
     router,
-    reservationUnit,
+    reservationUnit.pk,
     setReservation,
   ]);
 
@@ -788,8 +807,7 @@ const ReservationUnit = ({
     });
   };
 
-  const isInitialReservationValid = (res: ReservationProps): boolean => {
-    // const { begin, end } = initialReservation || {};
+  const isReservationValid = (res: ReservationProps): boolean => {
     const { begin, end } = res || {};
 
     return (
@@ -933,7 +951,7 @@ const ReservationUnit = ({
                         authComponent={
                           <LoginFragment
                             isActionDisabled={
-                              !isInitialReservationValid({
+                              !isReservationValid({
                                 begin: props.event.start,
                                 end: props.event.end,
                               } as ReservationProps)
@@ -942,7 +960,7 @@ const ReservationUnit = ({
                               <SubmitButton
                                 className="ReservationDetails__submit-button"
                                 disabled={
-                                  !isInitialReservationValid({
+                                  !isReservationValid({
                                     begin: props.event.start,
                                     end: props.event.end,
                                   } as ReservationProps)

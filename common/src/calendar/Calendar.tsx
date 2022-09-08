@@ -72,28 +72,6 @@ type Props<T> = {
   culture?: string;
 };
 
-// export const eventStyleGetter = (
-//   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-//   { event }: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
-// ): { style: React.CSSProperties } => {
-//   const style = {
-//     borderRadius: "0px",
-//     opacity: "0.8",
-//     color: "var(--color-white)",
-//     display: "block",
-//     backgroundColor: "var(--color-success-dark)",
-//   } as Record<string, string>;
-
-//   if (event?.state?.toLowerCase() === "cancelled") {
-//     style.backgroundColor = "var(--color-error-dark)";
-//     style.textDecoration = "line-through";
-//   }
-
-//   return {
-//     style,
-//   };
-// };
-
 const StyledCalendar = styled(BigCalendar)<{
   overflowBreakpoint: string;
   step: number;
@@ -292,7 +270,7 @@ const StyledCalendar = styled(BigCalendar)<{
 
   .rbc-time-view {
     overflow-x: scroll;
-    overflow-y: visible;
+    overflow-y: hidden;
 
     @media (min-width: ${(props) => props.overflowBreakpoint}) {
       overflow-x: auto;
