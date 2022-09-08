@@ -12,18 +12,14 @@ import fi from "date-fns/locale/fi";
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import { useTranslation } from "react-i18next";
-import { parseDate } from "../../modules/util";
-import { ReservationType } from "../../modules/gql-types";
-import { Reservation } from "../../modules/types";
+import { parseDate } from "../common/util";
 
-// EventPropGetter<T> = (event: T, start: stringOrDate, end: stringOrDate, isSelected: boolean) => React.HTMLAttributes<HTMLDivElement>;
-export type CalendarEvent = {
-  title: string;
+export type CalendarEvent<T> = {
+  title?: string;
   start: Date;
   end: Date;
-  allDay: boolean;
-  event: Reservation | ReservationType;
+  allDay?: boolean;
+  event?: T;
 };
 
 export type CalendarBufferEvent = {
@@ -41,20 +37,20 @@ export type SlotProps = {
   style?: React.CSSProperties;
 };
 
-type Props = {
-  events: (CalendarEvent | CalendarEventBuffer)[];
+type Props<T> = {
+  events: (CalendarEvent<T> | CalendarEventBuffer)[];
   begin: Date;
-  customEventStyleGetter?: ({ event }: CalendarEvent) => {
+  eventStyleGetter: ({ event }: CalendarEvent<T>) => {
     style: React.CSSProperties;
   };
   slotPropGetter?: (date: Date) => SlotProps;
   viewType?: string;
   onNavigate?: (n: Date) => void;
   onView?: (n: string) => void;
-  onSelectEvent?: (event: CalendarEvent) => void;
-  onSelecting?: ({ start, end }: CalendarEvent) => void;
-  onEventDrop?: (event: CalendarEvent) => void;
-  onEventResize?: (event: CalendarEvent) => void;
+  onSelectEvent?: (event: CalendarEvent<T>) => void;
+  onSelecting?: ({ start, end }: CalendarEvent<T>) => void;
+  onEventDrop?: (event: CalendarEvent<T>) => void;
+  onEventResize?: (event: CalendarEvent<T>) => void;
   onSelectSlot?: (
     {
       start,
@@ -62,8 +58,8 @@ type Props = {
     }: { start: Date; action: "select" | "click" | "doubleClick" },
     skipLengthCheck: boolean
   ) => void;
-  draggableAccessor?: (event: CalendarEvent) => boolean;
-  resizableAccessor?: (event: CalendarEvent) => boolean;
+  draggableAccessor?: (event: CalendarEvent<T>) => boolean;
+  resizableAccessor?: (event: CalendarEvent<T>) => boolean;
   toolbarComponent?: React.ReactNode;
   eventWrapperComponent?: React.ReactNode;
   showToolbar?: boolean;
@@ -73,28 +69,30 @@ type Props = {
   overflowBreakpoint?: string;
   step?: number;
   timeslots?: number;
+  culture?: string;
 };
 
-export const eventStyleGetter = ({
-  event,
-}: CalendarEvent): { style: React.CSSProperties } => {
-  const style = {
-    borderRadius: "0px",
-    opacity: "0.8",
-    color: "var(--color-white)",
-    display: "block",
-    backgroundColor: "var(--color-success-dark)",
-  } as Record<string, string>;
+// export const eventStyleGetter = (
+//   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+//   { event }: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+// ): { style: React.CSSProperties } => {
+//   const style = {
+//     borderRadius: "0px",
+//     opacity: "0.8",
+//     color: "var(--color-white)",
+//     display: "block",
+//     backgroundColor: "var(--color-success-dark)",
+//   } as Record<string, string>;
 
-  if (event.state.toLowerCase() === "cancelled") {
-    style.backgroundColor = "var(--color-error-dark)";
-    style.textDecoration = "line-through";
-  }
+//   if (event?.state?.toLowerCase() === "cancelled") {
+//     style.backgroundColor = "var(--color-error-dark)";
+//     style.textDecoration = "line-through";
+//   }
 
-  return {
-    style,
-  };
-};
+//   return {
+//     style,
+//   };
+// };
 
 const StyledCalendar = styled(BigCalendar)<{
   overflowBreakpoint: string;
@@ -437,10 +435,10 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const Calendar = ({
+const Calendar = <T extends Record<string, unknown>>({
   events,
   begin,
-  customEventStyleGetter,
+  eventStyleGetter,
   slotPropGetter,
   viewType = "week",
   onSelecting,
@@ -461,18 +459,20 @@ const Calendar = ({
   overflowBreakpoint = "850px",
   step = 30,
   timeslots = 2,
-}: Props): JSX.Element => {
-  const { i18n } = useTranslation();
-  const Component = draggable ? StyledCalendarDND : StyledCalendar;
+  culture = "fi",
+}: Props<T>): JSX.Element => {
+  const Component: React.ElementType = draggable
+    ? StyledCalendarDND
+    : StyledCalendar;
 
   return (
     <Component
-      culture={i18n.language}
+      culture={culture}
       formats={{
         dayFormat: "EEEEEE d.M.",
         timeGutterFormat: "H",
       }}
-      eventPropGetter={customEventStyleGetter || eventStyleGetter}
+      eventPropGetter={eventStyleGetter}
       events={events}
       date={begin}
       onNavigate={onNavigate}

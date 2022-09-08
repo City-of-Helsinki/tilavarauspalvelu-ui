@@ -1,9 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { UserProfile } from "common/types/common";
 import { breakpoint } from "../modules/style";
 import { authEnabled, isBrowser } from "../modules/const";
-import { UserProfile } from "../modules/types";
 import RequireAuthentication from "./common/RequireAuthentication";
 import { MediumButton } from "../styles/util";
 

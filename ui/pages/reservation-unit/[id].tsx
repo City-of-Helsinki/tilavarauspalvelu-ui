@@ -14,30 +14,7 @@ import {
   parseISO,
   subMinutes,
 } from "date-fns";
-import { useLocalStorage } from "react-use";
-import { breakpoints } from "common/src/common/style";
-import Container from "../../components/common/Container";
-import { ApplicationRound, PendingReservation } from "../../modules/types";
-import Head from "../../components/reservation-unit/Head";
-import Address from "../../components/reservation-unit/Address";
-import Sanitize from "../../components/common/Sanitize";
-import RelatedUnits from "../../components/reservation-unit/RelatedUnits";
-import { AccordionWithState as Accordion } from "../../components/common/Accordion";
-import apolloClient from "../../modules/apolloClient";
-import Map from "../../components/Map";
-import { H4 } from "../../modules/style/typography";
-import Calendar, { CalendarEvent } from "../../components/calendar/Calendar";
-import Legend from "../../components/calendar/Legend";
-import LoginFragment from "../../components/LoginFragment";
-import ReservationInfo from "../../components/calendar/ReservationInfo";
-import {
-  formatDate,
-  formatSecondDuration,
-  getTranslation,
-  parseDate,
-  printErrorMessages,
-  toApiDate,
-} from "../../modules/util";
+import { formatSecondDuration, toApiDate } from "common/src/common/util";
 import {
   areSlotsReservable,
   doBuffersCollide,
@@ -52,7 +29,33 @@ import {
   isReservationStartInFuture,
   isReservationUnitReservable,
   isStartTimeWithinInterval,
-} from "../../modules/calendar";
+} from "common/src/calendar/util";
+import { useLocalStorage } from "react-use";
+import { breakpoints } from "common/src/common/style";
+import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
+import {
+  ApplicationRound,
+  PendingReservation,
+  Reservation,
+} from "common/types/common";
+import Container from "../../components/common/Container";
+import Head from "../../components/reservation-unit/Head";
+import Address from "../../components/reservation-unit/Address";
+import Sanitize from "../../components/common/Sanitize";
+import RelatedUnits from "../../components/reservation-unit/RelatedUnits";
+import { AccordionWithState as Accordion } from "../../components/common/Accordion";
+import apolloClient from "../../modules/apolloClient";
+import Map from "../../components/Map";
+import { H4 } from "../../modules/style/typography";
+import Legend from "../../components/calendar/Legend";
+import LoginFragment from "../../components/LoginFragment";
+import ReservationInfo from "../../components/calendar/ReservationInfo";
+import {
+  formatDate,
+  getTranslation,
+  parseDate,
+  printErrorMessages,
+} from "../../modules/util";
 import Toolbar, { ToolbarProps } from "../../components/calendar/Toolbar";
 import {
   Query,
@@ -438,7 +441,7 @@ const SubmitButton = styled(Button).attrs({
 `;
 
 const eventStyleGetter = (
-  { event }: CalendarEvent,
+  { event }: CalendarEvent<Reservation | ReservationType>,
   draggable = true
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
@@ -481,7 +484,7 @@ const ReservationUnit = ({
   activeApplicationRounds,
   termsOfUse,
 }: Props): JSX.Element | null => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
 
   const now = useMemo(() => new Date().toISOString(), []);
@@ -617,7 +620,7 @@ const ReservationUnit = ({
   };
 
   const handleEventChange = (
-    { start, end }: CalendarEvent,
+    { start, end }: CalendarEvent<Reservation | ReservationType>,
     skipLengthCheck = false
   ): boolean => {
     const newReservation = {
@@ -680,7 +683,10 @@ const ReservationUnit = ({
     const start = reservation?.begin ? new Date(reservation.begin) : null;
     const end = reservation?.end ? new Date(reservation.end) : null;
 
-    handleEventChange({ start, end } as CalendarEvent, true);
+    handleEventChange(
+      { start, end } as CalendarEvent<Reservation | ReservationType>,
+      true
+    );
 
     if (start && end) {
       setStoredReservation({ ...reservation, pk: reservationUnit.pk });
@@ -690,27 +696,28 @@ const ReservationUnit = ({
 
   const shouldDisplayBottomWrapper = relatedReservationUnits?.length > 0;
 
-  const calendarEvents: CalendarEvent[] = useMemo(() => {
-    return reservationUnit?.reservations
-      ? [...reservationUnit.reservations, initialReservation]
-          .filter((n: ReservationType) => n)
-          .map((n: ReservationType) => {
-            const event = {
-              title: `${
-                n.state === "CANCELLED"
-                  ? `${t("reservationCalendar:prefixForCancelled")}: `
-                  : ""
-              }`,
-              start: parseDate(n.begin),
-              end: parseDate(n.end),
-              allDay: false,
-              event: n,
-            };
+  const calendarEvents: CalendarEvent<Reservation | ReservationType>[] =
+    useMemo(() => {
+      return reservationUnit?.reservations
+        ? [...reservationUnit.reservations, initialReservation]
+            .filter((n: ReservationType) => n)
+            .map((n: ReservationType) => {
+              const event = {
+                title: `${
+                  n.state === "CANCELLED"
+                    ? `${t("reservationCalendar:prefixForCancelled")}: `
+                    : ""
+                }`,
+                start: parseDate(n.begin),
+                end: parseDate(n.end),
+                allDay: false,
+                event: n,
+              };
 
-            return event;
-          })
-      : [];
-  }, [reservationUnit, t, initialReservation]);
+              return event;
+            })
+        : [];
+    }, [reservationUnit, t, initialReservation]);
 
   const eventBuffers = useMemo(() => {
     return getEventBuffers([
@@ -891,13 +898,13 @@ const ReservationUnit = ({
                     </StyledNotification>
                   )}
                 <div aria-hidden>
-                  <Calendar
+                  <Calendar<Reservation | ReservationType>
                     events={[...calendarEvents, ...eventBuffers]}
                     begin={focusDate || new Date()}
                     onNavigate={(d: Date) => {
                       setFocusDate(d);
                     }}
-                    customEventStyleGetter={(event) =>
+                    eventStyleGetter={(event) =>
                       eventStyleGetter(event, !isReservationQuotaReached)
                     }
                     slotPropGetter={slotPropGetter}
@@ -905,9 +912,9 @@ const ReservationUnit = ({
                     onView={(n: WeekOptions) => {
                       setCalendarViewType(n);
                     }}
-                    onSelecting={(event: CalendarEvent) =>
-                      handleEventChange(event, true)
-                    }
+                    onSelecting={(
+                      event: CalendarEvent<Reservation | ReservationType>
+                    ) => handleEventChange(event, true)}
                     showToolbar
                     reservable={!isReservationQuotaReached}
                     toolbarComponent={
@@ -961,16 +968,21 @@ const ReservationUnit = ({
                     onEventDrop={handleEventChange}
                     onEventResize={handleEventChange}
                     onSelectSlot={handleSlotClick}
-                    draggableAccessor={({ event }: CalendarEvent) =>
+                    draggableAccessor={({
+                      event,
+                    }: CalendarEvent<Reservation | ReservationType>) =>
                       (event.state as ReservationStateWithInitial) === "INITIAL"
                     }
-                    resizableAccessor={({ event }: CalendarEvent) =>
+                    resizableAccessor={({
+                      event,
+                    }: CalendarEvent<Reservation | ReservationType>) =>
                       (event.state as ReservationStateWithInitial) === "INITIAL"
                     }
                     step={30}
                     timeslots={getTimeslots(
                       reservationUnit.reservationStartInterval
                     )}
+                    culture={i18n.language}
                     aria-hidden
                   />
                 </div>

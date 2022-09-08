@@ -4,30 +4,30 @@ import styled from "styled-components";
 import { differenceInSeconds, format, isValid, subMinutes } from "date-fns";
 import { DateInput, Select } from "hds-react";
 import { trimStart } from "lodash";
-import { breakpoint } from "../../modules/style";
-import {
-  areSlotsReservable,
-  doBuffersCollide,
-  doReservationsCollide,
-  getDayIntervals,
-} from "../../modules/calendar";
-import { MediumButton } from "../../styles/util";
-import { ReservationUnitByPkType } from "../../modules/gql-types";
-import { DataContext, ReservationProps } from "../../context/DataContext";
-import { fontMedium, fontRegular } from "../../modules/style/typography";
-import { ApplicationRound, Language, OptionType } from "../../modules/types";
+import { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   convertHMSToSeconds,
   secondsToHms,
   toApiDate,
   toUIDate,
-} from "../../modules/util";
+} from "common/src/common/util";
+import {
+  areSlotsReservable,
+  doBuffersCollide,
+  doReservationsCollide,
+  getDayIntervals,
+} from "common/src/calendar/util";
+import { ApplicationRound, Language, OptionType } from "common/types/common";
+import { breakpoint } from "../../modules/style";
+import { MediumButton } from "../../styles/util";
+import { ReservationUnitByPkType } from "../../modules/gql-types";
+import { DataContext, ReservationProps } from "../../context/DataContext";
+import { fontMedium, fontRegular } from "../../modules/style/typography";
 import { getDurationOptions } from "../../modules/reservation";
 import { getPrice } from "../../modules/reservationUnit";
 import LoginFragment from "../LoginFragment";
-import { CalendarEvent } from "./Calendar";
 
-type Props = {
+type Props<T> = {
   reservationUnit: ReservationUnitByPkType;
   begin?: string;
   end?: string;
@@ -39,7 +39,7 @@ type Props = {
   setErrorMsg: (msg: string) => void;
   isReservationUnitReservable: boolean;
   handleEventChange: (
-    event: CalendarEvent,
+    event: CalendarEvent<T>,
     skipLengthCheck?: boolean
   ) => boolean;
 };
@@ -97,7 +97,7 @@ const Price = styled.div`
   line-height: var(--lineheight-xl);
 `;
 
-const ReservationInfo = ({
+const ReservationInfo = <T extends Record<string, unknown>>({
   reservationUnit,
   begin,
   end,
@@ -109,7 +109,7 @@ const ReservationInfo = ({
   setErrorMsg,
   isReservationUnitReservable,
   handleEventChange,
-}: Props): JSX.Element => {
+}: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
 
   const durationOptions = useMemo(
@@ -176,7 +176,7 @@ const ReservationInfo = ({
         handleEventChange({
           start: startDate,
           end: endDate,
-        } as CalendarEvent);
+        });
         setReservation({
           pk: null,
           begin: startDate.toISOString(),
