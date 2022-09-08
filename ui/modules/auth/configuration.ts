@@ -11,7 +11,7 @@ const configuration = {
   response_type: "id_token token",
   post_logout_redirect_uri: `${base}/?logout`,
   scope: oidcScope,
-  authority: `${oidcUrl}/`,
+  authority: oidcUrl,
   silent_redirect_uri: `${base}/login/helsinki/silent`,
   automaticSilentRenew: true,
   loadUserInfo: false,
