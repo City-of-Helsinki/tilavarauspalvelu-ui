@@ -1,5 +1,11 @@
 import axios from "axios";
-import { apiScope, isBrowser, apiTokenUrl } from "../const";
+import {
+  apiScope,
+  oidcUrl,
+  oidcClientId,
+  isBrowser,
+  apiTokenUrl,
+} from "../const";
 
 export const getApiAccessToken = (): string | null =>
   isBrowser && sessionStorage.getItem(`oidc.apiToken.${apiScope}`);
