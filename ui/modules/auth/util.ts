@@ -17,7 +17,7 @@ export const clearApiAccessToken = (): void =>
   isBrowser && sessionStorage.removeItem(`oidc.apiToken.${apiScope}`);
 
 export const getAccessToken = (): string | null => {
-  const key = `oidc.user:${oidcUrl}/:${oidcClientId}`;
+  const key = `oidc.user:${oidcUrl}:${oidcClientId}`;
   const data = isBrowser && sessionStorage.getItem(key);
 
   if (data) {
@@ -34,26 +34,29 @@ export const getAccessToken = (): string | null => {
 export const updateApiAccessToken = async (
   accessToken: string | undefined
 ): Promise<string> => {
-  if (!accessToken) {
-    throw new Error("Api access token not available. Cannot update");
+  try {
+    if (!accessToken) {
+      throw new Error("Api access token not available. Cannot update");
+    }
+    if (!apiScope) {
+      throw new Error("Application configuration error, illegal api scope.");
+    }
+    const response = await axios.request({
+      responseType: "json",
+      method: "POST",
+      url: apiTokenUrl,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    const { data } = response;
+
+    const apiAccessToken = data[apiScope];
+    setApiAccessToken(apiAccessToken);
+    return apiAccessToken;
+  } catch (e) {
+    console.error(e);
+    return "";
   }
-  if (!apiScope) {
-    throw new Error("Application configuration error, illegal api scope.");
-  }
-  const response = await axios.request({
-    responseType: "json",
-    method: "POST",
-    url: apiTokenUrl,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
-
-  const { data } = response;
-
-  const apiAccessToken = data[apiScope];
-  setApiAccessToken(apiAccessToken);
-
-  return apiAccessToken;
 };
