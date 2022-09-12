@@ -429,7 +429,7 @@ const ReservationUnitReservation = ({
   cities,
   termsOfUse,
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     reservation: reservationData,
     setReservation: setContextReservation,
@@ -589,6 +589,7 @@ const ReservationUnitReservation = ({
       reserveePhone: payload.reserveePhone,
       name: payload.name,
       description: payload.description,
+      reserveeLanguage: i18n.language,
     };
 
     setReservation(input);
@@ -616,6 +617,7 @@ const ReservationUnitReservation = ({
         input: {
           pk: reservationPk,
           state: "CANCELLED",
+          reserveeLanguage: i18n.language,
         },
       },
     });
@@ -646,6 +648,7 @@ const ReservationUnitReservation = ({
         input: {
           pk: reservationPk,
           ...input,
+          reserveeLanguage: i18n.language,
         },
       },
     });

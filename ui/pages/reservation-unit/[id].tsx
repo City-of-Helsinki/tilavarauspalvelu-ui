@@ -797,6 +797,7 @@ const ReservationUnit = ({
       begin,
       end,
       reservationUnitPks: [reservationUnit.pk],
+      reserveeLanguage: i18n.language,
     };
 
     setStoredReservation(input as unknown as ReservationProps);
