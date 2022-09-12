@@ -1,15 +1,10 @@
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation } from "@apollo/client";
 import router from "next/router";
 import { parseISO } from "date-fns";
+import { useSessionStorage } from "react-use";
 import {
   Notification,
   TextInput,
@@ -50,7 +45,6 @@ import {
   reservationsUrl,
 } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
-import { DataContext } from "../../context/DataContext";
 import {
   AgeGroupType,
   CityType,
@@ -430,11 +424,10 @@ const ReservationUnitReservation = ({
   termsOfUse,
 }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
-  const {
-    reservation: reservationData,
-    setReservation: setContextReservation,
-  } = useContext(DataContext);
-
+  const [reservationData, setPendingReservation] = useSessionStorage(
+    "pendingReservation",
+    null
+  );
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
     "pending"
   );
@@ -474,19 +467,13 @@ const ReservationUnitReservation = ({
   const hasMetadataSet = !!reservationUnit?.metadataSet?.supportedFields;
 
   useEffect(() => {
-    return () => {
-      setContextReservation(null);
-    };
-  }, [setContextReservation]);
-
-  useEffect(() => {
     if (!updateLoading) {
       if (updateError) {
         const msg = printErrorMessages(updateError);
         setErrorMsg(msg);
       } else if (updateData) {
         if (updateData.updateReservation.reservation.state === "CANCELLED") {
-          setContextReservation(null);
+          setPendingReservation(null);
           router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
         } else {
           const payload = {
@@ -609,6 +596,7 @@ const ReservationUnitReservation = ({
         },
       },
     });
+    setPendingReservation(null);
   };
 
   const cancelReservation = () => {
@@ -621,6 +609,7 @@ const ReservationUnitReservation = ({
         },
       },
     });
+    setPendingReservation(null);
   };
 
   const onSubmitApplication1 = (payload) => {
