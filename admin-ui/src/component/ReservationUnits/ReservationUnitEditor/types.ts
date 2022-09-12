@@ -16,8 +16,6 @@ export interface IProps {
   reservationUnitPk?: string;
   unitPk: string;
 }
-export const paymentTypes = ["INVOICE", "ONLINE", "ON_SITE"];
-
 export type NotificationType = {
   title: string;
   text: string;

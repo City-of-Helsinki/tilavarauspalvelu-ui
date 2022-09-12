@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import { get, pick, sumBy, uniq, upperFirst } from "lodash";
+import { paymentTypes } from "common/types/common";
 import { languages } from "../../../common/const";
 import {
   Query,
@@ -14,7 +15,6 @@ import {
   Action,
   Image,
   LoadingCompleted,
-  paymentTypes,
   ReservationUnitEditorType,
   State,
 } from "./types";
