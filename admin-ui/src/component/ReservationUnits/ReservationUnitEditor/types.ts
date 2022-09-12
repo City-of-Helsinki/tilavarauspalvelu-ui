@@ -16,6 +16,7 @@ export interface IProps {
   reservationUnitPk?: string;
   unitPk: string;
 }
+export const paymentTypes = ["INVOICE", "ONLINE", "ON_SITE"];
 
 export type NotificationType = {
   title: string;
@@ -40,6 +41,7 @@ export type Action =
   | { type: "setSpaces"; spaces: OptionType[] }
   | { type: "setResources"; resources: OptionType[] }
   | { type: "setEquipments"; equipments: OptionType[] }
+  | { type: "setPaymentTypes"; paymentTypes: OptionType[] }
   | { type: "setPurposes"; purposes: OptionType[] }
   | { type: "setQualifiers"; qualifiers: OptionType[] }
   | { type: "parametersLoaded"; parameters: Query }
@@ -79,6 +81,7 @@ export type State = {
   qualifierOptions: OptionType[];
   reservationUnitTypeOptions: OptionType[];
   paymentTermsOptions: OptionType[];
+  paymentTypeOptions: OptionType[];
   pricingTermsOptions: OptionType[];
   cancellationTermsOptions: OptionType[];
   serviceSpecificTermsOptions: OptionType[];
@@ -111,6 +114,7 @@ const requiredForNonFree = (then: Joi.SchemaLike) =>
     not: "FREE",
     then,
   });
+
 export const schema = Joi.object({
   reservationKind: Joi.string().required(),
   nameFi: Joi.string().required().max(80),
@@ -141,7 +145,7 @@ export const schema = Joi.object({
   pricingType: Joi.string().required(),
   lowestPrice: requiredForNonFree(Joi.number().required()),
   priceUnit: requiredForNonFree(Joi.string().required()),
-  paymentType: requiredForNonFree(Joi.string().required()),
+  paymentTypes: requiredForNonFree(Joi.array().min(1).required()),
   taxPercentagePk: requiredForNonFree(Joi.number().required()),
 }).options({
   allowUnknown: true,
