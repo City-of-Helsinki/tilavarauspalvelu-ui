@@ -128,12 +128,8 @@ const getSelectedOptions = (
   optionsPropertyName: string,
   valuePropName: string
 ): OptionType[] => {
-  console.log("getting payment options", valuePropName);
-
   const fullPropName = `reservationUnitEdit.${valuePropName}`;
   const options = get(state, optionsPropertyName);
-
-  console.log("options", options);
 
   if (!options || !get(state, fullPropName)) {
     return [];
@@ -566,8 +562,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         state={state.reservationUnit?.state as ReservationUnitState}
       />
     ) : undefined;
-
-  console.log("rendering with", state);
 
   return (
     <Wrapper key={JSON.stringify(state.validationErrors)}>
