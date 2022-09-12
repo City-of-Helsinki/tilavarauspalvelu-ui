@@ -510,6 +510,7 @@ const ReservationUnitReservation = ({
         });
         setFormStatus("sent");
         setStep(2);
+        setPendingReservation(null);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -541,13 +542,18 @@ const ReservationUnitReservation = ({
 
   if (
     isBrowser &&
+    step !== 2 &&
     (!reservationData?.pk || !reservationData?.begin || !reservationData?.end)
   ) {
     router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
     return null;
   }
 
-  const { pk: reservationPk, begin, end } = reservationData || {};
+  const {
+    pk: reservationPk,
+    begin,
+    end,
+  } = reservation || reservationData || {};
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -596,7 +602,6 @@ const ReservationUnitReservation = ({
         },
       },
     });
-    setPendingReservation(null);
   };
 
   const cancelReservation = () => {
@@ -674,7 +679,7 @@ const ReservationUnitReservation = ({
                 end={end}
                 state={formStatus === "sent" ? "complete" : "incomplete"}
                 isFree={!getPrice(reservationUnit)}
-                reservationPrice={reservationData.price}
+                reservationPrice={reservation?.price || reservationData?.price}
                 // taxPercentage={reservationUnit.taxPercentage}
               />
             </div>
