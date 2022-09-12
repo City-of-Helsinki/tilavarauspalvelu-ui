@@ -516,6 +516,7 @@ const ReservationUnit = ({
 
   useEffect(() => {
     if (storedReservation?.pk === reservationUnit.pk) {
+      setFocusDate(new Date(storedReservation.begin));
       window.scroll({
         top: calendarRef.current.offsetTop - 20,
         left: 0,
