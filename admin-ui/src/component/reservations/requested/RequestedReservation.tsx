@@ -355,6 +355,7 @@ const RequestedReservation = (): JSX.Element | null => {
               />
               <HorisontalFlex style={{ justifyContent: "flex-end" }}>
                 <Button
+                  size="small"
                   variant="secondary"
                   onClick={(e) => {
                     e.preventDefault();
@@ -364,6 +365,7 @@ const RequestedReservation = (): JSX.Element | null => {
                   {t("common.cancel")}
                 </Button>
                 <Button
+                  size="small"
                   onClick={async (e) => {
                     e.preventDefault();
                     try {
