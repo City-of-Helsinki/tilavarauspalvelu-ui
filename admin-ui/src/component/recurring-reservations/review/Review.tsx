@@ -115,11 +115,9 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
                 />
               </RecommendationValue>
               <Button
-                onClick={() =>
-                  window.open(`${window.location}/allocation`, "_blank")
-                }
+                onClick={() => window.open(`${window.location}/allocation`)}
               >
-                Jaa vuoroja
+                {t("ApplicationRound.allocate")}
               </Button>
             </div>
           </Header>

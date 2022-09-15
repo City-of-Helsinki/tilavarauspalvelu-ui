@@ -412,6 +412,7 @@ const translations: ITranslations = {
       applicationCount: ["Hakemukset"],
       sent: ["Lähetetty"],
     },
+    allocate: ["Jaa vuoroja"],
     applicationCount: ["hakemusta"],
     reservationUnitCount: ["varausyksikköä"],
     applicants: ["Hakukierroksen hakijat"],
