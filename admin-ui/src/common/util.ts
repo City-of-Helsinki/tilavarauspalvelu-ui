@@ -31,7 +31,7 @@ export const formatTime = (
   return date ? format(parseISO(date), outputFormat) : null;
 };
 
-export const formatDateTime = (date: string) =>
+export const formatDateTime = (date: string): string =>
   `${formatDate(date)} ${formatTime(date)}`;
 
 export const formatNumber = (
