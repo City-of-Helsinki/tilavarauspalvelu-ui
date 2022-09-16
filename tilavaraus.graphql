@@ -1499,6 +1499,7 @@ type Query {
     typeRankLte: Float = null
     reservationKind: String = null
     state: [String] = null
+    onlyWithPermission: Boolean = null
 
     """Järjestys"""
     orderBy: String = null
@@ -2636,6 +2637,7 @@ type ReservationUnitImageUpdateMutationPayload {
 }
 
 type ReservationUnitPaymentTypeType implements Node {
+  """Available values: ONLINE, INVOICE, ON_SITE"""
   code: String
 
   """The ID of the object"""
