@@ -49,18 +49,16 @@ type Props = {
   buttons?: JSX.Element;
 };
 
-const StickyHeader = ({ name, tagline, buttons }: Props) => {
-  return (
-    <Sticky>
-      <StickyContent>
-        <div>
-          <Name>{name}</Name>
-          <Tagline>{tagline}</Tagline>
-        </div>
-        <AlignVertically>{buttons}</AlignVertically>
-      </StickyContent>
-    </Sticky>
-  );
-};
+const StickyHeader = ({ name, tagline, buttons }: Props): JSX.Element => (
+  <Sticky>
+    <StickyContent>
+      <div>
+        <Name>{name}</Name>
+        <Tagline>{tagline}</Tagline>
+      </div>
+      <AlignVertically>{buttons}</AlignVertically>
+    </StickyContent>
+  </Sticky>
+);
 
 export default StickyHeader;
