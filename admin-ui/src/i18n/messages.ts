@@ -270,6 +270,7 @@ const translations: ITranslations = {
     noName: ["Ei nimeä"],
   },
   Application: {
+    id: ["Hakemnustunnus"],
     application: ["Hakemus", "Application"],
     application_plural: ["Hakemusta", "Applications"],
     applicantType: ["Asiakastyyppi"],
