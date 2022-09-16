@@ -97,6 +97,8 @@ import { isReservationUnitPublished } from "../../modules/reservationUnit";
 import EquipmentList from "../../components/reservation-unit/EquipmentList";
 import { daysByMonths } from "../../modules/const";
 import ReservationDetails from "../../components/calendar/ReservationDetails";
+import QuickReservation from "../../components/reservation-unit/QuickReservation";
+import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
@@ -419,7 +421,7 @@ const Subheading = styled(H4).attrs({ as: "h3" })<{ $withBorder?: boolean }>`
 `;
 
 const CalendarWrapper = styled.div`
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-layout-l);
   position: relative;
 `;
 
@@ -797,22 +799,27 @@ const ReservationUnit = ({
     setPendingReservation,
   ]);
 
-  const createReservation = (res: ReservationProps): void => {
-    setErrorMsg(null);
-    const { begin, end } = res;
-    const input: ReservationCreateMutationInput = {
-      begin,
-      end,
-      reservationUnitPks: [reservationUnit.pk],
-      reserveeLanguage: i18n.language,
-    };
+  const createReservation = useCallback(
+    (res: ReservationProps): void => {
+      setErrorMsg(null);
+      const { begin, end } = res;
+      const input: ReservationCreateMutationInput = {
+        begin,
+        end,
+        reservationUnitPks: [reservationUnit.pk],
+      };
 
-    addReservation({
-      variables: {
-        input,
-      },
-    });
-  };
+      setReservation({ begin, end, pk: reservationUnit.pk, price: null });
+      setStoredReservation(input as unknown as ReservationProps);
+
+      addReservation({
+        variables: {
+          input,
+        },
+      });
+    },
+    [addReservation, reservationUnit.pk, setReservation, setStoredReservation]
+  );
 
   const isReservationValid = (res: ReservationProps): boolean => {
     const { begin, end } = res || {};
@@ -858,6 +865,24 @@ const ReservationUnit = ({
     [reservationUnit]
   );
 
+  const quickReservationComponent = useMemo(() => {
+    return (
+      <QuickReservation
+        isSlotReservable={isSlotReservable}
+        isReservationUnitReservable={!isReservationQuotaReached}
+        createReservation={(res) => createReservation(res)}
+        reservationUnit={reservationUnit}
+        scrollPosition={calendarRef?.current?.offsetTop - 20}
+        setErrorMsg={setErrorMsg}
+      />
+    );
+  }, [
+    createReservation,
+    isReservationQuotaReached,
+    isSlotReservable,
+    reservationUnit,
+  ]);
+
   return reservationUnit ? (
     <Wrapper>
       <Head
@@ -868,6 +893,7 @@ const ReservationUnit = ({
       <Container>
         <TwoColumnLayout>
           <Left>
+            <JustForMobile>{quickReservationComponent}</JustForMobile>
             <Subheading>{t("reservationUnit:description")}</Subheading>
             <Content data-testid="reservation-unit__description">
               <Sanitize html={getTranslation(reservationUnit, "description")} />
@@ -1241,6 +1267,7 @@ const ReservationUnit = ({
             </Accordion>
           </Left>
           <div>
+            <JustForDesktop>{quickReservationComponent}</JustForDesktop>
             <Address reservationUnit={reservationUnit} />
           </div>
         </TwoColumnLayout>
