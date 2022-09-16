@@ -106,6 +106,7 @@ const NameState = styled.div`
     margin-bottom: 0;
   }
 `;
+
 const Tagline = styled.div`
   font-size: var(--fontsize-body-xl);
   margin-bottom: var(--spacing-xs);
@@ -337,7 +338,6 @@ const RequestedReservation = (): JSX.Element | null => {
             {t(`RequestedReservation.state.${reservation.state}`)}
           </AlignVertically>
         </NameState>
-
         <Tagline>{reservationTagline}</Tagline>
         <DateTime>
           {t("RequestedReservation.createdAt")}{" "}
