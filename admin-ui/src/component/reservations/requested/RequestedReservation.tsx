@@ -39,6 +39,7 @@ import { HorisontalFlex, VerticalFlex } from "../../../styles/layout";
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
+import { formatDateTime } from "../../../common/util";
 
 const Wrapper = styled.div`
   display: flex;
@@ -104,6 +105,15 @@ const NameState = styled.div`
     flex-direction: row;
     margin-bottom: 0;
   }
+`;
+const Tagline = styled.div`
+  font-size: var(--fontsize-body-xl);
+  margin-bottom: var(--spacing-xs);
+`;
+
+const DateTime = styled.div`
+  margin-bottom: var(--spacing-l);
+  font-size: var(--fontsize-body-s);
 `;
 
 const getName = (reservation: ReservationType) => {
@@ -328,9 +338,11 @@ const RequestedReservation = (): JSX.Element | null => {
           </AlignVertically>
         </NameState>
 
-        <div style={{ marginBottom: "var(--spacing-m)" }}>
-          {reservationTagline}
-        </div>
+        <Tagline>{reservationTagline}</Tagline>
+        <DateTime>
+          {t("RequestedReservation.createdAt")}{" "}
+          {formatDateTime(reservation.createdAt as string)}
+        </DateTime>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-l)" }}>
           {buttons}
         </HorisontalFlex>
@@ -356,7 +368,9 @@ const RequestedReservation = (): JSX.Element | null => {
             },
             {
               l: "purpose",
-              v: reservation.purpose ? `${reservation.purpose}` : undefined,
+              v: reservation.purpose
+                ? `${reservation.purpose.nameFi}`
+                : undefined,
             },
             { l: "description", v: reservation.description },
             {
