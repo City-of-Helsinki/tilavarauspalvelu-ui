@@ -19,7 +19,7 @@ import { ReservationProps } from "../../context/DataContext";
 import { ReservationUnitByPkType } from "../../modules/gql-types";
 import { getDurationOptions } from "../../modules/reservation";
 import { getPrice } from "../../modules/reservationUnit";
-import { fontMedium, H4, Strong } from "../../modules/style/typography";
+import { fontBold, fontMedium, H4 } from "../../modules/style/typography";
 import { formatDate } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
 import Carousel from "../Carousel";
@@ -32,6 +32,7 @@ type Props = {
   scrollPosition: number;
   isSlotReservable: (arg1: Date, arg2: Date, arg3?: boolean) => boolean;
   setErrorMsg: (arg: string) => void;
+  idPrefix: string;
 };
 
 const mobileBreakpoint = "400px";
@@ -68,7 +69,7 @@ const Selects = styled.div`
       grid-column: unset;
     }
 
-    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 `;
 
@@ -83,7 +84,20 @@ const StyledTimeInput = styled(TimeInput)`
 `;
 
 const Price = styled.div`
-  margin-bottom: var(--spacing-m);
+  display: flex;
+  flex-direction: row;
+  align-self: flex-end;
+  gap: var(--spacing-3-xs);
+  padding-bottom: var(--spacing-3-xs);
+  grid-column: -1/1;
+
+  @media (min-width: ${mobileBreakpoint}) {
+    grid-column: unset;
+  }
+`;
+
+const PriceValue = styled.div`
+  ${fontBold}
 `;
 
 const Subheading = styled.div`
@@ -147,7 +161,9 @@ const SlotButton = styled.button`
   user-select: none;
 `;
 
-const CarouselButton = styled(Button)<{
+const CarouselButton = styled(Button).attrs({
+  "data-testid": "slot-carousel-button",
+})<{
   $disabled: boolean;
   $side: "left" | "right";
 }>`
@@ -205,11 +221,9 @@ const NoTimes = styled.div`
     ${fontMedium};
   }
 
-  @media (min-width: ${mobileBreakpoint}) {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--spacing-m);
-  }
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-m);
 `;
 
 const CalendarLink = styled.a`
@@ -234,6 +248,7 @@ const QuickReservation = ({
   reservationUnit,
   scrollPosition,
   setErrorMsg,
+  idPrefix,
 }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
@@ -268,6 +283,7 @@ const QuickReservation = ({
     durationOptions.find((n) => n.value === "1:00") || durationOptions[0]
   );
   const [slot, setSlot] = useState<string | null>(null);
+  const [isReserving, setIsReserving] = useState(false);
 
   const price: string = useMemo(() => {
     const [hours, minutes] = duration?.value.toString().split(":").map(Number);
@@ -406,11 +422,11 @@ const QuickReservation = ({
   }
 
   return (
-    <Wrapper>
+    <Wrapper id={`quick-reservation-${idPrefix}`}>
       <Heading>{t("reservationCalendar:quickReservation.heading")}</Heading>
       <Selects>
         <DateInput
-          id="quick-reservation-date"
+          id={`${idPrefix}-quick-reservation-date`}
           label={t("reservationCalendar:quickReservation.date")}
           initialMonth={new Date()}
           language={i18n.language as Language}
@@ -421,7 +437,7 @@ const QuickReservation = ({
         />
         <StyledTimeInput
           key={`timeInput-${time}`}
-          id="quick-reservation-time"
+          id={`${idPrefix}-quick-reservation-time`}
           label={t("reservationCalendar:quickReservation.time")}
           hoursLabel={t("common:hours")}
           minutesLabel={t("common:minutes")}
@@ -441,21 +457,18 @@ const QuickReservation = ({
 
         <StyledSelect
           key={`durationSelect-${duration.value}`}
-          id="quick-reservation-duration"
+          id={`${idPrefix}-quick-reservation-duration`}
           label={t("reservationCalendar:quickReservation.duration")}
           options={durationOptions}
           onChange={(val: OptionType) => setDuration(val)}
           defaultValue={duration}
         />
+        {price && slot && (
+          <Price data-testid="quick-reservation-price">
+            {t("reservationUnit:price")}: <PriceValue>{price}</PriceValue>
+          </Price>
+        )}
       </Selects>
-      {price && (
-        <Price>
-          {t("reservationUnit:price")}:{" "}
-          <Strong>
-            {price} {t("prices:priceFree") === price ? "" : "€"}
-          </Strong>
-        </Price>
-      )}
       <Subheading>
         {t("reservationCalendar:quickReservation.subheading")}
       </Subheading>
@@ -472,6 +485,7 @@ const QuickReservation = ({
                   {chunk.map((val: string) => (
                     <Slot $active={slot === val} key={val}>
                       <SlotButton
+                        data-testid="quick-reservation-slot"
                         onClick={() => setSlot(slot === val ? null : val)}
                       >
                         {val}
@@ -481,7 +495,7 @@ const QuickReservation = ({
                   {availableTimes(date).length > timeItems &&
                     index + 1 === timeChunks.length && (
                       <CalendarLink
-                        href="#"
+                        href="javascript:void(0)"
                         onClick={() => {
                           window.scroll({
                             top: scrollPosition,
@@ -504,7 +518,8 @@ const QuickReservation = ({
             {nextAvailableTime && (
               <span>
                 <a
-                  href="#"
+                  data-testid="quick-reservation-next-available-time"
+                  href="javascript:void(0)"
                   onClick={() => {
                     const nextTime = toUIDate(nextAvailableTime, "HH:mm");
                     nextAvailableTime.setHours(0, 0, 0, 0);
@@ -528,11 +543,12 @@ const QuickReservation = ({
           componentIfAuthenticated={
             isReservationUnitReservable && (
               <MediumButton
-                disabled={!slot}
+                disabled={!slot || isReserving}
                 onClick={() => {
+                  setIsReserving(true);
                   createReservation(localReservation);
                 }}
-                data-test="reservation__button--submit"
+                data-test="quick-reservation__button--submit"
               >
                 {t("reservationCalendar:makeReservation")}
               </MediumButton>
