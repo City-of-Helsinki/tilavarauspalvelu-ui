@@ -44,6 +44,7 @@ import {
   getReservationUnitName,
   getUnitName,
 } from "../../modules/reservationUnit";
+import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
 
 type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
@@ -90,8 +91,11 @@ const Spinner = styled(CenterSpinner)`
 `;
 
 const Head = styled.div`
-  padding: var(--spacing-layout-m) 0 0;
   background-color: var(--color-white);
+`;
+
+const StyledBreadcrumbWrapper = styled(BreadcrumbWrapper)`
+  padding: 0;
 `;
 
 const HeadWrapper = styled(NarrowCenteredContainer)`
@@ -234,6 +238,11 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     return isReservationCancelled ? "error" : "complete";
   }, [isBeingHandled, isReservationCancelled]);
 
+  const reservationNumber = useMemo(
+    () => String(reservation?.pk).padStart(10, "0"),
+    [reservation?.pk]
+  );
+
   if (!reservation) {
     return <Spinner />;
   }
@@ -244,11 +253,6 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     homeCity: reservation.homeCity?.name,
   };
 
-  const headingSlug = isReservationCancelled
-    ? "reservations:reservationCancelledTitle"
-    : isBeingHandled
-    ? "reservationApplication:applicationInfo"
-    : "reservationCalendar:reservationInfo";
   const subHeadingSlug = isBeingHandled
     ? "reservationApplication:applicationSummary"
     : "reservationCalendar:reservationSummary";
@@ -260,6 +264,13 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     <>
       <Head>
         <HeadWrapper>
+          <StyledBreadcrumbWrapper
+            route={[
+              "",
+              "/reservations",
+              t("reservations:reservationName", { id: reservationNumber }),
+            ]}
+          />
           <HeadColumns>
             <Ticket
               state={ticketState}
@@ -271,7 +282,9 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
               reservationPrice={reservation.price}
             />
             <div>
-              <Heading>{t(headingSlug)}</Heading>
+              <Heading>
+                {t("reservations:reservationName", { id: reservationNumber })}
+              </Heading>
               <Actions>
                 <MediumButton
                   variant="secondary"
