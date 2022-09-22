@@ -22,7 +22,6 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   EquipmentCategoryType,
   ReservationUnitsReservationUnitReservationKindChoices,
-  ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitsReservationUnitPricingPriceUnitChoices,
   ReservationUnitsReservationUnitPricingStatusChoices,
 } from "../../modules/gql-types";
