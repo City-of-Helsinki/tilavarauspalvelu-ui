@@ -1,3 +1,4 @@
+import { toUIDate } from "common/src/common/util";
 import { addDays, addHours, addMinutes, format } from "date-fns";
 import {
   hzNavigationBack,
@@ -44,6 +45,7 @@ import {
   equipment,
   paymentAndCancellationTerms,
   reservationInfo,
+  reservationNotice,
   termsOfUse,
 } from "model/reservation-unit";
 import { textWithIcon } from "model/search";
@@ -153,6 +155,14 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       );
       reservationInfo().contains(
         "Sinulla voi olla samanaikaisesti enintään yksi varaus."
+      );
+
+      reservationNotice().click();
+      reservationNotice().contains(
+        `Huomioi hinnoittelumuutos ${toUIDate(addDays(new Date(), 1))} alkaen.`
+      );
+      reservationNotice().contains(
+        "Uusi hinta on 10 - 30 € / 15 min (sis. alv. 20%)."
       );
 
       paymentAndCancellationTerms().find("> button").contains("Peruutusehdot");

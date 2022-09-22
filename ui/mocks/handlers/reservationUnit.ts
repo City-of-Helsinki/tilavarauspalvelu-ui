@@ -22,6 +22,9 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   EquipmentCategoryType,
   ReservationUnitsReservationUnitReservationKindChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  ReservationUnitsReservationUnitPricingPriceUnitChoices,
+  ReservationUnitsReservationUnitPricingStatusChoices,
 } from "../../modules/gql-types";
 
 const equipmentCategories: EquipmentCategoryType[] = [
@@ -121,6 +124,20 @@ const selectedReservationUnitQuery = graphql.query<
     lowestPrice: 20,
     highestPrice: 20,
     priceUnit: "PER_15_MINS" as ReservationUnitsReservationUnitPriceUnitChoices,
+    pricings: [
+      {
+        begins: addDays(new Date(), 1),
+        lowestPrice: 10,
+        highestPrice: 30,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        taxPercentage: {
+          id: "goier1",
+          value: 20,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+    ],
     descriptionFi:
       "<p>Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkil&ouml;&auml;..</p> Fi",
     descriptionEn:

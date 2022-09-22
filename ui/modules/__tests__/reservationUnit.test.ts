@@ -1,16 +1,25 @@
-import { get as mockGet } from "lodash";
-import { addMinutes } from "date-fns";
-import { ReservationState, ReservationUnit } from "common/types/common";
+import { cloneDeep, get as mockGet } from "lodash";
+import { addDays, addMinutes } from "date-fns";
+import {
+  ApplicationRound,
+  ReservationState,
+  ReservationUnit,
+} from "common/types/common";
+import { toUIDate } from "common/src/common/util";
 import {
   EquipmentType,
   ReservationsReservationStateChoices,
   ReservationUnitByPkType,
+  ReservationUnitsReservationUnitPricingPriceUnitChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  ReservationUnitsReservationUnitPricingStatusChoices,
   ReservationUnitType,
   UnitType,
 } from "../gql-types";
 import {
   getEquipmentCategories,
   getEquipmentList,
+  getFuturePricing,
   getOldReservationUnitName,
   getPrice,
   getReservationUnitInstructionsKey,
@@ -668,5 +677,197 @@ describe("getReservationUnitInstructionsKey", () => {
     expect(getReservationUnitInstructionsKey("" as ReservationState)).toEqual(
       null
     );
+  });
+});
+
+describe("getFuturePricing", () => {
+  const reservationUnit: ReservationUnitByPkType = {
+    pricingType: "PAID",
+    priceUnit: "PER_HOUR",
+    lowestPrice: 0,
+    highestPrice: 10,
+    taxPercentage: {
+      value: 24,
+    },
+    openingHours: {
+      openingTimePeriods: [
+        {
+          startDate: new Date(),
+          endDate: addDays(new Date(), 300),
+        },
+      ],
+    },
+    pricings: [
+      {
+        pk: 1,
+        begins: toUIDate(addDays(new Date(), 10), "yyyy-MM-dd"),
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.PerHour,
+        lowestPrice: 0,
+        highestPrice: 10,
+        taxPercentage: {
+          id: "1",
+          value: 24,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pk: 2,
+        begins: toUIDate(addDays(new Date(), 20), "yyyy-MM-dd"),
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.PerHour,
+        lowestPrice: 0,
+        highestPrice: 10,
+        taxPercentage: {
+          id: "1",
+          value: 24,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pk: 3,
+        begins: toUIDate(addDays(new Date(), 5), "yyyy-MM-dd"),
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.PerHour,
+        lowestPrice: 0,
+        highestPrice: 10,
+        taxPercentage: {
+          id: "1",
+          value: 24,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+    ],
+  } as ReservationUnitByPkType;
+
+  it("should sort items correctly", () => {
+    const data = cloneDeep(reservationUnit);
+    expect(getFuturePricing(data)).toEqual(null);
+
+    data.pricings[2].taxPercentage.value = 22;
+    expect(getFuturePricing(data)).toEqual(data.pricings[2]);
+
+    data.pricings[2].taxPercentage.value = 24;
+    data.pricings[1].lowestPrice = 5;
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+  });
+
+  it("should return null if no future pricing", () => {
+    const data = cloneDeep(reservationUnit);
+
+    expect(getFuturePricing(data)).toEqual(null);
+
+    data.pricings[0].highestPrice = 20;
+    expect(getFuturePricing(data)).toEqual(data.pricings[0]);
+    data.pricings[0].status =
+      ReservationUnitsReservationUnitPricingStatusChoices.Active;
+    expect(getFuturePricing(data)).toEqual(null);
+
+    // data.pricings[1].pricingType =
+    //   ReservationUnitsReservationUnitPricingPricingTypeChoices.Free;
+    // expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+    data.pricings[1].status =
+      ReservationUnitsReservationUnitPricingStatusChoices.Past;
+
+    expect(getFuturePricing(data)).toEqual(null);
+
+    expect(getFuturePricing({} as ReservationUnitByPkType)).toEqual(null);
+  });
+
+  it("with reservation begin time", () => {
+    const data = cloneDeep(reservationUnit);
+
+    data.pricings[1].lowestPrice = 5;
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.reservationBegins = addDays(new Date(), 19).toISOString();
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.reservationBegins = addDays(new Date(), 20).toISOString();
+    expect(getFuturePricing(data)).toEqual(null);
+  });
+
+  it("with reservation end time", () => {
+    const data = cloneDeep(reservationUnit);
+
+    data.pricings[1].highestPrice = 5;
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.reservationEnds = addDays(new Date(), 19).toISOString();
+    expect(getFuturePricing(data)).toEqual(null);
+
+    data.reservationEnds = addDays(new Date(), 20).toISOString();
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+  });
+
+  it("with both reservation times", () => {
+    const data = cloneDeep(reservationUnit);
+
+    data.pricings[1].taxPercentage.value = 5;
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.reservationBegins = addDays(new Date(), 1).toISOString();
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.reservationEnds = addDays(new Date(), 20).toISOString();
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+  });
+
+  it("with opening time periods", () => {
+    const data = cloneDeep(reservationUnit);
+
+    expect(getFuturePricing(data)).toEqual(null);
+
+    data.pricings[1].lowestPrice = 5;
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.openingHours.openingTimePeriods = [];
+    expect(getFuturePricing(data)).toEqual(null);
+
+    data.openingHours.openingTimePeriods.push({
+      startDate: addDays(new Date(), 1),
+      endDate: addDays(new Date(), 20),
+    });
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.openingHours.openingTimePeriods[0].startDate = null;
+    expect(getFuturePricing(data)).toEqual(null);
+
+    data.openingHours.openingTimePeriods[0].startDate = new Date();
+    expect(getFuturePricing(data)).toEqual(data.pricings[1]);
+
+    data.openingHours.openingTimePeriods[0].endDate = null;
+    expect(getFuturePricing(data)).toEqual(null);
+  });
+
+  it("handles active application rounds", () => {
+    const data = cloneDeep(reservationUnit);
+    const applicationRounds = [{} as ApplicationRound];
+
+    data.pricings[1].lowestPrice = 5;
+    expect(getFuturePricing(data, applicationRounds)).toEqual(data.pricings[1]);
+
+    applicationRounds[0] = {
+      reservationPeriodBegin: addDays(new Date(), 1).toISOString(),
+    } as ApplicationRound;
+    expect(getFuturePricing(data, applicationRounds)).toEqual(data.pricings[1]);
+
+    applicationRounds[0] = {
+      reservationPeriodBegin: addDays(new Date(), 1).toISOString(),
+      reservationPeriodEnd: addDays(new Date(), 19).toISOString(),
+    } as ApplicationRound;
+    expect(getFuturePricing(data, applicationRounds)).toEqual(data.pricings[1]);
+
+    applicationRounds[0] = {
+      reservationPeriodBegin: addDays(new Date(), 1).toISOString(),
+      reservationPeriodEnd: addDays(new Date(), 20).toISOString(),
+    } as ApplicationRound;
+    expect(getFuturePricing(data, applicationRounds)).toEqual(null);
   });
 });

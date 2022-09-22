@@ -23,6 +23,9 @@ export const RESERVATION_UNIT = gql`
       lowestPrice
       highestPrice
       priceUnit
+      taxPercentage {
+        value
+      }
       termsOfUseFi
       termsOfUseEn
       termsOfUseSv
@@ -128,6 +131,16 @@ export const RESERVATION_UNIT = gql`
         }
       }
       allowReservationsWithoutOpeningHours
+      pricings {
+        begins
+        priceUnit
+        lowestPrice
+        highestPrice
+        taxPercentage {
+          value
+        }
+        status
+      }
     }
   }
 `;
