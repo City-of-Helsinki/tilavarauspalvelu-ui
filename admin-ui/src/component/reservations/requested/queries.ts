@@ -19,6 +19,7 @@ export const RESERVATION_QUERY = gql`
       createdAt
       workingMemo
       reservationUnits {
+        pk
         nameFi
         unit {
           nameFi
@@ -112,6 +113,25 @@ export const RESERVATION_DENY_REASONS = gql`
         node {
           pk
           reasonFi
+        }
+      }
+    }
+  }
+`;
+
+export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
+  query reservationsByReservationUnit($reservationUnit: [ID]) {
+    reservations(reservationUnit: $reservationUnit) {
+      edges {
+        node {
+          name
+          reserveeFirstName
+          reserveeLastName
+          reserveeOrganisationName
+          pk
+          begin
+          end
+          state
         }
       }
     }
