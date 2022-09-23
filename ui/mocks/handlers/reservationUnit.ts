@@ -1,6 +1,7 @@
 import { addDays, addMinutes, endOfWeek, set } from "date-fns";
 import { graphql, rest } from "msw";
-import { toApiDate } from "common/src/common/util";
+import { toApiDate, toUIDate } from "common/src/common/util";
+import { ReservationUnitsReservationUnitPricingTypeChoices } from "common/types/gql-types";
 import { Parameter } from "common/types/common";
 import {
   OpeningTimesType,
@@ -24,6 +25,7 @@ import {
   ReservationUnitsReservationUnitReservationKindChoices,
   ReservationUnitsReservationUnitPricingPriceUnitChoices,
   ReservationUnitsReservationUnitPricingStatusChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
 } from "../../modules/gql-types";
 
 const equipmentCategories: EquipmentCategoryType[] = [
@@ -123,16 +125,33 @@ const selectedReservationUnitQuery = graphql.query<
     lowestPrice: 20,
     highestPrice: 20,
     priceUnit: "PER_15_MINS" as ReservationUnitsReservationUnitPriceUnitChoices,
+    pricingType: ReservationUnitsReservationUnitPricingTypeChoices.Paid,
     pricings: [
       {
-        begins: addDays(new Date(), 1),
+        begins: toUIDate(addDays(new Date(), 2), "yyyy-MM-dd"),
         lowestPrice: 10,
         highestPrice: 30,
         priceUnit:
           ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
         taxPercentage: {
           id: "goier1",
           value: 20,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        begins: toUIDate(addDays(new Date(), 3), "yyyy-MM-dd"),
+        lowestPrice: 20,
+        highestPrice: 50,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        taxPercentage: {
+          id: "goier1",
+          value: 24,
         },
         status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
       },
@@ -605,6 +624,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         highestPrice: 20,
         priceUnit:
           "PER_HOUR" as ReservationUnitsReservationUnitPriceUnitChoices,
+        pricingType:
+          "PAID" as ReservationUnitsReservationUnitPricingTypeChoices,
         unit: {
           id: "VW5pdFR5cGU6Nw==",
           pk: 7,
@@ -681,6 +702,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         highestPrice: 30,
         priceUnit:
           "PER_WEEK" as ReservationUnitsReservationUnitPriceUnitChoices,
+        pricingType:
+          "PAID" as ReservationUnitsReservationUnitPricingTypeChoices,
         images: [
           {
             imageUrl:

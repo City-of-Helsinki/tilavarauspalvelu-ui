@@ -23,6 +23,7 @@ export const RESERVATION_UNIT = gql`
       lowestPrice
       highestPrice
       priceUnit
+      pricingType
       taxPercentage {
         value
       }
@@ -134,6 +135,7 @@ export const RESERVATION_UNIT = gql`
       pricings {
         begins
         priceUnit
+        pricingType
         lowestPrice
         highestPrice
         taxPercentage {
@@ -190,6 +192,7 @@ export const RESERVATION_UNITS = gql`
           lowestPrice
           highestPrice
           priceUnit
+          pricingType
           nameFi
           reservationBegins
           reservationEnds

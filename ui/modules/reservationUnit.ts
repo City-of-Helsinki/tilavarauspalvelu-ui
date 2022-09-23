@@ -27,7 +27,8 @@ export const getPrice = (
   minutes?: number, // additional minutes for total price calculation
   trailingZeros = false
 ): string => {
-  const unit = reservationUnit.priceUnit as string;
+  const unit = reservationUnit.priceUnit;
+  const type = reservationUnit.pricingType;
   const volume = getReservationVolume(minutes, unit);
   const currencyFormatter = trailingZeros ? "currencyWithDecimals" : "currency";
   const floatFormatter = trailingZeros ? "twoDecimals" : "strippedDecimal";
@@ -37,7 +38,7 @@ export const getPrice = (
 
   const formatters = getFormatters(i18n.language);
 
-  if (parseFloat(reservationUnit.highestPrice)) {
+  if (type === "PAID" && parseFloat(reservationUnit.highestPrice)) {
     if (unit === "FIXED") {
       return formatters[currencyFormatter].format(reservationUnit.highestPrice);
     }
@@ -192,11 +193,12 @@ export const getDurationRange = (
 
 export const getFuturePricing = (
   reservationUnit: ReservationUnitByPkType,
-  applicationRounds: ApplicationRound[] = []
+  applicationRounds: ApplicationRound[] = [],
+  reservationDate?: Date
 ): ReservationUnitPricingType => {
   const {
     pricings,
-    // pricingType,
+    pricingType,
     priceUnit,
     lowestPrice,
     highestPrice,
@@ -220,7 +222,7 @@ export const getFuturePricing = (
     )
     .filter(
       (futurePricing) =>
-        // pricingType !== futurePricing.pricingType?.toString() ||
+        pricingType !== futurePricing.pricingType?.toString() ||
         priceUnit !== futurePricing.priceUnit?.toString() ||
         lowestPrice !== futurePricing.lowestPrice ||
         highestPrice !== futurePricing.highestPrice ||
@@ -258,5 +260,28 @@ export const getFuturePricing = (
     })
     .sort((a, b) => (a.begins > b.begins ? 1 : -1));
 
-  return futurePricings?.length > 0 ? futurePricings[0] : null;
+  if (futurePricings.length === 0) {
+    return null;
+  }
+
+  return reservationDate
+    ? futurePricings.reverse().find((n) => {
+        return n.begins <= toUIDate(new Date(reservationDate), "yyyy-MM-dd");
+      })
+    : futurePricings[0];
+};
+
+export const getReservationUnitPrice = (
+  reservationUnit: ReservationUnitByPkType,
+  date?: Date,
+  minutes?: number,
+  trailingZeros = false
+): string => {
+  if (!reservationUnit) return null;
+
+  const pricing = date
+    ? getFuturePricing(reservationUnit, [], date) || reservationUnit
+    : reservationUnit;
+
+  return getPrice(pricing, minutes, trailingZeros);
 };

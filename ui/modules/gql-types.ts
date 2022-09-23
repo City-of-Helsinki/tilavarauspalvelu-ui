@@ -5255,6 +5255,10 @@ export const ReservationUnitDocument = gql`
       lowestPrice
       highestPrice
       priceUnit
+      pricingType
+      taxPercentage {
+        value
+      }
       termsOfUseFi
       termsOfUseEn
       termsOfUseSv
@@ -5346,6 +5350,17 @@ export const ReservationUnitDocument = gql`
         }
       }
       allowReservationsWithoutOpeningHours
+      pricings {
+        begins
+        priceUnit
+        pricingType
+        lowestPrice
+        highestPrice
+        taxPercentage {
+          value
+        }
+        status
+      }
     }
   }
 `;
@@ -5445,6 +5460,7 @@ export const SearchReservationUnitsDocument = gql`
           lowestPrice
           highestPrice
           priceUnit
+          pricingType
           nameFi
           reservationBegins
           reservationEnds
@@ -6347,6 +6363,7 @@ export type ReservationUnitQuery = {
     lowestPrice: any;
     highestPrice: any;
     priceUnit: ReservationUnitsReservationUnitPriceUnitChoices;
+    pricingType?: ReservationUnitsReservationUnitPricingTypeChoices | null;
     termsOfUseFi?: string | null;
     termsOfUseEn?: string | null;
     termsOfUseSv?: string | null;
@@ -6383,6 +6400,7 @@ export type ReservationUnitQuery = {
       smallUrl?: string | null;
       imageType: ReservationUnitsReservationUnitImageImageTypeChoices;
     } | null> | null;
+    taxPercentage?: { __typename?: "TaxPercentageType"; value: any } | null;
     serviceSpecificTerms?: {
       __typename?: "TermsOfUseType";
       textFi?: string | null;
@@ -6456,6 +6474,16 @@ export type ReservationUnitQuery = {
         nameSv?: string | null;
       } | null;
     } | null> | null;
+    pricings?: Array<{
+      __typename?: "ReservationUnitPricingType";
+      begins: any;
+      priceUnit: ReservationUnitsReservationUnitPricingPriceUnitChoices;
+      pricingType?: ReservationUnitsReservationUnitPricingPricingTypeChoices | null;
+      lowestPrice: any;
+      highestPrice: any;
+      status: ReservationUnitsReservationUnitPricingStatusChoices;
+      taxPercentage: { __typename?: "TaxPercentageType"; value: any };
+    } | null> | null;
   } | null;
 };
 
@@ -6501,6 +6529,7 @@ export type SearchReservationUnitsQuery = {
         lowestPrice: any;
         highestPrice: any;
         priceUnit: ReservationUnitsReservationUnitPriceUnitChoices;
+        pricingType?: ReservationUnitsReservationUnitPricingTypeChoices | null;
         reservationBegins?: any | null;
         reservationEnds?: any | null;
         maxPersons?: number | null;
