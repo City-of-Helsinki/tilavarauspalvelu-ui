@@ -384,7 +384,13 @@ const PaddedContent = styled(Content)`
   padding-top: var(--spacing-m);
 `;
 
-const CalendarFooter = styled.div`
+const CalendarFooter = styled.div<{ $isCookieHubBannerActive: boolean }>`
+  position: sticky;
+  bottom: ${({ $isCookieHubBannerActive }) =>
+    $isCookieHubBannerActive ? "92px" : 0};
+  background-color: var(--color-white);
+  z-index: var(--tilavaraus-stack-order-sticky-container);
+
   display: flex;
   flex-direction: column-reverse;
 
@@ -855,6 +861,26 @@ const ReservationUnit = ({
     ]
   );
 
+  const [isCookiehubBannerVisible, setIsCookiehubBannerVisible] =
+    useState(false);
+
+  const onScroll = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const isBannerVisible = (window as any).cookiehub?.hasAnswered() === false;
+    setIsCookiehubBannerVisible(isBannerVisible);
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).cookiehub) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
   return reservationUnit ? (
     <Wrapper>
       <Head
@@ -971,7 +997,9 @@ const ReservationUnit = ({
                   />
                 </div>
                 <Legend wrapBreakpoint={breakpoints.l} />
-                <CalendarFooter>
+                <CalendarFooter
+                  $isCookieHubBannerActive={isCookiehubBannerVisible}
+                >
                   <ReservationInfo
                     reservationUnit={reservationUnit}
                     begin={initialReservation?.begin}

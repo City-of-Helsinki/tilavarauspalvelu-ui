@@ -286,7 +286,8 @@ const QuickReservation = ({
   const [isReserving, setIsReserving] = useState(false);
 
   const price: string = useMemo(() => {
-    const [hours, minutes] = duration?.value.toString().split(":").map(Number);
+    const [hours, minutes] =
+      duration?.value.toString().split(":").map(Number) || [];
     const length = hours * 60 + minutes;
     return getPrice(reservationUnit, length);
   }, [duration?.value, reservationUnit]);
@@ -325,10 +326,8 @@ const QuickReservation = ({
 
   useEffect(() => {
     if (date && duration?.value && slot) {
-      const [durationHours, durationMinutes] = duration?.value
-        .toString()
-        .split(":")
-        .map(Number);
+      const [durationHours, durationMinutes] =
+        duration?.value.toString().split(":").map(Number) || [];
       const [slotHours, slotMinutes] = slot.split(":").map(Number);
       const begin = new Date(date);
       begin.setHours(slotHours, slotMinutes, 0, 0);
@@ -344,10 +343,8 @@ const QuickReservation = ({
 
   const availableTimes = useCallback(
     (day: Date, fromStartOfDay = false): string[] => {
-      const [durationHours, durationMinutes] = duration?.value
-        .toString()
-        .split(":")
-        .map(Number);
+      const [durationHours, durationMinutes] =
+        duration?.value.toString().split(":").map(Number) || [];
       const [timeHours, timeMinutesRaw] = fromStartOfDay
         ? [0, 0]
         : time.split(":").map(Number);
