@@ -1112,6 +1112,7 @@ const translations: ITranslations = {
         PAID: ["Maksullinen"],
         FREE: ["Maksuton"],
       },
+      priceChange: ["Hintaan on tulossa muutos"],
     },
 
     tooltip: {

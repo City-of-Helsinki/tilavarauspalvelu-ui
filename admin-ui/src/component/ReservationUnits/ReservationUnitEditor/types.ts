@@ -4,6 +4,7 @@ import {
   Query,
   ReservationUnitByPkType,
   ReservationUnitCreateMutationInput,
+  ReservationUnitPricingUpdateSerializerInput,
   ReservationUnitsReservationUnitImageImageTypeChoices,
   ReservationUnitUpdateMutationInput,
   ResourceType,
@@ -28,6 +29,7 @@ export type Action =
       notification: NotificationType;
     }
   | { type: "clearNotification" }
+  | { type: "toggleFuturePrice" }
   | { type: "clearError" }
   | { type: "dataLoaded"; reservationUnit: ReservationUnitByPkType }
   | { type: "unitLoaded"; unit: UnitByPkType }
@@ -40,6 +42,10 @@ export type Action =
   | { type: "setResources"; resources: OptionType[] }
   | { type: "setEquipments"; equipments: OptionType[] }
   | { type: "setPaymentTypes"; paymentTypes: OptionType[] }
+  | {
+      type: "updatePricingType";
+      pricingType: ReservationUnitPricingUpdateSerializerInput;
+    }
   | { type: "setPurposes"; purposes: OptionType[] }
   | { type: "setQualifiers"; qualifiers: OptionType[] }
   | { type: "parametersLoaded"; parameters: Query }
@@ -113,6 +119,14 @@ const requiredForNonFree = (then: Joi.SchemaLike) =>
     then,
   });
 
+const pricing = Joi.object({
+  pricingType: Joi.string().required(),
+  lowestPrice: requiredForNonFree(Joi.number().required()),
+  priceUnit: requiredForNonFree(Joi.string().required()),
+  paymentTypes: requiredForNonFree(Joi.array().min(1).required()),
+  taxPercentagePk: requiredForNonFree(Joi.number().required()),
+});
+
 export const schema = Joi.object({
   reservationKind: Joi.string().required(),
   nameFi: Joi.string().required().max(80),
@@ -140,11 +154,7 @@ export const schema = Joi.object({
   additionalInstructionsFi: Joi.string().allow("").max(10000),
   additionalInstructionsSv: Joi.string().allow("").max(10000),
   additionalInstructionsEn: Joi.string().allow("").max(10000),
-  pricingType: Joi.string().required(),
-  lowestPrice: requiredForNonFree(Joi.number().required()),
-  priceUnit: requiredForNonFree(Joi.string().required()),
-  paymentTypes: requiredForNonFree(Joi.array().min(1).required()),
-  taxPercentagePk: requiredForNonFree(Joi.number().required()),
+  pricings: Joi.array().items(pricing),
 }).options({
   allowUnknown: true,
   abortEarly: false,

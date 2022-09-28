@@ -1,11 +1,15 @@
 import i18next from "i18next";
-import { get, pick, sumBy, uniq, upperFirst } from "lodash";
+import { get, pick, sortBy, sumBy, uniq, upperFirst } from "lodash";
+import { addDays, format } from "date-fns";
 import { paymentTypes } from "common/types/common";
 import { languages } from "../../../common/const";
 import {
   Query,
   ReservationUnitImageType,
+  ReservationUnitPricingCreateSerializerInput,
+  ReservationUnitPricingUpdateSerializerInput,
   ReservationUnitsReservationUnitImageImageTypeChoices,
+  ReservationUnitsReservationUnitPricingStatusChoices,
   ResourceType,
   SpaceType,
   TermsOfUseTermsOfUseTermsTypeChoices,
@@ -201,6 +205,27 @@ export const reducer = (state: State, action: Action): State => {
           paymentTermsPk: get(reservationUnit, "paymentTerms.pk"),
           paymentTypes: (reservationUnit.paymentTypes || []).map(
             (p) => p?.code as string
+          ),
+          pricings: sortBy(
+            (reservationUnit.pricings || []).map(
+              (pricing): ReservationUnitPricingUpdateSerializerInput => ({
+                ...(pick(pricing, [
+                  "begins",
+                  "priceUnit",
+                  "pricingType",
+                  "status",
+                  "pk",
+                ]) as ReservationUnitPricingUpdateSerializerInput),
+                taxPercentagePk: pricing?.taxPercentage.pk as number,
+                highestPrice: Number(pricing?.highestPrice),
+                lowestPrice: Number(pricing?.lowestPrice),
+              })
+            ),
+            (i) =>
+              i?.status ===
+              ReservationUnitsReservationUnitPricingStatusChoices.Active
+                ? -1
+                : +1
           ),
           pricingTermsPk: get(reservationUnit, "pricingTerms.pk"),
           reservationUnitTypePk: get(reservationUnit, "reservationUnitType.pk"),
@@ -418,9 +443,42 @@ export const reducer = (state: State, action: Action): State => {
         paymentTypes: action.paymentTypes.map((ot) => ot.value as string),
       });
     }
+    case "updatePricingType": {
+      console.log(
+        "updating pricing type",
+        action.pricingType,
+        "current pricings",
+        state.reservationUnitEdit.pricings
+      );
+      return modifyEditorState(state, {
+        pricings: (state.reservationUnitEdit.pricings || []).map(
+          (pricingType) => {
+            if (pricingType?.status === action.pricingType.status) {
+              return action.pricingType;
+            }
+            return pricingType;
+          }
+        ),
+      });
+    }
+
     case "setPurposes": {
       return modifyEditorState(state, {
         purposePks: action.purposes.map((ot) => ot.value as number),
+      });
+    }
+    case "toggleFuturePrice": {
+      const currentPricings = state.reservationUnitEdit.pricings || [];
+      const hasFuturePrice = !!currentPricings.find(
+        (p) => p?.status === "FUTURE"
+      );
+      return modifyEditorState(state, {
+        pricings: hasFuturePrice
+          ? (currentPricings || []).filter((p) => get(p, "status") !== "FUTURE")
+          : currentPricings.concat({
+              status: "FUTURE",
+              begins: format(addDays(new Date(), 30), "yyyy-MM-dd"),
+            } as ReservationUnitPricingCreateSerializerInput),
       });
     }
     case "setQualifiers": {
