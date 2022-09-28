@@ -46,7 +46,7 @@ const PricingType = ({
   type,
   hasPrice,
 }: Props): JSX.Element | null => {
-  console.log(hasPrice);
+  console.log("has price", hasPrice);
   const { t } = useTranslation();
 
   const pricingType = (state.reservationUnitEdit.pricings || []).find(
@@ -214,28 +214,32 @@ const PricingType = ({
                   value={get(pricingType, "taxPercentagePk") as number}
                 />
               </Span3>
-              <Span3 id="paymentTypes">
-                <SortedSelect
-                  id="paymentTypesSelect"
-                  sort
-                  multiselect
-                  required
-                  placeholder={t("common.select")}
-                  options={state.paymentTypeOptions}
-                  value={[
-                    ...getSelectedOptions(
-                      state,
-                      "paymentTypeOptions",
-                      "paymentTypes"
-                    ),
-                  ]}
-                  label={t("ReservationUnitEditor.label.paymentTypes")}
-                  onChange={(paymentTypes) =>
-                    dispatch({ type: "setPaymentTypes", paymentTypes })
-                  }
-                  tooltipText={t("ReservationUnitEditor.tooltip.paymentTypes")}
-                />
-              </Span3>
+              {type === "ACTIVE" && (
+                <Span3 id="paymentTypes">
+                  <SortedSelect
+                    id="paymentTypesSelect"
+                    sort
+                    multiselect
+                    required
+                    placeholder={t("common.select")}
+                    options={state.paymentTypeOptions}
+                    value={[
+                      ...getSelectedOptions(
+                        state,
+                        "paymentTypeOptions",
+                        "paymentTypes"
+                      ),
+                    ]}
+                    label={t("ReservationUnitEditor.label.paymentTypes")}
+                    onChange={(paymentTypes) =>
+                      dispatch({ type: "setPaymentTypes", paymentTypes })
+                    }
+                    tooltipText={t(
+                      "ReservationUnitEditor.tooltip.paymentTypes"
+                    )}
+                  />
+                </Span3>
+              )}
             </>
           )}
         </Grid>

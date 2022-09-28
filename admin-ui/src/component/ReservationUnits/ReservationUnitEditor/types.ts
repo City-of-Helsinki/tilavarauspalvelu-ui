@@ -123,7 +123,6 @@ const pricing = Joi.object({
   pricingType: Joi.string().required(),
   lowestPrice: requiredForNonFree(Joi.number().required()),
   priceUnit: requiredForNonFree(Joi.string().required()),
-  paymentTypes: requiredForNonFree(Joi.array().min(1).required()),
   taxPercentagePk: requiredForNonFree(Joi.number().required()),
 });
 
@@ -155,6 +154,7 @@ export const schema = Joi.object({
   additionalInstructionsSv: Joi.string().allow("").max(10000),
   additionalInstructionsEn: Joi.string().allow("").max(10000),
   pricings: Joi.array().items(pricing),
+  paymentTypes: requiredForNonFree(Joi.array().min(1).required()),
 }).options({
   allowUnknown: true,
   abortEarly: false,
