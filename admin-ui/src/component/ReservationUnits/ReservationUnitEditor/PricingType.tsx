@@ -27,6 +27,7 @@ type Props = {
   state: State;
   dispatch: React.Dispatch<Action>;
   type: "PAST" | "ACTIVE" | "FUTURE";
+  hasPrice: boolean;
   getSelectedOptions: (
     state: State,
     optionsPropertyName: string,
@@ -43,7 +44,9 @@ const PricingType = ({
   dispatch,
   getSelectedOptions,
   type,
+  hasPrice,
 }: Props): JSX.Element | null => {
+  console.log(hasPrice);
   const { t } = useTranslation();
 
   const pricingType = (state.reservationUnitEdit.pricings || []).find(

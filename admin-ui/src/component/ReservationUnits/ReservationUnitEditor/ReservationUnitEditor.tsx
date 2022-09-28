@@ -489,6 +489,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     return <Loader />;
   }
 
+  const hasPrice = get(state.reservationUnitEdit, "pricings.length") > 0;
+
   if (state.error && !state.reservationUnit) {
     return (
       <Wrapper>
@@ -1419,6 +1421,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     <Span12>
                       <VerticalFlex>
                         <PricingType
+                          hasPrice={hasPrice}
                           dispatch={dispatch}
                           getSelectedOptions={getSelectedOptions}
                           getValidationError={getValidationError}
@@ -1426,71 +1429,75 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           type="ACTIVE"
                         />
                         <PricingType
+                          hasPrice={hasPrice}
                           dispatch={dispatch}
                           getSelectedOptions={getSelectedOptions}
                           getValidationError={getValidationError}
                           state={state}
                           type="FUTURE"
                         />
-                        <HorisontalFlex
-                          style={{
-                            justifyContent: "space-between",
-                            width: "100%",
-                          }}
-                        >
-                          <Checkbox
-                            label={t(
-                              "ReservationUnitEditor.label.canApplyFreeOfCharge"
-                            )}
-                            id="canApplyFreeOfCharge"
-                            checked={
-                              state.reservationUnitEdit.canApplyFreeOfCharge ===
-                              true
-                            }
-                            onClick={() =>
-                              setValue({
-                                canApplyFreeOfCharge:
-                                  !state.reservationUnitEdit
-                                    ?.canApplyFreeOfCharge,
-                              })
-                            }
-                          />
-                          <Tooltip>
-                            {t(
-                              "ReservationUnitEditor.tooltip.canApplyFreeOfCharge"
-                            )}
-                          </Tooltip>
-                        </HorisontalFlex>
+                        {hasPrice && (
+                          <HorisontalFlex
+                            style={{
+                              justifyContent: "space-between",
+                              width: "100%",
+                            }}
+                          >
+                            <Checkbox
+                              label={t(
+                                "ReservationUnitEditor.label.canApplyFreeOfCharge"
+                              )}
+                              id="canApplyFreeOfCharge"
+                              checked={
+                                state.reservationUnitEdit
+                                  .canApplyFreeOfCharge === true
+                              }
+                              onClick={() =>
+                                setValue({
+                                  canApplyFreeOfCharge:
+                                    !state.reservationUnitEdit
+                                      ?.canApplyFreeOfCharge,
+                                })
+                              }
+                            />
+                            <Tooltip>
+                              {t(
+                                "ReservationUnitEditor.tooltip.canApplyFreeOfCharge"
+                              )}
+                            </Tooltip>
+                          </HorisontalFlex>
+                        )}
                       </VerticalFlex>
 
-                      {state.reservationUnitEdit?.canApplyFreeOfCharge && (
-                        <Span6>
-                          <Select
-                            required
-                            sort
-                            id="pricingTerms"
-                            label={t(
-                              "ReservationUnitEditor.label.pricingTermsPk"
-                            )}
-                            placeholder={t("common.select")}
-                            options={get(state, "pricingTermsOptions")}
-                            onChange={(pricingTermsPk) => {
-                              setValue({
-                                pricingTermsPk,
-                              });
-                            }}
-                            value={
-                              get(
-                                state.reservationUnitEdit,
-                                "pricingTermsPk"
-                              ) as string
-                            }
-                            tooltipText={t(
-                              "ReservationUnitEditor.tooltip.pricingTermsPk"
-                            )}
-                          />
-                        </Span6>
-                      )}
+                      {hasPrice &&
+                        state.reservationUnitEdit?.canApplyFreeOfCharge && (
+                          <Span6>
+                            <Select
+                              required
+                              sort
+                              id="pricingTerms"
+                              label={t(
+                                "ReservationUnitEditor.label.pricingTermsPk"
+                              )}
+                              placeholder={t("common.select")}
+                              options={get(state, "pricingTermsOptions")}
+                              onChange={(pricingTermsPk) => {
+                                setValue({
+                                  pricingTermsPk,
+                                });
+                              }}
+                              value={
+                                get(
+                                  state.reservationUnitEdit,
+                                  "pricingTermsPk"
+                                ) as string
+                              }
+                              tooltipText={t(
+                                "ReservationUnitEditor.tooltip.pricingTermsPk"
+                              )}
+                            />
+                          </Span6>
+                        )}
                     </Span12>
                   </FieldGroup>
                 </Span12>
