@@ -1409,10 +1409,14 @@ export type PurposeType = Node & {
   __typename?: "PurposeType";
   /** The ID of the object */
   id: Scalars["ID"];
+  imageUrl?: Maybe<Scalars["String"]>;
   nameEn?: Maybe<Scalars["String"]>;
   nameFi?: Maybe<Scalars["String"]>;
   nameSv?: Maybe<Scalars["String"]>;
   pk?: Maybe<Scalars["Int"]>;
+  /** Order number to be used in api sorting. */
+  rank?: Maybe<Scalars["Int"]>;
+  smallUrl?: Maybe<Scalars["String"]>;
 };
 
 export type PurposeTypeConnection = {
@@ -1577,6 +1581,7 @@ export type QueryApplicationsArgs = {
   last?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Scalars["String"]>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
   status?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   unit?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
   user?: InputMaybe<Scalars["ID"]>;
@@ -1681,10 +1686,8 @@ export type QueryPurposesArgs = {
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
-  nameEn?: InputMaybe<Scalars["String"]>;
-  nameFi?: InputMaybe<Scalars["String"]>;
-  nameSv?: InputMaybe<Scalars["String"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Scalars["String"]>;
 };
 
 export type QueryQualifiersArgs = {
@@ -1753,10 +1756,8 @@ export type QueryReservationUnitTypesArgs = {
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
-  nameEn?: InputMaybe<Scalars["String"]>;
-  nameFi?: InputMaybe<Scalars["String"]>;
-  nameSv?: InputMaybe<Scalars["String"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Scalars["String"]>;
 };
 
 export type QueryReservationUnitsArgs = {
@@ -2800,12 +2801,12 @@ export type ReservationUnitPricingCreateSerializerInput = {
   /** Minimum price of the reservation unit */
   lowestPrice?: InputMaybe<Scalars["Float"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
-  priceUnit: Scalars["String"];
+  priceUnit?: InputMaybe<Scalars["String"]>;
   /** What kind of pricing type this pricing has. Possible values are PAID, FREE. */
   pricingType: Scalars["String"];
   /** Pricing status. Possible values are PAST, ACTIVE, FUTURE. */
   status: Scalars["String"];
-  taxPercentagePk: Scalars["Int"];
+  taxPercentagePk?: InputMaybe<Scalars["Int"]>;
 };
 
 export type ReservationUnitPricingType = {
@@ -2836,12 +2837,12 @@ export type ReservationUnitPricingUpdateSerializerInput = {
   lowestPrice?: InputMaybe<Scalars["Float"]>;
   pk?: InputMaybe<Scalars["Int"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
-  priceUnit: Scalars["String"];
+  priceUnit?: InputMaybe<Scalars["String"]>;
   /** What kind of pricing type this pricing has. Possible values are PAID, FREE. */
   pricingType: Scalars["String"];
   /** Pricing status. Possible values are PAST, ACTIVE, FUTURE. */
   status: Scalars["String"];
-  taxPercentagePk: Scalars["Int"];
+  taxPercentagePk?: InputMaybe<Scalars["Int"]>;
 };
 
 /** An enumeration. */
@@ -4302,8 +4303,8 @@ export type ApplicationRoundsQueryResult = Apollo.QueryResult<
   ApplicationRoundsQueryVariables
 >;
 export const SearchFormParamsUnitDocument = gql`
-  query SearchFormParamsUnit {
-    units {
+  query SearchFormParamsUnit($publishedReservationUnits: Boolean) {
+    units(publishedReservationUnits: $publishedReservationUnits) {
       edges {
         node {
           pk
@@ -4328,6 +4329,7 @@ export const SearchFormParamsUnitDocument = gql`
  * @example
  * const { data, loading, error } = useSearchFormParamsUnitQuery({
  *   variables: {
+ *      publishedReservationUnits: // value for 'publishedReservationUnits'
  *   },
  * });
  */
@@ -5942,7 +5944,7 @@ export type ApplicationRoundsQuery = {
 };
 
 export type SearchFormParamsUnitQueryVariables = Exact<{
-  [key: string]: never;
+  publishedReservationUnits?: InputMaybe<Scalars["Boolean"]>;
 }>;
 
 export type SearchFormParamsUnitQuery = {
