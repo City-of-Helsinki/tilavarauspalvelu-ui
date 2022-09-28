@@ -374,6 +374,9 @@ const QuickReservation = ({
   const getNextAvailableTime = useCallback(
     (after: Date): Date => {
       let nextAvailableTime: Date;
+      const openDays = getOpenDays(reservationUnit);
+
+      if (openDays?.length < 1) return null;
 
       for (let i = 0; nextAvailableTime === undefined; i++) {
         const day = addDays(after, i);
@@ -386,7 +389,7 @@ const QuickReservation = ({
           day.setHours(hours, minutes, 0, 0);
           nextAvailableTime = day;
         }
-        const lastDay = getOpenDays(reservationUnit).slice(-1)[0];
+        const lastDay = openDays.slice(-1)[0];
         if (isSameDay(day, lastDay)) {
           nextAvailableTime = null;
         }
