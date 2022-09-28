@@ -1,39 +1,34 @@
-import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { differenceInSeconds, format, isValid, subMinutes } from "date-fns";
-import { DateInput, Notification, Select } from "hds-react";
+import { DateInput, Select } from "hds-react";
 import { trimStart } from "lodash";
-import { useMutation } from "@apollo/client";
-import { breakpoint } from "../../modules/style";
-import {
-  areSlotsReservable,
-  doBuffersCollide,
-  doReservationsCollide,
-  getDayIntervals,
-  isReservationLongEnough,
-} from "../../modules/calendar";
-import { MediumButton } from "../../styles/util";
-import {
-  ReservationCreateMutationInput,
-  ReservationCreateMutationPayload,
-  ReservationUnitByPkType,
-} from "../../modules/gql-types";
-import { DataContext } from "../../context/DataContext";
-import { CREATE_RESERVATION } from "../../modules/queries/reservation";
-import { fontBold, fontMedium } from "../../modules/style/typography";
-import { ApplicationRound, Language, OptionType } from "../../modules/types";
+import { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   convertHMSToSeconds,
   secondsToHms,
   toApiDate,
   toUIDate,
-} from "../../modules/util";
+} from "common/src/common/util";
+import { useLocalStorage } from "react-use";
+import {
+  areSlotsReservable,
+  doBuffersCollide,
+  doReservationsCollide,
+  getDayIntervals,
+} from "common/src/calendar/util";
+import { ApplicationRound, Language, OptionType } from "common/types/common";
+import { breakpoint } from "../../modules/style";
+import { MediumButton } from "../../styles/util";
+import { ReservationUnitByPkType } from "../../modules/gql-types";
+import { DataContext, ReservationProps } from "../../context/DataContext";
+import { fontMedium, fontRegular } from "../../modules/style/typography";
 import { getDurationOptions } from "../../modules/reservation";
-import { getPrice } from "../../modules/reservationUnit";
+import { getReservationUnitPrice } from "../../modules/reservationUnit";
+import LoginFragment from "../LoginFragment";
 
-type Props = {
+type Props<T> = {
   reservationUnit: ReservationUnitByPkType;
   begin?: string;
   end?: string;
@@ -41,6 +36,13 @@ type Props = {
   isSlotReservable: (start: Date, end: Date) => boolean;
   setCalendarFocusDate: (date: Date) => void;
   activeApplicationRounds: ApplicationRound[];
+  createReservation: (arg: ReservationProps) => void;
+  setErrorMsg: (msg: string) => void;
+  isReservationUnitReservable: boolean;
+  handleEventChange: (
+    event: CalendarEvent<T>,
+    skipLengthCheck?: boolean
+  ) => boolean;
 };
 
 const Wrapper = styled.div`
@@ -86,18 +88,17 @@ const StyledSelect = styled(Select)`
 
 const PriceWrapper = styled.div`
   ${fontMedium};
-  font-size: 21px;
-  align-self: center;
+  align-self: flex-end;
   white-space: nowrap;
-
-  h3 {
-    ${fontBold};
-    font-size: 24px;
-    margin: var(--spacing-3-xs) 0 0 0;
-  }
 `;
 
-const ReservationInfo = ({
+const Price = styled.div`
+  ${fontRegular};
+  font-size: var(--fontsize-body-l);
+  line-height: var(--lineheight-xl);
+`;
+
+const ReservationInfo = <T extends Record<string, unknown>>({
   reservationUnit,
   begin,
   end,
@@ -105,9 +106,12 @@ const ReservationInfo = ({
   isSlotReservable,
   setCalendarFocusDate,
   activeApplicationRounds,
-}: Props): JSX.Element => {
+  createReservation,
+  setErrorMsg,
+  isReservationUnitReservable,
+  handleEventChange,
+}: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
-  const router = useRouter();
 
   const durationOptions = useMemo(
     () =>
@@ -122,53 +126,22 @@ const ReservationInfo = ({
   );
 
   const { reservation, setReservation } = useContext(DataContext);
-  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const [date, setDate] = useState<Date | null>(new Date());
   const [startTime, setStartTime] = useState<string | null>(null);
   const [duration, setDuration] = useState<OptionType | null>(
     durationOptions[0]
   );
+  const [isReserving, setIsReserving] = useState(false);
 
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const [addReservation, { data, loading, error }] = useMutation<
-    { createReservation: ReservationCreateMutationPayload },
-    { input: ReservationCreateMutationInput }
-  >(CREATE_RESERVATION);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
+  const [_, setStoredReservation] =
+    useLocalStorage<ReservationProps>("reservation");
 
   useEffect(() => {
-    if (!loading) {
-      if (error || data?.createReservation?.errors?.length > 0) {
-        setErrorMsg(t("reservationUnit:reservationFailed"));
-      } else if (data) {
-        setReservation({
-          ...reservation,
-          pk: data.createReservation.pk,
-          price: data.createReservation.price,
-        });
-        setIsRedirecting(true);
-        router.push(
-          `/reservation-unit/single/${reservationUnit.pk}/reservation`
-        );
-      }
+    if (!reservation) {
+      setStartTime(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, loading, error, t, router, reservationUnit, setReservation]);
-
-  const createReservation = () => {
-    setErrorMsg(null);
-    const input: ReservationCreateMutationInput = {
-      begin,
-      end,
-      reservationUnitPks: [reservationUnit.pk],
-    };
-
-    addReservation({
-      variables: {
-        input,
-      },
-    });
-  };
+  }, [reservation]);
 
   useEffect(() => {
     if (begin && end) {
@@ -206,6 +179,10 @@ const ReservationInfo = ({
       );
 
       if (isSlotReservable(startDate, endDate)) {
+        handleEventChange({
+          start: startDate,
+          end: endDate,
+        });
         setReservation({
           pk: null,
           begin: startDate.toISOString(),
@@ -238,38 +215,21 @@ const ReservationInfo = ({
         !areSlotsReservable(
           [startDate, subMinutes(endDate, 1)],
           reservationUnit.openingHours?.openingTimes,
-          activeApplicationRounds
+          activeApplicationRounds,
+          reservationUnit.reservationBegins,
+          reservationUnit.reservationEnds,
+          reservationUnit.reservationsMinDaysBefore
         )
       ) {
         setErrorMsg(t(`reservationCalendar:errors.unavailable`));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, startTime, duration]);
+  }, [date, startTime, duration?.value]);
 
   useEffect(() => {
     setReservation({ pk: null, begin: null, end: null, price: null });
   }, [setReservation]);
-
-  const isReservable = useMemo(() => {
-    return (
-      begin &&
-      end &&
-      isReservationLongEnough(
-        new Date(begin),
-        new Date(end),
-        reservationUnit.minReservationDuration
-      ) &&
-      !loading &&
-      !isRedirecting
-    );
-  }, [
-    begin,
-    end,
-    isRedirecting,
-    loading,
-    reservationUnit.minReservationDuration,
-  ]);
 
   const {
     startTime: dayStartTime,
@@ -299,6 +259,16 @@ const ReservationInfo = ({
     }));
   }, [dayStartTime, dayEndTime, reservationUnit.reservationStartInterval]);
 
+  const isReservable = useMemo(
+    () =>
+      !!duration &&
+      !!reservation &&
+      reservation?.begin &&
+      reservation?.end &&
+      isSlotReservable(new Date(reservation.begin), new Date(reservation.end)),
+    [duration, reservation, isSlotReservable]
+  );
+
   return (
     <Wrapper>
       <DateInput
@@ -315,13 +285,13 @@ const ReservationInfo = ({
           }
         }}
         value={toUIDate(date)}
-        helperText={t("reservationCalendar:dateFormatAssist")}
         id="reservation__input--date"
         initialMonth={new Date()}
         label={`${t("reservationCalendar:startDate")} *`}
         language={i18n.language as Language}
       />
       <StyledSelect
+        key={`startTime-${startTime}`}
         id="reservation__input--start-time"
         label={`${t("reservationCalendar:startTime")} *`}
         onChange={(val: OptionType) => setStartTime(val.value as string)}
@@ -336,44 +306,42 @@ const ReservationInfo = ({
         }}
         options={durationOptions}
         value={duration}
-        helper={t("reservationCalendar:durationFormatAssist")}
       />
       <PriceWrapper>
-        {(isReservable || isRedirecting) && (
+        {isReservable && (
           <>
             <div>{t("reservationUnit:price")}:</div>
-            <h3 data-testid="reservation__price--value">
-              {getPrice(
+            <Price data-testid="reservation__price--value">
+              {getReservationUnitPrice(
                 reservationUnit,
-                convertHMSToSeconds(`0${duration?.value}:00`) / 60
+                date,
+                convertHMSToSeconds(`0${duration?.value}:00`) / 60,
+                false
               )}
-            </h3>
+            </Price>
           </>
         )}
       </PriceWrapper>
-      <MediumButton
-        onClick={() => {
-          createReservation();
+      <LoginFragment
+        isActionDisabled={!isReservable}
+        actionCallback={() => {
+          setStoredReservation({ ...reservation, pk: reservationUnit.pk });
         }}
-        disabled={!isReservable}
-        data-test="reservation__button--submit"
-      >
-        {t("reservationCalendar:makeReservation")}
-      </MediumButton>
-      {errorMsg && (
-        <Notification
-          type="error"
-          label={t("common:error.error")}
-          position="top-center"
-          autoClose={false}
-          displayAutoCloseProgress={false}
-          onClose={() => setErrorMsg(null)}
-          dismissible
-          closeButtonLabelText={t("common:error.closeErrorMsg")}
-        >
-          {errorMsg}
-        </Notification>
-      )}
+        componentIfAuthenticated={
+          isReservationUnitReservable && (
+            <MediumButton
+              onClick={() => {
+                setIsReserving(true);
+                createReservation(reservation);
+              }}
+              disabled={!isReservable || isReserving}
+              data-test="reservation__button--submit"
+            >
+              {t("reservationCalendar:makeReservation")}
+            </MediumButton>
+          )
+        }
+      />
     </Wrapper>
   );
 };

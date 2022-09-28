@@ -39,7 +39,9 @@ export const RESERVATIONUNIT_QUERY = gql`
         pk
         nameFi
       }
-      paymentType
+      paymentTypes {
+        code
+      }
       pricingType
       pricingTerms {
         pk
@@ -54,9 +56,15 @@ export const RESERVATIONUNIT_QUERY = gql`
       termsOfUseSv
       termsOfUseEn
       reservationKind
-      additionalInstructionsFi
-      additionalInstructionsSv
-      additionalInstructionsEn
+      reservationPendingInstructionsFi
+      reservationPendingInstructionsSv
+      reservationPendingInstructionsEn
+      reservationConfirmedInstructionsFi
+      reservationConfirmedInstructionsSv
+      reservationConfirmedInstructionsEn
+      reservationCancelledInstructionsFi
+      reservationCancelledInstructionsSv
+      reservationCancelledInstructionsEn
       maxReservationDuration
       minReservationDuration
       reservationStartInterval

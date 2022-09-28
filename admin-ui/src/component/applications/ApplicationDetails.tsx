@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { orderBy, set } from "lodash";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
@@ -29,19 +29,16 @@ import {
   parseAgeGroups,
 } from "../../common/util";
 import ValueBox from "./ValueBox";
-import { weekdays } from "../../common/const";
-import {
-  appEventDuration,
-  applicantName,
-  applicationHours,
-  applicationTurns,
-} from "./util";
+import { publicUrl, weekdays } from "../../common/const";
+import { appEventDuration, applicantName } from "./util";
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
 import { useNotification } from "../../context/NotificationContext";
 import TimeSelector from "./time-selector/TimeSelector";
 import { breakpoints } from "../../styles/util";
 import ScrollIntoView from "../../common/ScrollIntoView";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
+import ShowWhenTargetInvisible from "../ShowWhenTargetInvisible";
+import StickyHeader from "../StickyHeader";
 
 interface IRouteParams {
   applicationId: string;
@@ -213,6 +210,8 @@ function ApplicationDetails(): JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationId]);
 
+  const ref = useRef<HTMLHeadingElement>(null);
+
   if (isLoading) {
     return <Loader />;
   }
@@ -243,8 +242,8 @@ function ApplicationDetails(): JSX.Element | null {
           <BreadcrumbWrapper
             route={[
               "recurring-reservations",
-              "/recurring-reservations/application-rounds",
-              `/recurring-reservations/application-rounds/${applicationRound.id}`,
+              `${publicUrl}/recurring-reservations/application-rounds`,
+              `${publicUrl}/recurring-reservations/application-rounds/${applicationRound.id}`,
               `application`,
             ]}
             aliases={[
@@ -253,12 +252,20 @@ function ApplicationDetails(): JSX.Element | null {
               { slug: "application", title: customerName },
             ]}
           />
+          <ShowWhenTargetInvisible target={ref}>
+            <StickyHeader
+              name={customerName}
+              tagline={`${t("Application.id")}:${application.id}`}
+            />
+          </ShowWhenTargetInvisible>
+
           <IngressContainer>
             <StyledApplicationStatusBlock
               status={application.status}
               view={applicationRound.status}
             />
             <H2
+              ref={ref}
               style={{ margin: "1rem 0" }}
               data-testid="application-details__heading--main"
             >
@@ -294,14 +301,16 @@ function ApplicationDetails(): JSX.Element | null {
                   <KV
                     k={t("Application.numHours")}
                     v={`${t("common.hoursUnitLong", {
-                      count: applicationHours(application),
+                      count:
+                        (application.aggregatedData
+                          .appliedMinDurationTotal as number) / 3600,
                     })}`}
                   />
                   <KV
                     k={t("Application.numTurns")}
-                    v={`${applicationTurns(application)} ${t(
-                      "common.volumeUnit"
-                    )}`}
+                    v={`${
+                      application.aggregatedData.appliedReservationsTotal
+                    } ${t("common.volumeUnit")}`}
                   />
                   <KV k={t("Application.basket")} v="" />
                 </DefinitionList>

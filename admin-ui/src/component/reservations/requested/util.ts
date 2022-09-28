@@ -4,13 +4,14 @@ import {
   getUnRoundedReservationVolume,
 } from "common";
 
-import { differenceInMinutes, isSameDay } from "date-fns";
+import { differenceInHours, differenceInMinutes, isSameDay } from "date-fns";
 import { TFunction } from "i18next";
 import {
   AgeGroupType,
   Maybe,
   ReservationsReservationReserveeTypeChoices,
   ReservationType,
+  ReservationUnitType,
 } from "../../../common/gql-types";
 import { formatDate, formatTime } from "../../../common/util";
 
@@ -24,14 +25,32 @@ export const reservationDateTime = (
 
   const startDay = t(`dayShort.${startDate.getDay()}`);
 
+  const endTimeFormat = endDate.getMinutes() === 0 ? "HH" : "HH:mm";
+  const startTimeFormat = startDate.getMinutes() === 0 ? "HH" : "HH:mm";
   return isSameDay(startDate, endDate)
-    ? `${startDay} ${formatDate(start)} klo ${formatTime(start)} - ${formatTime(
-        end
-      )}`
-    : `${formatDate(start)} klo ${formatTime(start)} - ${formatDate(
-        end
-      )} klo ${formatTime(end)}`;
+    ? `${startDay} ${formatDate(start)} klo ${formatTime(
+        start,
+        startTimeFormat
+      )} - ${formatTime(end, endTimeFormat)}`
+    : `${formatDate(start)} klo ${formatTime(
+        start,
+        startTimeFormat
+      )} - ${formatDate(end, endTimeFormat)} klo ${formatTime(end)}`;
 };
+
+export const reservationDuration = (start: string, end: string): string => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  return `${differenceInHours(endDate, startDate)}`;
+};
+
+export const reservationUnitName = (
+  reservationUnit: Maybe<ReservationUnitType>
+): string =>
+  reservationUnit
+    ? `${reservationUnit.nameFi}, ${reservationUnit.unit?.nameFi || ""}`
+    : "-";
 
 export const reservationPrice = (
   reservation: ReservationType,

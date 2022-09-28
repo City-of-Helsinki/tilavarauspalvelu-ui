@@ -17,13 +17,14 @@ import { UNIT_QUERY } from "../../common/queries";
 import { parseAddress } from "../../common/util";
 import { useModal } from "../../context/ModalContext";
 import { ContentContainer, IngressContainer } from "../../styles/layout";
-import { H1 } from "../../styles/typography";
+import { H1 } from "../../styles/new-typography";
 import { BasicLink, breakpoints } from "../../styles/util";
 import Loader from "../Loader";
 import ReservationUnitList from "./ReservationUnitList";
 import withMainMenu from "../withMainMenu";
 import ExternalLink from "./ExternalLink";
 import InfoModalContent from "./InfoModalContent";
+import { publicUrl } from "../../common/const";
 import {
   Query,
   QueryUnitByPkArgs,
@@ -156,7 +157,6 @@ const Unit = (): JSX.Element | null => {
   const { notifyError } = useNotification();
   const [isLoading, setIsLoading] = useState(true);
   const [unit, setUnit] = useState<UnitByPkType>();
-  const [hasOpeningHours, setOpeningHours] = useState(true);
   const [hasSpacesResources, setSpacesResources] = useState(true);
 
   const { t } = useTranslation();
@@ -169,7 +169,6 @@ const Unit = (): JSX.Element | null => {
     onCompleted: ({ unitByPk }) => {
       if (unitByPk) {
         setUnit(unitByPk);
-        setOpeningHours(Boolean(unitByPk.openingHours));
         setSpacesResources(Boolean(unitByPk?.spaces?.length));
       }
       setIsLoading(false);
@@ -193,7 +192,7 @@ const Unit = (): JSX.Element | null => {
   return (
     <Wrapper>
       <BreadcrumbWrapper
-        route={["spaces-n-settings", "/units", "route"]}
+        route={["spaces-n-settings", `${publicUrl}/units`, "route"]}
         aliases={[{ slug: "route", title: unit?.nameFi || "" }]}
       />
       <ContentContainer>
@@ -246,20 +245,13 @@ const Unit = (): JSX.Element | null => {
             </BasicLink>
           </StyledNotification>
         ) : null}
-        {!hasOpeningHours ? (
-          <StyledNotification
-            type="alert"
-            label={t("Unit.noOpeningHoursTitle")}
-            size="large"
+        <div style={{ margin: "var(--spacing-s) 0" }}>
+          <ExternalLink
+            to={`https://asiointi.hel.fi/tprperhe/TPR/UI/ServicePoint/ServicePointEdit/${unit.tprekId}`}
           >
-            {t("Unit.noOpeningHours")}{" "}
-            <ExternalLink
-              to={`https://asiointi.hel.fi/tprperhe/TPR/UI/ServicePoint/ServicePointEdit/${unit.tprekId}`}
-            >
-              {t("Unit.maintainOpeningHours")}
-            </ExternalLink>
-          </StyledNotification>
-        ) : null}
+            {t("Unit.maintainOpeningHours")}
+          </ExternalLink>
+        </div>
         <HeadingLarge>{t("Unit.reservationUnitTitle")}</HeadingLarge>
         <Info>
           <div>

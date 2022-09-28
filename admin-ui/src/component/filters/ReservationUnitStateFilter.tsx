@@ -5,7 +5,7 @@ import { ReservationUnitState } from "../../common/gql-types";
 import { OptionType } from "../../common/types";
 import SortedSelect from "../ReservationUnits/ReservationUnitEditor/SortedSelect";
 
-type UnitComboboxProps = {
+type Props = {
   onChange: (units: OptionType[]) => void;
   value: OptionType[];
 };
@@ -20,7 +20,7 @@ const ReservationUnitStates = [
 const ReservationUnitStateFilter = ({
   onChange,
   value,
-}: UnitComboboxProps): JSX.Element => {
+}: Props): JSX.Element => {
   const { t } = useTranslation();
 
   return (

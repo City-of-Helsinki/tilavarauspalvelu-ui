@@ -99,7 +99,7 @@ const ApplicationDataLoader = ({
         fetchMore={() =>
           fetchMore({
             variables: {
-              offset: data?.reservationUnits?.edges.length,
+              offset: data?.applications?.edges.length,
             },
             updateQuery,
           })

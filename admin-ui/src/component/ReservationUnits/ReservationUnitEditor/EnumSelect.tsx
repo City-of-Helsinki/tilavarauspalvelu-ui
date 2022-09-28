@@ -7,17 +7,17 @@ type OptionType = {
   value: string;
 };
 
-function selectedOptions(
-  value: string | string[],
+function selectedOptions<T>(
+  value: T,
   options: OptionType[]
 ): OptionType | OptionType[] | "" {
   if (Array.isArray(value)) {
     return options.filter((o) => value.includes(o.value));
   }
-  return options.find((o) => o.value === value) || "";
+  return options.find((o) => o.value === String(value)) || "";
 }
 
-const EnumSelect = ({
+const EnumSelect = <T,>({
   id,
   label,
   onChange,
@@ -27,6 +27,7 @@ const EnumSelect = ({
   value,
   type,
   errorText,
+  tooltipText,
   sort = false,
 }: {
   id: string;
@@ -34,10 +35,11 @@ const EnumSelect = ({
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
-  value: string | string[];
-  onChange: (value: string | string[]) => void;
+  value: T;
+  onChange: (value: T) => void;
   type: { [key: string]: string };
   errorText?: string;
+  tooltipText?: string;
   sort?: boolean;
 }): JSX.Element => {
   const { t } = useTranslation();
@@ -65,6 +67,7 @@ const EnumSelect = ({
         error={errorText}
         invalid={!!errorText}
         sort={sort}
+        tooltipText={tooltipText}
       />
     </>
   );

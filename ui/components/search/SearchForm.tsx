@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useQuery } from "@apollo/client";
 import { sortBy } from "lodash";
+import { OptionType, StringParameter } from "common/types/common";
 import { breakpoint } from "../../modules/style";
 import {
   mapOptions,
@@ -21,8 +22,11 @@ import {
 } from "../../modules/util";
 import { emptyOption, participantCountOptions } from "../../modules/const";
 import { MediumButton, truncatedText } from "../../styles/util";
-import { OptionType, StringParameter } from "../../modules/types";
-import { ApplicationRoundType, Query } from "../../modules/gql-types";
+import {
+  ApplicationRoundType,
+  Query,
+  QueryUnitsArgs,
+} from "../../modules/gql-types";
 import MultiSelectDropdown from "../form/MultiselectDropdown";
 import {
   SEARCH_FORM_PARAMS_PURPOSE,
@@ -217,7 +221,10 @@ const SearchForm = ({
     }));
   }, [applicationRounds]);
 
-  useQuery<Query>(SEARCH_FORM_PARAMS_UNIT, {
+  useQuery<Query, QueryUnitsArgs>(SEARCH_FORM_PARAMS_UNIT, {
+    variables: {
+      publishedReservationUnits: true,
+    },
     onCompleted: (res) => {
       const units = res?.units?.edges?.map(({ node }) => ({
         id: String(node.pk),

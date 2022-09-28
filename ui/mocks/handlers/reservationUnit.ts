@@ -1,5 +1,8 @@
 import { addDays, addMinutes, endOfWeek, set } from "date-fns";
 import { graphql, rest } from "msw";
+import { toApiDate, toUIDate } from "common/src/common/util";
+import { ReservationUnitsReservationUnitPricingTypeChoices } from "common/types/gql-types";
+import { Parameter } from "common/types/common";
 import {
   OpeningTimesType,
   Query,
@@ -20,9 +23,10 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   EquipmentCategoryType,
   ReservationUnitsReservationUnitReservationKindChoices,
+  ReservationUnitsReservationUnitPricingPriceUnitChoices,
+  ReservationUnitsReservationUnitPricingStatusChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
 } from "../../modules/gql-types";
-import { Parameter } from "../../modules/types";
-import { toApiDate } from "../../modules/util";
 
 const equipmentCategories: EquipmentCategoryType[] = [
   {
@@ -88,7 +92,7 @@ const selectedReservationUnitQuery = graphql.query<
     bufferTimeBefore: 3600,
     bufferTimeAfter: 1800,
     reservationBegins: addDays(new Date(), -1),
-    reservationEnds: addDays(new Date(), 1),
+    reservationEnds: addDays(new Date(), 10),
     images: [
       {
         imageUrl:
@@ -121,6 +125,37 @@ const selectedReservationUnitQuery = graphql.query<
     lowestPrice: 20,
     highestPrice: 20,
     priceUnit: "PER_15_MINS" as ReservationUnitsReservationUnitPriceUnitChoices,
+    pricingType: ReservationUnitsReservationUnitPricingTypeChoices.Paid,
+    pricings: [
+      {
+        begins: toUIDate(addDays(new Date(), 2), "yyyy-MM-dd"),
+        lowestPrice: 10,
+        highestPrice: 30,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        taxPercentage: {
+          id: "goier1",
+          value: 20,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        begins: toUIDate(addDays(new Date(), 3), "yyyy-MM-dd"),
+        lowestPrice: 20,
+        highestPrice: 50,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        taxPercentage: {
+          id: "goier1",
+          value: 24,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+    ],
     descriptionFi:
       "<p>Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkil&ouml;&auml;..</p> Fi",
     descriptionEn:
@@ -133,9 +168,16 @@ const selectedReservationUnitQuery = graphql.query<
       "<p>Nuorisotilojen yleiset varausehdot</p>\r\n<p><strong>1 Soveltamisala</strong></p>\r\n<p>N&auml;m&auml; varausehdot koskevat Helsingin kaupungin nuorisopalveluiden hallinnoimien tilojen ja laitteiden varaamista, k&auml;ytt&ouml;vuoron hakemista Tilavaraus-palvelun kautta sek&auml; nuorisopalveluiden hallinnoimien tilojen ja laitteiden k&auml;ytt&ouml;&auml;. N&auml;m&auml; varausehdot t&auml;ydent&auml;v&auml;t Helsingin kaupungin tilojen ja laitteiden varausehtoja. Varaamalla resurssin tai hakemalla k&auml;ytt&ouml;vuoroa hyv&auml;ksyt n&auml;m&auml; ehdot.</p> En",
     termsOfUseSv:
       "<p>Nuorisotilojen yleiset varausehdot</p>\r\n<p><strong>1 Soveltamisala</strong></p>\r\n<p>N&auml;m&auml; varausehdot koskevat Helsingin kaupungin nuorisopalveluiden hallinnoimien tilojen ja laitteiden varaamista, k&auml;ytt&ouml;vuoron hakemista Tilavaraus-palvelun kautta sek&auml; nuorisopalveluiden hallinnoimien tilojen ja laitteiden k&auml;ytt&ouml;&auml;. N&auml;m&auml; varausehdot t&auml;ydent&auml;v&auml;t Helsingin kaupungin tilojen ja laitteiden varausehtoja. Varaamalla resurssin tai hakemalla k&auml;ytt&ouml;vuoroa hyv&auml;ksyt n&auml;m&auml; ehdot.</p> Sv",
-    additionalInstructionsFi: "Additional instructions FI",
-    additionalInstructionsEn: null,
-    additionalInstructionsSv: null,
+    reservationPendingInstructionsFi: "Pending Instructions FI",
+    reservationPendingInstructionsEn: "Pending Instructions EN",
+    reservationPendingInstructionsSv: "Pending Instructions SV",
+    reservationConfirmedInstructionsFi: "Confirmed Instructions FI",
+    reservationConfirmedInstructionsEn: "Confirmed Instructions EN",
+    reservationConfirmedInstructionsSv: "Confirmed Instructions SV",
+    reservationCancelledInstructionsFi: "Cancelled Instructions FI",
+    reservationCancelledInstructionsEn: "Cancelled Instructions EN",
+    reservationCancelledInstructionsSv: "Cancelled Instructions SV",
+
     reservationStartInterval:
       "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices,
     serviceSpecificTerms: {
@@ -320,15 +362,31 @@ const selectedReservationUnitQuery = graphql.query<
     reservationKind:
       ReservationUnitsReservationUnitReservationKindChoices.DirectAndSeason,
     isArchived: false,
+    reservationsMaxDaysBefore: 365,
+    reservationsMinDaysBefore: 2,
+    maxReservationsPerUser: 1,
+    cancellationTerms: {
+      id: "fawioep",
+      textFi: "Peruutusehdot Fi",
+      termsType: TermsOfUseTermsOfUseTermsTypeChoices.CancellationTerms,
+    },
   };
 
   if (req.variables.pk === 800) {
     reservationUnitByPk.equipment = [];
   }
 
+  if (req.variables.pk === 801) {
+    reservationUnitByPk.paymentTerms = {
+      id: "faweopfk",
+      textFi: "Maksuehdot Fi",
+      termsType: TermsOfUseTermsOfUseTermsTypeChoices.PaymentTerms,
+    };
+  }
+
   if (req.variables.pk === 900) {
-    reservationUnitByPk.reservationBegins = addDays(new Date(), 1);
-    reservationUnitByPk.reservationEnds = addDays(new Date(), 10);
+    reservationUnitByPk.reservationBegins = addDays(new Date(), 366);
+    reservationUnitByPk.reservationEnds = addDays(new Date(), 375);
     reservationUnitByPk.publishBegins = addMinutes(new Date(), -10);
     reservationUnitByPk.publishEnds = addMinutes(new Date(), 10);
   }
@@ -566,6 +624,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         highestPrice: 20,
         priceUnit:
           "PER_HOUR" as ReservationUnitsReservationUnitPriceUnitChoices,
+        pricingType:
+          "PAID" as ReservationUnitsReservationUnitPricingTypeChoices,
         unit: {
           id: "VW5pdFR5cGU6Nw==",
           pk: 7,
@@ -642,6 +702,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         highestPrice: 30,
         priceUnit:
           "PER_WEEK" as ReservationUnitsReservationUnitPriceUnitChoices,
+        pricingType:
+          "PAID" as ReservationUnitsReservationUnitPricingTypeChoices,
         images: [
           {
             imageUrl:

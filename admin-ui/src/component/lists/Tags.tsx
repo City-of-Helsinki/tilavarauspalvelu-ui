@@ -1,6 +1,6 @@
 import React, { Dispatch } from "react";
 import { Tag as HDSTag } from "hds-react";
-import { get, omit } from "lodash";
+import { get, omit, truncate } from "lodash";
 import { TFunction } from "react-i18next";
 import styled from "styled-components";
 import { OptionType } from "../../common/types";
@@ -29,6 +29,7 @@ export const toTags = <T,>(
   state: T,
   t: TFunction,
   multivaluedFields: string[],
+  noLabelFields: string[],
   translationPrefix?: string
 ): Tag<T>[] => {
   return (Object.keys(state) as unknown as (keyof T)[]).flatMap((key) => {
@@ -37,21 +38,23 @@ export const toTags = <T,>(
         (v: OptionType) =>
           ({
             key: `${String(key)}.${v.value}`,
-            value: v.label,
+            value: truncate(v.label, { length: 25 }),
             ac: { type: "deleteTag", field: key, value: v.value },
           } as Tag<T>)
       );
     }
 
+    if (typeof state[key] === "string" && String(state[key]) === "") {
+      return [];
+    }
     return [
       {
         key,
-        value:
-          typeof state[key] === "string"
-            ? `"${state[key]}"`
-            : t(`${translationPrefix || ""}.filters.${String(key)}Tag`, {
-                value: get(state[key], "label"),
-              }),
+        value: noLabelFields.includes(String(key))
+          ? `"${state[key]}"`
+          : t(`${translationPrefix || ""}.filters.${String(key)}Tag`, {
+              value: get(state, key),
+            }),
 
         ac: {
           type: "deleteTag",

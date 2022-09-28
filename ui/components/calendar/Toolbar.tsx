@@ -5,11 +5,9 @@ import classNames from "classnames";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import fi from "date-fns/locale/fi";
 import styled from "styled-components";
-import { breakpoint } from "../../modules/style";
 
 export type ToolbarProps = {
   onNavigate: (n: string) => void;
-  onNavigateToNextAvailableDate?: () => void;
   onView: (n: string) => void;
   view: string;
   date: Date;
@@ -23,7 +21,6 @@ const Wrapper = styled.div`
   &:before {
     content: "";
     display: block;
-    background-color: var(--tilavaraus-gray);
     position: absolute;
     top: 0;
     right: 0;
@@ -38,19 +35,16 @@ const Wrapper = styled.div`
   display: flex;
   position: relative;
   justify-content: space-between;
-  padding-bottom: var(--spacing-xs);
+  margin-top: var(--spacing-m);
   margin-bottom: 0;
-
-  @media (min-width: ${breakpoint.m}) {
-    padding-bottom: var(--spacing-xl);
-  }
+  padding-bottom: var(--spacing-xs);
 
   .rbc-toolbar-label {
     &:first-letter {
       text-transform: capitalize;
     }
-    font-family: var(--font-bold);
-    font-weight: 700;
+    font-family: var(--font-medium);
+    font-weight: 500;
     font-size: var(--fontsize-body-l);
   }
 
@@ -83,32 +77,34 @@ const Wrapper = styled.div`
 
     cursor: pointer;
     border-radius: 0;
-    border: 2px solid var(--color-bus);
-    font-family: var(--font-bold) !important;
-    font-weight: 700;
-    color: var(--color-bus);
-    font-size: var(--fontsize-body-s);
-    height: 37px;
+    border: 2px solid var(--color-black);
+    font-family: var(--font-medium) !important;
+    font-weight: 500;
+    color: var(--color-black);
+    font-size: var(--fontsize-body-m);
+    height: 44px;
     user-select: none;
     margin-bottom: var(--spacing-xs);
   }
 
   .rbc-btn-group {
+    width: 100%;
+
     button {
       &.rbc-active {
         &:first-of-type,
         &:last-of-type {
           &:hover {
-            border-color: var(--color-bus-dark);
+            border-color: var(--color-bus);
           }
 
-          border-color: var(--color-bus-dark);
+          border-color: var(--color-bus);
         }
 
         cursor: default;
-        background-color: var(--color-bus-dark);
+        background-color: var(--color-bus);
         color: var(--color-white);
-        border-color: var(--color-bus-dark);
+        border-color: var(--color-bus);
       }
 
       &:first-of-type,
@@ -117,14 +113,23 @@ const Wrapper = styled.div`
           border-color: var(--color-black-30);
         }
 
-        border-right: 2px solid var(--color-bus);
-        border-left: 2px solid var(--color-bus);
+        border-right: 2px solid var(--color-black);
+        border-left: 2px solid var(--color-black);
       }
 
       cursor: pointer;
-      border-right: 1px solid var(--color-bus);
-      border-left: 1px solid var(--color-bus);
+      border-right: 1px solid var(--color-black);
+      border-left: 1px solid var(--color-black);
       font-family: var(--font-bold);
+      width: 33.333%;
+    }
+
+    @media (min-width: 400px) {
+      width: unset;
+
+      button {
+        width: unset;
+      }
     }
   }
 `;
@@ -132,13 +137,17 @@ const Wrapper = styled.div`
 const ButtonWrapper = styled.div`
   display: flex;
   gap: var(--spacing-s);
+  order: 2;
+
+  @media (min-width: 400px) {
+    order: unset;
+  }
 `;
 
 // eslint-disable-next-line react/prefer-stateless-function
 export default class Toolbar extends React.Component<ToolbarProps> {
   render(): JSX.Element {
-    const { onNavigate, onNavigateToNextAvailableDate, onView, view, date } =
-      this.props;
+    const { onNavigate, onView, view, date } = this.props;
 
     const culture = { locale: locales[i18n.language] };
 
@@ -165,17 +174,17 @@ export default class Toolbar extends React.Component<ToolbarProps> {
         const end = endOfWeek(date, culture);
         const startDay = format(start, "d", culture);
         const endDay = format(end, "d", culture);
-        const startMonth = format(start, "MMMM", culture);
-        const endMonth = format(end, "MMMM", culture);
+        const startMonth = format(start, "M", culture);
+        const endMonth = format(end, "M", culture);
         const startYear = format(start, "yyyy", culture);
         const endYear = format(end, "yyyy", culture);
         const currentYear = format(new Date(), "yyyy", culture);
         title = `${startDay}.${
-          startMonth !== endMonth ? ` ${startMonth}` : ""
-        } ${
-          startYear !== endYear ? ` ${startYear}` : ""
-        }–${endDay}. ${endMonth} ${
-          startYear !== endYear || endYear !== currentYear ? ` ${endYear}` : ""
+          startMonth !== endMonth ? `${startMonth}.` : ""
+        }${
+          startYear !== endYear ? `${startYear}` : ""
+        } – ${endDay}.${endMonth}.${
+          startYear !== endYear || endYear !== currentYear ? `${endYear}` : ""
         }`;
       }
     }
@@ -185,18 +194,15 @@ export default class Toolbar extends React.Component<ToolbarProps> {
         <ButtonWrapper>
           <button
             type="button"
-            onClick={() => onNavigate("TODAY")}
+            onClick={() => {
+              if (view === "month") {
+                onView("week");
+              }
+              onNavigate("TODAY");
+            }}
             aria-label={i18n.t("reservationCalendar:showCurrentDay")}
           >
             {i18n.t("common:today")}
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigateToNextAvailableDate()}
-            aria-label={i18n.t("reservationCalendar:nextAvailableTime")}
-            disabled={!onNavigateToNextAvailableDate}
-          >
-            {i18n.t("reservationCalendar:nextAvailableTime")}
           </button>
         </ButtonWrapper>
         <div className="rbc-toolbar-navigation-hz">

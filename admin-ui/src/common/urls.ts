@@ -13,6 +13,12 @@ export const applicationRoundUrl = (
 export const applicationUrl = (applicationId: number | string): string =>
   `${prefixes.applications}/${applicationId}`;
 
+export const reservationUrl = (reservationId: number | string): string =>
+  `${prefixes.reservations}/${reservationId}`;
+
+export const requestedReservationsUrl = (): string =>
+  `${prefixes.reservations}/requested`;
+
 export const applicationDetailsUrl = (applicationId: number | string): string =>
   `${prefixes.applications}/${applicationId}/details`;
 
@@ -24,5 +30,11 @@ export const reservationUnitUrl = (
   reservationUnitId: number,
   unitId: number
 ): string => `/unit/${unitId}/reservationUnit/edit/${reservationUnitId}`;
+
+export const spaceUrl = (spaceId: number, unitId: number): string =>
+  `/unit/${unitId}/space/edit/${spaceId}`;
+
+export const resourceUrl = (resourceId: number, unitId: number): string =>
+  `/unit/${unitId}/resource/edit/${resourceId}`;
 
 export const unitUrl = (unitId: number): string => `/unit/${unitId}`;

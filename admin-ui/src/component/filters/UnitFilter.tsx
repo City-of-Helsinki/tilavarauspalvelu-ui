@@ -8,7 +8,7 @@ import SortedSelect from "../ReservationUnits/ReservationUnitEditor/SortedSelect
 
 const UNITS_QUERY = gql`
   query units {
-    units {
+    units(onlyWithPermission: true) {
       edges {
         node {
           nameFi
@@ -19,12 +19,12 @@ const UNITS_QUERY = gql`
   }
 `;
 
-type UnitComboboxProps = {
+type Props = {
   onChange: (units: OptionType[]) => void;
   value: OptionType[];
 };
 
-const UnitFilter = ({ onChange, value }: UnitComboboxProps): JSX.Element => {
+const UnitFilter = ({ onChange, value }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { data, loading } = useQuery<Query>(UNITS_QUERY);
 

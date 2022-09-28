@@ -1,5 +1,6 @@
 import {
   addDays,
+  addMinutes,
   addSeconds,
   areIntervalsOverlapping,
   differenceInSeconds,
@@ -12,31 +13,30 @@ import {
 } from "date-fns";
 import { TFunction } from "next-i18next";
 import {
-  CalendarEventBuffer,
-  SlotProps,
-} from "../components/calendar/Calendar";
-import {
   OpeningTimesType,
   ReservationType,
   ReservationUnitByPkType,
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
   ReservationUnitType,
-} from "./gql-types";
+} from "../../types/gql-types";
 import {
+  CalendarEventBuffer,
+  SlotProps,
   ApplicationEvent,
   ApplicationRound,
   OptionType,
   PendingReservation,
-} from "./types";
+} from "../../types/common";
 import {
   convertHMSToSeconds,
   endOfWeek,
+  formatSecondDuration,
   parseDate,
   secondsToHms,
   startOfWeek,
   toApiDate,
   toUIDate,
-} from "./util";
+} from "../common/util";
 
 export const longDate = (date: Date, t: TFunction): string =>
   t("common:dateLong", {
@@ -103,17 +103,17 @@ export const isReservationLongEnough = (
   return reservationDuration >= minDuration;
 };
 
-const areOpeningTimesAvailable = (
-  openingHours: OpeningTimesType[],
+const areOpeningTimesAvailable = <T extends Record<string, unknown>>(
+  openingHours: T[],
   slotDate: Date
-) => {
+): boolean => {
   return !!openingHours?.some((oh) => {
     const startDate = oh.date;
     const startDateTime = new Date(`${startDate}T${oh.startTime}`);
     const endDateTime = new Date(`${startDate}T${oh.endTime}`);
 
     return (
-      toApiDate(slotDate) === startDate.toString() &&
+      toApiDate(slotDate) === startDate?.toString() &&
       slotDate < endDateTime &&
       startDateTime.getDay() === slotDate.getDay() &&
       startDateTime.getHours() <= slotDate.getHours() &&
@@ -122,10 +122,31 @@ const areOpeningTimesAvailable = (
   });
 };
 
-export const isSlotWithinTimeframe = (start: Date, bufferDays = 0): boolean => {
-  return bufferDays
-    ? isAfter(start, startOfDay(addDays(new Date(), bufferDays)))
-    : isAfter(start, new Date());
+export const isSlotWithinReservationTime = (
+  start: Date,
+  reservationBegins?: Date,
+  reservationEnds?: Date
+): boolean => {
+  return (
+    (!reservationBegins || isAfter(start, new Date(reservationBegins))) &&
+    (!reservationEnds || isBefore(start, new Date(reservationEnds)))
+  );
+};
+
+export const isSlotWithinTimeframe = (
+  start: Date,
+  reservationsMinDaysBefore = 0,
+  reservationBegins?: Date,
+  reservationEnds?: Date
+): boolean => {
+  return reservationsMinDaysBefore
+    ? isAfter(
+        start,
+        startOfDay(addDays(new Date(), reservationsMinDaysBefore))
+      ) &&
+        isSlotWithinReservationTime(start, reservationBegins, reservationEnds)
+    : isAfter(start, new Date()) &&
+        isSlotWithinReservationTime(start, reservationBegins, reservationEnds);
 };
 
 const doesSlotCollideWithApplicationRounds = (
@@ -141,17 +162,24 @@ const doesSlotCollideWithApplicationRounds = (
   );
 };
 
-export const areSlotsReservable = (
+export const areSlotsReservable = <T extends Record<string, unknown>>(
   slots: Date[],
-  openingHours: OpeningTimesType[],
+  openingHours: T[],
   activeApplicationRounds: ApplicationRound[] = [],
-  bufferDays?: number
+  reservationBegins?: Date,
+  reservationEnds?: Date,
+  reservationsMinDaysBefore = 0
 ): boolean => {
   return slots.every((slot) => {
     const slotDate = new Date(slot);
     return (
       areOpeningTimesAvailable(openingHours, slotDate) &&
-      isSlotWithinTimeframe(slotDate, bufferDays) &&
+      isSlotWithinTimeframe(
+        slotDate,
+        reservationsMinDaysBefore,
+        reservationBegins,
+        reservationEnds
+      ) &&
       !doesSlotCollideWithApplicationRounds(activeApplicationRounds, slot)
     );
   });
@@ -196,7 +224,7 @@ export const getDayIntervals = (
     default:
   }
 
-  if (!intervalSeconds || start >= end) return [];
+  if (!intervalSeconds || !start || !end || start >= end) return [];
 
   for (let i = start; i <= end; i += intervalSeconds) {
     const { h, m, s } = secondsToHms(i);
@@ -217,7 +245,8 @@ export const isStartTimeWithinInterval = (
 ): boolean => {
   if (openingTimes?.length < 1) return false;
   if (!interval) return true;
-  const startHMS = toUIDate(start, "HH:mm:ss");
+
+  const startHMS = `${toUIDate(start, "HH:mm")}:00`;
   const { startTime: dayStartTime, endTime: dayEndTime } =
     openingTimes?.find((n) => n.date === toApiDate(start)) || {};
 
@@ -240,7 +269,9 @@ export const getSlotPropGetter =
   (
     openingHours: OpeningTimesType[],
     activeApplicationRounds: ApplicationRound[],
-    bufferDays?: number
+    reservationBegins: Date,
+    reservationEnds: Date,
+    reservationsMinDaysBefore?: number
   ) =>
   (date: Date): SlotProps => {
     switch (
@@ -248,7 +279,9 @@ export const getSlotPropGetter =
         [date],
         openingHours,
         activeApplicationRounds,
-        bufferDays
+        reservationBegins,
+        reservationEnds,
+        reservationsMinDaysBefore
       )
     ) {
       case true:
@@ -265,7 +298,6 @@ export const getTimeslots = (
 ): number => {
   switch (interval) {
     case "INTERVAL_90_MINS":
-      return 3;
     case "INTERVAL_60_MINS":
     case "INTERVAL_30_MINS":
     case "INTERVAL_15_MINS":
@@ -280,7 +312,7 @@ export const getBufferedEventTimes = (
   bufferTimeBefore?: number,
   bufferTimeAfter?: number
 ): { start: Date; end: Date } => {
-  const before = addSeconds(start, -1 * bufferTimeBefore || 0);
+  const before = addSeconds(start, -1 * (bufferTimeBefore || 0));
   const after = addSeconds(end, bufferTimeAfter || 0);
   return { start: before, end: after };
 };
@@ -290,16 +322,16 @@ export const doesBufferCollide = (
   newReservation: {
     start: Date;
     end: Date;
-    bufferTimeBefore: number;
-    bufferTimeAfter: number;
+    bufferTimeBefore?: number;
+    bufferTimeAfter?: number;
   }
 ): boolean => {
   const newReservationStartBuffer =
-    reservation.bufferTimeAfter > newReservation.bufferTimeBefore
+    reservation.bufferTimeAfter > (newReservation.bufferTimeBefore || 0)
       ? reservation.bufferTimeAfter
       : newReservation.bufferTimeBefore;
   const newReservationEndBuffer =
-    reservation.bufferTimeBefore > newReservation.bufferTimeAfter
+    reservation.bufferTimeBefore > (newReservation.bufferTimeAfter || 0)
       ? reservation.bufferTimeBefore
       : newReservation.bufferTimeAfter;
 
@@ -331,8 +363,8 @@ export const doBuffersCollide = (
   newReservation: {
     start: Date;
     end: Date;
-    bufferTimeBefore: number;
-    bufferTimeAfter: number;
+    bufferTimeBefore?: number;
+    bufferTimeAfter?: number;
   }
 ): boolean => {
   return reservations.some((reservation) =>
@@ -373,11 +405,18 @@ export const isReservationUnitReservable = (
   reservationUnit: ReservationUnitType | ReservationUnitByPkType,
   now = new Date()
 ): boolean => {
+  const bufferDays = reservationUnit.reservationsMaxDaysBefore || 0;
+  const negativeBuffer = Math.abs(bufferDays) * -1;
+
   const isAfterReservationStart =
-    now >= new Date(reservationUnit.reservationBegins);
+    now >= addDays(new Date(reservationUnit.reservationBegins), negativeBuffer);
   const isBeforeReservationEnd =
     now <= new Date(reservationUnit.reservationEnds);
+
   return (
+    // reservationUnit.openingHours?.openingTimes?.length > 0 &&
+    !!reservationUnit.minReservationDuration &&
+    !!reservationUnit.maxReservationDuration &&
     (isAfterReservationStart || !reservationUnit.reservationBegins) &&
     (isBeforeReservationEnd || !reservationUnit.reservationEnds)
   );
@@ -387,8 +426,86 @@ export const isReservationStartInFuture = (
   reservationUnit: ReservationUnitType | ReservationUnitByPkType,
   now = new Date()
 ): boolean => {
+  const bufferDays = reservationUnit.reservationsMaxDaysBefore || 0;
+  const negativeBuffer = Math.abs(bufferDays) * -1;
+
   return (
     !!reservationUnit.reservationBegins &&
-    now < new Date(reservationUnit.reservationBegins)
+    now < addDays(new Date(reservationUnit.reservationBegins), negativeBuffer)
   );
+};
+
+export const getNormalizedReservationBeginTime = (
+  reservationUnit: ReservationUnitType | ReservationUnitByPkType
+): string => {
+  const bufferDays = reservationUnit.reservationsMaxDaysBefore || 0;
+  const negativeBuffer = Math.abs(bufferDays) * -1;
+
+  return addDays(
+    new Date(reservationUnit.reservationBegins),
+    negativeBuffer
+  ).toISOString();
+};
+
+export const parseTimeframeLength = (begin: string, end: string): string => {
+  const beginDate = new Date(begin);
+  const endDate = new Date(end);
+  const diff = differenceInSeconds(endDate, beginDate);
+  return formatSecondDuration(diff);
+};
+
+export const getMaxReservation = (
+  begin: Date,
+  duration: number
+): { begin: Date; end: Date } => {
+  const slots = duration / (30 * 60);
+  const end = addMinutes(begin, slots * 30);
+  return { begin, end };
+};
+
+export const getAvailableTimes = (
+  reservationUnit: ReservationUnitByPkType,
+  date: Date
+): string[] => {
+  const { openingHours, reservationStartInterval } = reservationUnit;
+
+  const openingTimes = openingHours?.openingTimes?.find(
+    (n) => n?.date === toUIDate(date, "yyyy-MM-dd")
+  );
+
+  const { startTime, endTime } = openingTimes || {};
+
+  const intervals = getDayIntervals(
+    startTime,
+    endTime,
+    reservationStartInterval
+  );
+
+  const times: string[] = intervals.map((val) => {
+    const [startHours, startMinutes] = val.split(":").map(Number);
+
+    const start = new Date(date);
+    start.setHours(startHours, startMinutes);
+
+    return toUIDate(start, "HH:mm");
+  });
+
+  return times;
+};
+
+export const getOpenDays = (
+  reservationUnit: ReservationUnitByPkType
+): Date[] => {
+  const { openingHours } = reservationUnit;
+
+  const openDays: Date[] = [];
+
+  openingHours?.openingTimes?.forEach((openingTime) => {
+    if (openingTime && openingTime.state === "open") {
+      const date = new Date(openingTime?.date);
+      openDays.push(date);
+    }
+  });
+
+  return openDays.sort((a, b) => a.getTime() - b.getTime());
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import NukaCarousel from "nuka-carousel";
 import { IconAngleLeft, IconAngleRight } from "hds-react";
 import styled from "styled-components";
@@ -13,6 +13,7 @@ type Props = {
   cellSpacing?: number;
   wrapAround?: boolean;
   hideCenterControls?: boolean;
+  button?: ReactNode;
 };
 
 const Button = styled(MediumButton).attrs({
@@ -42,6 +43,7 @@ const Button = styled(MediumButton).attrs({
 
 const StyledCarousel = styled(NukaCarousel)<{ $showCenterControls: boolean }>`
   width: calc(100% + var(--spacing-xs) * 2) !important;
+  height: fit-content !important;
   margin-right: calc(var(--spacing-xs) * -1);
   margin-left: calc(var(--spacing-xs) * -1);
 
@@ -53,18 +55,17 @@ const StyledCarousel = styled(NukaCarousel)<{ $showCenterControls: boolean }>`
     transform: unset !important;
 
     ul {
-      top: var(--spacing-m) !important;
-      gap: var(--spacing-s);
+      gap: var(--spacing-3-xs);
       flex-wrap: wrap;
       width: 100%;
       justify-content: center;
+      position: static !important;
     }
 
     .paging-item {
       button {
         svg {
           transform: scale(1.9);
-          border: 1px solid var(--color-black-50);
           border-radius: 50%;
           fill: var(--color-black-20);
         }
@@ -74,6 +75,7 @@ const StyledCarousel = styled(NukaCarousel)<{ $showCenterControls: boolean }>`
 
   @media (min-width: ${breakpoint.m}) {
     width: 100% !important;
+    height: fit-content !important;
     margin: 0 !important;
   }
 `;
@@ -129,9 +131,12 @@ const Carousel = ({
   cellSpacing = 1,
   wrapAround = true,
   hideCenterControls = false,
+  button,
   ...rest
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+
+  const ButtonComponent = button || VerticalButton;
 
   return (
     <StyledCarousel
@@ -139,7 +144,7 @@ const Carousel = ({
         const isDisabled =
           (!wrapAround && currentSlide === 0) || children.length < 2;
         return (
-          <VerticalButton
+          <ButtonComponent
             $disabled={isDisabled}
             $side="left"
             type="button"
@@ -147,7 +152,7 @@ const Carousel = ({
             aria-label={t("common:prev")}
           >
             <IconAngleLeft aria-label={t("common:prev")} />
-          </VerticalButton>
+          </ButtonComponent>
         );
       }}
       renderCenterRightControls={({
@@ -160,7 +165,7 @@ const Carousel = ({
           (!wrapAround && currentSlide + sts >= slideCount) ||
           children.length < 2;
         return (
-          <VerticalButton
+          <ButtonComponent
             $disabled={isDisabled}
             $side="right"
             type="button"
@@ -168,7 +173,7 @@ const Carousel = ({
             aria-label={t("common:next")}
           >
             <IconAngleRight aria-label={t("common:next")} />
-          </VerticalButton>
+          </ButtonComponent>
         );
       }}
       wrapAround={wrapAround}

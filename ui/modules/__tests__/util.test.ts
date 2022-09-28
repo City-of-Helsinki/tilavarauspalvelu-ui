@@ -1,19 +1,23 @@
+import { ApolloError } from "@apollo/client";
+import {
+  secondsToHms,
+  convertHMSToSeconds,
+  formatDuration,
+} from "common/src/common/util";
 import {
   ApplicationEventSchedule,
   ApplicationEventSchedulePriority,
   Cell,
   DAY,
-} from "../types";
+} from "common/types/common";
 import {
   cellsToApplicationEventSchedules,
   applicationEventSchedulesToCells,
   applicationRoundState,
   getComboboxValues,
-  secondsToHms,
-  convertHMSToSeconds,
-  formatDuration,
   getReadableList,
   omitEmptyKeys,
+  printErrorMessages,
 } from "../util";
 
 jest.mock("next/config", () => () => ({
@@ -193,4 +197,29 @@ test("omitEmptyKeys", () => {
     bar: "bar",
   });
   expect(omitEmptyKeys({})).toEqual({});
+});
+
+test("printErrorMessages", () => {
+  expect(
+    printErrorMessages({
+      graphQLErrors: [
+        {
+          extensions: { error_code: "RESERVATION_UNITS_MAX_DURATION_EXCEEDED" },
+        },
+      ],
+    } as unknown as ApolloError)
+  ).toEqual("errors:RESERVATION_UNITS_MAX_DURATION_EXCEEDED");
+
+  expect(
+    printErrorMessages({
+      graphQLErrors: [
+        {
+          extensions: { error_code: "SOMETHING" },
+        },
+        {
+          extensions: { error_code: "SOMETHING_ELSE" },
+        },
+      ],
+    } as unknown as ApolloError)
+  ).toEqual("errors:SOMETHING\nerrors:SOMETHING_ELSE");
 });

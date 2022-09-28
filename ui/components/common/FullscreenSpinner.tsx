@@ -10,7 +10,7 @@ const Wrapper = styled.div<{ $isTransparent?: boolean }>`
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 100;
+  z-index: 300;
 `;
 
 const StyledLoadingSpinner = styled(LoadingSpinner)`

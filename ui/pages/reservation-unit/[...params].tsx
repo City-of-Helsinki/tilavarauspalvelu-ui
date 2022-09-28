@@ -10,6 +10,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation } from "@apollo/client";
 import router from "next/router";
 import { parseISO } from "date-fns";
+import { useSessionStorage } from "react-use";
 import {
   Notification,
   TextInput,
@@ -24,7 +25,8 @@ import { Controller, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import { camelCase, get, isFinite, omit } from "lodash";
 import { Trans, useTranslation } from "react-i18next";
-import apolloClient from "../../../modules/apolloClient";
+import { ReservationState } from "common/types/common";
+import apolloClient from "../../modules/apolloClient";
 import {
   fontRegular,
   fontMedium,
@@ -32,23 +34,23 @@ import {
   H2,
   H3,
   Strong,
-} from "../../../modules/style/typography";
-import { breakpoint } from "../../../modules/style";
+} from "../../modules/style/typography";
+import { breakpoint } from "../../modules/style";
 import {
   CheckboxWrapper,
   TwoColumnContainer,
-} from "../../../components/common/common";
-import { NarrowCenteredContainer } from "../../../modules/style/layout";
-import { AccordionWithState as Accordion } from "../../../components/common/Accordion";
-import { isBrowser, reservationUnitSinglePrefix } from "../../../modules/const";
+} from "../../components/common/common";
+import { NarrowCenteredContainer } from "../../modules/style/layout";
+import { AccordionWithState as Accordion } from "../../components/common/Accordion";
+import { isBrowser, reservationUnitPrefix } from "../../modules/const";
 import {
   applicationErrorText,
   capitalize,
   getTranslation,
+  printErrorMessages,
   reservationsUrl,
-} from "../../../modules/util";
-import { MediumButton } from "../../../styles/util";
-import { DataContext } from "../../../context/DataContext";
+} from "../../modules/util";
+import { MediumButton } from "../../styles/util";
 import {
   AgeGroupType,
   CityType,
@@ -65,34 +67,33 @@ import {
   ReservationUpdateMutationInput,
   ReservationUpdateMutationPayload,
   TermsOfUseType,
-} from "../../../modules/gql-types";
+} from "../../modules/gql-types";
 import {
   RESERVATION_UNIT,
   TERMS_OF_USE,
-} from "../../../modules/queries/reservationUnit";
+} from "../../modules/queries/reservationUnit";
 import {
   CONFIRM_RESERVATION,
   GET_CITIES,
   UPDATE_RESERVATION,
-} from "../../../modules/queries/reservation";
-import StepperHz from "../../../components/StepperHz";
-import Ticket from "../../../components/reservation/Ticket";
-import Sanitize from "../../../components/common/Sanitize";
+} from "../../modules/queries/reservation";
+import StepperHz from "../../components/StepperHz";
+import Ticket from "../../components/reservation/Ticket";
+import Sanitize from "../../components/common/Sanitize";
 import {
   getPrice,
+  getReservationUnitInstructionsKey,
   getReservationUnitName,
   getUnitName,
-} from "../../../modules/reservationUnit";
+} from "../../modules/reservationUnit";
 import {
   getReservationApplicationFields,
   getReservationApplicationMutationValues,
   ReserveeType,
-} from "../../../modules/reservation";
-import {
-  AGE_GROUPS,
-  RESERVATION_PURPOSES,
-} from "../../../modules/queries/params";
-import KorosDefault from "../../../components/common/KorosDefault";
+} from "../../modules/reservation";
+import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
+import KorosDefault from "../../components/common/KorosDefault";
+import { DataContext } from "../../context/DataContext";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -429,11 +430,13 @@ const ReservationUnitReservation = ({
   cities,
   termsOfUse,
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
-  const {
-    reservation: reservationData,
-    setReservation: setContextReservation,
-  } = useContext(DataContext);
+  const { t, i18n } = useTranslation();
+  const [reservationData, setPendingReservation] = useSessionStorage(
+    "pendingReservation",
+    null
+  );
+
+  const { setReservation: setDataContext } = useContext(DataContext);
 
   const [formStatus, setFormStatus] = useState<"pending" | "error" | "sent">(
     "pending"
@@ -474,19 +477,15 @@ const ReservationUnitReservation = ({
   const hasMetadataSet = !!reservationUnit?.metadataSet?.supportedFields;
 
   useEffect(() => {
-    return () => {
-      setContextReservation(null);
-    };
-  }, [setContextReservation]);
-
-  useEffect(() => {
     if (!updateLoading) {
-      if (updateError || updateData?.updateReservation?.errors?.length > 0) {
-        setErrorMsg(t("reservationUnit:reservationUpdateFailed"));
+      if (updateError) {
+        const msg = printErrorMessages(updateError);
+        setErrorMsg(msg);
       } else if (updateData) {
         if (updateData.updateReservation.reservation.state === "CANCELLED") {
-          setContextReservation(null);
-          router.push(`${reservationUnitSinglePrefix}/${reservationUnit.pk}`);
+          setDataContext(null);
+          setPendingReservation(null);
+          router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
         } else {
           const payload = {
             ...omit(updateData.updateReservation.reservation, "__typename"),
@@ -512,8 +511,9 @@ const ReservationUnitReservation = ({
     if (!confirmLoading) {
       window.scrollTo(0, 0);
 
-      if (confirmError || confirmData?.confirmReservation?.errors?.length > 0) {
-        setErrorMsg(t("reservationUnit:reservationUpdateFailed"));
+      if (confirmError) {
+        const msg = printErrorMessages(updateError);
+        setErrorMsg(msg);
       } else if (confirmData) {
         setReservation({
           ...reservation,
@@ -521,6 +521,7 @@ const ReservationUnitReservation = ({
         });
         setFormStatus("sent");
         setStep(2);
+        setPendingReservation(null);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -544,15 +545,26 @@ const ReservationUnitReservation = ({
     [reservationPurposes, ageGroups, cities]
   );
 
+  const instructionsKey = useMemo(
+    () =>
+      getReservationUnitInstructionsKey(reservation?.state as ReservationState),
+    [reservation?.state]
+  );
+
   if (
     isBrowser &&
+    step !== 2 &&
     (!reservationData?.pk || !reservationData?.begin || !reservationData?.end)
   ) {
-    router.push(`${reservationUnitSinglePrefix}/${reservationUnit.pk}`);
+    router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
     return null;
   }
 
-  const { pk: reservationPk, begin, end } = reservationData || {};
+  const {
+    pk: reservationPk,
+    begin,
+    end,
+  } = reservation || reservationData || {};
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -581,6 +593,7 @@ const ReservationUnitReservation = ({
       reserveePhone: payload.reserveePhone,
       name: payload.name,
       description: payload.description,
+      reserveeLanguage: i18n.language,
     };
 
     setReservation(input);
@@ -608,9 +621,11 @@ const ReservationUnitReservation = ({
         input: {
           pk: reservationPk,
           state: "CANCELLED",
+          reserveeLanguage: i18n.language,
         },
       },
     });
+    setPendingReservation(null);
   };
 
   const onSubmitApplication1 = (payload) => {
@@ -638,6 +653,7 @@ const ReservationUnitReservation = ({
         input: {
           pk: reservationPk,
           ...input,
+          reserveeLanguage: i18n.language,
         },
       },
     });
@@ -674,7 +690,7 @@ const ReservationUnitReservation = ({
                 end={end}
                 state={formStatus === "sent" ? "complete" : "incomplete"}
                 isFree={!getPrice(reservationUnit)}
-                reservationPrice={reservationData.price}
+                reservationPrice={reservation?.price || reservationData?.price}
                 // taxPercentage={reservationUnit.taxPercentage}
               />
             </div>
@@ -1245,13 +1261,13 @@ const ReservationUnitReservation = ({
                   {t("common:sendFeedback")}
                 </a>
               </Paragraph>
-              {getTranslation(reservationUnit, "additionalInstructions") && (
+              {getTranslation(reservationUnit, instructionsKey) && (
                 <>
                   <H3 style={{ marginTop: "var(--spacing-xl)" }}>
                     {t("reservations:reservationInfo")}
                   </H3>
                   <Paragraph>
-                    {getTranslation(reservationUnit, "additionalInstructions")}
+                    {getTranslation(reservationUnit, instructionsKey)}
                   </Paragraph>
                 </>
               )}
@@ -1365,7 +1381,7 @@ const ReservationUnitReservation = ({
       {errorMsg && (
         <Notification
           type="error"
-          label={t("common:error.error")}
+          label={t("reservationUnit:reservationUpdateFailed")}
           position="top-center"
           autoClose
           autoCloseDuration={2000}

@@ -3363,6 +3363,14 @@
   dependencies:
     parchment "^1.1.2"
 
+"@types/react-big-calendar@^0.33.2":
+  version "0.33.2"
+  resolved "https://registry.yarnpkg.com/@types/react-big-calendar/-/react-big-calendar-0.33.2.tgz#a739c61985bbe59fee2a65a9a231a575e49263b6"
+  integrity sha512-UhwDIeCqp77Ik70gS+pkeMv645Ya7l67g7KHEqr1U2FtBsw7E44PbR30zjpGW/3p1/nmEy/pCiJPLJkriO70wg==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/react" "*"
+
 "@types/react-dom@17.0.11", "@types/react-dom@<18.0.0", "@types/react-dom@^17.0.6", "@types/react-dom@^17.0.8":
   version "17.0.11"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.11.tgz#e1eadc3c5e86bdb5f7684e00274ae228e7bcc466"
@@ -9372,7 +9380,7 @@ icss-utils@^4.0.0, icss-utils@^4.1.1:
   dependencies:
     postcss "^7.0.14"
 
-identity-obj-proxy@3.0.0:
+identity-obj-proxy@3.0.0, identity-obj-proxy@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/identity-obj-proxy/-/identity-obj-proxy-3.0.0.tgz#94d2bda96084453ef36fbc5aaec37e0f79f1fc14"
   integrity sha1-lNK9qWCERT7zb7xarsN+D3nx/BQ=
@@ -17813,9 +17821,9 @@ uncontrollable@^7.0.0:
     react-lifecycles-compat "^3.0.4"
 
 undici@^5.1.0:
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-5.8.0.tgz#dec9a8ccd90e5a1d81d43c0eab6503146d649a4f"
-  integrity sha512-1F7Vtcez5w/LwH2G2tGnFIihuWUlc58YidwLiCv+jR2Z50x0tNXpRRw7eOIJ+GvqCqIkg9SB7NWAJ/T9TLfv8Q==
+  version "5.9.1"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-5.9.1.tgz#fc9fd85dd488f965f153314a63d9426a11f3360b"
+  integrity sha512-6fB3a+SNnWEm4CJbgo0/CWR8RGcOCQP68SF4X0mxtYTq2VNN8T88NYrWVBAeSX+zb7bny2dx2iYhP3XHi00omg==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"

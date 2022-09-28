@@ -8,8 +8,7 @@ import { useDebounce } from "react-use";
 import { useQuery, ApolloError } from "@apollo/client";
 
 import { DataFilterConfig } from "../../common/types";
-import { IngressContainer } from "../../styles/layout";
-import { H1 } from "../../styles/typography";
+import { H1 } from "../../styles/new-typography";
 import withMainMenu from "../withMainMenu";
 import Loader from "../Loader";
 import DataTable, { CellConfig } from "../DataTable";
@@ -20,9 +19,16 @@ import { RESOURCES_QUERY } from "../../common/queries";
 import { Query, ResourceType } from "../../common/gql-types";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 import { useNotification } from "../../context/NotificationContext";
+import { resourceUrl } from "../../common/urls";
 
 const Wrapper = styled.div`
-  padding: var(--spacing-layout-xl) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-layout-2-xs);
+
+  padding: var(--spacing-layout-2-xs) 0 var(--spacing-layout-m)
+    var(--spacing-layout-m);
+  max-width: var(--container-width-l);
 `;
 
 const SearchContainer = styled.div`
@@ -100,7 +106,7 @@ const getCellConfig = (t: TFunction): CellConfig => {
     sorting: "name",
     order: "asc",
     rowLink: ({ space, pk }: ResourceType) =>
-      `/unit/${space?.unit?.pk}/resource/edit/${pk}`,
+      resourceUrl(Number(pk), Number(space?.unit?.pk)),
   };
 };
 
@@ -114,7 +120,6 @@ const getFilterConfig = (
   const types = uniq(resources.map((resource) => resource.locationType)).filter(
     (n) => n
   );
-  // const districts = uniq(spaces.map((space: Space) => space.building.district));
 
   return [
     {
@@ -203,7 +208,7 @@ const ResourcesList = (): JSX.Element => {
     <>
       <BreadcrumbWrapper route={["spaces-n-settings", "resources"]} />
       <Wrapper>
-        <IngressContainer>
+        <div>
           <H1>{t("Resources.resourceListHeading")}</H1>
           <p>{t("Resources.resourceListDescription")}</p>
           <SearchContainer>
@@ -229,7 +234,7 @@ const ResourcesList = (): JSX.Element => {
           <ResourceCount>
             {resources.length} {t("common.volumeUnit")}
           </ResourceCount>
-        </IngressContainer>
+        </div>
         <DataTable
           groups={[{ id: 1, data: filteredResources }]}
           hasGrouping={false}

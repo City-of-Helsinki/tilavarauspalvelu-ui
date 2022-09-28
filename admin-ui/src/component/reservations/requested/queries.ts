@@ -16,6 +16,7 @@ export const RESERVATION_QUERY = gql`
   query reservationByPk($pk: Int!) {
     reservationByPk(pk: $pk) {
       pk
+      createdAt
       workingMemo
       reservationUnits {
         nameFi
@@ -31,6 +32,9 @@ export const RESERVATION_QUERY = gql`
         maximum
       }
       purpose {
+        nameFi
+      }
+      homeCity {
         nameFi
       }
       numPersons
@@ -108,33 +112,6 @@ export const RESERVATION_DENY_REASONS = gql`
         node {
           pk
           reasonFi
-        }
-      }
-    }
-  }
-`;
-
-export const RESERVATIONS_QUERY = gql`
-  query reservations {
-    reservations {
-      edges {
-        node {
-          pk
-          workingMemo
-          state
-          reservationUnits {
-            nameFi
-            unit {
-              nameFi
-            }
-          }
-          begin
-          end
-          reserveeFirstName
-          reserveeLastName
-          reserveeEmail
-          name
-          price
         }
       }
     }

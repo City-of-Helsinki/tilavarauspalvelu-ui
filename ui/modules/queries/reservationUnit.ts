@@ -23,12 +23,22 @@ export const RESERVATION_UNIT = gql`
       lowestPrice
       highestPrice
       priceUnit
+      pricingType
+      taxPercentage {
+        value
+      }
       termsOfUseFi
       termsOfUseEn
       termsOfUseSv
-      additionalInstructionsFi
-      additionalInstructionsEn
-      additionalInstructionsSv
+      reservationPendingInstructionsFi
+      reservationPendingInstructionsEn
+      reservationPendingInstructionsSv
+      reservationConfirmedInstructionsFi
+      reservationConfirmedInstructionsEn
+      reservationConfirmedInstructionsSv
+      reservationCancelledInstructionsFi
+      reservationCancelledInstructionsEn
+      reservationCancelledInstructionsSv
       bufferTimeBefore
       bufferTimeAfter
       reservationStartInterval
@@ -37,9 +47,16 @@ export const RESERVATION_UNIT = gql`
       reservationBegins
       reservationEnds
       serviceSpecificTerms {
-        nameFi
-        nameEn
-        nameSv
+        textFi
+        textEn
+        textSv
+      }
+      cancellationTerms {
+        textFi
+        textEn
+        textSv
+      }
+      paymentTerms {
         textFi
         textEn
         textSv
@@ -53,6 +70,8 @@ export const RESERVATION_UNIT = gql`
       minReservationDuration
       maxReservationDuration
       maxReservationsPerUser
+      reservationsMinDaysBefore
+      reservationsMaxDaysBefore
       nextAvailableSlot
       unit {
         id
@@ -113,6 +132,17 @@ export const RESERVATION_UNIT = gql`
         }
       }
       allowReservationsWithoutOpeningHours
+      pricings {
+        begins
+        priceUnit
+        pricingType
+        lowestPrice
+        highestPrice
+        taxPercentage {
+          value
+        }
+        status
+      }
     }
   }
 `;
@@ -162,6 +192,7 @@ export const RESERVATION_UNITS = gql`
           lowestPrice
           highestPrice
           priceUnit
+          pricingType
           nameFi
           reservationBegins
           reservationEnds
