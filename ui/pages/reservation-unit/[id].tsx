@@ -384,10 +384,10 @@ const PaddedContent = styled(Content)`
   padding-top: var(--spacing-m);
 `;
 
-const CalendarFooter = styled.div<{ $isCookieHubBannerActive: boolean }>`
+const CalendarFooter = styled.div<{ $cookiehubBannerHeight?: number }>`
   position: sticky;
-  bottom: ${({ $isCookieHubBannerActive }) =>
-    $isCookieHubBannerActive ? "92px" : 0};
+  bottom: ${({ $cookiehubBannerHeight }) =>
+    $cookiehubBannerHeight ? `${$cookiehubBannerHeight}px` : 0};
   background-color: var(--color-white);
   z-index: var(--tilavaraus-stack-order-sticky-container);
 
@@ -861,13 +861,16 @@ const ReservationUnit = ({
     ]
   );
 
-  const [isCookiehubBannerVisible, setIsCookiehubBannerVisible] =
-    useState(false);
+  const [cookiehubBannerHeight, setCookiehubBannerHeight] = useState<
+    number | null
+  >(null);
 
   const onScroll = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const isBannerVisible = (window as any).cookiehub?.hasAnswered() === false;
-    setIsCookiehubBannerVisible(isBannerVisible);
+    const banner: HTMLElement = window.document.querySelector(
+      ".ch2 .ch2-dialog.ch2-visible"
+    );
+    const height: number = banner?.offsetHeight;
+    setCookiehubBannerHeight(height);
   };
 
   useEffect(() => {
@@ -997,9 +1000,7 @@ const ReservationUnit = ({
                   />
                 </div>
                 <Legend wrapBreakpoint={breakpoints.l} />
-                <CalendarFooter
-                  $isCookieHubBannerActive={isCookiehubBannerVisible}
-                >
+                <CalendarFooter $cookiehubBannerHeight={cookiehubBannerHeight}>
                   <ReservationInfo
                     reservationUnit={reservationUnit}
                     begin={initialReservation?.begin}
