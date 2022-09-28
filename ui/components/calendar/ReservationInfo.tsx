@@ -94,13 +94,18 @@ const StyledSelect = styled(Select)`
 
 const PriceWrapper = styled.div`
   ${fontMedium};
-  align-self: center;
+  align-self: flex-end;
+`;
+
+const Label = styled.div`
+  margin-bottom: var(--spacing-2-xs);
 `;
 
 const Price = styled.div`
   ${fontRegular};
   font-size: var(--fontsize-body-l);
   line-height: var(--lineheight-s);
+  padding-bottom: var(--spacing-3-xs);
 `;
 
 const ResetButton = styled(Button).attrs({ variant: "secondary" })`
@@ -335,7 +340,7 @@ const ReservationInfo = <T extends Record<string, unknown>>({
       <PriceWrapper>
         {isReservable && (
           <>
-            <div>{t("reservationUnit:price")}:</div>
+            <Label>{t("reservationUnit:price")}:</Label>
             <Price data-testid="reservation__price--value">
               {getReservationUnitPrice(
                 reservationUnit,
