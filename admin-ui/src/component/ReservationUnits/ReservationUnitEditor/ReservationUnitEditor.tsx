@@ -538,10 +538,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
   }
 
   const getValidationError = (name: string): string | undefined => {
-    const error = state.validationErrors?.error?.details.find((errorDetail) =>
-      errorDetail.path.find((path) => path === name)
+    const error = state.validationErrors?.error?.details.find(
+      (errorDetail) =>
+        errorDetail.path.find((path) => path === name) ||
+        name === errorDetail.path.join(",")
     );
-
     if (!error) {
       return undefined;
     }

@@ -46,7 +46,9 @@ const PricingType = ({
   type,
   hasPrice,
 }: Props): JSX.Element | null => {
-  console.log("has price", hasPrice);
+  const labelIndex = type === "ACTIVE" ? 0 : 1;
+
+  console.log("has price", hasPrice, labelIndex);
   const { t } = useTranslation();
 
   const pricingType = (state.reservationUnitEdit.pricings || []).find(
@@ -142,7 +144,7 @@ const PricingType = ({
               <Span3>
                 <NumberInput
                   value={pricingType.lowestPrice || 0}
-                  id="lowestPrice"
+                  id={`pricings,${labelIndex},lowestPrice`}
                   required
                   label={t("ReservationUnitEditor.label.lowestPrice")}
                   minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
@@ -159,8 +161,12 @@ const PricingType = ({
                   step={1}
                   type="number"
                   min={0}
-                  errorText={getValidationError("lowestPrice")}
-                  invalid={!!getValidationError("lowestPrice")}
+                  errorText={getValidationError(
+                    `pricings,${labelIndex},lowestPrice`
+                  )}
+                  invalid={
+                    !!getValidationError(`pricings,${labelIndex},lowestPrice`)
+                  }
                   tooltipText={t("ReservationUnitEditor.tooltip.lowestPrice")}
                 />
               </Span3>
@@ -191,20 +197,24 @@ const PricingType = ({
               </Span3>
               <Span3>
                 <EnumSelect
-                  id="priceUnit"
+                  optionPrefix="priceUnit"
+                  id={`pricings,${labelIndex},priceUnit`}
                   required
                   value={pricingType.priceUnit as string}
-                  label={t("ReservationUnitEditor.priceUnitLabel")}
+                  label={t("ReservationUnitEditor.label.priceUnit")}
                   type={ReservationUnitsReservationUnitPriceUnitChoices}
                   onChange={(priceUnit) => setPricingTypeValue({ priceUnit })}
                   tooltipText={t("ReservationUnitEditor.tooltip.priceUnit")}
+                  errorText={getValidationError(
+                    `pricings,${labelIndex},priceUnit`
+                  )}
                 />
               </Span3>
               <Span3>
                 <Select
                   required
-                  id="taxPercentage"
-                  label={t(`ReservationUnitEditor.taxPercentageLabel`)}
+                  id={`pricings,${labelIndex},taxPercentagePk`}
+                  label={t(`ReservationUnitEditor.label.taxPercentagePk`)}
                   options={state.taxPercentageOptions}
                   onChange={(selectedVat) => {
                     setPricingTypeValue({
@@ -212,6 +222,9 @@ const PricingType = ({
                     });
                   }}
                   value={get(pricingType, "taxPercentagePk") as number}
+                  errorText={getValidationError(
+                    `pricings,${labelIndex},taxPercentagePk`
+                  )}
                 />
               </Span3>
               {type === "ACTIVE" && (
