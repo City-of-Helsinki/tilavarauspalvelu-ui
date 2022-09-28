@@ -1560,6 +1560,8 @@ type Query {
     nameSv: String = null
     serviceSector: Float = null
     onlyWithPermission: Boolean = null
+    publishedReservationUnits: Boolean = null
+    ownReservations: Boolean = null
 
     """Järjestys"""
     orderBy: String = null
@@ -3274,6 +3276,9 @@ type ReservationUnitUpdateMutationPayload {
   """
   pricingType: String
   paymentTypes: [String]
+  reservationPendingInstructionsFi: String
+  reservationPendingInstructionsEn: String
+  reservationPendingInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
@@ -3283,9 +3288,6 @@ type ReservationUnitUpdateMutationPayload {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  reservationPendingInstructionsFi: String
-  reservationPendingInstructionsEn: String
-  reservationPendingInstructionsSv: String
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
@@ -4027,6 +4029,9 @@ input UnitUpdateMutationInput {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   clientMutationId: String
 }
 
@@ -4045,6 +4050,9 @@ type UnitUpdateMutationPayload {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]

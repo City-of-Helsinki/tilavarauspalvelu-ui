@@ -1913,7 +1913,9 @@ export type QueryUnitsArgs = {
   offset?: InputMaybe<Scalars["Int"]>;
   onlyWithPermission?: InputMaybe<Scalars["Boolean"]>;
   orderBy?: InputMaybe<Scalars["String"]>;
+  ownReservations?: InputMaybe<Scalars["Boolean"]>;
   pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  publishedReservationUnits?: InputMaybe<Scalars["Boolean"]>;
   serviceSector?: InputMaybe<Scalars["Float"]>;
 };
 
