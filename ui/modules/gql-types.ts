@@ -1577,6 +1577,7 @@ export type QueryApplicationsArgs = {
   last?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Scalars["String"]>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
   status?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   unit?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
   user?: InputMaybe<Scalars["ID"]>;
@@ -1776,6 +1777,7 @@ export type QueryReservationUnitsArgs = {
   nameFi?: InputMaybe<Scalars["String"]>;
   nameSv?: InputMaybe<Scalars["String"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+  onlyWithPermission?: InputMaybe<Scalars["Boolean"]>;
   orderBy?: InputMaybe<Scalars["String"]>;
   pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
   purposes?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
@@ -1912,7 +1914,9 @@ export type QueryUnitsArgs = {
   offset?: InputMaybe<Scalars["Int"]>;
   onlyWithPermission?: InputMaybe<Scalars["Boolean"]>;
   orderBy?: InputMaybe<Scalars["String"]>;
+  ownReservations?: InputMaybe<Scalars["Boolean"]>;
   pk?: InputMaybe<Array<InputMaybe<Scalars["ID"]>>>;
+  publishedReservationUnits?: InputMaybe<Scalars["Boolean"]>;
   serviceSector?: InputMaybe<Scalars["Float"]>;
 };
 
@@ -2310,6 +2314,7 @@ export type ReservationType = Node & {
   bufferTimeBefore?: Maybe<Scalars["Duration"]>;
   calendarUrl?: Maybe<Scalars["String"]>;
   cancelDetails?: Maybe<Scalars["String"]>;
+  createdAt?: Maybe<Scalars["String"]>;
   description?: Maybe<Scalars["String"]>;
   end: Scalars["DateTime"];
   freeOfChargeReason?: Maybe<Scalars["String"]>;
@@ -2415,6 +2420,7 @@ export type ReservationUnitByPkType = Node & {
   pricingTerms?: Maybe<TermsOfUseType>;
   /** What kind of pricing types are available with this reservation unit. */
   pricingType?: Maybe<ReservationUnitsReservationUnitPricingTypeChoices>;
+  pricings?: Maybe<Array<Maybe<ReservationUnitPricingType>>>;
   /** Time after this reservation unit should be publicly visible in UI. */
   publishBegins?: Maybe<Scalars["DateTime"]>;
   /** Time after this reservation unit should not be publicly visible in UI. */
@@ -2549,7 +2555,6 @@ export type ReservationUnitCreateMutationInput = {
   nameFi?: InputMaybe<Scalars["String"]>;
   nameSv?: InputMaybe<Scalars["String"]>;
   paymentTermsPk?: InputMaybe<Scalars["String"]>;
-  /** What kind of payment types this reservation unit has. Possible values are ONLINE, INVOICE, ON_SITE */
   paymentTypes?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
   priceUnit?: InputMaybe<Scalars["String"]>;
@@ -2557,6 +2562,9 @@ export type ReservationUnitCreateMutationInput = {
   pricingTermsPk?: InputMaybe<Scalars["String"]>;
   /** What kind of pricing type this reservation unit has. Possible values are PAID, FREE. */
   pricingType?: InputMaybe<Scalars["String"]>;
+  pricings?: InputMaybe<
+    Array<InputMaybe<ReservationUnitPricingCreateSerializerInput>>
+  >;
   /** Time after this reservation unit should be publicly visible in UI. */
   publishBegins?: InputMaybe<Scalars["DateTime"]>;
   /** Time after this reservation unit should not be publicly visible in UI. */
@@ -2646,7 +2654,6 @@ export type ReservationUnitCreateMutationPayload = {
   nameEn?: Maybe<Scalars["String"]>;
   nameFi?: Maybe<Scalars["String"]>;
   nameSv?: Maybe<Scalars["String"]>;
-  /** What kind of payment types this reservation unit has. Possible values are ONLINE, INVOICE, ON_SITE */
   paymentTypes?: Maybe<Array<Maybe<Scalars["String"]>>>;
   pk?: Maybe<Scalars["Int"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
@@ -2654,6 +2661,7 @@ export type ReservationUnitCreateMutationPayload = {
   pricingTerms?: Maybe<Scalars["String"]>;
   /** What kind of pricing type this reservation unit has. Possible values are PAID, FREE. */
   pricingType?: Maybe<Scalars["String"]>;
+  pricings?: Maybe<Array<Maybe<ReservationUnitPricingType>>>;
   /** Time after this reservation unit should be publicly visible in UI. */
   publishBegins?: Maybe<Scalars["DateTime"]>;
   /** Time after this reservation unit should not be publicly visible in UI. */
@@ -2778,10 +2786,63 @@ export type ReservationUnitImageUpdateMutationPayload = {
 
 export type ReservationUnitPaymentTypeType = Node & {
   __typename?: "ReservationUnitPaymentTypeType";
+  /** Available values: ONLINE, INVOICE, ON_SITE */
   code?: Maybe<Scalars["String"]>;
   /** The ID of the object */
   id: Scalars["ID"];
   pk?: Maybe<Scalars["Int"]>;
+};
+
+export type ReservationUnitPricingCreateSerializerInput = {
+  /** When pricing is activated */
+  begins: Scalars["Date"];
+  /** Maximum price of the reservation unit */
+  highestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Minimum price of the reservation unit */
+  lowestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
+  priceUnit: Scalars["String"];
+  /** What kind of pricing type this pricing has. Possible values are PAID, FREE. */
+  pricingType: Scalars["String"];
+  /** Pricing status. Possible values are PAST, ACTIVE, FUTURE. */
+  status: Scalars["String"];
+  taxPercentagePk: Scalars["Int"];
+};
+
+export type ReservationUnitPricingType = {
+  __typename?: "ReservationUnitPricingType";
+  /** When pricing is activated */
+  begins: Scalars["Date"];
+  /** Maximum price of the reservation unit */
+  highestPrice: Scalars["Decimal"];
+  /** Minimum price of the reservation unit */
+  lowestPrice: Scalars["Decimal"];
+  pk?: Maybe<Scalars["Int"]>;
+  /** Unit of the price */
+  priceUnit: ReservationUnitsReservationUnitPricingPriceUnitChoices;
+  /** What kind of pricing types are available with this reservation unit. */
+  pricingType?: Maybe<ReservationUnitsReservationUnitPricingPricingTypeChoices>;
+  /** Status of the pricing */
+  status: ReservationUnitsReservationUnitPricingStatusChoices;
+  /** The percentage of tax included in the price */
+  taxPercentage: TaxPercentageType;
+};
+
+export type ReservationUnitPricingUpdateSerializerInput = {
+  /** When pricing is activated */
+  begins: Scalars["Date"];
+  /** Maximum price of the reservation unit */
+  highestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Minimum price of the reservation unit */
+  lowestPrice?: InputMaybe<Scalars["Float"]>;
+  pk?: InputMaybe<Scalars["Int"]>;
+  /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
+  priceUnit: Scalars["String"];
+  /** What kind of pricing type this pricing has. Possible values are PAID, FREE. */
+  pricingType: Scalars["String"];
+  /** Pricing status. Possible values are PAST, ACTIVE, FUTURE. */
+  status: Scalars["String"];
+  taxPercentagePk: Scalars["Int"];
 };
 
 /** An enumeration. */
@@ -2840,6 +2901,7 @@ export type ReservationUnitType = Node & {
   pricingTerms?: Maybe<TermsOfUseType>;
   /** What kind of pricing types are available with this reservation unit. */
   pricingType?: Maybe<ReservationUnitsReservationUnitPricingTypeChoices>;
+  pricings?: Maybe<Array<Maybe<ReservationUnitPricingType>>>;
   /** Time after this reservation unit should be publicly visible in UI. */
   publishBegins?: Maybe<Scalars["DateTime"]>;
   /** Time after this reservation unit should not be publicly visible in UI. */
@@ -2984,7 +3046,6 @@ export type ReservationUnitUpdateMutationInput = {
   nameFi?: InputMaybe<Scalars["String"]>;
   nameSv?: InputMaybe<Scalars["String"]>;
   paymentTermsPk?: InputMaybe<Scalars["String"]>;
-  /** What kind of payment types this reservation unit has. Possible values are ONLINE, INVOICE, ON_SITE */
   paymentTypes?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   pk: Scalars["Int"];
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
@@ -2993,6 +3054,7 @@ export type ReservationUnitUpdateMutationInput = {
   pricingTermsPk?: InputMaybe<Scalars["String"]>;
   /** What kind of pricing type this reservation unit has. Possible values are PAID, FREE. */
   pricingType?: InputMaybe<Scalars["String"]>;
+  pricings: Array<InputMaybe<ReservationUnitPricingUpdateSerializerInput>>;
   /** Time after this reservation unit should be publicly visible in UI. */
   publishBegins?: InputMaybe<Scalars["DateTime"]>;
   /** Time after this reservation unit should not be publicly visible in UI. */
@@ -3082,7 +3144,6 @@ export type ReservationUnitUpdateMutationPayload = {
   nameEn?: Maybe<Scalars["String"]>;
   nameFi?: Maybe<Scalars["String"]>;
   nameSv?: Maybe<Scalars["String"]>;
-  /** What kind of payment types this reservation unit has. Possible values are ONLINE, INVOICE, ON_SITE */
   paymentTypes?: Maybe<Array<Maybe<Scalars["String"]>>>;
   pk?: Maybe<Scalars["Int"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
@@ -3182,6 +3243,42 @@ export enum ReservationUnitsReservationUnitPriceUnitChoices {
   PerHour = "PER_HOUR",
   /** per week */
   PerWeek = "PER_WEEK",
+}
+
+/** An enumeration. */
+export enum ReservationUnitsReservationUnitPricingPriceUnitChoices {
+  /** fixed */
+  Fixed = "FIXED",
+  /** per 15 minutes */
+  Per_15Mins = "PER_15_MINS",
+  /** per 30 minutes */
+  Per_30Mins = "PER_30_MINS",
+  /** per day */
+  PerDay = "PER_DAY",
+  /** per half a day */
+  PerHalfDay = "PER_HALF_DAY",
+  /** per hour */
+  PerHour = "PER_HOUR",
+  /** per week */
+  PerWeek = "PER_WEEK",
+}
+
+/** An enumeration. */
+export enum ReservationUnitsReservationUnitPricingPricingTypeChoices {
+  /** Free */
+  Free = "FREE",
+  /** Paid */
+  Paid = "PAID",
+}
+
+/** An enumeration. */
+export enum ReservationUnitsReservationUnitPricingStatusChoices {
+  /** voimassa */
+  Active = "ACTIVE",
+  /** future */
+  Future = "FUTURE",
+  /** past */
+  Past = "PAST",
 }
 
 /** An enumeration. */
@@ -4206,8 +4303,8 @@ export type ApplicationRoundsQueryResult = Apollo.QueryResult<
   ApplicationRoundsQueryVariables
 >;
 export const SearchFormParamsUnitDocument = gql`
-  query SearchFormParamsUnit {
-    units {
+  query SearchFormParamsUnit($publishedReservationUnits: Boolean) {
+    units(publishedReservationUnits: $publishedReservationUnits) {
       edges {
         node {
           pk
@@ -4232,6 +4329,7 @@ export const SearchFormParamsUnitDocument = gql`
  * @example
  * const { data, loading, error } = useSearchFormParamsUnitQuery({
  *   variables: {
+ *      publishedReservationUnits: // value for 'publishedReservationUnits'
  *   },
  * });
  */
@@ -5161,6 +5259,10 @@ export const ReservationUnitDocument = gql`
       lowestPrice
       highestPrice
       priceUnit
+      pricingType
+      taxPercentage {
+        value
+      }
       termsOfUseFi
       termsOfUseEn
       termsOfUseSv
@@ -5252,6 +5354,17 @@ export const ReservationUnitDocument = gql`
         }
       }
       allowReservationsWithoutOpeningHours
+      pricings {
+        begins
+        priceUnit
+        pricingType
+        lowestPrice
+        highestPrice
+        taxPercentage {
+          value
+        }
+        status
+      }
     }
   }
 `;
@@ -5351,6 +5464,7 @@ export const SearchReservationUnitsDocument = gql`
           lowestPrice
           highestPrice
           priceUnit
+          pricingType
           nameFi
           reservationBegins
           reservationEnds
@@ -5830,7 +5944,7 @@ export type ApplicationRoundsQuery = {
 };
 
 export type SearchFormParamsUnitQueryVariables = Exact<{
-  [key: string]: never;
+  publishedReservationUnits?: InputMaybe<Scalars["Boolean"]>;
 }>;
 
 export type SearchFormParamsUnitQuery = {
@@ -6253,6 +6367,7 @@ export type ReservationUnitQuery = {
     lowestPrice: any;
     highestPrice: any;
     priceUnit: ReservationUnitsReservationUnitPriceUnitChoices;
+    pricingType?: ReservationUnitsReservationUnitPricingTypeChoices | null;
     termsOfUseFi?: string | null;
     termsOfUseEn?: string | null;
     termsOfUseSv?: string | null;
@@ -6289,6 +6404,7 @@ export type ReservationUnitQuery = {
       smallUrl?: string | null;
       imageType: ReservationUnitsReservationUnitImageImageTypeChoices;
     } | null> | null;
+    taxPercentage?: { __typename?: "TaxPercentageType"; value: any } | null;
     serviceSpecificTerms?: {
       __typename?: "TermsOfUseType";
       textFi?: string | null;
@@ -6362,6 +6478,16 @@ export type ReservationUnitQuery = {
         nameSv?: string | null;
       } | null;
     } | null> | null;
+    pricings?: Array<{
+      __typename?: "ReservationUnitPricingType";
+      begins: any;
+      priceUnit: ReservationUnitsReservationUnitPricingPriceUnitChoices;
+      pricingType?: ReservationUnitsReservationUnitPricingPricingTypeChoices | null;
+      lowestPrice: any;
+      highestPrice: any;
+      status: ReservationUnitsReservationUnitPricingStatusChoices;
+      taxPercentage: { __typename?: "TaxPercentageType"; value: any };
+    } | null> | null;
   } | null;
 };
 
@@ -6407,6 +6533,7 @@ export type SearchReservationUnitsQuery = {
         lowestPrice: any;
         highestPrice: any;
         priceUnit: ReservationUnitsReservationUnitPriceUnitChoices;
+        pricingType?: ReservationUnitsReservationUnitPricingTypeChoices | null;
         reservationBegins?: any | null;
         reservationEnds?: any | null;
         maxPersons?: number | null;
