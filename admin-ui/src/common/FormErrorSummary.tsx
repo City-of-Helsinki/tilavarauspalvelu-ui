@@ -74,7 +74,7 @@ const FormErrorSummary = ({
 };
 
 export const validationErrorResolver =
-  (validationErrors: Joi.ValidationResult<any> | null, labelPrefix = "") =>
+  (validationErrors: Joi.ValidationResult | null, labelPrefix = "") =>
   (name: string): string | undefined => {
     const error = validationErrors?.error?.details.find(
       (errorDetail) =>
