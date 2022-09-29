@@ -17,6 +17,8 @@ const itemLimit = 8;
 
 const Wrapper = styled.div``;
 
+const Heading = styled(H3).attrs({ as: "h2" })``;
+
 const Content = styled(Container)`
   display: flex;
   flex-direction: column;
@@ -80,7 +82,7 @@ const Units = ({ units }: Props): JSX.Element => {
     units?.length > 0 && (
       <Wrapper>
         <Content>
-          <H3>{t("home:unitsHeading")}</H3>
+          <Heading>{t("home:unitsHeading")}</Heading>
           <UnitContainer>
             {units.slice(0, itemLimit).map((unit) => (
               <Link
@@ -90,7 +92,7 @@ const Units = ({ units }: Props): JSX.Element => {
               >
                 <UnitItem data-testid="front-page__units--unit">
                   {unit.nameFi}
-                  <IconArrowRight size="l" />
+                  <IconArrowRight size="l" aria-hidden />
                 </UnitItem>
               </Link>
             ))}
@@ -98,7 +100,7 @@ const Units = ({ units }: Props): JSX.Element => {
           {units?.length > itemLimit && (
             <Link href={`${singleSearchPrefix}`} passHref>
               <SearchLink data-testid="front-page__units--more-link">
-                {t("common:showAll")} <IconAngleRight />
+                {t("common:showAll")} <IconAngleRight aria-hidden />
               </SearchLink>
             </Link>
           )}
