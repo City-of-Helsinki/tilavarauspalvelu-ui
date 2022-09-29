@@ -63,6 +63,12 @@ const PurposeContainer = styled.div`
 `;
 
 const PurposeItem = styled.a`
+  &:hover {
+    span {
+      text-decoration: underline;
+    }
+  }
+
   color: var(--color-black) !important;
   display: flex;
   flex-direction: column;

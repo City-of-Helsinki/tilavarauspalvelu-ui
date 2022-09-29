@@ -53,6 +53,10 @@ const UnitContainer = styled.div`
 `;
 
 const UnitItem = styled.a`
+  &:hover {
+    text-decoration: underline;
+  }
+
   color: var(--color-black) !important;
   display: flex;
   align-items: center;
