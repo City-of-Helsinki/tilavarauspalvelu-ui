@@ -495,8 +495,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
       (p) => p?.pricingType === "PAID"
     ) !== undefined;
 
-  console.log("isPaid", isPaid);
-
   if (state.error && !state.reservationUnit) {
     return (
       <Wrapper>
@@ -572,8 +570,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         state={state.reservationUnit?.state as ReservationUnitState}
       />
     ) : undefined;
-
-  console.log("rendering with", state);
 
   return (
     <Wrapper key={JSON.stringify(state.validationErrors)}>
@@ -1414,12 +1410,12 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             )}
             <Accordion
               initiallyOpen={state.validationErrors != null}
-              heading={t("ReservationUnitEditor.pricing")}
+              heading={t("ReservationUnitEditor.label.pricings")}
             >
               <EditorGrid>
                 <Span12>
                   <FieldGroup
-                    id="pricingType"
+                    id="pricings"
                     heading={`${t(
                       "ReservationUnitEditor.label.pricingType"
                     )} *`}

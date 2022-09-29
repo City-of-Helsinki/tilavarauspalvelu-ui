@@ -1,7 +1,7 @@
 import React from "react";
 import { get } from "lodash";
 import { useTranslation } from "react-i18next";
-import { format, parse } from "date-fns";
+import { format, parse, startOfDay } from "date-fns";
 import {
   Checkbox,
   DateInput,
@@ -48,16 +48,18 @@ const PricingType = ({
 }: Props): JSX.Element | null => {
   const labelIndex = type === "ACTIVE" ? 0 : 1;
 
-  console.log("has price", hasPrice, labelIndex);
   const { t } = useTranslation();
 
   const pricingType = (state.reservationUnitEdit.pricings || []).find(
     (pt) => pt?.status === type
   );
 
-  if (!pricingType) {
+  let pricing: ReservationUnitPricingCreateSerializerInput =
+    pricingType as ReservationUnitPricingCreateSerializerInput;
+
+  if (!pricing) {
     if (type === "FUTURE") {
-      return (
+      return hasPrice ? (
         <VerticalFlex>
           <Checkbox
             id="priceChange"
@@ -65,9 +67,15 @@ const PricingType = ({
             onChange={() => dispatch({ type: "toggleFuturePrice" })}
           />
         </VerticalFlex>
-      );
+      ) : null;
     }
-    return null;
+  }
+
+  if (!pricing) {
+    pricing = {
+      status: "ACTIVE",
+      begins: format(startOfDay(new Date()), "yyyy-MM-dd"),
+    } as ReservationUnitPricingCreateSerializerInput;
   }
 
   const setPricingTypeValue = (
@@ -76,7 +84,7 @@ const PricingType = ({
     dispatch({
       type: "updatePricingType",
       pricingType: {
-        ...pricingType,
+        ...(pricing as ReservationUnitPricingCreateSerializerInput),
         ...value,
       },
     });
@@ -84,7 +92,7 @@ const PricingType = ({
   return (
     <>
       <VerticalFlex>
-        {pricingType.status === "FUTURE" && (
+        {hasPrice && pricing.status === "FUTURE" && (
           <>
             <Checkbox
               id="priceChange"
@@ -96,7 +104,7 @@ const PricingType = ({
               <Span3>
                 <DateInput
                   id="futureDate"
-                  value={hdsDate(pricingType.begins)}
+                  value={hdsDate(pricing.begins)}
                   onChange={(e) =>
                     setPricingTypeValue({
                       begins: format(
@@ -112,13 +120,13 @@ const PricingType = ({
         )}
         <Grid>
           {["FREE", "PAID"].map((typeName, index) => {
-            const checked = pricingType.pricingType === typeName;
+            const checked = pricing.pricingType === typeName;
 
             return (
               <Span4 key={typeName}>
                 <RadioButton
-                  id={`pricingType.${pricingType.status}.${typeName}`}
-                  name={`pricingType.${pricingType.status}`}
+                  id={`pricingType.${pricing.status}.${typeName}`}
+                  name={`pricingType.${pricing.status}`}
                   label={t(
                     `ReservationUnitEditor.label.pricingTypes.${typeName}`
                   )}
@@ -128,10 +136,10 @@ const PricingType = ({
                     setPricingTypeValue({ pricingType: typeName })
                   }
                 />
-                {index === 0 && getValidationError("pricingType") && (
+                {index === 0 && getValidationError("pricings") && (
                   <Error>
                     <IconAlertCircleFill />
-                    <span>{getValidationError("pricingType")}</span>
+                    <span>{getValidationError("pricings")}</span>
                   </Error>
                 )}
               </Span4>
@@ -139,11 +147,11 @@ const PricingType = ({
           })}
         </Grid>
         <Grid>
-          {pricingType.pricingType === "PAID" && (
+          {pricing.pricingType === "PAID" && (
             <>
               <Span3>
                 <NumberInput
-                  value={pricingType.lowestPrice || 0}
+                  value={pricing.lowestPrice || 0}
                   id={`pricings,${labelIndex},lowestPrice`}
                   required
                   label={t("ReservationUnitEditor.label.lowestPrice")}
@@ -154,7 +162,7 @@ const PricingType = ({
                       lowestPrice: Number(e.target.value),
                       highestPrice: Math.max(
                         Number(e.target.value),
-                        pricingType.highestPrice || 0
+                        pricing.highestPrice || 0
                       ),
                     });
                   }}
@@ -173,7 +181,7 @@ const PricingType = ({
               <Span3>
                 <NumberInput
                   required
-                  value={pricingType.highestPrice || 0}
+                  value={pricing.highestPrice || ""}
                   id="highestPrice"
                   label={t("ReservationUnitEditor.label.highestPrice")}
                   minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
@@ -183,7 +191,7 @@ const PricingType = ({
                       highestPrice: Number(e.target.value),
                       lowestPrice: Math.min(
                         Number(e.target.value),
-                        pricingType.lowestPrice || 0
+                        pricing.lowestPrice || 0
                       ),
                     });
                   }}
@@ -200,7 +208,7 @@ const PricingType = ({
                   optionPrefix="priceUnit"
                   id={`pricings,${labelIndex},priceUnit`}
                   required
-                  value={pricingType.priceUnit as string}
+                  value={pricing.priceUnit as string}
                   label={t("ReservationUnitEditor.label.priceUnit")}
                   type={ReservationUnitsReservationUnitPriceUnitChoices}
                   onChange={(priceUnit) => setPricingTypeValue({ priceUnit })}

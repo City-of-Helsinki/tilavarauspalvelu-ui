@@ -444,21 +444,21 @@ export const reducer = (state: State, action: Action): State => {
       });
     }
     case "updatePricingType": {
-      console.log(
-        "updating pricing type",
-        action.pricingType,
-        "current pricings",
-        state.reservationUnitEdit.pricings
-      );
+      if (state.reservationUnitEdit.pricings?.length === 0) {
+        return modifyEditorState(state, {
+          pricings: [action.pricingType],
+        });
+      }
+
       return modifyEditorState(state, {
-        pricings: (state.reservationUnitEdit.pricings || []).map(
-          (pricingType) => {
+        pricings: (state.reservationUnitEdit.pricings || [])
+          .map((pricingType) => {
             if (pricingType?.status === action.pricingType.status) {
               return action.pricingType;
             }
             return pricingType;
-          }
-        ),
+          })
+          .concat(),
       });
     }
 

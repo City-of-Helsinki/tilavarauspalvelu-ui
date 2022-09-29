@@ -1090,6 +1090,7 @@ const translations: ITranslations = {
       canApplyFreeOfCharge: [
         "Asiakas voi pyytää hinnan alennusta tai maksuttomuutta",
       ],
+      pricings: ["Hinnoittelu"],
       metadataSetPk: ["Varauslomake"],
       termsOfUseFi: ["Varausyksikkökohtaiset lisätiedot fi"],
       termsOfUseSv: ["Varausyksikkökohtaiset lisätiedot sv"],
@@ -1441,7 +1442,6 @@ const translations: ITranslations = {
     contactInformationPlaceholder: ["Vastuuhenkilön yhteystiedot"],
     noPreviewUnsavedChangesTooltip: ["Tallenna ensin muutokset"],
     previewTooltip: ["Varausyksikön esikatselu"],
-    pricing: ["Hinnoittelu"],
     bufferTimeBefore: ["Aseta ennen vuoroa tauko"],
     bufferTimeBeforeDuration: ["Tauon kesto"],
     bufferTimeAfter: ["Aseta vuoron jälkeen tauko"],

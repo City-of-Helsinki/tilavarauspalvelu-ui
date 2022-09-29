@@ -153,7 +153,7 @@ export const schema = Joi.object({
   additionalInstructionsFi: Joi.string().allow("").max(10000),
   additionalInstructionsSv: Joi.string().allow("").max(10000),
   additionalInstructionsEn: Joi.string().allow("").max(10000),
-  pricings: Joi.array().items(pricing),
+  pricings: Joi.array().min(1).items(pricing),
   paymentTypes: requiredForNonFree(Joi.array().min(1).required()),
 }).options({
   allowUnknown: true,
