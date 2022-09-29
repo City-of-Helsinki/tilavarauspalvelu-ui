@@ -226,9 +226,6 @@ export const reducer = (state: State, action: Action): State => {
           reservationUnitTypePk: get(reservationUnit, "reservationUnitType.pk"),
           cancellationTermsPk: get(reservationUnit, "cancellationTerms.pk"),
           cancellationRulePk: get(reservationUnit, "cancellationRule.pk"),
-          taxPercentagePk: get(reservationUnit, "taxPercentage.pk"),
-          lowestPrice: Number(reservationUnit.lowestPrice || 0),
-          highestPrice: Number(reservationUnit.highestPrice || 0),
           serviceSpecificTermsPk: get(
             reservationUnit,
             "serviceSpecificTerms.pk"
