@@ -97,9 +97,6 @@ const Title = styled.div`
   font-size: var(--fontsize-heading-xs);
   padding-left: var(--spacing-2-xs);
   gap: var(--spacing-xs);
-
-  @media (min-width: ${breakpoints.s}) {
-  }
 `;
 
 const MoreLink = styled.a`
