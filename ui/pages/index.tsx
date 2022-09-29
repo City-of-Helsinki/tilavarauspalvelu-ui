@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     fetchPolicy: "no-cache",
     variables: {
       publishedReservationUnits: true,
-      orderBy: "reservationCount",
+      orderBy: "rank",
     },
   });
 

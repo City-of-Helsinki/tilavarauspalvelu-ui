@@ -6,7 +6,7 @@ import { breakpoints } from "common/src/common/style";
 import Link from "next/link";
 import { singleSearchPrefix } from "../../modules/const";
 import Container from "../common/Container";
-import { H3 } from "../../modules/style/typography";
+import { fontMedium, H3 } from "../../modules/style/typography";
 import { UnitType } from "../../modules/gql-types";
 
 type Props = {
@@ -24,6 +24,9 @@ const Content = styled(Container)`
 `;
 
 const UnitContainer = styled.div`
+  gap: var(--spacing-l) 0;
+  margin-top: var(--spacing-m);
+
   @media (max-width: ${breakpoints.s}) {
     svg {
       transform: scale(0.5);
@@ -42,6 +45,7 @@ const UnitContainer = styled.div`
 
   @media (min-width: ${breakpoints.l}) {
     grid-template-columns: repeat(4, 200px);
+    padding-right: var(--spacing-layout-l);
   }
 `;
 
@@ -51,6 +55,8 @@ const UnitItem = styled.a`
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
+  line-height: var(--lineheight-l);
+  font-size: 22px;
 
   svg {
     min-width: 48px;
@@ -63,7 +69,8 @@ const SearchLink = styled.a`
   align-self: flex-end;
   align-items: center;
   gap: var(--spacing-2-xs);
-  margin-top: var(--spacing-m);
+  margin-top: var(--spacing-xl);
+  ${fontMedium}
 `;
 
 const Units = ({ units }: Props): JSX.Element => {
