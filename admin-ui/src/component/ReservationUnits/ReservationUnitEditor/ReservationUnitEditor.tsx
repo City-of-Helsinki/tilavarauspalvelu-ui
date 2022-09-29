@@ -13,7 +13,7 @@ import {
   TextInput,
   Tooltip,
 } from "hds-react";
-import { get, omitBy, pick, sumBy, upperFirst } from "lodash";
+import { get, isNull, omitBy, pick, sumBy, upperFirst } from "lodash";
 import i18next from "i18next";
 import React, { useEffect, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -193,6 +193,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           ? Number(state.reservationUnitEdit?.maxReservationsPerUser)
           : null,
         isArchived: archive,
+        pricings: state.reservationUnitEdit.pricings?.map((pricing) =>
+          omitBy(pricing, isNull)
+        ),
       },
       [
         "reservationKind",
@@ -237,8 +240,8 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         "canApplyFreeOfCharge",
         "reservationsMinDaysBefore",
         "reservationsMaxDaysBefore",
-        "pricings",
         "isArchived",
+        "pricings",
         ...i18nFields("reservationPendingInstructions"),
         ...i18nFields("reservationConfirmedInstructions"),
         ...i18nFields("reservationCancelledInstructions"),

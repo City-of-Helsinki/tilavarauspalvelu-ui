@@ -206,6 +206,7 @@ const PricingType = ({
               <Span3>
                 <EnumSelect
                   optionPrefix="priceUnit"
+                  placeholder={t("common.select")}
                   id={`pricings,${labelIndex},priceUnit`}
                   required
                   value={pricing.priceUnit as string}
@@ -220,6 +221,7 @@ const PricingType = ({
               </Span3>
               <Span3>
                 <Select
+                  placeholder={t("common.select")}
                   required
                   id={`pricings,${labelIndex},taxPercentagePk`}
                   label={t(`ReservationUnitEditor.label.taxPercentagePk`)}

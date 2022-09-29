@@ -96,11 +96,6 @@ const makeTermsOptions = (
   return [...options];
 };
 
-const nullOption: OptionType = {
-  value: null,
-  label: i18next.t("common.select"),
-};
-
 export const i18nFields = (baseName: string): string[] =>
   languages.map((l) => baseName + upperFirst(l));
 
@@ -325,10 +320,10 @@ export const reducer = (state: State, action: Action): State => {
           action,
           TermsOfUseTermsOfUseTermsTypeChoices.PricingTerms
         ),
-        taxPercentageOptions: [nullOption].concat(
-          (action.parameters.taxPercentages?.edges || []).map(
-            (v) => ({ value: v?.node?.pk, label: v?.node?.value } as OptionType)
-          )
+        taxPercentageOptions: (
+          action.parameters.taxPercentages?.edges || []
+        ).map(
+          (v) => ({ value: v?.node?.pk, label: v?.node?.value } as OptionType)
         ),
         serviceSpecificTermsOptions: makeTermsOptions(
           action,
@@ -341,13 +336,12 @@ export const reducer = (state: State, action: Action): State => {
         cancellationRuleOptions: (
           action.parameters.reservationUnitCancellationRules?.edges || []
         ).map((e) => optionMaker(e)),
-        metadataOptions: [nullOption].concat(
-          (action.parameters.metadataSets?.edges || []).map((e) =>
+        metadataOptions: (action.parameters.metadataSets?.edges || []).map(
+          (e) =>
             makeOption({
               pk: get(e, "node.pk", -1),
               nameFi: get(e, "node.name", "no-name"),
             })
-          )
         ),
       });
     }
