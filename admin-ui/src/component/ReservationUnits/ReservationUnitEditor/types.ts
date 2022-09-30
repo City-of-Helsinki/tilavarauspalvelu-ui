@@ -127,9 +127,9 @@ const requiredForNonFreeRU = (then: Joi.SchemaLike) =>
 
 const pricing = Joi.object({
   pricingType: Joi.string().required(),
-  lowestPrice: requiredForNonFree(Joi.number().min(0).required()),
+  lowestPrice: requiredForNonFree(Joi.number().precision(2).min(0).required()),
   highestPrice: requiredForNonFree(
-    Joi.number().min(Joi.ref("lowestPrice")).required()
+    Joi.number().precision(2).min(Joi.ref("lowestPrice")).required()
   ),
   priceUnit: requiredForNonFree(Joi.string().required()),
   taxPercentagePk: requiredForNonFree(Joi.number().required()),
@@ -167,4 +167,19 @@ export const schema = Joi.object({
 }).options({
   allowUnknown: true,
   abortEarly: false,
+  convert: false,
+});
+
+// validation for drafts
+const draftPricing = Joi.object({
+  lowestPrice: requiredForNonFree(Joi.number().precision(2).min(0)),
+  highestPrice: requiredForNonFree(Joi.number().precision(2)),
+});
+
+export const draftSchema = Joi.object({
+  pricings: Joi.array().min(0).items(draftPricing),
+}).options({
+  allowUnknown: true,
+  abortEarly: false,
+  convert: false,
 });

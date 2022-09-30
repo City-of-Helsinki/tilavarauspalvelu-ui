@@ -69,7 +69,7 @@ import {
   ArchiveButton,
   ExpandLink,
 } from "./modules/reservationUnitEditor";
-import { IProps, schema, State } from "./types";
+import { draftSchema, IProps, schema, State } from "./types";
 import { getInitialState, i18nFields, reducer } from "./reducer";
 import {
   CREATE_IMAGE,
@@ -1837,8 +1837,19 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             loadingText={t("ReservationUnitEditor.saving")}
             onClick={(e) => {
               e.preventDefault();
-              saveReservationUnit(false);
-              dispatch({ type: "setValidatioErrors", validationErrors: null });
+              const validationErrors = draftSchema.validate(
+                state.reservationUnitEdit
+              );
+
+              if (validationErrors.error) {
+                dispatch({ type: "setValidatioErrors", validationErrors });
+              } else {
+                saveReservationUnit(false);
+                dispatch({
+                  type: "setValidatioErrors",
+                  validationErrors: null,
+                });
+              }
             }}
           >
             {t("ReservationUnitEditor.saveAsDraft")}
