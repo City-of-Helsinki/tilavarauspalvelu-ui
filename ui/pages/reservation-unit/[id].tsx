@@ -852,6 +852,11 @@ const ReservationUnit = ({
     [reservationUnit]
   );
 
+  const pricingTermsContent = useMemo(
+    () => getTranslation(reservationUnit.pricingTerms, "text"),
+    [reservationUnit]
+  );
+
   const serviceSpecificTermsContent = useMemo(
     () => getTranslation(reservationUnit.serviceSpecificTerms, "text"),
     [reservationUnit]
@@ -1280,6 +1285,17 @@ const ReservationUnit = ({
                 )}
                 <PaddedContent>
                   <Sanitize html={cancellationTermsContent} />
+                </PaddedContent>
+              </Accordion>
+            )}
+            {pricingTermsContent && (
+              <Accordion
+                heading={t("reservationUnit:pricingTerms")}
+                theme="thin"
+                data-testid="reservation-unit__pricing-terms"
+              >
+                <PaddedContent>
+                  <Sanitize html={pricingTermsContent} />
                 </PaddedContent>
               </Accordion>
             )}
