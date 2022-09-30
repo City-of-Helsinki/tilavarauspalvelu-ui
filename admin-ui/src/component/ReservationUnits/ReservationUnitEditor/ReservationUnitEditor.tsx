@@ -1470,6 +1470,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           <Select
                             required
                             sort
+                            clearable={
+                              !!get(state.reservationUnitEdit, "pricingTermsPk")
+                            }
                             id="pricingTerms"
                             label={t(
                               "ReservationUnitEditor.label.pricingTermsPk"
@@ -1511,6 +1514,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       return (
                         <Span6 key={name}>
                           <Select
+                            clearable={
+                              !!get(state.reservationUnitEdit, propName)
+                            }
                             sort
                             id={name}
                             label={t(`ReservationUnitEditor.label.${propName}`)}
