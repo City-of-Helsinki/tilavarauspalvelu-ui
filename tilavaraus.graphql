@@ -2421,21 +2421,21 @@ input ReservationUnitCreateMutationInput {
   nameFi: String
   nameEn: String
   nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   clientMutationId: String
 }
 
@@ -2561,21 +2561,21 @@ type ReservationUnitCreateMutationPayload {
   nameFi: String
   nameEn: String
   nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -3164,21 +3164,21 @@ input ReservationUnitUpdateMutationInput {
   nameFi: String
   nameEn: String
   nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   clientMutationId: String
 }
 
@@ -3303,21 +3303,21 @@ type ReservationUnitUpdateMutationPayload {
   nameFi: String
   nameEn: String
   nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -4044,12 +4044,12 @@ input UnitUpdateMutationInput {
   webPage: String
   email: String
   phone: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
@@ -4062,12 +4062,12 @@ type UnitUpdateMutationPayload {
   webPage: String
   email: String
   phone: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
