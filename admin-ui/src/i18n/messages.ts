@@ -1414,7 +1414,7 @@ const translations: ITranslations = {
       "Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Voit siirtyä aukiolosovellukseen alla näkyvällä linkillä.",
     ],
     openingHoursHelperTextNoLink: [
-      "Varausyksikön aukioloajat määritellään aukioloaikasovelluksessa. Pääset muokkaamaan aukioloaikoja kun varausyksikkö on tallennettu.",
+      "Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Pääset muokkaamaan aukioloaikoja kun varausyksikkö on tallennettu.",
     ],
     openingTimesExternalLink: ["Aukioloajat aukiolosovelluksessa"],
     cancel: ["Palaa tallentamatta muutoksia"],
