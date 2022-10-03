@@ -363,9 +363,11 @@ const RequestedReservation = (): JSX.Element | null => {
             { l: "numPersons", v: reservation.numPersons },
             {
               l: "ageGroup",
-              v: `${ageGroup(reservation.ageGroup)} ${t(
-                "RequestedReservation.ageGroupSuffix"
-              )}`,
+              v: reservation.ageGroup
+                ? `${ageGroup(reservation.ageGroup)} ${t(
+                    "RequestedReservation.ageGroupSuffix"
+                  )}`
+                : "",
             },
             {
               l: "purpose",
@@ -464,12 +466,14 @@ const RequestedReservation = (): JSX.Element | null => {
                 label={t("RequestedReservation.numPersons")}
                 data={reservation.numPersons}
               />
-              <ApplicationData
-                label={t("RequestedReservation.ageGroup")}
-                data={`${ageGroup(reservation.ageGroup)} ${t(
-                  "RequestedReservation.ageGroupSuffix"
-                )}`}
-              />
+              {reservation.ageGroup && (
+                <ApplicationData
+                  label={t("RequestedReservation.ageGroup")}
+                  data={`${ageGroup(reservation.ageGroup)} ${t(
+                    "RequestedReservation.ageGroupSuffix"
+                  )}`}
+                />
+              )}
               <ApplicationData
                 label={t("RequestedReservation.purpose")}
                 data={reservation.purpose?.nameFi}
