@@ -120,8 +120,20 @@ export const RESERVATION_DENY_REASONS = gql`
 `;
 
 export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
-  query reservationsByReservationUnit($reservationUnit: [ID]) {
-    reservations(reservationUnit: $reservationUnit) {
+  query reservationsByReservationUnit(
+    $reservationUnit: [ID]
+    $offset: Int
+    $first: Int
+    $begin: DateTime
+    $end: DateTime
+  ) {
+    reservations(
+      begin: $begin
+      end: $end
+      first: $first
+      offset: $offset
+      reservationUnit: $reservationUnit
+    ) {
       edges {
         node {
           name
@@ -134,6 +146,9 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
           state
           user
         }
+      }
+      pageInfo {
+        hasNextPage
       }
     }
   }

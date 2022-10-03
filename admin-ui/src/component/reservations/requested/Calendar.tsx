@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommonCalendar, { CalendarEvent } from "common/src/calendar/Calendar";
 import { useQuery } from "@apollo/client";
 import { get } from "lodash";
@@ -15,6 +15,7 @@ import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import Legend from "./Legend";
 import { reservationUrl } from "../../../common/urls";
+import { combineResults } from "../../../common/util";
 
 type Props = {
   begin: string;
@@ -35,44 +36,78 @@ const Container = styled.div`
   }
 `;
 
+const updateQuery = (
+  previousResult: Query,
+  { fetchMoreResult }: { fetchMoreResult: Query }
+): Query => {
+  if (!fetchMoreResult) {
+    return previousResult;
+  }
+
+  return combineResults(previousResult, fetchMoreResult, "reservations");
+};
+
 const Calendar = ({
   begin,
   reservationUnitPk,
   reservation,
 }: Props): JSX.Element => {
   const [events, setEvents] = useState([] as CalendarEvent<ReservationType>[]);
+  const [hasMore, setHasMore] = useState(false);
   const { notifyError } = useNotification();
 
   const { t } = useTranslation();
 
-  useQuery<Query, QueryReservationsArgs>(RESERVATIONS_BY_RESERVATIONUNIT, {
-    fetchPolicy: "network-only",
-    variables: {
-      reservationUnit: [reservationUnitPk],
-      begin: startOfISOWeek(new Date(begin)),
-      end: endOfISOWeek(new Date(begin)),
-    },
-    onCompleted: ({ reservations }) => {
-      if (reservations) {
-        setEvents(
-          (reservations?.edges || []).map((r) => ({
-            title: `${
-              r?.node?.reserveeOrganisationName ||
-              `${r?.node?.reserveeFirstName || ""} ${
-                r?.node?.reserveeLastName || ""
-              }`
-            }`,
-            event: r?.node as ReservationType,
-            start: new Date(get(r?.node, "begin")),
-            end: new Date(get(r?.node, "end")),
-          }))
-        );
-      }
-    },
-    onError: () => {
-      notifyError("Varauksia ei voitu hakea");
-    },
-  });
+  const { fetchMore } = useQuery<Query, QueryReservationsArgs>(
+    RESERVATIONS_BY_RESERVATIONUNIT,
+
+    {
+      fetchPolicy: "network-only",
+      variables: {
+        offset: 0,
+        first: 100,
+        reservationUnit: [reservationUnitPk],
+        begin: startOfISOWeek(new Date(begin)),
+        end: endOfISOWeek(new Date(begin)),
+      },
+      onCompleted: ({ reservations }) => {
+        if (reservations) {
+          setEvents(
+            (reservations?.edges || []).map((r) => ({
+              title: `${
+                r?.node?.reserveeOrganisationName ||
+                `${r?.node?.reserveeFirstName || ""} ${
+                  r?.node?.reserveeLastName || ""
+                }`
+              }`,
+              event: r?.node as ReservationType,
+              start: new Date(get(r?.node, "begin")),
+              end: new Date(get(r?.node, "end")),
+            }))
+          );
+
+          if (reservations.pageInfo.hasNextPage) {
+            setHasMore(true);
+          }
+        }
+      },
+      onError: () => {
+        notifyError("Varauksia ei voitu hakea");
+      },
+    }
+  );
+  useEffect(() => {
+    if (hasMore) {
+      setHasMore(false);
+      fetchMore({
+        variables: {
+          offset: events.length,
+        },
+        updateQuery,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, setHasMore]);
 
   return (
     <Container>
