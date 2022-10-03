@@ -32,7 +32,6 @@ export type Action =
     }
   | { type: "error"; message: string }
   | { type: "apiTokenAvailable" }
-  | { type: "apiTokenNot" }
   | { type: "currentUserLoaded"; currentUser: UserType };
 
 export const getInitialState = (): Auth => ({
