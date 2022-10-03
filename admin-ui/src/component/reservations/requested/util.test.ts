@@ -3,13 +3,11 @@ import { getReservatinUnitPricing, getReservationPriceDetails } from "./util";
 import {
   ReservationType,
   ReservationUnitPricingType,
-  ReservationUnitsReservationUnitPriceUnitChoices,
   ReservationUnitsReservationUnitPricingPriceUnitChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitsReservationUnitPricingStatusChoices,
   ReservationUnitType,
 } from "../../../common/gql-types";
-import { getReservationPrice } from "common";
 
 describe("pricingDetails", () => {
   test("renders fixed price", () => {
@@ -44,14 +42,14 @@ describe("pricingDetails", () => {
   });
 
   test("renders price in hours", () => {
-    const r = {
+    const reservation = {
       begin: "2022-01-01T10:00:00Z",
       end: "2022-01-01T11:30:00Z",
       reservationUnits: [
         {
           pricings: [
             {
-              begins: "2022-01-01",
+              begins: "2021-01-01",
               pricingType:
                 ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
               id: 1,
@@ -71,12 +69,12 @@ describe("pricingDetails", () => {
       ],
     } as ReservationType;
 
-    expect(getReservationPriceDetails(r, (t, a) => get(a, "price"))).toEqual(
-      "180 €"
-    );
-    expect(getReservationPriceDetails(r, (t, a) => get(a, "volume"))).toEqual(
-      "1,5"
-    );
+    expect(
+      getReservationPriceDetails(reservation, (t, a) => get(a, "price"))
+    ).toEqual("180 €");
+    expect(
+      getReservationPriceDetails(reservation, (t, a) => get(a, "volume"))
+    ).toEqual("1,5");
   });
 });
 
@@ -104,9 +102,8 @@ describe("getReservatinUnitPricing", () => {
 
     const activePricing = getReservatinUnitPricing(
       reservationUnit,
-      "2022-01-01"
+      "2022-01-01T00:00:01Z"
     );
-
     expect(activePricing.pricingType).toBe(
       ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid
     );

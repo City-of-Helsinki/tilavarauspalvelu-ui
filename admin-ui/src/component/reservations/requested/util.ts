@@ -66,7 +66,9 @@ export const reservationPrice = (
 ): string => {
   return getReservationPrice(
     reservation.price as number,
-    t("RequestedReservation.noPrice")
+    t("RequestedReservation.noPrice"),
+    "fi",
+    true
   );
 };
 
@@ -77,16 +79,16 @@ export const getReservatinUnitPricing = (
   reservationUnit: ReservationUnitType,
   datetime: string
 ): ReservationUnitPricingType => {
-  const reservationDate = parseDate(datetime);
+  const reservationDate = new Date(datetime);
   reservationUnit.pricings?.sort(
     (a, b) => parseDate(b?.begins).getTime() - parseDate(a?.begins).getTime()
   );
 
-  console.log("sorted", reservationUnit.pricings);
-
   const defaultPrice = {
     begins: "1970-01-01",
     pricingType: ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+    lowestPrice: 0,
+    highestPrice: 0,
   } as ReservationUnitPricingType;
 
   if (!reservationUnit.pricings) {
