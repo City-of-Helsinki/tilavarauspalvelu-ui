@@ -9,6 +9,7 @@ const Sticky = styled.div`
   max-width: calc(48px + var(--container-width-l));
   background-color: white;
   height: 0;
+  z-index: 101;
 `;
 
 const StickyContent = styled.div`
