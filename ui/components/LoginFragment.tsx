@@ -11,11 +11,11 @@ type Props = {
   text?: string;
   componentIfAuthenticated?: React.ReactNode;
   isActionDisabled?: boolean;
+  actionCallback?: () => void;
 };
 
 const Wrapper = styled.div`
   display: flex;
-  margin-bottom: var(--spacing-xl);
   align-items: center;
   text-align: center;
   flex-direction: column;
@@ -37,10 +37,21 @@ const Wrapper = styled.div`
   }
 `;
 
+const SubmitButton = styled(MediumButton)`
+  white-space: nowrap;
+
+  > span {
+    margin: 0 !important;
+    padding-right: var(--spacing-3-xs);
+    padding-left: var(--spacing-3-xs);
+  }
+`;
+
 const LoginFragment = ({
   text,
   componentIfAuthenticated,
   isActionDisabled,
+  actionCallback,
 }: Props): JSX.Element => {
   type InnerProps = {
     profile: UserProfile | null;
@@ -69,14 +80,19 @@ const LoginFragment = ({
       render={({ profile }: InnerProps) => {
         return !profile && authEnabled ? (
           <Wrapper>
-            <MediumButton
-              onClick={() => setShouldLogin(true)}
+            <SubmitButton
+              onClick={() => {
+                if (actionCallback) {
+                  actionCallback();
+                }
+                setShouldLogin(true);
+              }}
               aria-label={t("reservationCalendar:loginAndReserve")}
               className="login-fragment__button--login"
               disabled={isActionDisabled}
             >
               {t("reservationCalendar:loginAndReserve")}
-            </MediumButton>
+            </SubmitButton>
             {text}
           </Wrapper>
         ) : (

@@ -4,10 +4,12 @@ import {
   doBuffersCollide,
   doesBufferCollide,
   doReservationsCollide,
+  getAvailableTimes,
   getBufferedEventTimes,
   getDayIntervals,
   getEventBuffers,
   getNormalizedReservationBeginTime,
+  getOpenDays,
   getTimeslots,
   isReservationLongEnough,
   isReservationShortEnough,
@@ -18,7 +20,9 @@ import {
   isStartTimeWithinInterval,
 } from "../util";
 import {
+  OpeningHoursType,
   ReservationType,
+  ReservationUnitByPkType,
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
   ReservationUnitType,
 } from "../../../types/gql-types";
@@ -575,13 +579,25 @@ describe("getEventBuffers", () => {
 });
 
 describe("isReservationUnitReservable", () => {
+  const openingHours = {
+    openingTimes: [
+      {
+        date: new Date().toISOString(),
+        startTime: "04:00:00+00:00",
+        endTime: "20:00:00+00:00",
+        state: "open",
+        periods: null,
+      },
+    ],
+  };
   test("returns true for a unit that is reservable", () => {
     expect(
       isReservationUnitReservable({
         minReservationDuration: 3600,
         maxReservationDuration: 3600,
         reservationBegins: addMinutes(new Date(), -10),
-      } as ReservationUnitType)
+        openingHours,
+      } as ReservationUnitByPkType)
     ).toBe(true);
 
     expect(
@@ -589,7 +605,8 @@ describe("isReservationUnitReservable", () => {
         minReservationDuration: 3600,
         maxReservationDuration: 3600,
         reservationEnds: addMinutes(new Date(), 10),
-      } as ReservationUnitType)
+        openingHours,
+      } as ReservationUnitByPkType)
     ).toBe(true);
 
     expect(
@@ -598,35 +615,44 @@ describe("isReservationUnitReservable", () => {
         maxReservationDuration: 3600,
         reservationBegins: addMinutes(new Date(), -10),
         reservationEnds: addMinutes(new Date(), 10),
-      } as ReservationUnitType)
+        openingHours,
+      } as ReservationUnitByPkType)
     ).toBe(true);
 
     expect(
       isReservationUnitReservable({
         minReservationDuration: 3600,
         maxReservationDuration: 3600,
-      } as ReservationUnitType)
+        openingHours,
+      } as ReservationUnitByPkType)
     ).toBe(true);
   });
 
   test("returns false for a unit that is not reservable", () => {
     expect(
       isReservationUnitReservable({
+        minReservationDuration: 3600,
+        maxReservationDuration: 3600,
+      } as ReservationUnitByPkType)
+    ).toBe(false);
+
+    expect(
+      isReservationUnitReservable({
         reservationBegins: addMinutes(new Date(), 10),
-      } as ReservationUnitType)
+      } as ReservationUnitByPkType)
     ).toBe(false);
 
     expect(
       isReservationUnitReservable({
         reservationEnds: addMinutes(new Date(), -10),
-      } as ReservationUnitType)
+      } as ReservationUnitByPkType)
     ).toBe(false);
 
     expect(
       isReservationUnitReservable({
         reservationBegins: addMinutes(new Date(), -10),
         reservationEnds: addMinutes(new Date(), -1),
-      } as ReservationUnitType)
+      } as ReservationUnitByPkType)
     ).toBe(false);
   });
 
@@ -637,14 +663,15 @@ describe("isReservationUnitReservable", () => {
         maxReservationDuration: 3600,
         reservationBegins: addDays(new Date(), 5),
         reservationsMaxDaysBefore: 5,
-      } as ReservationUnitType)
+        openingHours,
+      } as ReservationUnitByPkType)
     ).toBe(true);
 
     expect(
       isReservationUnitReservable({
         reservationBegins: addDays(new Date(), 5),
         reservationsMaxDaysBefore: 4,
-      } as ReservationUnitType)
+      } as ReservationUnitByPkType)
     ).toBe(false);
   });
 });
@@ -779,5 +806,132 @@ describe("getNormalizedReservationBeginTime", () => {
         reservationsMaxDaysBefore: 10,
       } as ReservationUnitType)
     ).toEqual("2019-09-12T12:00:00.000Z");
+  });
+});
+
+describe("getAvailableTimes", () => {
+  test("get correct times", () => {
+    const openingHours: OpeningHoursType = {
+      openingTimePeriods: [],
+      openingTimes: [
+        {
+          date: "2022-09-14",
+          startTime: "04:00:00+00:00",
+          endTime: "20:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+      ],
+    };
+
+    expect(
+      getAvailableTimes(
+        {
+          openingHours,
+          reservationStartInterval: "INTERVAL_90_MINS",
+        } as ReservationUnitByPkType,
+        new Date("2022-09-14T00:00:00+00:00")
+      )
+    ).toEqual([
+      "04:00",
+      "05:30",
+      "07:00",
+      "08:30",
+      "10:00",
+      "11:30",
+      "13:00",
+      "14:30",
+      "16:00",
+      "17:30",
+      "19:00",
+    ]);
+  });
+
+  test("get correct times", () => {
+    const openingHours: OpeningHoursType = {
+      openingTimePeriods: [],
+      openingTimes: [
+        {
+          date: "2022-09-14",
+          startTime: "04:00:00+00:00",
+          endTime: "06:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+      ],
+    };
+
+    expect(
+      getAvailableTimes(
+        {
+          openingHours,
+          reservationStartInterval: "INTERVAL_15_MINS",
+        } as ReservationUnitByPkType,
+        new Date("2022-09-14T00:00:00+00:00")
+      )
+    ).toEqual([
+      "04:00",
+      "04:15",
+      "04:30",
+      "04:45",
+      "05:00",
+      "05:15",
+      "05:30",
+      "05:45",
+      "06:00",
+    ]);
+  });
+});
+
+describe("getOpenDays", () => {
+  test("correct output", () => {
+    const openingHours: OpeningHoursType = {
+      openingTimePeriods: [],
+      openingTimes: [
+        {
+          date: "2022-09-14",
+          startTime: "04:00:00+00:00",
+          endTime: "06:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+        {
+          date: "2022-08-14",
+          startTime: "04:00:00+00:00",
+          endTime: "06:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+        {
+          date: "2022-08-13",
+          startTime: "04:00:00+00:00",
+          endTime: "06:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+        {
+          date: "2022-08-12",
+          startTime: "04:00:00+00:00",
+          endTime: "06:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+        {
+          date: "2022-08-10",
+          startTime: "04:00:00+00:00",
+          endTime: "06:00:00+00:00",
+          state: "open",
+          periods: null,
+        },
+      ],
+    };
+
+    expect(getOpenDays({ openingHours } as ReservationUnitByPkType)).toEqual([
+      new Date("2022-08-10T00:00:00.000Z"),
+      new Date("2022-08-12T00:00:00.000Z"),
+      new Date("2022-08-13T00:00:00.000Z"),
+      new Date("2022-08-14T00:00:00.000Z"),
+      new Date("2022-09-14T00:00:00.000Z"),
+    ]);
   });
 });

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useMemo } from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { differenceInSeconds, format, isValid, subMinutes } from "date-fns";
-import { DateInput, Select } from "hds-react";
+import { Button, DateInput, Select } from "hds-react";
 import { trimStart } from "lodash";
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import {
@@ -11,6 +11,7 @@ import {
   toApiDate,
   toUIDate,
 } from "common/src/common/util";
+import { useLocalStorage } from "react-use";
 import {
   areSlotsReservable,
   doBuffersCollide,
@@ -24,7 +25,7 @@ import { ReservationUnitByPkType } from "../../modules/gql-types";
 import { DataContext, ReservationProps } from "../../context/DataContext";
 import { fontMedium, fontRegular } from "../../modules/style/typography";
 import { getDurationOptions } from "../../modules/reservation";
-import { getPrice } from "../../modules/reservationUnit";
+import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import LoginFragment from "../LoginFragment";
 
 type Props<T> = {
@@ -37,7 +38,6 @@ type Props<T> = {
   activeApplicationRounds: ApplicationRound[];
   createReservation: (arg: ReservationProps) => void;
   setErrorMsg: (msg: string) => void;
-  isReservationUnitReservable: boolean;
   handleEventChange: (
     event: CalendarEvent<T>,
     skipLengthCheck?: boolean
@@ -46,12 +46,16 @@ type Props<T> = {
 
 const Wrapper = styled.div`
   display: grid;
-  gap: var(--spacing-s);
-  align-items: flex-start;
-  max-width: 300px;
+  gap: var(--spacing-xs);
+  align-items: flex-end;
+  padding-top: var(--spacing-s);
+  padding-bottom: var(--spacing-s);
+  grid-template-columns: repeat(2, 1fr);
+  border-top: 1px solid var(--color-black-50);
 
   button {
-    order: unset;
+    width: 100% !important;
+    order: unset !important;
   }
 
   h3 {
@@ -63,19 +67,21 @@ const Wrapper = styled.div`
   }
 
   @media (min-width: ${breakpoint.m}) {
-    grid-template-columns: 190px 160px 120px auto;
-    gap: var(--spacing-l);
-    max-width: unset;
-
-    button {
-      max-width: 10rem;
+    > *:nth-child(5) {
+      grid-column: 3/3;
     }
+
+    grid-template-columns: repeat(4, 24%);
+    gap: var(--spacing-xs);
+    justify-content: space-between;
   }
 
   @media (min-width: ${breakpoint.l}) {
-    button {
-      max-width: unset;
+    > *:nth-child(5) {
+      grid-column: unset;
     }
+
+    grid-template-columns: 154px 120px 100px minmax(100px, 1fr) 100px 140px;
   }
 `;
 
@@ -88,13 +94,37 @@ const StyledSelect = styled(Select)`
 const PriceWrapper = styled.div`
   ${fontMedium};
   align-self: flex-end;
-  white-space: nowrap;
+`;
+
+const Label = styled.div`
+  margin-bottom: var(--spacing-2-xs);
 `;
 
 const Price = styled.div`
   ${fontRegular};
   font-size: var(--fontsize-body-l);
-  line-height: var(--lineheight-xl);
+  line-height: var(--lineheight-s);
+  padding-bottom: var(--spacing-3-xs);
+`;
+
+const ResetButton = styled(Button).attrs({ variant: "secondary" })`
+  white-space: nowrap;
+
+  > span {
+    margin: 0 !important;
+    padding-right: var(--spacing-3-xs);
+    padding-left: var(--spacing-3-xs);
+  }
+`;
+
+const SubmitButton = styled(MediumButton)`
+  white-space: nowrap;
+
+  > span {
+    margin: 0 !important;
+    padding-right: var(--spacing-3-xs);
+    padding-left: var(--spacing-3-xs);
+  }
 `;
 
 const ReservationInfo = <T extends Record<string, unknown>>({
@@ -107,7 +137,6 @@ const ReservationInfo = <T extends Record<string, unknown>>({
   activeApplicationRounds,
   createReservation,
   setErrorMsg,
-  isReservationUnitReservable,
   handleEventChange,
 }: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
@@ -130,6 +159,11 @@ const ReservationInfo = <T extends Record<string, unknown>>({
   const [duration, setDuration] = useState<OptionType | null>(
     durationOptions[0]
   );
+  const [isReserving, setIsReserving] = useState(false);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
+  const [_, setStoredReservation] =
+    useLocalStorage<ReservationProps>("reservation");
 
   useEffect(() => {
     if (!reservation) {
@@ -264,7 +298,7 @@ const ReservationInfo = <T extends Record<string, unknown>>({
   );
 
   return (
-    <Wrapper>
+    <Wrapper data-testid="reservation-unit__reservation-controls--wrapper">
       <DateInput
         onChange={(val, valueAsDate) => {
           if (
@@ -304,30 +338,43 @@ const ReservationInfo = <T extends Record<string, unknown>>({
       <PriceWrapper>
         {isReservable && (
           <>
-            <div>{t("reservationUnit:price")}:</div>
+            <Label>{t("reservationUnit:price")}:</Label>
             <Price data-testid="reservation__price--value">
-              {getPrice(
+              {getReservationUnitPrice(
                 reservationUnit,
-                convertHMSToSeconds(`0${duration?.value}:00`) / 60
+                date,
+                convertHMSToSeconds(`0${duration?.value}:00`) / 60,
+                false
               )}
             </Price>
           </>
         )}
       </PriceWrapper>
+      <ResetButton
+        onClick={() => {
+          setStartTime(null);
+          resetReservation();
+          setReservation(null);
+        }}
+      >
+        {t("searchForm:resetForm")}
+      </ResetButton>
       <LoginFragment
         isActionDisabled={!isReservable}
+        actionCallback={() => {
+          setStoredReservation({ ...reservation, pk: reservationUnit.pk });
+        }}
         componentIfAuthenticated={
-          isReservationUnitReservable && (
-            <MediumButton
-              onClick={() => {
-                createReservation(reservation);
-              }}
-              disabled={!isReservable}
-              data-test="reservation__button--submit"
-            >
-              {t("reservationCalendar:makeReservation")}
-            </MediumButton>
-          )
+          <SubmitButton
+            onClick={() => {
+              setIsReserving(true);
+              createReservation(reservation);
+            }}
+            disabled={!isReservable || isReserving}
+            data-test="reservation__button--submit"
+          >
+            {t("reservationCalendar:makeReservation")}
+          </SubmitButton>
         }
       />
     </Wrapper>

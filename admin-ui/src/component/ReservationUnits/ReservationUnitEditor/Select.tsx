@@ -24,6 +24,7 @@ const Select = ({
   errorText,
   sort = false,
   tooltipText,
+  clearable = false,
 }: {
   id: string;
   label: string;
@@ -36,6 +37,7 @@ const Select = ({
   errorText?: string;
   sort?: boolean;
   tooltipText?: string;
+  clearable?: boolean;
 }): JSX.Element => {
   const sortedOpts = memoize((originalOptions) => {
     const opts = [...originalOptions];
@@ -48,24 +50,30 @@ const Select = ({
   })(options);
 
   return (
-    <HDSSelect
-      id={id}
-      label={label}
-      placeholder={placeholder}
-      options={sortedOpts}
-      required={required}
-      onChange={(e: OptionType) => {
-        if (typeof e.value !== "undefined") {
+    <>
+      <div id={id} />
+      <HDSSelect
+        id={id}
+        clearable={clearable}
+        label={label}
+        placeholder={placeholder}
+        options={sortedOpts}
+        required={required}
+        onChange={(e: OptionType) => {
+          if (e === null) {
+            onChange(null);
+            return;
+          }
           onChange(e.value);
-        }
-      }}
-      disabled={options.length === 0}
-      helper={helper}
-      value={getSelectedOption(options, value)}
-      error={errorText}
-      invalid={!!errorText}
-      tooltipText={tooltipText}
-    />
+        }}
+        disabled={options.length === 0}
+        helper={helper}
+        value={getSelectedOption(options, value)}
+        error={errorText}
+        invalid={!!errorText}
+        tooltipText={tooltipText}
+      />
+    </>
   );
 };
 

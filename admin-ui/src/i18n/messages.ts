@@ -1090,6 +1090,7 @@ const translations: ITranslations = {
       canApplyFreeOfCharge: [
         "Asiakas voi pyytää hinnan alennusta tai maksuttomuutta",
       ],
+      pricings: ["Hinnoittelu"],
       metadataSetPk: ["Varauslomake"],
       termsOfUseFi: ["Varausyksikkökohtaiset lisätiedot fi"],
       termsOfUseSv: ["Varausyksikkökohtaiset lisätiedot sv"],
@@ -1098,6 +1099,8 @@ const translations: ITranslations = {
       cancellationTermsPk: ["Peruutusehdot"],
       paymentTermsPk: ["Maksuehdot"],
       paymentTypes: ["Maksutapa"],
+      priceUnit: ["Hinnan yksikkö"],
+      taxPercentagePk: ["Hinnan alv%"],
       instructionsFi: ["Varausvahvistuksen lisäohjeteksti suomeksi"],
       instructionsSv: ["Varausvahvistuksen lisäohjeteksti ruotsiksi"],
       instructionsEn: ["Varausvahvistuksen lisäohjeteksti englanniksi"],
@@ -1112,6 +1115,7 @@ const translations: ITranslations = {
         PAID: ["Maksullinen"],
         FREE: ["Maksuton"],
       },
+      priceChange: ["Hintaan on tulossa muutos"],
     },
 
     tooltip: {
@@ -1407,12 +1411,12 @@ const translations: ITranslations = {
     serviceSpecificTermsHelperText: ["Valitse tästä"],
     openingHours: ["Aukioloajat"],
     openingHoursHelperTextHasLink: [
-      "Varausyksikön aukioloajat määritellään HAUKI järjestelmässä. Voit siirtyä hauki järjestelmään alla näkyvällä linkillä.",
+      "Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Voit siirtyä aukiolosovellukseen alla näkyvällä linkillä.",
     ],
     openingHoursHelperTextNoLink: [
-      "Varausyksikön aukioloajat määritellään HAUKI järjestelmässä. Pääset muokkaamaan aukioloaikoja kun varausyksikkö on tallennettu.",
+      "Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Pääset muokkaamaan aukioloaikoja kun varausyksikkö on tallennettu.",
     ],
-    openingTimesExternalLink: ["Aukioloajat HAUKI järjestelmässä"],
+    openingTimesExternalLink: ["Aukioloajat aukiolosovelluksessa"],
     cancel: ["Palaa tallentamatta muutoksia"],
     archive: ["Arkistoi"],
     save: ["Tallenna tiedot"],
@@ -1438,9 +1442,6 @@ const translations: ITranslations = {
     contactInformationPlaceholder: ["Vastuuhenkilön yhteystiedot"],
     noPreviewUnsavedChangesTooltip: ["Tallenna ensin muutokset"],
     previewTooltip: ["Varausyksikön esikatselu"],
-    pricing: ["Hinnoittelu"],
-    priceUnitLabel: ["Hinnan yksikkö"],
-    taxPercentageLabel: ["Hinnan alv%"],
     bufferTimeBefore: ["Aseta ennen vuoroa tauko"],
     bufferTimeBeforeDuration: ["Tauon kesto"],
     bufferTimeAfter: ["Aseta vuoron jälkeen tauko"],
@@ -1729,6 +1730,7 @@ const translations: ITranslations = {
       base: ["{{fieldName}} on pakollinen tieto"],
       min: ["{{fieldName}} pitää olla vähintään {{limit}}"],
       max: ["{{fieldName}} pitää olla pienempi kuin {{limit}}"],
+      precision: ["{{fieldName}} {{limit}} desimaalia sallitaan"],
     },
     array: {
       min: ["{{fieldName}} on pakollinen tieto"],

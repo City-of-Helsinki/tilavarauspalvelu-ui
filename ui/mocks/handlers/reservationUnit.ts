@@ -1,6 +1,7 @@
 import { addDays, addMinutes, endOfWeek, set } from "date-fns";
 import { graphql, rest } from "msw";
-import { toApiDate } from "common/src/common/util";
+import { toApiDate, toUIDate } from "common/src/common/util";
+import { ReservationUnitsReservationUnitPricingTypeChoices } from "common/types/gql-types";
 import { Parameter } from "common/types/common";
 import {
   OpeningTimesType,
@@ -22,6 +23,11 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   EquipmentCategoryType,
   ReservationUnitsReservationUnitReservationKindChoices,
+  ReservationUnitsReservationUnitPricingPriceUnitChoices,
+  ReservationUnitsReservationUnitPricingStatusChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  QueryPurposesArgs,
+  PurposeTypeConnection,
 } from "../../modules/gql-types";
 
 const equipmentCategories: EquipmentCategoryType[] = [
@@ -121,6 +127,37 @@ const selectedReservationUnitQuery = graphql.query<
     lowestPrice: 20,
     highestPrice: 20,
     priceUnit: "PER_15_MINS" as ReservationUnitsReservationUnitPriceUnitChoices,
+    pricingType: ReservationUnitsReservationUnitPricingTypeChoices.Paid,
+    pricings: [
+      {
+        begins: toUIDate(addDays(new Date(), 2), "yyyy-MM-dd"),
+        lowestPrice: 10,
+        highestPrice: 30,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        taxPercentage: {
+          id: "goier1",
+          value: 20,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        begins: toUIDate(addDays(new Date(), 3), "yyyy-MM-dd"),
+        lowestPrice: 20,
+        highestPrice: 50,
+        priceUnit:
+          ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        taxPercentage: {
+          id: "goier1",
+          value: 24,
+        },
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+    ],
     descriptionFi:
       "<p>Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkil&ouml;&auml;..</p> Fi",
     descriptionEn:
@@ -346,6 +383,11 @@ const selectedReservationUnitQuery = graphql.query<
       id: "faweopfk",
       textFi: "Maksuehdot Fi",
       termsType: TermsOfUseTermsOfUseTermsTypeChoices.PaymentTerms,
+    };
+    reservationUnitByPk.pricingTerms = {
+      id: "faweoipfv",
+      textFi: "Hinnoitteluehdot Fi",
+      termsType: TermsOfUseTermsOfUseTermsTypeChoices.PricingTerms,
     };
   }
 
@@ -589,6 +631,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         highestPrice: 20,
         priceUnit:
           "PER_HOUR" as ReservationUnitsReservationUnitPriceUnitChoices,
+        pricingType:
+          "PAID" as ReservationUnitsReservationUnitPricingTypeChoices,
         unit: {
           id: "VW5pdFR5cGU6Nw==",
           pk: 7,
@@ -665,6 +709,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         highestPrice: 30,
         priceUnit:
           "PER_WEEK" as ReservationUnitsReservationUnitPriceUnitChoices,
+        pricingType:
+          "PAID" as ReservationUnitsReservationUnitPricingTypeChoices,
         images: [
           {
             imageUrl:
@@ -883,6 +929,127 @@ export const termsOfUse = graphql.query<Query, QueryTermsOfUseArgs>(
   }
 );
 
+const purposeData: PurposeTypeConnection = {
+  edges: [
+    {
+      node: {
+        id: "aerwg",
+        pk: 1,
+        nameFi: "Tutkimus",
+        nameEn: "Research",
+        nameSv: "Forskning",
+        rank: 10,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "geqrg",
+        pk: 13,
+        nameFi: "Pidempi title joka menee toiselle riville",
+        nameEn: "Longer title that goes to the second line",
+        nameSv: "En längre titel som går till andra raden",
+        rank: 7,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "tq34tg",
+        pk: 3,
+        nameFi: "Purpose #3",
+        nameEn: "Purpose #3",
+        nameSv: "Purpose #3",
+        rank: 3,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "adtbsdfgb",
+        pk: 4,
+        nameFi: "Purpose #4",
+        nameEn: "Purpose #4",
+        nameSv: "Purpose #4",
+        rank: 4,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "stfjhdyj",
+        pk: 5,
+        nameFi: "Purpose #5",
+        nameEn: "Purpose #5",
+        nameSv: "Purpose #5",
+        rank: 5,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "hsrftyh",
+        pk: 6,
+        nameFi: "Purpose #6",
+        nameEn: "Purpose #6",
+        nameSv: "Purpose #6",
+        rank: 6,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "brstb",
+        pk: 7,
+        nameFi: "Purpose #7",
+        nameEn: "Purpose #7",
+        nameSv: "Purpose #7",
+        rank: 7,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "sjrydj",
+        pk: 8,
+        nameFi: "Purpose #8",
+        nameEn: "Purpose #8",
+        nameSv: "Purpose #8",
+        rank: 8,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+    {
+      node: {
+        id: "sjrydj",
+        pk: 9,
+        nameFi: "Purpose #9",
+        nameEn: "Purpose #9",
+        nameSv: "Purpose #9",
+        rank: 9,
+        smallUrl: "https://via.placeholder.com/390x245",
+      },
+      cursor: null,
+    },
+  ],
+  pageInfo: null,
+};
+
+export const reservationUnitPurposes = graphql.query<Query, QueryPurposesArgs>(
+  "ReservationUnitPurposes",
+  (req, res, ctx) => {
+    return res(ctx.data({ purposes: purposeData }));
+  }
+);
+
 export const reservationUnitHandlers = [
   selectedReservationUnitQuery,
   openingHoursQuery,
@@ -890,4 +1057,5 @@ export const reservationUnitHandlers = [
   reservationUnitTypesRest,
   reservationUnitTypes,
   termsOfUse,
+  reservationUnitPurposes,
 ];

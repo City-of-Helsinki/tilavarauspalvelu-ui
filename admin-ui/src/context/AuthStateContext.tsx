@@ -1,11 +1,14 @@
+import { useQuery } from "@apollo/client";
 import { User } from "oidc-client";
 import React, { useContext, useEffect } from "react";
-import { getCurrentUser } from "../common/api";
+
 import {
   assertApiAccessTokenIsAvailableAndFresh,
   clearApiAccessToken,
   localLogout,
 } from "../common/auth/util";
+import { Query } from "../common/gql-types";
+
 import {
   Auth,
   authStateReducer,
@@ -13,6 +16,7 @@ import {
   YesItsAFunction,
 } from "./authStateReducer";
 import OIDCLibIntegration from "./OIDCLibIntegration";
+import { CURRENT_USER } from "./queries";
 
 export type AuthStateProps = {
   authState: Auth;
@@ -30,29 +34,40 @@ export const AuthStateContextProvider: React.FC = ({ children }) => {
     getInitialState()
   );
 
+  const skip = authState.state !== "ApiKeyAvailable";
+  const checkApiToken = authState.state === "Authenticated";
+
+  useQuery<Query>(CURRENT_USER, {
+    skip,
+    onCompleted: ({ currentUser }) => {
+      if (currentUser) {
+        dispatch({ type: "currentUserLoaded", currentUser });
+      } else {
+        dispatch({ type: "error", message: "Current User Not Available" });
+      }
+    },
+    onError: () => {
+      dispatch({ type: "error", message: "Current User Not Available" });
+    },
+  });
+
   useEffect(() => {
     const check = async () => {
       const status = await assertApiAccessTokenIsAvailableAndFresh();
       if (status === "Available") {
-        // token is available and fresh, read user permissions
-        try {
-          const cu = await getCurrentUser();
-          dispatch({ type: "currentUserLoaded", currentUser: cu });
-        } catch (e) {
-          // error reading user permissions
-          dispatch({ type: "error", message: "Current User Not Available" });
-        }
-      } else {
+        dispatch({ type: "apiTokenAvailable" });
+      }
+      if (status !== "Available") {
         // token is not available and we failed to get one
         clearApiAccessToken();
         localLogout(true);
-        dispatch({ type: "error", message: "No Token Available" });
+        window.location.reload();
       }
     };
-    if (authState.sid && !authState.user) {
+    if (checkApiToken) {
       check();
     }
-  }, [authState.sid, authState.user]);
+  }, [checkApiToken]);
 
   return (
     <AuthStateContext.Provider

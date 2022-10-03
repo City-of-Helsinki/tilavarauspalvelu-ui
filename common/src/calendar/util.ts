@@ -106,7 +106,7 @@ export const isReservationLongEnough = (
 const areOpeningTimesAvailable = <T extends Record<string, unknown>>(
   openingHours: T[],
   slotDate: Date
-) => {
+): boolean => {
   return !!openingHours?.some((oh) => {
     const startDate = oh.date;
     const startDateTime = new Date(`${startDate}T${oh.startTime}`);
@@ -402,7 +402,7 @@ export const getEventBuffers = (
 };
 
 export const isReservationUnitReservable = (
-  reservationUnit: ReservationUnitType | ReservationUnitByPkType,
+  reservationUnit: ReservationUnitByPkType,
   now = new Date()
 ): boolean => {
   const bufferDays = reservationUnit.reservationsMaxDaysBefore || 0;
@@ -414,7 +414,8 @@ export const isReservationUnitReservable = (
     now <= new Date(reservationUnit.reservationEnds);
 
   return (
-    // reservationUnit.openingHours?.openingTimes?.length > 0 &&
+    !!reservationUnit.openingHours?.openingTimes?.length &&
+    reservationUnit.openingHours?.openingTimes?.length > 0 &&
     !!reservationUnit.minReservationDuration &&
     !!reservationUnit.maxReservationDuration &&
     (isAfterReservationStart || !reservationUnit.reservationBegins) &&
@@ -461,4 +462,51 @@ export const getMaxReservation = (
   const slots = duration / (30 * 60);
   const end = addMinutes(begin, slots * 30);
   return { begin, end };
+};
+
+export const getAvailableTimes = (
+  reservationUnit: ReservationUnitByPkType,
+  date: Date
+): string[] => {
+  const { openingHours, reservationStartInterval } = reservationUnit;
+
+  const openingTimes = openingHours?.openingTimes?.find(
+    (n) => n?.date === toUIDate(date, "yyyy-MM-dd")
+  );
+
+  const { startTime, endTime } = openingTimes || {};
+
+  const intervals = getDayIntervals(
+    startTime,
+    endTime,
+    reservationStartInterval
+  );
+
+  const times: string[] = intervals.map((val) => {
+    const [startHours, startMinutes] = val.split(":").map(Number);
+
+    const start = new Date(date);
+    start.setHours(startHours, startMinutes);
+
+    return toUIDate(start, "HH:mm");
+  });
+
+  return times;
+};
+
+export const getOpenDays = (
+  reservationUnit: ReservationUnitByPkType
+): Date[] => {
+  const { openingHours } = reservationUnit;
+
+  const openDays: Date[] = [];
+
+  openingHours?.openingTimes?.forEach((openingTime) => {
+    if (openingTime && openingTime.state === "open") {
+      const date = new Date(openingTime?.date);
+      openDays.push(date);
+    }
+  });
+
+  return openDays.sort((a, b) => a.getTime() - b.getTime());
 };
