@@ -11,7 +11,7 @@ import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
-import { Notification } from "hds-react";
+import { IconInfoCircleFill, Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
   addDays,
@@ -21,7 +21,11 @@ import {
   parseISO,
   subMinutes,
 } from "date-fns";
-import { formatSecondDuration, toApiDate } from "common/src/common/util";
+import {
+  formatSecondDuration,
+  toApiDate,
+  toUIDate,
+} from "common/src/common/util";
 import {
   areSlotsReservable,
   doBuffersCollide,
@@ -37,6 +41,7 @@ import {
   isReservationUnitReservable,
   isStartTimeWithinInterval,
 } from "common/src/calendar/util";
+import { formatters as getFormatters } from "common";
 import { useLocalStorage, useSessionStorage } from "react-use";
 import { breakpoints } from "common/src/common/style";
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
@@ -92,7 +97,11 @@ import {
   CREATE_RESERVATION,
   LIST_RESERVATIONS,
 } from "../../modules/queries/reservation";
-import { isReservationUnitPublished } from "../../modules/reservationUnit";
+import {
+  getFuturePricing,
+  getPrice,
+  isReservationUnitPublished,
+} from "../../modules/reservationUnit";
 import EquipmentList from "../../components/reservation-unit/EquipmentList";
 import { daysByMonths } from "../../modules/const";
 import QuickReservation from "../../components/reservation-unit/QuickReservation";
@@ -384,7 +393,13 @@ const PaddedContent = styled(Content)`
   padding-top: var(--spacing-m);
 `;
 
-const CalendarFooter = styled.div`
+const CalendarFooter = styled.div<{ $cookiehubBannerHeight?: number }>`
+  position: sticky;
+  bottom: ${({ $cookiehubBannerHeight }) =>
+    $cookiehubBannerHeight ? `${$cookiehubBannerHeight}px` : 0};
+  background-color: var(--color-white);
+  z-index: var(--tilavaraus-stack-order-sticky-container);
+
   display: flex;
   flex-direction: column-reverse;
 
@@ -429,11 +444,20 @@ const MapWrapper = styled.div`
 `;
 
 const StyledNotification = styled(Notification)`
+  div > div {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
   margin-bottom: var(--spacing-xl);
 
   svg {
-    position: relative;
-    top: -3px;
+    color: var(--color-info);
+    min-width: 24px;
+  }
+
+  button > svg {
+    color: inherit;
   }
 `;
 
@@ -828,6 +852,11 @@ const ReservationUnit = ({
     [reservationUnit]
   );
 
+  const pricingTermsContent = useMemo(
+    () => getTranslation(reservationUnit.pricingTerms, "text"),
+    [reservationUnit]
+  );
+
   const serviceSpecificTermsContent = useMemo(
     () => getTranslation(reservationUnit.serviceSpecificTerms, "text"),
     [reservationUnit]
@@ -836,15 +865,17 @@ const ReservationUnit = ({
   const quickReservationComponent = useCallback(
     (calendar, type: "mobile" | "desktop") => {
       return (
-        <QuickReservation
-          isSlotReservable={isSlotReservable}
-          isReservationUnitReservable={!isReservationQuotaReached}
-          createReservation={(res) => createReservation(res)}
-          reservationUnit={reservationUnit}
-          scrollPosition={calendar?.current?.offsetTop - 20}
-          setErrorMsg={setErrorMsg}
-          idPrefix={type}
-        />
+        !isReservationStartInFuture(reservationUnit) && (
+          <QuickReservation
+            isSlotReservable={isSlotReservable}
+            isReservationUnitReservable={!isReservationQuotaReached}
+            createReservation={(res) => createReservation(res)}
+            reservationUnit={reservationUnit}
+            scrollPosition={calendar?.current?.offsetTop - 20}
+            setErrorMsg={setErrorMsg}
+            idPrefix={type}
+          />
+        )
       );
     },
     [
@@ -853,6 +884,39 @@ const ReservationUnit = ({
       isSlotReservable,
       reservationUnit,
     ]
+  );
+
+  const [cookiehubBannerHeight, setCookiehubBannerHeight] = useState<
+    number | null
+  >(null);
+
+  const onScroll = () => {
+    const banner: HTMLElement = window.document.querySelector(
+      ".ch2 .ch2-dialog.ch2-visible"
+    );
+    const height: number = banner?.offsetHeight;
+    setCookiehubBannerHeight(height);
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).cookiehub) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  const futurePricing = useMemo(
+    () => getFuturePricing(reservationUnit, activeApplicationRounds),
+    [reservationUnit, activeApplicationRounds]
+  );
+
+  const formatters = useMemo(
+    () => getFormatters(i18n.language),
+    [i18n.language]
   );
 
   return reservationUnit ? (
@@ -881,8 +945,15 @@ const ReservationUnit = ({
               </>
             )}
             {isReservationStartInFuture(reservationUnit) && (
-              <StyledNotification type="info" label={t("common:fyiLabel")}>
+              <StyledNotification
+                type="info"
+                size="small"
+                dismissible
+                closeButtonLabelText={t("common:close")}
+              >
+                <IconInfoCircleFill aria-hidden />
                 <span data-testid="reservation-unit--notification__reservation-start">
+                  {t("reservationUnit:notifications.notReservable")}{" "}
                   {t("reservationCalendar:reservingStartsAt", {
                     date: t("common:dateTimeNoYear", {
                       date: parseISO(
@@ -893,7 +964,9 @@ const ReservationUnit = ({
                 </span>
               </StyledNotification>
             )}
-            {isReservable && (
+            {(isReservable ||
+              (!isReservable &&
+                isReservationStartInFuture(reservationUnit))) && (
               <CalendarWrapper
                 ref={calendarRef}
                 data-testid="reservation-unit__calendar--wrapper"
@@ -971,25 +1044,29 @@ const ReservationUnit = ({
                   />
                 </div>
                 <Legend wrapBreakpoint={breakpoints.l} />
-                <CalendarFooter>
-                  <ReservationInfo
-                    reservationUnit={reservationUnit}
-                    begin={initialReservation?.begin}
-                    end={initialReservation?.end}
-                    resetReservation={() => {
-                      setInitialReservation(null);
-                    }}
-                    isSlotReservable={(startDate, endDate) =>
-                      isSlotReservable(startDate, endDate)
-                    }
-                    setCalendarFocusDate={setFocusDate}
-                    activeApplicationRounds={activeApplicationRounds}
-                    createReservation={(res) => createReservation(res)}
-                    setErrorMsg={setErrorMsg}
-                    isReservationUnitReservable={!isReservationQuotaReached}
-                    handleEventChange={handleEventChange}
-                  />
-                </CalendarFooter>
+                {!isReservationQuotaReached &&
+                  !isReservationStartInFuture(reservationUnit) && (
+                    <CalendarFooter
+                      $cookiehubBannerHeight={cookiehubBannerHeight}
+                    >
+                      <ReservationInfo
+                        reservationUnit={reservationUnit}
+                        begin={initialReservation?.begin}
+                        end={initialReservation?.end}
+                        resetReservation={() => {
+                          setInitialReservation(null);
+                        }}
+                        isSlotReservable={(startDate, endDate) =>
+                          isSlotReservable(startDate, endDate)
+                        }
+                        setCalendarFocusDate={setFocusDate}
+                        activeApplicationRounds={activeApplicationRounds}
+                        createReservation={(res) => createReservation(res)}
+                        setErrorMsg={setErrorMsg}
+                        handleEventChange={handleEventChange}
+                      />
+                    </CalendarFooter>
+                  )}
               </CalendarWrapper>
             )}
             {isReservable && (
@@ -1143,8 +1220,37 @@ const ReservationUnit = ({
               </>
             )}
             {termsOfUseContent && (
-              <Accordion heading={t("reservationUnit:terms")} theme="thin">
+              <Accordion
+                heading={t("reservationUnit:terms")}
+                theme="thin"
+                data-testid="reservation-unit__reservation-notice"
+              >
                 <PaddedContent>
+                  {futurePricing && (
+                    <p style={{ marginTop: 0 }}>
+                      <Trans i18nKey="reservationUnit:futurePricingNotice">
+                        Huomioi{" "}
+                        <strong>
+                          hinnoittelumuutos{" "}
+                          {{ date: toUIDate(new Date(futurePricing.begins)) }}{" "}
+                          alkaen. Uusi hinta on{" "}
+                          {{
+                            price: getPrice(futurePricing).toLocaleLowerCase(),
+                          }}
+                        </strong>
+                      </Trans>
+                      {futurePricing.taxPercentage?.value > 0 && (
+                        <strong>
+                          {t("reservationUnit:futurePriceNoticeTax", {
+                            tax: formatters.strippedDecimal.format(
+                              futurePricing.taxPercentage.value
+                            ),
+                          })}
+                        </strong>
+                      )}
+                      .
+                    </p>
+                  )}
                   <Sanitize html={termsOfUseContent} />
                 </PaddedContent>
               </Accordion>
@@ -1179,6 +1285,17 @@ const ReservationUnit = ({
                 )}
                 <PaddedContent>
                   <Sanitize html={cancellationTermsContent} />
+                </PaddedContent>
+              </Accordion>
+            )}
+            {pricingTermsContent && (
+              <Accordion
+                heading={t("reservationUnit:pricingTerms")}
+                theme="thin"
+                data-testid="reservation-unit__pricing-terms"
+              >
+                <PaddedContent>
+                  <Sanitize html={pricingTermsContent} />
                 </PaddedContent>
               </Accordion>
             )}

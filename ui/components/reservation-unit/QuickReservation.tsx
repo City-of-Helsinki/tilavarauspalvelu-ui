@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getAvailableTimes, getOpenDays } from "common/src/calendar/util";
 import { chunkArray, toUIDate } from "common/src/common/util";
 import { Language, OptionType } from "common/types/common";
@@ -8,17 +9,18 @@ import {
   differenceInMinutes,
   isBefore,
   isSameDay,
+  isValid,
 } from "date-fns";
 import { Button, DateInput, IconAngleDown, Select, TimeInput } from "hds-react";
 import { padStart } from "lodash";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+
 import { useTranslation } from "react-i18next";
 import { useLocalStorage } from "react-use";
 import styled from "styled-components";
 import { ReservationProps } from "../../context/DataContext";
 import { ReservationUnitByPkType } from "../../modules/gql-types";
 import { getDurationOptions } from "../../modules/reservation";
-import { getPrice } from "../../modules/reservationUnit";
+import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import { fontBold, fontMedium, H4 } from "../../modules/style/typography";
 import { formatDate } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
@@ -286,10 +288,11 @@ const QuickReservation = ({
   const [isReserving, setIsReserving] = useState(false);
 
   const price: string = useMemo(() => {
-    const [hours, minutes] = duration?.value.toString().split(":").map(Number);
+    const [hours, minutes] =
+      duration?.value.toString().split(":").map(Number) || [];
     const length = hours * 60 + minutes;
-    return getPrice(reservationUnit, length);
-  }, [duration?.value, reservationUnit]);
+    return getReservationUnitPrice(reservationUnit, date, length);
+  }, [duration?.value, reservationUnit, date]);
 
   const [storedReservation, setStoredReservation, removeStoredReservation] =
     useLocalStorage<ReservationProps>("reservation");
@@ -325,10 +328,8 @@ const QuickReservation = ({
 
   useEffect(() => {
     if (date && duration?.value && slot) {
-      const [durationHours, durationMinutes] = duration?.value
-        .toString()
-        .split(":")
-        .map(Number);
+      const [durationHours, durationMinutes] =
+        duration?.value.toString().split(":").map(Number) || [];
       const [slotHours, slotMinutes] = slot.split(":").map(Number);
       const begin = new Date(date);
       begin.setHours(slotHours, slotMinutes, 0, 0);
@@ -344,10 +345,8 @@ const QuickReservation = ({
 
   const availableTimes = useCallback(
     (day: Date, fromStartOfDay = false): string[] => {
-      const [durationHours, durationMinutes] = duration?.value
-        .toString()
-        .split(":")
-        .map(Number);
+      const [durationHours, durationMinutes] =
+        duration?.value.toString().split(":").map(Number) || [];
       const [timeHours, timeMinutesRaw] = fromStartOfDay
         ? [0, 0]
         : time.split(":").map(Number);
@@ -377,6 +376,9 @@ const QuickReservation = ({
   const getNextAvailableTime = useCallback(
     (after: Date): Date => {
       let nextAvailableTime: Date;
+      const openDays = getOpenDays(reservationUnit);
+
+      if (openDays?.length < 1) return null;
 
       for (let i = 0; nextAvailableTime === undefined; i++) {
         const day = addDays(after, i);
@@ -389,7 +391,7 @@ const QuickReservation = ({
           day.setHours(hours, minutes, 0, 0);
           nextAvailableTime = day;
         }
-        const lastDay = getOpenDays(reservationUnit).slice(-1)[0];
+        const lastDay = openDays.slice(-1)[0];
         if (isSameDay(day, lastDay)) {
           nextAvailableTime = null;
         }
@@ -431,7 +433,10 @@ const QuickReservation = ({
           initialMonth={new Date()}
           language={i18n.language as Language}
           onChange={(val, valueAsDate) => {
-            setDate(valueAsDate);
+            if (isValid(valueAsDate) && valueAsDate.getFullYear() > 1970) {
+              setSlot(null);
+              setDate(valueAsDate);
+            }
           }}
           value={toUIDate(date)}
         />

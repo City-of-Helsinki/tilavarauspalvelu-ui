@@ -18,7 +18,7 @@
   "showNext": "Naytä seuraava {{view}}",
   "showView": "Näytä {{view}}näkymä",
   "initialReservation": "Alustava varaus",
-  "makeReservation": "Tee varaus",
+  "makeReservation": "Varaa",
   "newReservation": "Uusi varaus",
   "reserverInfo": "Varaajan tiedot",
   "reservationInfo": "Varauksen tiedot",
@@ -67,7 +67,7 @@
     "collision": "Valittu aika on varattu. Valitse toinen aika.",
     "unavailable": "Valittu aika ei ole varattavissa. Valitse toinen aloitusaika tai kesto."
   },
-  "reservingStartsAt": "Varaaminen alkaa {{date}}",
+  "reservingStartsAt": "Varauskalenteri aukeaa {{date}}.",
   "reservationQuota": "Sinulla on jo {{count}}/{{total}} varausta tähän tilaan.",
   "reservationQuotaFull": "Sinulla on jo {{count}} varausta tähän tilaan. Et voi tehdä uusia varauksia.",
   "quickReservation": {

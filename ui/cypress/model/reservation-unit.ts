@@ -16,6 +16,10 @@ export function reservationInfo(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get('[data-testid="reservation-unit__reservation-info"]');
 }
 
+export function reservationNotice(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-unit__reservation-notice"]');
+}
+
 export function paymentAndCancellationTerms(): Cypress.Chainable<
   JQuery<HTMLElement>
 > {
@@ -24,8 +28,18 @@ export function paymentAndCancellationTerms(): Cypress.Chainable<
   );
 }
 
+export function pricingTerms(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-unit__pricing-terms"]');
+}
+
 export function termsOfUse(): Cypress.Chainable<JQuery<HTMLElement>> {
   return cy.get('[data-testid="reservation-unit__terms-of-use"]');
+}
+
+export function reservationControls(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get(
+    '[data-testid="reservation-unit__reservation-controls--wrapper"]'
+  );
 }
 
 export function addressContainer(

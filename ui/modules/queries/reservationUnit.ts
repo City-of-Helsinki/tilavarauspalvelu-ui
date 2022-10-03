@@ -23,6 +23,10 @@ export const RESERVATION_UNIT = gql`
       lowestPrice
       highestPrice
       priceUnit
+      pricingType
+      taxPercentage {
+        value
+      }
       termsOfUseFi
       termsOfUseEn
       termsOfUseSv
@@ -61,6 +65,11 @@ export const RESERVATION_UNIT = gql`
         nameFi
         nameEn
         nameSv
+      }
+      pricingTerms {
+        textFi
+        textEn
+        textSv
       }
       maxPersons
       minReservationDuration
@@ -128,6 +137,17 @@ export const RESERVATION_UNIT = gql`
         }
       }
       allowReservationsWithoutOpeningHours
+      pricings {
+        begins
+        priceUnit
+        pricingType
+        lowestPrice
+        highestPrice
+        taxPercentage {
+          value
+        }
+        status
+      }
     }
   }
 `;
@@ -177,6 +197,7 @@ export const RESERVATION_UNITS = gql`
           lowestPrice
           highestPrice
           priceUnit
+          pricingType
           nameFi
           reservationBegins
           reservationEnds
