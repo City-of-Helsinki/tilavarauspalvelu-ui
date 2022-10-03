@@ -1,10 +1,15 @@
 import { get } from "lodash";
-import { getReservationPriceDetails } from "./util";
+import { getReservatinUnitPricing, getReservationPriceDetails } from "./util";
 import {
   ReservationType,
+  ReservationUnitPricingType,
   ReservationUnitsReservationUnitPriceUnitChoices,
+  ReservationUnitsReservationUnitPricingPriceUnitChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  ReservationUnitsReservationUnitPricingStatusChoices,
   ReservationUnitType,
 } from "../../../common/gql-types";
+import { getReservationPrice } from "common";
 
 describe("pricingDetails", () => {
   test("renders fixed price", () => {
@@ -13,8 +18,24 @@ describe("pricingDetails", () => {
       end: "2022-01-01T11:00:00Z",
       reservationUnits: [
         {
-          priceUnit: ReservationUnitsReservationUnitPriceUnitChoices.Fixed,
-          highestPrice: 120,
+          pricings: [
+            {
+              begins: "2022-01-01",
+              pricingType:
+                ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+              id: 1,
+              priceUnit:
+                ReservationUnitsReservationUnitPricingPriceUnitChoices.Fixed,
+              lowestPrice: 120,
+              highestPrice: 120,
+              taxPercentage: {
+                id: "1",
+                value: "2",
+              },
+              status:
+                ReservationUnitsReservationUnitPricingStatusChoices.Active,
+            } as ReservationUnitPricingType,
+          ],
         } as ReservationUnitType,
       ],
     } as ReservationType;
@@ -26,11 +47,26 @@ describe("pricingDetails", () => {
     const r = {
       begin: "2022-01-01T10:00:00Z",
       end: "2022-01-01T11:30:00Z",
-      taxPercentageValue: 24,
       reservationUnits: [
         {
-          priceUnit: ReservationUnitsReservationUnitPriceUnitChoices.PerHour,
-          highestPrice: 120,
+          pricings: [
+            {
+              begins: "2022-01-01",
+              pricingType:
+                ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+              id: 1,
+              priceUnit:
+                ReservationUnitsReservationUnitPricingPriceUnitChoices.PerHour,
+              lowestPrice: 120,
+              highestPrice: 120,
+              taxPercentage: {
+                id: "1",
+                value: "24",
+              },
+              status:
+                ReservationUnitsReservationUnitPricingStatusChoices.Active,
+            } as ReservationUnitPricingType,
+          ],
         } as ReservationUnitType,
       ],
     } as ReservationType;
@@ -40,6 +76,39 @@ describe("pricingDetails", () => {
     );
     expect(getReservationPriceDetails(r, (t, a) => get(a, "volume"))).toEqual(
       "1,5"
+    );
+  });
+});
+
+describe("getReservatinUnitPricing", () => {
+  test("getReservatinUnitPricing", () => {
+    const reservationUnit = {
+      pricings: [
+        {
+          begins: "2022-01-01",
+          pricingType:
+            ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+          id: 1,
+          priceUnit:
+            ReservationUnitsReservationUnitPricingPriceUnitChoices.PerHour,
+          lowestPrice: 120,
+          highestPrice: 120,
+          taxPercentage: {
+            id: "1",
+            value: "24",
+          },
+          status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+        } as ReservationUnitPricingType,
+      ],
+    } as ReservationUnitType;
+
+    const activePricing = getReservatinUnitPricing(
+      reservationUnit,
+      "2022-01-01"
+    );
+
+    expect(activePricing.pricingType).toBe(
+      ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid
     );
   });
 });
