@@ -132,6 +132,7 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
           begin
           end
           state
+          user
         }
       }
     }

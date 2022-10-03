@@ -18,30 +18,27 @@ const eventStyleGetter =
       color: "var(--color-white)",
       display: "block",
       borderColor: "transparent",
-      padding: "2px",
+      padding: "3px 6px",
+      fontSize: "var(--fontsize-body-s)",
     } as Record<string, string>;
 
     const state = event?.state.toLowerCase() as string;
 
     if (currentReservation.pk === event?.pk) {
-      // reservees reservation
-      style.backgroundColor = `var(--tilavaraus-event-own-${state}-background)`;
-      style.color = `var(--tilavaraus-event-own-${state}-color)`;
-      style.border = `2px dashed var(--tilavaraus-event-own-${state}-border-color)`;
+      // current reservation
+      style.backgroundColor = `var(--tilavaraus-event-current-${state}-background)`;
+      style.color = `var(--tilavaraus-event-current-${state}-color)`;
+      style.border = `2px dashed var(--tilavaraus-event-current-${state}-border-color)`;
+      style.class = "current";
+    } else if (event?.state !== ReservationsReservationStateChoices.Confirmed) {
+      style.border = `2px solid var(--tilavaraus-event-other-requires_handling-border-color)`;
+      style.backgroundColor = `var(--tilavaraus-event-other-requires_handling-background)`;
+      style.color = `black`;
     } else {
-      // other reservations
-      style.borderStyle = `2px solid`;
-      if (event?.state === ReservationsReservationStateChoices.Confirmed) {
-        style.background = `var(--tilavaraus-event-other-confirmed-background)`;
-        style.color = `var(--tilavaraus-event-other-confirmed-${event?.state.toLowerCase()}-color)`;
-        style.borderColor = `(--tilavaraus-event-other-confirmed-borderColor)`;
-      } else {
-        style.background = `var(--tilavaraus-event-other-background)`;
-        style.color = `var(--tilavaraus-event-other-${event?.state.toLowerCase()}-color)`;
-        style.borderColor = `(--tilavaraus-event-other-borderColor)`;
-      }
+      style.border = `2px solid var(--tilavaraus-event-rest-border-color)`;
+      style.background = `var(--tilavaraus-event-rest-background)`;
+      style.color = `black`;
     }
-
     return {
       style,
     };
