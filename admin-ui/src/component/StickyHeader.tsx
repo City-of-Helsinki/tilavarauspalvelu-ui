@@ -2,14 +2,13 @@ import React from "react";
 import styled from "styled-components";
 
 const Sticky = styled.div`
-  z-index: 100;
+  z-index: 101;
   position: sticky;
   top: 0px;
   width: 100%;
   max-width: calc(48px + var(--container-width-l));
   background-color: white;
   height: 0;
-  z-index: 101;
 `;
 
 const StickyContent = styled.div`
