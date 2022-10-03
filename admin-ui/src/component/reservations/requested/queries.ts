@@ -24,13 +24,6 @@ export const RESERVATION_QUERY = gql`
         unit {
           nameFi
         }
-        pricings {
-          priceUnit
-          highestPrice
-          taxPercentage {
-            value
-          }
-        }
       }
       ageGroup {
         minimum
@@ -42,6 +35,7 @@ export const RESERVATION_QUERY = gql`
       homeCity {
         nameFi
       }
+      price
       numPersons
       reserveeType
       reserveeIsUnregisteredAssociation
