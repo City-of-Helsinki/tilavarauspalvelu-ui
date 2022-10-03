@@ -223,9 +223,7 @@ const RequestedReservation = (): JSX.Element | null => {
     return null;
   }
 
-  const isNonFree = reservation?.reservationUnits?.find(
-    (ru) => ru?.highestPrice
-  );
+  const isNonFree = Number(reservation?.price) > 0;
 
   const buttons =
     reservation.state ===
@@ -388,6 +386,7 @@ const RequestedReservation = (): JSX.Element | null => {
             },
           ].map((e) => (
             <ApplicationProp
+              key={e.l}
               label={t(`RequestedReservation.${e.l}`)}
               data={e.v}
             />
