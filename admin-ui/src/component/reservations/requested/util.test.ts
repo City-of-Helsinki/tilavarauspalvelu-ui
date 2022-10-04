@@ -79,9 +79,24 @@ describe("pricingDetails", () => {
 });
 
 describe("getReservatinUnitPricing", () => {
-  test("getReservatinUnitPricing", () => {
+  test("returns correct pricing based on reservation date", () => {
     const reservationUnit = {
       pricings: [
+        {
+          begins: "2021-01-01",
+          pricingType:
+            ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+          id: 1,
+          priceUnit:
+            ReservationUnitsReservationUnitPricingPriceUnitChoices.PerHour,
+          lowestPrice: 120,
+          highestPrice: 120,
+          taxPercentage: {
+            id: "1",
+            value: "24",
+          },
+          status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+        } as ReservationUnitPricingType,
         {
           begins: "2022-01-01",
           pricingType:
@@ -95,17 +110,19 @@ describe("getReservatinUnitPricing", () => {
             id: "1",
             value: "24",
           },
-          status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+          status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
         } as ReservationUnitPricingType,
       ],
     } as ReservationUnitType;
 
-    const activePricing = getReservatinUnitPricing(
-      reservationUnit,
-      "2022-01-01T00:00:01Z"
-    );
-    expect(activePricing.pricingType).toBe(
-      ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid
-    );
+    expect(
+      getReservatinUnitPricing(reservationUnit, "2021-02-01T00:00:01Z")
+        .pricingType
+    ).toBe(ReservationUnitsReservationUnitPricingPricingTypeChoices.Free);
+
+    expect(
+      getReservatinUnitPricing(reservationUnit, "2022-02-01T00:00:01Z")
+        .pricingType
+    ).toBe(ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid);
   });
 });

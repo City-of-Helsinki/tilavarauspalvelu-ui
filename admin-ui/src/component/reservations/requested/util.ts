@@ -78,22 +78,15 @@ const parseDate = (date: string) => parse(date, "yyyy-MM-dd", new Date());
 export const getReservatinUnitPricing = (
   reservationUnit: ReservationUnitType,
   datetime: string
-): ReservationUnitPricingType => {
+): ReservationUnitPricingType | null => {
+  if (!reservationUnit.pricings || reservationUnit.pricings.length === 0) {
+    return null;
+  }
+
   const reservationDate = new Date(datetime);
   reservationUnit.pricings?.sort(
-    (a, b) => parseDate(b?.begins).getTime() - parseDate(a?.begins).getTime()
+    (a, b) => parseDate(a?.begins).getTime() - parseDate(b?.begins).getTime()
   );
-
-  const defaultPrice = {
-    begins: "1970-01-01",
-    pricingType: ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
-    lowestPrice: 0,
-    highestPrice: 0,
-  } as ReservationUnitPricingType;
-
-  if (!reservationUnit.pricings) {
-    return defaultPrice;
-  }
 
   return (
     (reservationUnit.pricings || []) as ReservationUnitPricingType[]
@@ -102,7 +95,7 @@ export const getReservatinUnitPricing = (
       return current;
     }
     return prev;
-  }, defaultPrice);
+  }, reservationUnit.pricings[0]);
 };
 
 export const getReservationPriceDetails = (
@@ -118,6 +111,8 @@ export const getReservationPriceDetails = (
     reservation.reservationUnits?.[0] as ReservationUnitType,
     reservation.begin
   );
+
+  if (pricing === null) return "???";
 
   const { priceUnit } = pricing;
   const volume = getUnRoundedReservationVolume(
@@ -138,7 +133,7 @@ export const getReservationPriceDetails = (
     : t("RequestedReservation.ApproveDialog.priceBreakdown", {
         volume: formatters.strippedDecimal.format(volume),
         units: t(`RequestedReservation.ApproveDialog.priceUnits.${priceUnit}`),
-        vatPercent: formatters.whole.format(reservation.taxPercentageValue),
+        vatPercent: formatters.whole.format(pricing.taxPercentage.value),
         unit: t(`RequestedReservation.ApproveDialog.priceUnit.${priceUnit}`),
         unitPrice: getReservationPrice(maxPrice, ""),
         price: getReservationPrice(

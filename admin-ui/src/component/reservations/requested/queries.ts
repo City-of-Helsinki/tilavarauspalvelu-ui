@@ -24,6 +24,17 @@ export const RESERVATION_QUERY = gql`
         unit {
           nameFi
         }
+        pricings {
+          begins
+          pricingType
+          priceUnit
+          lowestPrice
+          highestPrice
+          taxPercentage {
+            value
+          }
+          status
+        }
       }
       ageGroup {
         minimum
