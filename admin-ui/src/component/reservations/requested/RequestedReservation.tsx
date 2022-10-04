@@ -226,13 +226,15 @@ const RequestedReservation = (): JSX.Element | null => {
     return null;
   }
 
-  const isNonFree =
-    getReservatinUnitPricing(
-      reservation?.reservationUnits?.[0] as ReservationUnitType,
-      reservation.begin
-    )?.pricingType ===
-    ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid;
+  const pricing = getReservatinUnitPricing(
+    reservation?.reservationUnits?.[0] as ReservationUnitType,
+    reservation.begin
+  );
 
+  const isNonFree =
+    pricing?.pricingType ===
+      ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
+    pricing.highestPrice >= 0;
   const buttons =
     reservation.state ===
     ReservationsReservationStateChoices.RequiresHandling ? (
