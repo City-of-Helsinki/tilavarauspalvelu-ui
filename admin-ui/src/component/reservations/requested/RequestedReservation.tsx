@@ -15,6 +15,8 @@ import {
   ReservationWorkingMemoMutationInput,
   ReservationsReservationStateChoices,
   ReservationsReservationReserveeTypeChoices,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  ReservationUnitType,
 } from "../../../common/gql-types";
 import { useNotification } from "../../../context/NotificationContext";
 import { Divider } from "../../../styles/util";
@@ -22,6 +24,7 @@ import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
 import {
   ageGroup,
+  getReservatinUnitPricing,
   getTranslationKeyForType,
   reservationDateTime,
   reservationDuration,
@@ -223,7 +226,12 @@ const RequestedReservation = (): JSX.Element | null => {
     return null;
   }
 
-  const isNonFree = Number(reservation?.price) > 0;
+  const isNonFree =
+    getReservatinUnitPricing(
+      reservation?.reservationUnits?.[0] as ReservationUnitType,
+      reservation.begin
+    )?.pricingType ===
+    ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid;
 
   const buttons =
     reservation.state ===
