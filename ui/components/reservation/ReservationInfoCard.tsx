@@ -2,7 +2,6 @@ import { getReservationPrice } from "common";
 import { breakpoints } from "common/src/common/style";
 import { differenceInMinutes, parseISO } from "date-fns";
 import { trim } from "lodash";
-import Image from "next/image";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -28,11 +27,15 @@ const Wrapper = styled.div`
   background-color: var(--color-silver-light);
 `;
 
-const MainImage = styled.div`
+const MainImage = styled.img`
   display: none;
 
-  @media (min-width ${breakpoints.m}) {
+  @media (min-width: ${breakpoints.m}) {
     display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 291px;
+    object-fit: cover;
   }
 `;
 
@@ -92,18 +95,15 @@ const ReservationInfoCard = ({
     " - "
   );
 
+  const purpose = getTranslation(reservation.purpose, "name");
+
   return (
     <Wrapper>
       {mainImage?.mediumUrl && (
-        <MainImage>
-          <Image
-            src={mainImage?.mediumUrl}
-            alt={getTranslation(reservationUnit, "name")}
-            layout="responsive"
-            width="384px"
-            height="291px"
-          />
-        </MainImage>
+        <MainImage
+          src={mainImage?.mediumUrl}
+          alt={getTranslation(reservationUnit, "name")}
+        />
       )}
       <Content data-testid="reservation__reservation-info-card__content">
         <Heading>{heading}</Heading>
@@ -125,10 +125,11 @@ const ReservationInfoCard = ({
           {t("reservationUnit:price")}:{" "}
           {getReservationPrice(reservation.price, t("prices:priceFree"))}
         </Value>
-        <Value>
-          {t("reservations:purpose")}:{" "}
-          {getTranslation(reservation.purpose, "name")}
-        </Value>
+        {purpose && (
+          <Value>
+            {t("reservations:purpose")}: {purpose}
+          </Value>
+        )}
         {ageGroup && (
           <Value>
             {t("reservations:ageGroup")}: {ageGroup}

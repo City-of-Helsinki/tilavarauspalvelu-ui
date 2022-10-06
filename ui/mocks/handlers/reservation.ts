@@ -366,14 +366,14 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
           images: [
             {
               imageUrl: "/Leikkipuisto_2_4SSB34h.jpg",
-              mediumUrl: "/Leikkipuisto_2_4SSB34h.jpg.384x384_q85_crop.jpg",
+              mediumUrl: "https://via.placeholder.com/384x384",
               smallUrl: "/Leikkipuisto_2_4SSB34h.jpg.250x250_q85_crop.jpg",
               imageType:
                 ReservationUnitsReservationUnitImageImageTypeChoices.Other,
             },
             {
               imageUrl: "/Musiikki_2.jpg",
-              mediumUrl: "/Musiikki_2.jpg.384x384_q85_crop.jpg",
+              mediumUrl: "https://via.placeholder.com/384x384",
               smallUrl: "/Musiikki_2.jpg.250x250_q85_crop.jpg",
               imageType:
                 ReservationUnitsReservationUnitImageImageTypeChoices.Main,

@@ -139,7 +139,7 @@ describe("Tilavaraus user reservations", () => {
       .should("contain.text", "Reservation name / Toimistohuone 1");
     reservationInfoCard()
       .should("contain.text", "Varausnumero: 11")
-      .should("contain.text", "Ke 28.4.2021 klo 7.23 - 11.23")
+      .should("contain.text", "Ke 28.4.2021 klo")
       .should("contain.text", "Kesto: Kesto 4 t")
       .should(
         "contain.text",
@@ -195,7 +195,7 @@ describe("Tilavaraus user reservations", () => {
       .should("contain.text", "Reservation name / Toimistohuone 1");
     reservationInfoCard()
       .should("contain.text", "Varausnumero: 4")
-      .should("contain.text", "Ke 28.4.2021 klo 7.23 - 11.23")
+      .should("contain.text", "Ke 28.4.2021 klo")
       .should("contain.text", "Kesto: Kesto 4 t")
       .should(
         "contain.text",

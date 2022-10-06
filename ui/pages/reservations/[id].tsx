@@ -345,75 +345,55 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                   <>
                     {reservation.reserveeOrganisationName && (
                       <ParagraphAlt>
-                        <div>
-                          {t("reservations:organisationName")}:{" "}
-                          {reservation.reserveeOrganisationName}
-                        </div>
+                        {t("reservations:organisationName")}:{" "}
+                        {reservation.reserveeOrganisationName}
                       </ParagraphAlt>
                     )}
                     {reservation.reserveeId && (
                       <ParagraphAlt>
-                        <div>
-                          {t("reservations:reserveeId")}:{" "}
-                          {reservation.reserveeId}
-                        </div>
+                        {t("reservations:reserveeId")}: {reservation.reserveeId}
                       </ParagraphAlt>
                     )}
                     {reservation.reserveeId && (
                       <ParagraphAlt>
-                        <div>
-                          {t("reservations:reserveeId")}:{" "}
-                          {reservation.reserveeId}
-                        </div>
+                        {t("reservations:reserveeId")}: {reservation.reserveeId}
                       </ParagraphAlt>
                     )}
                     <ParagraphAlt>
-                      <div>
-                        {t("reservations:contactName")}:{" "}
-                        {`${reservation.reserveeFirstName || ""} ${
-                          reservation.reserveeLastName || ""
-                        }`.trim()}
-                      </div>
+                      {t("reservations:contactName")}:{" "}
+                      {`${reservation.reserveeFirstName || ""} ${
+                        reservation.reserveeLastName || ""
+                      }`.trim()}
                     </ParagraphAlt>
                     {reservation.reserveePhone && (
                       <ParagraphAlt>
-                        <div>
-                          {t("reservations:contactPhone")}:{" "}
-                          {reservation.reserveePhone}
-                        </div>
+                        {t("reservations:contactPhone")}:{" "}
+                        {reservation.reserveePhone}
                       </ParagraphAlt>
                     )}
                     {reservation.reserveeEmail && (
                       <ParagraphAlt>
-                        <div>
-                          {t("reservations:contactEmail")}:{" "}
-                          {reservation.reserveeEmail}
-                        </div>
+                        {t("reservations:contactEmail")}:{" "}
+                        {reservation.reserveeEmail}
                       </ParagraphAlt>
                     )}
                   </>
                 ) : (
                   <>
                     <ParagraphAlt>
-                      <div>
-                        {t("common:name")}:{" "}
-                        {`${reservation.reserveeFirstName || ""} ${
-                          reservation.reserveeLastName || ""
-                        }`.trim()}
-                      </div>
+                      {t("common:name")}:{" "}
+                      {`${reservation.reserveeFirstName || ""} ${
+                        reservation.reserveeLastName || ""
+                      }`.trim()}
                     </ParagraphAlt>
                     {reservation.reserveePhone && (
                       <ParagraphAlt>
-                        <div>
-                          {t("common:phone")}: {reservation.reserveePhone}
-                        </div>
+                        {t("common:phone")}: {reservation.reserveePhone}
                       </ParagraphAlt>
                     )}
                     {reservation.reserveeEmail && (
                       <ParagraphAlt>
-                        <div>
-                          {t("common:email")}: {reservation.reserveeEmail}
-                        </div>
+                        {t("common:email")}: {reservation.reserveeEmail}
                       </ParagraphAlt>
                     )}
                   </>
