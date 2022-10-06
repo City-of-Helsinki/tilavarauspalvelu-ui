@@ -16,7 +16,11 @@ import {
 import { apiBaseUrl } from "./const";
 
 // list of operations that need authentication
-const needsAuthentication = ["listReservations", "reservationByPk", "units"];
+const needsAuthentication = [
+  "listReservations",
+  "reservationByPk",
+  "reservationByPk",
+];
 
 const getNewToken = (): Promise<string> =>
   updateApiAccessToken(getAccessToken());

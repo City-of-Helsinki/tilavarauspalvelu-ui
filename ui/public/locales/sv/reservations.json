@@ -1,5 +1,6 @@
 {
   "reservationName": "{{id}}",
+  "reservationNumber": "",
   "subHeading": "",
   "back": "",
   "info": "",
@@ -37,5 +38,21 @@
   "gotoReservations": "",
   "reservationDuration": "",
   "noUpcomingReservations": "",
-  "noPastReservations": ""
+  "noPastReservations": "",
+  "status": {
+    "cancelled": "",
+    "confirmed": "",
+    "denied": "",
+    "requiresHandling": "",
+    "created": ""
+  },
+  "purpose": "",
+  "ageGroup": "",
+  "numPersons": "",
+  "organisationName": "",
+  "reserveeId": "",
+  "contactName": "",
+  "contactPhone": "",
+  "contactEmail": "",
+  "saveToCalendar": ""
 }
