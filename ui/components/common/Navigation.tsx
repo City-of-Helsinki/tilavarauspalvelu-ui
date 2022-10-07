@@ -105,8 +105,17 @@ const Navigation = ({ profile, logout }: Props): JSX.Element => {
 
   const menuItems: MenuItem[] = [
     {
+      title: "reservationUnitSearch",
+      path: "/search/single",
+    },
+    {
       title: "spaceReservation",
       path: "/recurring",
+    },
+    {
+      title: "reservations",
+      path: "/reservations",
+      condition: !!profile,
     },
     {
       title: "applications",
