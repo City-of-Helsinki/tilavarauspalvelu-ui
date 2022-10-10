@@ -193,68 +193,71 @@ const SubItems = ({
   ) : null;
 };
 
-const menuTree: IMenuChild[] = [
-  {
-    title: "MainMenu.home",
-    icon: <IconPremises aria-hidden />,
-    route: "/",
-    exact: true,
-  },
+const getFilteredMenuTree = (hasOwnUnits: boolean): IMenuChild[] =>
+  [
+    {
+      title: "MainMenu.home",
+      icon: <IconPremises aria-hidden />,
+      route: "/",
+      exact: true,
+    },
 
-  {
-    title: "MainMenu.myUnits",
-    icon: <IconStar aria-hidden />,
-    route: "/my-units",
-  },
+    hasOwnUnits
+      ? {
+          title: "MainMenu.myUnits",
+          icon: <IconStar aria-hidden />,
+          route: "/my-units",
+        }
+      : undefined,
 
-  {
-    title: "MainMenu.reservations",
-    icon: <IconIndividualReservation aria-hidden />,
-    items: [
-      {
-        title: "MainMenu.requestedReservations",
-        route: "/reservations/requested",
-      },
-      {
-        title: "MainMenu.allReservations",
-        route: "/reservations/all",
-      },
-    ],
-  },
+    {
+      title: "MainMenu.reservations",
+      icon: <IconIndividualReservation aria-hidden />,
+      items: [
+        {
+          title: "MainMenu.requestedReservations",
+          route: "/reservations/requested",
+        },
+        {
+          title: "MainMenu.allReservations",
+          route: "/reservations/all",
+        },
+      ],
+    },
 
-  {
-    title: "MainMenu.recurringReservations",
-    icon: <IconCalendar aria-hidden />,
-    items: [
-      {
-        title: "MainMenu.applicationRounds",
-        route: "/recurring-reservations/application-rounds",
-      },
-    ],
-  },
-  {
-    title: "MainMenu.premisesAndSettings",
-    icon: <IconLocation aria-hidden />,
-    items: [
-      {
-        title: "MainMenu.reservationUnits",
-        route: prefixes.reservationUnits,
-      },
-      {
-        title: "MainMenu.spaces",
-        route: "/spaces",
-      },
-      {
-        title: "MainMenu.resources",
-        route: "/resources",
-      },
-      {
-        title: "MainMenu.units",
-        route: "/units",
-      },
-    ],
-  },
-];
+    {
+      title: "MainMenu.recurringReservations",
+      icon: <IconCalendar aria-hidden />,
+      items: [
+        {
+          title: "MainMenu.applicationRounds",
+          route: "/recurring-reservations/application-rounds",
+        },
+      ],
+    },
+    {
+      title: "MainMenu.premisesAndSettings",
+      icon: <IconLocation aria-hidden />,
+      items: [
+        {
+          title: "MainMenu.reservationUnits",
+          route: prefixes.reservationUnits,
+        },
+        {
+          title: "MainMenu.spaces",
+          route: "/spaces",
+        },
+        {
+          title: "MainMenu.resources",
+          route: "/resources",
+        },
+        {
+          title: "MainMenu.units",
+          route: "/units",
+        },
+      ],
+    },
+  ].filter((i) => Boolean(i)) as IMenuChild[];
 
 interface MainMenuProps {
   placement: string;
@@ -267,15 +270,17 @@ function MainMenu({
 }: MainMenuProps): JSX.Element {
   const { t } = useTranslation();
 
-  const { handlingCount } = useData();
+  const { handlingCount, hasOwnUnits } = useData();
 
   const count = handlingCount ? (
     <HandlingCount>{handlingCount}</HandlingCount>
   ) : undefined;
 
+  const filteredMenuTree = getFilteredMenuTree(hasOwnUnits);
+
   return (
     <Wrapper placement={placement}>
-      {menuTree.map((menuItem: IMenuChild) =>
+      {filteredMenuTree.map((menuItem: IMenuChild) =>
         menuItem ? (
           <MenuItem key={menuItem.title}>
             <Icon>{menuItem.icon}</Icon>
