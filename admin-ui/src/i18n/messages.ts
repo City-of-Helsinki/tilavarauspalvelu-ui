@@ -231,6 +231,8 @@ const translations: ITranslations = {
     welcome: ["Tervetuloa"],
   },
   MainMenu: {
+    home: ["Etusivu"],
+    myUnits: ["Omat toimipisteet"],
     reservations: ["Varaukset"],
     requestedReservations: ["Varaustoiveet"],
     allReservations: ["Kaikki varaukset"],

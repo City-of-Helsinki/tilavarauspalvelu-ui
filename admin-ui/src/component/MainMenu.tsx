@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IconAngleDown, IconAngleUp } from "hds-react";
+import { IconAngleDown, IconAngleUp, IconLocation, IconStar } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { NavLink, RouteProps } from "react-router-dom";
 import styled from "styled-components";
@@ -49,8 +49,14 @@ const Icon = styled.span`
   margin-right: var(--spacing-2-xs);
 `;
 
-const Heading = styled.div`
+const Heading = styled(NavLink)`
+  &.active {
+    text-decoration: underline;
+  }
+
   ${truncatedText}
+  color: var(--tilavaraus-admin-content-text-color);
+  text-decoration: none;
   font-family: var(--tilavaraus-admin-font-bold);
   font-size: var(--fontsize-body-s);
   line-height: 1.85em;
@@ -121,6 +127,7 @@ interface IMenuChild {
   route?: string;
   routeParams?: RouteProps;
   items?: SubItemChild[];
+  exact?: boolean;
 }
 
 interface SubItemChild {
@@ -188,6 +195,19 @@ const SubItems = ({
 
 const menuTree: IMenuChild[] = [
   {
+    title: "MainMenu.home",
+    icon: <IconPremises aria-hidden />,
+    route: "/",
+    exact: true,
+  },
+
+  {
+    title: "MainMenu.myUnits",
+    icon: <IconStar aria-hidden />,
+    route: "/my-units",
+  },
+
+  {
     title: "MainMenu.reservations",
     icon: <IconIndividualReservation aria-hidden />,
     items: [
@@ -214,7 +234,7 @@ const menuTree: IMenuChild[] = [
   },
   {
     title: "MainMenu.premisesAndSettings",
-    icon: <IconPremises aria-hidden />,
+    icon: <IconLocation aria-hidden />,
     items: [
       {
         title: "MainMenu.reservationUnits",
@@ -259,7 +279,19 @@ function MainMenu({
         menuItem ? (
           <MenuItem key={menuItem.title}>
             <Icon>{menuItem.icon}</Icon>
-            <Heading>{t(menuItem.title)}</Heading>
+            <Heading
+              to={menuItem.route || ""}
+              isActive={(match, location) => {
+                if (!menuItem?.route) {
+                  return false;
+                }
+                return menuItem.exact
+                  ? location.pathname === menuItem.route
+                  : location.pathname.startsWith(String(menuItem?.route));
+              }}
+            >
+              {t(menuItem.title)}
+            </Heading>
             <SubItems
               items={menuItem.items?.map((child) =>
                 child.title === "MainMenu.requestedReservations"
