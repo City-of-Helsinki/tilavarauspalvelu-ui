@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { Card, Table } from "hds-react";
 import isEqual from "lodash/isEqual";
 import omit from "lodash/omit";
+import { H2, H4, H5 } from "common/src/common/typography";
 import Accordion from "../Accordion";
 import {
   getApplication,
@@ -20,7 +21,6 @@ import {
   Parameter,
 } from "../../common/types";
 import { IngressContainer } from "../../styles/layout";
-import { H2, H4, H5 } from "../../styles/new-typography";
 import withMainMenu from "../withMainMenu";
 import {
   formatNumber,

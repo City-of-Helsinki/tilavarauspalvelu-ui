@@ -6,6 +6,7 @@ import { IconLocation } from "hds-react";
 import get from "lodash/get";
 import trim from "lodash/trim";
 import differenceInSeconds from "date-fns/differenceInSeconds";
+import { H2, H3 } from "common/src/common/typography";
 import {
   getApplicationRound,
   getRecurringReservations,
@@ -24,7 +25,6 @@ import {
   GridCol,
   NarrowContainer,
 } from "../../styles/layout";
-import { H2, H3 } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import LinkPrev from "../LinkPrev";
 import { BasicLink, breakpoints, Divider, Strong } from "../../styles/util";

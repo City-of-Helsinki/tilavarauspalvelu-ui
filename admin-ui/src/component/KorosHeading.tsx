@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactNode } from "react";
 import styled from "styled-components";
 import { Koros } from "hds-react";
-import { H1 } from "../styles/typography";
+import { H1 } from "common/src/common/typography";
 import { breakpoints } from "../styles/util";
 
 interface IProps {

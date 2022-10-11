@@ -10,6 +10,7 @@ import {
 } from "hds-react";
 import trim from "lodash/trim";
 import uniq from "lodash/uniq";
+import { H3 } from "common/src/common/typography";
 import {
   AllocationResult,
   Application as ApplicationType,
@@ -23,7 +24,7 @@ import StatusRecommendation from "../applications/StatusRecommendation";
 import withMainMenu from "../withMainMenu";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";
 import TimeframeStatus from "./TimeframeStatus";
-import { ContentHeading, H3 } from "../../styles/typography";
+import { ContentHeading } from "../../styles/typography";
 import DataTable, { CellConfig, OrderTypes } from "../DataTable";
 import Dialog from "../Dialog";
 import { formatNumber, parseDuration } from "../../common/util";

@@ -14,6 +14,7 @@ import {
 import trim from "lodash/trim";
 import get from "lodash/get";
 import differenceInSeconds from "date-fns/differenceInSeconds";
+import { H2, H3 } from "common/src/common/typography";
 import {
   getApplication,
   getApplicationRound,
@@ -38,7 +39,7 @@ import {
   WideContainer,
 } from "../../styles/layout";
 import { BasicLink, breakpoints, Strong } from "../../styles/util";
-import { ContentHeading, H2, H3 } from "../../styles/typography";
+import { ContentHeading } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import LinkPrev from "../LinkPrev";
 import { ReactComponent as IconCustomers } from "../../images/icon_customers.svg";

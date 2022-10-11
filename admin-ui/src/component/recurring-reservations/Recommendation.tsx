@@ -13,6 +13,7 @@ import {
   IconInfoCircle,
   Notification,
 } from "hds-react";
+import { H1, H2, H3 } from "common/src/common/typography";
 import {
   deleteAllocationResult,
   getAllocationResult,
@@ -30,7 +31,6 @@ import {
 import { formatNumber, parseAgeGroups, parseDuration } from "../../common/util";
 import { processAllocationResult } from "../../common/AllocationResult";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
-import { H1, H2, H3 } from "../../styles/typography";
 import { BasicLink, breakpoints, Divider } from "../../styles/util";
 import Loader from "../Loader";
 import withMainMenu from "../withMainMenu";

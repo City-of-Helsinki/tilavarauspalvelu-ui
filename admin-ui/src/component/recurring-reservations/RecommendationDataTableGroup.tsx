@@ -7,12 +7,12 @@ import {
   IconArrowRight,
   IconLocation,
 } from "hds-react";
+import { H3 } from "common/src/common/typography";
 import {
   AllocationResult,
   DataGroup,
   GroupedAllocationResult,
 } from "../../common/types";
-import { H3 } from "../../styles/typography";
 import { BasicLink, breakpoints, SelectionCheckbox } from "../../styles/util";
 
 interface IProps {

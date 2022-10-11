@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { IconLocation } from "hds-react";
 import get from "lodash/get";
+import { H2, H3 } from "common/src/common/typography";
 import {
   getApplication,
   getApplicationRound,
@@ -19,7 +20,7 @@ import {
   ReservationUnit,
 } from "../../common/types";
 import { ContentContainer, NarrowContainer } from "../../styles/layout";
-import { ContentHeading, H2, H3 } from "../../styles/typography";
+import { ContentHeading } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import LinkPrev from "../LinkPrev";
 import { Divider, Strong } from "../../styles/util";

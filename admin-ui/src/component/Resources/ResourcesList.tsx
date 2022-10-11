@@ -6,9 +6,8 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useDebounce } from "react-use";
 import { useQuery, ApolloError } from "@apollo/client";
-
+import { H1 } from "common/src/common/typography";
 import { DataFilterConfig } from "../../common/types";
-import { H1 } from "../../styles/new-typography";
 import withMainMenu from "../withMainMenu";
 import Loader from "../Loader";
 import DataTable, { CellConfig } from "../DataTable";

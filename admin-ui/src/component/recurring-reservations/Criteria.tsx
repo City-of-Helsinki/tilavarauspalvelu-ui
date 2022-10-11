@@ -6,9 +6,9 @@ import styled from "styled-components";
 import { AxiosError } from "axios";
 import trim from "lodash/trim";
 import sortBy from "lodash/sortBy";
+import { H1, H2, H3 } from "common/src/common/typography";
 import { ContentContainer, IngressContainer } from "../../styles/layout";
 import withMainMenu from "../withMainMenu";
-import { H1, H2, H3 } from "../../styles/typography";
 import {
   getApplicationRound,
   getParameters,

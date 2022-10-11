@@ -7,6 +7,7 @@ import uniq from "lodash/uniq";
 import trim from "lodash/trim";
 import { IconArrowRight } from "hds-react";
 import { AxiosError } from "axios";
+import { H3 } from "common/src/common/typography";
 import {
   AllocationResult,
   Application as ApplicationType,
@@ -16,7 +17,7 @@ import {
 import { ContentContainer, IngressContainer } from "../../styles/layout";
 import { breakpoints } from "../../styles/util";
 import withMainMenu from "../withMainMenu";
-import { ContentHeading, H3 } from "../../styles/typography";
+import { ContentHeading } from "../../styles/typography";
 import DataTable, { CellConfig, OrderTypes } from "../DataTable";
 import { formatNumber, parseDuration } from "../../common/util";
 import {

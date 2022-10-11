@@ -7,6 +7,7 @@ import {
   IconCheckCircle,
   Notification,
 } from "hds-react";
+import { H3 } from "common/src/common/typography";
 import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
 import trim from "lodash/trim";
@@ -24,7 +25,7 @@ import StatusRecommendation from "../applications/StatusRecommendation";
 import withMainMenu from "../withMainMenu";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";
 import TimeframeStatus from "./TimeframeStatus";
-import { ContentHeading, H3 } from "../../styles/typography";
+import { ContentHeading } from "../../styles/typography";
 import KorosHeading, {
   Heading as KorosHeadingHeading,
   SubHeading,

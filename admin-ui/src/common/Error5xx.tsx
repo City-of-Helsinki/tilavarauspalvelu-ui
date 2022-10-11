@@ -1,7 +1,7 @@
 import { Link } from "hds-react";
 import React from "react";
 import styled from "styled-components";
-import { H1 } from "../styles/new-typography";
+import { H1 } from "common/src/common/typography";
 import { breakpoints } from "../styles/util";
 import { publicUrl } from "./const";
 

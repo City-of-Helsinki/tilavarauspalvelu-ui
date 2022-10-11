@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { IconLocation } from "hds-react";
+import { H2 } from "common/src/common/typography";
 import {
   getApplicationRound,
   getReservations,
@@ -15,7 +16,6 @@ import {
   ReservationUnit,
 } from "../../common/types";
 import { ContentContainer, NarrowContainer } from "../../styles/layout";
-import { H2 } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import LinkPrev from "../LinkPrev";
 import { BasicLink, breakpoints, Divider, Strong } from "../../styles/util";

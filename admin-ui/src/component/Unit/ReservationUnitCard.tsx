@@ -8,7 +8,7 @@ import {
   Tag,
 } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { H2 } from "../../styles/typography";
+import { H2 } from "common/src/common/typography";
 import { BasicLink, breakpoints } from "../../styles/util";
 import {
   ReservationUnitsReservationUnitImageImageTypeChoices,

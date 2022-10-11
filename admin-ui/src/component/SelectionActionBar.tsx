@@ -2,8 +2,9 @@ import { Button, IconArrowRight, IconMenuDots, Select } from "hds-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { H2 } from "common/src/common/typography";
 import { OptionType } from "../common/types";
-import { H2, truncatedText } from "../styles/typography";
+import { truncatedText } from "../styles/typography";
 import { breakpoints } from "../styles/util";
 
 interface IProps {
