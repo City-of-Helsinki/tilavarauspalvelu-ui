@@ -6,7 +6,7 @@ import Link from "next/link";
 import styled from "styled-components";
 import { parseISO } from "date-fns";
 import { breakpoints } from "common/src/common/style";
-import { H4 } from "common/src/common/typography";
+import { fontMedium, H4 } from "common/src/common/typography";
 import Card from "../common/Card";
 import { applicationRoundState, searchUrl } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
