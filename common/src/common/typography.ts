@@ -1,25 +1,36 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { breakpoints } from "./style";
 
-export const Strongish = styled.span`
+export const fontRegular = css`
+  font-family: var(--font-regular);
+  font-weight: 400;
+`;
+
+export const fontMedium = css`
   font-family: var(--font-medium);
-  font-size: 500;
+  font-weight: 500;
+`;
+
+export const fontBold = css`
+  font-family: var(--font-bold);
+  font-weight: 700;
+`;
+
+export const Strongish = styled.span`
+  ${fontMedium}
 `;
 
 export const Strong = styled.span`
-  font-family: var(--font-bold);
-  font-size: 700;
+  ${fontBold}
 `;
 
 export const Regular = styled.span`
-  font-family: var(--font-regular);
-  font-size: 400;
+  ${fontRegular}
 `;
 
 export const H1 = styled.h1`
   font-size: 2.5em;
-  font-family: var(--font-regular);
-  font-weight: 400;
+  ${fontRegular}
   line-height: var(--lineheight-s);
   margin: var(--spacing-s) 0 var(--spacing-m);
 
@@ -31,8 +42,7 @@ export const H1 = styled.h1`
 
 export const H2 = styled.h2`
   font-size: var(--fontsize-heading-m);
-  font-family: var(--font-regular);
-  font-weight: 400;
+  ${fontRegular}
   line-height: var(--lineheight-s);
   margin-bottom: var(--spacing-m);
 
@@ -44,8 +54,7 @@ export const H2 = styled.h2`
 
 export const H3 = styled.h3`
   font-size: var(--fontsize-heading-m);
-  font-family: var(--font-regular);
-  font-weight: 400;
+  ${fontRegular}
   line-height: 2rem;
   margin-bottom: var(--spacing-m);
 
@@ -56,8 +65,7 @@ export const H3 = styled.h3`
 
 export const H4 = styled.h4`
   font-size: var(--fontsize-heading-s);
-  font-family: var(--font-medium);
-  font-weight: 500;
+  ${fontMedium}
   line-height: var(--lineheight-m);
   margin-bottom: var(--spacing-s);
 
@@ -68,8 +76,7 @@ export const H4 = styled.h4`
 
 export const H5 = styled.h5`
   font-size: var(--fontsize-heading-xs);
-  font-family: var(--font-bold);
-  font-weight: 700;
+  ${fontBold}
   line-height: 1.625;
   margin-bottom: var(--spacing-m);
 
@@ -81,8 +88,7 @@ export const H5 = styled.h5`
 
 export const H6 = styled.h6`
   font-size: var(--fontsize-heading-xs);
-  font-family: var(--font-bold);
-  font-weight: 700;
+  ${fontBold}
   line-height: 1.4;
   margin-bottom: var(--spacing-m);
 

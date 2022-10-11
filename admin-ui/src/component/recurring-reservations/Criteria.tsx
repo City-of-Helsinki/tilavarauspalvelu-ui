@@ -6,7 +6,8 @@ import styled from "styled-components";
 import { AxiosError } from "axios";
 import trim from "lodash/trim";
 import sortBy from "lodash/sortBy";
-import { H1, H2, H3 } from "common/src/common/typography";
+import { H1, H2, H3, Strong } from "common/src/common/typography";
+import { breakpoints } from "common/src/common/style";
 import { ContentContainer, IngressContainer } from "../../styles/layout";
 import withMainMenu from "../withMainMenu";
 import {
@@ -21,7 +22,6 @@ import {
 } from "../../common/types";
 import Loader from "../Loader";
 import TimeframeStatus from "./TimeframeStatus";
-import { breakpoints, Strong } from "../../styles/util";
 import { ReactComponent as RecurringReservationIcon } from "../../images/icon_recurring-reservation.svg";
 import Accordion from "../Accordion";
 import { formatDate, localizedValue, parseAgeGroups } from "../../common/util";

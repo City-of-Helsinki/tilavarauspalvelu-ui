@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { IconLocation } from "hds-react";
 import get from "lodash/get";
-import { H2, H3 } from "common/src/common/typography";
+import { H2, H3, Strong } from "common/src/common/typography";
 import {
   getApplication,
   getApplicationRound,
@@ -23,7 +23,7 @@ import { ContentContainer, NarrowContainer } from "../../styles/layout";
 import { ContentHeading } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import LinkPrev from "../LinkPrev";
-import { Divider, Strong } from "../../styles/util";
+import { Divider } from "../../styles/util";
 import { formatDate, localizedValue } from "../../common/util";
 import { weekdays } from "../../common/const";
 import { applicationUrl } from "../../common/urls";

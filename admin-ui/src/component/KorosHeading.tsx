@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactNode } from "react";
 import styled from "styled-components";
 import { Koros } from "hds-react";
 import { H1 } from "common/src/common/typography";
-import { breakpoints } from "../styles/util";
+import { breakpoints } from "common/src/common/style";
 
 interface IProps {
   heroImage?: string;

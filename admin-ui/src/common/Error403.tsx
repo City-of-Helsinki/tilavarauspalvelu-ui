@@ -3,8 +3,8 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { H1 } from "common/src/common/typography";
+import { breakpoints } from "common/src/common/style";
 import { useAuthState } from "../context/AuthStateContext";
-import { breakpoints } from "../styles/util";
 import { localLogout } from "./auth/util";
 import { publicUrl } from "./const";
 

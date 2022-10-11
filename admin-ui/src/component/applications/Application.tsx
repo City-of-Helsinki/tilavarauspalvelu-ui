@@ -14,7 +14,8 @@ import {
 import trim from "lodash/trim";
 import get from "lodash/get";
 import differenceInSeconds from "date-fns/differenceInSeconds";
-import { H2, H3 } from "common/src/common/typography";
+import { H2, H3, Strong } from "common/src/common/typography";
+import { breakpoints } from "common/src/common/style";
 import {
   getApplication,
   getApplicationRound,
@@ -38,7 +39,7 @@ import {
   NarrowContainer,
   WideContainer,
 } from "../../styles/layout";
-import { BasicLink, breakpoints, Strong } from "../../styles/util";
+import { BasicLink } from "../../styles/util";
 import { ContentHeading } from "../../styles/typography";
 import withMainMenu from "../withMainMenu";
 import LinkPrev from "../LinkPrev";

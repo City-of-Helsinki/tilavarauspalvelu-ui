@@ -8,12 +8,13 @@ import {
   IconLocation,
 } from "hds-react";
 import { H3 } from "common/src/common/typography";
+import { breakpoints } from "common/src/common/style";
 import {
   AllocationResult,
   DataGroup,
   GroupedAllocationResult,
 } from "../../common/types";
-import { BasicLink, breakpoints, SelectionCheckbox } from "../../styles/util";
+import { BasicLink, SelectionCheckbox } from "../../styles/util";
 
 interface IProps {
   group: GroupedAllocationResult;

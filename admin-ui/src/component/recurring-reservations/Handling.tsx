@@ -11,6 +11,7 @@ import { H3 } from "common/src/common/typography";
 import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
 import trim from "lodash/trim";
+import { breakpoints } from "common/src/common/style";
 import Loader from "../Loader";
 import {
   AllocationResult,
@@ -20,7 +21,7 @@ import {
   GroupedAllocationResult,
 } from "../../common/types";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
-import { InlineRowLink, breakpoints, BasicLink } from "../../styles/util";
+import { InlineRowLink, BasicLink } from "../../styles/util";
 import StatusRecommendation from "../applications/StatusRecommendation";
 import withMainMenu from "../withMainMenu";
 import ApplicationRoundNavi from "./ApplicationRoundNavi";

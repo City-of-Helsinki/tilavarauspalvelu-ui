@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { H1 } from "common/src/common/typography";
-import { breakpoints } from "./util";
+import { breakpoints } from "common/src/common/style";
 
 export const truncatedText = css`
   white-space: nowrap;

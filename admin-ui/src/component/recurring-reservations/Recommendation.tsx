@@ -14,6 +14,7 @@ import {
   Notification,
 } from "hds-react";
 import { H1, H2, H3 } from "common/src/common/typography";
+import { breakpoints } from "common/src/common/style";
 import {
   deleteAllocationResult,
   getAllocationResult,
@@ -31,7 +32,7 @@ import {
 import { formatNumber, parseAgeGroups, parseDuration } from "../../common/util";
 import { processAllocationResult } from "../../common/AllocationResult";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
-import { BasicLink, breakpoints, Divider } from "../../styles/util";
+import { BasicLink, Divider } from "../../styles/util";
 import Loader from "../Loader";
 import withMainMenu from "../withMainMenu";
 import ApplicantBox from "./ApplicantBox";
