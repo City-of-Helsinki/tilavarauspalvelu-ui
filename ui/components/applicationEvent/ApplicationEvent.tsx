@@ -18,7 +18,7 @@ import {
   LocalizationLanguages,
   OptionType,
 } from "common/types/common";
-import { fontRegular } from "common/src/common/typography";
+import { fontRegular, H5 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import ReservationUnitList from "../reservation-unit/ReservationUnitList";
 import {
