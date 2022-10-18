@@ -1438,7 +1438,9 @@ const translations: ITranslations = {
     reservationUnitUpdatedNotification: [
       "Varausyksikön muutokset tallennettu.",
     ],
-    saveFailed: ["Varausyksikön tietoja ei saatu tallennettua. {{error}}"],
+    saveFailed: [
+      "Valitettavasti varausyksikön tallennus / julkaisu ei juuri nyt onnistu, kokeile myöhemmin uudelleen. ({{error}})",
+    ],
     saveAndPublish: ["Julkaise"],
     settings: ["Varausasetukset"],
     cancellationIsPossible: ["Peruutus mahdollista"],
