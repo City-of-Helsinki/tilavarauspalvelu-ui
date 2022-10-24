@@ -8,6 +8,7 @@ import ReservationUnitsDataReader, { Sort } from "./ReservationsDataLoader";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 import { HR } from "../lists/components";
 import { Container } from "../../styles/layout";
+import { DATE_FORMAT, formatDate } from "../../common/util";
 
 const Reservations = (): JSX.Element => {
   const [search, setSearch] = useState<FilterArguments>(emptyState);
@@ -31,11 +32,15 @@ const Reservations = (): JSX.Element => {
           <H1>{t("Reservations.reservationListHeading")}</H1>
           <p>{t("Reservations.reservationListDescription")}</p>
         </div>
-        <Filters onSearch={debouncedSearch} />
+        <Filters
+          onSearch={debouncedSearch}
+          initialFiltering={{
+            begin: formatDate(new Date().toISOString(), DATE_FORMAT) as string,
+          }}
+        />
         <HR />
         <ReservationUnitsDataReader
           defaultFiltering={{
-            begin: new Date().toISOString(),
             state: ["DENIED", "CONFIRMED", "REQUIRES_HANDLING"],
           }}
           key={JSON.stringify({ ...search, ...sort })}

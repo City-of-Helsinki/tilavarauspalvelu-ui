@@ -75,6 +75,7 @@ const translations: ITranslations = {
     allResults: ["Kaikki {{totalCount}} tulosta näytetty"],
   },
   common: {
+    week: ["Viikko"],
     showMore: ["Näytä lisää"],
     clearAllSelections: ["Tyhjennä valinnat"],
     clear: ["Tyhjennä"],
@@ -277,6 +278,13 @@ const translations: ITranslations = {
     description: [
       "Alla näet kaikki toimipisteet, joihin sinulla on käyttöoikeudet.",
     ],
+    Calendar: {
+      legend: {
+        confirmed: ["Varattu"],
+        unconfirmed: ["Varaustoive"],
+        intersecting: ["Osana toista varausyksikköä"],
+      },
+    },
   },
   Application: {
     id: ["Hakemnustunnus"],
@@ -1438,7 +1446,9 @@ const translations: ITranslations = {
     reservationUnitUpdatedNotification: [
       "Varausyksikön muutokset tallennettu.",
     ],
-    saveFailed: ["Varausyksikön tietoja ei saatu tallennettua. {{error}}"],
+    saveFailed: [
+      "Valitettavasti varausyksikön tallennus / julkaisu ei juuri nyt onnistu, kokeile myöhemmin uudelleen. ({{error}})",
+    ],
     saveAndPublish: ["Julkaise"],
     settings: ["Varausasetukset"],
     cancellationIsPossible: ["Peruutus mahdollista"],
@@ -1646,6 +1656,10 @@ const translations: ITranslations = {
     savedWorkingMemo: ["Kommentti tallennettu"],
     errorSavingWorkingMemo: ["Kommentin tallennus ei onnistunut"],
     user: ["Varauksen tekijä"],
+    email: ["Sähköposti"],
+    birthDate: ["Syntymäaika"],
+    hideBirthDate: ["Piilota"],
+    showBirthDate: ["Näytä"],
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],
