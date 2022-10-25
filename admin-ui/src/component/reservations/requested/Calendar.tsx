@@ -11,7 +11,7 @@ import {
   ReservationsReservationStateChoices,
   ReservationType,
 } from "../../../common/gql-types";
-import eventStyleGetter from "./eventStyleGetter";
+import eventStyleGetter, { legend } from "./eventStyleGetter";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import Legend from "./Legend";
@@ -133,32 +133,10 @@ const Calendar = ({
         }}
       />
       <Legends>
-        <Legend
-          label={t("Calendar.legend.currentRequiresHandling")}
-          color="var(  --tilavaraus-event-current-requires_handling-background)"
-          border="2px dashed var(--tilavaraus-event-current-requires_handling-border-color)"
-        />
-        <Legend
-          label={t("Calendar.legend.currentConfirmed")}
-          color="var(--tilavaraus-event-current-confirmed-background)"
-          border="2px dashed var(--tilavaraus-event-current-confirmed-border-color)"
-        />
-        <Legend
-          label={t("Calendar.legend.currentDenied")}
-          color="var(--tilavaraus-event-current-denied-background)"
-          border="2px dashed var(--tilavaraus-event-current-denied-border-color)"
-        />
-        <Legend
-          label={t("Calendar.legend.otherRequiedHandling")}
-          color="var(--tilavaraus-event-other-requires_handling-background)"
-          border="2px solid var(--tilavaraus-event-other-requires_handling-border-color)"
-        />
-        <Legend
-          label={t("Calendar.legend.rest")}
-          color="var(--tilavaraus-event-rest-background)"
-          border="2px solid var(--tilavaraus-event-rest-border-color)"
-        />
-      </Legends>
+        {legend.map((l) => (
+          <Legend key={l.label} style={l.style} label={t(l.label)} />
+        ))}
+      </Legends>{" "}
     </Container>
   );
 };

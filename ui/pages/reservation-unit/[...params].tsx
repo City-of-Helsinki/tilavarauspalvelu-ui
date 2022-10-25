@@ -15,9 +15,9 @@ import { useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import { isFinite, omit } from "lodash";
 import { useTranslation } from "react-i18next";
+import { breakpoints } from "common/src/common/style";
+import { fontRegular, H2 } from "common/src/common/typography";
 import apolloClient from "../../modules/apolloClient";
-import { fontRegular, H2 } from "../../modules/style/typography";
-import { breakpoint } from "../../modules/style";
 import { isBrowser, reservationUnitPrefix } from "../../modules/const";
 import { getTranslation, printErrorMessages } from "../../modules/util";
 import {
@@ -61,12 +61,12 @@ import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
 import { DataContext } from "../../context/DataContext";
 import PendingReservationInfoCard from "../../components/reservation/PendingReservationInfoCard";
 import Container from "../../components/common/Container";
-import { Inputs, Reservation } from "../../modules/types";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import { Subheading } from "../../components/reservation/styles";
 import ReservationConfirmation from "../../components/reservation/ReservationConfirmation";
 import Step0 from "../../components/reservation/Step0";
 import Step1 from "../../components/reservation/Step1";
+import { Inputs, Reservation } from "../../modules/types";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -162,7 +162,8 @@ export const getServerSideProps: GetServerSideProps = async ({
 const StyledContainer = styled(Container)`
   padding: var(--spacing-m) var(--spacing-m) var(--spacing-layout-m);
 
-  @media (min-width: ${breakpoint.m}) {
+  @media (min-width: ${breakpoints.m}) {
+    max-width: 1000px;
     margin-bottom: var(--spacing-layout-l);
   }
 `;
@@ -173,7 +174,7 @@ const Columns = styled.div`
   align-items: flex-start;
   gap: var(--spacing-m);
 
-  @media (min-width: ${breakpoint.m}) {
+  @media (min-width: ${breakpoints.m}) {
     & > div:nth-of-type(1) {
       order: 2;
     }
@@ -459,29 +460,6 @@ const ReservationUnitReservation = ({
     router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
     return null;
   }
-
-  // const onSubmitOpen1 = (payload) => {
-  //   const input = {
-  //     pk: reservationPk,
-  //     begin,
-  //     end,
-  //     reservationUnitPks: [reservationUnit.pk],
-  //     reserveeFirstName: payload.reserveeFirstName,
-  //     reserveeLastName: payload.reserveeLastName,
-  //     reserveePhone: payload.reserveePhone,
-  //     name: payload.name,
-  //     description: payload.description,
-  //     reserveeLanguage: i18n.language,
-  //   };
-
-  //   setReservation(input);
-
-  //   updateReservation({
-  //     variables: {
-  //       input,
-  //     },
-  //   });
-  // };
 
   const onSubmitOpen2 = () => {
     confirmReservation({

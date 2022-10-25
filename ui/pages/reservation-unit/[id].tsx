@@ -50,6 +50,7 @@ import {
   PendingReservation,
   Reservation,
 } from "common/types/common";
+import { H4 } from "common/src/common/typography";
 import Container from "../../components/common/Container";
 import Head from "../../components/reservation-unit/Head";
 import Address from "../../components/reservation-unit/Address";
@@ -58,7 +59,6 @@ import RelatedUnits from "../../components/reservation-unit/RelatedUnits";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
 import apolloClient from "../../modules/apolloClient";
 import Map from "../../components/Map";
-import { H4 } from "../../modules/style/typography";
 import Legend from "../../components/calendar/Legend";
 import ReservationCalendarControls from "../../components/calendar/ReservationCalendarControls";
 import {
@@ -527,20 +527,27 @@ const ReservationUnit = ({
     useLocalStorage<ReservationProps>("reservation");
 
   const calendarRef = useRef(null);
+  const hash = router.asPath.split("#")[1];
 
   useEffect(() => {
-    if (storedReservation?.pk === reservationUnit.pk) {
-      setFocusDate(new Date(storedReservation.begin));
+    const scrollToCalendar = () =>
       window.scroll({
         top: calendarRef.current.offsetTop - 20,
         left: 0,
         behavior: "smooth",
       });
+
+    if (storedReservation?.pk === reservationUnit.pk) {
+      setFocusDate(new Date(storedReservation.begin));
+      scrollToCalendar();
       setReservation(storedReservation);
       removeStoredReservation();
+    } else if (hash === "calendar" && reservation) {
+      scrollToCalendar();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reservation]);
 
   useQuery<Query, QueryReservationsArgs>(LIST_RESERVATIONS, {
     fetchPolicy: "no-cache",

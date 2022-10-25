@@ -40,6 +40,7 @@ const multivaluedFields = [
 
 type Props = {
   onSearch: (args: FilterArguments) => void;
+  initialFiltering?: Partial<FilterArguments>;
 };
 
 const Wrapper = styled.div`
@@ -102,11 +103,13 @@ const MyTextInput = ({
   />
 );
 
-const Filters = ({ onSearch }: Props): JSX.Element => {
+const Filters = ({ onSearch, initialFiltering }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const initialEmptyState = { ...emptyState, ...initialFiltering };
+
   const [state, dispatch] = useReducer(
-    getReducer<FilterArguments>(emptyState),
-    emptyState
+    getReducer<FilterArguments>(initialEmptyState),
+    initialEmptyState
   );
   const [more, setMore] = useState(false);
 
@@ -128,17 +131,11 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
       <Wrapper>
         <Grid>
           <Span3>
-            <ReservationUnitFilter
-              onChange={(reservationUnit) =>
-                dispatch({ type: "set", value: { reservationUnit } })
+            <ReservationUnitTypeFilter
+              onChange={(reservationUnitType) =>
+                dispatch({ type: "set", value: { reservationUnitType } })
               }
-              value={state.reservationUnit}
-            />
-          </Span3>
-          <Span3>
-            <UnitFilter
-              onChange={(unit) => dispatch({ type: "set", value: { unit } })}
-              value={state.unit}
+              value={state.reservationUnitType}
             />
           </Span3>
           <Span3>
@@ -147,6 +144,12 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
                 dispatch({ type: "set", value: { reservationState } })
               }
               value={state.reservationState}
+            />
+          </Span3>
+          <Span3>
+            <UnitFilter
+              onChange={(unit) => dispatch({ type: "set", value: { unit } })}
+              value={state.unit}
             />
           </Span3>
           <Span3>
@@ -226,11 +229,11 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
               />
             </Span3>
             <Span3>
-              <ReservationUnitTypeFilter
-                onChange={(reservationUnitType) =>
-                  dispatch({ type: "set", value: { reservationUnitType } })
+              <ReservationUnitFilter
+                onChange={(reservationUnit) =>
+                  dispatch({ type: "set", value: { reservationUnit } })
                 }
-                value={state.reservationUnitType}
+                value={state.reservationUnit}
               />
             </Span3>
           </Grid>

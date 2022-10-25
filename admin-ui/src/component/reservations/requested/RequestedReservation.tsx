@@ -2,10 +2,11 @@ import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
 import { Accordion, Button, TextArea } from "hds-react";
 import React, { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { TFunction, useTranslation } from "react-i18next";
 import { useParams, useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
+import { H1 } from "common/src/common/typography";
 import {
   Maybe,
   Mutation,
@@ -25,6 +26,7 @@ import withMainMenu from "../../withMainMenu";
 import {
   ageGroup,
   getReservatinUnitPricing,
+  getReserveeName,
   getTranslationKeyForType,
   reservationDateTime,
   reservationDuration,
@@ -37,13 +39,13 @@ import ApproveDialog from "./ApproveDialog";
 import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
 import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
-import { H1 } from "../../../styles/new-typography";
 import { HorisontalFlex, VerticalFlex } from "../../../styles/layout";
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
 import { formatDateTime } from "../../../common/util";
 import Calendar from "./Calendar";
+import UserBirthDate from "./UserBirthDate";
 
 const Wrapper = styled.div`
   display: flex;
@@ -121,18 +123,15 @@ const DateTime = styled.div`
   font-size: var(--fontsize-body-s);
 `;
 
-const getName = (reservation: ReservationType) => {
+const getName = (reservation: ReservationType, t: TFunction) => {
   if (reservation.name) {
     return trim(`${reservation.pk}, ${reservation.name}`);
   }
 
   return trim(
-    `${reservation.pk}, ${reservation.reserveeFirstName || ""} ${
-      reservation.reserveeOrganisationName
-        ? reservation.reserveeOrganisationName
-        : reservation.reserveeLastName || ""
-    }
-    `
+    `${reservation.pk}, ${
+      getReserveeName(reservation) || t("RequestedReservation.noName")
+    }`.trim()
   );
 };
 
@@ -155,7 +154,7 @@ const ApplicationData = ({
   wide,
 }: {
   label: string;
-  data?: Maybe<string> | number;
+  data?: Maybe<string> | number | JSX.Element;
   wide?: boolean;
 }) =>
   data ? (
@@ -329,19 +328,19 @@ const RequestedReservation = (): JSX.Element | null => {
           "requested-reservation",
         ]}
         aliases={[
-          { slug: "requested-reservation", title: getName(reservation) },
+          { slug: "requested-reservation", title: getName(reservation, t) },
         ]}
       />
       <ShowWhenTargetInvisible target={ref}>
         <StickyHeader
-          name={getName(reservation)}
+          name={getName(reservation, t)}
           tagline={reservationTagline}
           buttons={buttons}
         />
       </ShowWhenTargetInvisible>
       <Wrapper style={{ gap: 0 }}>
         <NameState ref={ref}>
-          <H1>{getName(reservation)}</H1>
+          <H1>{getName(reservation, t)}</H1>
           <AlignVertically style={{ gap: "var(--spacing-xs)" }}>
             <Dot />
             {t(`RequestedReservation.state.${reservation.state}`)}
@@ -587,7 +586,27 @@ const RequestedReservation = (): JSX.Element | null => {
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.user")}
-                data={reservation.user}
+                data={
+                  trim(
+                    `${reservation?.user?.firstName || ""} ${
+                      reservation?.user?.lastName || ""
+                    }`
+                  ) || t("RequestedReservation.noName")
+                }
+              />
+              <ApplicationData
+                label={t("RequestedReservation.email")}
+                data={reservation?.user?.email}
+              />
+              <ApplicationData
+                label={t("RequestedReservation.birthDate")}
+                data={
+                  <UserBirthDate
+                    reservationPk={reservation.pk as number}
+                    showLabel={t("RequestedReservation.showBirthDate")}
+                    hideLabel={t("RequestedReservation.hideBirthDate")}
+                  />
+                }
               />
             </ApplicationDatas>
           </Accordion>

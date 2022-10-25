@@ -75,6 +75,7 @@ const translations: ITranslations = {
     allResults: ["Kaikki {{totalCount}} tulosta näytetty"],
   },
   common: {
+    week: ["Viikko"],
     showMore: ["Näytä lisää"],
     clearAllSelections: ["Tyhjennä valinnat"],
     clear: ["Tyhjennä"],
@@ -202,9 +203,10 @@ const translations: ITranslations = {
     spaces: ["Tilat"],
     resources: ["Resurssit"],
     reservations: ["Varaukset"],
-    requested: ["Varaustoiveet"],
+    "requested-reservations": ["Varaustoiveet"],
     "all-reservations": ["Kaikki varaukset"],
     units: ["Toimipisteet"],
+    "my-units": ["Omat toimipisteet"],
   },
 
   ArchiveReservationUnitDialog: {
@@ -231,6 +233,8 @@ const translations: ITranslations = {
     welcome: ["Tervetuloa"],
   },
   MainMenu: {
+    home: ["Etusivu"],
+    myUnits: ["Omat toimipisteet"],
     reservations: ["Varaukset"],
     requestedReservations: ["Varaustoiveet"],
     allReservations: ["Kaikki varaukset"],
@@ -268,6 +272,19 @@ const translations: ITranslations = {
     expandMenu: ['Laajenna valikko "{{title}}"', 'Expand menu "{{title}}"'],
     shrinkMenu: ['Pienennä valikko "{{title}}"', 'Shrink menu "{{title}}"'],
     noName: ["Ei nimeä"],
+  },
+  MyUnits: {
+    heading: ["Omat toimipisteet"],
+    description: [
+      "Alla näet kaikki toimipisteet, joihin sinulla on käyttöoikeudet.",
+    ],
+    Calendar: {
+      legend: {
+        confirmed: ["Varattu"],
+        unconfirmed: ["Varaustoive"],
+        intersecting: ["Osana toista varausyksikköä"],
+      },
+    },
   },
   Application: {
     id: ["Hakemnustunnus"],
@@ -1411,12 +1428,13 @@ const translations: ITranslations = {
     serviceSpecificTermsHelperText: ["Valitse tästä"],
     openingHours: ["Aukioloajat"],
     openingHoursHelperTextHasLink: [
-      "Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Voit siirtyä aukiolosovellukseen alla näkyvällä linkillä.",
+      'Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Huom. Käytä aukioloaikatyyppeinä ainoastaan "varattavissa" ja "suljettu".',
     ],
     openingHoursHelperTextNoLink: [
       "Varausyksikön aukioloajat määritellään aukiolosovelluksessa. Pääset muokkaamaan aukioloaikoja kun varausyksikkö on tallennettu.",
     ],
-    openingTimesExternalLink: ["Aukioloajat aukiolosovelluksessa"],
+    openingTimesExternalLink: ["Siirry aukioloaikasovellukseen"],
+    previewCalendarLink: ["Siirry varaamon kalenterinäkymään"],
     cancel: ["Palaa tallentamatta muutoksia"],
     archive: ["Arkistoi"],
     save: ["Tallenna tiedot"],
@@ -1428,7 +1446,9 @@ const translations: ITranslations = {
     reservationUnitUpdatedNotification: [
       "Varausyksikön muutokset tallennettu.",
     ],
-    saveFailed: ["Varausyksikön tietoja ei saatu tallennettua. {{error}}"],
+    saveFailed: [
+      "Valitettavasti varausyksikön tallennus / julkaisu ei juuri nyt onnistu, kokeile myöhemmin uudelleen. ({{error}})",
+    ],
     saveAndPublish: ["Julkaise"],
     settings: ["Varausasetukset"],
     cancellationIsPossible: ["Peruutus mahdollista"],
@@ -1553,7 +1573,7 @@ const translations: ITranslations = {
     ],
     headings: {
       id: ["id"],
-      name: ["Varauksen nimi"],
+      reserveeName: ["Varaajan nimi"],
       reservationUnit: ["Varausyksikkö"],
       unit: ["Toimipiste"],
       datetime: ["Aika"],
@@ -1636,6 +1656,10 @@ const translations: ITranslations = {
     savedWorkingMemo: ["Kommentti tallennettu"],
     errorSavingWorkingMemo: ["Kommentin tallennus ei onnistunut"],
     user: ["Varauksen tekijä"],
+    email: ["Sähköposti"],
+    birthDate: ["Syntymäaika"],
+    hideBirthDate: ["Piilota"],
+    showBirthDate: ["Näytä"],
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],
@@ -1683,6 +1707,7 @@ const translations: ITranslations = {
       returned: ["Varaus palautettu käsiteltäväksi"],
       errorSaving: ["Palauttaminen ei onnistunut"],
     },
+    noName: ["-"],
   },
   Allocation: {
     allocationTitle: ["Vuorojen jako"],

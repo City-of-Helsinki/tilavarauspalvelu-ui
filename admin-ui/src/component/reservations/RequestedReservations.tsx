@@ -2,12 +2,13 @@ import { debounce } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { H1 } from "../../styles/new-typography";
+import { H1 } from "common/src/common/typography";
 import withMainMenu from "../withMainMenu";
 import Filters, { FilterArguments, emptyState } from "./Filters";
 import ReservationUnitsDataReader, { Sort } from "./ReservationsDataLoader";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 import { HR } from "../lists/components";
+import { formatDate } from "../../common/util";
 
 const Wrapper = styled.div`
   display: flex;
@@ -41,11 +42,15 @@ const Reservations = (): JSX.Element => {
           <H1>{t("Reservations.reservationListHeading")}</H1>
           <p>{t("Reservations.reservationListDescription")}</p>
         </div>
-        <Filters onSearch={debouncedSearch} />
+        <Filters
+          onSearch={debouncedSearch}
+          initialFiltering={{
+            begin: formatDate(new Date().toISOString(), "dd.MM.yyyy") as string,
+          }}
+        />
         <HR />
         <ReservationUnitsDataReader
           defaultFiltering={{
-            begin: new Date().toISOString(),
             state: ["DENIED", "CONFIRMED", "REQUIRES_HANDLING"],
           }}
           key={JSON.stringify({ ...search, ...sort })}
