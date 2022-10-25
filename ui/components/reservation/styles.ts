@@ -1,6 +1,6 @@
 import { breakpoints } from "common/src/common/style";
 import styled from "styled-components";
-import { H4, H5 } from "../../modules/style/typography";
+import { H4, H5 } from "common/src/common/typography";
 
 export const Paragraph = styled.p`
   white-space: pre-line;

@@ -5,11 +5,11 @@ import React, { Fragment, ReactElement, useMemo } from "react";
 import { Control, DeepMap, FieldError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { fontMedium, fontRegular } from "common/src/common/typography";
 import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitType,
 } from "../../modules/gql-types";
-import { fontMedium, fontRegular } from "../../modules/style/typography";
 import { Inputs, Reservation } from "../../modules/types";
 import { MediumButton } from "../../styles/util";
 import RadioButtonWithImage from "../form/RadioButtonWithImage";

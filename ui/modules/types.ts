@@ -37,7 +37,7 @@ export type Reservation = {
   reserveeLastName?: string;
   reserveePhone?: string;
   name?: string;
-  user?: string;
+  user?: { email: string };
   description?: string;
   calendarUrl?: string;
   state?: string;

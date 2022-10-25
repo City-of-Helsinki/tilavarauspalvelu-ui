@@ -4,12 +4,12 @@ import { differenceInMinutes, parseISO } from "date-fns";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { H4, Strong } from "common/src/common/typography";
 import {
   ReservationType,
   ReservationUnitByPkType,
   ReservationUnitType,
 } from "../../modules/gql-types";
-import { H4, Strong } from "../../modules/style/typography";
 import {
   capitalize,
   formatDurationMinutes,

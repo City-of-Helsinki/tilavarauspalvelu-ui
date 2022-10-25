@@ -4,12 +4,12 @@ import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { H2 } from "common/src/common/typography";
 import {
   ReservationsReservationStateChoices,
   ReservationUnitType,
 } from "../../modules/gql-types";
 import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
-import { H2 } from "../../modules/style/typography";
 import { Reservation } from "../../modules/types";
 import { getTranslation, reservationsUrl } from "../../modules/util";
 import { MediumButton } from "../../styles/util";
