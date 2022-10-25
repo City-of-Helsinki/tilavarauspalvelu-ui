@@ -45,7 +45,7 @@ import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
 import { formatDateTime } from "../../../common/util";
 import Calendar from "./Calendar";
-import UserBirthDate from "./UserBirthDate";
+import ReservationUserBirthDate from "./ReservationUserBirthDate";
 
 const Wrapper = styled.div`
   display: flex;
@@ -601,7 +601,7 @@ const RequestedReservation = (): JSX.Element | null => {
               <ApplicationData
                 label={t("RequestedReservation.birthDate")}
                 data={
-                  <UserBirthDate
+                  <ReservationUserBirthDate
                     reservationPk={reservation.pk as number}
                     showLabel={t("RequestedReservation.showBirthDate")}
                     hideLabel={t("RequestedReservation.hideBirthDate")}
