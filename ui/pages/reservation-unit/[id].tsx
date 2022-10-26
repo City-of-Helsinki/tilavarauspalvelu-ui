@@ -459,7 +459,8 @@ const StyledNotification = styled(Notification)`
 
 const eventStyleGetter = (
   { event }: CalendarEvent<Reservation | ReservationType>,
-  draggable = true
+  draggable = true,
+  ownReservations: number[]
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
     borderRadius: "0px",
@@ -470,7 +471,11 @@ const eventStyleGetter = (
   } as Record<string, string>;
   let className = "";
 
-  const state = event?.state as ReservationStateWithInitial;
+  const isOwn =
+    ownReservations?.includes((event as ReservationType).pk) &&
+    (event?.state as ReservationStateWithInitial) !== "BUFFER";
+
+  const state = isOwn ? "OWN" : (event?.state as ReservationStateWithInitial);
 
   switch (state) {
     case "INITIAL":
@@ -478,6 +483,11 @@ const eventStyleGetter = (
       style.color = "var(--color-black)";
       style.border = "2px dashed var(--tilavaraus-event-initial-border)";
       className = draggable ? "rbc-event-movable" : "";
+      break;
+    case "OWN":
+      style.backgroundColor = "var(--tilavaraus-event-initial-color)";
+      style.color = "var(--color-black)";
+      style.border = "2px solid var(--tilavaraus-event-initial-border)";
       break;
     case "BUFFER":
       style.backgroundColor = "var(--color-black-5)";
@@ -512,9 +522,9 @@ const ReservationUnit = ({
 
   const { reservation, setReservation } = useContext(DataContext);
 
-  const [userReservations, setUserReservations] = useState<ReservationType[]>(
-    []
-  );
+  const [userReservations, setUserReservations] = useState<
+    ReservationType[] | null
+  >(null);
   const [focusDate, setFocusDate] = useState(new Date());
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
   const [initialReservation, setInitialReservation] =
@@ -549,23 +559,28 @@ const ReservationUnit = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservation]);
 
-  useQuery<Query, QueryReservationsArgs>(LIST_RESERVATIONS, {
-    fetchPolicy: "no-cache",
-    variables: {
-      begin: now,
-    },
-    onCompleted: (res) => {
-      const allowedReservationStates = [
-        ReservationsReservationStateChoices.Created,
-        ReservationsReservationStateChoices.Confirmed,
-        ReservationsReservationStateChoices.RequiresHandling,
-      ];
-      const reservations = res?.reservations?.edges
-        ?.map(({ node }) => node)
-        .filter((n) => allowedReservationStates.includes(n.state));
-      setUserReservations(reservations);
-    },
-  });
+  const { data: userReservationsData } = useQuery<Query, QueryReservationsArgs>(
+    LIST_RESERVATIONS,
+    {
+      fetchPolicy: "no-cache",
+      variables: {
+        begin: now,
+        reservationUnit: [reservationUnit?.pk?.toString()],
+      },
+    }
+  );
+
+  useEffect(() => {
+    const allowedReservationStates = [
+      ReservationsReservationStateChoices.Created,
+      ReservationsReservationStateChoices.Confirmed,
+      ReservationsReservationStateChoices.RequiresHandling,
+    ];
+    const reservations = userReservationsData?.reservations?.edges
+      ?.map(({ node }) => node)
+      .filter((n) => allowedReservationStates.includes(n.state));
+    setUserReservations(reservations || []);
+  }, [userReservationsData]);
 
   // const activeOpeningTimes = getActiveOpeningTimes(
   //   reservationUnit.openingHours?.openingTimePeriods
@@ -738,7 +753,7 @@ const ReservationUnit = ({
 
   const calendarEvents: CalendarEvent<Reservation | ReservationType>[] =
     useMemo(() => {
-      return reservationUnit?.reservations
+      return userReservations?.length && reservationUnit?.reservations
         ? [...reservationUnit.reservations, initialReservation]
             .filter((n: ReservationType) => n)
             .map((n: ReservationType) => {
@@ -757,7 +772,7 @@ const ReservationUnit = ({
               return event;
             })
         : [];
-    }, [reservationUnit, t, initialReservation]);
+    }, [reservationUnit, t, initialReservation, userReservations]);
 
   const eventBuffers = useMemo(() => {
     return getEventBuffers([
@@ -1008,7 +1023,11 @@ const ReservationUnit = ({
                       setFocusDate(d);
                     }}
                     eventStyleGetter={(event) =>
-                      eventStyleGetter(event, !isReservationQuotaReached)
+                      eventStyleGetter(
+                        event,
+                        !isReservationQuotaReached,
+                        userReservations?.map((n) => n.pk)
+                      )
                     }
                     slotPropGetter={slotPropGetter}
                     viewType={calendarViewType}
