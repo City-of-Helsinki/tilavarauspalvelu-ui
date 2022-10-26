@@ -86,7 +86,7 @@
     }
   },
   "processLabels": {
-    "handlingRequired": "Varaus käsitelyssä"
+    "handlingRequired": "Varaus käsittelyssä"
   },
   "errors": {
     "noFormType": "Valitse hakijan tyyppi"
