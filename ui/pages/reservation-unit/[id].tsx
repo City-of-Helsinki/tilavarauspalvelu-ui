@@ -1,4 +1,5 @@
 import React, {
+  Children,
   useCallback,
   useContext,
   useEffect,
@@ -399,10 +400,6 @@ const CalendarFooter = styled.div<{ $cookiehubBannerHeight?: number }>`
   display: flex;
   flex-direction: column-reverse;
 
-  button {
-    order: 2;
-  }
-
   @media (min-width: ${breakpoints.l}) {
     flex-direction: column;
     gap: var(--spacing-2-xl);
@@ -733,6 +730,13 @@ const ReservationUnit = ({
     ]
   );
 
+  const TouchCellWrapper = ({ children, value, onSelectSlot }): JSX.Element => {
+    return React.cloneElement(Children.only(children), {
+      onTouchEnd: () => onSelectSlot({ action: "click", slots: [value] }),
+      onDragEnd: () => onSelectSlot({ action: "click", slots: [value] }),
+    });
+  };
+
   useEffect(() => {
     const start = reservation?.begin ? new Date(reservation.begin) : null;
     const end = reservation?.end ? new Date(reservation.end) : null;
@@ -1044,6 +1048,12 @@ const ReservationUnit = ({
                         ? ToolbarWithProps
                         : Toolbar
                     }
+                    dateCellWrapperComponent={(props) => (
+                      <TouchCellWrapper
+                        {...props}
+                        onSelectSlot={handleSlotClick}
+                      />
+                    )}
                     resizable={!isReservationQuotaReached}
                     draggable={!isReservationQuotaReached}
                     onEventDrop={handleEventChange}
