@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { addDays } from "date-fns";
 import { intersection } from "lodash";
+import { breakpoints } from "common/src/common/style";
 import {
   Query,
   QueryReservationsArgs,
@@ -32,7 +33,20 @@ const Legends = styled.div`
   padding: var(--spacing-m) 0;
 `;
 
-const Container = styled.div``;
+const Container = styled.div`
+  max-width: 100%;
+  overflow-x: auto;
+`;
+
+const LegendContainer = styled.div`
+  max-width: 100%;
+  overflow-x: auto;
+  @media (max-width: ${breakpoints.s}) {
+    div {
+      flex-wrap: nowrap;
+    }
+  }
+`;
 
 const updateQuery = (
   previousResult: Query,
@@ -189,13 +203,13 @@ const UnitReservations = ({
       <Container>
         <ResourceCalendar resources={resourcesData} />
       </Container>
-      <Container>
+      <LegendContainer>
         <Legends>
           {legend.map((l) => (
             <Legend key={l.label} style={l.style} label={t(l.label)} />
           ))}
         </Legends>
-      </Container>
+      </LegendContainer>
     </>
   );
 };

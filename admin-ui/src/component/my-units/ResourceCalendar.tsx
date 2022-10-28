@@ -1,5 +1,5 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
-import { differenceInMinutes, subHours } from "date-fns";
+import { differenceInMinutes } from "date-fns";
 import React, { Fragment } from "react";
 import styled from "styled-components";
 import { ReservationType } from "../../common/gql-types";
@@ -24,10 +24,10 @@ type Props = {
 
 const CELL_BORDER = "1px solid var(--color-black-20)";
 
-const FlexContainer = styled.div`
+const FlexContainer = styled.div<{ $numCols: number }>`
   display: flex;
   flex-direction: column;
-  min-width: 600px;
+  min-width: calc(150px + ${({ $numCols }) => $numCols} * 35px);
   grid-gap: 0;
   border-bottom: ${CELL_BORDER};
 `;
@@ -103,22 +103,26 @@ const Events = ({
       width: "100%",
       top: 0,
       left: 0,
-      background: "yellow",
     }}
   >
     {events.map((e) => {
       const openReservation = () =>
         window.open(reservationUrl(e.event?.pk as number), "_blank");
 
-      const startMinutes = differenceInMinutes(
-        new Date(e.start),
-        subHours(new Date(e.start), firstHour)
-      );
+      const startDate = new Date(e.start);
+      const endDate = new Date(e.end);
+      const dayStartDate = new Date(e.start);
+      dayStartDate.setHours(firstHour);
+      dayStartDate.setMinutes(0);
+      dayStartDate.setSeconds(0);
 
-      const durationMinutes = differenceInMinutes(
-        new Date(e.end),
-        new Date(e.start)
-      );
+      const startMinutes = differenceInMinutes(startDate, dayStartDate);
+
+      const hourPercent = 100 / numHours;
+      const hours = startMinutes / 60;
+      const left = `${hourPercent * hours}%`;
+
+      const durationMinutes = differenceInMinutes(endDate, startDate);
 
       return (
         <div
@@ -126,7 +130,7 @@ const Events = ({
             zIndex: "1000",
             height: "41px",
             position: "absolute",
-            left: `calc(${startMinutes / 60} * ${100 / numHours}%)`,
+            left,
             width: `calc(${durationMinutes / 60} * ${100 / numHours}% + 1px)`,
           }}
         >
@@ -136,7 +140,7 @@ const Events = ({
               width: "100%",
               ...eventStyleGetter(e).style,
             }}
-            title={e.title}
+            title={e.title || "no title"}
             onClick={openReservation}
             onKeyPress={openReservation}
             role="button"
@@ -150,12 +154,12 @@ const Events = ({
 
 const ResourceCalendar = ({ resources }: Props): JSX.Element => {
   // todo find out min and max opening hour of every reservationunit
-  const [beginHour, endHour] = [8, 20];
+  const [beginHour, endHour] = [8, 24];
   const numHours = endHour - beginHour;
 
   return (
     <>
-      <FlexContainer>
+      <FlexContainer $numCols={numHours * 2}>
         <HeadingRow>
           <div />
           <CellContent $numCols={numHours}>
