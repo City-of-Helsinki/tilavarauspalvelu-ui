@@ -285,6 +285,15 @@ const translations: ITranslations = {
         intersecting: ["Osana toista varausyksikköä"],
       },
     },
+    ResourceCalendar: {
+      legend: {
+        confirmed: ["Hyväksytty varaus"],
+        unconfirmed: ["Varaustoive"],
+        intersecting: ["Toisen varausyksikön varaus"],
+        pause: ["Tauko"],
+        closed: ["Suljettu"],
+      },
+    },
   },
   Application: {
     id: ["Hakemnustunnus"],

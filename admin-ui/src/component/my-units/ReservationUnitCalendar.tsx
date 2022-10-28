@@ -47,7 +47,7 @@ const updateQuery = (
   return combineResults(previousResult, fetchMoreResult, "reservations");
 };
 
-const Calendar = ({
+const ReservationUnitCalendar = ({
   begin,
   reservationUnitPk,
   intersectingReservationUnits,
@@ -128,4 +128,4 @@ const Calendar = ({
   );
 };
 
-export default Calendar;
+export default ReservationUnitCalendar;
