@@ -757,7 +757,7 @@ const ReservationUnit = ({
 
   const calendarEvents: CalendarEvent<Reservation | ReservationType>[] =
     useMemo(() => {
-      return userReservations?.length && reservationUnit?.reservations
+      return userReservations && reservationUnit?.reservations
         ? [...reservationUnit.reservations, initialReservation]
             .filter((n: ReservationType) => n)
             .map((n: ReservationType) => {

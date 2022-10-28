@@ -69,11 +69,13 @@ const TogglerTop = styled.div``;
 const TogglerBottom = styled.div`
   display: flex;
   align-self: flex-end;
+  justify-content: flex-end;
   min-width: 177px;
   padding-bottom: var(--spacing-xs);
 
   button {
     width: 100%;
+    max-width: 177px;
   }
 `;
 
@@ -461,6 +463,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           )}
           <ToggleButton
             onClick={() => setAreControlsVisible(!areControlsVisible)}
+            data-testid="reservation-unit__reservation-controls--toggle-button"
           >
             {areControlsVisible ? (
               <IconAngleDown aria-hidden size="m" />
