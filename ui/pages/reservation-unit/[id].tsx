@@ -43,7 +43,7 @@ import {
   isStartTimeWithinInterval,
 } from "common/src/calendar/util";
 import { formatters as getFormatters } from "common";
-import { useLocalStorage, useSessionStorage } from "react-use";
+import { useLocalStorage, useMedia, useSessionStorage } from "react-use";
 import { breakpoints } from "common/src/common/style";
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
 import {
@@ -509,6 +509,9 @@ const ReservationUnit = ({
   termsOfUse,
 }: Props): JSX.Element | null => {
   const { t, i18n } = useTranslation();
+
+  const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
+
   const router = useRouter();
   const [, setPendingReservation] = useSessionStorage(
     "pendingReservation",
@@ -736,6 +739,10 @@ const ReservationUnit = ({
       onDragEnd: () => onSelectSlot({ action: "click", slots: [value] }),
     });
   };
+
+  useEffect(() => {
+    setCalendarViewType(isMobile ? "day" : "week");
+  }, [isMobile]);
 
   useEffect(() => {
     const start = reservation?.begin ? new Date(reservation.begin) : null;
