@@ -1,9 +1,12 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
+import { breakpoints } from "common/src/common/style";
 import { differenceInMinutes } from "date-fns";
 import React, { Fragment } from "react";
+import Popup from "reactjs-popup";
 import styled from "styled-components";
 import { ReservationType } from "../../common/gql-types";
-import { reservationUrl } from "../../common/urls";
+import { CELL_BORDER } from "./const";
+import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter from "./resourceEventStyleGetter";
 
 export type Resource = {
@@ -22,12 +25,13 @@ type Props = {
   resources: Resource[];
 };
 
-const CELL_BORDER = "1px solid var(--color-black-20)";
-
 const FlexContainer = styled.div<{ $numCols: number }>`
   display: flex;
   flex-direction: column;
-  min-width: calc(150px + ${({ $numCols }) => $numCols} * 35px);
+  @media (min-width: ${breakpoints.m}) {
+    min-width: calc(150px + ${({ $numCols }) => $numCols} * 35px);
+  }
+  min-width: calc(150px + ${({ $numCols }) => $numCols} * 40px);
   grid-gap: 0;
   border-bottom: ${CELL_BORDER};
 `;
@@ -106,9 +110,6 @@ const Events = ({
     }}
   >
     {events.map((e) => {
-      const openReservation = () =>
-        window.open(reservationUrl(e.event?.pk as number), "_blank");
-
       const startDate = new Date(e.start);
       const endDate = new Date(e.end);
       const dayStartDate = new Date(e.start);
@@ -141,11 +142,27 @@ const Events = ({
               ...eventStyleGetter(e).style,
             }}
             title={e.title || "no title"}
-            onClick={openReservation}
-            onKeyPress={openReservation}
-            role="button"
-            tabIndex={0}
-          />
+          >
+            <Popup
+              position={["right center", "left center"]}
+              trigger={() => (
+                <button
+                  type="button"
+                  style={{
+                    background: "transparent",
+                    cursor: "pointer",
+                    border: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              )}
+            >
+              <ReservationPopupContent
+                reservation={e.event as ReservationType}
+              />
+            </Popup>
+          </div>
         </div>
       );
     })}

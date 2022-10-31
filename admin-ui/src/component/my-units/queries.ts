@@ -113,14 +113,18 @@ export const RESERVATIONS_BY_UNIT = gql`
       edges {
         node {
           user {
+            firstName
+            lastName
             email
           }
+          workingMemo
           name
           reserveeFirstName
           reserveeLastName
           reserveeOrganisationName
           reservationUnits {
             pk
+            nameFi
           }
           pk
           begin
