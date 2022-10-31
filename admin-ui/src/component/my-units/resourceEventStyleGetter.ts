@@ -53,23 +53,23 @@ const CLOSED = {
 
 export const legend = [
   {
-    label: "MyUnits.ResourceCalendar.legend.confirmed",
+    label: "MyUnits.UnitCalendar.legend.confirmed",
     style: CONFIRMED.style,
   },
   {
-    label: "MyUnits.ResourceCalendar.legend.unconfirmed",
+    label: "MyUnits.UnitCalendar.legend.unconfirmed",
     style: UNCONFIRMED.style,
   },
   {
-    label: "MyUnits.ResourceCalendar.legend.intersecting",
+    label: "MyUnits.UnitCalendar.legend.intersecting",
     style: { ...CONFIRMED.style, ...INTERSECTING_RESERVATION_UNIT.style },
   },
   {
-    label: "MyUnits.ResourceCalendar.legend.pause",
+    label: "MyUnits.UnitCalendar.legend.pause",
     style: PAUSE.style,
   },
   {
-    label: "MyUnits.ResourceCalendar.legend.closed",
+    label: "MyUnits.UnitCalendar.legend.closed",
     style: CLOSED.style,
   },
 ];

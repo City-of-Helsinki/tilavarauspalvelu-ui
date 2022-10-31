@@ -279,13 +279,15 @@ const translations: ITranslations = {
       "Alla näet kaikki toimipisteet, joihin sinulla on käyttöoikeudet.",
     ],
     Calendar: {
+      tab: ["Varaukset varausyksiköittäin"],
       legend: {
         confirmed: ["Varattu"],
         unconfirmed: ["Varaustoive"],
         intersecting: ["Osana toista varausyksikköä"],
       },
     },
-    ResourceCalendar: {
+    UnitCalendar: {
+      tab: ["Kaikki toimipisteen varaukset"],
       legend: {
         confirmed: ["Hyväksytty varaus"],
         unconfirmed: ["Varaustoive"],
