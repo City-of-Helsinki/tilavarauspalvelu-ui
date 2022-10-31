@@ -206,9 +206,12 @@ const ResetButton = styled(Button).attrs({
   }
 `;
 
+const SubmitButtonWrapper = styled.div`
+  order: 3;
+`;
+
 const SubmitButton = styled(MediumButton)`
   white-space: nowrap;
-  order: 3;
 
   > span {
     margin: 0 !important;
@@ -423,24 +426,26 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   );
 
   const submitButton = (
-    <LoginFragment
-      isActionDisabled={!isReservable}
-      actionCallback={() => {
-        setStoredReservation({ ...reservation, pk: reservationUnit.pk });
-      }}
-      componentIfAuthenticated={
-        <SubmitButton
-          onClick={() => {
-            setIsReserving(true);
-            createReservation(reservation);
-          }}
-          disabled={!isReservable || isReserving}
-          data-test="reservation__button--submit"
-        >
-          {t("reservationCalendar:makeReservation")}
-        </SubmitButton>
-      }
-    />
+    <SubmitButtonWrapper>
+      <LoginFragment
+        isActionDisabled={!isReservable}
+        actionCallback={() => {
+          setStoredReservation({ ...reservation, pk: reservationUnit.pk });
+        }}
+        componentIfAuthenticated={
+          <SubmitButton
+            onClick={() => {
+              setIsReserving(true);
+              createReservation(reservation);
+            }}
+            disabled={!isReservable || isReserving}
+            data-test="reservation__button--submit"
+          >
+            {t("reservationCalendar:makeReservation")}
+          </SubmitButton>
+        }
+      />
+    </SubmitButtonWrapper>
   );
 
   return (

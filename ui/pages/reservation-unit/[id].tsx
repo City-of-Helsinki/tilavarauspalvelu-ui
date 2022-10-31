@@ -736,7 +736,9 @@ const ReservationUnit = ({
   const TouchCellWrapper = ({ children, value, onSelectSlot }): JSX.Element => {
     return React.cloneElement(Children.only(children), {
       onTouchEnd: () => onSelectSlot({ action: "click", slots: [value] }),
-      onDragEnd: () => onSelectSlot({ action: "click", slots: [value] }),
+      style: {
+        className: `${children}`,
+      },
     });
   };
 
