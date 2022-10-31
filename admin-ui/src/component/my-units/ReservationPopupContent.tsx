@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ReservationType } from "../../common/gql-types";
 import { reservationUrl } from "../../common/urls";
 import { formatTime } from "../../common/util";
-import { VerticalFlex } from "../../styles/layout";
+import { DenseVerticalFlex } from "../../styles/layout";
 import { getReserveeName } from "../reservations/requested/util";
 import { CELL_BORDER } from "./const";
 
@@ -17,7 +17,11 @@ const PopupContent = styled.div`
 `;
 
 const Heading = styled.div``;
-const Reservee = styled.div``;
+const Reservee = styled.div`
+  a {
+    color: black;
+  }
+`;
 const WorkingMemo = styled.div`
   background-color: var(--color-black-5);
   padding: var(--spacing-xs);
@@ -31,7 +35,7 @@ const ReservationPopupContent = ({
 }): JSX.Element => {
   return (
     <PopupContent>
-      <VerticalFlex>
+      <DenseVerticalFlex>
         <Heading>
           {formatTime(reservation.begin)} - {formatTime(reservation.end)} /{" "}
           {reservation.reservationUnits?.[0]?.nameFi}
@@ -44,7 +48,7 @@ const ReservationPopupContent = ({
         {reservation.workingMemo && (
           <WorkingMemo>{reservation.workingMemo}</WorkingMemo>
         )}
-      </VerticalFlex>
+      </DenseVerticalFlex>
     </PopupContent>
   );
 };
