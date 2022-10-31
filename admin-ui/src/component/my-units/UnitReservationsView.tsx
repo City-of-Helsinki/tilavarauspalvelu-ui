@@ -14,7 +14,7 @@ type Params = {
   reservationUnitId: string;
 };
 
-const UnitReservationsView = () => {
+const UnitReservationsView = (): JSX.Element => {
   const [begin, setBegin] = useState(new Date().toISOString());
   const { unitId } = useParams<Params>();
 

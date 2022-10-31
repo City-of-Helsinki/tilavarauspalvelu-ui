@@ -17,7 +17,7 @@ import { useNotification } from "../../context/NotificationContext";
 import Legend from "../reservations/requested/Legend";
 import { RESERVATIONS_BY_UNIT, RESERVATION_UNITS_BY_UNIT } from "./queries";
 import { legend } from "./resourceEventStyleGetter";
-import ResourceCalendar, { Resource } from "./ResourceCalendar";
+import ResourceCalendar, { Resource } from "./UnitCalendar";
 import Loader from "../Loader";
 
 type Props = {
@@ -149,7 +149,7 @@ const UnitReservations = ({
       }
     },
     onError: () => {
-      notifyError("Varauksia ei voitu hakea");
+      notifyError(t("errors.errorFetchingData"));
     },
   });
 
@@ -161,7 +161,7 @@ const UnitReservations = ({
         unit: [unitPk],
       },
       onError: () => {
-        notifyError("Varausyksiköitä ei voitu hakea");
+        notifyError(t("errors.errorFetchingData"));
       },
     });
 

@@ -141,7 +141,7 @@ const Events = ({
               width: "100%",
               ...eventStyleGetter(e).style,
             }}
-            title={e.title || "no title"}
+            title={e.title}
           >
             <Popup
               position={["right center", "left center"]}

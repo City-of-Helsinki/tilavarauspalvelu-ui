@@ -92,7 +92,7 @@ const ReservationUnitCalendar = ({
         }
       },
       onError: () => {
-        notifyError("Varauksia ei voitu hakea");
+        notifyError(t("errors.errorFetchingData"));
       },
     }
   );
