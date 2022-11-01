@@ -100,6 +100,11 @@ const ReservationUnitName = styled(H1)`
 
 const UnitName = styled(H2)`
   margin-top: 0;
+  margin-bottom: var(--spacing-m);
+
+  @media (min-width: ${breakpoints.m}) {
+    margin-bottom: var(--spacing-l);
+  }
 `;
 
 const Head = ({
@@ -230,7 +235,6 @@ const Head = ({
                 />
               )}
             </div>
-            <div>Imags</div>
             <Images
               images={orderImages(reservationUnit.images)}
               contextName={reservationUnitName}
