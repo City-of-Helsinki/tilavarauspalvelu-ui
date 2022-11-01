@@ -12,7 +12,11 @@ import { parseISO } from "date-fns";
 import { formatSecondDuration } from "common/src/common/util";
 import { fontRegular, H1, H2 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { getTranslation, orderImages, searchUrl } from "../../modules/util";
+import {
+  getTranslation,
+  orderImages,
+  singleSearchUrl,
+} from "../../modules/util";
 import Container from "../common/Container";
 import IconWithText from "../common/IconWithText";
 import Images from "./Images";
@@ -33,7 +37,11 @@ interface PropsType {
 
 const TopContainer = styled.div`
   background-color: white;
-  padding-top: var(--spacing-xl);
+  padding-top: var(--spacing-m);
+
+  @media (min-width: ${breakpoints.m}) {
+    padding-top: var(--spacing-l);
+  }
 `;
 
 const RightContainer = styled.div`
@@ -67,7 +75,11 @@ const Props = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-m) var(--spacing-s);
-  margin-bottom: var(--spacing-layout-m);
+  margin-bottom: var(--spacing-m);
+
+  @media (min-width: ${breakpoints.m}) {
+    margin-bottom: var(--spacing-l);
+  }
 
   @media (min-width: ${breakpoints.l}) {
     grid-template-columns: repeat(2, 1fr);
@@ -102,7 +114,7 @@ const Head = ({
   const [storedValues] = useLocalStorage(storageKey, null);
 
   const searchUrlWithParams = useMemo(() => {
-    return searchUrl(storedValues);
+    return singleSearchUrl(storedValues);
   }, [storedValues]);
 
   const minReservationDuration = formatSecondDuration(
@@ -218,6 +230,7 @@ const Head = ({
                 />
               )}
             </div>
+            <div>Imags</div>
             <Images
               images={orderImages(reservationUnit.images)}
               contextName={reservationUnitName}
