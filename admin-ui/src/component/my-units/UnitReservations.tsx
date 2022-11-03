@@ -98,7 +98,7 @@ const merge = (
       );
 
       return {
-        title: reservationUnit.nameFi || "nimetön",
+        title: reservationUnit.nameFi as string,
         pk: reservationUnit.pk as number,
         events: reservations
           .filter(

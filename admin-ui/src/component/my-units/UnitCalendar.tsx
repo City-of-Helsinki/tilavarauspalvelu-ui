@@ -127,6 +127,7 @@ const Events = ({
 
       return (
         <div
+          key={String(e.event?.pk)}
           style={{
             zIndex: "1000",
             height: "41px",
