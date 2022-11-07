@@ -142,7 +142,7 @@ const modifyEditorState = (
 });
 
 const calculateNetPrice = (crossPrice: number, taxPercentage: number): number =>
-  Number((crossPrice / (1 + taxPercentage / 100)).toFixed(2));
+  crossPrice / (1 + taxPercentage / 100);
 
 const calculatePrice = (netPrice: number, taxPercentage: number): number =>
   Number((netPrice * (1 + taxPercentage / 100)).toFixed(2));
@@ -455,7 +455,6 @@ export const reducer = (state: State, action: Action): State => {
           )?.label
         );
 
-        console.log("current tax", currentTaxPercentage);
         switch (action.changeField) {
           case "highestPrice":
             newPricingType.highestPriceNet = calculateNetPrice(
