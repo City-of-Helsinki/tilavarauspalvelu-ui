@@ -6,7 +6,7 @@ type Props = {
   serviceSectorPk?: number;
   permissionName: string;
   children: JSX.Element | JSX.Element[];
-  otherwice?: JSX.Element | JSX.Element[];
+  otherwise?: JSX.Element | JSX.Element[];
 };
 
 const VisibleIfPermission = ({
@@ -14,23 +14,15 @@ const VisibleIfPermission = ({
   serviceSectorPk,
   permissionName,
   children,
-  otherwice,
+  otherwise,
 }: Props): JSX.Element => {
   const { hasPermission } = useAuthState().authState;
   const permission = hasPermission(permissionName, unitPk, serviceSectorPk);
-  if (!permission) {
-    console.debug(
-      "no permission to display content",
-      permission,
-      unitPk,
-      serviceSectorPk
-    );
-  }
 
   return (
     <>
       {permission && children}
-      {!permission && otherwice}
+      {!permission && otherwise}
     </>
   );
 };

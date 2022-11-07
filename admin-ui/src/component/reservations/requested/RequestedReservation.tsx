@@ -415,7 +415,7 @@ const RequestedReservation = (): JSX.Element | null => {
               <VisibleIfPermission
                 permissionName="can_comment_reservations"
                 unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
-                otherwice={<span>{workingMemo || ""}</span>}
+                otherwise={<span>{workingMemo || ""}</span>}
               >
                 <TextArea
                   label={t("RequestedReservation.workingMemoLabel")}
