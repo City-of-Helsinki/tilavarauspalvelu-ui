@@ -23,7 +23,6 @@ import { CURRENT_USER } from "../../modules/queries/user";
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
     props: {
-      overrideBackgroundColor: "var(--tilavaraus-gray)",
       ...(await serverSideTranslations(locale)),
     },
   };
@@ -35,24 +34,16 @@ const Heading = styled.div`
   margin-bottom: var(--spacing-layout-l);
 `;
 
-const StyledTabList = styled(TabList)`
+const StyledTabList = styled(TabList).attrs({
+  style: { "--tablist-border-size": "0" },
+})`
   ul {
-    &:after {
-      content: "";
-      display: block;
-      border-bottom: 1px solid var(--color-black-20);
-      position: absolute;
-      bottom: 2px;
-      width: 100%;
-    }
-
     width: 100% !important;
     position: relative;
   }
 `;
 
 const StyledTab = styled(Tab)`
-  color: greenyellow;
   ${fontMedium};
 
   span {
@@ -65,7 +56,7 @@ const StyledTab = styled(Tab)`
 `;
 
 const StyledTabPanel = styled(TabPanel)`
-  margin-top: var(--spacing-layout-l);
+  margin-top: var(--spacing-m);
 `;
 
 const EmptyMessage = styled.div`
@@ -82,6 +73,9 @@ const Reservations = (): JSX.Element => {
   const [pastReservations, setPastReservations] = useState<ReservationType[]>(
     []
   );
+  const [cancelledReservations, setCancelledReservations] = useState<
+    ReservationType[]
+  >([]);
   const [isLoadingReservations, setIsLoadingReservations] =
     useState<boolean>(true);
 
@@ -102,7 +96,8 @@ const Reservations = (): JSX.Element => {
     if (currentUser?.pk) {
       fetchReservations({
         variables: {
-          state: ["CONFIRMED", "REQUIRES_HANDLING"],
+          state: ["CONFIRMED", "REQUIRES_HANDLING", "CANCELLED"],
+          orderBy: "-begin",
           user: currentUser?.pk.toString(),
         },
       });
@@ -114,20 +109,25 @@ const Reservations = (): JSX.Element => {
       ?.map((edge) => edge?.node)
       .reduce(
         (acc, reservation) => {
-          if (isAfter(new Date(reservation?.begin), new Date())) {
+          if (reservation.state === "CANCELLED") {
+            acc[2].push(reservation);
+          } else if (isAfter(new Date(reservation?.begin), new Date())) {
             acc[0].push(reservation);
           } else {
             acc[1].push(reservation);
           }
           return acc;
         },
-        [[], []] as ReservationType[][]
+        [[], [], []] as ReservationType[][]
       );
     if (reservations?.length > 0) {
       setUpcomingReservations(reservations[0]);
       setPastReservations(reservations[1]);
+      setCancelledReservations(reservations[2]);
     }
-    setIsLoadingReservations(false);
+    if (reservationData?.reservations?.edges) {
+      setIsLoadingReservations(false);
+    }
   }, [reservationData]);
 
   useEffect(() => {
@@ -143,16 +143,9 @@ const Reservations = (): JSX.Element => {
         <Heading>
           <Tabs>
             <StyledTabList>
-              <StyledTab>
-                {t("reservations:upcomingReservations")}
-                {isLoadingReservations
-                  ? ""
-                  : ` (${upcomingReservations.length})`}
-              </StyledTab>
-              <StyledTab>
-                {t("reservations:pastReservations")}
-                {isLoadingReservations ? "" : ` (${pastReservations.length})`}
-              </StyledTab>
+              <StyledTab>{t("reservations:upcomingReservations")}</StyledTab>
+              <StyledTab>{t("reservations:pastReservations")}</StyledTab>
+              <StyledTab>{t("reservations:cancelledReservations")}</StyledTab>
             </StyledTabList>
             <StyledTabPanel>
               {error ? null : isLoadingReservations && <CenterSpinner />}
@@ -161,11 +154,7 @@ const Reservations = (): JSX.Element => {
                     <ReservationCard
                       key={reservation.pk}
                       reservation={reservation}
-                      type={
-                        reservation.state === "REQUIRES_HANDLING"
-                          ? "requiresHandling"
-                          : "upcoming"
-                      }
+                      type="upcoming"
                     />
                   ))
                 : !isLoadingReservations && (
@@ -187,6 +176,22 @@ const Reservations = (): JSX.Element => {
                 : !isLoadingReservations && (
                     <EmptyMessage>
                       {t("reservations:noPastReservations")}
+                    </EmptyMessage>
+                  )}
+            </StyledTabPanel>
+            <StyledTabPanel>
+              {isLoadingReservations && <CenterSpinner />}
+              {cancelledReservations.length > 0
+                ? cancelledReservations?.map((reservation) => (
+                    <ReservationCard
+                      key={reservation.pk}
+                      reservation={reservation}
+                      type="cancelled"
+                    />
+                  ))
+                : !isLoadingReservations && (
+                    <EmptyMessage>
+                      {t("reservations:noCancelledReservations")}
                     </EmptyMessage>
                   )}
             </StyledTabPanel>

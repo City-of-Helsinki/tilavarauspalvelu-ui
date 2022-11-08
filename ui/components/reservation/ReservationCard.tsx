@@ -1,28 +1,33 @@
 import React, { useMemo } from "react";
-import { IconTicket, IconPlusCircle } from "hds-react";
+import { IconTicket, IconCross, IconArrowRight } from "hds-react";
 import { i18n, useTranslation } from "next-i18next";
 import { parseISO } from "date-fns";
 import router from "next/router";
 import styled, { css } from "styled-components";
-import { fontMedium } from "common/src/common/typography";
 import { getReservationPrice } from "common";
+import { camelCase, trim } from "lodash";
 import { breakpoints } from "common/src/common/style";
 import {
+  capitalize,
   getMainImage,
   getTranslation,
   reservationsUrl,
 } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
 import { MediumButton, truncatedText } from "../../styles/util";
-import { ReservationType } from "../../modules/gql-types";
-import { reservationUnitPrefix } from "../../modules/const";
+import {
+  ReservationsReservationStateChoices,
+  ReservationType,
+} from "../../modules/gql-types";
 import { canUserCancelReservation } from "../../modules/reservation";
 import {
   getReservationUnitName,
+  getReservationUnitPrice,
   getUnitName,
 } from "../../modules/reservationUnit";
+import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 
-type CardType = "upcoming" | "past" | "requiresHandling";
+type CardType = "upcoming" | "past" | "cancelled";
 
 interface Props {
   reservation: ReservationType;
@@ -30,7 +35,7 @@ interface Props {
 }
 
 const Container = styled.div`
-  background-color: var(--color-white);
+  background-color: var(--color-silver-light);
   margin-top: var(--spacing-s);
   position: relative;
 
@@ -64,15 +69,17 @@ const MainContent = styled.div`
   }
 
   @media (min-width: ${breakpoints.l}) {
-    white-space: pre;
-    flex-direction: row;
+    /* white-space: pre;
+    flex-direction: row; */
+    display: grid;
+    grid-template-columns: 2fr 1fr;
   }
 `;
 
 const Details = styled.div`
   @media (min-width: ${breakpoints.l}) {
-    width: 10px;
-    white-space: pre;
+    /* width: 10px;
+    white-space: pre; */
   }
 `;
 
@@ -99,21 +106,13 @@ const Bottom = styled.span`
   margin-top: var(--spacing-2-xs);
 `;
 
-const Address = styled.div`
-  margin-bottom: var(--spacing-s);
-  line-height: var(--lineheight-l);
-`;
-
-const StreetAddress = styled.span`
-  ${fontMedium};
-`;
+const TimeStrip = styled.div``;
 
 const Price = styled(IconWithText)`
   span {
     margin-left: var(--spacing-2-xs);
-    font-family: var(--font-medium);
-    font-weight: 500;
   }
+
   margin-bottom: var(--spacing-2-xs);
 `;
 
@@ -148,7 +147,12 @@ const Actions = styled.div`
   }
 
   @media (min-width: ${breakpoints.l}) {
-    margin-top: 120px;
+    /* margin-top: 120px; */
+    align-self: flex-start;
+    align-items: flex-end;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
 
     button {
       width: unset;
@@ -156,37 +160,58 @@ const Actions = styled.div`
   }
 `;
 
+const ActionButtons = styled.div`
+  display: flex;
+  gap: var(--spacing-s);
+`;
+
+const ActionButton = styled(MediumButton).attrs({
+  style: {
+    "--color-button-primary": "var(--color-black-90)",
+    "--color-bus": "var(--color-black-90)",
+  },
+  size: "small",
+  variant: "secondary",
+})``;
+
 const Image = styled.img`
+  width: 100%;
+  height: 50vw;
   object-fit: cover;
   max-width: 100%;
-  width: 100%;
-  height: 60vw;
 
   @media (min-width: ${breakpoints.s}) {
+    max-height: 250px;
     height: 100%;
-    max-height: 200px;
   }
 
   @media (min-width: ${breakpoints.m}) {
-    max-width: 300px;
-    max-height: unset;
+    max-height: 182px;
   }
 
   @media (min-width: ${breakpoints.l}) {
-    max-height: 240px;
+    max-height: 150px;
   }
 `;
 
-const TimeStrip = styled.div<{ $type: CardType }>`
-  ${({ $type }) => {
-    switch ($type) {
-      case "requiresHandling":
+const Status = styled.div<{ $state: ReservationsReservationStateChoices }>`
+  ${({ $state }) => {
+    switch ($state) {
+      case "REQUIRES_HANDLING":
         return css`
-          background-color: var(--color-summer);
+          background-color: var(--color-gold-light);
         `;
-      case "upcoming":
+      case "CREATED":
         return css`
-          background-color: var(--color-copper);
+          background-color: var(--color-bus-light);
+        `;
+      case "DENIED":
+        return css`
+          background-color: var(--color-error-light);
+        `;
+      case "CONFIRMED":
+        return css`
+          background-color: var(--color-success-light);
         `;
       default:
         return css`
@@ -194,19 +219,12 @@ const TimeStrip = styled.div<{ $type: CardType }>`
         `;
     }
   }}
-  padding: var(--spacing-2-xs) var(--spacing-s);
+  padding: var(--spacing-3-xs) var(--spacing-2-xs);
   font-size: var(--fontsize-body-s);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   text-align: center;
+  max-width: fit-content;
+  align-self: flex-end;
   ${truncatedText};
-
-  @media (min-width: ${breakpoints.m}) {
-    position: relative;
-    max-width: fit-content;
-  }
 `;
 
 const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
@@ -214,9 +232,6 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
 
   const reservationUnit = reservation.reservationUnits[0];
   const link = `/reservations/${reservation.pk}`;
-  const address = `${
-    getTranslation(reservationUnit.unit?.location, "addressStreet") || ""
-  }`;
 
   const timeStripContent = useMemo(() => {
     const beginDate = t("common:dateWithWeekday", {
@@ -235,13 +250,44 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
       date: reservation.end && parseISO(reservation.end),
     });
 
-    if (type === "requiresHandling") {
-      return t("reservationApplication:processLabels.handlingRequired");
-    }
-    return `${t(`reservations:${type}Slug`)} ${beginDate} ${beginTime} -${
-      endDate !== beginDate ? ` ${endDate}` : ""
-    } ${endTime}`;
-  }, [reservation, type, t]);
+    return capitalize(
+      `${beginDate} ${beginTime}-${
+        endDate !== beginDate ? `${endDate}` : ""
+      }${endTime}`
+    );
+  }, [reservation, t]);
+
+  const title = trim(
+    `${getReservationUnitName(reservationUnit)}, ${getUnitName(
+      reservationUnit.unit
+    )}`,
+    ", "
+  );
+
+  const price =
+    reservation.state === "REQUIRES_HANDLING"
+      ? getReservationUnitPrice(reservationUnit)
+      : getReservationPrice(
+          reservation.price,
+          i18n.t("prices:priceFree"),
+          i18n.language
+        );
+
+  const statusText = t(
+    `reservations:status.${camelCase(reservation.state.toLocaleLowerCase())}`
+  );
+
+  const statusTag = (
+    state: ReservationsReservationStateChoices,
+    statusType = "desktop"
+  ) => (
+    <Status
+      data-testid={`reservation__card--status-${statusType}`}
+      $state={state}
+    >
+      {statusText}
+    </Status>
+  );
 
   return (
     <Container data-testid="reservation__card--container">
@@ -256,62 +302,49 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
       />
       <MainContent>
         <Details>
-          <Name>{getReservationUnitName(reservationUnit)}</Name>
+          <Name>{title}</Name>
           <Bottom>
-            <Address data-testid="reservation__card--unit">
-              {getUnitName(reservationUnit.unit)}
-              {address && (
-                <StreetAddress data-testid="reservation__card--address">
-                  , {address}
-                </StreetAddress>
-              )}
-            </Address>
-            <TimeStrip $type={type} data-testid="reservation__card--time">
+            <TimeStrip data-testid="reservation__card--time">
               {timeStripContent}
             </TimeStrip>
+            <JustForMobile
+              customBreakpoint={breakpoints.l}
+              style={{ marginTop: "var(--spacing-s)" }}
+            >
+              {statusTag(reservation.state, "mobile")}
+            </JustForMobile>
             <Price
               icon={<IconTicket aria-label={t("reservationUnit:price")} />}
-              text={getReservationPrice(
-                reservation.price,
-                i18n.t("prices:priceFree"),
-                i18n.language
-              )}
+              text={price}
               data-testid="reservation__card--price"
             />
           </Bottom>
         </Details>
         <Actions>
-          {["upcoming"].includes(type) &&
-            canUserCancelReservation(reservation) && (
-              <MediumButton
-                variant="secondary"
-                onClick={() =>
-                  router.push(`${reservationsUrl}${reservation.pk}/cancel`)
-                }
-                data-testid="reservation-card__button--cancel-reservation"
-              >
-                {t("reservations:cancelReservation")}
-              </MediumButton>
-            )}
-          {["past"].includes(type) && (
-            <MediumButton
-              variant="secondary"
-              onClick={() =>
-                router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`)
-              }
-              iconLeft={<IconPlusCircle />}
-              data-testid="reservation-card__button--redo-reservation"
+          <JustForDesktop customBreakpoint={breakpoints.l}>
+            {statusTag(reservation.state)}
+          </JustForDesktop>
+          <ActionButtons>
+            {["upcoming"].includes(type) &&
+              canUserCancelReservation(reservation) && (
+                <ActionButton
+                  iconRight={<IconCross aria-hidden />}
+                  onClick={() =>
+                    router.push(`${reservationsUrl}${reservation.pk}/cancel`)
+                  }
+                  data-testid="reservation-card__button--cancel-reservation"
+                >
+                  {t("reservations:cancelReservationAbbreviated")}
+                </ActionButton>
+              )}
+            <ActionButton
+              iconRight={<IconArrowRight aria-hidden />}
+              onClick={() => router.push(link)}
+              data-testid="reservation-card__button--goto-reservation"
             >
-              {t("reservations:redoReservation")}
-            </MediumButton>
-          )}
-          <MediumButton
-            variant="primary"
-            onClick={() => router.push(link)}
-            data-testid="reservation-card__button--goto-reservation"
-          >
-            {t("reservationList:seeMore")}
-          </MediumButton>
+              {t("reservationList:seeMore")}
+            </ActionButton>
+          </ActionButtons>
         </Actions>
       </MainContent>
     </Container>
