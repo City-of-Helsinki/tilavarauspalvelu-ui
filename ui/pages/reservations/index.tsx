@@ -47,6 +47,10 @@ const StyledTab = styled(Tab)`
   ${fontMedium};
 
   span {
+    &:before {
+      z-index: 1 !important;
+    }
+
     padding: 0 var(--spacing-xs) !important;
 
     @media (min-width: ${breakpoints.s}) {
@@ -79,7 +83,7 @@ const Reservations = (): JSX.Element => {
   const [isLoadingReservations, setIsLoadingReservations] =
     useState<boolean>(true);
 
-  const { data: userData, error: queryError } = useQuery<Query>(CURRENT_USER, {
+  const { data: userData } = useQuery<Query>(CURRENT_USER, {
     fetchPolicy: "no-cache",
   });
 
@@ -131,10 +135,10 @@ const Reservations = (): JSX.Element => {
   }, [reservationData]);
 
   useEffect(() => {
-    if (queryError || reservationError) {
+    if (userData?.currentUser === null || reservationError) {
       setError(true);
     }
-  }, [queryError, reservationError]);
+  }, [userData, reservationError]);
 
   return (
     <>
