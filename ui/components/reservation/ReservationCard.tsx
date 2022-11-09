@@ -249,7 +249,6 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
         })}
         src={
           getMainImage(reservationUnit)?.mediumUrl ||
-          "https://via.placeholder.com/384x384" ||
           "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
         }
       />
