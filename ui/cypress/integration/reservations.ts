@@ -215,7 +215,9 @@ describe("Tilavaraus user reservations", () => {
     cancelCancelButton().should("be.disabled");
 
     backButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations$/);
+    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
+
+    cy.visit("/reservations");
 
     detailButton().eq(4).click();
     detailCancelButton().click();
