@@ -10,38 +10,40 @@ import { relayStylePagination } from "@apollo/client/utilities";
 import { onError } from "@apollo/client/link/error";
 import {
   getAccessToken,
-  getApiAccessToken,
-  updateApiAccessToken,
+  getApiAccessTokens,
+  updateApiAccessTokens,
 } from "./auth/util";
-import { apiBaseUrl } from "./const";
+import { apiBaseUrl, isBrowser, PROFILE_TOKEN_HEADER } from "./const";
 
 // list of operations that need authentication
 const needsAuthentication = ["listReservations", "reservationByPk"];
 
-const getNewToken = (): Promise<string> =>
-  updateApiAccessToken(getAccessToken());
+const getNewToken = (): Promise<[string, string]> =>
+  updateApiAccessTokens(getAccessToken());
 
 const authLink = new ApolloLink((operation, forward) => {
-  const token = getApiAccessToken();
+  const [apiAccessToken, profileApiAccessToken] = getApiAccessTokens();
 
-  if (!token) {
+  if (!apiAccessToken) {
     return fromPromise(
       getNewToken().catch(() => {
         // TODO Handle token refresh error
         if (needsAuthentication.includes(operation.operationName)) {
-          return false;
+          return [null, null];
         }
 
         return forward(operation);
       })
     )
-      .filter((value) => Boolean(value))
-      .flatMap((accessToken) => {
+      .filter((value) => Boolean(value[0]))
+      .flatMap((accessTokens: [string, string]) => {
         const oldHeaders = operation.getContext().headers;
+        const [newApiAccessToken, newProfileApiAccessToken] = accessTokens;
         operation.setContext({
           headers: {
             ...oldHeaders,
-            authorization: `Bearer ${accessToken}`,
+            authorization: `Bearer ${newApiAccessToken}`,
+            [PROFILE_TOKEN_HEADER]: newProfileApiAccessToken,
           },
         });
 
@@ -52,7 +54,8 @@ const authLink = new ApolloLink((operation, forward) => {
   operation.setContext(({ headers }) => ({
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      authorization: apiAccessToken ? `Bearer ${apiAccessToken}` : "",
+      [PROFILE_TOKEN_HEADER]: profileApiAccessToken || "",
     },
   }));
 
@@ -78,16 +81,19 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
       return fromPromise(
         getNewToken().catch(() => {
           // TODO Handle token refresh error
-          return null;
+          return [null, null];
         })
       )
-        .filter((value) => Boolean(value))
-        .flatMap((accessToken) => {
+        .filter((value) => Boolean(value[0]))
+        .flatMap((accessTokens: [string, string]) => {
+          const [newApiAccessToken, newProfileApiAccessToken] = accessTokens;
+
           const oldHeaders = operation.getContext().headers;
           operation.setContext({
             headers: {
               ...oldHeaders,
-              authorization: `Bearer ${accessToken}`,
+              authorization: `Bearer ${newApiAccessToken}`,
+              [PROFILE_TOKEN_HEADER]: newProfileApiAccessToken,
             },
           });
 
@@ -109,7 +115,9 @@ const client = new ApolloClient({
       },
     },
   }),
-  link: from([errorLink, authLink, httpLink]),
+  link: isBrowser
+    ? from([errorLink, authLink, httpLink])
+    : from([errorLink, httpLink]),
   ssrMode: typeof window === undefined,
   defaultOptions: {
     watchQuery: {
