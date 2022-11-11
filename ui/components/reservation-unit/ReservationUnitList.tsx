@@ -196,7 +196,9 @@ const ReservationUnitList = ({
         return (
           <ReservationUnitCard
             key={ru.pk}
-            invalid={!(minSize && ru.maxPersons && ru.maxPersons > minSize)}
+            invalid={
+              minSize && !(minSize && ru.maxPersons && ru.maxPersons > minSize)
+            }
             onDelete={remove}
             reservationUnit={ru}
             order={index}
