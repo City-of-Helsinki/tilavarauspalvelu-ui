@@ -121,7 +121,8 @@ const ReservationFormField = ({
   const required = metadataSet.requiredFields.map(camelCase).includes(field);
 
   const isReserveeIdRequired =
-    field === "reserveeId"
+    field === "reserveeId" &&
+    watch("reserveeIsUnregisteredAssociation") !== undefined
       ? watch("reserveeIsUnregisteredAssociation") !== true
       : required;
 
