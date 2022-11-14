@@ -279,10 +279,21 @@ const translations: ITranslations = {
       "Alla näet kaikki toimipisteet, joihin sinulla on käyttöoikeudet.",
     ],
     Calendar: {
+      tab: ["Varaukset varausyksiköittäin"],
       legend: {
         confirmed: ["Varattu"],
         unconfirmed: ["Varaustoive"],
         intersecting: ["Osana toista varausyksikköä"],
+      },
+    },
+    UnitCalendar: {
+      tab: ["Kaikki toimipisteen varaukset"],
+      legend: {
+        confirmed: ["Hyväksytty varaus"],
+        unconfirmed: ["Varaustoive"],
+        intersecting: ["Toisen varausyksikön varaus"],
+        pause: ["Tauko"],
+        closed: ["Suljettu"],
       },
     },
   },
@@ -1103,8 +1114,10 @@ const translations: ITranslations = {
       reservationStartInterval: ["Varauksen aloitukset"],
       reservationsMinDaysBefore: ["Varattavissa viimeistään (vrk ennen)"],
       reservationsMaxDaysBefore: ["Varattavissa alkaen"],
-      lowestPrice: ["Alin hinta (euroa)"],
-      highestPrice: ["Ylin hinta (euroa)"],
+      lowestPrice: ["Alin hinta (sis. alv)"],
+      lowestPriceNet: ["Alin hinta (alviton)"],
+      highestPrice: ["Ylin hinta (sis. alv)"],
+      highestPriceNet: ["Ylin hinta (alviton)"],
       canApplyFreeOfCharge: [
         "Asiakas voi pyytää hinnan alennusta tai maksuttomuutta",
       ],

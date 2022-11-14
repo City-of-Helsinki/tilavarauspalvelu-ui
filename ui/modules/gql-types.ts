@@ -978,10 +978,16 @@ export type EventReservationUnitType = Node & {
   reservationUnit?: Maybe<ReservationUnitType>;
 };
 
+export type GeneralRolePermissionType = {
+  __typename?: "GeneralRolePermissionType";
+  permission?: Maybe<Scalars["String"]>;
+};
+
 export type GeneralRoleType = Node & {
   __typename?: "GeneralRoleType";
   /** The ID of the object */
   id: Scalars["ID"];
+  permissions?: Maybe<Array<Maybe<GeneralRolePermissionType>>>;
   pk?: Maybe<Scalars["Int"]>;
   role?: Maybe<RoleType>;
 };
@@ -1969,7 +1975,7 @@ export type ReservationApproveMutationInput = {
   /** Additional information for approval. */
   handlingDetails?: InputMaybe<Scalars["String"]>;
   pk?: InputMaybe<Scalars["Int"]>;
-  /** The price of this particular reservation */
+  /** The price of this particular reservation including VAT */
   price: Scalars["Float"];
 };
 
@@ -1983,7 +1989,7 @@ export type ReservationApproveMutationPayload = {
   /** Additional information for approval. */
   handlingDetails?: Maybe<Scalars["String"]>;
   pk?: Maybe<Scalars["Int"]>;
-  /** The price of this particular reservation */
+  /** The price of this particular reservation including VAT */
   price?: Maybe<Scalars["Float"]>;
   state?: Maybe<State>;
 };
@@ -2068,8 +2074,10 @@ export type ReservationConfirmMutationPayload = {
   name?: Maybe<Scalars["String"]>;
   numPersons?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
-  /** The price of this particular reservation */
+  /** The price of this particular reservation including VAT */
   price?: Maybe<Scalars["Float"]>;
+  /** The price of this particular reservation excluding VAT */
+  priceNet?: Maybe<Scalars["Float"]>;
   priority?: Maybe<Scalars["Int"]>;
   purposePk?: Maybe<Scalars["Int"]>;
   reserveeAddressCity?: Maybe<Scalars["String"]>;
@@ -2097,7 +2105,7 @@ export type ReservationConfirmMutationPayload = {
   taxPercentageValue?: Maybe<Scalars["Float"]>;
   /** Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED. */
   type?: Maybe<Scalars["String"]>;
-  /** The price of this particular reservation */
+  /** The unit price of this particular reservation */
   unitPrice?: Maybe<Scalars["Float"]>;
 };
 
@@ -2169,8 +2177,10 @@ export type ReservationCreateMutationPayload = {
   name?: Maybe<Scalars["String"]>;
   numPersons?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
-  /** The price of this particular reservation */
+  /** The price of this particular reservation including VAT */
   price?: Maybe<Scalars["Float"]>;
+  /** The price of this particular reservation excluding VAT */
+  priceNet?: Maybe<Scalars["Float"]>;
   priority?: Maybe<Scalars["Int"]>;
   purposePk?: Maybe<Scalars["Int"]>;
   reservation?: Maybe<ReservationType>;
@@ -2196,7 +2206,7 @@ export type ReservationCreateMutationPayload = {
   taxPercentageValue?: Maybe<Scalars["Float"]>;
   /** Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED. */
   type?: Maybe<Scalars["String"]>;
-  /** The price of this particular reservation */
+  /** The unit price of this particular reservation */
   unitPrice?: Maybe<Scalars["Float"]>;
 };
 
@@ -2348,6 +2358,8 @@ export type ReservationType = Node & {
   numPersons?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
   price?: Maybe<Scalars["Float"]>;
+  /** The price of this particular reservation excluding VAT */
+  priceNet: Scalars["Decimal"];
   priority: ReservationsReservationPriorityChoices;
   purpose?: Maybe<ReservationPurposeType>;
   recurringReservation?: Maybe<RecurringReservationType>;
@@ -2820,10 +2832,14 @@ export type ReservationUnitPaymentTypeType = Node & {
 export type ReservationUnitPricingCreateSerializerInput = {
   /** When pricing is activated */
   begins: Scalars["Date"];
-  /** Maximum price of the reservation unit */
+  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Float"]>;
-  /** Minimum price of the reservation unit */
+  /** Maximum price of the reservation unit excluding VAT */
+  highestPriceNet?: InputMaybe<Scalars["Float"]>;
+  /** Minimum price of the reservation unit including VAT */
   lowestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Minimum price of the reservation unit excluding VAT */
+  lowestPriceNet?: InputMaybe<Scalars["Float"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
   priceUnit?: InputMaybe<Scalars["String"]>;
   /** What kind of pricing type this pricing has. Possible values are PAID, FREE. */
@@ -2837,10 +2853,14 @@ export type ReservationUnitPricingType = {
   __typename?: "ReservationUnitPricingType";
   /** When pricing is activated */
   begins: Scalars["Date"];
-  /** Maximum price of the reservation unit */
+  /** Maximum price of the reservation unit including VAT */
   highestPrice: Scalars["Decimal"];
-  /** Minimum price of the reservation unit */
+  /** Maximum price of the reservation unit excluding VAT */
+  highestPriceNet: Scalars["Decimal"];
+  /** Minimum price of the reservation unit including VAT */
   lowestPrice: Scalars["Decimal"];
+  /** Minimum price of the reservation unit excluding VAT */
+  lowestPriceNet: Scalars["Decimal"];
   pk?: Maybe<Scalars["Int"]>;
   /** Unit of the price */
   priceUnit: ReservationUnitsReservationUnitPricingPriceUnitChoices;
@@ -2855,10 +2875,14 @@ export type ReservationUnitPricingType = {
 export type ReservationUnitPricingUpdateSerializerInput = {
   /** When pricing is activated */
   begins: Scalars["Date"];
-  /** Maximum price of the reservation unit */
+  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Float"]>;
-  /** Minimum price of the reservation unit */
+  /** Maximum price of the reservation unit excluding VAT */
+  highestPriceNet?: InputMaybe<Scalars["Float"]>;
+  /** Minimum price of the reservation unit including VAT */
   lowestPrice?: InputMaybe<Scalars["Float"]>;
+  /** Minimum price of the reservation unit excluding VAT */
+  lowestPriceNet?: InputMaybe<Scalars["Float"]>;
   pk?: InputMaybe<Scalars["Int"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
   priceUnit?: InputMaybe<Scalars["String"]>;
@@ -3411,8 +3435,10 @@ export type ReservationUpdateMutationPayload = {
   name?: Maybe<Scalars["String"]>;
   numPersons?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
-  /** The price of this particular reservation */
+  /** The price of this particular reservation including VAT */
   price?: Maybe<Scalars["Float"]>;
+  /** The price of this particular reservation excluding VAT */
+  priceNet?: Maybe<Scalars["Float"]>;
   priority?: Maybe<Scalars["Int"]>;
   purposePk?: Maybe<Scalars["Int"]>;
   reservation?: Maybe<ReservationType>;
@@ -3441,7 +3467,7 @@ export type ReservationUpdateMutationPayload = {
   taxPercentageValue?: Maybe<Scalars["Float"]>;
   /** Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED. */
   type?: Maybe<Scalars["String"]>;
-  /** The price of this particular reservation */
+  /** The unit price of this particular reservation */
   unitPrice?: Maybe<Scalars["Float"]>;
 };
 
@@ -3651,10 +3677,16 @@ export type RoleType = {
   verboseNameSv?: Maybe<Scalars["String"]>;
 };
 
+export type ServiceSectorRolePermissionType = {
+  __typename?: "ServiceSectorRolePermissionType";
+  permission?: Maybe<Scalars["String"]>;
+};
+
 export type ServiceSectorRoleType = Node & {
   __typename?: "ServiceSectorRoleType";
   /** The ID of the object */
   id: Scalars["ID"];
+  permissions?: Maybe<Array<Maybe<ServiceSectorRolePermissionType>>>;
   pk?: Maybe<Scalars["Int"]>;
   role?: Maybe<RoleType>;
   serviceSector?: Maybe<ServiceSectorType>;
@@ -3966,10 +3998,16 @@ export type UnitGroupType = Node & {
   units?: Maybe<Array<Maybe<UnitType>>>;
 };
 
+export type UnitRolePermissionType = {
+  __typename?: "UnitRolePermissionType";
+  permission?: Maybe<Scalars["String"]>;
+};
+
 export type UnitRoleType = Node & {
   __typename?: "UnitRoleType";
   /** The ID of the object */
   id: Scalars["ID"];
+  permissions?: Maybe<Array<Maybe<UnitRolePermissionType>>>;
   pk?: Maybe<Scalars["Int"]>;
   role?: Maybe<RoleType>;
   unitGroups?: Maybe<Array<Maybe<UnitGroupType>>>;
@@ -4982,6 +5020,7 @@ export const ListReservationsDocument = gql`
     $end: DateTime
     $state: [String]
     $user: ID
+    $reservationUnit: [ID]
   ) {
     reservations(
       before: $before
@@ -4992,6 +5031,7 @@ export const ListReservationsDocument = gql`
       end: $end
       state: $state
       user: $user
+      reservationUnit: $reservationUnit
     ) {
       edges {
         node {
@@ -5054,6 +5094,7 @@ export const ListReservationsDocument = gql`
  *      end: // value for 'end'
  *      state: // value for 'state'
  *      user: // value for 'user'
+ *      reservationUnit: // value for 'reservationUnit'
  *   },
  * });
  */
@@ -5496,6 +5537,20 @@ export const ReservationUnitDocument = gql`
         nameEn
         nameSv
       }
+      openingHours(openingTimes: false, periods: true) {
+        openingTimePeriods {
+          periodId
+          startDate
+          endDate
+          resourceState
+          timeSpans {
+            startTime
+            endTime
+            resourceState
+            weekdays
+          }
+        }
+      }
       requireReservationHandling
       metadataSet {
         id
@@ -5827,11 +5882,27 @@ export type RelatedReservationUnitsQueryResult = Apollo.QueryResult<
 export const ReservationUnitOpeningHoursDocument = gql`
   query ReservationUnitOpeningHours(
     $pk: Int
+    $startDate: Date
+    $endDate: Date
     $from: Date
     $to: Date
     $state: [String]
   ) {
     reservationUnitByPk(pk: $pk) {
+      openingHours(
+        openingTimes: true
+        periods: false
+        startDate: $startDate
+        endDate: $endDate
+      ) {
+        openingTimes {
+          date
+          startTime
+          endTime
+          state
+          periods
+        }
+      }
       reservations(state: $state, from: $from, to: $to) {
         pk
         state
@@ -5860,6 +5931,8 @@ export const ReservationUnitOpeningHoursDocument = gql`
  * const { data, loading, error } = useReservationUnitOpeningHoursQuery({
  *   variables: {
  *      pk: // value for 'pk'
+ *      startDate: // value for 'startDate'
+ *      endDate: // value for 'endDate'
  *      from: // value for 'from'
  *      to: // value for 'to'
  *      state: // value for 'state'
@@ -6405,6 +6478,9 @@ export type ListReservationsQueryVariables = Exact<{
     Array<InputMaybe<Scalars["String"]>> | InputMaybe<Scalars["String"]>
   >;
   user?: InputMaybe<Scalars["ID"]>;
+  reservationUnit?: InputMaybe<
+    Array<InputMaybe<Scalars["ID"]>> | InputMaybe<Scalars["ID"]>
+  >;
 }>;
 
 export type ListReservationsQuery = {
@@ -6757,6 +6833,23 @@ export type ReservationUnitQuery = {
       nameEn?: string | null;
       nameSv?: string | null;
     } | null> | null;
+    openingHours?: {
+      __typename?: "OpeningHoursType";
+      openingTimePeriods?: Array<{
+        __typename?: "PeriodType";
+        periodId?: number | null;
+        startDate?: any | null;
+        endDate?: any | null;
+        resourceState?: string | null;
+        timeSpans?: Array<{
+          __typename?: "TimeSpanType";
+          startTime?: any | null;
+          endTime?: any | null;
+          resourceState?: string | null;
+          weekdays?: Array<number | null> | null;
+        } | null> | null;
+      } | null> | null;
+    } | null;
     metadataSet?: {
       __typename?: "ReservationMetadataSetType";
       id: string;
@@ -6928,6 +7021,8 @@ export type RelatedReservationUnitsQuery = {
 
 export type ReservationUnitOpeningHoursQueryVariables = Exact<{
   pk?: InputMaybe<Scalars["Int"]>;
+  startDate?: InputMaybe<Scalars["Date"]>;
+  endDate?: InputMaybe<Scalars["Date"]>;
   from?: InputMaybe<Scalars["Date"]>;
   to?: InputMaybe<Scalars["Date"]>;
   state?: InputMaybe<
@@ -6939,6 +7034,17 @@ export type ReservationUnitOpeningHoursQuery = {
   __typename?: "Query";
   reservationUnitByPk?: {
     __typename?: "ReservationUnitByPkType";
+    openingHours?: {
+      __typename?: "OpeningHoursType";
+      openingTimes?: Array<{
+        __typename?: "OpeningTimesType";
+        date?: any | null;
+        startTime?: any | null;
+        endTime?: any | null;
+        state?: string | null;
+        periods?: Array<number | null> | null;
+      } | null> | null;
+    } | null;
     reservations?: Array<{
       __typename?: "ReservationType";
       pk?: number | null;

@@ -1,3 +1,4 @@
+import { fontMedium } from "common/src/common/typography";
 import { Button } from "hds-react";
 import styled, { css, CSSProperties } from "styled-components";
 
@@ -11,6 +12,16 @@ export const pixel =
   "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
 
 export const MediumButton = styled(Button)``;
+
+export const BlackButton = styled(Button).attrs({
+  style: {
+    "--color-button-primary": "var(--color-black-90)",
+    "--color-bus": "var(--color-black-90)",
+  },
+})`
+  font-size: var(--fontsize-body-m);
+  ${fontMedium};
+`;
 
 export const SupplementaryButton = styled(Button).attrs({
   style: {} as CSSProperties,

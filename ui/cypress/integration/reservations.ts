@@ -2,7 +2,6 @@ import { hzNavigationBack } from "model/calendar";
 import {
   cancelButton as detailCancelButton,
   accordionToggler,
-  reservationPriceContainer,
   reservationContent,
   reservationInfoCard,
   calendarLinkButton,
@@ -13,7 +12,7 @@ import {
   redoReservationButton,
   reservationCards,
   tab,
-  timeStrip,
+  statusTag,
 } from "model/reservation-list";
 import {
   title as cancelTitle,
@@ -21,7 +20,6 @@ import {
   backButton,
   reasonSelect,
   customReasonInput,
-  reReserveButton,
   secondBackButton,
 } from "model/reservation-cancel";
 
@@ -46,25 +44,25 @@ describe("Tilavaraus user reservations", () => {
 
   it("should list proper items with correct button states and link to reservation unit", () => {
     reservationCards().should("have.length", 5);
-    timeStrip()
+    statusTag("desktop")
       .should("have.length", 5)
       .each(($el, $i) => {
         if ([0, 1, 2, 4].includes($i)) {
-          expect($el).to.contain("Tulossa");
+          expect($el).to.contain("Hyväksytty");
         } else {
-          expect($el).to.contain("Varaus käsittelyssä");
+          expect($el).to.contain("Käsiteltävänä");
         }
       });
 
     tab(1)
       .invoke("text")
       .then((text) => {
-        expect(text).to.eq("Tulevat varaukset (5)");
+        expect(text).to.eq("Tulevat");
       });
     tab(2)
       .invoke("text")
       .then((text) => {
-        expect(text).to.eq("Menneet varaukset (2)");
+        expect(text).to.eq("Menneet");
       });
 
     cancelButton().should("exist");
@@ -81,23 +79,17 @@ describe("Tilavaraus user reservations", () => {
 
     reservationCards()
       .eq(3)
-      .find('[data-testid="reservation__card--time"]')
-      .should("contain.text", "Varaus käsittelyssä");
+      .find('[data-testid="reservation__card--status-desktop"]')
+      .should("contain.text", "Käsiteltävänä");
 
     tab(2).click();
 
     reservationCards().should("have.length", 2);
-    timeStrip()
+    statusTag("desktop")
       .should("have.length", 2)
       .each(($el) => {
-        expect($el).to.contain("Mennyt");
+        expect($el).to.contain("Hyväksytty");
       });
-
-    redoReservationButton().eq(0).click();
-
-    cy.url({ timeout: 20000 }).should("match", /\/reservation-unit\/1$/);
-
-    hzNavigationBack().should("exist");
   });
 
   it("should display reservation detail view with company reservee", () => {
@@ -105,7 +97,7 @@ describe("Tilavaraus user reservations", () => {
 
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/11$/);
 
-    detailCancelButton().should("be.disabled");
+    detailCancelButton().should("not.exist");
 
     reservationContent().find("h1").should("contain", "Varaus 11");
     reservationContent().find("h2").should("contain", "Toimistohuone 1");
@@ -162,7 +154,7 @@ describe("Tilavaraus user reservations", () => {
 
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
 
-    detailCancelButton().should("be.disabled");
+    detailCancelButton().should("not.exist");
 
     reservationContent().find("h1").should("contain", "Varaus 4");
     reservationContent().find("h2").should("contain", "Toimistohuone 1");
@@ -219,12 +211,13 @@ describe("Tilavaraus user reservations", () => {
     detailCancelButton().click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
 
-    cancelTitle().eq(0).should("have.text", "Toimistohuone 1");
-    cancelTitle().eq(1).should("have.text", "Peruuta varaus");
+    cancelTitle().should("have.text", "Peru varaus");
     cancelCancelButton().should("be.disabled");
 
     backButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations$/);
+    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
+
+    cy.visit("/reservations");
 
     detailButton().eq(4).click();
     detailCancelButton().click();
@@ -240,16 +233,13 @@ describe("Tilavaraus user reservations", () => {
     customReasonInput().type("A reason");
 
     cancelCancelButton().click();
-    cancelTitle().eq(1).should("have.text", "Varaus on peruutettu");
+    cancelTitle().should("have.text", "Varaus on peruttu!");
 
-    reservationPriceContainer()
-      .should("contain.text", "Varaus 2 t")
+    reservationInfoCard()
+      .should("contain.text", "Kesto: 2 t")
       // .should("contain.text", "(alv %)")
-      .should("contain.text", "42,00\u00a0€");
+      .should("contain.text", "Hinta: 42\u00a0€");
 
     secondBackButton().should("exist");
-    reReserveButton().click();
-
-    cy.url({ timeout: 20000 }).should("match", /\/reservation-unit\/9$/);
   });
 });
