@@ -1565,6 +1565,7 @@ const translations: ITranslations = {
       applicant: ["Tilan käyttäjä"],
       name: ["Varauksen nimi"],
       price: ["Hinta"],
+      paymentStatus: ["Maksutila"],
       state: ["Varauksen tila"],
     },
   },
@@ -1606,6 +1607,7 @@ const translations: ITranslations = {
     maxPrice: ["Hinta enintään"],
     begin: ["Alkaen"],
     end: ["Asti"],
+    paymentStatus: ["Maksutila"],
     filters: {
       minPriceTag: ["Hinta vähintään: {{value}}"],
       maxPriceTag: ["Hinta enintään: {{value}}"],
