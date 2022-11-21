@@ -47,6 +47,7 @@ export const RESERVATION_QUERY = gql`
           status
         }
       }
+      orderStatus
       ageGroup {
         minimum
         maximum
@@ -58,6 +59,7 @@ export const RESERVATION_QUERY = gql`
         nameFi
       }
       price
+      taxPercentageValue
       numPersons
       reserveeType
       reserveeIsUnregisteredAssociation
