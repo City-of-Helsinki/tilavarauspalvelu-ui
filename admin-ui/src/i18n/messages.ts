@@ -1569,6 +1569,16 @@ const translations: ITranslations = {
       state: ["Varauksen tila"],
     },
   },
+  Payment: {
+    status: {
+      DRAFT: ["Odottaa"],
+      EXPIRED: ["Rauennut"],
+      CANCELLED: ["Peruutettu"],
+      PAID: ["Maksettu"],
+      PAID_MANUALLY: ["Paikan päällä"],
+      REFUNDED: ["Hyvitetty"],
+    },
+  },
   Calendar: {
     legend: {
       currentRequiresHandling: ["Varaajan toive"],
@@ -1596,6 +1606,7 @@ const translations: ITranslations = {
       reservationUnit: ["Varausyksikkö"],
       unit: ["Toimipiste"],
       datetime: ["Aika"],
+      paymentStatus: ["Maksutila"],
       state: ["Käsittelytila"],
     },
   },
