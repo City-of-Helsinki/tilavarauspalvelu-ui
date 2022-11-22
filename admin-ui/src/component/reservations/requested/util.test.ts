@@ -7,7 +7,7 @@ import {
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitsReservationUnitPricingStatusChoices,
   ReservationUnitType,
-} from "../../../common/gql-types";
+} from "common/types/gql-types";
 
 describe("pricingDetails", () => {
   test("renders fixed price", () => {
