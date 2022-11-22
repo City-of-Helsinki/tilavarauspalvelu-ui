@@ -62,7 +62,7 @@ docker exec -ti tilavarauspalvelu-core_dev_1 python manage.py createsuperuser
 
 ### Graphql workflow
 
-When server has new api changes -> update schema & generate new types by running: `yarn update-schema generate-gql-types`
+When server has new api changes -> update schema & generate new types by running: `yarn update-schema generate-gql-types` in common module.
 
 - Protip for VSCode users: install https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql to get autocomplete suggestions and query validation when writing queries.
 
