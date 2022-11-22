@@ -17,7 +17,7 @@ import {
   QueryReservationUnitsArgs,
   ReservationUnitsReservationUnitReservationKindChoices,
   ReservationUnitType,
-} from "common/src/common/style";
+} from "common/types/gql-types";
 import Container from "../../components/common/Container";
 import SearchForm from "../../components/single-search/SearchForm";
 import { capitalize, singleSearchUrl } from "../../modules/util";
