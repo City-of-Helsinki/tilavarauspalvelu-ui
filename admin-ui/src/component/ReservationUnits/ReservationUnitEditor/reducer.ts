@@ -23,6 +23,7 @@ import {
   ReservationUnitEditorType,
   State,
 } from "./types";
+
 export const getInitialState = (reservationUnitPk: number): State => ({
   cancellationRuleOptions: [],
   cancellationTermsOptions: [],
