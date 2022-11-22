@@ -35,13 +35,15 @@ yarn start
 
 ### When GQL api changes and you need to update the Typescript types
 
+Go to common module and run
+
 ```
 yarn generate-gql-types
 ```
 
 ### Access with browser
 
-UI is at https://local-tilavaraus.hel.fi:3000/
+UI is at https://local-tilavaraus.hel.fi:3000/kasittely
 Backend is at http://127.0.0.1:8000/v1/
 
 The UI development server exposes the proxied backend at http://127.0.0.1:3000/api/ which the UI uses.
