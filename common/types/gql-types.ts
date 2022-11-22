@@ -1,4 +1,3 @@
-import { gql } from "@apollo/client";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = {
@@ -1094,6 +1093,7 @@ export type LocationType = Node & {
 
 export type Mutation = {
   __typename?: "Mutation";
+  adjustReservationTime?: Maybe<ReservationAdjustTimeMutationPayload>;
   approveReservation?: Maybe<ReservationApproveMutationPayload>;
   cancelReservation?: Maybe<ReservationCancellationMutationPayload>;
   confirmReservation?: Maybe<ReservationConfirmMutationPayload>;
@@ -1134,6 +1134,10 @@ export type Mutation = {
   updateSpace?: Maybe<SpaceUpdateMutationPayload>;
   updateUnit?: Maybe<UnitUpdateMutationPayload>;
   updateUser?: Maybe<UserUpdateMutationPayload>;
+};
+
+export type MutationAdjustReservationTimeArgs = {
+  input: ReservationAdjustTimeMutationInput;
 };
 
 export type MutationApproveReservationArgs = {
@@ -1366,6 +1370,20 @@ export type PaymentMerchantType = Node & {
   pk?: Maybe<Scalars["String"]>;
 };
 
+export type PaymentOrderType = Node & {
+  __typename?: "PaymentOrderType";
+  checkoutUrl?: Maybe<Scalars["String"]>;
+  /** The ID of the object */
+  id: Scalars["ID"];
+  orderUuid?: Maybe<Scalars["String"]>;
+  paymentType?: Maybe<Scalars["String"]>;
+  pk?: Maybe<Scalars["Int"]>;
+  processedAt?: Maybe<Scalars["DateTime"]>;
+  receiptUrl?: Maybe<Scalars["String"]>;
+  reservationPk?: Maybe<Scalars["String"]>;
+  status?: Maybe<Scalars["String"]>;
+};
+
 export type PaymentProductType = Node & {
   __typename?: "PaymentProductType";
   /** The ID of the object */
@@ -1524,6 +1542,7 @@ export type Query = {
   keywordGroups?: Maybe<KeywordGroupTypeConnection>;
   keywords?: Maybe<KeywordTypeConnection>;
   metadataSets?: Maybe<ReservationMetadataSetTypeConnection>;
+  order?: Maybe<PaymentOrderType>;
   purposes?: Maybe<PurposeTypeConnection>;
   qualifiers?: Maybe<QualifierTypeConnection>;
   reservationByPk?: Maybe<ReservationType>;
@@ -1703,6 +1722,10 @@ export type QueryMetadataSetsArgs = {
   offset?: InputMaybe<Scalars["Int"]>;
 };
 
+export type QueryOrderArgs = {
+  orderUuid?: InputMaybe<Scalars["String"]>;
+};
+
 export type QueryPurposesArgs = {
   after?: InputMaybe<Scalars["String"]>;
   before?: InputMaybe<Scalars["String"]>;
@@ -1827,6 +1850,7 @@ export type QueryReservationsArgs = {
   offset?: InputMaybe<Scalars["Int"]>;
   onlyWithPermission?: InputMaybe<Scalars["Boolean"]>;
   orderBy?: InputMaybe<Scalars["String"]>;
+  paymentStatus?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   priceGte?: InputMaybe<Scalars["Float"]>;
   priceLte?: InputMaybe<Scalars["Float"]>;
   requested?: InputMaybe<Scalars["Boolean"]>;
@@ -1968,13 +1992,34 @@ export type RecurringReservationType = {
   user?: Maybe<Scalars["String"]>;
 };
 
+export type ReservationAdjustTimeMutationInput = {
+  begin: Scalars["DateTime"];
+  clientMutationId?: InputMaybe<Scalars["String"]>;
+  end: Scalars["DateTime"];
+  pk: Scalars["Int"];
+  state?: InputMaybe<State>;
+};
+
+export type ReservationAdjustTimeMutationPayload = {
+  __typename?: "ReservationAdjustTimeMutationPayload";
+  begin?: Maybe<Scalars["DateTime"]>;
+  clientMutationId?: Maybe<Scalars["String"]>;
+  end?: Maybe<Scalars["DateTime"]>;
+  /** May contain more than one error for same field. */
+  errors?: Maybe<Array<Maybe<ErrorType>>>;
+  pk?: Maybe<Scalars["Int"]>;
+  state?: Maybe<State>;
+};
+
 export type ReservationApproveMutationInput = {
   clientMutationId?: InputMaybe<Scalars["String"]>;
   /** Additional information for approval. */
-  handlingDetails?: InputMaybe<Scalars["String"]>;
+  handlingDetails: Scalars["String"];
   pk?: InputMaybe<Scalars["Int"]>;
   /** The price of this particular reservation including VAT */
   price: Scalars["Float"];
+  /** The price of this particular reservation excluding VAT */
+  priceNet: Scalars["Float"];
 };
 
 export type ReservationApproveMutationPayload = {
@@ -1989,6 +2034,8 @@ export type ReservationApproveMutationPayload = {
   pk?: Maybe<Scalars["Int"]>;
   /** The price of this particular reservation including VAT */
   price?: Maybe<Scalars["Float"]>;
+  /** The price of this particular reservation excluding VAT */
+  priceNet?: Maybe<Scalars["Float"]>;
   state?: Maybe<State>;
 };
 
@@ -2077,6 +2124,7 @@ export type ReservationConfirmMutationPayload = {
   /** The non subsidised price of this reservation excluding VAT */
   nonSubsidisedPriceNet?: Maybe<Scalars["Float"]>;
   numPersons?: Maybe<Scalars["Int"]>;
+  order?: Maybe<PaymentOrderType>;
   /** Type of the payment. Possible values are ONLINE, INVOICE, ON_SITE. */
   paymentType?: Maybe<Scalars["String"]>;
   pk?: Maybe<Scalars["Int"]>;
@@ -2102,10 +2150,7 @@ export type ReservationConfirmMutationPayload = {
   reserveeType?: Maybe<Scalars["String"]>;
   /** Indicates if reservation is internal or created by staff */
   staffEvent?: Maybe<Scalars["Boolean"]>;
-  /**
-   * String value for ReservationType's ReservationState enum. Possible values are
-   * CREATED, CANCELLED, REQUIRES_HANDLING, WAITING_FOR_PAYMENT, CONFIRMED, DENIED.
-   */
+  /** String value for ReservationType's ReservationState enum. Possible values are CREATED, CANCELLED, REQUIRES_HANDLING, WAITING_FOR_PAYMENT, CONFIRMED, DENIED. */
   state?: Maybe<Scalars["String"]>;
   /** The value of the tax percentage for this particular reservation */
   taxPercentageValue?: Maybe<Scalars["Float"]>;
@@ -2366,6 +2411,8 @@ export type ReservationType = Node & {
   id: Scalars["ID"];
   name?: Maybe<Scalars["String"]>;
   numPersons?: Maybe<Scalars["Int"]>;
+  orderStatus?: Maybe<Scalars["String"]>;
+  orderUuid?: Maybe<Scalars["String"]>;
   pk?: Maybe<Scalars["Int"]>;
   price?: Maybe<Scalars["Float"]>;
   /** The price of this particular reservation excluding VAT */
@@ -2493,12 +2540,7 @@ export type ReservationUnitByPkType = Node & {
   reservationPendingInstructionsEn?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsFi?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsSv?: Maybe<Scalars["String"]>;
-  /**
-   * Determines the interval for the start time of the reservation. For example an
-   * interval of 15 minutes means a reservation can begin at minutes 15, 30, 60, or
-   * 90. Possible values are interval_15_mins, interval_30_mins, interval_60_mins,
-   * interval_90_mins.
-   */
+  /** Determines the interval for the start time of the reservation. For example an interval of 15 minutes means a reservation can begin at minutes 15, 30, 60, or 90. Possible values are interval_15_mins, interval_30_mins, interval_60_mins, interval_90_mins. */
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
   reservationUnitType?: Maybe<ReservationUnitTypeType>;
   reservations?: Maybe<Array<Maybe<ReservationType>>>;
@@ -2631,20 +2673,12 @@ export type ReservationUnitCreateMutationInput = {
   reservationConfirmedInstructionsSv?: InputMaybe<Scalars["String"]>;
   /** Time when making reservations become not possible for this reservation unit */
   reservationEnds?: InputMaybe<Scalars["DateTime"]>;
-  /**
-   * What kind of reservations are to be made to this is reservation unit. Possible
-   * values are: DIRECT, SEASON, DIRECT_AND_SEASON.
-   */
+  /** What kind of reservations are to be made to this is reservation unit. Possible values are: DIRECT, SEASON, DIRECT_AND_SEASON. */
   reservationKind?: InputMaybe<Scalars["String"]>;
   reservationPendingInstructionsEn?: InputMaybe<Scalars["String"]>;
   reservationPendingInstructionsFi?: InputMaybe<Scalars["String"]>;
   reservationPendingInstructionsSv?: InputMaybe<Scalars["String"]>;
-  /**
-   * Determines the interval for the start time of the reservation. For example an
-   * interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or
-   * 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS,
-   * INTERVAL_90_MINS.
-   */
+  /** Determines the interval for the start time of the reservation. For example an interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS, INTERVAL_90_MINS. */
   reservationStartInterval?: InputMaybe<Scalars["String"]>;
   reservationUnitTypePk?: InputMaybe<Scalars["Int"]>;
   reservationsMaxDaysBefore?: InputMaybe<Scalars["Int"]>;
@@ -2728,20 +2762,12 @@ export type ReservationUnitCreateMutationPayload = {
   reservationConfirmedInstructionsSv?: Maybe<Scalars["String"]>;
   /** Time when making reservations become not possible for this reservation unit */
   reservationEnds?: Maybe<Scalars["DateTime"]>;
-  /**
-   * What kind of reservations are to be made to this is reservation unit. Possible
-   * values are: DIRECT, SEASON, DIRECT_AND_SEASON.
-   */
+  /** What kind of reservations are to be made to this is reservation unit. Possible values are: DIRECT, SEASON, DIRECT_AND_SEASON. */
   reservationKind?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsEn?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsFi?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsSv?: Maybe<Scalars["String"]>;
-  /**
-   * Determines the interval for the start time of the reservation. For example an
-   * interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or
-   * 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS,
-   * INTERVAL_90_MINS.
-   */
+  /** Determines the interval for the start time of the reservation. For example an interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS, INTERVAL_90_MINS. */
   reservationStartInterval?: Maybe<Scalars["String"]>;
   reservationUnit?: Maybe<ReservationUnitType>;
   /** Type of the reservation unit as nested related object. */
@@ -2988,12 +3014,7 @@ export type ReservationUnitType = Node & {
   reservationPendingInstructionsEn?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsFi?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsSv?: Maybe<Scalars["String"]>;
-  /**
-   * Determines the interval for the start time of the reservation. For example an
-   * interval of 15 minutes means a reservation can begin at minutes 15, 30, 60, or
-   * 90. Possible values are interval_15_mins, interval_30_mins, interval_60_mins,
-   * interval_90_mins.
-   */
+  /** Determines the interval for the start time of the reservation. For example an interval of 15 minutes means a reservation can begin at minutes 15, 30, 60, or 90. Possible values are interval_15_mins, interval_30_mins, interval_60_mins, interval_90_mins. */
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
   reservationUnitType?: Maybe<ReservationUnitTypeType>;
   reservations?: Maybe<Array<Maybe<ReservationType>>>;
@@ -3135,20 +3156,12 @@ export type ReservationUnitUpdateMutationInput = {
   reservationConfirmedInstructionsSv?: InputMaybe<Scalars["String"]>;
   /** Time when making reservations become not possible for this reservation unit */
   reservationEnds?: InputMaybe<Scalars["DateTime"]>;
-  /**
-   * What kind of reservations are to be made to this is reservation unit. Possible
-   * values are: DIRECT, SEASON, DIRECT_AND_SEASON.
-   */
+  /** What kind of reservations are to be made to this is reservation unit. Possible values are: DIRECT, SEASON, DIRECT_AND_SEASON. */
   reservationKind?: InputMaybe<Scalars["String"]>;
   reservationPendingInstructionsEn?: InputMaybe<Scalars["String"]>;
   reservationPendingInstructionsFi?: InputMaybe<Scalars["String"]>;
   reservationPendingInstructionsSv?: InputMaybe<Scalars["String"]>;
-  /**
-   * Determines the interval for the start time of the reservation. For example an
-   * interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or
-   * 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS,
-   * INTERVAL_90_MINS.
-   */
+  /** Determines the interval for the start time of the reservation. For example an interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS, INTERVAL_90_MINS. */
   reservationStartInterval?: InputMaybe<Scalars["String"]>;
   reservationUnitTypePk?: InputMaybe<Scalars["Int"]>;
   reservationsMaxDaysBefore?: InputMaybe<Scalars["Int"]>;
@@ -3231,20 +3244,12 @@ export type ReservationUnitUpdateMutationPayload = {
   reservationConfirmedInstructionsSv?: Maybe<Scalars["String"]>;
   /** Time when making reservations become not possible for this reservation unit */
   reservationEnds?: Maybe<Scalars["DateTime"]>;
-  /**
-   * What kind of reservations are to be made to this is reservation unit. Possible
-   * values are: DIRECT, SEASON, DIRECT_AND_SEASON.
-   */
+  /** What kind of reservations are to be made to this is reservation unit. Possible values are: DIRECT, SEASON, DIRECT_AND_SEASON. */
   reservationKind?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsEn?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsFi?: Maybe<Scalars["String"]>;
   reservationPendingInstructionsSv?: Maybe<Scalars["String"]>;
-  /**
-   * Determines the interval for the start time of the reservation. For example an
-   * interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or
-   * 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS,
-   * INTERVAL_90_MINS.
-   */
+  /** Determines the interval for the start time of the reservation. For example an interval of 15 minutes means a reservation can begin at minutes 0, 15, 30, or 45. Possible values are INTERVAL_15_MINS, INTERVAL_30_MINS, INTERVAL_60_MINS, INTERVAL_90_MINS. */
   reservationStartInterval?: Maybe<Scalars["String"]>;
   reservationUnit?: Maybe<ReservationUnitType>;
   /** Type of the reservation unit as nested related object. */
@@ -3411,10 +3416,7 @@ export type ReservationUpdateMutationInput = {
   reserveeType?: InputMaybe<Scalars["String"]>;
   /** Indicates if reservation is internal or created by staff */
   staffEvent?: InputMaybe<Scalars["Boolean"]>;
-  /**
-   * String value for ReservationType's ReservationState enum. Possible values are
-   * CREATED, CANCELLED, REQUIRES_HANDLING, WAITING_FOR_PAYMENT, CONFIRMED, DENIED.
-   */
+  /** String value for ReservationType's ReservationState enum. Possible values are CREATED, CANCELLED, REQUIRES_HANDLING, WAITING_FOR_PAYMENT, CONFIRMED, DENIED. */
   state?: InputMaybe<Scalars["String"]>;
   /** Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED. */
   type?: InputMaybe<Scalars["String"]>;
@@ -3472,10 +3474,7 @@ export type ReservationUpdateMutationPayload = {
   reserveeType?: Maybe<Scalars["String"]>;
   /** Indicates if reservation is internal or created by staff */
   staffEvent?: Maybe<Scalars["Boolean"]>;
-  /**
-   * String value for ReservationType's ReservationState enum. Possible values are
-   * CREATED, CANCELLED, REQUIRES_HANDLING, WAITING_FOR_PAYMENT, CONFIRMED, DENIED.
-   */
+  /** String value for ReservationType's ReservationState enum. Possible values are CREATED, CANCELLED, REQUIRES_HANDLING, WAITING_FOR_PAYMENT, CONFIRMED, DENIED. */
   state?: Maybe<Scalars["String"]>;
   /** The value of the tax percentage for this particular reservation */
   taxPercentageValue?: Maybe<Scalars["Float"]>;
@@ -3541,15 +3540,9 @@ export enum ReservationsReservationStateChoices {
 }
 
 export type ResourceCreateMutationInput = {
-  /**
-   * Buffer time while reservation unit is unreservable after the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable after the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeAfter?: InputMaybe<Scalars["Int"]>;
-  /**
-   * Buffer time while reservation unit is unreservable before the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable before the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeBefore?: InputMaybe<Scalars["Int"]>;
   clientMutationId?: InputMaybe<Scalars["String"]>;
   locationType?: InputMaybe<Scalars["String"]>;
@@ -3562,15 +3555,9 @@ export type ResourceCreateMutationInput = {
 
 export type ResourceCreateMutationPayload = {
   __typename?: "ResourceCreateMutationPayload";
-  /**
-   * Buffer time while reservation unit is unreservable after the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable after the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
-  /**
-   * Buffer time while reservation unit is unreservable before the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable before the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeBefore?: Maybe<Scalars["Int"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
   /** May contain more than one error for same field. */
@@ -3631,15 +3618,9 @@ export type ResourceTypeEdge = {
 };
 
 export type ResourceUpdateMutationInput = {
-  /**
-   * Buffer time while reservation unit is unreservable after the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable after the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeAfter?: InputMaybe<Scalars["Int"]>;
-  /**
-   * Buffer time while reservation unit is unreservable before the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable before the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeBefore?: InputMaybe<Scalars["Int"]>;
   clientMutationId?: InputMaybe<Scalars["String"]>;
   locationType?: InputMaybe<Scalars["String"]>;
@@ -3653,15 +3634,9 @@ export type ResourceUpdateMutationInput = {
 
 export type ResourceUpdateMutationPayload = {
   __typename?: "ResourceUpdateMutationPayload";
-  /**
-   * Buffer time while reservation unit is unreservable after the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable after the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeAfter?: Maybe<Scalars["Int"]>;
-  /**
-   * Buffer time while reservation unit is unreservable before the reservation.
-   * Dynamically calculated from spaces and resources.
-   */
+  /** Buffer time while reservation unit is unreservable before the reservation. Dynamically calculated from spaces and resources. */
   bufferTimeBefore?: Maybe<Scalars["Int"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
   /** May contain more than one error for same field. */
