@@ -10,7 +10,7 @@
     "start": "HOST=local-tilavaraus.hel.fi HTTPS=true SSL_CRT_FILE=../common/certificates/local-tilavaraus.crt SSL_KEY_FILE=../common/certificates/local-tilavaraus.key react-app-rewired start",
     "test": "react-app-rewired test",
     "test:e2e-local": "testcafe --skip-js-errors \"chrome --window-size='1920,1080'\" e2e/tests",
-    "ts-check": "tsc --noEmit --project tsconfig.json",
+    "ts-check": "tsc --noEmit --project tsconfig.json"
   },
   "husky": {
     "hooks": {
