@@ -6,6 +6,11 @@ import { useTranslation } from "react-i18next";
 import { DeepMap, FieldError } from "react-hook-form";
 import styled from "styled-components";
 import { Checkbox, IconArrowLeft, IconArrowRight } from "hds-react";
+import {
+  ReservationsReservationReserveeTypeChoices,
+  ReservationUnitType,
+  TermsOfUseType,
+} from "common/types/gql-types";
 import { Inputs, Reservation } from "../../modules/types";
 import {
   applicationErrorText,
@@ -15,11 +20,6 @@ import {
 import { ActionContainer, Subheading, TwoColumnContainer } from "./styles";
 import { AccordionWithState as Accordion } from "../common/Accordion";
 import Sanitize from "../common/Sanitize";
-import {
-  ReservationsReservationReserveeTypeChoices,
-  ReservationUnitType,
-  TermsOfUseType,
-} from "../../modules/gql-types";
 import { MediumButton } from "../../styles/util";
 
 type Props = {

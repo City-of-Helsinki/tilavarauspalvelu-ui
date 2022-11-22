@@ -27,7 +27,7 @@ import {
   SpaceType,
   UnitType,
   ReservationsReservationReserveeTypeChoices,
-} from "../../modules/gql-types";
+} from "common/types/gql-types";
 
 const createReservation = graphql.mutation<
   { createReservation: ReservationCreateMutationPayload },
