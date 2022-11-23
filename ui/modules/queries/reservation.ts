@@ -183,6 +183,7 @@ export const GET_RESERVATION = gql`
       state
       price
       priceNet
+      taxPercentageValue
       reservationUnits {
         pk
         nameFi

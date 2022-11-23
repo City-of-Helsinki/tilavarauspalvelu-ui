@@ -255,6 +255,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
           <ReservationInfoCard
             reservation={reservation}
             reservationUnit={reservationUnit}
+            type="confirmed"
           />
           <SecondaryActions>
             <Link href={reservation.calendarUrl} passHref>

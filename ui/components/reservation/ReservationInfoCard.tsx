@@ -1,9 +1,9 @@
-import { getReservationPrice } from "common";
+import { getReservationPrice, formatters as getFormatters } from "common";
 import { breakpoints } from "common/src/common/style";
-import { H4 } from "common/src/common/typography";
+import { H4, Strong } from "common/src/common/typography";
 import { differenceInMinutes, parseISO } from "date-fns";
 import { trim } from "lodash";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
@@ -22,10 +22,11 @@ import {
 type Props = {
   reservation: ReservationType;
   reservationUnit: ReservationUnitType | ReservationUnitByPkType;
+  type: "pending" | "confirmed";
 };
 
 const Wrapper = styled.div`
-  background-color: var(--color-silver-light);
+  background-color: var(--color-gold-light);
 `;
 
 const MainImage = styled.img`
@@ -46,19 +47,27 @@ const Content = styled.div`
 
 const Heading = styled(H4).attrs({ as: "h3" })`
   margin-top: var(--spacing-m);
+  margin-bottom: var(--spacing-xs);
 `;
 
 const Value = styled.div`
   margin-bottom: var(--spacing-s);
+  line-height: var(--lineheight-l);
+`;
+
+const Subheading = styled(Value)`
+  font-size: var(--fontsize-body-l);
+  line-height: var(--lineheight-xl);
 `;
 
 const ReservationInfoCard = ({
   reservation,
   reservationUnit,
+  type,
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const { begin, end } = reservation;
+  const { begin, end, taxPercentageValue } = reservation;
 
   const beginDate = t("common:dateWithWeekday", {
     date: begin && parseISO(begin),
@@ -87,24 +96,15 @@ const ReservationInfoCard = ({
 
   const mainImage = getMainImage(reservationUnit);
 
-  const heading = trim(
-    `${reservation.name} / ${getTranslation(reservationUnit, "name")}`,
-    " / "
-  );
-
-  const ageGroup = trim(
-    `${reservation.ageGroup?.minimum || ""} - ${
-      reservation.ageGroup?.maximum || ""
-    }`,
-    " - "
-  );
-
-  const purpose = getTranslation(reservation.purpose, "name");
-
   const price =
     reservation.state === "REQUIRES_HANDLING"
       ? getReservationUnitPrice(reservationUnit)
       : getReservationPrice(reservation.price, t("prices:priceFree"));
+
+  const formatters = useMemo(
+    () => getFormatters(i18n.language),
+    [i18n.language]
+  );
 
   return (
     <Wrapper>
@@ -115,36 +115,33 @@ const ReservationInfoCard = ({
         />
       )}
       <Content data-testid="reservation__reservation-info-card__content">
-        <Heading>{heading}</Heading>
+        <Heading>{getTranslation(reservationUnit, "name")}</Heading>
+        {type === "confirmed" && (
+          <Subheading>
+            {t("reservations:reservationNumber")}: {reservation.pk}
+          </Subheading>
+        )}
+        <Subheading>{getTranslation(reservationUnit.unit, "name")}</Subheading>
         <Value>
-          {t("reservations:reservationNumber")}: {reservation.pk}
+          <Strong>
+            {capitalize(timeString)}, {formatDurationMinutes(duration)}
+          </Strong>
         </Value>
-        <Value>{capitalize(timeString)}</Value>
-        <Value>
-          {t("reservationCalendar:duration")}: {formatDurationMinutes(duration)}
-        </Value>
-        <Value>
-          {t("reservationCalendar:label.description")}:{" "}
-          {reservation.description}
-        </Value>
-        <Value>
-          {t("reservationUnit:price")}: {price}
-        </Value>
-        {purpose && (
+        {reservation.description && type === "confirmed" && (
           <Value>
-            {t("reservations:purpose")}: {purpose}
+            {t("reservationCalendar:label.description")}:{" "}
+            {reservation.description}
           </Value>
         )}
-        {ageGroup && (
-          <Value>
-            {t("reservations:ageGroup")}: {ageGroup}
-          </Value>
-        )}
-        {reservation.numPersons > 0 && (
-          <Value>
-            {t("reservations:numPersons")}: {reservation.numPersons}
-          </Value>
-        )}
+        <Value>
+          {t("reservationUnit:price")}: <Strong>{price}</Strong>{" "}
+          {taxPercentageValue &&
+            `(${t("common:inclTax", {
+              taxPercentage: formatters.strippedDecimal.format(
+                reservation.taxPercentageValue
+              ),
+            })})`}
+        </Value>
       </Content>
     </Wrapper>
   );

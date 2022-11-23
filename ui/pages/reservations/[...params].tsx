@@ -234,6 +234,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
           <ReservationInfoCard
             reservation={reservation}
             reservationUnit={reservationUnit}
+            type="confirmed"
           />
         </>
       )

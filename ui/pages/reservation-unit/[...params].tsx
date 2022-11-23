@@ -59,7 +59,6 @@ import {
 } from "../../modules/reservation";
 import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
 import { DataContext, ReservationProps } from "../../context/DataContext";
-import PendingReservationInfoCard from "../../components/reservation/PendingReservationInfoCard";
 import Container from "../../components/common/Container";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import { Subheading } from "../../components/reservation/styles";
@@ -518,13 +517,15 @@ const ReservationUnitReservation = ({
             <ReservationInfoCard
               reservation={reservation as unknown as ReservationType}
               reservationUnit={reservationUnit}
+              type="confirmed"
             />
           </div>
         ) : (
           <div>
-            <PendingReservationInfoCard
+            <ReservationInfoCard
               reservation={reservation || reservationData}
               reservationUnit={reservationUnit}
+              type="pending"
             />
             <PinkBox>
               <Subheading>
