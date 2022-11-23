@@ -324,7 +324,7 @@ const ReservationUnitReservation = ({
       if (deleteError) {
         setDataContext(null);
         setPendingReservation(null);
-        router.push(`${reservationUnitPrefix}/${reservationUnit.pk}?error=1`);
+        router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
       } else if (deleteData) {
         setDataContext(null);
         setPendingReservation(null);
