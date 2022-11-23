@@ -11,7 +11,7 @@
     "test:browser": "CYPRESS_BASE_URL=https://local-tilavaraus.hel.fi:3000 TZ=Europe/Helsinki ./node_modules/.bin/cypress open",
     "lint": "eslint --ext ts,tsx .",
     "lint:css": "stylelint '**/*.tsx'",
-    "ts-check": "tsc --noEmit --project tsconfig.json",
+    "ts-check": "tsc --noEmit --project tsconfig.json"
   },
   "dependencies": {
     "@apollo/client": "^3.4.13",
