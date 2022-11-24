@@ -168,8 +168,7 @@ export const getFuturePricing = (
   applicationRounds: ApplicationRound[] = [],
   reservationDate?: Date
 ): ReservationUnitPricingType => {
-  const { pricings, reservationBegins, reservationEnds, openingHours } =
-    reservationUnit;
+  const { pricings, reservationBegins, reservationEnds } = reservationUnit;
 
   if (!pricings || pricings.length === 0) {
     return null;
