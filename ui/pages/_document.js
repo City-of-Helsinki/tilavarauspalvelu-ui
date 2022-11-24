@@ -50,6 +50,7 @@ export default class MyDocument extends Document {
             // eslint-disable-next-line react/no-danger, @typescript-eslint/naming-convention
             dangerouslySetInnerHTML={{ __html: hdsCriticalRules }}
           />
+          <meta name="color-scheme" content="light only" />
           <meta name="theme-color" content="#0000bf" />
         </Head>
         <body>
