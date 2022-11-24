@@ -1123,6 +1123,7 @@ export type Mutation = {
   denyReservation?: Maybe<ReservationDenyMutationPayload>;
   flagApplication?: Maybe<ApplicationFlagMutationPayload>;
   flagApplicationEvent?: Maybe<ApplicationEventFlagMutationPayload>;
+  refreshOrder?: Maybe<RefreshOrderMutationPayload>;
   requireHandlingForReservation?: Maybe<ReservationRequiresHandlingMutationPayload>;
   updateApplication?: Maybe<ApplicationUpdateMutationPayload>;
   updateApplicationEvent?: Maybe<ApplicationEventUpdateMutationPayload>;
@@ -1246,6 +1247,10 @@ export type MutationFlagApplicationArgs = {
 
 export type MutationFlagApplicationEventArgs = {
   input: ApplicationEventFlagMutationInput;
+};
+
+export type MutationRefreshOrderArgs = {
+  input: RefreshOrderMutationInput;
 };
 
 export type MutationRequireHandlingForReservationArgs = {
@@ -1998,6 +2003,18 @@ export type RecurringReservationType = {
   applicationPk?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
   user?: Maybe<Scalars["String"]>;
+};
+
+export type RefreshOrderMutationInput = {
+  clientMutationId?: InputMaybe<Scalars["String"]>;
+  orderUuid: Scalars["UUID"];
+};
+
+export type RefreshOrderMutationPayload = {
+  __typename?: "RefreshOrderMutationPayload";
+  clientMutationId?: Maybe<Scalars["String"]>;
+  orderUuid?: Maybe<Scalars["UUID"]>;
+  status?: Maybe<Scalars["String"]>;
 };
 
 export type ReservationAdjustTimeMutationInput = {
@@ -4978,6 +4995,57 @@ export type UpdateReservationMutationOptions = Apollo.BaseMutationOptions<
   UpdateReservationMutation,
   UpdateReservationMutationVariables
 >;
+export const DeleteReservationDocument = gql`
+  mutation deleteReservation($input: ReservationDeleteMutationInput!) {
+    deleteReservation(input: $input) {
+      deleted
+      errors
+    }
+  }
+`;
+export type DeleteReservationMutationFn = Apollo.MutationFunction<
+  DeleteReservationMutation,
+  DeleteReservationMutationVariables
+>;
+
+/**
+ * __useDeleteReservationMutation__
+ *
+ * To run a mutation, you first call `useDeleteReservationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteReservationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteReservationMutation, { data, loading, error }] = useDeleteReservationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteReservationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteReservationMutation,
+    DeleteReservationMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    DeleteReservationMutation,
+    DeleteReservationMutationVariables
+  >(DeleteReservationDocument, options);
+}
+export type DeleteReservationMutationHookResult = ReturnType<
+  typeof useDeleteReservationMutation
+>;
+export type DeleteReservationMutationResult =
+  Apollo.MutationResult<DeleteReservationMutation>;
+export type DeleteReservationMutationOptions = Apollo.BaseMutationOptions<
+  DeleteReservationMutation,
+  DeleteReservationMutationVariables
+>;
 export const CancelReservationDocument = gql`
   mutation cancelReservation($input: ReservationCancellationMutationInput!) {
     cancelReservation(input: $input) {
@@ -6521,6 +6589,19 @@ export type UpdateReservationMutation = {
       field: string;
       messages: Array<string>;
     } | null> | null;
+  } | null;
+};
+
+export type DeleteReservationMutationVariables = Exact<{
+  input: ReservationDeleteMutationInput;
+}>;
+
+export type DeleteReservationMutation = {
+  __typename?: "Mutation";
+  deleteReservation?: {
+    __typename?: "ReservationDeleteMutationPayload";
+    deleted?: boolean | null;
+    errors?: string | null;
   } | null;
 };
 
