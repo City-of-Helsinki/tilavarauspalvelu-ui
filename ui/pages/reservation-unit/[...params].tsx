@@ -93,6 +93,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     >({
       query: RESERVATION_UNIT,
       variables: { pk: id },
+      fetchPolicy: "no-cache",
     });
 
     const { data: genericTermsData } = await apolloClient.query<
@@ -425,16 +426,27 @@ const ReservationUnitReservation = ({
   }, [reservationUnit?.metadataSet?.supportedFields]);
 
   const reservationApplicationFields = useMemo(() => {
+    const type = reservationUnit.metadataSet?.supportedFields?.includes(
+      "reservee_type"
+    )
+      ? reserveeType
+      : ReservationsReservationReserveeTypeChoices.Individual;
+
     return getReservationApplicationFields(
       reservationUnit.metadataSet?.supportedFields,
-      reserveeType,
+      type,
       true
     );
   }, [reservationUnit?.metadataSet?.supportedFields, reserveeType]);
 
   const onSubmitApplication1 = useCallback(
     (payload): void => {
-      if (!reserveeType) {
+      if (
+        reservationUnit?.metadataSet?.supportedFields.includes(
+          "reservee_type"
+        ) &&
+        !reserveeType
+      ) {
         setErrorMsg(t("reservationApplication:errors.noFormType"));
         return;
       }
@@ -450,7 +462,9 @@ const ReservationUnitReservation = ({
       const input = getReservationApplicationMutationValues(
         normalizedPayload,
         reservationUnit.metadataSet?.supportedFields,
-        reserveeType
+        reservationUnit?.metadataSet?.supportedFields.includes("reservee_type")
+          ? reserveeType
+          : ReservationsReservationReserveeTypeChoices.Individual
       );
 
       updateReservation({
@@ -580,6 +594,7 @@ const ReservationUnitReservation = ({
                   reservationApplicationFields={reservationApplicationFields}
                   options={options}
                   reserveeType={reserveeType}
+                  steps={steps}
                   setStep={setStep}
                   register={register}
                   errors={errors}

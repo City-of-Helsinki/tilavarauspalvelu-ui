@@ -19,14 +19,18 @@ import {
   getTranslation,
 } from "../../modules/util";
 
+type Type = "pending" | "confirmed" | "complete";
+
 type Props = {
   reservation: ReservationType;
   reservationUnit: ReservationUnitType | ReservationUnitByPkType;
-  type: "pending" | "confirmed";
+  type: Type;
 };
 
-const Wrapper = styled.div`
-  background-color: var(--color-gold-light);
+const Wrapper = styled.div<{ $type: Type }>`
+  background-color: var(
+    --color-${({ $type }) => ($type === "complete" ? "silver" : "gold")}-light
+  );
 `;
 
 const MainImage = styled.img`
@@ -58,6 +62,7 @@ const Value = styled.div`
 const Subheading = styled(Value)`
   font-size: var(--fontsize-body-l);
   line-height: var(--lineheight-xl);
+  margin-bottom: var(--spacing-xs);
 `;
 
 const ReservationInfoCard = ({
@@ -96,6 +101,15 @@ const ReservationInfoCard = ({
 
   const mainImage = getMainImage(reservationUnit);
 
+  const ageGroup = trim(
+    `${reservation.ageGroup?.minimum || ""} - ${
+      reservation.ageGroup?.maximum || ""
+    }`,
+    " - "
+  );
+
+  const purpose = getTranslation(reservation.purpose, "name");
+
   const price =
     reservation.state === "REQUIRES_HANDLING"
       ? getReservationUnitPrice(reservationUnit)
@@ -107,7 +121,7 @@ const ReservationInfoCard = ({
   );
 
   return (
-    <Wrapper>
+    <Wrapper $type={type}>
       {mainImage?.mediumUrl && (
         <MainImage
           src={mainImage?.mediumUrl}
@@ -116,7 +130,7 @@ const ReservationInfoCard = ({
       )}
       <Content data-testid="reservation__reservation-info-card__content">
         <Heading>{getTranslation(reservationUnit, "name")}</Heading>
-        {type === "confirmed" && (
+        {["confirmed", "complete"].includes(type) && (
           <Subheading>
             {t("reservations:reservationNumber")}: {reservation.pk}
           </Subheading>
@@ -127,7 +141,7 @@ const ReservationInfoCard = ({
             {capitalize(timeString)}, {formatDurationMinutes(duration)}
           </Strong>
         </Value>
-        {reservation.description && type === "confirmed" && (
+        {reservation.description && ["confirmed", "complete"].includes(type) && (
           <Value>
             {t("reservationCalendar:label.description")}:{" "}
             {reservation.description}
@@ -142,6 +156,21 @@ const ReservationInfoCard = ({
               ),
             })})`}
         </Value>
+        {purpose && ["complete"].includes(type) && (
+          <Value>
+            {t("reservations:purpose")}: {purpose}
+          </Value>
+        )}
+        {ageGroup && ["complete"].includes(type) && (
+          <Value>
+            {t("reservations:ageGroup")}: {ageGroup}
+          </Value>
+        )}
+        {reservation.numPersons > 0 && ["complete"].includes(type) && (
+          <Value>
+            {t("reservations:numPersons")}: {reservation.numPersons}
+          </Value>
+        )}
       </Content>
     </Wrapper>
   );
