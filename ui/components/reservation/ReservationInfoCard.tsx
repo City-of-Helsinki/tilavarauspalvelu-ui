@@ -110,10 +110,15 @@ const ReservationInfoCard = ({
 
   const purpose = getTranslation(reservation.purpose, "name");
 
-  const price =
+  const price: string =
     reservation.state === "REQUIRES_HANDLING"
-      ? getReservationUnitPrice(reservationUnit)
+      ? getReservationUnitPrice(reservationUnit, begin)
       : getReservationPrice(reservation.price, t("prices:priceFree"));
+
+  const shouldDisaplyTaxPercentage: boolean =
+    reservation.state === "REQUIRES_HANDLING"
+      ? getReservationUnitPrice(reservationUnit, begin, 0, false, true) !== "0"
+      : reservation.price > 0;
 
   const formatters = useMemo(
     () => getFormatters(i18n.language),
@@ -150,6 +155,7 @@ const ReservationInfoCard = ({
         <Value>
           {t("reservationUnit:price")}: <Strong>{price}</Strong>{" "}
           {taxPercentageValue &&
+            shouldDisaplyTaxPercentage &&
             `(${t("common:inclTax", {
               taxPercentage: formatters.strippedDecimal.format(
                 reservation.taxPercentageValue
