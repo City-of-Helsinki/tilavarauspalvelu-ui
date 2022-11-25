@@ -29,6 +29,8 @@ import {
   ReservationByPkQueryVariables,
   ReservationConfirmMutationInput,
   ReservationConfirmMutationPayload,
+  ReservationDeleteMutationInput,
+  ReservationDeleteMutationPayload,
   ReservationPurposeType,
   ReservationsReservationReserveeTypeChoices,
   ReservationType,
@@ -47,6 +49,7 @@ import {
 } from "../../modules/queries/reservationUnit";
 import {
   CONFIRM_RESERVATION,
+  DELETE_RESERVATION,
   GET_CITIES,
   GET_RESERVATION,
   UPDATE_RESERVATION,
@@ -59,7 +62,6 @@ import {
 } from "../../modules/reservation";
 import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
 import { DataContext, ReservationProps } from "../../context/DataContext";
-import PendingReservationInfoCard from "../../components/reservation/PendingReservationInfoCard";
 import Container from "../../components/common/Container";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import { Subheading } from "../../components/reservation/styles";
@@ -94,6 +96,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     >({
       query: RESERVATION_UNIT,
       variables: { pk: id },
+      fetchPolicy: "no-cache",
     });
 
     const { data: genericTermsData } = await apolloClient.query<
@@ -105,7 +108,10 @@ export const getServerSideProps: GetServerSideProps = async ({
         termsType: "generic_terms",
       },
     });
-    const genericTerms = genericTermsData.termsOfUse?.edges[0]?.node || {};
+    const genericTerms =
+      genericTermsData.termsOfUse?.edges
+        ?.map((n) => n.node)
+        .find((n) => ["generic1"].includes(n.pk)) || {};
 
     if (reservationUnitData?.reservationUnitByPk) {
       if (reservationUnitData.reservationUnitByPk?.metadataSet) {
@@ -196,7 +202,7 @@ const Title = styled(H2).attrs({ as: "h1" })`
   }
 `;
 
-const PinkBox = styled.div`
+const PinkBox = styled.div<{ $isHiddenOnMobile: boolean }>`
   margin-top: var(--spacing-m);
   padding: 1px var(--spacing-m) var(--spacing-m);
   background-color: var(--color-suomenlinna-light);
@@ -211,6 +217,11 @@ const PinkBox = styled.div`
 
   ${Subheading} {
     margin-top: var(--spacing-m);
+  }
+
+  @media (max-width: ${breakpoints.m}) {
+    display: ${({ $isHiddenOnMobile }) =>
+      $isHiddenOnMobile ? "none" : "block"};
   }
 `;
 
@@ -261,6 +272,7 @@ const ReservationUnitReservation = ({
     ReservationByPkQueryVariables
   >(GET_RESERVATION, {
     variables: { pk: reservationData?.pk },
+    skip: !reservationData?.pk,
   });
 
   useEffect(() => {
@@ -280,7 +292,22 @@ const ReservationUnitReservation = ({
       };
       setReservation(res);
     }
-  }, [fetchedReservationData?.reservationByPk, reservationUnit?.pk]);
+  }, [
+    fetchedReservationData?.reservationByPk,
+    reservationUnit?.pk,
+    setDataContext,
+    setPendingReservation,
+  ]);
+
+  const [
+    deleteReservation,
+    { data: deleteData, loading: deleteLoading, error: deleteError },
+  ] = useMutation<
+    { deleteReservation: ReservationDeleteMutationPayload },
+    { input: ReservationDeleteMutationInput }
+  >(DELETE_RESERVATION, {
+    errorPolicy: "all",
+  });
 
   const [
     updateReservation,
@@ -299,6 +326,28 @@ const ReservationUnitReservation = ({
     { confirmReservation: ReservationConfirmMutationPayload },
     { input: ReservationConfirmMutationInput }
   >(CONFIRM_RESERVATION);
+
+  useEffect(() => {
+    if (!deleteLoading) {
+      if (deleteError) {
+        setDataContext(null);
+        setPendingReservation(null);
+        router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
+      } else if (deleteData) {
+        setDataContext(null);
+        setPendingReservation(null);
+        router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
+      }
+    }
+  }, [
+    deleteLoading,
+    deleteError,
+    deleteData,
+    reservationUnit.pk,
+    setDataContext,
+    setPendingReservation,
+    t,
+  ]);
 
   useEffect(() => {
     if (!updateLoading) {
@@ -426,16 +475,27 @@ const ReservationUnitReservation = ({
   }, [reservationUnit?.metadataSet?.supportedFields]);
 
   const reservationApplicationFields = useMemo(() => {
+    const type = reservationUnit.metadataSet?.supportedFields?.includes(
+      "reservee_type"
+    )
+      ? reserveeType
+      : ReservationsReservationReserveeTypeChoices.Individual;
+
     return getReservationApplicationFields(
       reservationUnit.metadataSet?.supportedFields,
-      reserveeType,
+      type,
       true
     );
   }, [reservationUnit?.metadataSet?.supportedFields, reserveeType]);
 
   const onSubmitApplication1 = useCallback(
     (payload): void => {
-      if (!reserveeType) {
+      if (
+        reservationUnit?.metadataSet?.supportedFields.includes(
+          "reservee_type"
+        ) &&
+        !reserveeType
+      ) {
         setErrorMsg(t("reservationApplication:errors.noFormType"));
         return;
       }
@@ -451,7 +511,9 @@ const ReservationUnitReservation = ({
       const input = getReservationApplicationMutationValues(
         normalizedPayload,
         reservationUnit.metadataSet?.supportedFields,
-        reserveeType
+        reservationUnit?.metadataSet?.supportedFields.includes("reservee_type")
+          ? reserveeType
+          : ReservationsReservationReserveeTypeChoices.Individual
       );
 
       updateReservation({
@@ -474,15 +536,6 @@ const ReservationUnitReservation = ({
     ]
   );
 
-  if (
-    isBrowser &&
-    step !== 2 &&
-    (!reservationData?.pk || !reservationData?.begin || !reservationData?.end)
-  ) {
-    router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
-    return null;
-  }
-
   const onSubmitOpen2 = () => {
     confirmReservation({
       variables: {
@@ -494,12 +547,10 @@ const ReservationUnitReservation = ({
   };
 
   const cancelReservation = () => {
-    updateReservation({
+    deleteReservation({
       variables: {
         input: {
           pk: reservationPk,
-          state: "CANCELLED",
-          reserveeLanguage: i18n.language,
         },
       },
     });
@@ -518,19 +569,23 @@ const ReservationUnitReservation = ({
             <ReservationInfoCard
               reservation={reservation as unknown as ReservationType}
               reservationUnit={reservationUnit}
+              type="confirmed"
             />
           </div>
         ) : (
           <div>
-            <PendingReservationInfoCard
-              reservation={reservation || reservationData}
-              reservationUnit={reservationUnit}
-            />
-            <PinkBox>
+            {reservation && (
+              <ReservationInfoCard
+                reservation={reservation || reservationData}
+                reservationUnit={reservationUnit}
+                type="pending"
+              />
+            )}
+            <PinkBox $isHiddenOnMobile={step > 0}>
               <Subheading>
                 {t("reservations:reservationInfoBoxHeading")}
               </Subheading>
-              <Sanitize html={t("reservations:reservationInfoBoxContent")} />
+              <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
             </PinkBox>
           </div>
         )}
@@ -579,10 +634,10 @@ const ReservationUnitReservation = ({
                   reservationApplicationFields={reservationApplicationFields}
                   options={options}
                   reserveeType={reserveeType}
+                  steps={steps}
                   setStep={setStep}
-                  register={register}
-                  errors={errors}
                   termsOfUse={termsOfUse}
+                  setErrorMsg={setErrorMsg}
                 />
               )}
             </>
@@ -601,7 +656,7 @@ const ReservationUnitReservation = ({
           label={t("reservationUnit:reservationUpdateFailed")}
           position="top-center"
           autoClose
-          autoCloseDuration={2000}
+          autoCloseDuration={4000}
           displayAutoCloseProgress={false}
           onClose={() => setErrorMsg(null)}
           dismissible
