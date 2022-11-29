@@ -1,6 +1,13 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
-import { differenceInMinutes } from "date-fns";
+import {
+  addMinutes,
+  differenceInMinutes,
+  setHours,
+  setMilliseconds,
+  setMinutes,
+  setSeconds,
+} from "date-fns";
 import React, { CSSProperties, Fragment } from "react";
 import Popup from "reactjs-popup";
 import styled from "styled-components";
@@ -12,6 +19,8 @@ import resourceEventStyleGetter, {
   POST_PAUSE,
   PRE_PAUSE,
 } from "./resourceEventStyleGetter";
+import { useModal } from "../../context/ModalContext";
+import CreateReservationModal from "./create-reservation/CreateReservationModal";
 
 export type Resource = {
   title: string;
@@ -35,6 +44,7 @@ type EventStyleGetter = ({ event }: CalendarEvent<ReservationType>) => {
 
 type Props = {
   resources: Resource[];
+  date: Date;
 };
 
 const FlexContainer = styled.div<{ $numCols: number }>`
@@ -94,10 +104,33 @@ const RowCalendarArea = styled.div`
   position: relative;
 `;
 
-const Cells = ({ cols }: { cols: number }) => (
+const Cells = ({
+  cols,
+  reservationUnitId,
+  date,
+  setModalContent,
+}: {
+  cols: number;
+  reservationUnitId: number;
+  date: Date;
+  setModalContent: (content: JSX.Element | null, isHds?: boolean) => void;
+}) => (
   <CellContent $numCols={cols}>
     {Array.from(Array(cols).keys()).map((i) => (
-      <Cell key={i} />
+      <Cell
+        key={i}
+        onClick={(e) => {
+          e.preventDefault();
+          setModalContent(
+            <CreateReservationModal
+              reservationUnitId={reservationUnitId}
+              start={addMinutes(new Date(date), i * 30)}
+              onClose={() => setModalContent(null)}
+            />,
+            true
+          );
+        }}
+      />
     ))}
   </CellContent>
 );
@@ -247,11 +280,13 @@ const Events = ({
   </div>
 );
 
-const ResourceCalendar = ({ resources }: Props): JSX.Element => {
+const ResourceCalendar = ({ resources, date }: Props): JSX.Element => {
   const { t } = useTranslation();
   // todo find out min and max opening hour of every reservationunit
   const [beginHour, endHour] = [8, 24];
   const numHours = endHour - beginHour;
+
+  const { setModalContent } = useModal();
 
   return (
     <>
@@ -265,32 +300,38 @@ const ResourceCalendar = ({ resources }: Props): JSX.Element => {
           </CellContent>
         </HeadingRow>
         {resources.map((row) => (
-          <Fragment key={row.url}>
-            <Row>
-              <ResourceNameContainer title={row.title}>
-                <div
-                  style={{
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {row.title}
-                </div>
-              </ResourceNameContainer>
-              <RowCalendarArea>
-                <Cells cols={numHours * 2} />
-                <Events
-                  currentReservationUnit={row.pk}
-                  firstHour={beginHour}
-                  numHours={numHours}
-                  events={row.events}
-                  eventStyleGetter={resourceEventStyleGetter(row.pk)}
-                  t={t}
-                />
-              </RowCalendarArea>
-            </Row>
-          </Fragment>
+          <Row key={row.url}>
+            <ResourceNameContainer title={row.title}>
+              <div
+                style={{
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {row.title}
+              </div>
+            </ResourceNameContainer>
+            <RowCalendarArea>
+              <Cells
+                cols={numHours * 2}
+                reservationUnitId={row.pk}
+                date={setMilliseconds(
+                  setSeconds(setMinutes(setHours(date, beginHour), 0), 0),
+                  0
+                )}
+                setModalContent={setModalContent}
+              />
+              <Events
+                currentReservationUnit={row.pk}
+                firstHour={beginHour}
+                numHours={numHours}
+                events={row.events}
+                eventStyleGetter={resourceEventStyleGetter(row.pk)}
+                t={t}
+              />
+            </RowCalendarArea>
+          </Row>
         ))}
       </FlexContainer>
     </>

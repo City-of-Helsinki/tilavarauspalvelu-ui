@@ -1020,6 +1020,22 @@ const translations: ITranslations = {
     removeConfirmationCancel: ["Kumoa"],
     removeFailed: ["Tilan poistaminen ei onnistunut."],
   },
+  ReservationDialog: {
+    title: ["Varaa {{reservationUnit}}"],
+    date: ["Päivämäärä"],
+    startTime: ["Aloitusaika"],
+    endTime: ["Lopetusaika"],
+    type: ["Varauksen tyyppi"],
+    typeInfo: ["Lorem ipsum dolor sit amet, consectetur adipisicing elit."],
+    reservationType: {
+      STAFF: ["Toimipisteen sisäinen varaus"],
+      NORMAL: ["Ulkoinen varaus"],
+      BLOCKED: ["Suljettu"],
+    },
+    comment: ["Kommentit"],
+    accept: ["Varaa"],
+    saveFailed: ["Tallennus ei onnistunut: {{error}}"],
+  },
   ReservationUnits: {
     reservationUnitListHeading: ["Varausyksiköt"],
     reservationUnitListDescription: [

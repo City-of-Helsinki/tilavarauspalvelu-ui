@@ -201,7 +201,7 @@ const UnitReservations = ({
   return (
     <>
       <Container>
-        <ResourceCalendar resources={resourcesData} />
+        <ResourceCalendar date={new Date(begin)} resources={resourcesData} />
       </Container>
       <LegendContainer>
         <Legends>
