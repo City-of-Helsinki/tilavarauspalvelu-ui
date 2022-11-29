@@ -26,8 +26,11 @@ import {
   getUnitName,
 } from "../../modules/reservationUnit";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
+import ReservationOrderStatus from "./ReservationOrderStatus";
 
 type CardType = "upcoming" | "past" | "cancelled";
+
+const orderStatuses = ["DRAFT", "PAID", "PAID_MANUALLY"];
 
 interface Props {
   reservation: ReservationType;
@@ -59,6 +62,13 @@ const Top = styled.div`
   display: flex;
   gap: var(--spacing-m);
   justify-content: space-between;
+`;
+
+const StatusContainer = styled.div`
+  display: flex;
+  gap: var(--spacing-m);
+  align-self: flex-end;
+  align-items: flex-start;
 `;
 
 const Name = styled.span`
@@ -171,11 +181,13 @@ const Status = styled.div<{ $state: ReservationsReservationStateChoices }>`
         `;
     }
   }}
+  display: inline-block;
   padding: var(--spacing-3-xs) var(--spacing-2-xs);
   font-size: var(--fontsize-body-s);
   text-align: center;
   max-width: fit-content;
-  align-self: flex-end;
+  margin-bottom: var(--spacing-m);
+  line-height: var(--lineheight-l);
   ${truncatedText};
 `;
 
@@ -229,16 +241,26 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
     `reservations:status.${camelCase(reservation.state.toLocaleLowerCase())}`
   );
 
-  const statusTag = (
+  const statusTags = (
     state: ReservationsReservationStateChoices,
-    statusType = "desktop"
+    statusType = "desktop",
+    orderStatus: string
   ) => (
-    <Status
-      data-testid={`reservation__card--status-${statusType}`}
-      $state={state}
-    >
-      {statusText}
-    </Status>
+    <StatusContainer>
+      {orderStatuses.includes(orderStatus) && (
+        <ReservationOrderStatus
+          orderStatus={orderStatus}
+          data-testid={`reservation__card--order-status-${statusType}`}
+        />
+      )}
+      <Status
+        data-testid={`reservation__card--status-${statusType}`}
+        $state={state}
+        title={statusText}
+      >
+        {statusText}
+      </Status>
+    </StatusContainer>
   );
 
   return (
@@ -256,7 +278,7 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
         <Top>
           <Name>{title}</Name>
           <JustForDesktop customBreakpoint={breakpoints.l}>
-            {statusTag(reservation.state)}
+            {statusTags(reservation.state, "desktop", reservation.orderStatus)}
           </JustForDesktop>
         </Top>
         <Bottom>
@@ -268,7 +290,7 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
               customBreakpoint={breakpoints.l}
               style={{ marginTop: "var(--spacing-s)" }}
             >
-              {statusTag(reservation.state, "mobile")}
+              {statusTags(reservation.state, "mobile", reservation.orderStatus)}
             </JustForMobile>
             <Price
               icon={<IconTicket aria-label={t("reservationUnit:price")} />}
