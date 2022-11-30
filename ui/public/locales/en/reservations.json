@@ -50,7 +50,8 @@
     "confirmed": "",
     "denied": "",
     "requiresHandling": "",
-    "created": ""
+    "created": "",
+    "waitingForPayment": ""
   },
   "purpose": "",
   "ageGroup": "",
@@ -76,8 +77,8 @@
   },
   "makeReservation": "",
   "orderStatus": {
-    "DRAFT": "",
-    "PAID": "",
-    "PAID_MANUALLY": ""
+    "draft": "",
+    "paid": "",
+    "paidManually": ""
   }
 }
