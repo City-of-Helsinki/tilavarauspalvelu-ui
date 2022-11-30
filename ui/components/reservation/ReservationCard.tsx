@@ -19,7 +19,10 @@ import {
 } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
 import { BlackButton, truncatedText } from "../../styles/util";
-import { canUserCancelReservation } from "../../modules/reservation";
+import {
+  canUserCancelReservation,
+  getNormalizedReservationOrderStatus,
+} from "../../modules/reservation";
 import {
   getReservationUnitName,
   getReservationUnitPrice,
@@ -29,8 +32,6 @@ import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import ReservationOrderStatus from "./ReservationOrderStatus";
 
 type CardType = "upcoming" | "past" | "cancelled";
-
-const orderStatuses = ["DRAFT", "PAID", "PAID_MANUALLY"];
 
 interface Props {
   reservation: ReservationType;
@@ -241,13 +242,16 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
     `reservations:status.${camelCase(reservation.state.toLocaleLowerCase())}`
   );
 
+  const normalizedOrderStatus =
+    getNormalizedReservationOrderStatus(reservation);
+
   const statusTags = (
     state: ReservationsReservationStateChoices,
     statusType = "desktop",
     orderStatus: string
   ) => (
     <StatusContainer>
-      {orderStatuses.includes(orderStatus) && (
+      {orderStatus && (
         <ReservationOrderStatus
           orderStatus={orderStatus}
           data-testid={`reservation__card--order-status-${statusType}`}
@@ -278,7 +282,7 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
         <Top>
           <Name>{title}</Name>
           <JustForDesktop customBreakpoint={breakpoints.l}>
-            {statusTags(reservation.state, "desktop", reservation.orderStatus)}
+            {statusTags(reservation.state, "desktop", normalizedOrderStatus)}
           </JustForDesktop>
         </Top>
         <Bottom>
@@ -290,7 +294,7 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
               customBreakpoint={breakpoints.l}
               style={{ marginTop: "var(--spacing-s)" }}
             >
-              {statusTags(reservation.state, "mobile", reservation.orderStatus)}
+              {statusTags(reservation.state, "mobile", normalizedOrderStatus)}
             </JustForMobile>
             <Price
               icon={<IconTicket aria-label={t("reservationUnit:price")} />}

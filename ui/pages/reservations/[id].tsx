@@ -32,6 +32,7 @@ import Sanitize from "../../components/common/Sanitize";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
 import {
   canUserCancelReservation,
+  getNormalizedReservationOrderStatus,
   getReservationCancellationReason,
 } from "../../modules/reservation";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
@@ -49,8 +50,6 @@ type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
   id: number;
 };
-
-const orderStatuses = ["DRAFT", "PAID", "PAID_MANUALLY"];
 
 export const getServerSideProps: GetServerSideProps = async ({
   locale,
@@ -309,6 +308,9 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     );
   }
 
+  const normalizedOrderStatus =
+    getNormalizedReservationOrderStatus(reservation);
+
   return loading || !reservation ? (
     <Spinner />
   ) : (
@@ -332,9 +334,9 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
             <SubHeading>{getReservationUnitName(reservationUnit)}</SubHeading>
             <StatusContainer>
               <ReservationStatus state={reservation.state} />
-              {orderStatuses.includes(reservation.orderStatus) && (
+              {normalizedOrderStatus && (
                 <ReservationOrderStatus
-                  orderStatus={reservation.orderStatus}
+                  orderStatus={normalizedOrderStatus}
                   data-testid="reservation__card--order-status-desktop"
                 />
               )}
