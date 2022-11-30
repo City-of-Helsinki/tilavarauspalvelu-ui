@@ -375,9 +375,9 @@ describe("getNormalizedReservationOrderStatus", () => {
 
     expect(
       getNormalizedReservationOrderStatus({
-        orderStatus: "DRAFT",
+        orderStatus: "PAID",
       } as ReservationType)
-    ).toBe("DRAFT");
+    ).toBe("PAID");
 
     expect(
       getNormalizedReservationOrderStatus({
