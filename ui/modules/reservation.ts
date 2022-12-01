@@ -4,6 +4,7 @@ import { convertHMSToSeconds, secondsToHms } from "common/src/common/util";
 import { OptionType } from "common/types/common";
 import {
   ReservationsReservationReserveeTypeChoices,
+  ReservationsReservationStateChoices,
   ReservationType,
 } from "common/types/gql-types";
 
@@ -236,11 +237,10 @@ export const getNormalizedReservationOrderStatus = (
 ): string | null => {
   if (!reservation) return null;
 
-  if (
-    !["CREATED", "WAITING_FOR_PAYMENT", "REQUIRES_HANDLING"].includes(
-      reservation.state
-    )
-  ) {
+  const shouldShowOrderStatus = (state: ReservationsReservationStateChoices) =>
+    !["CREATED", "WAITING_FOR_PAYMENT", "REQUIRES_HANDLING"].includes(state);
+
+  if (shouldShowOrderStatus(reservation.state)) {
     return reservation.orderStatus || null;
   }
 
