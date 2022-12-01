@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
+import { joiResolver } from "@hookform/resolvers/joi";
+import { useForm, Controller } from "react-hook-form";
 import {
   RadioButton,
   Button,
@@ -19,7 +21,6 @@ import {
 } from "common/types/gql-types";
 import styled from "styled-components";
 import { get } from "lodash";
-import Joi from "joi";
 import {
   valueForDateInput,
   dateTime,
@@ -46,46 +47,50 @@ const DialogContent = ({
   start: Date;
 }) => {
   const { t } = useTranslation();
-  const [type, setType] = useState<ReservationType>();
-  const [date, setDate] = useState(valueForDateInput(start.toISOString()));
-  const [workingMemo, setWorkingMemo] = useState("");
-  const [validationError, setValidationError] = useState<Joi.ValidationError>();
-  const { notifyError, notifySuccess } = useNotification();
+  const {
+    control,
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm({
+    resolver: joiResolver(reservationSchema),
+    shouldFocusError: true,
+    defaultValues: {
+      date: valueForDateInput(start.toISOString()),
+      startTime: formatDate(start.toISOString(), "HH:mm") as string,
+      endTime: "",
+      workingMemo: "",
+      type: undefined as ReservationType | undefined,
+    },
+  });
 
-  const [startTime, setStartTime] = useState(
-    formatDate(start.toISOString(), "HH:mm") as string
-  );
-  const [endTime, setEndTime] = useState(
-    formatDate(start.toISOString(), "HH:mm") as string
-  );
+  const { notifyError, notifySuccess } = useNotification();
 
   const [create] = useMutation<
     { createStaffReservation: ReservationStaffCreateMutationPayload },
     { input: ReservationStaffCreateMutationInput }
   >(CREATE_STAFF_RESERVATION);
 
-  const getErrorDetails = (field: string) =>
-    validationError?.details?.find((detail) => detail.context?.key === field);
-
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
-  const createReservation = async () => {
+  const onSubmit = async () => {
     try {
       const input = {
         reservationUnitPks: [reservationUnit.pk as number],
-        type: String(type),
-        begin: dateTime(date, startTime),
-        end: dateTime(date, endTime),
-        workingMemo,
-      };
+        type: String(getValues("type")),
+        begin: dateTime(getValues("date"), getValues("startTime")),
+        end: dateTime(getValues("date"), getValues("endTime")),
+        workingMemo: getValues("workingMemo"),
+      } as ReservationStaffCreateMutationInput;
 
-      const validationResult = reservationSchema.validate(input);
-      if (validationResult.error) {
-        setValidationError(validationResult.error);
-      }
       await createStaffReservation(input);
-      notifySuccess(`Varaus tehty kohteeseen ${reservationUnit.nameFi}`);
+      notifySuccess(
+        t("ReservationDialog.saveSuccess", {
+          reservationUnit: reservationUnit.nameFi,
+        })
+      );
       onClose();
     } catch (e) {
       notifyError(
@@ -95,65 +100,82 @@ const DialogContent = ({
   };
 
   return (
-    <>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Dialog.Content>
         <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
           <HorisontalFlex>
-            <DateInput
-              id="reservationDialog.date"
-              label={t("ReservationDialog.date")}
-              value={date}
-              minDate={new Date()}
-              onChange={(d) => setDate(d)}
-              disableConfirmation
-              language="fi"
-              errorText={getErrorDetails("date")?.message}
+            <Controller
+              name="date"
+              control={control}
+              render={({ field }) => (
+                <DateInput
+                  id="reservationDialog.date"
+                  label={t("ReservationDialog.date")}
+                  minDate={new Date()}
+                  disableConfirmation
+                  language="fi"
+                  errorText={errors.date?.message}
+                  {...field}
+                />
+              )}
             />
-            <TimeInput
-              id="ReservationDialog.startTime"
-              label={t("ReservationDialog.startTime")}
-              hoursLabel="hours"
-              minutesLabel="minutes"
-              value={startTime}
-              onChange={(event) => {
-                setStartTime(event.target.value);
-              }}
-              errorText={getErrorDetails("begin")?.message}
+            <Controller
+              name="startTime"
+              control={control}
+              render={({ field }) => (
+                <TimeInput
+                  id="ReservationDialog.startTime"
+                  label={t("ReservationDialog.startTime")}
+                  hoursLabel="hours"
+                  minutesLabel="minutes"
+                  errorText={errors.startTime?.message}
+                  {...field}
+                />
+              )}
             />
-            <TimeInput
-              id="ReservationDialog.endtime"
-              label={t("ReservationDialog.endTime")}
-              hoursLabel="hours"
-              minutesLabel="minutes"
-              value={endTime}
-              onChange={(event) => {
-                setEndTime(event.target.value);
-              }}
-              errorText={getErrorDetails("end")?.message}
+            <Controller
+              name="endTime"
+              control={control}
+              render={({ field }) => (
+                <TimeInput
+                  id="ReservationDialog.endtime"
+                  label={t("ReservationDialog.endTime")}
+                  hoursLabel="hours"
+                  minutesLabel="minutes"
+                  errorText={errors.endTime?.message}
+                  {...field}
+                />
+              )}
             />
           </HorisontalFlex>
-          <SelectionGroup
-            required
-            label={t("ReservationDialog.type")}
-            errorText={getErrorDetails("type")?.message}
-          >
-            {Object.values(ReservationType)
-              .filter((v) => typeof v === "string")
-              .map((v) => (
-                <RadioButton
-                  key={v}
-                  id={v as string}
-                  checked={v === type}
-                  label={t(`ReservationDialog.reservationType.${v}`)}
-                  onClick={() => setType(v as ReservationType)}
-                />
-              ))}
-          </SelectionGroup>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <SelectionGroup
+                required
+                label={t("ReservationDialog.type")}
+                errorText={errors.type?.message}
+              >
+                {Object.values(ReservationType)
+                  .filter((v) => typeof v === "string")
+                  .map((v) => (
+                    <RadioButton
+                      key={v}
+                      id={v as string}
+                      checked={v === field.value}
+                      label={t(`ReservationDialog.reservationType.${v}`)}
+                      onChange={() => field.onChange(v)}
+                    />
+                  ))}
+              </SelectionGroup>
+            )}
+          />
           <TextArea
             label={t("ReservationDialog.comment")}
             id="ReservationDialog.comment"
-            value={workingMemo}
-            onChange={(e) => setWorkingMemo(e.target.value)}
+            {...register("workingMemo")}
+            errorText={errors.workingMemo?.message}
           />
         </VerticalFlex>
       </Dialog.Content>
@@ -161,15 +183,9 @@ const DialogContent = ({
         <Button variant="secondary" onClick={onClose} theme="black">
           {t("common.cancel")}
         </Button>
-        <Button
-          onClick={() => {
-            createReservation();
-          }}
-        >
-          {t("ReservationDialog.accept")}
-        </Button>
+        <Button type="submit">{t("ReservationDialog.accept")}</Button>
       </ActionButtons>
-    </>
+    </form>
   );
 };
 

@@ -1035,6 +1035,7 @@ const translations: ITranslations = {
     comment: ["Kommentit"],
     accept: ["Varaa"],
     saveFailed: ["Tallennus ei onnistunut: {{error}}"],
+    saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
   },
   ReservationUnits: {
     reservationUnitListHeading: ["Varausyksiköt"],

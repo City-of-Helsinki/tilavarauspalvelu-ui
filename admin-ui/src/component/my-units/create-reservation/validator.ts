@@ -1,4 +1,8 @@
-import Joi from "joi";
+import coreJoi from "joi";
+import joiDate from "@joi/date";
+import { startOfDay } from "date-fns";
+
+const joi = coreJoi.extend(joiDate) as typeof coreJoi;
 
 export enum ReservationType {
   "STAFF",
@@ -6,19 +10,16 @@ export enum ReservationType {
   "BLOCKED",
 }
 
-export const reservationSchema = Joi.object({
-  reservationUnitPks: Joi.array().items(Joi.number()),
-  type: Joi.string()
+export const reservationSchema = joi.object({
+  type: joi
+    .string()
     .required()
-    .valid(...Object.values(ReservationType))
+    .valid(
+      ...Object.values(ReservationType).filter((v) => typeof v === "string")
+    )
     .required(),
-  begin: Joi.date().required().greater(Date.now()),
-  end: Joi.date()
-    .required()
-    .greater(
-      Joi.ref("begin", {
-        adjust: (begin) => new Date(begin),
-      })
-    ),
-  workingMemo: Joi.string(),
+  date: joi.date().format("D.M.yyyy").required().min(startOfDay(new Date())),
+  startTime: joi.date().format("HH:mm").required().min(new Date()),
+  endTime: joi.date().format("HH:mm").required().greater(joi.ref("startTime")),
+  workingMemo: joi.string().allow(""),
 });
