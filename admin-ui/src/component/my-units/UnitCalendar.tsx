@@ -293,9 +293,9 @@ const ResourceCalendar = ({ resources, date }: Props): JSX.Element => {
       <FlexContainer $numCols={numHours * 2}>
         <HeadingRow>
           <div />
-          <CellContent $numCols={numHours}>
+          <CellContent $numCols={numHours} key="header">
             {Array.from(Array(numHours).keys()).map((i, index) => (
-              <Time>{beginHour + index}</Time>
+              <Time key={i}>{beginHour + index}</Time>
             ))}
           </CellContent>
         </HeadingRow>

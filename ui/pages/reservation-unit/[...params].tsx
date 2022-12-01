@@ -26,7 +26,7 @@ import {
   QueryReservationPurposesArgs,
   QueryReservationUnitByPkArgs,
   QueryTermsOfUseArgs,
-  ReservationByPkQueryVariables,
+  QueryReservationByPkArgs,
   ReservationConfirmMutationInput,
   ReservationConfirmMutationPayload,
   ReservationDeleteMutationInput,
@@ -269,7 +269,7 @@ const ReservationUnitReservation = ({
 
   const { data: fetchedReservationData } = useQuery<
     Query,
-    ReservationByPkQueryVariables
+    QueryReservationByPkArgs
   >(GET_RESERVATION, {
     variables: { pk: reservationData?.pk },
     skip: !reservationData?.pk,
@@ -574,13 +574,11 @@ const ReservationUnitReservation = ({
           </div>
         ) : (
           <div>
-            {reservation && (
-              <ReservationInfoCard
-                reservation={reservation || reservationData}
-                reservationUnit={reservationUnit}
-                type="pending"
-              />
-            )}
+            <ReservationInfoCard
+              reservation={reservation || reservationData}
+              reservationUnit={reservationUnit}
+              type="pending"
+            />
             <PinkBox $isHiddenOnMobile={step > 0}>
               <Subheading>
                 {t("reservations:reservationInfoBoxHeading")}
