@@ -8,7 +8,6 @@ import {
   Dialog,
   SelectionGroup,
   TimeInput,
-  TextArea,
 } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@apollo/client";
@@ -31,7 +30,10 @@ import { useModal } from "../../../context/ModalContext";
 import { CREATE_STAFF_RESERVATION, RESERVATION_UNIT_QUERY } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { reservationSchema, ReservationType } from "./validator";
+import { reservationSchema } from "./validator";
+import { ReservationForm, ReservationType } from "./types";
+import BlockedReservation from "./BlockedReservation";
+import StaffReservation from "./StaffReservation";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -47,25 +49,24 @@ const DialogContent = ({
   start: Date;
 }) => {
   const { t } = useTranslation();
-  const {
-    control,
-    register,
-    handleSubmit,
-    getValues,
-    formState: { errors },
-  } = useForm({
+  const form = useForm<ReservationForm>({
     resolver: joiResolver(reservationSchema),
     shouldFocusError: true,
     defaultValues: {
       date: valueForDateInput(start.toISOString()),
       startTime: formatDate(start.toISOString(), "HH:mm") as string,
-      endTime: "",
-      workingMemo: "",
-      type: undefined as ReservationType | undefined,
+      bufferTimeBefore: false,
+      bufferTimeAfter: false,
     },
   });
 
+  const {
+    formState: { errors },
+  } = form;
+
   const { notifyError, notifySuccess } = useNotification();
+
+  const type = form.watch("type");
 
   const [create] = useMutation<
     { createStaffReservation: ReservationStaffCreateMutationPayload },
@@ -79,10 +80,13 @@ const DialogContent = ({
     try {
       const input = {
         reservationUnitPks: [reservationUnit.pk as number],
-        type: String(getValues("type")),
-        begin: dateTime(getValues("date"), getValues("startTime")),
-        end: dateTime(getValues("date"), getValues("endTime")),
-        workingMemo: getValues("workingMemo"),
+        type: String(form.getValues("type")),
+        begin: dateTime(form.getValues("date"), form.getValues("startTime")),
+        end: dateTime(
+          form.getValues("date"),
+          form.getValues("endTime") as string
+        ),
+        workingMemo: form.getValues("workingMemo"),
       } as ReservationStaffCreateMutationInput;
 
       await createStaffReservation(input);
@@ -100,13 +104,13 @@ const DialogContent = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
       <Dialog.Content>
         <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
           <HorisontalFlex>
             <Controller
               name="date"
-              control={control}
+              control={form.control}
               render={({ field }) => (
                 <DateInput
                   id="reservationDialog.date"
@@ -121,7 +125,7 @@ const DialogContent = ({
             />
             <Controller
               name="startTime"
-              control={control}
+              control={form.control}
               render={({ field }) => (
                 <TimeInput
                   id="ReservationDialog.startTime"
@@ -136,7 +140,7 @@ const DialogContent = ({
             />
             <Controller
               name="endTime"
-              control={control}
+              control={form.control}
               render={({ field }) => (
                 <TimeInput
                   id="ReservationDialog.endtime"
@@ -152,7 +156,7 @@ const DialogContent = ({
           </HorisontalFlex>
           <Controller
             name="type"
-            control={control}
+            control={form.control}
             render={({ field }) => (
               <SelectionGroup
                 required
@@ -173,12 +177,10 @@ const DialogContent = ({
               </SelectionGroup>
             )}
           />
-          <TextArea
-            label={t("ReservationDialog.comment")}
-            id="ReservationDialog.comment"
-            {...register("workingMemo")}
-            errorText={errors.workingMemo?.message}
-          />
+          {type === ReservationType.BLOCKED && (
+            <BlockedReservation form={form} />
+          )}
+          {type === ReservationType.STAFF && <StaffReservation form={form} />}
         </VerticalFlex>
       </Dialog.Content>
       <ActionButtons>

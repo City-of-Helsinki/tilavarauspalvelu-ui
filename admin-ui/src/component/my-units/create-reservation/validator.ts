@@ -2,14 +2,9 @@ import coreJoi from "joi";
 import joiDate from "@joi/date";
 import { startOfDay } from "date-fns";
 import i18n from "../../../i18n";
+import { ReservationType } from "./types";
 
 const joi = coreJoi.extend(joiDate) as typeof coreJoi;
-
-export enum ReservationType {
-  "STAFF",
-  "NORMAL",
-  "BLOCKED",
-}
 
 export const reservationSchema = joi
   .object({
