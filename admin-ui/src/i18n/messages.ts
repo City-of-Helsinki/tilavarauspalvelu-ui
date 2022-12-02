@@ -1036,6 +1036,11 @@ const translations: ITranslations = {
     accept: ["Varaa"],
     saveFailed: ["Tallennus ei onnistunut: {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
+    validation: {
+      typeRequired: ["Valitse varauksen tyyppi"],
+      noPastDate: ["Aloitusaika menneisyydessä"],
+      endAfterBegin: ["Lopetusaika liian aikainen"],
+    },
   },
   ReservationUnits: {
     reservationUnitListHeading: ["Varausyksiköt"],

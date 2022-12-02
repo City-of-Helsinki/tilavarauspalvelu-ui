@@ -126,8 +126,9 @@ const DialogContent = ({
                 <TimeInput
                   id="ReservationDialog.startTime"
                   label={t("ReservationDialog.startTime")}
-                  hoursLabel="hours"
-                  minutesLabel="minutes"
+                  hoursLabel={t("common.hoursLabel")}
+                  minutesLabel={t("common.minutesLabel")}
+                  required
                   errorText={errors.startTime?.message}
                   {...field}
                 />
@@ -140,8 +141,9 @@ const DialogContent = ({
                 <TimeInput
                   id="ReservationDialog.endtime"
                   label={t("ReservationDialog.endTime")}
-                  hoursLabel="hours"
-                  minutesLabel="minutes"
+                  hoursLabel={t("common.hoursLabel")}
+                  minutesLabel={t("common.minutesLabel")}
+                  required
                   errorText={errors.endTime?.message}
                   {...field}
                 />
