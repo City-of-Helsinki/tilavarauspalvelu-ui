@@ -86,6 +86,7 @@ export const RESERVATION_UNITS_BY_UNIT = gql`
           reservationUnitType {
             pk
           }
+          isDraft
         }
       }
       pageInfo {
@@ -125,6 +126,8 @@ export const RESERVATIONS_BY_UNIT = gql`
           reservationUnits {
             pk
             nameFi
+            bufferTimeBefore
+            bufferTimeAfter
           }
           pk
           begin

@@ -73,5 +73,11 @@
   "cancellationReasons": {
     "termsAreBinding": "",
     "buffer": ""
+  },
+  "makeReservation": "",
+  "orderStatus": {
+    "DRAFT": "",
+    "PAID": "",
+    "PAID_MANUALLY": ""
   }
 }

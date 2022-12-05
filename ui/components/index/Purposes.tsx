@@ -6,8 +6,8 @@ import { useMedia } from "react-use";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { fontMedium, H3 } from "common/src/common/typography";
+import { PurposeType } from "common/types/gql-types";
 import { singleSearchPrefix } from "../../modules/const";
-import { PurposeType } from "../../modules/gql-types";
 import { getTranslation } from "../../modules/util";
 import Container from "../common/Container";
 import ReservationUnitSearch from "./ReservationUnitSearch";
@@ -113,7 +113,7 @@ const Purposes = ({ purposes }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [showAll, setShowAll] = React.useState(false);
-  const isMobile = useMedia(`(max-width: ${mobileBreakpoint})`);
+  const isMobile = useMedia(`(max-width: ${mobileBreakpoint})`, false);
 
   const itemLimit = useMemo(() => (isMobile ? 4 : 8), [isMobile]);
 

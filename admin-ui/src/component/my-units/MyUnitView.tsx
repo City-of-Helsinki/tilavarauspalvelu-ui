@@ -5,8 +5,8 @@ import { Tabs } from "hds-react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { LocationType, Query, QueryUnitsArgs } from "common/types/gql-types";
 import { publicUrl } from "../../common/const";
-import { LocationType, Query, QueryUnitsArgs } from "../../common/gql-types";
 import { parseAddress } from "../../common/util";
 import { useNotification } from "../../context/NotificationContext";
 import { Container } from "../../styles/layout";
@@ -61,14 +61,14 @@ const MyUnitView = () => {
         </div>
         <Tabs>
           <Tabs.TabList>
-            <Tabs.Tab>{t("MyUnits.Calendar.tab")}</Tabs.Tab>
             <Tabs.Tab>{t("MyUnits.UnitCalendar.tab")}</Tabs.Tab>
+            <Tabs.Tab>{t("MyUnits.Calendar.tab")}</Tabs.Tab>
           </Tabs.TabList>
           <TabPanel>
-            <ReservationUnitCalendarView />
+            <UnitReservationsView />
           </TabPanel>
           <TabPanel>
-            <UnitReservationsView />
+            <ReservationUnitCalendarView />
           </TabPanel>
         </Tabs>
       </Container>

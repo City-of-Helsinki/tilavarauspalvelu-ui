@@ -27,7 +27,9 @@ import {
   SpaceType,
   UnitType,
   ReservationsReservationReserveeTypeChoices,
-} from "../../modules/gql-types";
+  ReservationDeleteMutationPayload,
+  ReservationDeleteMutationInput,
+} from "common/types/gql-types";
 
 const createReservation = graphql.mutation<
   { createReservation: ReservationCreateMutationPayload },
@@ -139,6 +141,19 @@ const cancelReservation = graphql.mutation<
         cancelDetails: input.cancelDetails,
         state: "CANCELLED",
       } as ReservationCancellationMutationPayload,
+    })
+  );
+});
+
+const deleteReservation = graphql.mutation<
+  { deleteReservation: ReservationDeleteMutationPayload },
+  { input: ReservationDeleteMutationInput }
+>("deleteReservation", (req, res, ctx) => {
+  return res(
+    ctx.data({
+      deleteReservation: {
+        deleted: true,
+      },
     })
   );
 });
@@ -306,6 +321,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         nameEn: "Liikkua tai pelata EN",
         nameSv: "Liikkua tai pelata SV",
       },
+      orderStatus: "DRAFT",
       reservationUnits: [
         {
           id: "UmVzZXJ2YXRpb25Vbml0VHlwZTo5",
@@ -409,6 +425,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
     if (pk === 11) {
       data.type = ReservationsReservationReserveeTypeChoices.Business;
       data.reserveeOrganisationName = "Acme Oyj";
+      data.orderStatus = "PAID";
     }
 
     if (pk === 20) {
@@ -429,6 +446,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         canBeCancelledTimeBefore: 10,
         needsHandling: false,
       };
+      data.orderStatus = "foobar";
     }
 
     if (pk === 42) {
@@ -524,6 +542,7 @@ const reservationData = [
       bufferTimeBefore: 3600,
       bufferTimeAfter: 1800,
       price: 42.0,
+      orderStatus: "PAID",
       reservationUnits: [
         {
           pk: 2,
@@ -871,6 +890,7 @@ const reservationData = [
       state: ReservationsReservationStateChoices.RequiresHandling,
       bufferTimeBefore: 3600,
       bufferTimeAfter: 1800,
+      orderStatus: "DRAFT",
       reservationUnits: [
         {
           pk: 11,
@@ -1174,6 +1194,7 @@ const reservationData = [
       state: ReservationsReservationStateChoices.Confirmed,
       bufferTimeBefore: 3600,
       bufferTimeAfter: 1800,
+      orderStatus: "PAID_MANUALLY",
       reservationUnits: [
         {
           pk: 3,
@@ -1226,6 +1247,7 @@ export const reservationHandlers = [
   reservationByPk,
   confirmReservation,
   cancelReservation,
+  deleteReservation,
   listReservations,
   reservationCancelReasons,
   reservationPurposes,

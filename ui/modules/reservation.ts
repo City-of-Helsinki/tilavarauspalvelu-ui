@@ -5,7 +5,7 @@ import { OptionType } from "common/types/common";
 import {
   ReservationsReservationReserveeTypeChoices,
   ReservationType,
-} from "./gql-types";
+} from "common/types/gql-types";
 
 export const getDurationOptions = (
   minReservationDuration: number,
@@ -226,6 +226,20 @@ export const getReservationCancellationReason = (
     isReservationWithinCancellationPeriod(reservation)
   ) {
     return "BUFFER";
+  }
+
+  return null;
+};
+
+export const getNormalizedReservationOrderStatus = (
+  reservation: ReservationType
+): string | null => {
+  const orderStatuses = ["DRAFT", "PAID", "PAID_MANUALLY"];
+
+  if (!reservation) return null;
+
+  if (orderStatuses.includes(reservation.orderStatus)) {
+    return reservation.orderStatus;
   }
 
   return null;

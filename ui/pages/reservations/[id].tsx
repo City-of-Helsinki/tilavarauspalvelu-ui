@@ -17,7 +17,7 @@ import {
   ReservationsReservationReserveeTypeChoices,
   ReservationType,
   TermsOfUseType,
-} from "../../modules/gql-types";
+} from "common/types/gql-types";
 import apolloClient from "../../modules/apolloClient";
 import { GET_RESERVATION } from "../../modules/queries/reservation";
 import {
@@ -32,6 +32,7 @@ import Sanitize from "../../components/common/Sanitize";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
 import {
   canUserCancelReservation,
+  getNormalizedReservationOrderStatus,
   getReservationCancellationReason,
 } from "../../modules/reservation";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
@@ -43,6 +44,7 @@ import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
 import ReservationStatus from "../../components/reservation/ReservationStatus";
 import Address from "../../components/reservation-unit/Address";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
+import ReservationOrderStatus from "../../components/reservation/ReservationOrderStatus";
 
 type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
@@ -113,6 +115,11 @@ const Heading = styled(H1)`
 const SubHeading = styled(H4).attrs({ as: "h2" })`
   margin-top: 0;
   margin-bottom: var(--spacing-m);
+`;
+
+const StatusContainer = styled.div`
+  display: flex;
+  gap: var(--spacing-s);
 `;
 
 const Columns = styled.div`
@@ -255,6 +262,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
           <ReservationInfoCard
             reservation={reservation}
             reservationUnit={reservationUnit}
+            type="complete"
           />
           <SecondaryActions>
             <Link href={reservation.calendarUrl} passHref>
@@ -300,6 +308,9 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     );
   }
 
+  const normalizedOrderStatus =
+    getNormalizedReservationOrderStatus(reservation);
+
   return loading || !reservation ? (
     <Spinner />
   ) : (
@@ -321,7 +332,15 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
               {t("reservations:reservationName", { id: reservation.pk })}
             </Heading>
             <SubHeading>{getReservationUnitName(reservationUnit)}</SubHeading>
-            <ReservationStatus state={reservation.state} />
+            <StatusContainer>
+              <ReservationStatus state={reservation.state} />
+              {normalizedOrderStatus && (
+                <ReservationOrderStatus
+                  orderStatus={normalizedOrderStatus}
+                  data-testid="reservation__card--order-status-desktop"
+                />
+              )}
+            </StatusContainer>
             <JustForMobile>{bylineContent}</JustForMobile>
             <Actions>
               {canUserCancelReservation(reservation) &&
@@ -413,12 +432,15 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                   </>
                 ) : (
                   <>
-                    <ParagraphAlt>
-                      {t("common:name")}:{" "}
-                      {`${reservation.reserveeFirstName || ""} ${
-                        reservation.reserveeLastName || ""
-                      }`.trim()}
-                    </ParagraphAlt>
+                    {(reservation.reserveeFirstName ||
+                      reservation.reserveeLastName) && (
+                      <ParagraphAlt>
+                        {t("common:name")}:{" "}
+                        {`${reservation.reserveeFirstName || ""} ${
+                          reservation.reserveeLastName || ""
+                        }`.trim()}
+                      </ParagraphAlt>
+                    )}
                     {reservation.reserveePhone && (
                       <ParagraphAlt>
                         {t("common:phone")}: {reservation.reserveePhone}

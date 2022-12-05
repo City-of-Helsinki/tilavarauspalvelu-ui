@@ -9,6 +9,7 @@ import {
 import { error404Body, error404Title } from "model/error";
 import {
   errorNotificationBody,
+  errorNotificationCloseButton,
   errorNotificationTitle,
 } from "model/notification";
 import {
@@ -664,9 +665,33 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       );
       cy.get("main#main").should("contain.text", "Haen maksutonta varausta");
 
-      [{ label: "spaceTerms" }, { label: "resourceTerms" }].forEach((field) => {
-        formField(field.label).click();
-      });
+      cy.get('button[type="submit"]').click();
+
+      errorNotificationTitle().should(
+        "contain.text",
+        "Varauksen päivitys epäonnistui"
+      );
+      errorNotificationBody().should(
+        "contain.text",
+        "Hyväksy ehdot jatkaaksesi"
+      );
+      errorNotificationCloseButton().click();
+
+      cy.get("#generic-and-service-specific-terms-terms-accepted").click();
+
+      cy.get('button[type="submit"]').click();
+
+      errorNotificationTitle().should(
+        "contain.text",
+        "Varauksen päivitys epäonnistui"
+      );
+      errorNotificationBody().should(
+        "contain.text",
+        "Hyväksy ehdot jatkaaksesi"
+      );
+      errorNotificationCloseButton().click();
+
+      cy.get("#cancellation-and-payment-terms-terms-accepted").click();
 
       cy.get('button[type="submit"]').click();
 

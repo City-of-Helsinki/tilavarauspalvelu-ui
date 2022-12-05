@@ -2,7 +2,7 @@ import { camelCase } from "lodash";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { ReservationsReservationStateChoices } from "../../modules/gql-types";
+import { ReservationsReservationStateChoices } from "common/types/gql-types";
 
 type Props = {
   state: ReservationsReservationStateChoices;
@@ -14,6 +14,7 @@ const Wrapper = styled.div<{ $color: string }>`
   padding: var(--spacing-3-xs) var(--spacing-2-xs);
   background-color: ${({ $color }) => $color};
   line-height: var(--lineheight-l);
+  font-size: var(--fontsize-body-s);
 `;
 
 const ReservationStatus = ({ state }: Props): JSX.Element => {

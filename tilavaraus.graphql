@@ -1157,10 +1157,12 @@ type Mutation {
   createApplicationEventScheduleResult(input: ApplicationEventScheduleResultCreateMutationInput!): ApplicationEventScheduleResultCreateMutationPayload
   updateApplicationEventScheduleResult(input: ApplicationEventScheduleResultUpdateMutationInput!): ApplicationEventScheduleResultUpdateMutationPayload
   createReservation(input: ReservationCreateMutationInput!): ReservationCreateMutationPayload
+  createStaffReservation(input: ReservationStaffCreateMutationInput!): ReservationStaffCreateMutationPayload
   updateReservation(input: ReservationUpdateMutationInput!): ReservationUpdateMutationPayload
   confirmReservation(input: ReservationConfirmMutationInput!): ReservationConfirmMutationPayload
   cancelReservation(input: ReservationCancellationMutationInput!): ReservationCancellationMutationPayload
   denyReservation(input: ReservationDenyMutationInput!): ReservationDenyMutationPayload
+  deleteReservation(input: ReservationDeleteMutationInput!): ReservationDeleteMutationPayload
   approveReservation(input: ReservationApproveMutationInput!): ReservationApproveMutationPayload
   requireHandlingForReservation(input: ReservationRequiresHandlingMutationInput!): ReservationRequiresHandlingMutationPayload
   updateReservationWorkingMemo(input: ReservationWorkingMemoMutationInput!): ReservationWorkingMemoMutationPayload
@@ -1186,6 +1188,7 @@ type Mutation {
   deleteResource(input: ResourceDeleteMutationInput!): ResourceDeleteMutationPayload
   updateUnit(input: UnitUpdateMutationInput!): UnitUpdateMutationPayload
   updateUser(input: UserUpdateMutationInput!): UserUpdateMutationPayload
+  refreshOrder(input: RefreshOrderMutationInput!): RefreshOrderMutationPayload
 }
 
 """An object with an ID"""
@@ -1673,6 +1676,17 @@ type RecurringReservationType {
   applicationEventPk: Int
 }
 
+input RefreshOrderMutationInput {
+  orderUuid: UUID!
+  clientMutationId: String
+}
+
+type RefreshOrderMutationPayload {
+  orderUuid: UUID
+  status: String
+  clientMutationId: String
+}
+
 input ReservationAdjustTimeMutationInput {
   pk: Int!
   begin: DateTime!
@@ -1858,11 +1872,8 @@ type ReservationConfirmMutationPayload {
   """The non subsidised price of this reservation excluding VAT"""
   nonSubsidisedPriceNet: Float
 
-  """Indicates if reservation is internal or created by staff"""
-  staffEvent: Boolean
-
   """
-  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED.
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
   """
   type: String
 
@@ -1913,11 +1924,8 @@ input ReservationCreateMutationInput {
   reservationUnitPks: [Int]!
   purposePk: Int
 
-  """Indicates if reservation is internal or created by staff"""
-  staffEvent: Boolean
-
   """
-  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED.
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
   """
   type: String
   clientMutationId: String
@@ -1986,17 +1994,25 @@ type ReservationCreateMutationPayload {
   """The non subsidised price of this reservation excluding VAT"""
   nonSubsidisedPriceNet: Float
 
-  """Indicates if reservation is internal or created by staff"""
-  staffEvent: Boolean
-
   """
-  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED.
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
   """
   type: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
   reservation: ReservationType
+  clientMutationId: String
+}
+
+input ReservationDeleteMutationInput {
+  pk: Int!
+  clientMutationId: String
+}
+
+type ReservationDeleteMutationPayload {
+  deleted: Boolean
+  errors: String
   clientMutationId: String
 }
 
@@ -2170,6 +2186,122 @@ enum ReservationsReservationStateChoices {
   DENIED
 }
 
+input ReservationStaffCreateMutationInput {
+  reserveeFirstName: String
+  reserveeLastName: String
+  reserveePhone: String
+  reserveeOrganisationName: String
+  reserveeAddressStreet: String
+  reserveeAddressCity: String
+  reserveeAddressZip: String
+  reserveeEmail: String
+
+  """
+  Type of the reservee. Possible values are BUSINESS, NONPROFIT, INDIVIDUAL.
+  """
+  reserveeType: String
+
+  """Reservee's business or association identity code"""
+  reserveeId: String
+  reserveeIsUnregisteredAssociation: Boolean
+  reserveeLanguage: String
+  billingFirstName: String
+  billingLastName: String
+  billingAddressStreet: String
+  billingAddressCity: String
+  billingAddressZip: String
+  billingPhone: String
+  billingEmail: String
+  homeCityPk: Int
+  applyingForFreeOfCharge: Boolean
+  freeOfChargeReason: String
+  ageGroupPk: Int
+  numPersons: Int
+  name: String
+  description: String
+  begin: DateTime!
+  end: DateTime!
+  bufferTimeBefore: String
+  bufferTimeAfter: String
+  reservationUnitPks: [Int]!
+  purposePk: Int
+
+  """The unit price of this particular reservation"""
+  unitPrice: Float
+
+  """
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
+  """
+  type: String!
+
+  """Working memo for staff users."""
+  workingMemo: String
+  clientMutationId: String
+}
+
+type ReservationStaffCreateMutationPayload {
+  pk: Int
+  reserveeFirstName: String
+  reserveeLastName: String
+  reserveePhone: String
+  reserveeOrganisationName: String
+  reserveeAddressStreet: String
+  reserveeAddressCity: String
+  reserveeAddressZip: String
+  reserveeEmail: String
+
+  """
+  Type of the reservee. Possible values are BUSINESS, NONPROFIT, INDIVIDUAL.
+  """
+  reserveeType: String
+
+  """Reservee's business or association identity code"""
+  reserveeId: String
+  reserveeIsUnregisteredAssociation: Boolean
+  reserveeLanguage: String
+  billingFirstName: String
+  billingLastName: String
+  billingAddressStreet: String
+  billingAddressCity: String
+  billingAddressZip: String
+  billingPhone: String
+  billingEmail: String
+  homeCityPk: Int
+  applyingForFreeOfCharge: Boolean
+  freeOfChargeReason: String
+  ageGroupPk: Int
+  numPersons: Int
+  name: String
+  description: String
+  state: state
+  begin: DateTime
+  end: DateTime
+  bufferTimeBefore: String
+  bufferTimeAfter: String
+  reservationUnitPks: [Int]
+  purposePk: Int
+  confirmedAt: DateTime
+
+  """When this reservation was handled."""
+  handledAt: DateTime
+
+  """The unit price of this particular reservation"""
+  unitPrice: Float
+
+  """
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
+  """
+  type: String
+
+  """Working memo for staff users."""
+  workingMemo: String
+
+  """May contain more than one error for same field."""
+  errors: [ErrorType]
+  reservation: ReservationType
+  clientMutationId: String
+}
+
 type ReservationType implements Node {
   """Type of reservee"""
   reserveeType: ReservationsReservationReserveeTypeChoices
@@ -2219,13 +2351,13 @@ type ReservationType implements Node {
 
   """Working memo for staff users."""
   workingMemo: String
-  staffEvent: Boolean
   type: String
 
   """The ID of the object"""
   id: ID!
   pk: Int
   reservationUnits: [ReservationUnitType]
+  staffEvent: Boolean @deprecated(reason: "Please refer to type.")
   orderUuid: String
   orderStatus: String
   calendarUrl: String
@@ -2363,6 +2495,7 @@ type ReservationUnitByPkType implements Node {
 
   """The ID of the object"""
   id: ID!
+  reservations(from: Date = null, to: Date = null, state: [String] = null, includeWithSameComponents: Boolean = null): [ReservationType]
   openingHours(openingTimes: Boolean = null, periods: Boolean = null, startDate: Date = null, endDate: Date = null): OpeningHoursType
   pk: Int
   qualifiers: [QualifierType]
@@ -2370,7 +2503,6 @@ type ReservationUnitByPkType implements Node {
   equipment: [EquipmentType]
   unit: UnitType
   keywordGroups: [KeywordGroupType]
-  reservations(from: Date = null, to: Date = null, state: [String] = null): [ReservationType]
   state: ReservationUnitState
   paymentMerchant: PaymentMerchantType
   paymentProduct: PaymentProductType
@@ -2519,24 +2651,24 @@ input ReservationUnitCreateMutationInput {
   pricingType: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingCreateSerializerInput]
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   clientMutationId: String
 }
 
@@ -2659,24 +2791,24 @@ type ReservationUnitCreateMutationPayload {
   pricingType: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingType]
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -3117,12 +3249,12 @@ type ReservationUnitType implements Node {
 
   """The ID of the object"""
   id: ID!
+  reservations(from: Date = null, to: Date = null, state: [String] = null, includeWithSameComponents: Boolean = null): [ReservationType]
   pk: Int
   location: LocationType
   equipment: [EquipmentType]
   unit: UnitType
   keywordGroups: [KeywordGroupType]
-  reservations(from: Date = null, to: Date = null, state: [String] = null): [ReservationType]
   state: ReservationUnitState
   pricings: [ReservationUnitPricingType]
 }
@@ -3282,24 +3414,24 @@ input ReservationUnitUpdateMutationInput {
   pricingType: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingUpdateSerializerInput]!
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
   clientMutationId: String
 }
 
@@ -3421,24 +3553,24 @@ type ReservationUnitUpdateMutationPayload {
   """
   pricingType: String
   paymentTypes: [String]
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -3494,11 +3626,8 @@ input ReservationUpdateMutationInput {
   reservationUnitPks: [Int]
   purposePk: Int
 
-  """Indicates if reservation is internal or created by staff"""
-  staffEvent: Boolean
-
   """
-  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED.
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
   """
   type: String
   clientMutationId: String
@@ -3570,11 +3699,8 @@ type ReservationUpdateMutationPayload {
   """The non subsidised price of this reservation excluding VAT"""
   nonSubsidisedPriceNet: Float
 
-  """Indicates if reservation is internal or created by staff"""
-  staffEvent: Boolean
-
   """
-  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED.
+  Reservation type. Mutation requires special permissions. Possible values are NORMAL, BLOCKED, STAFF.
   """
   type: String
 
@@ -4189,15 +4315,15 @@ input UnitUpdateMutationInput {
   webPage: String
   email: String
   phone: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
   clientMutationId: String
 }
 
@@ -4207,15 +4333,15 @@ type UnitUpdateMutationPayload {
   webPage: String
   email: String
   phone: String
+  shortDescriptionFi: String
+  shortDescriptionEn: String
+  shortDescriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]

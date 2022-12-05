@@ -7,7 +7,7 @@ import { Control, Controller, DeepMap, FieldError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium } from "common/src/common/typography";
-import { ReservationMetadataSetType } from "../../modules/gql-types";
+import { ReservationMetadataSetType } from "common/types/gql-types";
 import { Inputs, Reservation } from "../../modules/types";
 import { CheckboxWrapper } from "../common/common";
 
@@ -37,6 +37,10 @@ type TextAreaProps = {
   $break?: boolean;
   $height?: string;
 };
+
+const StyledSelect = styled(Select)<{ $isWide?: boolean }>`
+  ${({ $isWide }) => $isWide && "grid-column: 1 / -1"};
+`;
 
 const StyledTextArea = styled(TextArea).attrs(({ $height }: TextAreaProps) => ({
   style: { "--textarea-height": $height },
@@ -78,7 +82,8 @@ const ReservationFormField = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const normalizedReserveeType = reserveeType.toLocaleLowerCase();
+  const normalizedReserveeType =
+    reserveeType?.toLocaleLowerCase() || "individual";
 
   const isWideRow = useMemo(
     (): boolean =>
@@ -88,6 +93,7 @@ const ReservationFormField = ({
         "reserveeAddressStreet",
         // "reserveeOrganisationName",
         "billingAddressStreet",
+        "purpose",
       ].includes(field),
     [field]
   );
@@ -132,7 +138,7 @@ const ReservationFormField = ({
   return Object.keys(options).includes(field) ? (
     <Controller
       as={
-        <Select
+        <StyledSelect
           label={t(
             `reservationApplication:label.${normalizedReserveeType}.${field}`
           )}
@@ -144,6 +150,7 @@ const ReservationFormField = ({
           error={get(errors, field) && t("forms:requiredField")}
           required={required}
           invalid={!!get(errors, field)}
+          $isWide={isWideRow}
         />
       }
       name={field}

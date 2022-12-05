@@ -13,6 +13,7 @@ import {
   reservationCards,
   tab,
   statusTag,
+  orderStatusTag,
 } from "model/reservation-list";
 import {
   title as cancelTitle,
@@ -44,6 +45,7 @@ describe("Tilavaraus user reservations", () => {
 
   it("should list proper items with correct button states and link to reservation unit", () => {
     reservationCards().should("have.length", 5);
+
     statusTag("desktop")
       .should("have.length", 5)
       .each(($el, $i) => {
@@ -51,6 +53,18 @@ describe("Tilavaraus user reservations", () => {
           expect($el).to.contain("Hyväksytty");
         } else {
           expect($el).to.contain("Käsiteltävänä");
+        }
+      });
+
+    orderStatusTag("desktop")
+      .should("have.length", 3)
+      .each(($el, $i) => {
+        if ($i === 0) {
+          expect($el).to.contain("Maksettu");
+        } else if ($i === 1) {
+          expect($el).to.contain("Odottaa maksua");
+        } else if ($i === 2) {
+          expect($el).to.contain("Paikan päällä");
         }
       });
 
@@ -102,6 +116,8 @@ describe("Tilavaraus user reservations", () => {
     reservationContent().find("h1").should("contain", "Varaus 11");
     reservationContent().find("h2").should("contain", "Toimistohuone 1");
 
+    orderStatusTag("desktop").should("contain", "Maksettu");
+
     cy.contains("div", "Confirmed Instructions FI").should("be.visible");
 
     reservationContent()
@@ -126,13 +142,11 @@ describe("Tilavaraus user reservations", () => {
     cy.contains("div", "Sopparijuttuja").should("be.visible");
     cy.contains("div", "Toinen rivi").should("be.visible");
 
-    reservationInfoCard()
-      .find("h3")
-      .should("contain.text", "Reservation name / Toimistohuone 1");
+    reservationInfoCard().find("h3").should("contain.text", "Toimistohuone 1");
     reservationInfoCard()
       .should("contain.text", "Varausnumero: 11")
       .should("contain.text", "Ke 28.4.2021 klo")
-      .should("contain.text", "Kesto: 4 t")
+      .should("contain.text", ", 4 t")
       .should(
         "contain.text",
         "Varauksen kuvaus: Reservation description - a long one with alotta text"
@@ -159,6 +173,8 @@ describe("Tilavaraus user reservations", () => {
     reservationContent().find("h1").should("contain", "Varaus 4");
     reservationContent().find("h2").should("contain", "Toimistohuone 1");
 
+    orderStatusTag("desktop").should("contain", "Odottaa maksua");
+
     cy.contains("div", "Confirmed Instructions FI").should("be.visible");
 
     reservationContent()
@@ -182,13 +198,11 @@ describe("Tilavaraus user reservations", () => {
     cy.contains("div", "Sopparijuttuja").should("be.visible");
     cy.contains("div", "Toinen rivi").should("be.visible");
 
-    reservationInfoCard()
-      .find("h3")
-      .should("contain.text", "Reservation name / Toimistohuone 1");
+    reservationInfoCard().find("h3").should("contain.text", "Toimistohuone 1");
     reservationInfoCard()
       .should("contain.text", "Varausnumero: 4")
       .should("contain.text", "Ke 28.4.2021 klo")
-      .should("contain.text", "Kesto: 4 t")
+      .should("contain.text", ", 4 t")
       .should(
         "contain.text",
         "Varauksen kuvaus: Reservation description - a long one with alotta text"
@@ -214,6 +228,8 @@ describe("Tilavaraus user reservations", () => {
     cancelTitle().should("have.text", "Peru varaus");
     cancelCancelButton().should("be.disabled");
 
+    orderStatusTag("desktop").should("not.exist");
+
     backButton().click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
 
@@ -233,10 +249,10 @@ describe("Tilavaraus user reservations", () => {
     customReasonInput().type("A reason");
 
     cancelCancelButton().click();
-    cancelTitle().should("have.text", "Varaus on peruttu!");
+    cancelTitle().should("have.text", "Varaus peruttu!");
 
     reservationInfoCard()
-      .should("contain.text", "Kesto: 2 t")
+      .should("contain.text", ", 2 t")
       // .should("contain.text", "(alv %)")
       .should("contain.text", "Hinta: 42\u00a0€");
 
