@@ -1,14 +1,11 @@
 import { formatters as getFormatters, getReservationVolume } from "common";
 import { flatten, trim, uniq } from "lodash";
 import { i18n } from "next-i18next";
-import {
-  ApplicationRound,
-  ReservationState,
-  ReservationUnit,
-} from "common/types/common";
+import { ReservationState, ReservationUnit } from "common/types/common";
 import { toUIDate } from "common/src/common/util";
 import { isSlotWithinReservationTime } from "common/src/calendar/util";
 import {
+  ApplicationRoundType,
   EquipmentType,
   ReservationsReservationStateChoices,
   ReservationUnitByPkType,
@@ -165,7 +162,7 @@ export const getActivePricing = (
 
 export const getFuturePricing = (
   reservationUnit: ReservationUnitByPkType,
-  applicationRounds: ApplicationRound[] = [],
+  applicationRounds: ApplicationRoundType[] = [],
   reservationDate?: Date
 ): ReservationUnitPricingType => {
   const { pricings, reservationBegins, reservationEnds } = reservationUnit;

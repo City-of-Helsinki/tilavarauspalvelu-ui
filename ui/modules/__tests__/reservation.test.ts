@@ -1,10 +1,13 @@
 import { get as mockGet } from "lodash";
-import { addMinutes } from "date-fns";
+import { addDays, addHours, addMinutes, format } from "date-fns";
 import {
+  ApplicationRoundType,
   ReservationsReservationReserveeTypeChoices,
   ReservationType,
+  ReservationUnitByPkType,
 } from "common/types/gql-types";
 import {
+  canReservationTimeBeChanged,
   canUserCancelReservation,
   getDurationOptions,
   getNormalizedReservationOrderStatus,
@@ -394,5 +397,293 @@ describe("getNormalizedReservationOrderStatus", () => {
     expect(getNormalizedReservationOrderStatus({} as ReservationType)).toBe(
       null
     );
+  });
+});
+
+describe("canReservationBeChanged", () => {
+  const reservation = {
+    id: "123f4w90",
+    state: "CREATED",
+    price: 0,
+    begin: addHours(new Date(), 1).toISOString(),
+    reservationUnits: [
+      {
+        cancellationRule: {
+          needsHandling: false,
+        },
+      },
+    ],
+  };
+
+  const reservationUnit = {
+    reservationBegins: addDays(new Date(), -1).toISOString(),
+    reservationEnds: addDays(new Date(), 100).toISOString(),
+    openingHours: {
+      openingTimes: Array.from(Array(100)).map((val, index) => ({
+        date: format(addDays(new Date(), index), "yyyy-MM-dd"),
+        startTime: "07:00:00+00:00",
+        endTime: "20:00:00+00:00",
+        state: "open",
+        periods: null,
+      })),
+    },
+  } as ReservationUnitByPkType;
+
+  test("returns false with incomplete data", () => {
+    expect(canReservationTimeBeChanged(null as ReservationType)).toStrictEqual([
+      false,
+    ]);
+  });
+
+  test("returns true with default data", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+      } as ReservationType)
+    ).toStrictEqual([true]);
+  });
+
+  test("returns false with confirmed reservation", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        state: "CONFIRMED",
+      } as ReservationType)
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
+  });
+
+  test("handles past reservation check", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        begin: addHours(new Date(), -1).toISOString(),
+      } as ReservationType)
+    ).toStrictEqual([false, "RESERVATION_BEGIN_IN_PAST"]);
+  });
+
+  test("handles price check", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        price: 1.01,
+      } as ReservationType)
+    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+  });
+
+  test("handles cancellation rule check", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        reservationUnits: [
+          {
+            ...reservation.reservationUnits[0],
+            cancellationRule: null,
+          },
+        ],
+      } as ReservationType)
+    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        reservationUnits: [
+          {
+            ...reservation.reservationUnits[0],
+            cancellationRule: {
+              needsHandling: true,
+            },
+          },
+        ],
+      } as ReservationType)
+    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+  });
+
+  test("handles cancellation rule buffer check", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        reservationUnits: [
+          {
+            ...reservation.reservationUnits[0],
+            cancellationRule: {
+              ...reservation.reservationUnits[0].cancellationRule,
+              canBeCancelledTimeBefore: 3599,
+            },
+          },
+        ],
+      } as ReservationType)
+    ).toStrictEqual([true]);
+
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        reservationUnits: [
+          {
+            ...reservation.reservationUnits[0],
+            cancellationRule: {
+              ...reservation.reservationUnits[0].cancellationRule,
+              canBeCancelledTimeBefore: 3600,
+            },
+          },
+        ],
+      } as ReservationType)
+    ).toStrictEqual([false, "CANCELLATION_TIME_PAST"]);
+  });
+
+  test("handles situation when reservation has been handled", () => {
+    expect(
+      canReservationTimeBeChanged({
+        ...reservation,
+        handledAt: new Date().toISOString(),
+      } as ReservationType)
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
+  });
+
+  test("handles new reservation price check", () => {
+    expect(
+      canReservationTimeBeChanged(
+        {
+          ...reservation,
+        } as ReservationType,
+        {
+          ...reservation,
+          price: 2.02,
+        } as ReservationType
+      )
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
+  });
+
+  describe("handles new reservation general validation", () => {
+    test("with incomplete data", () => {
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 2).toISOString(),
+          } as ReservationType,
+          reservationUnit,
+          []
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            end: addHours(new Date(), 2),
+          } as ReservationType,
+          reservationUnit,
+          []
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 1),
+            end: addHours(new Date(), 2),
+          } as ReservationType,
+          { ...reservationUnit, openingHours: null },
+          []
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+    });
+
+    test("with reservation start buffer", () => {
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 1),
+            end: addHours(new Date(), 2),
+          } as ReservationType,
+          { ...reservationUnit, reservationsMinDaysBefore: 10 },
+          []
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+    });
+
+    test("with reservation time missing reservation units reservation time slot", () => {
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 1),
+            end: addHours(new Date(), 2),
+          } as ReservationType,
+          { ...reservationUnit, reservationBegins: addDays(new Date(), 1) },
+          []
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 1),
+            end: addHours(new Date(), 2),
+          } as ReservationType,
+          { ...reservationUnit, reservationEnds: addDays(new Date(), -1) },
+          []
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+    });
+
+    test("with conflicting application round", () => {
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 5),
+            end: addHours(new Date(), 6),
+          } as ReservationType,
+          reservationUnit,
+          [
+            {
+              reservationPeriodBegin: addHours(new Date(), 1).toISOString(),
+              reservationPeriodEnd: addHours(new Date(), 2).toISOString(),
+            },
+          ] as ApplicationRoundType[]
+        )
+      ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
+    });
+
+    test("valid data", () => {
+      expect(
+        canReservationTimeBeChanged(
+          {
+            ...reservation,
+          } as ReservationType,
+          {
+            ...reservation,
+            begin: addHours(new Date(), 5),
+            end: addHours(new Date(), 6),
+          } as ReservationType,
+          reservationUnit
+        )
+      ).toStrictEqual([true]);
+    });
   });
 });

@@ -25,7 +25,7 @@
   "cancelledReservations": "Perutut",
   "upcomingSlug": "Tulossa",
   "pastSlug": "Mennyt",
-  "modifyReservation": "Muokkaa varausta",
+  "modifyReservationTime": "Muuta aikaa",
   "modifyApplication": "Muokkaa anomusta",
   "backToReservations": "Palaa omiin varauksiin",
   "showCancellationTerms": "Näytä peruutusehdot",
@@ -70,6 +70,12 @@
     "3": "Maksutapa",
     "4": "Maksun yhteenveto",
     "5": "Maksu"
+  },
+  "modifyTimeReasons": {
+    "RESERVATION_MODIFICATION_NOT_ALLOWED": "Valitettavasti varauksen muuttaminen ei ole mahdollista. Jos haluat muuttaa varaustasi, sinun on peruttava varaus ja tehtävä uusi. Tarkista kuitenkin ensin varauksen peruutusehdot.",
+    "RESERVATION_BEGIN_IN_PAST": "Varauksen peruminen tai muuttaminen ei ole mahdollista, koska varausaika on mennyt.",
+    "CANCELLATION_NOT_ALLOWED": "Maksu- ja peruutusehtojemme mukaisesti varaus on sitova. Tätä varausta ei voi perua.",
+    "CANCELLATION_TIME_PAST": "Varauksen peruutusaika on umpeutunut. Varauksen ajankohdan muuttaminen tai varauksen peruminen ei ole mahdollista."
   },
   "cancellationReasons": {
     "termsAreBinding": "Maksu- ja peruutusehtojemme mukaisesti varaus on sitova. Tätä varausta ei voi perua.",

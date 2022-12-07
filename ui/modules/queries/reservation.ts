@@ -297,6 +297,7 @@ export const GET_RESERVATION = gql`
         pk
         name
       }
+      handledAt
     }
   }
 `;

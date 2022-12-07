@@ -24,7 +24,7 @@
   "cancelledReservations": "",
   "upcomingSlug": "",
   "pastSlug": "",
-  "modifyReservation": "",
+  "modifyReservationTime": "",
   "modifyApplication": "",
   "backToReservations": "",
   "showCancellationTerms": "",
@@ -69,6 +69,12 @@
     "3": "",
     "4": "",
     "5": ""
+  },
+  "modifyTimeReasons": {
+    "RESERVATION_MODIFICATION_NOT_ALLOWED": "",
+    "RESERVATION_BEGIN_IN_PAST": "",
+    "CANCELLATION_NOT_ALLOWED": "",
+    "CANCELLATION_TIME_PAST": ""
   },
   "cancellationReasons": {
     "termsAreBinding": "",

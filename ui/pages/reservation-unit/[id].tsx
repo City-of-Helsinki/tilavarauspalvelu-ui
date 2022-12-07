@@ -14,45 +14,30 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { IconInfoCircleFill, Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import {
-  addDays,
-  addSeconds,
-  addYears,
-  isValid,
-  parseISO,
-  subMinutes,
-} from "date-fns";
+import { addDays, addSeconds, addYears, parseISO } from "date-fns";
 import {
   formatSecondDuration,
   toApiDate,
   toUIDate,
 } from "common/src/common/util";
 import {
-  areSlotsReservable,
-  doBuffersCollide,
-  doReservationsCollide,
   getEventBuffers,
   getMaxReservation,
   getNormalizedReservationBeginTime,
   getSlotPropGetter,
   getTimeslots,
-  isReservationLongEnough,
   isReservationShortEnough,
   isReservationStartInFuture,
   isReservationUnitReservable,
-  isStartTimeWithinInterval,
 } from "common/src/calendar/util";
 import { formatters as getFormatters } from "common";
 import { useLocalStorage, useMedia, useSessionStorage } from "react-use";
 import { breakpoints } from "common/src/common/style";
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
-import {
-  ApplicationRound,
-  PendingReservation,
-  Reservation,
-} from "common/types/common";
+import { PendingReservation, Reservation } from "common/types/common";
 import { H4 } from "common/src/common/typography";
 import {
+  ApplicationRoundType,
   Query,
   QueryReservationsArgs,
   QueryReservationUnitByPkArgs,
@@ -108,11 +93,12 @@ import { daysByMonths } from "../../modules/const";
 import QuickReservation from "../../components/reservation-unit/QuickReservation";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { CURRENT_USER } from "../../modules/queries/user";
+import { isReservationReservable } from "../../modules/reservation";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
-  activeApplicationRounds: ApplicationRound[];
+  activeApplicationRounds: ApplicationRoundType[];
   termsOfUse: Record<string, TermsOfUseType>;
 };
 
@@ -627,51 +613,13 @@ const ReservationUnit = ({
 
   const isSlotReservable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
-      const {
-        reservations,
-        bufferTimeBefore,
-        bufferTimeAfter,
-        openingHours,
-        maxReservationDuration,
-        minReservationDuration,
-        reservationStartInterval,
-        reservationsMinDaysBefore,
-        reservationBegins,
-        reservationEnds,
-      } = reservationUnit;
-
-      if (
-        !isValid(start) ||
-        !isValid(end) ||
-        doBuffersCollide(reservations, {
-          start,
-          end,
-          bufferTimeBefore,
-          bufferTimeAfter,
-        }) ||
-        !isStartTimeWithinInterval(
-          start,
-          openingHours?.openingTimes,
-          reservationStartInterval
-        ) ||
-        !areSlotsReservable(
-          [new Date(start), subMinutes(new Date(end), 1)],
-          openingHours?.openingTimes,
-          activeApplicationRounds,
-          reservationBegins,
-          reservationEnds,
-          reservationsMinDaysBefore
-        ) ||
-        (!skipLengthCheck &&
-          !isReservationLongEnough(start, end, minReservationDuration)) ||
-        !isReservationShortEnough(start, end, maxReservationDuration) ||
-        doReservationsCollide(reservations, { start, end })
-        // || !isSlotWithinTimeframe(start, reservationsMinDaysBefore, start, end)
-      ) {
-        return false;
-      }
-
-      return true;
+      return isReservationReservable(
+        reservationUnit,
+        activeApplicationRounds,
+        start,
+        end,
+        skipLengthCheck
+      );
     },
     [activeApplicationRounds, reservationUnit]
   );

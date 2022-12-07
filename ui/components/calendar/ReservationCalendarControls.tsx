@@ -30,14 +30,17 @@ import {
   doReservationsCollide,
   getDayIntervals,
 } from "common/src/calendar/util";
-import { ApplicationRound, Language, OptionType } from "common/types/common";
+import { Language, OptionType } from "common/types/common";
 import {
   fontBold,
   fontMedium,
   fontRegular,
 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { ReservationUnitByPkType } from "common/types/gql-types";
+import {
+  ApplicationRoundType,
+  ReservationUnitByPkType,
+} from "common/types/gql-types";
 import { MediumButton } from "../../styles/util";
 import { DataContext, ReservationProps } from "../../context/DataContext";
 import { getDurationOptions } from "../../modules/reservation";
@@ -51,7 +54,7 @@ type Props<T> = {
   resetReservation: () => void;
   isSlotReservable: (start: Date, end: Date) => boolean;
   setCalendarFocusDate: (date: Date) => void;
-  activeApplicationRounds: ApplicationRound[];
+  activeApplicationRounds: ApplicationRoundType[];
   createReservation: (arg: ReservationProps) => void;
   setErrorMsg: (msg: string) => void;
   handleEventChange: (
