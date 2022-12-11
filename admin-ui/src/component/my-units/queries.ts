@@ -96,7 +96,7 @@ export const RESERVATION_UNITS_BY_UNIT = gql`
 `;
 
 export const RESERVATIONS_BY_UNIT = gql`
-  query reservationsByUnit(
+  query reservationUnitssByUnit(
     $unit: [ID]
     $offset: Int
     $first: Int

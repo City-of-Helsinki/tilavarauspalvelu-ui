@@ -2,55 +2,77 @@ import React from "react";
 import { Checkbox, SelectionGroup, TextArea } from "hds-react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { ReservationUnitType } from "common/types/gql-types";
 import { ReservationForm } from "./types";
+import { HR } from "../../lists/components";
+import MetadataSetForm from "./MetadataSetForm";
 
-const StaffReservation = ({
-  form,
-}: {
+type Props = {
   form: UseFormReturn<ReservationForm>;
-}): JSX.Element => {
-  const { t } = useTranslation();
-  console.log("rendering with", form.getValues());
+  reservationUnit: ReservationUnitType;
+};
 
+const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
+  const { t } = useTranslation();
+
+  const hasBuffer =
+    !!reservationUnit.bufferTimeBefore || reservationUnit.bufferTimeAfter;
   return (
     <>
-      <SelectionGroup
-        label={t("ReservationDialog.buffers")}
-        errorText={form.formState.errors.type?.message}
-      >
-        <Controller
-          name="date"
-          control={form.control}
-          render={({ field }) => {
-            console.log("rendering with", field);
-            return (
-              <Checkbox
-                id="bufferTimeBefore"
-                checked={String(field.value) === "true"}
-                label={t(`ReservationDialog.bufferTimeBefore`)}
-                {...field}
-                onChange={() => {
-                  form.setValue("bufferTimeBefore", false);
-                }}
-              />
-            );
-          }}
-        />
-        <Checkbox
-          id="bufferTimeAfter"
-          checked={form.getValues("bufferTimeAfter")}
-          label={t(`ReservationDialog.bufferTimeAfter`)}
-          {...form.register("bufferTimeAfter")}
-        />
-      </SelectionGroup>
+      {hasBuffer && (
+        <SelectionGroup label={t("ReservationDialog.buffers")}>
+          {reservationUnit.bufferTimeBefore && (
+            <Controller
+              name="bufferTimeBefore"
+              control={form.control}
+              render={({ field }) => (
+                <Checkbox
+                  id="bufferTimeBefore"
+                  checked={String(field.value) === "true"}
+                  label={t(`ReservationDialog.bufferTimeBefore`, {
+                    minutes: reservationUnit.bufferTimeBefore / 60,
+                  })}
+                  {...field}
+                  value={String(field.value)}
+                  onChange={() => {
+                    form.setValue("bufferTimeBefore", !field.value);
+                  }}
+                />
+              )}
+            />
+          )}
+          {reservationUnit.bufferTimeAfter && (
+            <Controller
+              name="bufferTimeAfter"
+              control={form.control}
+              render={({ field }) => (
+                <Checkbox
+                  id="bufferTimeAfter"
+                  checked={String(field.value) === "true"}
+                  label={t(`ReservationDialog.bufferTimeAfter`, {
+                    minutes: reservationUnit.bufferTimeAfter / 60,
+                  })}
+                  {...field}
+                  value={String(field.value)}
+                  onChange={() => {
+                    form.setValue("bufferTimeAfter", !field.value);
+                  }}
+                />
+              )}
+            />
+          )}
+        </SelectionGroup>
+      )}
       <TextArea
         label={t("ReservationDialog.comment")}
         id="ReservationDialog.comment"
         {...form.register("workingMemo")}
-        errorText={form.formState.errors.workingMemo?.message}
       />
+      <HR />
+      <MetadataSetForm reservationUnit={reservationUnit} form={form} />
     </>
   );
 };
 
+StaffReservation.displayName = "StaffResedrvation";
 export default StaffReservation;

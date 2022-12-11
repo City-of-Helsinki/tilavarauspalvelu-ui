@@ -1,52 +1,65 @@
 import coreJoi from "joi";
 import joiDate from "@joi/date";
 import { startOfDay } from "date-fns";
+import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
+import { getDayIntervals } from "common/src/calendar/util";
 import i18n from "../../../i18n";
 import { ReservationType } from "./types";
 
 const joi = coreJoi.extend(joiDate) as typeof coreJoi;
 
-export const reservationSchema = joi
-  .object({
-    type: joi
+const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
+
+const timeWithIntervals = (
+  interval?: ReservationUnitsReservationUnitReservationStartIntervalChoices
+): coreJoi.StringSchema => {
+  if (interval) {
+    const intervals = getDayIntervals("00:00", "23:59", interval).map(
+      (startHMS) => startHMS.substring(0, 5)
+    );
+    return joi
       .string()
-      .required()
-      .valid(
-        ...Object.values(ReservationType).filter((v) => typeof v === "string")
-      )
-      .required()
+      .pattern(TIME_PATTERN)
+      .valid(...intervals)
       .messages({
-        "any.required": i18n.t("ReservationDialog.validation.typeRequired"),
-      }),
-    date: joi
-      .date()
-      .format("D.M.yyyy")
-      .required()
-      .min(startOfDay(new Date()))
-      .messages({
-        "date.min": i18n.t("ReservationDialog.validation.noPastDate"),
-      }),
-    startTime: joi
-      .date()
-      .format("HH:mm")
-      .required()
-      .min(new Date())
-      .messages({
-        "date.min": i18n.t("ReservationDialog.validation.noPastDate"),
-      }),
-    endTime: joi
-      .date()
-      .required()
-      .format("HH:mm")
-      .required()
-      .greater(joi.ref("startTime"))
-      .messages({
-        "date.greater": i18n.t("ReservationDialog.validation.endAfterBegin"),
-      }),
-    workingMemo: joi.string().allow(""),
-  })
-  .options({
-    messages: {
-      "date.format": i18n.t("validation.any.required"),
-    },
-  });
+        "any.only": i18n.t("ReservationDialog.validation.interval", {
+          interval: `${intervals.join(", ").substring(0, 50)}...`,
+        }),
+      });
+  }
+  return joi.string().pattern(TIME_PATTERN);
+};
+
+export const reservationSchema = (
+  interval?: ReservationUnitsReservationUnitReservationStartIntervalChoices
+): coreJoi.ObjectSchema =>
+  joi
+    .object({
+      type: joi
+        .string()
+        .required()
+        .valid(
+          ...Object.values(ReservationType).filter((v) => typeof v === "string")
+        )
+        .required()
+        .messages({
+          "any.required": i18n.t("ReservationDialog.validation.typeRequired"),
+        }),
+      date: joi
+        .date()
+        .format("D.M.yyyy")
+        .required()
+        .min(startOfDay(new Date()))
+        .messages({
+          "date.min": i18n.t("ReservationDialog.validation.noPastDate"),
+        }),
+      startTime: timeWithIntervals(interval),
+      endTime: joi.string().pattern(TIME_PATTERN).required(),
+      workingMemo: joi.string().allow(""),
+    })
+    .options({
+      allowUnknown: true,
+      messages: {
+        "date.format": i18n.t("validation.any.required"),
+      },
+    });
