@@ -101,13 +101,17 @@ const Page1 = ({
     skip: unitOptions.length < 1,
   });
 
-  const form = useForm({
+  const form = useForm<Application>({
     mode: "onChange",
     defaultValues: {
       applicationEvents: application.applicationEvents,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as Record<string, any>,
   });
+
+  const {
+    formState: { errors },
+  } = form;
 
   useEffect(() => {
     async function fetchData() {
@@ -189,9 +193,9 @@ const Page1 = ({
     form.trigger();
 
     const validationErrors = [];
-    if (form.errors?.applicationEvents) {
-      for (let i = 0; i < form.errors?.applicationEvents.length; i += 1) {
-        if (i in form.errors?.applicationEvents) {
+    if (errors?.applicationEvents) {
+      for (let i = 0; i < errors?.applicationEvents.length; i += 1) {
+        if (i in errors?.applicationEvents) {
           validationErrors.push(i);
         }
       }
@@ -202,7 +206,7 @@ const Page1 = ({
 
     if (otherEventsAreValid) {
       const appToSave = {
-        ...prepareData(form.getValues() as Application),
+        ...prepareData(form.getValues()),
         status: "draft" as ApplicationStatus,
       };
       appToSave.applicationEvents = appToSave.applicationEvents.filter(

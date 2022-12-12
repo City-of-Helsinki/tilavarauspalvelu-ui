@@ -12,7 +12,6 @@ import EmailInput from "./EmailInput";
 import BillingAddress from "./BillingAddress";
 import Buttons from "./Buttons";
 import { deepCopy, applicationErrorText } from "../../modules/util";
-import ApplicationForm from "./ApplicationForm";
 
 type Props = {
   application: Application;
@@ -22,7 +21,7 @@ type Props = {
 const IndividualForm = ({ application, onNext }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const form = useForm<ApplicationForm>({
+  const form = useForm<Application>({
     defaultValues: {
       contactPerson: { ...application.contactPerson } as ContactPerson,
       billingAddress: { ...application.billingAddress } as Address,

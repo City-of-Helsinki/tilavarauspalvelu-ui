@@ -17,7 +17,6 @@ import EmailInput from "./EmailInput";
 import BillingAddress from "./BillingAddress";
 import Buttons from "./Buttons";
 import { deepCopy, applicationErrorText } from "../../modules/util";
-import ApplicationForm from "./ApplicationForm";
 
 type Props = {
   application: Application;
@@ -31,7 +30,7 @@ const CompanyForm = ({ application, onNext }: Props): JSX.Element | null => {
     application.billingAddress !== null
   );
 
-  const form = useForm<ApplicationForm>({
+  const form = useForm<Application>({
     defaultValues: {
       organisation: { ...application.organisation } as Organisation,
       contactPerson: { ...application.contactPerson } as ContactPerson,

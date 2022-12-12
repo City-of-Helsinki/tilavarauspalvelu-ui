@@ -21,7 +21,6 @@ import BillingAddress from "./BillingAddress";
 import Buttons from "./Buttons";
 import { deepCopy, applicationErrorText } from "../../modules/util";
 import ControlledSelect from "../common/ControlledSelect";
-import ApplicationForm from "./ApplicationForm";
 
 export const Placeholder = styled.span`
   @media (max-width: ${breakpoints.m}) {
@@ -42,7 +41,7 @@ const OrganisationForm = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const form = useForm<ApplicationForm>({
+  const form = useForm<Application>({
     defaultValues: {
       organisation: { ...application.organisation } as Organisation,
       contactPerson: { ...application.contactPerson } as ContactPerson,

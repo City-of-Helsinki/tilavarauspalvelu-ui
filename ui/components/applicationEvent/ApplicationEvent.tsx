@@ -7,7 +7,7 @@ import {
   TextInput,
 } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { useForm, Controller } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import styled from "styled-components";
 import {
   AccordionState,
@@ -56,7 +56,7 @@ type Props = {
   applicationEvent: ApplicationEventType;
   index: number;
   applicationRound: ApplicationRoundType;
-  form: ReturnType<typeof useForm>;
+  form: UseFormReturn<Application>;
   selectedReservationUnits: ReservationUnitType[];
   optionTypes: OptionTypes;
   editorState: EditorState;
