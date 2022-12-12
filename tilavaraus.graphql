@@ -1510,7 +1510,7 @@ type Query {
     """
     PaymentOrder's statuses; DRAFT, EXPIRED, CANCELLED, PAID, PAID_MANUALLY, REFUNDED
     """
-    paymentStatus: [String] = null
+    orderStatus: [String] = null
 
     """Järjestys"""
     orderBy: String = null
@@ -2652,9 +2652,15 @@ input ReservationUnitCreateMutationInput {
   pricingType: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingCreateSerializerInput]
+  reservationConfirmedInstructionsFi: String
+  reservationConfirmedInstructionsEn: String
+  reservationConfirmedInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -2792,9 +2798,15 @@ type ReservationUnitCreateMutationPayload {
   pricingType: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingType]
+  reservationConfirmedInstructionsFi: String
+  reservationConfirmedInstructionsEn: String
+  reservationConfirmedInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -3415,9 +3427,15 @@ input ReservationUnitUpdateMutationInput {
   pricingType: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingUpdateSerializerInput]!
+  reservationConfirmedInstructionsFi: String
+  reservationConfirmedInstructionsEn: String
+  reservationConfirmedInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -3554,9 +3572,15 @@ type ReservationUnitUpdateMutationPayload {
   """
   pricingType: String
   paymentTypes: [String]
+  reservationConfirmedInstructionsFi: String
+  reservationConfirmedInstructionsEn: String
+  reservationConfirmedInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   reservationCancelledInstructionsFi: String
   reservationCancelledInstructionsEn: String
   reservationCancelledInstructionsSv: String
@@ -4316,18 +4340,15 @@ input UnitUpdateMutationInput {
   webPage: String
   email: String
   phone: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   shortDescriptionFi: String
   shortDescriptionEn: String
   shortDescriptionSv: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
   clientMutationId: String
 }
 
@@ -4337,18 +4358,15 @@ type UnitUpdateMutationPayload {
   webPage: String
   email: String
   phone: String
-  shortDescriptionFi: String
-  shortDescriptionEn: String
-  shortDescriptionSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   nameFi: String
   nameEn: String
   nameSv: String
   shortDescriptionFi: String
   shortDescriptionEn: String
   shortDescriptionSv: String
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
