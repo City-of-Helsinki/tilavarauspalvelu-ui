@@ -270,11 +270,11 @@ const SearchForm = ({
   const multiSelectFilters = ["unit", "reservationUnitType", "purposes"];
 
   useEffect(() => {
-    register({ name: "minPersons" });
-    register({ name: "maxPersons" });
-    register({ name: "unit" });
-    register({ name: "reservationUnitType" });
-    register({ name: "purposes" });
+    register("minPersons");
+    register("maxPersons");
+    register("unit");
+    register("reservationUnitType");
+    register("purposes");
   }, [register]);
 
   useEffect(() => {
