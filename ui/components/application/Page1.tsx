@@ -28,6 +28,7 @@ import {
   RESERVATION_PURPOSES,
   SEARCH_FORM_PARAMS_UNIT,
 } from "../../modules/queries/params";
+import ApplicationForm from "./ApplicationForm";
 
 type Props = {
   applicationRound: ApplicationRoundType;
@@ -101,7 +102,7 @@ const Page1 = ({
     skip: unitOptions.length < 1,
   });
 
-  const form = useForm<Application>({
+  const form = useForm<ApplicationForm>({
     mode: "onChange",
     defaultValues: {
       applicationEvents: application.applicationEvents,
@@ -247,7 +248,7 @@ const Page1 = ({
         return (
           <ApplicationEvent
             key={event.id || "NEW"}
-            form={form}
+            form={form as unknown as ReturnType<typeof useForm>}
             applicationEvent={event}
             index={index}
             applicationRound={applicationRound}

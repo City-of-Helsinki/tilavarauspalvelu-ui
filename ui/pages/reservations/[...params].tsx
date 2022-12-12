@@ -220,8 +220,10 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
     { input: ReservationCancellationMutationInput }
   >(CANCEL_RESERVATION);
 
-  const { register, handleSubmit, getValues, setValue, watch, control } =
-    useForm();
+  const { register, handleSubmit, setValue, watch, control } = useForm<{
+    reason: { value: number };
+    description?: string;
+  }>();
 
   useEffect(() => {
     if (!loading) {
@@ -235,8 +237,8 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
   }, [data, loading, error, t]);
 
   useEffect(() => {
-    register({ name: "reason", required: true });
-    register({ name: "description" });
+    register("reason", { required: true });
+    register("description");
   }, [register]);
 
   const bylineContent = useMemo(() => {
@@ -270,6 +272,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
     description?: string;
   }) => {
     const { reason, description } = formData;
+
     cancelReservation({
       variables: {
         input: {
@@ -346,12 +349,14 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
                     )}
                     <Form onSubmit={handleSubmit(onSubmit)}>
                       <Controller
-                        as={
+                        name="reason"
+                        control={control}
+                        render={({ field }) => (
                           <StyledSelect
                             id="reservation__button--cancel-reason"
                             label={`${t("reservations:cancelReason")}`}
-                            onChange={(val: OptionType) => {
-                              setValue("reason", val.value);
+                            onChange={({ value }: OptionType) => {
+                              setValue("reason.value", value as number);
                             }}
                             options={[
                               emptyOption(t("common:select")),
@@ -359,14 +364,12 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
                             ]}
                             placeholder={t("common:select")}
                             value={getSelectedOption(
-                              getValues("reason"),
+                              field.value.value as number,
                               reasons
                             )}
                             required
                           />
-                        }
-                        name="reason"
-                        control={control}
+                        )}
                       />
                       <TextArea
                         id="reservation__button--cancel-description"
@@ -392,7 +395,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
                         <MediumButton
                           variant="primary"
                           type="submit"
-                          disabled={!watch("reason")?.value}
+                          disabled={!watch("reason")}
                           data-testid="reservation-cancel__button--cancel"
                         >
                           {t("reservations:cancelReservation")}

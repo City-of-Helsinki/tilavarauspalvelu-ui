@@ -3,7 +3,7 @@ import { Checkbox, NumberInput, Select, TextArea, TextInput } from "hds-react";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import React, { useMemo } from "react";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium } from "common/src/common/typography";
@@ -17,7 +17,7 @@ type Props = {
   reserveeType: string;
   reservation: Reservation;
   metadataSet: ReservationMetadataSetType;
-  form: UseFormReturn<Inputs>;
+  form: ReturnType<typeof useForm>;
   params?: Record<string, Record<string, string | number>>;
 };
 

@@ -299,9 +299,8 @@ const SearchForm = ({
         <Filters $areFiltersVisible={areFiltersVisible}>
           <TextInput
             id="search"
-            name="textSearch"
             label={t("searchForm:textSearchLabel")}
-            ref={register()}
+            {...register("textSearch")}
             placeholder={t("searchForm:searchTermPlaceholder")}
             onKeyDown={(e) => {
               if (e.key === "Enter") {

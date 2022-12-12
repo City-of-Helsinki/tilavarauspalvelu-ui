@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { TextInput, Checkbox } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
+import { Control, FieldValues, useForm } from "react-hook-form";
 import styled from "styled-components";
 import {
   Application,
@@ -21,6 +21,7 @@ import BillingAddress from "./BillingAddress";
 import Buttons from "./Buttons";
 import { deepCopy, applicationErrorText } from "../../modules/util";
 import ControlledSelect from "../common/ControlledSelect";
+import ApplicationForm from "./ApplicationForm";
 
 export const Placeholder = styled.span`
   @media (max-width: ${breakpoints.m}) {
@@ -41,7 +42,7 @@ const OrganisationForm = ({
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const form = useForm<Application>({
+  const form = useForm<ApplicationForm>({
     defaultValues: {
       organisation: { ...application.organisation } as Organisation,
       contactPerson: { ...application.contactPerson } as ContactPerson,
@@ -141,7 +142,7 @@ const OrganisationForm = ({
           name="homeCityId"
           required
           label={t("application:Page3.homeCity")}
-          control={control}
+          control={control as unknown as Control<FieldValues, unknown>}
           options={homeCityOptions}
           error={applicationErrorText(t, errors.homeCityId?.type)}
         />

@@ -4,9 +4,10 @@ import { UseFormReturn } from "react-hook-form";
 import { Notification, TextInput } from "hds-react";
 import { SpanTwoColumns } from "../common/common";
 import { applicationErrorText } from "../../modules/util";
+import ApplicationForm from "./ApplicationForm";
 
 type Props = {
-  form: UseFormReturn<Application>;
+  form: UseFormReturn<ApplicationForm>;
 };
 
 const EmailInput = ({

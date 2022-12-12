@@ -2,12 +2,12 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "hds-react";
 import { UseFormReturn } from "react-hook-form";
-import { Application } from "common/types/common";
 import { applicationErrorText } from "../../modules/util";
 import { FormSubHeading } from "../common/common";
+import ApplicationForm from "./ApplicationForm";
 
 type Props = {
-  form: UseFormReturn<Application>;
+  form: UseFormReturn<ApplicationForm>;
 };
 
 const BillingAddress = ({
