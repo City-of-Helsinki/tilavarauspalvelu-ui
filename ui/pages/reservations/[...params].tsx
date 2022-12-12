@@ -221,7 +221,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
   >(CANCEL_RESERVATION);
 
   const { register, handleSubmit, setValue, watch, control } = useForm<{
-    reason: { value: number };
+    reason?: number;
     description?: string;
   }>();
 
@@ -267,17 +267,14 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
 
   const reservationUnit = reservation.reservationUnits[0];
 
-  const onSubmit = (formData: {
-    reason: { value: number };
-    description?: string;
-  }) => {
+  const onSubmit = (formData: { reason?: number; description?: string }) => {
     const { reason, description } = formData;
 
     cancelReservation({
       variables: {
         input: {
           pk: reservation.pk,
-          cancelReasonPk: reason.value,
+          cancelReasonPk: reason,
           cancelDetails: description,
         },
       },
@@ -356,17 +353,14 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
                             id="reservation__button--cancel-reason"
                             label={`${t("reservations:cancelReason")}`}
                             onChange={({ value }: OptionType) => {
-                              setValue("reason.value", value as number);
+                              setValue("reason", value as number);
                             }}
                             options={[
                               emptyOption(t("common:select")),
                               ...reasons,
                             ]}
                             placeholder={t("common:select")}
-                            value={getSelectedOption(
-                              field.value.value as number,
-                              reasons
-                            )}
+                            value={getSelectedOption(field.value, reasons)}
                             required
                           />
                         )}
