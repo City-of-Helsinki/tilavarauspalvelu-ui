@@ -26,6 +26,7 @@ import {
   ApplicationEvent,
   OptionType,
   PendingReservation,
+  ApplicationRound,
 } from "../../types/common";
 import {
   convertHMSToSeconds,
@@ -150,7 +151,7 @@ export const isSlotWithinTimeframe = (
 };
 
 const doesSlotCollideWithApplicationRounds = (
-  applicationRounds: ApplicationRoundType[],
+  applicationRounds: ApplicationRound[] | ApplicationRoundType[] = [],
   slot: Date
 ): boolean => {
   if (applicationRounds?.length < 1) return false;
@@ -165,7 +166,7 @@ const doesSlotCollideWithApplicationRounds = (
 export const areSlotsReservable = <T extends Record<string, unknown>>(
   slots: Date[],
   openingHours: T[],
-  activeApplicationRounds: ApplicationRoundType[] = [],
+  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[] = [],
   reservationBegins?: Date,
   reservationEnds?: Date,
   reservationsMinDaysBefore = 0
@@ -270,7 +271,7 @@ export const isStartTimeWithinInterval = (
 export const getSlotPropGetter =
   (
     openingHours: OpeningTimesType[],
-    activeApplicationRounds: ApplicationRoundType[],
+    activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[],
     reservationBegins: Date,
     reservationEnds: Date,
     reservationsMinDaysBefore?: number

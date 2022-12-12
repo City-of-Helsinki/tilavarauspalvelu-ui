@@ -14,7 +14,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { IconInfoCircleFill, Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { addDays, addSeconds, addYears, parseISO } from "date-fns";
+import { addSeconds, addYears, parseISO } from "date-fns";
 import {
   formatSecondDuration,
   toApiDate,
@@ -34,10 +34,13 @@ import { formatters as getFormatters } from "common";
 import { useLocalStorage, useMedia, useSessionStorage } from "react-use";
 import { breakpoints } from "common/src/common/style";
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
-import { PendingReservation, Reservation } from "common/types/common";
+import {
+  ApplicationRound,
+  PendingReservation,
+  Reservation,
+} from "common/types/common";
 import { H4 } from "common/src/common/typography";
 import {
-  ApplicationRoundType,
   Query,
   QueryReservationsArgs,
   QueryReservationUnitByPkArgs,
@@ -87,6 +90,8 @@ import {
   getFuturePricing,
   getPrice,
   isReservationUnitPublished,
+  mockOpeningTimePeriods,
+  mockOpeningTimes,
 } from "../../modules/reservationUnit";
 import EquipmentList from "../../components/reservation-unit/EquipmentList";
 import { daysByMonths } from "../../modules/const";
@@ -98,7 +103,7 @@ import { isReservationReservable } from "../../modules/reservation";
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
   relatedReservationUnits: ReservationUnitType[];
-  activeApplicationRounds: ApplicationRoundType[];
+  activeApplicationRounds: ApplicationRound[];
   termsOfUse: Record<string, TermsOfUseType>;
 };
 
@@ -112,97 +117,6 @@ const allowedReservationStates: ReservationsReservationStateChoices[] = [
   ReservationsReservationStateChoices.RequiresHandling,
   ReservationsReservationStateChoices.WaitingForPayment,
 ];
-
-const openingTimePeriods = [
-  {
-    periodId: 38600,
-    startDate: toApiDate(new Date()),
-    endDate: toApiDate(addDays(new Date(), 30)),
-    resourceState: null,
-    timeSpans: [
-      {
-        startTime: "09:00:00+00:00",
-        endTime: "12:00:00+00:00",
-        weekdays: [6, 1, 7],
-        resourceState: "open",
-        endTimeOnNextDay: null,
-        nameFi: "Span name Fi",
-        nameEn: "Span name En",
-        nameSv: "Span name Sv",
-        descriptionFi: "Span desc Fi",
-        descriptionEn: "Span desc En",
-        descriptionSv: "Span desc Sv",
-      },
-      {
-        startTime: "12:00:00+00:00",
-        endTime: "21:00:00+00:00",
-        weekdays: [7, 2],
-        resourceState: "open",
-        endTimeOnNextDay: null,
-        nameFi: "Span name Fi",
-        nameEn: "Span name En",
-        nameSv: "Span name Sv",
-        descriptionFi: "Span desc Fi",
-        descriptionEn: "Span desc En",
-        descriptionSv: "Span desc Sv",
-      },
-    ],
-    nameFi: "Period name Fi",
-    nameEn: "Period name En",
-    nameSv: "Period name Sv",
-    descriptionFi: "Period desc Fi",
-    descriptionEn: "Period desc En",
-    descriptionSv: "Period desc Sv",
-  },
-  {
-    periodId: 38601,
-    startDate: toApiDate(addDays(new Date(), 30)),
-    endDate: toApiDate(addDays(new Date(), 300)),
-    resourceState: null,
-    timeSpans: [
-      {
-        startTime: "09:00:00+00:00",
-        endTime: "21:00:00+00:00",
-        weekdays: [4, 5, 6],
-        resourceState: "open",
-        endTimeOnNextDay: null,
-        nameFi: "Span name Fi",
-        nameEn: "Span name En",
-        nameSv: "Span name Sv",
-        descriptionFi: "Span desc Fi",
-        descriptionEn: "Span desc En",
-        descriptionSv: "Span desc Sv",
-      },
-      {
-        startTime: "09:00:00+00:00",
-        endTime: "21:00:00+00:00",
-        weekdays: [7],
-        resourceState: "open",
-        endTimeOnNextDay: null,
-        nameFi: "Span name Fi",
-        nameEn: "Span name En",
-        nameSv: "Span name Sv",
-        descriptionFi: "Span desc Fi",
-        descriptionEn: "Span desc En",
-        descriptionSv: "Span desc Sv",
-      },
-    ],
-    nameFi: "Period name Fi",
-    nameEn: "Period name En",
-    nameSv: "Period name Sv",
-    descriptionFi: "Period desc Fi",
-    descriptionEn: "Period desc En",
-    descriptionSv: "Period desc Sv",
-  },
-];
-
-const openingTimes = Array.from(Array(100)).map((val, index) => ({
-  date: toApiDate(addDays(new Date(), index)),
-  startTime: "04:00:00+00:00",
-  endTime: "20:00:00+00:00",
-  state: "open",
-  periods: null,
-}));
 
 export const getServerSideProps: GetServerSideProps = async ({
   locale,
@@ -326,11 +240,11 @@ export const getServerSideProps: GetServerSideProps = async ({
           ...reservationUnitData?.reservationUnitByPk,
           openingHours: {
             openingTimes: allowReservationsWithoutOpeningHours
-              ? openingTimes
+              ? mockOpeningTimes
               : additionalData.reservationUnitByPk?.openingHours
                   ?.openingTimes || [],
             openingTimePeriods: allowReservationsWithoutOpeningHours
-              ? openingTimePeriods
+              ? mockOpeningTimePeriods
               : reservationUnitData?.reservationUnitByPk?.openingHours
                   ?.openingTimePeriods || [],
           },
@@ -1069,6 +983,7 @@ const ReservationUnit = ({
                         createReservation={(res) => createReservation(res)}
                         setErrorMsg={setErrorMsg}
                         handleEventChange={handleEventChange}
+                        mode="create"
                       />
                     </CalendarFooter>
                   )}

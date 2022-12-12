@@ -1,7 +1,7 @@
 import { isAfter, isValid, subMinutes } from "date-fns";
 import camelCase from "lodash/camelCase";
 import { convertHMSToSeconds, secondsToHms } from "common/src/common/util";
-import { OptionType } from "common/types/common";
+import { ApplicationRound, OptionType } from "common/types/common";
 import {
   ApplicationRoundType,
   ReservationsReservationReserveeTypeChoices,
@@ -262,7 +262,7 @@ export const getNormalizedReservationOrderStatus = (
 
 export const isReservationReservable = (
   reservationUnit: ReservationUnitByPkType,
-  activeApplicationRounds: ApplicationRoundType[],
+  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[],
   start: Date,
   end: Date,
   skipLengthCheck = false
@@ -329,8 +329,8 @@ export const canReservationTimeBeChanged = (
 ): [boolean, string?] => {
   if (!reservation) return [false];
 
-  // existing reservation state is CONFIRMED
-  if (isReservationConfirmed(reservation)) {
+  // existing reservation state is not CONFIRMED
+  if (!isReservationConfirmed(reservation)) {
     return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
   }
 
@@ -370,8 +370,8 @@ export const canReservationTimeBeChanged = (
       !isReservationReservable(
         reservationUnit,
         activeApplicationRounds,
-        newReservation.begin,
-        newReservation.end,
+        newReservation.begin && new Date(newReservation.begin),
+        newReservation.end && new Date(newReservation.end),
         false
       )
     ) {

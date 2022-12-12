@@ -14,6 +14,10 @@
   "generating": "Dokumenttia luodaan",
   "errorGeneratingPDF": "PDF Dokumenttia ei pystytty luomaan",
   "reservationCalendar": "Varaa {{title}}",
+  "editReservationTime": "Muuta varauksen aikaa",
+  "cancelEditReservationTime": "Keskeytä muokkaus",
+  "saveNewTime": "Tallenna uusi aika",
+  "saveNewTimeSuccess": "Varauksen aika muutettu",
   "cancelReservation": "Peru varaus",
   "cancelReservationCancellation": "Keskeytä peruminen",
   "cancelReservationAbbreviated": "Peru",
@@ -86,5 +90,6 @@
     "DRAFT": "Odottaa maksua",
     "PAID": "Maksettu",
     "PAID_MANUALLY": "Paikan päällä"
-  }
+  },
+  "reservationEditFailed": "Varauksen muokkaaminen epäonnistui"
 }

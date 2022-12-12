@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { useTranslation } from "next-i18next";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import {
   differenceInSeconds,
   format,
@@ -30,7 +30,7 @@ import {
   doReservationsCollide,
   getDayIntervals,
 } from "common/src/calendar/util";
-import { Language, OptionType } from "common/types/common";
+import { ApplicationRound, Language, OptionType } from "common/types/common";
 import {
   fontBold,
   fontMedium,
@@ -54,13 +54,14 @@ type Props<T> = {
   resetReservation: () => void;
   isSlotReservable: (start: Date, end: Date) => boolean;
   setCalendarFocusDate: (date: Date) => void;
-  activeApplicationRounds: ApplicationRoundType[];
-  createReservation: (arg: ReservationProps) => void;
+  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[];
+  createReservation?: (arg: ReservationProps) => void;
   setErrorMsg: (msg: string) => void;
   handleEventChange: (
     event: CalendarEvent<T>,
     skipLengthCheck?: boolean
   ) => boolean;
+  mode: "create" | "edit";
 };
 
 const Wrapper = styled.div`
@@ -197,7 +198,7 @@ const ResetButton = styled(Button).attrs({
   style: {
     "--border-color": "var(--color-black)",
     "--color": "var(--color-black)",
-  },
+  } as CSSProperties,
 })`
   white-space: nowrap;
   order: 1;
@@ -242,6 +243,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   createReservation,
   setErrorMsg,
   handleEventChange,
+  mode,
 }: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
 
@@ -432,7 +434,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     false
   );
 
-  const submitButton = (
+  const submitButton = createReservation && (
     <SubmitButtonWrapper>
       <LoginFragment
         isActionDisabled={!isReservable}
@@ -459,20 +461,22 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     <Wrapper data-testid="reservation-unit__reservation-controls--wrapper">
       <TogglerTop>
         <ToggleControls>
-          {isReservable ? (
-            areControlsVisible ? (
-              <div />
+          <TogglerLabel>
+            {isReservable ? (
+              areControlsVisible ? (
+                <div>&nbsp;</div>
+              ) : (
+                <>
+                  <TogglerDate>{togglerLabel}</TogglerDate>
+                  <TogglerPrice>
+                    {t("reservationUnit:price")}: {price}
+                  </TogglerPrice>
+                </>
+              )
             ) : (
-              <TogglerLabel>
-                <TogglerDate>{togglerLabel}</TogglerDate>
-                <TogglerPrice>
-                  {t("reservationUnit:price")}: {price}
-                </TogglerPrice>
-              </TogglerLabel>
-            )
-          ) : (
-            <TogglerLabel>{t("reservationCalendar:selectTime")}</TogglerLabel>
-          )}
+              t("reservationCalendar:selectTime")
+            )}
+          </TogglerLabel>
           <ToggleButton
             onClick={() => setAreControlsVisible(!areControlsVisible)}
             data-testid="reservation-unit__reservation-controls--toggle-button"
@@ -545,7 +549,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           >
             {t("searchForm:resetForm")}
           </ResetButton>
-          {submitButton}
+          {mode === "create" && submitButton}
         </Content>
       )}
     </Wrapper>

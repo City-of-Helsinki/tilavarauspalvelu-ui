@@ -403,7 +403,7 @@ describe("getNormalizedReservationOrderStatus", () => {
 describe("canReservationBeChanged", () => {
   const reservation = {
     id: "123f4w90",
-    state: "CREATED",
+    state: "CONFIRMED",
     price: 0,
     begin: addHours(new Date(), 1).toISOString(),
     reservationUnits: [
@@ -443,11 +443,11 @@ describe("canReservationBeChanged", () => {
     ).toStrictEqual([true]);
   });
 
-  test("returns false with confirmed reservation", () => {
+  test("returns false with non-confirmed reservation", () => {
     expect(
       canReservationTimeBeChanged({
         ...reservation,
-        state: "CONFIRMED",
+        state: "CREATED",
       } as ReservationType)
     ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
   });
@@ -576,7 +576,8 @@ describe("canReservationBeChanged", () => {
           } as ReservationType,
           {
             ...reservation,
-            end: addHours(new Date(), 2),
+            begin: undefined,
+            end: addHours(new Date(), 2).toISOString(),
           } as ReservationType,
           reservationUnit,
           []
