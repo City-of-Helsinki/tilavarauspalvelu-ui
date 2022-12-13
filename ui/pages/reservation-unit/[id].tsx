@@ -527,13 +527,13 @@ const ReservationUnit = ({
 
   const isSlotReservable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
-      return isReservationReservable(
+      return isReservationReservable({
         reservationUnit,
         activeApplicationRounds,
         start,
         end,
-        skipLengthCheck
-      );
+        skipLengthCheck,
+      });
     },
     [activeApplicationRounds, reservationUnit]
   );

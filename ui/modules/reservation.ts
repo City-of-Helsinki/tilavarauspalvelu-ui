@@ -260,13 +260,25 @@ export const getNormalizedReservationOrderStatus = (
   return null;
 };
 
+export type IsReservationReservableProps = {
+  reservationUnit: ReservationUnitByPkType;
+  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[];
+  start: Date;
+  end: Date;
+  skipLengthCheck;
+};
+
 export const isReservationReservable = (
-  reservationUnit: ReservationUnitByPkType,
-  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[],
-  start: Date,
-  end: Date,
-  skipLengthCheck = false
+  props: IsReservationReservableProps
 ): boolean => {
+  const {
+    reservationUnit,
+    activeApplicationRounds,
+    start,
+    end,
+    skipLengthCheck = false,
+  } = props;
+
   const {
     reservations,
     bufferTimeBefore,
@@ -321,12 +333,23 @@ export const isReservationFreeOfCharge = (
   reservation: ReservationType
 ): boolean => parseInt(String(reservation.price), 10) === 0;
 
+export type CanReservationBeChangedProps = {
+  reservation: ReservationType;
+  newReservation?: ReservationType;
+  reservationUnit?: ReservationUnitByPkType;
+  activeApplicationRounds?: ApplicationRoundType[];
+};
+
 export const canReservationTimeBeChanged = (
-  reservation: ReservationType,
-  newReservation?: ReservationType,
-  reservationUnit?: ReservationUnitByPkType,
-  activeApplicationRounds?: ApplicationRoundType[]
+  props: CanReservationBeChangedProps
 ): [boolean, string?] => {
+  const {
+    reservation,
+    newReservation,
+    reservationUnit,
+    activeApplicationRounds,
+  } = props;
+
   if (!reservation) return [false];
 
   // existing reservation state is not CONFIRMED
@@ -367,13 +390,13 @@ export const canReservationTimeBeChanged = (
 
     //  new reservation is valid
     if (
-      !isReservationReservable(
+      !isReservationReservable({
         reservationUnit,
         activeApplicationRounds,
-        newReservation.begin && new Date(newReservation.begin),
-        newReservation.end && new Date(newReservation.end),
-        false
-      )
+        start: Boolean(newReservation.begin) && new Date(newReservation.begin),
+        end: Boolean(newReservation.end) && new Date(newReservation.end),
+        skipLengthCheck: false,
+      })
     ) {
       return [false, "RESERVATION_TIME_INVALID"];
     }

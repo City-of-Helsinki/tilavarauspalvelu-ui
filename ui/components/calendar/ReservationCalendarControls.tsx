@@ -434,7 +434,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     false
   );
 
-  const submitButton = createReservation && (
+  const submitButton = createReservation ? (
     <SubmitButtonWrapper>
       <LoginFragment
         isActionDisabled={!isReservable}
@@ -455,7 +455,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
         }
       />
     </SubmitButtonWrapper>
-  );
+  ) : null;
 
   return (
     <Wrapper data-testid="reservation-unit__reservation-controls--wrapper">

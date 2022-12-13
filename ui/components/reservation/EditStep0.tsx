@@ -205,13 +205,13 @@ const EditStep0 = ({
 
   const isSlotReservable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
-      return isReservationReservable(
+      return isReservationReservable({
         reservationUnit,
         activeApplicationRounds,
         start,
         end,
-        skipLengthCheck
-      );
+        skipLengthCheck,
+      });
     },
     [activeApplicationRounds, reservationUnit]
   );
@@ -380,12 +380,13 @@ const EditStep0 = ({
           disabled={!initialReservation}
           onClick={() => {
             const [isNewReservationValid, validationError] =
-              canReservationTimeBeChanged(
+              canReservationTimeBeChanged({
                 reservation,
-                initialReservation as unknown as ReservationType,
+                newReservation:
+                  initialReservation as unknown as ReservationType,
                 reservationUnit,
-                activeApplicationRounds
-              );
+                activeApplicationRounds,
+              });
 
             if (validationError) {
               setErrorMsg(

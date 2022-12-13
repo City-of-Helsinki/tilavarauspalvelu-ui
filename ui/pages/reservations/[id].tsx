@@ -294,7 +294,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
   }, [reservation, reservationUnit, t]);
 
   const [canTimeBeModified, modifyTimeReason] = useMemo(
-    () => canReservationTimeBeChanged(reservation),
+    () => canReservationTimeBeChanged({ reservation }),
     [reservation]
   );
 
