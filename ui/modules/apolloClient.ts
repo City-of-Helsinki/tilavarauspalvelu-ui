@@ -13,12 +13,7 @@ import {
   getApiAccessTokens,
   updateApiAccessTokens,
 } from "./auth/util";
-import {
-  apiBaseUrl,
-  authEnabled,
-  isBrowser,
-  PROFILE_TOKEN_HEADER,
-} from "./const";
+import { apiBaseUrl, isBrowser, PROFILE_TOKEN_HEADER } from "./const";
 
 // list of operations that need authentication
 const needsAuthentication = ["listReservations", "reservationByPk"];
@@ -113,14 +108,6 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 
 const httpLink = new HttpLink({ uri: `${apiBaseUrl}/graphql/` });
 
-const browserLinks = [errorLink];
-if (authEnabled) {
-  browserLinks.push(authLink);
-}
-browserLinks.push(httpLink);
-
-const link = isBrowser ? from(browserLinks) : from([httpLink]);
-
 const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
@@ -131,7 +118,7 @@ const client = new ApolloClient({
       },
     },
   }),
-  link,
+  link: isBrowser ? from([errorLink, authLink, httpLink]) : from([httpLink]),
   ssrMode: typeof window === undefined,
   defaultOptions: {
     watchQuery: {
