@@ -5,10 +5,18 @@ import { ReservationType } from "common/types/gql-types";
 import { CustomTable, DataOrMessage, TableLink } from "../lists/components";
 import { reservationUrl } from "../../common/urls";
 import { getReserveeName, reservationDateTime } from "./requested/util";
+import { formatDateTime } from "../../common/util";
 
 export type Sort = {
   field: string;
   asc: boolean;
+};
+
+type ReservationTableColumn = {
+  headerName: string;
+  key: string;
+  isSortable: boolean;
+  transform?: (reservationtype: ReservationType) => JSX.Element | string;
 };
 
 type Props = {
@@ -17,7 +25,7 @@ type Props = {
   reservations: ReservationType[];
 };
 
-const getColConfig = (t: TFunction) => [
+const getColConfig = (t: TFunction): ReservationTableColumn[] => [
   {
     headerName: t("Reservations.headings.id"),
     key: "pk",
@@ -61,13 +69,19 @@ const getColConfig = (t: TFunction) => [
       reservationDateTime(begin, end, t),
   },
   {
+    headerName: t("Reservations.headings.createdAt"),
+    key: "created_at",
+    isSortable: true,
+    transform: ({ createdAt }: ReservationType) =>
+      formatDateTime(createdAt as string),
+  },
+  {
     headerName: t("Reservations.headings.paymentStatus"),
-    key: "paymentStatus",
-    isSortable: false,
+    key: "orderStatus",
+    isSortable: true,
     transform: ({ orderStatus }: ReservationType) =>
       orderStatus === null ? "-" : t(`Payment.status.${orderStatus}`),
   },
-
   {
     headerName: t("Reservations.headings.state"),
     key: "state",

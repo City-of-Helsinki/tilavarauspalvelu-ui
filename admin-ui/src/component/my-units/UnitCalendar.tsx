@@ -1,22 +1,31 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
 import { differenceInMinutes } from "date-fns";
-import React, { CSSProperties, Fragment } from "react";
+import React, {
+  CSSProperties,
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
 import { TFunction, useTranslation } from "react-i18next";
-import { CELL_BORDER } from "./const";
+import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
 import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter, {
   POST_PAUSE,
   PRE_PAUSE,
 } from "./resourceEventStyleGetter";
+import { getReserveeName } from "../reservations/requested/util";
+import { sortByName } from "../../common/util";
 
 export type Resource = {
   title: string;
   pk: number;
   url: string;
+  isDraft: boolean;
   events: CalendarEvent<ReservationType>[];
 };
 
@@ -48,11 +57,19 @@ const FlexContainer = styled.div<{ $numCols: number }>`
   border-bottom: ${CELL_BORDER};
 `;
 
-const ResourceNameContainer = styled.div`
+const ResourceNameContainer = styled.div<{ $isDraft: boolean }>`
   display: flex;
   align-items: center;
   border-top: ${CELL_BORDER};
+  border-right: ${CELL_BORDER};
+  border-left: ${({ $isDraft }) =>
+    $isDraft ? CELL_BORDER_LEFT_ALERT : CELL_BORDER_LEFT};
   font-size: var(--fontsize-body-s);
+  padding-inline: var(--spacing-4-xs);
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--color-white);
 `;
 
 const HeadingRow = styled.div`
@@ -60,6 +77,7 @@ const HeadingRow = styled.div`
   display: grid;
   grid-template-columns: 150px 1fr;
   border-right: 1px solid transparent;
+  border-left: 2px solid transparent;
 `;
 
 const Time = styled.div`
@@ -72,6 +90,7 @@ const Time = styled.div`
 
 const Row = styled(HeadingRow)`
   border-right: ${CELL_BORDER};
+  border-left: 2px solid transparent;
 `;
 
 const CellContent = styled.div<{ $numCols: number }>`
@@ -80,6 +99,7 @@ const CellContent = styled.div<{ $numCols: number }>`
   height: 100%;
   grid-template-columns: repeat(${({ $numCols }) => $numCols}, 1fr);
   border-right: ${CELL_BORDER};
+  position: relative;
 `;
 
 const Cell = styled.div`
@@ -92,6 +112,25 @@ const Cell = styled.div`
 const RowCalendarArea = styled.div`
   width: 100%;
   position: relative;
+`;
+
+const EventContent = styled.div`
+  height: 100%;
+  width: 100%;
+  position: relative;
+
+  p {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: var(--spacing-xs);
+
+    margin: 0;
+    position: absolute;
+    width: calc(100% - var(--spacing-xs) * 2);
+    height: calc(100% - var(--spacing-xs) * 2);
+    pointer-events: none;
+  }
 `;
 
 const Cells = ({ cols }: { cols: number }) => (
@@ -121,6 +160,7 @@ const getPreBuffer = (
           width,
         }}
         title={t("MyUnits.UnitCalendar.legend.pause")}
+        key={`${event.event?.pk}-pre`}
       />
     );
   }
@@ -146,10 +186,21 @@ const getPostBuffer = (
           width,
         }}
         title={t("MyUnits.UnitCalendar.legend.pause")}
+        key={`${event.event?.pk}-post`}
       />
     );
   }
   return null;
+};
+
+const getEventTitle = ({
+  reservation: { title, event },
+}: {
+  reservation: CalendarEvent<ReservationType>;
+}) => {
+  return event && event?.pk !== event?.reservationUnits?.[0]?.pk
+    ? getReserveeName(event)
+    : title;
 };
 
 const Events = ({
@@ -176,6 +227,7 @@ const Events = ({
     }}
   >
     {events.map((e) => {
+      const title = getEventTitle({ reservation: e });
       const startDate = new Date(e.start);
       const endDate = new Date(e.end);
       const dayStartDate = new Date(e.start);
@@ -210,16 +262,11 @@ const Events = ({
             left,
             ...TemplateProps,
             width: `calc(${durationMinutes / 60} * ${100 / numHours}% + 1px)`,
+            zIndex: 5,
           }}
         >
-          <div
-            style={{
-              height: "100%",
-              width: "100%",
-              ...eventStyleGetter(e).style,
-            }}
-            title={e.title}
-          >
+          <EventContent style={{ ...eventStyleGetter(e).style }}>
+            <p>{title}</p>
             <Popup
               position={["right center", "left center"]}
               trigger={() => (
@@ -239,7 +286,7 @@ const Events = ({
                 reservation={e.event as ReservationType}
               />
             </Popup>
-          </div>
+          </EventContent>
         </div>,
         postBuffer,
       ];
@@ -247,32 +294,66 @@ const Events = ({
   </div>
 );
 
+const sortByDraftStatusAndTitle = (resources: Resource[]) => {
+  return resources.sort((a, b) => {
+    const draftComparison: number = Number(a.isDraft) - Number(b.isDraft);
+    const titleComparison = sortByName(a.title, b.title);
+
+    return draftComparison || titleComparison;
+  });
+};
+
 const ResourceCalendar = ({ resources }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const calendarRef = useRef<HTMLDivElement>(null);
   // todo find out min and max opening hour of every reservationunit
-  const [beginHour, endHour] = [8, 24];
+  const [beginHour, endHour] = [0, 24];
   const numHours = endHour - beginHour;
+  const orderedResources = sortByDraftStatusAndTitle([...resources]);
+
+  const scrollCalendar = useCallback(() => {
+    const ref = calendarRef.current;
+
+    if (!ref) return;
+
+    const lastElementOfHeader = ref.querySelector(
+      ".calendar-header > div:last-of-type"
+    );
+
+    if (lastElementOfHeader) {
+      lastElementOfHeader.scrollIntoView();
+    }
+  }, [calendarRef]);
+
+  useEffect(() => {
+    scrollCalendar();
+  }, [scrollCalendar]);
 
   return (
     <>
-      <FlexContainer $numCols={numHours * 2}>
+      <FlexContainer $numCols={numHours * 2} ref={calendarRef}>
         <HeadingRow>
           <div />
-          <CellContent $numCols={numHours} key="header">
+          <CellContent
+            $numCols={numHours}
+            key="header"
+            className="calendar-header"
+          >
             {Array.from(Array(numHours).keys()).map((i, index) => (
               <Time key={i}>{beginHour + index}</Time>
             ))}
           </CellContent>
         </HeadingRow>
-        {resources.map((row) => (
+        {orderedResources.map((row) => (
           <Fragment key={row.url}>
             <Row>
-              <ResourceNameContainer title={row.title}>
+              <ResourceNameContainer title={row.title} $isDraft={row.isDraft}>
                 <div
                   style={{
                     overflow: "hidden",
                     whiteSpace: "nowrap",
                     textOverflow: "ellipsis",
+                    padding: "var(--spacing-xs)",
                   }}
                 >
                   {row.title}

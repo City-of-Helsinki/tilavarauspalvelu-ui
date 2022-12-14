@@ -173,6 +173,7 @@ const translations: ITranslations = {
     increaseByOneAriaLabel: ["Lisää yhdellä"],
     decreaseByOneAriaLabel: ["Vähennä yhdellä"],
     openToNewTab: ["Avaa uuteen välilehteen"],
+    reservationUnit: ["Varausyksikkö"],
   },
   errors: {
     applicationRoundNotFound: ["Haettua hakukierrosta ei löydy"],
@@ -1606,6 +1607,7 @@ const translations: ITranslations = {
       reservationUnit: ["Varausyksikkö"],
       unit: ["Toimipiste"],
       datetime: ["Aika"],
+      createdAt: ["Tehty"],
       paymentStatus: ["Maksutila"],
       state: ["Käsittelytila"],
     },
