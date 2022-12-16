@@ -162,7 +162,7 @@ const Step0 = ({
                   }}
                   data={{
                     subventionLabel: (
-                      <Trans i18nKey="reservationApplication:label.common.applyingForFreeOfCharge">
+                      <Trans i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink">
                         Haen maksuttomuutta tai hinnan alennusta ja olen
                         tutustunut
                         <a

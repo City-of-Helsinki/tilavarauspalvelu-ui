@@ -665,7 +665,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       );
       cy.get("main#main").should(
         "contain.text",
-        "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <1>alennusperusteisiin</1>"
+        "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut alennusperusteisiin"
       );
 
       cy.get('button[type="submit"]').click();
