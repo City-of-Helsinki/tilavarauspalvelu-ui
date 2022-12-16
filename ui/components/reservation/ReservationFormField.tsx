@@ -32,7 +32,11 @@ type Props = {
   data?: Record<string, ReactElement>;
 };
 
-const StyledCheckboxWrapper = styled(CheckboxWrapper)<{ $break?: boolean }>`
+const StyledCheckboxWrapper = styled(CheckboxWrapper)<{
+  $isWide?: boolean;
+  $break?: boolean;
+}>`
+  ${({ $isWide }) => $isWide && "grid-column: 1 / -1"};
   ${({ $break }) => $break && "margin-top: 0"}
 `;
 
@@ -114,6 +118,7 @@ const ReservationFormField = ({
         "name",
         "description",
         "reserveeAddressStreet",
+        "applyingForFreeOfCharge",
         // "reserveeOrganisationName",
         "billingAddressStreet",
         "purpose",
@@ -182,36 +187,38 @@ const ReservationFormField = ({
       rules={{ required }}
     />
   ) : field === "applyingForFreeOfCharge" ? (
-    <div>
+    <StyledCheckboxWrapper
+      key={field}
+      $isWide={isWideRow}
+      $break={isBreakingColumn}
+    >
       <Subheading>
         {t("reservationApplication:label.subHeadings.subvention")}
-      </Subheading>
-      <StyledCheckboxWrapper key={field} $break={isBreakingColumn}>
-        <Controller
-          name={field}
-          control={control}
-          defaultValue={get(reservation, field)}
-          rules={{ required }}
-          render={(props) => (
-            <StyledCheckbox
-              id={field}
-              onChange={(e) => props.onChange(e.target.checked)}
-              checked={props.value}
-              label={
-                <>
-                  {data?.subventionLabel ||
-                    t(
-                      `reservationApplication:label.${normalizedReserveeType}.${field}`
-                    )}
-                  {required ? " * " : ""}
-                </>
-              }
-              errorText={get(errors, field) && t("forms:requiredField")}
-            />
-          )}
-        />
-      </StyledCheckboxWrapper>
-    </div>
+      </Subheading>{" "}
+      <Controller
+        name={field}
+        control={control}
+        defaultValue={get(reservation, field)}
+        rules={{ required }}
+        render={(props) => (
+          <StyledCheckbox
+            id={field}
+            onChange={(e) => props.onChange(e.target.checked)}
+            checked={props.value}
+            label={
+              <>
+                {data?.subventionLabel ||
+                  t(
+                    `reservationApplication:label.${normalizedReserveeType}.${field}`
+                  )}
+                {required ? " * " : ""}
+              </>
+            }
+            errorText={get(errors, field) && t("forms:requiredField")}
+          />
+        )}
+      />
+    </StyledCheckboxWrapper>
   ) : field === "reserveeIsUnregisteredAssociation" ? (
     <StyledCheckboxWrapper key={field} $break={isBreakingColumn}>
       <Controller
