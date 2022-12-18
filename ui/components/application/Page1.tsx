@@ -1,6 +1,6 @@
 import { IconArrowRight, IconPlusCircle } from "hds-react";
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@apollo/client";
 import { sortBy, uniq } from "lodash";

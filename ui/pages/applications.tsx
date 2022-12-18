@@ -3,10 +3,9 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useQuery } from "@apollo/client";
 import { Notification } from "hds-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, TFunction } from "next-i18next";
 import { Dictionary, groupBy } from "lodash";
 import styled from "styled-components";
-import { TFunction } from "next-i18next";
 import { ReducedApplicationStatus } from "common/types/common";
 import {
   ApplicationRoundType,

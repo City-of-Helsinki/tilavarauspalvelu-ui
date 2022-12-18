@@ -5,7 +5,7 @@ import { isAfter } from "date-fns";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { Tabs, TabList, Tab, TabPanel, Notification } from "hds-react";
 import styled from "styled-components";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { fontMedium } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {

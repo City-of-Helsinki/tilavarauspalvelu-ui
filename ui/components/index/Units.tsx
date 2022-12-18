@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { IconAngleRight, IconArrowRight } from "hds-react";
 import { breakpoints } from "common/src/common/style";
 import Link from "next/link";
@@ -87,7 +87,7 @@ const Units = ({ units }: Props): JSX.Element => {
     units?.length > 0 && (
       <Wrapper>
         <Content>
-          <Heading>{t("home:unitsHeading")}</Heading>
+          <Heading>{t("unitsHeading")}</Heading>
           <UnitContainer>
             {units.slice(0, itemLimit).map((unit) => (
               <Link
@@ -105,7 +105,7 @@ const Units = ({ units }: Props): JSX.Element => {
           {units?.length > itemLimit && (
             <Link href={`${singleSearchPrefix}`} passHref>
               <SearchLink data-testid="front-page__units--more-link">
-                {t("common:showAll")} <IconAngleRight aria-hidden />
+                {t("showAll")} <IconAngleRight aria-hidden />
               </SearchLink>
             </Link>
           )}

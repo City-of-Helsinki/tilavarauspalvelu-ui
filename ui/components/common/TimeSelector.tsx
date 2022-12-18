@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled, { CSSProperties } from "styled-components";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { IconCross, Select } from "hds-react";
 import {
   ApplicationEventSchedule,

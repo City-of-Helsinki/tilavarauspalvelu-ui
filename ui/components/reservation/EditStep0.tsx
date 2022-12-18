@@ -18,7 +18,7 @@ import { addSeconds } from "date-fns";
 import { IconArrowRight, IconCross } from "hds-react";
 import { useRouter } from "next/router";
 import React, { Children, useCallback, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import {
   canReservationTimeBeChanged,

@@ -1,7 +1,7 @@
 import { IconSearch, TextInput } from "hds-react";
 import { useRouter } from "next/router";
 import React, { useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { singleSearchPrefix } from "../../modules/const";
 
