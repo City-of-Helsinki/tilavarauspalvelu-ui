@@ -1,13 +1,14 @@
 import Breadcrumb from "./src/breadcrumb/Breadcrumb";
-import UserInfo from "./src/userinfo/UserInfo";
+import formatters from "./src/number-formatters";
 import {
-  getReservationVolume,
-  getUnRoundedReservationVolume,
   getPriceUnitMinutes,
   getReservationPrice,
+  getReservationVolume,
+  getUnRoundedReservationVolume,
 } from "./src/reservation-pricing";
-import formatters from "./src/number-formatters";
+import UserInfo from "./src/userinfo/UserInfo";
 
+export * from "./types/common";
 export {
   Breadcrumb,
   UserInfo,
