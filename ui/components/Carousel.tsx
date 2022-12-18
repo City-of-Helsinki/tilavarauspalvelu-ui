@@ -3,7 +3,7 @@ import NukaCarousel from "nuka-carousel";
 import { IconAngleLeft, IconAngleRight } from "hds-react";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { MediumButton } from "../styles/util";
 
 type Props = {

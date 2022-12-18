@@ -3,7 +3,7 @@ import { IconArrowLeft, IconArrowRight, IconGroup, IconUser } from "hds-react";
 import Image from "next/image";
 import React, { Fragment, ReactElement, useMemo, useRef } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
 import RadioButtonWithImage from "common/src/reservation-form/RadioButtonWithImage";

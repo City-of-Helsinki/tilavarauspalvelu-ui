@@ -7,7 +7,7 @@ import { isFinite } from "lodash";
 import { IconCalendar, IconCross, Notification } from "hds-react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { H1, H4 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {

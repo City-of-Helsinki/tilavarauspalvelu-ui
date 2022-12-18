@@ -10,7 +10,7 @@ const Wrapper = styled(HDSFooter)`
 `;
 
 const Footer = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("footer");
 
   return (
     <Wrapper

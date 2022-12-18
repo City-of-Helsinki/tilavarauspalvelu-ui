@@ -1,22 +1,20 @@
 import React from "react";
-import { appWithTranslation, UserConfig } from "next-i18next";
-import dynamic from "next/dynamic";
-import { format, isValid } from "date-fns";
-import { AppProps } from "next/app";
-import { fi } from "date-fns/locale";
 import { ApolloProvider } from "@apollo/client";
-import apolloClient from "../modules/apolloClient";
-import SessionLost from "../components/common/SessionLost";
-import PageWrapper from "../components/common/PageWrapper";
-import { authEnabled, isBrowser, mockRequests } from "../modules/const";
+import { appWithTranslation } from "next-i18next";
+import { AppProps } from "next/app";
+import dynamic from "next/dynamic";
+import { FullscreenSpinner } from "../components/common/FullscreenSpinner";
 import LoggingIn from "../components/common/LoggingIn";
+import PageWrapper from "../components/common/PageWrapper";
+import SessionLost from "../components/common/SessionLost";
+import ExternalScripts from "../components/ExternalScripts";
+import { DataContextProvider } from "../context/DataContext";
+import apolloClient from "../modules/apolloClient";
 import oidcConfiguration from "../modules/auth/configuration";
+import { authEnabled, isBrowser, mockRequests } from "../modules/const";
+import { TrackingWrapper } from "../modules/tracking";
 import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
-import { TrackingWrapper } from "../modules/tracking";
-import { FullscreenSpinner } from "../components/common/FullscreenSpinner";
-import { DataContextProvider } from "../context/DataContext";
-import ExternalScripts from "../components/ExternalScripts";
 
 if (mockRequests) {
   require("../mocks");
@@ -68,15 +66,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default appWithTranslation(MyApp, {
-  ...(nextI18NextConfig as UserConfig),
-  interpolation: {
-    format: (value, fmt, lng) => {
-      const locales = { fi };
-      if (value instanceof Date && isValid(value))
-        return format(value, fmt || "d.M.yyyy", { locale: locales[lng] });
-      return value;
-    },
-    escapeValue: false,
-  },
-});
+export default appWithTranslation(MyApp, nextI18NextConfig);

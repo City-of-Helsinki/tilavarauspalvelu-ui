@@ -14,7 +14,7 @@ import {
   TextArea,
 } from "hds-react";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { OptionType } from "common/types/common";
 import { breakpoints } from "common/src/common/style";
 import NotificationBox from "common/src/common/NotificationBox";

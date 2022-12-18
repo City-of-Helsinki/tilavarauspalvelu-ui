@@ -10,7 +10,7 @@ import {
 } from "hds-react";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import { useQuery } from "@apollo/client";
 import styled from "styled-components";
 import { OptionType } from "common/types/common";

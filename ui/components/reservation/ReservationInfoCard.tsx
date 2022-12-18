@@ -4,7 +4,7 @@ import { H4, Strong } from "common/src/common/typography";
 import { differenceInMinutes, parseISO } from "date-fns";
 import { trim } from "lodash";
 import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import {
   ReservationType,
