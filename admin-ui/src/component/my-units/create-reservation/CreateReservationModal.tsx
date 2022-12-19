@@ -207,7 +207,14 @@ const DialogContent = ({
         <Button variant="secondary" onClick={onClose} theme="black">
           {t("common.cancel")}
         </Button>
-        <Button type="submit">{t("ReservationDialog.accept")}</Button>
+        <Button
+          type="submit"
+          onClick={() => {
+            form.handleSubmit(onSubmit)();
+          }}
+        >
+          {t("ReservationDialog.accept")}
+        </Button>
       </ActionButtons>
     </>
   );

@@ -104,8 +104,8 @@ export const isReservationLongEnough = (
   return reservationDuration >= minDuration;
 };
 
-const areOpeningTimesAvailable = <T extends Record<string, unknown>>(
-  openingHours: T[],
+const areOpeningTimesAvailable = (
+  openingHours: OpeningTimesType[],
   slotDate: Date
 ): boolean => {
   return !!openingHours?.some((oh) => {
@@ -163,9 +163,9 @@ const doesSlotCollideWithApplicationRounds = (
   );
 };
 
-export const areSlotsReservable = <T extends Record<string, unknown>>(
+export const areSlotsReservable = (
   slots: Date[],
-  openingHours: T[],
+  openingHours: OpeningTimesType[],
   activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[] = [],
   reservationBegins?: Date,
   reservationEnds?: Date,

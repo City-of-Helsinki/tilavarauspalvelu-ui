@@ -1029,8 +1029,10 @@ const translations: ITranslations = {
     type: ["Varauksen tyyppi"],
     typeInfo: ["Lorem ipsum dolor sit amet, consectetur adipisicing elit."],
     reservationType: {
-      STAFF: ["Toimipisteen sisäinen varaus"],
-      NORMAL: ["Ulkoinen varaus"],
+      STAFF: [
+        "Kaupungin oma käytto, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
+      ],
+      NORMAL: ["Asiakkaan puolesta"],
       BLOCKED: ["Suljettu"],
     },
     buffers: ["Varauksen tauko"],
