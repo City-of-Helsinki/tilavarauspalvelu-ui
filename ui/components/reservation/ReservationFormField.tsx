@@ -69,7 +69,6 @@ const ReservationFormField = ({
   metadataSet,
   reservation,
   form: {
-    setValue,
     register,
     control,
     watch,
@@ -148,10 +147,10 @@ const ReservationFormField = ({
           defaultValue={options[field].find(
             (n) => n.value === get(reservation, field)
           )}
-          value={formField.value}
+          value={formField.value || null}
           error={get(errors, field) && t("forms:requiredField")}
           required={required}
-          onChange={(value) => setValue(field, value)}
+          onChange={(value) => formField.onChange(value)}
           invalid={!!get(errors, field)}
           $isWide={isWideRow}
         />
