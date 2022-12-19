@@ -28,48 +28,42 @@ export const UNIT_QUERY = gql`
 `;
 
 export const RESERVATIONS_BY_RESERVATIONUNITS = gql`
-  query reservationsByReservationUnit(
-    $reservationUnit: [ID]
-    $offset: Int
-    $first: Int
-    $begin: DateTime
-    $end: DateTime
-  ) {
-    reservations(
-      begin: $begin
-      end: $end
-      first: $first
-      offset: $offset
-      reservationUnit: $reservationUnit
-      state: ["CONFIRMED", "REQUIRES_HANDLING"]
-    ) {
-      edges {
-        node {
-          user {
-            email
-          }
-          name
-          reserveeFirstName
-          reserveeLastName
-          reserveeOrganisationName
-          reservationUnits {
-            pk
-          }
-          pk
-          begin
-          end
-          state
+  query ReservationUnit($pk: Int, $from: Date, $to: Date) {
+    reservationUnitByPk(pk: $pk) {
+      pk
+      reservations(from: $from, to: $to, includeWithSameComponents: true) {
+        id
+        user {
+          firstName
+          lastName
+          email
         }
-      }
-      pageInfo {
-        hasNextPage
+        name
+        reserveeFirstName
+        reserveeLastName
+        reserveeOrganisationName
+        reservationUnits {
+          pk
+          nameFi
+        }
+        pk
+        begin
+        end
+        state
       }
     }
   }
 `;
 
 export const RESERVATION_UNITS_BY_UNIT = gql`
-  query reservationUnitsByUnit($unit: [ID], $offset: Int, $first: Int) {
+  query reservationUnitsByUnit(
+    $unit: [ID]
+    $offset: Int
+    $first: Int
+    $from: Date
+    $to: Date
+    $includeWithSameComponents: Boolean
+  ) {
     reservationUnits(
       first: $first
       offset: $offset
@@ -86,52 +80,38 @@ export const RESERVATION_UNITS_BY_UNIT = gql`
           reservationUnitType {
             pk
           }
-        }
-      }
-      pageInfo {
-        hasNextPage
-      }
-    }
-  }
-`;
-
-export const RESERVATIONS_BY_UNIT = gql`
-  query reservationsByUnit(
-    $unit: [ID]
-    $offset: Int
-    $first: Int
-    $begin: DateTime
-    $end: DateTime
-  ) {
-    reservations(
-      begin: $begin
-      end: $end
-      first: $first
-      offset: $offset
-      unit: $unit
-    ) {
-      edges {
-        node {
-          user {
-            firstName
-            lastName
-            email
-          }
-          workingMemo
-          name
-          reserveeFirstName
-          reserveeLastName
-          reserveeOrganisationName
-          reservationUnits {
+          isDraft
+          reservations(
+            from: $from
+            to: $to
+            includeWithSameComponents: $includeWithSameComponents
+          ) {
             pk
-            nameFi
+            name
+            priority
+            begin
+            end
+            state
+            numPersons
+            calendarUrl
             bufferTimeBefore
             bufferTimeAfter
+            workingMemo
+            reserveeFirstName
+            reserveeLastName
+            reserveeOrganisationName
+            reservationUnits {
+              pk
+              nameFi
+              bufferTimeBefore
+              bufferTimeAfter
+            }
+            user {
+              firstName
+              lastName
+              email
+            }
           }
-          pk
-          begin
-          end
-          state
         }
       }
       pageInfo {

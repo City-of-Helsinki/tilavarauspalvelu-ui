@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import styled from "styled-components";
-import { useTranslation } from "react-i18next";
-import { addDays } from "date-fns";
-import { intersection } from "lodash";
+import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
+import { toApiDate } from "common/src/common/util";
 import {
   Query,
-  QueryReservationsArgs,
   QueryReservationUnitsArgs,
   ReservationType,
+  ReservationUnitByPkTypeReservationsArgs,
   ReservationUnitType,
 } from "common/types/gql-types";
+import { addDays } from "date-fns";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import { combineResults } from "../../common/util";
 import { useNotification } from "../../context/NotificationContext";
+import Loader from "../Loader";
 import Legend from "../reservations/requested/Legend";
-import { RESERVATIONS_BY_UNIT, RESERVATION_UNITS_BY_UNIT } from "./queries";
+import { RESERVATION_UNITS_BY_UNIT } from "./queries";
 import { legend } from "./resourceEventStyleGetter";
 import ResourceCalendar, { Resource } from "./UnitCalendar";
-import Loader from "../Loader";
 
 type Props = {
   begin: string;
@@ -59,28 +60,8 @@ const updateQuery = (
   return combineResults(previousResult, fetchMoreResult, "reservations");
 };
 
-const intersectingReservationUnits = (
-  allReservationUnits: ReservationUnitType[],
-  currentReservationUnit: number
-): number[] => {
-  const spacePks = allReservationUnits
-    .filter((ru) => ru.pk === currentReservationUnit)
-    .flatMap((ru) => ru.spaces?.map((space) => space?.pk));
-
-  return allReservationUnits
-    .filter(
-      (ru) =>
-        intersection(
-          ru.spaces?.map((space) => space?.pk),
-          spacePks
-        ).length > 0
-    )
-    .map((ru) => ru.pk as number);
-};
-
 const merge = (
   reservationUnits: ReservationUnitType[],
-  reservations: ReservationType[],
   reservationUnitTypes: number[]
 ): Resource[] => {
   return reservationUnits
@@ -92,28 +73,21 @@ const merge = (
           );
     })
     .map((reservationUnit) => {
-      const reservationUnitIds = intersectingReservationUnits(
-        reservationUnits,
-        reservationUnit.pk as number
-      );
+      const events = (reservationUnit.reservations?.map(
+        (reservation) =>
+          reservation && {
+            title: reservation.name ?? "",
+            event: reservation,
+            start: reservation.begin,
+            end: reservation.end,
+          }
+      ) || []) as CalendarEvent<ReservationType>[];
 
       return {
         title: reservationUnit.nameFi as string,
         pk: reservationUnit.pk as number,
-        events: reservations
-          .filter(
-            (reservation) =>
-              intersection(
-                reservationUnitIds,
-                (reservation?.reservationUnits || []).map((ru) => ru?.pk)
-              ).length > 0
-          )
-          .map((reservation) => ({
-            title: reservation.name as string,
-            event: reservation,
-            start: reservation.begin,
-            end: reservation.end,
-          })),
+        isDraft: reservationUnit.isDraft,
+        events,
         url: String(reservationUnit.pk || 0),
       };
     });
@@ -127,24 +101,28 @@ const UnitReservations = ({
   const [resourcesData, setResourcesData] = useState<Resource[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const { notifyError } = useNotification();
+  const currentDate = new Date(begin);
 
   const { t } = useTranslation();
 
-  const { data: reservationsData, fetchMore } = useQuery<
+  const {
+    loading: reservationUnitsLoading,
+    data: reservationUnitsData,
+    fetchMore,
+  } = useQuery<
     Query,
-    QueryReservationsArgs
-  >(RESERVATIONS_BY_UNIT, {
-    fetchPolicy: "network-only",
+    QueryReservationUnitsArgs & ReservationUnitByPkTypeReservationsArgs
+  >(RESERVATION_UNITS_BY_UNIT, {
     variables: {
       offset: 0,
       first: 100,
-      reservationUnitType: reservationUnitTypes.map(String),
       unit: [unitPk],
-      begin: new Date(begin),
-      end: addDays(new Date(begin), 1),
+      from: toApiDate(currentDate),
+      to: toApiDate(addDays(currentDate, 1)),
+      includeWithSameComponents: true,
     },
-    onCompleted: ({ reservations }) => {
-      if (reservations?.pageInfo.hasNextPage) {
+    onCompleted: ({ reservationUnits }) => {
+      if (reservationUnits?.pageInfo.hasNextPage) {
         setHasMore(true);
       }
     },
@@ -153,24 +131,12 @@ const UnitReservations = ({
     },
   });
 
-  const { loading: reservationUnitsLoading, data: reservationUnitsData } =
-    useQuery<Query, QueryReservationUnitsArgs>(RESERVATION_UNITS_BY_UNIT, {
-      variables: {
-        offset: 0,
-        first: 100,
-        unit: [unitPk],
-      },
-      onError: () => {
-        notifyError(t("errors.errorFetchingData"));
-      },
-    });
-
   useEffect(() => {
     if (hasMore) {
       setHasMore(false);
       fetchMore({
         variables: {
-          offset: reservationsData?.reservations?.edges.length,
+          offset: reservationUnitsData?.reservationUnits?.edges.length,
         },
         updateQuery,
       });
@@ -185,14 +151,11 @@ const UnitReservations = ({
           (reservationUnitsData?.reservationUnits?.edges || []).map(
             (e) => e?.node as ReservationUnitType
           ),
-          (reservationsData?.reservations?.edges || []).map(
-            (e) => e?.node as ReservationType
-          ),
           reservationUnitTypes
         )
       );
     }
-  }, [reservationUnitsData, reservationsData, reservationUnitTypes]);
+  }, [reservationUnitsData, reservationUnitTypes]);
 
   if (reservationUnitsLoading) {
     return <Loader />;
