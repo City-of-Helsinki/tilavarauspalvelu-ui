@@ -19,7 +19,7 @@ import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitType,
 } from "common/types/gql-types";
-import { Inputs, Reservation } from "../../modules/types";
+import { Inputs, Reservation } from "common/src/reservation-form/types";
 import { BlackButton, MediumButton } from "../../styles/util";
 import {
   ActionContainer,
