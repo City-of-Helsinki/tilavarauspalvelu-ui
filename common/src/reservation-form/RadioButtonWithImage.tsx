@@ -1,6 +1,6 @@
+import { capitalize } from "lodash";
 import React, { ReactElement } from "react";
 import styled from "styled-components";
-import { capitalize } from "../../../ui/modules/util";
 
 type Props = {
   id: string;
