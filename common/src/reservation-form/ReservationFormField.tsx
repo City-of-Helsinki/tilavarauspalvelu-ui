@@ -7,8 +7,8 @@ import { TFunction } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationMetadataSetType } from "../../types/gql-types";
-import { Inputs, Reservation } from "../../../ui/modules/types";
-import { CheckboxWrapper } from "../../../ui/components/common/common";
+import { Inputs, Reservation } from "./types";
+import { CheckboxWrapper } from "./components";
 import { OptionType } from "../../types/common";
 
 type Props = {
