@@ -1,6 +1,6 @@
 import { camelCase, get } from "lodash";
-import { reservationApplicationFields } from "../../../admin-ui/src/component/my-units/create-reservation/types";
 import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
+import { reservationApplicationFields } from "./types";
 
 export const getReservationApplicationFields = (
   supportedFields: string[],
@@ -15,8 +15,7 @@ export const getReservationApplicationFields = (
     reserveeType.toLocaleLowerCase()
   ).filter((field: string) => supportedFields.includes(field));
 
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < fields.length; i++) {
+  for (let i = 0; i < fields.length; i += 1) {
     if (fields[i].includes("billing_")) {
       fields.splice(i, 0, "show_billing_address");
       break;
