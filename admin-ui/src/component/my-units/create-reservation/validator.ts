@@ -11,23 +11,20 @@ const joi = coreJoi.extend(joiDate) as typeof coreJoi;
 const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
 
 const timeWithIntervals = (
-  interval?: ReservationUnitsReservationUnitReservationStartIntervalChoices
+  interval: ReservationUnitsReservationUnitReservationStartIntervalChoices = ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
 ): coreJoi.StringSchema => {
-  if (interval) {
-    const intervals = getDayIntervals("00:00", "23:59", interval).map(
-      (startHMS) => startHMS.substring(0, 5)
-    );
-    return joi
-      .string()
-      .pattern(TIME_PATTERN)
-      .valid(...intervals)
-      .messages({
-        "any.only": i18n.t("ReservationDialog.validation.interval", {
-          interval: `${intervals.join(", ").substring(0, 50)}...`,
-        }),
-      });
-  }
-  return joi.string().pattern(TIME_PATTERN);
+  const intervals = getDayIntervals("00:00", "23:59", interval).map(
+    (startHMS) => startHMS.substring(0, 5)
+  );
+  return joi
+    .string()
+    .pattern(TIME_PATTERN)
+    .valid(...intervals)
+    .messages({
+      "any.only": i18n.t("ReservationDialog.validation.interval", {
+        interval: `${intervals.join(", ").substring(0, 50)}...`,
+      }),
+    });
 };
 
 export const reservationSchema = (

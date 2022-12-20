@@ -11,7 +11,10 @@ describe("with schema", () => {
   const tomorrow = formatDate(addDays(new Date(), 1).toISOString(), "d.M.yyyy");
 
   test(`date ${tomorrow} is valid`, () => {
-    const futureStartTime = format(addHours(new Date(), 1), TIME_FORMAT);
+    const futureStartTime = format(
+      setMinutes(addHours(new Date(), 1), 0),
+      TIME_FORMAT
+    );
 
     const reservation = {
       type: "BLOCKED",

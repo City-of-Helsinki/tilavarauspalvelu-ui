@@ -225,7 +225,7 @@ export const getDayIntervals = (
     default:
   }
 
-  if (!intervalSeconds || !start || !end || start >= end) return [];
+  if (!intervalSeconds || start === null || !end || start >= end) return [];
 
   for (let i = start; i <= end; i += intervalSeconds) {
     const { h, m, s } = secondsToHms(i);
