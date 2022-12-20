@@ -157,7 +157,10 @@ const Cells = ({
             <CreateReservationModal
               reservationUnitId={reservationUnit}
               start={addMinutes(new Date(date), i * 30)}
-              onClose={() => setModalContent(null)}
+              onClose={() => {
+                setModalContent(null);
+                // TODO refresh calendar content
+              }}
             />,
             true
           );
@@ -329,7 +332,7 @@ const sortByDraftStatusAndTitle = (resources: Resource[]) => {
   });
 };
 
-const ResourceCalendar = ({ resources, date }: Props): JSX.Element => {
+const UnitCalendar = ({ resources, date }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -415,4 +418,4 @@ const ResourceCalendar = ({ resources, date }: Props): JSX.Element => {
   );
 };
 
-export default ResourceCalendar;
+export default UnitCalendar;
