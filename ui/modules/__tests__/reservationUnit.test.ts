@@ -952,9 +952,9 @@ describe("getReservationUnitPrice", () => {
       "40 - 50 € / tunti"
     );
 
-    expect(getReservationUnitPrice(data, addDays(new Date(), 11))).toEqual(
-      "10 - 20 € / tunti"
-    );
+    expect(
+      getReservationUnitPrice(data, addDays(new Date(), 11), undefined, true)
+    ).toEqual("10,00 - 20,00 € / tunti");
   });
 
   it("returns null if incomplete data", () => {

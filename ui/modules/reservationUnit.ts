@@ -234,7 +234,7 @@ export const getPrice = (
   asInt = false
 ): string => {
   const currencyFormatter = trailingZeros ? "currencyWithDecimals" : "currency";
-  const floatFormatter = trailingZeros ? "twoDecimals" : "strippedDecimal";
+  const floatFormatter = trailingZeros ? "twoDecimal" : "strippedDecimal";
 
   const formatters = getFormatters(i18n.language);
 
