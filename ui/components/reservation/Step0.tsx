@@ -20,13 +20,14 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import { Inputs, Reservation } from "common/src/reservation-form/types";
-import { BlackButton, MediumButton } from "../../styles/util";
 import {
-  ActionContainer,
   GroupHeading,
   Subheading,
   TwoColumnContainer,
-} from "./styles";
+} from "common/src/reservation-form/styles";
+
+import { BlackButton, MediumButton } from "../../styles/util";
+import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
 import Sanitize from "../common/Sanitize";
 

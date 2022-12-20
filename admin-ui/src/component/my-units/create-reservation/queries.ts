@@ -11,6 +11,11 @@ export const RESERVATION_UNIT_QUERY = gql`
           bufferTimeBefore
           bufferTimeAfter
           reservationStartInterval
+          metadataSet {
+            name
+            supportedFields
+            requiredFields
+          }
         }
       }
     }
@@ -47,6 +52,14 @@ export const OPTIONS_QUERY = gql`
           pk
           minimum
           maximum
+        }
+      }
+    }
+    cities {
+      edges {
+        node {
+          nameFi
+          pk
         }
       }
     }

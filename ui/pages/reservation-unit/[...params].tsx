@@ -41,6 +41,8 @@ import {
   TermsOfUseType,
 } from "common/types/gql-types";
 import { Inputs, Reservation } from "common/src/reservation-form/types";
+import { Subheading } from "common/src/reservation-form/styles";
+import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import apolloClient from "../../modules/apolloClient";
 import { isBrowser, reservationUnitPrefix } from "../../modules/const";
 import { getTranslation, printErrorMessages } from "../../modules/util";
@@ -57,15 +59,11 @@ import {
 } from "../../modules/queries/reservation";
 import Sanitize from "../../components/common/Sanitize";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
-import {
-  getReservationApplicationFields,
-  getReservationApplicationMutationValues,
-} from "../../modules/reservation";
+import { getReservationApplicationMutationValues } from "../../modules/reservation";
 import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
 import { DataContext, ReservationProps } from "../../context/DataContext";
 import Container from "../../components/common/Container";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
-import { Subheading } from "../../components/reservation/styles";
 import ReservationConfirmation from "../../components/reservation/ReservationConfirmation";
 import Step0 from "../../components/reservation/Step0";
 import Step1 from "../../components/reservation/Step1";

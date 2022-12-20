@@ -19,7 +19,7 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import styled from "styled-components";
-import { get } from "lodash";
+import { camelCase, get, pick, zipObject } from "lodash";
 import {
   valueForDateInput,
   dateTime,
@@ -31,7 +31,7 @@ import { CREATE_STAFF_RESERVATION, RESERVATION_UNIT_QUERY } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
 import { reservationSchema } from "./validator";
-import { ReservationForm, ReservationType } from "./types";
+import { ReservationFormType, ReservationType } from "./types";
 import BlockedReservation from "./BlockedReservation";
 import StaffReservation from "./StaffReservation";
 
@@ -55,7 +55,7 @@ const DialogContent = ({
   start: Date;
 }) => {
   const { t } = useTranslation();
-  const form = useForm<ReservationForm>({
+  const form = useForm<ReservationFormType>({
     resolver: joiResolver(
       reservationSchema(reservationUnit.reservationStartInterval)
     ),
@@ -82,12 +82,25 @@ const DialogContent = ({
   >(CREATE_STAFF_RESERVATION);
 
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
-    console.log("not creating!", create, input);
-  // create({ variables: { input } });
+    create({ variables: { input } });
+
+  const renamePkFields = ["ageGroup", "homeCity", "purpose"];
 
   const onSubmit = async () => {
     try {
-      console.log("submitting with data", form.getValues());
+      const metadataSetFields = (
+        (reservationUnit.metadataSet?.supportedFields || []) as string[]
+      ).map(camelCase);
+
+      const metadataSetValues = pick(form.getValues(), metadataSetFields);
+
+      const flattenedMetadataSetValues = zipObject(
+        Object.keys(metadataSetValues).map((k) =>
+          renamePkFields.includes(k) ? `${k}Pk` : k
+        ),
+        Object.values(metadataSetValues).map((v) => get(v, "value") || v)
+      );
+
       const input = {
         reservationUnitPks: [reservationUnit.pk as number],
         type: String(form.getValues("type")),
@@ -103,6 +116,7 @@ const DialogContent = ({
           ? String(reservationUnit.bufferTimeAfter)
           : undefined,
         workingMemo: form.getValues("workingMemo"),
+        ...flattenedMetadataSetValues,
       } as ReservationStaffCreateMutationInput;
 
       await createStaffReservation(input);
@@ -111,7 +125,7 @@ const DialogContent = ({
           reservationUnit: reservationUnit.nameFi,
         })
       );
-      // onClose();
+      onClose();
     } catch (e) {
       notifyError(
         t("ReservationDialog.saveFailed", { error: get(e, "message") })

@@ -1,117 +1,89 @@
-import React from "react";
-import { H4 } from "common/src/common/typography";
-import { Checkbox, NumberInput, Select, TextArea } from "hds-react";
-import { Controller, UseFormReturn } from "react-hook-form";
-import styled from "styled-components";
-import { Query, ReservationUnitType } from "common/types/gql-types";
+import React, { useMemo, useState } from "react";
+import { UseFormReturn, useForm } from "react-hook-form";
+import {
+  Query,
+  ReservationsReservationReserveeTypeChoices,
+  ReservationUnitType,
+} from "common/types/gql-types";
 import { useQuery } from "@apollo/client";
-import { omit, sortBy } from "lodash";
-import { OptionType } from "common/types/common";
-import { useTranslation } from "react-i18next";
-import { Grid, Span12, Span6 } from "../../../styles/layout";
+import { sortBy } from "lodash";
+import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import { OPTIONS_QUERY } from "./queries";
-import { ReservationForm } from "./types";
-
-const SubHeading = styled(H4)`
-  margin-block-start: 0;
-`;
+import { ReservationFormType } from "./types";
+import ReservationForm from "./ReservationForm";
 
 type Props = {
-  form: UseFormReturn<ReservationForm>;
+  form: UseFormReturn<ReservationFormType>;
   reservationUnit: ReservationUnitType;
 };
 
 const MetadataSetForm = ({ form, reservationUnit }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const [reserveeType, setReserveeType] = useState<
+    ReservationsReservationReserveeTypeChoices | undefined
+  >(undefined);
 
   const { data: optionsData } = useQuery<Query>(OPTIONS_QUERY);
 
-  const purposeOptions = sortBy(
-    optionsData?.purposes?.edges || [],
-    "node.nameFi"
-  ).map((purpose) => ({
-    label: purpose?.node?.nameFi as string,
-    value: purpose?.node?.pk as number,
-  }));
+  const purpose = sortBy(optionsData?.purposes?.edges || [], "node.nameFi").map(
+    (purposeType) => ({
+      label: purposeType?.node?.nameFi as string,
+      value: purposeType?.node?.pk as number,
+    })
+  );
 
-  const ageGroupOptions = sortBy(
+  const ageGroup = sortBy(
     optionsData?.ageGroups?.edges || [],
     "node.minimum"
-  ).map((ageGroup) => ({
-    label: `${ageGroup?.node?.minimum}-${ageGroup?.node?.maximum || ""}`,
-    value: ageGroup?.node?.pk as number,
+  ).map((group) => ({
+    label: `${group?.node?.minimum}-${group?.node?.maximum || ""}`,
+    value: group?.node?.pk as number,
   }));
 
+  const city = sortBy(optionsData?.cities?.edges || [], "node.nameFi").map(
+    (cityType) => ({
+      label: cityType?.node?.nameFi as string,
+      value: cityType?.node?.pk as number,
+    })
+  );
+
+  const options = { ageGroup, purpose, city };
+
+  const reserveeTypeString =
+    reserveeType || ReservationsReservationReserveeTypeChoices.Individual;
+
+  const reservationApplicationFields = useMemo(() => {
+    const type = reservationUnit.metadataSet?.supportedFields?.includes(
+      "reservee_type"
+    )
+      ? reserveeTypeString
+      : ReservationsReservationReserveeTypeChoices.Individual;
+
+    return getReservationApplicationFields(
+      (reservationUnit.metadataSet?.supportedFields || []) as string[],
+      type,
+      true
+    );
+  }, [reservationUnit.metadataSet?.supportedFields, reserveeTypeString]);
+
+  const generalFields = useMemo(() => {
+    return getReservationApplicationFields(
+      (reservationUnit.metadataSet?.supportedFields || []) as string[],
+      "common",
+      true
+    ).filter((n) => n !== "reserveeType");
+  }, [reservationUnit]);
+
   return (
-    <>
-      <SubHeading>{t("ReservationDialog.reservationInfo")}</SubHeading>
-      <Grid>
-        <Span12>
-          <Controller
-            name="purpose"
-            control={form.control}
-            render={({ field }) => (
-              <Select
-                options={purposeOptions}
-                placeholder={t("common.select")}
-                label={t("ReservationDialog.purpose")}
-                value={field.value}
-                onChange={(value: OptionType) => {
-                  form.setValue("purpose", value);
-                }}
-              />
-            )}
-          />
-        </Span12>
-        <Span6>
-          <Controller
-            name="ageGroup"
-            control={form.control}
-            render={({ field }) => (
-              <Select
-                label={t("ReservationDialog.ageGroup")}
-                placeholder={t("common.select")}
-                options={ageGroupOptions}
-                value={field.value}
-                onChange={(value: OptionType) => {
-                  form.setValue("ageGroup", value);
-                }}
-              />
-            )}
-          />
-        </Span6>
-        <Span6>
-          <NumberInput
-            id="numPersons"
-            minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
-            plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
-            step={1}
-            label={t("ReservationDialog.numPersons")}
-            {...omit(form.register("numPersons"), ["name"])}
-            onChange={(e) =>
-              form.setValue("numPersons", Number(e.target.value))
-            }
-            min={1}
-            max={reservationUnit.maxPersons as number}
-          />
-        </Span6>
-        <Span12>
-          <TextArea
-            label={t("ReservationDialog.description")}
-            id="ReservationDialog.description"
-            {...form.register("description")}
-          />
-        </Span12>
-        <Span12>
-          {" "}
-          <Checkbox
-            id="applyingForFreeOfCharge"
-            label={t("ReservationDialog.applyingForFreeOfCharge")}
-            {...omit(form.register("applyingForFreeOfCharge"), ["name"])}
-          />
-        </Span12>
-      </Grid>
-    </>
+    <ReservationForm
+      form={form as unknown as ReturnType<typeof useForm>}
+      reservationUnit={reservationUnit}
+      options={options}
+      reserveeType={reserveeType}
+      setReserveeType={setReserveeType}
+      generalFields={generalFields}
+      reservationApplicationFields={reservationApplicationFields}
+      reservation={form.getValues()}
+    />
   );
 };
 
