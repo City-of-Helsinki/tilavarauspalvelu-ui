@@ -110,6 +110,7 @@ const Cell = styled.div`
   width: 100%;
   border-left: ${CELL_BORDER};
   border-top: ${CELL_BORDER};
+  cursor: pointer;
 `;
 
 const RowCalendarArea = styled.div`
