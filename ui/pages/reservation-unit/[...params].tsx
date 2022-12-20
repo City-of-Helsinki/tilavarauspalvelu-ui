@@ -206,6 +206,7 @@ const PinkBox = styled.div<{ $isHiddenOnMobile: boolean }>`
   margin-top: var(--spacing-m);
   padding: 1px var(--spacing-m) var(--spacing-m);
   background-color: var(--color-suomenlinna-light);
+  line-height: var(--lineheight-l);
 
   p {
     &:last-of-type {
