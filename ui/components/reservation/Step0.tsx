@@ -25,7 +25,6 @@ import {
   Subheading,
   TwoColumnContainer,
 } from "common/src/reservation-form/styles";
-
 import { BlackButton, MediumButton } from "../../styles/util";
 import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
