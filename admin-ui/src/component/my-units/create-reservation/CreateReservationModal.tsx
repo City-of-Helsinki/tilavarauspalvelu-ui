@@ -211,9 +211,13 @@ const DialogContent = ({
             {type === ReservationType.BLOCKED && (
               <BlockedReservation form={form} />
             )}
-            {type === ReservationType.STAFF && (
-              <StaffReservation form={form} reservationUnit={reservationUnit} />
-            )}
+            {type === ReservationType.STAFF ||
+              (type === ReservationType.NORMAL && (
+                <StaffReservation
+                  form={form}
+                  reservationUnit={reservationUnit}
+                />
+              ))}
           </VerticalFlex>
         </form>
       </Dialog.Content>

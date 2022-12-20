@@ -1,5 +1,4 @@
 import { Reservation } from "common/src/reservation-form/types";
-import { OptionType } from "common/types/common";
 
 export enum ReservationType {
   STAFF = "STAFF",
@@ -15,11 +14,6 @@ export type ReservationFormType = Reservation & {
   type?: ReservationType;
   bufferTimeAfter: boolean;
   bufferTimeBefore: boolean;
-  purpose?: OptionType;
-  ageGroup?: OptionType;
-  numPersons?: number;
-  description?: string;
-  applyingForFreeOfCharge?: boolean;
 };
 
 export type ReserveeType = "individual" | "nonprofit" | "business";
