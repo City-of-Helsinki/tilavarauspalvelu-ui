@@ -17,7 +17,7 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
 
   const bufferControllers = [] as JSX.Element[];
 
-  if (reservationUnit.bufferTimeBefore > 0) {
+  if (reservationUnit.bufferTimeBefore) {
     bufferControllers.push(
       <Controller
         name="bufferTimeBefore"
@@ -27,7 +27,7 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
             id="bufferTimeBefore"
             checked={String(field.value) === "true"}
             label={t(`ReservationDialog.bufferTimeBefore`, {
-              minutes: reservationUnit.bufferTimeBefore / 60,
+              minutes: (reservationUnit.bufferTimeBefore as number) / 60,
             })}
             {...field}
             value={String(field.value)}
@@ -40,7 +40,7 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
     );
   }
 
-  if (reservationUnit.bufferTimeAfter > 0) {
+  if (reservationUnit.bufferTimeAfter) {
     bufferControllers.push(
       <Controller
         name="bufferTimeAfter"
@@ -50,7 +50,7 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
             id="bufferTimeAfter"
             checked={String(field.value) === "true"}
             label={t(`ReservationDialog.bufferTimeAfter`, {
-              minutes: reservationUnit.bufferTimeAfter / 60,
+              minutes: (reservationUnit.bufferTimeAfter as number) / 60,
             })}
             {...field}
             value={String(field.value)}
