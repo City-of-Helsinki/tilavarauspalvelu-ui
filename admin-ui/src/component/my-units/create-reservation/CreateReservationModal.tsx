@@ -119,13 +119,26 @@ const DialogContent = ({
         ...flattenedMetadataSetValues,
       } as ReservationStaffCreateMutationInput;
 
-      await createStaffReservation(input);
-      notifySuccess(
-        t("ReservationDialog.saveSuccess", {
-          reservationUnit: reservationUnit.nameFi,
-        })
-      );
-      onClose();
+      const { data: createResponse } = await createStaffReservation(input);
+
+      const firstError = (
+        createResponse?.createStaffReservation?.errors || []
+      ).find(() => true);
+
+      if (firstError) {
+        notifyError(
+          t("ReservationDialog.saveFailed", {
+            error: get(firstError, "messages[0]"),
+          })
+        );
+      } else {
+        notifySuccess(
+          t("ReservationDialog.saveSuccess", {
+            reservationUnit: reservationUnit.nameFi,
+          })
+        );
+        onClose();
+      }
     } catch (e) {
       notifyError(
         t("ReservationDialog.saveFailed", { error: get(e, "message") })
