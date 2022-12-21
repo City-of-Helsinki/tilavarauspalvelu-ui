@@ -249,7 +249,7 @@ export const getPrice = (
       return formatters[currencyFormatter].format(pricing.highestPrice);
     }
 
-    const lowestPrice = pricing.lowestPrice
+    const lowestPrice = parseFloat(pricing.lowestPrice?.toString())
       ? formatters[floatFormatter].format(pricing.lowestPrice * volume)
       : 0;
     const highestPrice = formatters[currencyFormatter].format(

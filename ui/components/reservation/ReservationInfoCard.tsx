@@ -25,6 +25,7 @@ type Props = {
   reservation: ReservationType;
   reservationUnit: ReservationUnitType | ReservationUnitByPkType;
   type: Type;
+  shouldDisplayReservationUnitPrice?: boolean;
 };
 
 const Wrapper = styled.div<{ $type: Type }>`
@@ -69,6 +70,7 @@ const ReservationInfoCard = ({
   reservation,
   reservationUnit,
   type,
+  shouldDisplayReservationUnitPrice = false,
 }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
@@ -113,7 +115,7 @@ const ReservationInfoCard = ({
   const price: string =
     begin &&
     (reservation?.state === "REQUIRES_HANDLING" ||
-      reservation?.applyingForFreeOfCharge)
+      shouldDisplayReservationUnitPrice)
       ? getReservationUnitPrice(
           reservationUnit,
           new Date(begin),

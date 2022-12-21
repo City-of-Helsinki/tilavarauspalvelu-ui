@@ -560,6 +560,27 @@ const ReservationUnitReservation = ({
     setPendingReservation(null);
   };
 
+  const shouldDisplayReservationUnitPrice = useMemo(() => {
+    switch (step) {
+      case 0:
+        return (
+          reservationUnit.canApplyFreeOfCharge &&
+          generalFields.includes("applyingForFreeOfCharge")
+        );
+      case 1:
+      default:
+        return (
+          reservationUnit.canApplyFreeOfCharge &&
+          reservation.applyingForFreeOfCharge === true
+        );
+    }
+  }, [
+    step,
+    generalFields,
+    reservation.applyingForFreeOfCharge,
+    reservationUnit.canApplyFreeOfCharge,
+  ]);
+
   if (!isBrowser) {
     return null;
   }
@@ -581,6 +602,9 @@ const ReservationUnitReservation = ({
               reservation={reservation || reservationData}
               reservationUnit={reservationUnit}
               type="pending"
+              shouldDisplayReservationUnitPrice={
+                shouldDisplayReservationUnitPrice
+              }
             />
             <PinkBox $isHiddenOnMobile={step > 0}>
               <Subheading>
