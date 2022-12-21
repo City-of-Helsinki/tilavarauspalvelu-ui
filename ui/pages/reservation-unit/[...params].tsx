@@ -564,22 +564,17 @@ const ReservationUnitReservation = ({
     switch (step) {
       case 0:
         return (
-          reservationUnit.canApplyFreeOfCharge &&
-          generalFields.includes("applyingForFreeOfCharge")
+          reservationUnit?.canApplyFreeOfCharge &&
+          generalFields?.includes("applyingForFreeOfCharge")
         );
       case 1:
       default:
         return (
-          reservationUnit.canApplyFreeOfCharge &&
-          reservation.applyingForFreeOfCharge === true
+          reservationUnit?.canApplyFreeOfCharge &&
+          reservation?.applyingForFreeOfCharge === true
         );
     }
-  }, [
-    step,
-    generalFields,
-    reservation.applyingForFreeOfCharge,
-    reservationUnit.canApplyFreeOfCharge,
-  ]);
+  }, [step, generalFields, reservation, reservationUnit]);
 
   if (!isBrowser) {
     return null;
