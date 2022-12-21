@@ -110,9 +110,9 @@ const ReservationInfoCard = ({
 
   const purpose = getTranslation(reservation?.purpose, "name");
 
-  const price: string = useMemo(() => {
-    return reservation?.state === "REQUIRES_HANDLING" ||
-      reservation?.applyingForFreeOfCharge
+  const price: string =
+    reservation?.state === "REQUIRES_HANDLING" ||
+    reservation?.applyingForFreeOfCharge
       ? getReservationUnitPrice(reservationUnit, begin, duration, true)
       : getReservationPrice(
           reservation?.price,
@@ -120,16 +120,6 @@ const ReservationInfoCard = ({
           i18n.language,
           true
         );
-  }, [
-    begin,
-    i18n.language,
-    reservation?.applyingForFreeOfCharge,
-    reservation?.price,
-    reservation?.state,
-    reservationUnit,
-    duration,
-    t,
-  ]);
 
   const shouldDisplayTaxPercentage: boolean =
     reservation?.state === "REQUIRES_HANDLING"

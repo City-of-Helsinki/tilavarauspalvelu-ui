@@ -12,7 +12,7 @@ import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
-import { Dialog, IconInfoCircleFill, Notification } from "hds-react";
+import { IconInfoCircleFill, Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { addSeconds, addYears, parseISO } from "date-fns";
 import {
@@ -99,7 +99,8 @@ import QuickReservation from "../../components/reservation-unit/QuickReservation
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { CURRENT_USER } from "../../modules/queries/user";
 import { isReservationReservable } from "../../modules/reservation";
-import { BlackButton } from "../../styles/util";
+import SubventionSuffix from "../../components/reservation/SubventionSuffix";
+import InfoDialog from "../../components/common/InfoDialog";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
@@ -452,29 +453,15 @@ const ReservationUnit = ({
   const hash = router.asPath.split("#")[1];
 
   const subventionSuffix = useCallback(
-    (placement: string) =>
+    (placement: "reservation-unit-head" | "quick-reservation") =>
       reservationUnit.canApplyFreeOfCharge ? (
-        <>
-          {", "}
-          <a
-            href="#"
-            ref={openPricingTermsRef}
-            style={{
-              textDecoration: "underline",
-              color: "var(--color-black)",
-              wordBreak: "keep-all",
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              setIsDialogOpen(true);
-            }}
-            data-testid={`link__pricing-terms--${placement}`}
-          >
-            {t("reservationCalendar:subventionAvailable")}
-          </a>
-        </>
+        <SubventionSuffix
+          placement={placement}
+          ref={openPricingTermsRef}
+          setIsDialogOpen={setIsDialogOpen}
+        />
       ) : null,
-    [reservationUnit.canApplyFreeOfCharge, t]
+    [reservationUnit.canApplyFreeOfCharge]
   );
 
   useEffect(() => {
@@ -1278,40 +1265,13 @@ const ReservationUnit = ({
             <Address reservationUnit={reservationUnit} />
           </div>
         </TwoColumnLayout>
-        <Dialog
-          id="dialog__pricing-terms"
+        <InfoDialog
+          id="pricing-terms"
+          heading={getTranslation(reservationUnit.pricingTerms, "name")}
+          text={getTranslation(reservationUnit.pricingTerms, "text")}
           isOpen={isDialogOpen}
-          aria-labelledby="dialog__pricing-terms--header"
-          aria-describedby="dialog__pricing-terms--body"
-          scrollable
-        >
-          <Dialog.Header
-            id="dialog__pricing-terms--header"
-            title={getTranslation(reservationUnit.pricingTerms, "name")}
-            iconLeft={
-              <IconInfoCircleFill
-                aria-hidden
-                style={{ color: "var(--color-bus)" }}
-              />
-            }
-          />
-          <Dialog.Content id="dialog__pricing-terms--body">
-            <p>
-              <Sanitize
-                style={{ whiteSpace: "pre-line" }}
-                html={getTranslation(reservationUnit.pricingTerms, "text")}
-              />
-            </p>
-          </Dialog.Content>
-          <Dialog.ActionButtons>
-            <BlackButton
-              variant="secondary"
-              onClick={() => setIsDialogOpen(false)}
-            >
-              {t("common:close")}
-            </BlackButton>
-          </Dialog.ActionButtons>
-        </Dialog>
+          onClose={() => setIsDialogOpen(false)}
+        />
       </Container>
       <BottomWrapper>
         {shouldDisplayBottomWrapper && (

@@ -142,12 +142,9 @@ const Head = ({
   const pricing = getActivePricing(reservationUnit);
   const unitPrice = getPrice(pricing);
 
-  const unitPriceSuffix = useMemo(() => {
-    const suffix =
-      getPrice(pricing, undefined, false, true) !== "0" &&
-      subventionSuffix("reservation-unit-head");
-    return suffix;
-  }, [pricing, subventionSuffix]);
+  const unitPriceSuffix =
+    getPrice(pricing, undefined, false, true) !== "0" &&
+    subventionSuffix("reservation-unit-head");
 
   const reservationUnitName = getReservationUnitName(reservationUnit);
 
