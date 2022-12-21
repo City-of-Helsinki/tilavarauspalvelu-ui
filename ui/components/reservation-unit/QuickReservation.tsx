@@ -11,7 +11,7 @@ import {
   isSameDay,
   isValid,
 } from "date-fns";
-import { Button, DateInput, IconAngleDown, Select, TimeInput } from "hds-react";
+import { DateInput, IconAngleDown, Select, TimeInput } from "hds-react";
 import { padStart } from "lodash";
 
 import { useTranslation } from "react-i18next";
@@ -157,45 +157,6 @@ const SlotButton = styled.button`
   border: none;
   white-space: nowrap;
   user-select: none;
-`;
-
-const CarouselButton = styled(Button).attrs({
-  "data-testid": "slot-carousel-button",
-})<{
-  $disabled: boolean;
-  $side: "left" | "right";
-}>`
-  &&& {
-    --color-bus: transparent;
-    --color-bus-dark: transparent;
-    --min-size: 0;
-
-    & > span {
-      margin: 0;
-      padding: 0;
-    }
-
-    ${({ $disabled }) =>
-      $disabled
-        ? `
-    display: none !important;
-  `
-        : `
-    &:hover {
-      opacity: 0.7;
-    }
-    opacity: 1;
-  `};
-
-    background-color: var(--color-gold-light);
-    margin: 0;
-    padding: 0;
-
-    svg {
-      color: black;
-      transform: scale(1.5);
-    }
-  }
 `;
 
 const StyledSelect = styled(Select)`
@@ -483,7 +444,7 @@ const QuickReservation = ({
             <StyledCarousel
               hideCenterControls
               wrapAround={false}
-              button={CarouselButton}
+              buttonVariant="small"
             >
               {timeChunks.map((chunk: string[], index: number) => (
                 <SlotGroup key={chunk[0]}>
@@ -508,6 +469,8 @@ const QuickReservation = ({
                             left: 0,
                             behavior: "smooth",
                           });
+
+                          return false;
                         }}
                       >
                         {t("reservationCalendar:quickReservation.gotoCalendar")}
@@ -525,12 +488,16 @@ const QuickReservation = ({
               <span>
                 <a
                   data-testid="quick-reservation-next-available-time"
-                  href="javascript:void(0)"
-                  onClick={() => {
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+
                     const nextTime = toUIDate(nextAvailableTime, "HH:mm");
                     nextAvailableTime.setHours(0, 0, 0, 0);
                     setDate(nextAvailableTime);
                     setTime(nextTime);
+
+                    return false;
                   }}
                 >
                   {t("reservationCalendar:quickReservation.nextAvailableTime")}

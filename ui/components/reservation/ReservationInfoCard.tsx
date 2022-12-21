@@ -111,9 +111,15 @@ const ReservationInfoCard = ({
   const purpose = getTranslation(reservation?.purpose, "name");
 
   const price: string =
-    reservation?.state === "REQUIRES_HANDLING" ||
-    reservation?.applyingForFreeOfCharge
-      ? getReservationUnitPrice(reservationUnit, begin, duration, true)
+    begin &&
+    (reservation?.state === "REQUIRES_HANDLING" ||
+      reservation?.applyingForFreeOfCharge)
+      ? getReservationUnitPrice(
+          reservationUnit,
+          new Date(begin),
+          duration,
+          true
+        )
       : getReservationPrice(
           reservation?.price,
           t("prices:priceFree"),
@@ -122,8 +128,14 @@ const ReservationInfoCard = ({
         );
 
   const shouldDisplayTaxPercentage: boolean =
-    reservation?.state === "REQUIRES_HANDLING"
-      ? getReservationUnitPrice(reservationUnit, begin, 0, false, true) !== "0"
+    reservation?.state === "REQUIRES_HANDLING" && begin
+      ? getReservationUnitPrice(
+          reservationUnit,
+          new Date(begin),
+          0,
+          false,
+          true
+        ) !== "0"
       : reservation?.price > 0;
 
   const formatters = useMemo(
