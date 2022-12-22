@@ -2,13 +2,16 @@ import { camelCase, get } from "lodash";
 import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
 import { reservationApplicationFields } from "./types";
 
-export const getReservationApplicationFields = (
-  supportedFields: string[],
-  reserveeType: ReservationsReservationReserveeTypeChoices | "common",
-  camelCaseOutput = false
-): string[] => {
-  if (!supportedFields || supportedFields?.length === 0 || !reserveeType)
-    return [];
+export const getReservationApplicationFields = ({
+  supportedFields,
+  reserveeType,
+  camelCaseOutput = false,
+}: {
+  supportedFields: string[];
+  reserveeType: ReservationsReservationReserveeTypeChoices | "common";
+  camelCaseOutput?: boolean;
+}): string[] => {
+  if (supportedFields?.length === 0 || !reserveeType) return [];
 
   const fields = get(
     reservationApplicationFields,

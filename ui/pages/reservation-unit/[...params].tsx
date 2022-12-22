@@ -467,11 +467,11 @@ const ReservationUnitReservation = ({
   }, [step, formStatus, t]);
 
   const generalFields = useMemo(() => {
-    return getReservationApplicationFields(
-      reservationUnit.metadataSet?.supportedFields,
-      "common",
-      true
-    ).filter((n) => n !== "reserveeType");
+    return getReservationApplicationFields({
+      supportedFields: reservationUnit.metadataSet?.supportedFields,
+      reserveeType: "common",
+      camelCaseOutput: true,
+    }).filter((n) => n !== "reserveeType");
   }, [reservationUnit?.metadataSet?.supportedFields]);
 
   const reservationApplicationFields = useMemo(() => {
@@ -481,11 +481,11 @@ const ReservationUnitReservation = ({
       ? reserveeType
       : ReservationsReservationReserveeTypeChoices.Individual;
 
-    return getReservationApplicationFields(
-      reservationUnit.metadataSet?.supportedFields,
-      type,
-      true
-    );
+    return getReservationApplicationFields({
+      supportedFields: reservationUnit.metadataSet?.supportedFields,
+      reserveeType: type,
+      camelCaseOutput: true,
+    });
   }, [reservationUnit?.metadataSet?.supportedFields, reserveeType]);
 
   const onSubmitApplication1 = useCallback(

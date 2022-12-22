@@ -100,15 +100,15 @@ export const getReservationApplicationMutationValues = (
     { field: "ageGroup", mutationField: "ageGroupPk" },
     { field: "purpose", mutationField: "purposePk" },
   ];
-  const fields = getReservationApplicationFields(
+  const fields = getReservationApplicationFields({
     supportedFields,
-    reserveeType
-  ).map(camelCase);
+    reserveeType,
+  }).map(camelCase);
 
-  const commonFields = getReservationApplicationFields(
+  const commonFields = getReservationApplicationFields({
     supportedFields,
-    "common"
-  ).map(camelCase);
+    reserveeType: "common",
+  }).map(camelCase);
 
   [...fields, ...commonFields].forEach((field: string) => {
     const key = changes.find((c) => c.field === field)?.mutationField || field;

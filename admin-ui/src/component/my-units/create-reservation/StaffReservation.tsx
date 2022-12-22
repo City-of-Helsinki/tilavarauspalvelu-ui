@@ -17,59 +17,49 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
 
   const bufferControllers = [] as JSX.Element[];
 
+  const bufferController = (
+    name: "bufferTimeBefore" | "bufferTimeAfter",
+    seconds: number
+  ) => (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field }) => (
+        <Checkbox
+          id={name}
+          checked={String(field.value) === "true"}
+          label={t(`ReservationDialog.${name}`, {
+            minutes: seconds / 60,
+          })}
+          {...field}
+          value={String(field.value)}
+          onChange={() => {
+            form.setValue(name, !field.value);
+          }}
+        />
+      )}
+    />
+  );
+
   if (reservationUnit.bufferTimeBefore) {
     bufferControllers.push(
-      <Controller
-        name="bufferTimeBefore"
-        control={form.control}
-        render={({ field }) => (
-          <Checkbox
-            id="bufferTimeBefore"
-            checked={String(field.value) === "true"}
-            label={t(`ReservationDialog.bufferTimeBefore`, {
-              minutes: (reservationUnit.bufferTimeBefore as number) / 60,
-            })}
-            {...field}
-            value={String(field.value)}
-            onChange={() => {
-              form.setValue("bufferTimeBefore", !field.value);
-            }}
-          />
-        )}
-      />
+      bufferController("bufferTimeBefore", reservationUnit.bufferTimeBefore)
     );
   }
 
   if (reservationUnit.bufferTimeAfter) {
     bufferControllers.push(
-      <Controller
-        name="bufferTimeAfter"
-        control={form.control}
-        render={({ field }) => (
-          <Checkbox
-            id="bufferTimeAfter"
-            checked={String(field.value) === "true"}
-            label={t(`ReservationDialog.bufferTimeAfter`, {
-              minutes: (reservationUnit.bufferTimeAfter as number) / 60,
-            })}
-            {...field}
-            value={String(field.value)}
-            onChange={() => {
-              form.setValue("bufferTimeAfter", !field.value);
-            }}
-          />
-        )}
-      />
+      bufferController("bufferTimeAfter", reservationUnit.bufferTimeAfter)
     );
   }
 
   return (
     <>
-      {bufferControllers.length > 0 && (
+      {bufferControllers.length > 0 ? (
         <SelectionGroup label={t("ReservationDialog.buffers")}>
           {bufferControllers}
         </SelectionGroup>
-      )}
+      ) : null}
       <TextArea
         label={t("ReservationDialog.comment")}
         id="ReservationDialog.comment"

@@ -4,10 +4,10 @@ import { ReservationsReservationReserveeTypeChoices } from "../../../types/gql-t
 describe("getReservationApplicationFields", () => {
   test("with emrty input", () => {
     expect(
-      getReservationApplicationFields(
-        [],
-        ReservationsReservationReserveeTypeChoices.Individual
-      )
+      getReservationApplicationFields({
+        supportedFields: [],
+        reserveeType: ReservationsReservationReserveeTypeChoices.Individual,
+      })
     ).toEqual([]);
   });
 
@@ -15,33 +15,38 @@ describe("getReservationApplicationFields", () => {
 
   test("with individual input", () => {
     expect(
-      getReservationApplicationFields(
-        fields,
-        ReservationsReservationReserveeTypeChoices.Individual
-      )
+      getReservationApplicationFields({
+        supportedFields: fields,
+        reserveeType: ReservationsReservationReserveeTypeChoices.Individual,
+      })
     ).toEqual([]);
   });
 
   test("with common input", () => {
-    expect(getReservationApplicationFields(fields, "common")).toEqual(["name"]);
+    expect(
+      getReservationApplicationFields({
+        supportedFields: fields,
+        reserveeType: "common",
+      })
+    ).toEqual(["name"]);
   });
 
   test("with business input", () => {
     expect(
-      getReservationApplicationFields(
-        fields,
-        ReservationsReservationReserveeTypeChoices.Business
-      )
+      getReservationApplicationFields({
+        supportedFields: fields,
+        reserveeType: ReservationsReservationReserveeTypeChoices.Business,
+      })
     ).toEqual(["reservee_organisation_name", "reservee_id"]);
   });
 
   test("with nonprofit input, camelCased", () => {
     expect(
-      getReservationApplicationFields(
-        fields,
-        ReservationsReservationReserveeTypeChoices.Nonprofit,
-        true
-      )
+      getReservationApplicationFields({
+        supportedFields: fields,
+        reserveeType: ReservationsReservationReserveeTypeChoices.Nonprofit,
+        camelCaseOutput: true,
+      })
     ).toEqual(["reserveeOrganisationName", "reserveeId"]);
   });
 });

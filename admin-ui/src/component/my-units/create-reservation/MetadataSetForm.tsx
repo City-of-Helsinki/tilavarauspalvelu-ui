@@ -58,19 +58,21 @@ const MetadataSetForm = ({ form, reservationUnit }: Props): JSX.Element => {
       ? reserveeTypeString
       : ReservationsReservationReserveeTypeChoices.Individual;
 
-    return getReservationApplicationFields(
-      (reservationUnit.metadataSet?.supportedFields || []) as string[],
-      type,
-      true
-    );
+    return getReservationApplicationFields({
+      supportedFields: (reservationUnit.metadataSet?.supportedFields ||
+        []) as string[],
+      reserveeType: type,
+      camelCaseOutput: true,
+    });
   }, [reservationUnit.metadataSet?.supportedFields, reserveeTypeString]);
 
   const generalFields = useMemo(() => {
-    return getReservationApplicationFields(
-      (reservationUnit.metadataSet?.supportedFields || []) as string[],
-      "common",
-      true
-    ).filter((n) => n !== "reserveeType");
+    return getReservationApplicationFields({
+      supportedFields: (reservationUnit.metadataSet?.supportedFields ||
+        []) as string[],
+      reserveeType: "common",
+      camelCaseOutput: true,
+    }).filter((n) => n !== "reserveeType");
   }, [reservationUnit]);
 
   return (

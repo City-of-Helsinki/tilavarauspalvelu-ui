@@ -139,37 +139,38 @@ const EventContent = styled.div`
 
 const Cells = ({
   cols,
-  reservationUnit,
+  reservationUnitPk,
   date,
   setModalContent,
 }: {
   cols: number;
-  reservationUnit: number;
+  reservationUnitPk: number;
   date: Date;
   setModalContent: (content: JSX.Element | null, isHds?: boolean) => void;
-}) => (
-  <CellContent $numCols={cols}>
-    {Array.from(Array(cols).keys()).map((i) => (
-      <Cell
-        key={i}
-        onClick={(e) => {
-          e.preventDefault();
-          setModalContent(
-            <CreateReservationModal
-              reservationUnitId={reservationUnit}
-              start={addMinutes(new Date(date), i * 30)}
-              onClose={() => {
-                setModalContent(null);
-                // TODO refresh calendar content
-              }}
-            />,
-            true
-          );
-        }}
-      />
-    ))}
-  </CellContent>
-);
+}) => {
+  const onClick =
+    (offset: number) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.preventDefault();
+      setModalContent(
+        <CreateReservationModal
+          reservationUnitId={reservationUnitPk}
+          start={addMinutes(new Date(date), offset * 30)}
+          onClose={() => {
+            setModalContent(null);
+            // TODO refresh calendar content
+          }}
+        />,
+        true
+      );
+    };
+  return (
+    <CellContent $numCols={cols}>
+      {Array.from(Array(cols).keys()).map((i) => (
+        <Cell key={i} onClick={onClick(i)} />
+      ))}
+    </CellContent>
+  );
+};
 
 const getPreBuffer = (
   event: CalendarEvent<ReservationType>,
@@ -399,7 +400,7 @@ const UnitCalendar = ({ resources, date }: Props): JSX.Element => {
                 <Cells
                   date={dayStart}
                   setModalContent={setModalContent}
-                  reservationUnit={row.pk}
+                  reservationUnitPk={row.pk}
                   cols={numHours * 2}
                 />
                 <Events

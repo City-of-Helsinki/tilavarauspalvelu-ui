@@ -109,11 +109,11 @@ const EditStep1 = ({
     useState(false);
 
   const generalFields = useMemo(() => {
-    return getReservationApplicationFields(
-      frozenReservationUnit.metadataSet?.supportedFields,
-      "common",
-      true
-    ).filter((n) => n !== "reserveeType");
+    return getReservationApplicationFields({
+      supportedFields: frozenReservationUnit.metadataSet?.supportedFields,
+      reserveeType: "common",
+      camelCaseOutput: true,
+    }).filter((n) => n !== "reserveeType");
   }, [frozenReservationUnit?.metadataSet?.supportedFields]);
 
   const reservationApplicationFields = useMemo(() => {
@@ -123,11 +123,11 @@ const EditStep1 = ({
       ? reservation.reserveeType
       : ReservationsReservationReserveeTypeChoices.Individual;
 
-    return getReservationApplicationFields(
-      frozenReservationUnit.metadataSet?.supportedFields,
-      type,
-      true
-    );
+    return getReservationApplicationFields({
+      supportedFields: frozenReservationUnit.metadataSet?.supportedFields,
+      reserveeType: type,
+      camelCaseOutput: true,
+    });
   }, [
     frozenReservationUnit?.metadataSet?.supportedFields,
     reservation.reserveeType,
