@@ -1,4 +1,4 @@
-import { addDays, format, addMinutes, parse } from "date-fns";
+import { addDays, format, addMinutes } from "date-fns";
 import {
   areSlotsReservable,
   doBuffersCollide,
@@ -311,9 +311,7 @@ describe("getDayIntervals", () => {
 });
 
 describe("isStartTimeWithinInterval", () => {
-  const timeZoneHours = Math.abs(
-    parse("2019-09-22", "yyyy-MM-dd", new Date()).getTimezoneOffset() / 60
-  )
+  const timeZoneHours = Math.abs(new Date().getTimezoneOffset() / 60)
     .toString()
     .padStart(2, "0");
 

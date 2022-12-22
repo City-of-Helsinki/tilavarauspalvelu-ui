@@ -1,6 +1,6 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
-import { addMinutes, differenceInMinutes, startOfDay } from "date-fns";
+import { differenceInMinutes } from "date-fns";
 import React, {
   CSSProperties,
   Fragment,
@@ -13,7 +13,6 @@ import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
 import { TFunction, useTranslation } from "react-i18next";
 import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
-import { useModal } from "../../context/ModalContext";
 import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter, {
   POST_PAUSE,
@@ -21,7 +20,6 @@ import resourceEventStyleGetter, {
 } from "./resourceEventStyleGetter";
 import { getReserveeName } from "../reservations/requested/util";
 import { sortByName } from "../../common/util";
-import CreateReservationModal from "./create-reservation/CreateReservationModal";
 
 export type Resource = {
   title: string;
@@ -46,7 +44,6 @@ type EventStyleGetter = ({ event }: CalendarEvent<ReservationType>) => {
 
 type Props = {
   resources: Resource[];
-  date: Date;
 };
 
 const FlexContainer = styled.div<{ $numCols: number }>`
@@ -110,7 +107,6 @@ const Cell = styled.div`
   width: 100%;
   border-left: ${CELL_BORDER};
   border-top: ${CELL_BORDER};
-  cursor: pointer;
 `;
 
 const RowCalendarArea = styled.div`
@@ -137,40 +133,13 @@ const EventContent = styled.div`
   }
 `;
 
-const Cells = ({
-  cols,
-  reservationUnitPk,
-  date,
-  setModalContent,
-}: {
-  cols: number;
-  reservationUnitPk: number;
-  date: Date;
-  setModalContent: (content: JSX.Element | null, isHds?: boolean) => void;
-}) => {
-  const onClick =
-    (offset: number) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      e.preventDefault();
-      setModalContent(
-        <CreateReservationModal
-          reservationUnitId={reservationUnitPk}
-          start={addMinutes(new Date(date), offset * 30)}
-          onClose={() => {
-            setModalContent(null);
-            // TODO refresh calendar content
-          }}
-        />,
-        true
-      );
-    };
-  return (
-    <CellContent $numCols={cols}>
-      {Array.from(Array(cols).keys()).map((i) => (
-        <Cell key={i} onClick={onClick(i)} />
-      ))}
-    </CellContent>
-  );
-};
+const Cells = ({ cols }: { cols: number }) => (
+  <CellContent $numCols={cols}>
+    {Array.from(Array(cols).keys()).map((i) => (
+      <Cell key={i} />
+    ))}
+  </CellContent>
+);
 
 const getPreBuffer = (
   event: CalendarEvent<ReservationType>,
@@ -334,19 +303,13 @@ const sortByDraftStatusAndTitle = (resources: Resource[]) => {
   });
 };
 
-const UnitCalendar = ({ resources, date }: Props): JSX.Element => {
+const ResourceCalendar = ({ resources }: Props): JSX.Element => {
   const { t } = useTranslation();
-
   const calendarRef = useRef<HTMLDivElement>(null);
   // todo find out min and max opening hour of every reservationunit
   const [beginHour, endHour] = [0, 24];
   const numHours = endHour - beginHour;
-
-  const dayStart = startOfDay(date);
-
   const orderedResources = sortByDraftStatusAndTitle([...resources]);
-
-  const { setModalContent } = useModal();
 
   const scrollCalendar = useCallback(() => {
     const ref = calendarRef.current;
@@ -397,12 +360,7 @@ const UnitCalendar = ({ resources, date }: Props): JSX.Element => {
                 </div>
               </ResourceNameContainer>
               <RowCalendarArea>
-                <Cells
-                  date={dayStart}
-                  setModalContent={setModalContent}
-                  reservationUnitPk={row.pk}
-                  cols={numHours * 2}
-                />
+                <Cells cols={numHours * 2} />
                 <Events
                   currentReservationUnit={row.pk}
                   firstHour={beginHour}
@@ -420,4 +378,4 @@ const UnitCalendar = ({ resources, date }: Props): JSX.Element => {
   );
 };
 
-export default UnitCalendar;
+export default ResourceCalendar;

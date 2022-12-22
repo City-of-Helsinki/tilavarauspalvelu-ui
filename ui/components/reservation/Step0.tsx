@@ -1,12 +1,5 @@
 import { OptionType } from "common/types/common";
-import {
-  Dialog,
-  IconArrowLeft,
-  IconArrowRight,
-  IconGroup,
-  IconInfoCircleFill,
-  IconUser,
-} from "hds-react";
+import { IconArrowLeft, IconArrowRight, IconGroup, IconUser } from "hds-react";
 import Image from "next/image";
 import React, { Fragment, ReactElement, useMemo, useRef } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
@@ -25,10 +18,10 @@ import {
   Subheading,
   TwoColumnContainer,
 } from "common/src/reservation-form/styles";
-import { BlackButton, MediumButton } from "../../styles/util";
+import { MediumButton } from "../../styles/util";
 import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
-import Sanitize from "../common/Sanitize";
+import InfoDialog from "../common/InfoDialog";
 
 type Props = {
   reservation: Reservation;
@@ -251,40 +244,13 @@ const Step0 = ({
             </Fragment>
           );
         })}
-        <Dialog
-          id="dialog__pricing-terms"
+        <InfoDialog
+          id="pricing-terms"
+          heading={t("reservationUnit:pricingTerms")}
+          text={getTranslation(reservationUnit.pricingTerms, "text")}
           isOpen={isDialogOpen}
-          aria-labelledby="dialog__pricing-terms--header"
-          aria-describedby="dialog__pricing-terms--body"
-          scrollable
-        >
-          <Dialog.Header
-            id="dialog__pricing-terms--header"
-            title={getTranslation(reservationUnit.pricingTerms, "name")}
-            iconLeft={
-              <IconInfoCircleFill
-                aria-hidden
-                style={{ color: "var(--color-bus)" }}
-              />
-            }
-          />
-          <Dialog.Content id="dialog__pricing-terms--body">
-            <p>
-              <Sanitize
-                style={{ whiteSpace: "pre-line" }}
-                html={getTranslation(reservationUnit.pricingTerms, "text")}
-              />
-            </p>
-          </Dialog.Content>
-          <Dialog.ActionButtons>
-            <BlackButton
-              variant="secondary"
-              onClick={() => setIsDialogOpen(false)}
-            >
-              {t("common:close")}
-            </BlackButton>
-          </Dialog.ActionButtons>
-        </Dialog>
+          onClose={() => setIsDialogOpen(false)}
+        />
       </TwoColumnContainer>
       <ActionContainer>
         <MediumButton
