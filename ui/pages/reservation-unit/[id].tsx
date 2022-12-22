@@ -1271,7 +1271,7 @@ const ReservationUnit = ({
         </TwoColumnLayout>
         <InfoDialog
           id="pricing-terms"
-          heading={getTranslation(reservationUnit.pricingTerms, "name")}
+          heading={t("reservationUnit:pricingTerms")}
           text={getTranslation(reservationUnit.pricingTerms, "text")}
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
