@@ -39,14 +39,14 @@ const MetadataSetForm = ({ form, reservationUnit }: Props): JSX.Element => {
     value: group?.node?.pk as number,
   }));
 
-  const city = sortBy(optionsData?.cities?.edges || [], "node.nameFi").map(
+  const homeCity = sortBy(optionsData?.cities?.edges || [], "node.nameFi").map(
     (cityType) => ({
       label: cityType?.node?.nameFi as string,
       value: cityType?.node?.pk as number,
     })
   );
 
-  const options = { ageGroup, purpose, city };
+  const options = { ageGroup, purpose, homeCity };
 
   const reserveeTypeString =
     reserveeType || ReservationsReservationReserveeTypeChoices.Individual;

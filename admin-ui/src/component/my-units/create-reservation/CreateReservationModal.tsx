@@ -20,6 +20,7 @@ import {
 } from "common/types/gql-types";
 import styled from "styled-components";
 import { camelCase, get, pick, zipObject } from "lodash";
+import { format } from "date-fns";
 import {
   valueForDateInput,
   dateTime,
@@ -72,6 +73,9 @@ const DialogContent = ({
     formState: { errors },
   } = form;
 
+  const myDateTime = (date: Date, time: string) =>
+    dateTime(format(date, "dd.MM.yyyy"), time);
+
   const { notifyError, notifySuccess } = useNotification();
 
   const type = form.watch("type");
@@ -86,13 +90,14 @@ const DialogContent = ({
 
   const renamePkFields = ["ageGroup", "homeCity", "purpose"];
 
-  const onSubmit = async () => {
+  const onSubmit = async (values: ReservationFormType) => {
+    console.log("form:", values, typeof values.date);
     try {
       const metadataSetFields = (
         (reservationUnit.metadataSet?.supportedFields || []) as string[]
       ).map(camelCase);
 
-      const metadataSetValues = pick(form.getValues(), metadataSetFields);
+      const metadataSetValues = pick(values, metadataSetFields);
 
       const flattenedMetadataSetValues = zipObject(
         Object.keys(metadataSetValues).map((k) =>
@@ -103,19 +108,16 @@ const DialogContent = ({
 
       const input = {
         reservationUnitPks: [reservationUnit.pk as number],
-        type: String(form.getValues("type")),
-        begin: dateTime(form.getValues("date"), form.getValues("startTime")),
-        end: dateTime(
-          form.getValues("date"),
-          form.getValues("endTime") as string
-        ),
-        bufferTimeBefore: form.getValues("bufferTimeBefore")
+        type: values.type,
+        begin: myDateTime(new Date(values.date), values.startTime),
+        end: myDateTime(new Date(values.date), values.endTime as string),
+        bufferTimeBefore: values.bufferTimeBefore
           ? String(reservationUnit.bufferTimeBefore)
           : undefined,
-        bufferTimeAfter: form.getValues("bufferTimeAfter")
+        bufferTimeAfter: values.bufferTimeAfter
           ? String(reservationUnit.bufferTimeAfter)
           : undefined,
-        workingMemo: form.getValues("workingMemo"),
+        workingMemo: values.workingMemo,
         ...flattenedMetadataSetValues,
       } as ReservationStaffCreateMutationInput;
 

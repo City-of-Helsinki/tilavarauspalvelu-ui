@@ -279,6 +279,7 @@ const ReservationFormField = ({
       )}${required ? " * " : ""}`}
       id={field}
       {...register(field, {
+        valueAsNumber: true,
         required,
         ...(required && {
           min: 1,

@@ -102,6 +102,22 @@ const ReservationForm = ({
     return null;
   }
 
+  const headingForNonProfit = (index: number) =>
+    reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
+    index === 0;
+
+  const headingForNonProfitContactInfo = (field: string) =>
+    reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
+    field === "reserveeFirstName";
+
+  const headingForCompanyInfo = (index: number) =>
+    reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
+    index === 0;
+
+  const headingForContactInfo = (field: string) =>
+    reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
+    field === "reserveeFirstName";
+
   return (
     <Container>
       {generalFields?.length > 0 && (
@@ -185,34 +201,26 @@ const ReservationForm = ({
         {reservationApplicationFields.map((field, index) => {
           return (
             <Fragment key={`key-${field}`}>
-              {reserveeType ===
-                ReservationsReservationReserveeTypeChoices.Nonprofit &&
-                index === 0 && (
-                  <GroupHeading style={{ marginTop: 0 }}>
-                    {t("reservationApplication:label.headings.nonprofitInfo")}
-                  </GroupHeading>
-                )}
-              {reserveeType ===
-                ReservationsReservationReserveeTypeChoices.Nonprofit &&
-                field === "reserveeFirstName" && (
-                  <GroupHeading>
-                    {t("reservationApplication:label.headings.contactInfo")}
-                  </GroupHeading>
-                )}
-              {reserveeType ===
-                ReservationsReservationReserveeTypeChoices.Business &&
-                index === 0 && (
-                  <GroupHeading style={{ marginTop: 0 }}>
-                    {t("reservationApplication:label.headings.companyInfo")}
-                  </GroupHeading>
-                )}{" "}
-              {reserveeType ===
-                ReservationsReservationReserveeTypeChoices.Business &&
-                field === "reserveeFirstName" && (
-                  <GroupHeading>
-                    {t("reservationApplication:label.headings.contactInfo")}
-                  </GroupHeading>
-                )}
+              {headingForNonProfit(index) && (
+                <GroupHeading style={{ marginTop: 0 }}>
+                  {t("reservationApplication:label.headings.nonprofitInfo")}
+                </GroupHeading>
+              )}
+              {headingForNonProfitContactInfo(field) && (
+                <GroupHeading>
+                  {t("reservationApplication:label.headings.contactInfo")}
+                </GroupHeading>
+              )}
+              {headingForCompanyInfo(index) && (
+                <GroupHeading style={{ marginTop: 0 }}>
+                  {t("reservationApplication:label.headings.companyInfo")}
+                </GroupHeading>
+              )}{" "}
+              {headingForContactInfo(field) && (
+                <GroupHeading>
+                  {t("reservationApplication:label.headings.contactInfo")}
+                </GroupHeading>
+              )}
               <ReservationFormField
                 field={field as unknown as keyof Inputs}
                 options={options}
