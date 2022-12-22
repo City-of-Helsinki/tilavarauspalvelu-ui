@@ -205,10 +205,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     it("can open and close modal", () => {
       pricingTermsLink("reservation-unit-head").click();
 
-      pricingTermsDialog().should(
-        "contain.text",
-        "Hinnoitteluehdot heading Fi"
-      );
+      pricingTermsDialog().should("contain.text", "Hinnoitteluperiaatteet");
       pricingTermsDialog().should("contain.text", "Hinnoitteluehdot body Fi");
 
       pricingTermsDialog().find("button").click();
@@ -453,10 +450,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
 
       pricingTermsLink("quick-reservation").click();
 
-      pricingTermsDialog().should(
-        "contain.text",
-        "Hinnoitteluehdot heading Fi"
-      );
+      pricingTermsDialog().should("contain.text", "Hinnoitteluperiaatteet");
       pricingTermsDialog().should("contain.text", "Hinnoitteluehdot body Fi");
 
       pricingTermsDialog().find("button").click();
