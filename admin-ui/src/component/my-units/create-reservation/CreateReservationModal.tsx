@@ -91,7 +91,6 @@ const DialogContent = ({
   const renamePkFields = ["ageGroup", "homeCity", "purpose"];
 
   const onSubmit = async (values: ReservationFormType) => {
-    console.log("form:", values, typeof values.date);
     try {
       const metadataSetFields = (
         (reservationUnit.metadataSet?.supportedFields || []) as string[]
