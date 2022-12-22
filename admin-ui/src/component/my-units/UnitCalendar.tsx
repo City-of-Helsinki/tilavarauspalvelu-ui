@@ -1,6 +1,6 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
-import { differenceInMinutes } from "date-fns";
+import { addMinutes, differenceInMinutes, startOfDay } from "date-fns";
 import React, {
   CSSProperties,
   Fragment,
@@ -17,9 +17,11 @@ import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter, {
   POST_PAUSE,
   PRE_PAUSE,
-} from "./resourceEventStyleGetter";
+} from "./eventStyleGetter";
 import { getReserveeName } from "../reservations/requested/util";
 import { sortByName } from "../../common/util";
+import CreateReservationModal from "./create-reservation/CreateReservationModal";
+import { useModal } from "../../context/ModalContext";
 
 export type Resource = {
   title: string;
@@ -43,6 +45,7 @@ type EventStyleGetter = ({ event }: CalendarEvent<ReservationType>) => {
 };
 
 type Props = {
+  date: Date;
   resources: Resource[];
 };
 
@@ -133,14 +136,40 @@ const EventContent = styled.div`
   }
 `;
 
-const Cells = ({ cols }: { cols: number }) => (
-  <CellContent $numCols={cols}>
-    {Array.from(Array(cols).keys()).map((i) => (
-      <Cell key={i} />
-    ))}
-  </CellContent>
-);
-
+const Cells = ({
+  cols,
+  reservationUnitPk,
+  date,
+  setModalContent,
+}: {
+  cols: number;
+  reservationUnitPk: number;
+  date: Date;
+  setModalContent: (content: JSX.Element | null, isHds?: boolean) => void;
+}) => {
+  const onClick =
+    (offset: number) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.preventDefault();
+      setModalContent(
+        <CreateReservationModal
+          reservationUnitId={reservationUnitPk}
+          start={addMinutes(new Date(date), offset * 30)}
+          onClose={() => {
+            setModalContent(null);
+            // TODO refresh calendar content
+          }}
+        />,
+        true
+      );
+    };
+  return (
+    <CellContent $numCols={cols}>
+      {Array.from(Array(cols).keys()).map((i) => (
+        <Cell key={i} onClick={onClick(i)} />
+      ))}
+    </CellContent>
+  );
+};
 const getPreBuffer = (
   event: CalendarEvent<ReservationType>,
   hourPercent: number,
@@ -303,13 +332,15 @@ const sortByDraftStatusAndTitle = (resources: Resource[]) => {
   });
 };
 
-const ResourceCalendar = ({ resources }: Props): JSX.Element => {
+const UnitCalendar = ({ date, resources }: Props): JSX.Element => {
   const { t } = useTranslation();
   const calendarRef = useRef<HTMLDivElement>(null);
   // todo find out min and max opening hour of every reservationunit
   const [beginHour, endHour] = [0, 24];
   const numHours = endHour - beginHour;
   const orderedResources = sortByDraftStatusAndTitle([...resources]);
+  const { setModalContent } = useModal();
+  const startDate = startOfDay(date);
 
   const scrollCalendar = useCallback(() => {
     const ref = calendarRef.current;
@@ -360,7 +391,12 @@ const ResourceCalendar = ({ resources }: Props): JSX.Element => {
                 </div>
               </ResourceNameContainer>
               <RowCalendarArea>
-                <Cells cols={numHours * 2} />
+                <Cells
+                  cols={numHours * 2}
+                  date={startDate}
+                  reservationUnitPk={row.pk}
+                  setModalContent={setModalContent}
+                />
                 <Events
                   currentReservationUnit={row.pk}
                   firstHour={beginHour}
@@ -378,4 +414,4 @@ const ResourceCalendar = ({ resources }: Props): JSX.Element => {
   );
 };
 
-export default ResourceCalendar;
+export default UnitCalendar;
