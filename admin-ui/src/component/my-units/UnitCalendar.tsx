@@ -31,10 +31,8 @@ export type Resource = {
   events: CalendarEvent<ReservationType>[];
 };
 
-const zIndex = "101";
-
 const TemplateProps: CSSProperties = {
-  zIndex,
+  zIndex: "var(--tilavaraus-admin-stack-calendar-buffer)",
   height: "41px",
   position: "absolute",
 };
