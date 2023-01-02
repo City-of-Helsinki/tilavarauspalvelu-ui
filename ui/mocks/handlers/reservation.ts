@@ -453,7 +453,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       };
       data.reservationUnits[0].pricings = [
         {
-          begins: addDays(new Date(), -10),
+          begins: addDays(new Date(), -10).toISOString(),
           lowestPrice: 0,
           lowestPriceNet: 0,
           highestPrice: 0,
@@ -469,7 +469,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
           },
         },
         {
-          begins: addDays(new Date(), 10),
+          begins: addDays(new Date(), 10).toISOString(),
           lowestPrice: 0,
           lowestPriceNet: 0,
           highestPrice: 20,

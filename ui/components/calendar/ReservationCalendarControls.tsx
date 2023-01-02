@@ -62,7 +62,7 @@ type Props<T> = {
     skipLengthCheck?: boolean
   ) => boolean;
   mode: "create" | "edit";
-  customAvailabilityValidation: (start: Date) => boolean;
+  customAvailabilityValidation?: (start: Date) => boolean;
 };
 
 const Wrapper = styled.div`
