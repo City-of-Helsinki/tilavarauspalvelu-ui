@@ -226,7 +226,10 @@ const ReservationUnitEventsSummaryForList = ({
                   </SpanTwoColumns>
                   <StrongLabel>{t("eventSummary:purpose")}</StrongLabel>
                   <SpanTwoColumns>
-                    {getPurpose(applicationEvent.purposeId as number)?.name}
+                    {
+                      getPurpose(applicationEvent.purposeId as number)
+                        ?.name as string
+                    }
                   </SpanTwoColumns>
                   <SpacerRow />
                   <div>
