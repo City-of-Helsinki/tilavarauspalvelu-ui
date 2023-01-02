@@ -353,8 +353,12 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           [startDate, subMinutes(endDate, 1)],
           reservationUnit.openingHours?.openingTimes,
           activeApplicationRounds,
-          reservationUnit.reservationBegins,
-          reservationUnit.reservationEnds,
+          reservationUnit.reservationBegins
+            ? new Date(reservationUnit.reservationBegins)
+            : undefined,
+          reservationUnit.reservationEnds
+            ? new Date(reservationUnit.reservationEnds)
+            : undefined,
           reservationUnit.reservationsMinDaysBefore
         ) ||
         (customAvailabilityValidation &&
@@ -435,7 +439,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     reservationUnit,
     date,
     convertHMSToSeconds(`0${duration?.value}:00`) / 60,
-    false
+    true
   );
 
   const submitButton = createReservation ? (
@@ -486,9 +490,9 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             data-testid="reservation-unit__reservation-controls--toggle-button"
           >
             {areControlsVisible ? (
-              <IconAngleDown aria-hidden size="m" />
+              <IconAngleDown aria-label={t("common:showLess")} size="m" />
             ) : (
-              <IconAngleUp aria-hidden size="m" />
+              <IconAngleUp aria-label={t("common:showMore")} size="m" />
             )}
           </ToggleButton>
         </ToggleControls>
