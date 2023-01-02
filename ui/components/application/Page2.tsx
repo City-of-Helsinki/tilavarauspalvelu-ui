@@ -1,6 +1,6 @@
 import { IconArrowRight, Notification as HDSNotification } from "hds-react";
 import React, { useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { Application, Cell } from "common/types/common";

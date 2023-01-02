@@ -1,10 +1,8 @@
 import React from "react";
 import { ApolloProvider } from "@apollo/client";
-import { appWithTranslation } from "next-i18next";
-import { AppProps } from "next/app";
-import dynamic from "next/dynamic";
-import { FullscreenSpinner } from "../components/common/FullscreenSpinner";
-import LoggingIn from "../components/common/LoggingIn";
+import { appWithTranslation, UserConfig } from "next-i18next";
+import { fi } from "date-fns/locale";
+import { format, isValid } from "date-fns";
 import PageWrapper from "../components/common/PageWrapper";
 import SessionLost from "../components/common/SessionLost";
 import ExternalScripts from "../components/ExternalScripts";
@@ -66,4 +64,15 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default appWithTranslation(MyApp, nextI18NextConfig);
+export default appWithTranslation(MyApp, {
+  ...(nextI18NextConfig as UserConfig),
+  interpolation: {
+    format: (value, fmt, lng) => {
+      const locales = { fi };
+      if (value instanceof Date && isValid(value))
+        return format(value, fmt || "d.M.yyyy", { locale: locales[lng] });
+      return value;
+    },
+    escapeValue: false,
+  },
+});

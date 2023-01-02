@@ -240,48 +240,46 @@ const SearchSingle = (): JSX.Element => {
       </HeadContainer>
       <KorosDefault from="white" to="var(--tilavaraus-gray)" />
       <ClientOnly>
-        <>
-          <ListWithPagination
-            id="searchResultList"
-            items={reservationUnits?.map((ru) => (
-              <ReservationUnitCard reservationUnit={ru} key={ru.id} />
-            ))}
-            loading={loading}
-            loadingMore={loadingMore}
-            pageInfo={pageInfo}
-            totalCount={totalCount}
-            fetchMore={(cursor) => {
-              const variables = {
-                ...values,
-                after: cursor,
-              };
-              fetchMore({
-                variables: processVariables(variables, i18n.language),
-              });
-            }}
-            sortingComponent={
-              <StyledSorting
-                value={values.sort}
-                sortingOptions={sortingOptions}
-                setSorting={(val: OptionType) => {
-                  const params = {
-                    ...values,
-                    sort: String(val.value),
-                  };
-                  history.replace(singleSearchUrl(params));
-                }}
-                isOrderingAsc={isOrderingAsc}
-                setIsOrderingAsc={(isAsc: boolean) => {
-                  const params = {
-                    ...values,
-                    order: isAsc ? "asc" : "desc",
-                  };
-                  history.replace(singleSearchUrl(params));
-                }}
-              />
-            }
-          />
-        </>
+        <ListWithPagination
+          id="searchResultList"
+          items={reservationUnits?.map((ru) => (
+            <ReservationUnitCard reservationUnit={ru} key={ru.id} />
+          ))}
+          loading={loading}
+          loadingMore={loadingMore}
+          pageInfo={pageInfo}
+          totalCount={totalCount}
+          fetchMore={(cursor) => {
+            const variables = {
+              ...values,
+              after: cursor,
+            };
+            fetchMore({
+              variables: processVariables(variables, i18n.language),
+            });
+          }}
+          sortingComponent={
+            <StyledSorting
+              value={values.sort}
+              sortingOptions={sortingOptions}
+              setSorting={(val: OptionType) => {
+                const params = {
+                  ...values,
+                  sort: String(val.value),
+                };
+                history.replace(singleSearchUrl(params));
+              }}
+              isOrderingAsc={isOrderingAsc}
+              setIsOrderingAsc={(isAsc: boolean) => {
+                const params = {
+                  ...values,
+                  order: isAsc ? "asc" : "desc",
+                };
+                history.replace(singleSearchUrl(params));
+              }}
+            />
+          }
+        />
       </ClientOnly>
     </Wrapper>
   );

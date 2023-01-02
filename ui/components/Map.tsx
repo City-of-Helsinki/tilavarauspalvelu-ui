@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import ReactMapGL, { Marker, NavigationControl } from "react-map-gl";
+import ReactMapGL, { Marker, NavigationControl, ViewState } from "react-map-gl";
 import { mapboxToken, mapStyle } from "../modules/const";
 
-type State = Record<string, number>;
 type Props = {
   title: string;
   latitude?: number;
@@ -27,7 +26,7 @@ const Map = ({
     latitude,
     longitude,
     zoom: ZOOM,
-  } as State);
+  } as ViewState);
 
   if (!latitude || !longitude) {
     return null;
@@ -36,15 +35,13 @@ const Map = ({
   return (
     <ReactMapGL
       {...viewport}
+      id="hel-osm-light"
       mapStyle={mapStyle}
-      width="100%"
-      height={height}
-      onViewportChange={(
-        newViewPort: React.SetStateAction<Record<string, number>>
-      ) => {
-        setViewport(newViewPort);
+      style={{ width: "100%", height }}
+      onMove={(event) => {
+        setViewport(event.viewState);
       }}
-      mapboxApiAccessToken={mapboxToken}
+      mapboxAccessToken={mapboxToken}
     >
       <NavigationControl style={navControlStyle} showCompass={false} />
       <Marker key={title} longitude={longitude} latitude={latitude}>

@@ -5,7 +5,7 @@ import {
   Notification,
 } from "hds-react";
 import React, { useState } from "react";
-import { useTranslation, TFunction } from "react-i18next";
+import { useTranslation, TFunction } from "next-i18next";
 import dynamic from "next/dynamic";
 import styled from "styled-components";
 import { useRouter } from "next/router";

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 
 interface Props {
+  children: React.ReactNode;
   isOpen: boolean;
   onClear: () => void;
 }
