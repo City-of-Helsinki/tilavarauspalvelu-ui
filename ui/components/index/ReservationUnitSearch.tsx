@@ -7,9 +7,7 @@ import { singleSearchPrefix } from "../../modules/const";
 
 const Wrapper = styled.form``;
 
-const StyledTextInput = styled(TextInput).attrs({
-  style: { "--input-border-color-default": "var(--color-black-30)" },
-})`
+const StyledTextInput = styled(TextInput)`
   position: relative;
   width: 245px;
   height: 44px;

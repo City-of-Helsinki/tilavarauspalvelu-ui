@@ -1,6 +1,6 @@
 import { isAfter, parseISO, isBefore, parse } from "date-fns";
 import { i18n, TFunction } from "next-i18next";
-import { stringify } from "query-string";
+import queryString from "query-string";
 import { trim } from "lodash";
 import { ApolloError } from "@apollo/client";
 import { toApiDate, toUIDate, isValidDate } from "common/src/common/util";
@@ -176,10 +176,17 @@ export const getComboboxValues = (
 };
 
 export const searchUrl = (params: unknown): string =>
-  `${searchPrefix}/?${stringify(params)}`;
+  `${searchPrefix}/?${queryString.parse(params)}`;
 
-export const singleSearchUrl = (params: unknown): string =>
-  `${singleSearchPrefix}/?${stringify(params)}`;
+export const singleSearchUrl = (params: unknown): string => {
+  const response = `${singleSearchPrefix}/`;
+
+  if (params && Object.keys(params).length > 0) {
+    return `${response}?${queryString.parse(params.toString())}`;
+  }
+
+  return response;
+};
 
 export const applicationsUrl = `${applicationsPrefix}/`;
 export const reservationsUrl = `${reservationsPrefix}/`;

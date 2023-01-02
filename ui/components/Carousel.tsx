@@ -17,6 +17,7 @@ type Props = {
 };
 
 const Button = styled(MediumButton).attrs({
+  /* eslint-disable @typescript-eslint/naming-convention */
   style: {
     "--color-bus": "rgba(0,0,0,0.4)",
     "--color-bus-dark": "rgba(0,0,0,0.4)",
@@ -26,6 +27,7 @@ const Button = styled(MediumButton).attrs({
     "--outline-gutter": "-2px",
     "--outline-width": "2px",
   } as React.CSSProperties,
+  /* eslint-enable */
 })`
   && {
     & > span {
@@ -42,6 +44,7 @@ const Button = styled(MediumButton).attrs({
 `;
 
 const SmallArrowButton = styled(Button).attrs({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   "data-testid": "slot-carousel-button",
 })<{
   $disabled: boolean;
@@ -81,6 +84,7 @@ const SmallArrowButton = styled(Button).attrs({
 `;
 
 const MediumArrowButton = styled(Button).attrs({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   "data-testid": "slot-carousel-button",
 })<{
   $disabled: boolean;
@@ -225,7 +229,6 @@ const Carousel = ({
         );
       }}
       wrapAround={wrapAround}
-      heightMode="max"
       slidesToShow={slidesToShow}
       slidesToScroll={slidesToScroll}
       cellSpacing={cellSpacing}

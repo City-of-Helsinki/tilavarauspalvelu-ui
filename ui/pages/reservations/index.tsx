@@ -34,9 +34,7 @@ const Heading = styled.div`
   margin-bottom: var(--spacing-layout-l);
 `;
 
-const StyledTabList = styled(TabList).attrs({
-  style: { "--tablist-border-size": "0" },
-})`
+const StyledTabList = styled(TabList)`
   ul {
     width: 100% !important;
     position: relative;

@@ -73,11 +73,8 @@ const Modal = styled.div<{
 `;
 
 const CloseButton = styled(Button).attrs({
-  variant: "supplementary",
+  variant: "secondary",
   size: "small",
-  style: {
-    "--color-bus-light": "transparent",
-  },
 })`
   &&& {
     > span {
