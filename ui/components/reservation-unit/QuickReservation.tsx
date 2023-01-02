@@ -500,8 +500,9 @@ const QuickReservation = ({
                   {availableTimes(date).length > timeItems &&
                     index + 1 === timeChunks.length && (
                       <CalendarLink
-                        href="javascript:void(0)"
-                        onClick={() => {
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
                           window.scroll({
                             top: scrollPosition,
                             left: 0,
@@ -524,8 +525,9 @@ const QuickReservation = ({
               <span>
                 <a
                   data-testid="quick-reservation-next-available-time"
-                  href="javascript:void(0)"
-                  onClick={() => {
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
                     const nextTime = toUIDate(nextAvailableTime, "HH:mm");
                     nextAvailableTime.setHours(0, 0, 0, 0);
                     setDate(nextAvailableTime);
