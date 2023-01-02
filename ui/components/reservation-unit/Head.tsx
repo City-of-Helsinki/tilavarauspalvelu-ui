@@ -1,6 +1,5 @@
 import { IconClock, IconGroup, IconTicket } from "hds-react";
-import React, { useMemo } from "react";
-import { useLocalStorage } from "react-use";
+import React from "react";
 import NextImage from "next/image";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
@@ -13,11 +12,8 @@ import { formatSecondDuration } from "common/src/common/util";
 import { fontRegular, H1, H2 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ReservationUnitByPkType } from "common/types/gql-types";
-import {
-  getTranslation,
-  orderImages,
-  singleSearchUrl,
-} from "../../modules/util";
+import { useRouter } from "next/router";
+import { getTranslation, orderImages } from "../../modules/util";
 import Container from "../common/Container";
 import IconWithText from "../common/IconWithText";
 import Images from "./Images";
@@ -115,15 +111,8 @@ const Head = ({
   isReservable,
   subventionSuffix,
 }: PropsType): JSX.Element => {
+  const { asPath } = useRouter();
   const { t } = useTranslation();
-
-  const storageKey = "reservationUnit-search";
-
-  const [storedValues] = useLocalStorage(storageKey, null);
-
-  const searchUrlWithParams = useMemo(() => {
-    return singleSearchUrl(storedValues);
-  }, [storedValues]);
 
   const minReservationDuration = formatSecondDuration(
     reservationUnit.minReservationDuration,
@@ -153,8 +142,8 @@ const Head = ({
   return (
     <>
       <BreadcrumbWrapper
-        route={["", searchUrlWithParams, "reservationUnit"]}
-        aliases={[{ slug: searchUrlWithParams, title: t("breadcrumb:search") }]}
+        route={["", asPath, "reservationUnit"]}
+        aliases={[{ slug: asPath, title: t("breadcrumb:search") }]}
       />
       <TopContainer>
         <Container>

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useTranslation, TFunction } from "react-i18next";
+import { useTranslation, TFunction } from "next-i18next";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { Card as HdsCard, Tag as HdsTag } from "hds-react";
@@ -17,13 +17,7 @@ import { cancelApplication } from "../../modules/api";
 import { MediumButton } from "../../styles/util";
 import { getApplicationRoundName } from "../../modules/applicationRound";
 
-const Card = styled(HdsCard).attrs({
-  style: {
-    "--border-width": 0,
-    "--padding-vertical": "var(--spacing-s)",
-    "--padding-horizontal": "var(--spacing-s)",
-  },
-})`
+const Card = styled(HdsCard)`
   margin-bottom: var(--spacing-m);
   width: auto;
   grid-template-columns: 1fr;
