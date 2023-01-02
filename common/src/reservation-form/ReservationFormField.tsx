@@ -3,7 +3,7 @@ import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import React, { ReactElement, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { TFunction } from "react-i18next";
+import { TFunction } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationMetadataSetType } from "../../types/gql-types";
@@ -100,7 +100,7 @@ const ReservationFormField = ({
   params = {},
   data = {},
   t,
-}: Props): JSX.Element => {
+}: Props) => {
   const normalizedReserveeType =
     reserveeType?.toLocaleLowerCase() || "individual";
 
@@ -210,7 +210,9 @@ const ReservationFormField = ({
                 {required ? " * " : ""}
               </>
             }
-            errorText={get(errors, field) && t("forms:requiredField")}
+            errorText={
+              get(errors, field) && (t("forms:requiredField") as string)
+            }
           />
         )}
       />
@@ -231,7 +233,9 @@ const ReservationFormField = ({
             label={`${t(
               `reservationApplication:label.${normalizedReserveeType}.${field}`
             )}${required ? " * " : ""}`}
-            errorText={get(errors, field) && t("forms:requiredField")}
+            errorText={
+              get(errors, field) && (t("forms:requiredField") as string)
+            }
           />
         )}
       />
@@ -252,7 +256,9 @@ const ReservationFormField = ({
             label={`${t(
               `reservationApplication:label.${normalizedReserveeType}.${field}`
             )}${required ? " * " : ""}`}
-            errorText={get(errors, field) && t("forms:requiredField")}
+            errorText={
+              get(errors, field) && (t("forms:requiredField") as string)
+            }
           />
         )}
       />
@@ -287,11 +293,11 @@ const ReservationFormField = ({
       })}
       key={field}
       defaultValue={get(reservation, field) as number}
-      errorText={get(errors, field) && t("forms:requiredField")}
+      errorText={get(errors, field) && (t("forms:requiredField") as string)}
       invalid={!!get(errors, field)}
       step={1}
-      minusStepButtonAriaLabel={t("common:decrease")}
-      plusStepButtonAriaLabel={t("common:increase")}
+      minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
+      plusStepButtonAriaLabel={t("common:increase") || "Increase"}
       min={get(params, field)?.min as number}
       max={get(params, field)?.max as number}
     />
@@ -342,7 +348,7 @@ const ReservationFormField = ({
       key={field}
       type="text"
       defaultValue={get(reservation, field)}
-      errorText={get(errors, field) && t("forms:requiredField")}
+      errorText={get(errors, field) && (t("forms:requiredField") as string)}
       invalid={!!get(errors, field)}
       $isWide={isWideRow}
       $hidden={
@@ -371,13 +377,13 @@ const ReservationFormField = ({
       type="text"
       errorText={
         get(errors, field) &&
-        t(
+        (t(
           `forms:${
             get(errors, field)?.message === "email"
               ? "invalidEmail"
               : "requiredField"
           }`
-        )
+        ) as string)
       }
       invalid={!!get(errors, field)}
       $isWide={isWideRow}
