@@ -46,11 +46,10 @@ const sentryWebpackPluginOptions = {
 // Make sure adding Sentry options is the last code to run before exporting, to
 // ensure that your source maps include changes from all other Webpack plugins
 module.exports = (phase) => {
-  console.log("PHASE", phase === PHASE_PRODUCTION_SERVER);
   return phase === PHASE_PRODUCTION_SERVER
     ? withPlugins(
         [nextTranspiler],
         withSentryConfig(nextConfig, sentryWebpackPluginOptions)
       )
-    : withPlugins([nextTranspiler]);
+    : nextTranspiler(nextConfig);
 };
