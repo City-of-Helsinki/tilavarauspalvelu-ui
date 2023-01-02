@@ -181,6 +181,20 @@ const EditStep0 = ({
     <Toolbar {...props} />
   ));
 
+  const isSlotFree = useCallback(
+    (start: Date): boolean => {
+      const price = getReservationUnitPrice(
+        reservationUnit,
+        start,
+        undefined,
+        false,
+        true
+      );
+      return price === "0";
+    },
+    [reservationUnit]
+  );
+
   const slotPropGetter = useMemo(
     () =>
       reservationUnit &&
@@ -189,9 +203,10 @@ const EditStep0 = ({
         activeApplicationRounds,
         reservationUnit.reservationBegins,
         reservationUnit.reservationEnds,
-        reservationUnit.reservationsMinDaysBefore
+        reservationUnit.reservationsMinDaysBefore,
+        (date) => isSlotFree(date)
       ),
-    [activeApplicationRounds, reservationUnit]
+    [activeApplicationRounds, reservationUnit, isSlotFree]
   );
 
   const TouchCellWrapper = ({ children, value, onSelectSlot }): JSX.Element => {
@@ -205,15 +220,17 @@ const EditStep0 = ({
 
   const isSlotReservable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
-      return isReservationReservable({
-        reservationUnit,
-        activeApplicationRounds,
-        start,
-        end,
-        skipLengthCheck,
-      });
+      return (
+        isReservationReservable({
+          reservationUnit,
+          activeApplicationRounds,
+          start,
+          end,
+          skipLengthCheck,
+        }) && isSlotFree(start)
+      );
     },
-    [activeApplicationRounds, reservationUnit]
+    [activeApplicationRounds, reservationUnit, isSlotFree]
   );
 
   const handleEventChange = useCallback(
@@ -360,6 +377,7 @@ const EditStep0 = ({
             setErrorMsg={setErrorMsg}
             handleEventChange={handleEventChange}
             mode="edit"
+            customAvailabilityValidation={isSlotFree}
           />
         </CalendarFooter>
         <Legend />
@@ -371,6 +389,7 @@ const EditStep0 = ({
           onClick={() => {
             router.push(`/reservations/${reservation.pk}`);
           }}
+          data-testid="reservation-edit__button--cancel"
         >
           {t("reservations:cancelEditReservationTime")}
         </BlackButton>
@@ -396,6 +415,7 @@ const EditStep0 = ({
               setStep(1);
             }
           }}
+          data-testid="reservation-edit__button--continue"
         >
           {t("reservationCalendar:nextStep")}
         </MediumButton>
