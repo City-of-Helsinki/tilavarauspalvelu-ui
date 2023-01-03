@@ -140,12 +140,17 @@ const EditStep0 = ({
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
-  const [focusDate, setFocusDate] = useState(new Date());
+  const [focusDate, setFocusDate] = useState(new Date(reservation.begin));
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   const calendarEvents: CalendarEvent<ReservationType>[] = useMemo(() => {
+    const shownReservation = initialReservation || {
+      begin: reservation.begin,
+      end: reservation.end,
+      state: "OWN",
+    };
     return userReservations && reservationUnit?.reservations
-      ? [...reservationUnit.reservations, initialReservation]
+      ? [...reservationUnit.reservations, shownReservation]
           .filter((n: ReservationType) => n)
           .map((n: ReservationType) => {
             const event = {
@@ -163,20 +168,35 @@ const EditStep0 = ({
             return event;
           })
       : [];
-  }, [reservationUnit, t, initialReservation, userReservations]);
+  }, [
+    reservationUnit,
+    t,
+    initialReservation,
+    userReservations,
+    reservation.begin,
+    reservation.end,
+  ]);
 
   const eventBuffers = useMemo(() => {
     return getEventBuffers([
       ...(calendarEvents.flatMap((e) => e.event) as ReservationType[]),
+
       {
-        begin: initialReservation?.begin,
-        end: initialReservation?.end,
+        begin: initialReservation?.begin || reservation.begin,
+        end: initialReservation?.end || reservation.end,
         state: "INITIAL",
         bufferTimeBefore: reservationUnit?.bufferTimeBefore?.toString(),
         bufferTimeAfter: reservationUnit?.bufferTimeAfter?.toString(),
       },
     ]);
-  }, [calendarEvents, initialReservation, reservationUnit]);
+  }, [
+    calendarEvents,
+    initialReservation,
+    reservation.begin,
+    reservation.end,
+    reservationUnit?.bufferTimeAfter,
+    reservationUnit?.bufferTimeBefore,
+  ]);
   const ToolbarWithProps = React.memo((props: ToolbarProps) => (
     <Toolbar {...props} />
   ));
