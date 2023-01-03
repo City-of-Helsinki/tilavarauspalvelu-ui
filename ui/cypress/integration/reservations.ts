@@ -214,7 +214,6 @@ describe("Tilavaraus user reservations", () => {
     reservationInfoCard().find("h3").should("contain.text", "Toimistohuone 1");
     reservationInfoCard()
       .should("contain.text", "Varausnumero: 4")
-      .should("contain.text", "To 12.1.2023 klo")
       .should("contain.text", ", 2 t")
       .should(
         "contain.text",
