@@ -172,8 +172,8 @@ const EditStep0 = ({
         begin: initialReservation?.begin,
         end: initialReservation?.end,
         state: "INITIAL",
-        bufferTimeBefore: reservationUnit?.bufferTimeBefore.toString(),
-        bufferTimeAfter: reservationUnit?.bufferTimeAfter.toString(),
+        bufferTimeBefore: reservationUnit?.bufferTimeBefore?.toString(),
+        bufferTimeAfter: reservationUnit?.bufferTimeAfter?.toString(),
       },
     ]);
   }, [calendarEvents, initialReservation, reservationUnit]);
