@@ -8,9 +8,10 @@
     "build": "next build",
     "start": "next start",
     "test": "jest --runInBand",
-    "test:browser": "CYPRESS_BASE_URL=https://local-tilavaraus.hel.fi:3000 TZ=Europe/Helsinki ./node_modules/.bin/cypress open",
+    "test:browser": "CYPRESS_BASE_URL=https://local-tilavaraus.hel.fi:3000 TZ=Europe/Helsinki cypress open",
     "test:watch": "jest --watch",
-    "lint": "eslint --ext ts,tsx .",
+    "lint": "next lint --ext ts,tsx .",
+    "lint:fix": "next lint --ext ts,tsx . --fix",
     "lint:css": "stylelint '**/*.tsx'",
     "ts-check": "tsc --noEmit --project tsconfig.json",
     "format": "prettier --ignore-path \"../.prettierignore\" --write \"**/*.{js,jsx,ts,tsx,json}\""
