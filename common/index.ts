@@ -8,7 +8,6 @@ import {
 } from "./src/reservation-pricing";
 import UserInfo from "./src/userinfo/UserInfo";
 
-export * from "./types/common";
 export {
   Breadcrumb,
   UserInfo,
@@ -20,3 +19,4 @@ export {
 };
 
 export * from "./types/common";
+export * from "./src/themeConfig";
