@@ -280,6 +280,7 @@ const ButtonContainer = styled.div`
 
 const ResetButton = styled(SupplementaryButton).attrs({
   style: {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     "--color-bus": "var(--color-black)",
   } as CSSProperties,
 })`

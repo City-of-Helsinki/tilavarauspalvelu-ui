@@ -48,7 +48,7 @@ const statusGroupOrder: ReducedApplicationStatus[] = [
   "draft",
 ];
 
-function ApplicationGroups({
+const ApplicationGroups = ({
   rounds,
   applications,
   actionCallback,
@@ -58,9 +58,9 @@ function ApplicationGroups({
   applications: { [key: string]: ApplicationType[] };
   actionCallback: (string: "error" | "cancel") => Promise<void>;
   t: TFunction;
-}): JSX.Element {
+}) => {
   if (Object.keys(applications).length === 0) {
-    return <span>{t("applications:noApplications")}</span>;
+    return <span>{t("applications:noApplications") as string}</span>;
   }
   return (
     <>
@@ -75,7 +75,7 @@ function ApplicationGroups({
       ))}
     </>
   );
-}
+};
 
 const Applications = (): JSX.Element => {
   const { t } = useTranslation();

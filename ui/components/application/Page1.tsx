@@ -196,7 +196,7 @@ const Page1 = ({
     const validationErrors = [];
     if (errors?.applicationEvents) {
       for (let i = 0; i < errors?.applicationEvents.length; i += 1) {
-        if (i in errors?.applicationEvents) {
+        if (i in errors.applicationEvents) {
           validationErrors.push(i);
         }
       }

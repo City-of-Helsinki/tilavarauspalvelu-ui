@@ -96,7 +96,7 @@ const LoginFragment = ({
             {text}
           </Wrapper>
         ) : (
-          <>{componentIfAuthenticated}</>
+          { componentIfAuthenticated }
         );
       }}
     />

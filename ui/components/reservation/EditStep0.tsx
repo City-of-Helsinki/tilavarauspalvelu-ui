@@ -81,8 +81,8 @@ const Actions = styled.div`
 
 const eventStyleGetter = (
   { event }: CalendarEvent<ReservationType>,
-  draggable = true,
-  ownReservations: number[]
+  ownReservations: number[],
+  draggable = true
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
     borderRadius: "0px",
@@ -126,6 +126,10 @@ const eventStyleGetter = (
     className,
   };
 };
+
+const ToolbarWithProps = React.memo((props: ToolbarProps) => (
+  <Toolbar {...props} />
+));
 
 const EditStep0 = ({
   reservation,
@@ -177,9 +181,6 @@ const EditStep0 = ({
       },
     ]);
   }, [calendarEvents, initialReservation, reservationUnit]);
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar {...props} />
-  ));
 
   const slotPropGetter = useMemo(
     () =>
@@ -311,8 +312,8 @@ const EditStep0 = ({
             eventStyleGetter={(event) =>
               eventStyleGetter(
                 event,
-                true,
-                userReservations?.map((n) => n.pk)
+                userReservations?.map((n) => n.pk),
+                true
               )
             }
             slotPropGetter={slotPropGetter}

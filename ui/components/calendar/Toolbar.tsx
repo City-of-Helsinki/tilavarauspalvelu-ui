@@ -167,8 +167,8 @@ export default class Toolbar extends React.Component<ToolbarProps> {
         title = `${month} ${year}`;
         break;
       }
-      default:
-      case "week": {
+      case "week":
+      default: {
         const start = startOfWeek(date, culture);
         const end = endOfWeek(date, culture);
         const startDay = format(start, "d", culture);
@@ -201,7 +201,7 @@ export default class Toolbar extends React.Component<ToolbarProps> {
             }}
             aria-label={i18n.t("reservationCalendar:showCurrentDay")}
           >
-            {i18n.t("common:today")}
+            {i18n.t("common:today") as string}
           </button>
         </ButtonWrapper>
         <div className="rbc-toolbar-navigation-hz">
@@ -230,6 +230,7 @@ export default class Toolbar extends React.Component<ToolbarProps> {
         <div className="rbc-btn-group">
           <button
             className={classNames("", {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               "rbc-active": view === "day",
             })}
             type="button"
@@ -238,10 +239,11 @@ export default class Toolbar extends React.Component<ToolbarProps> {
               view: String(i18n.t("common:day")).toLowerCase(),
             })}
           >
-            {i18n.t("common:day")}
+            {i18n.t("common:day") as string}
           </button>
           <button
             className={classNames("", {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               "rbc-active": view === "week",
             })}
             type="button"
@@ -250,10 +252,11 @@ export default class Toolbar extends React.Component<ToolbarProps> {
               view: String(i18n.t("common:week")).toLowerCase(),
             })}
           >
-            {i18n.t("common:week")}
+            {i18n.t("common:week") as string}
           </button>
           <button
             className={classNames("", {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               "rbc-active": view === "month",
             })}
             type="button"
@@ -262,7 +265,7 @@ export default class Toolbar extends React.Component<ToolbarProps> {
               view: String(i18n.t("common:month")).toLowerCase(),
             })}
           >
-            {i18n.t("common:month")}
+            {i18n.t("common:month") as string}
           </button>
         </div>
       </Wrapper>

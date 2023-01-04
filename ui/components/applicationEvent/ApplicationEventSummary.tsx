@@ -10,7 +10,6 @@ import IconWithText from "../common/IconWithText";
 
 type Props = {
   applicationEvent: ApplicationEvent;
-  name: string;
 };
 
 const Message = styled.div`
@@ -62,7 +61,6 @@ function displayDuration(duration: string, t: TFunction) {
 
 const ApplicationEventSummary = ({
   applicationEvent,
-  name,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 

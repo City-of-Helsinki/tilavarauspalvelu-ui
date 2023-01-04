@@ -527,7 +527,6 @@ const ApplicationEvent = ({
             applicationEvent,
             (form.getValues() as Application).applicationEvents?.[index]
           )}
-          name={eventName}
         />
         <ActionContainer>
           <Button

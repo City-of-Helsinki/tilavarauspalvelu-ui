@@ -54,6 +54,7 @@ const RightContainer = styled.div`
 `;
 
 const StyledIconWithText = styled(IconWithText).attrs({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   "data-testid": "icon-with-text",
 })`
   display: grid;
@@ -157,6 +158,7 @@ const Head = ({
                     icon={
                       <NextImage
                         src="/icons/icon_premises.svg"
+                        alt="On premises icon"
                         width="24"
                         height="24"
                         aria-label={t("reservationUnitCard:type")}

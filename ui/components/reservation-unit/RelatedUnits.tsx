@@ -140,6 +140,7 @@ const RelatedUnits = ({ units }: PropsType): JSX.Element | null => {
                       icon={
                         <NextImage
                           src="/icons/icon_premises.svg"
+                          alt="On premises icon"
                           width="24"
                           height="24"
                           aria-label={t("reservationUnitCard:type")}

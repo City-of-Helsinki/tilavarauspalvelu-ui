@@ -159,7 +159,9 @@ test("should show error start date must be before end date", async () => {
   await userEvent.clear(endDateInput);
   await userEvent.type(endDateInput, "24.6.2021");
 
-  const start = screen.queryByText(/Alkamispäivän on oltava ennen loppumispäivää/i);
+  const start = screen.queryByText(
+    /Alkamispäivän on oltava ennen loppumispäivää/i
+  );
 
   expect(start).not.toBeInTheDocument();
 });

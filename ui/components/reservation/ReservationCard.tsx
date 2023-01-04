@@ -209,8 +209,8 @@ const ReservationCard = ({ reservation, type }: Props): JSX.Element => {
 
   const statusTags = (
     state: ReservationsReservationStateChoices,
-    statusType = "desktop",
-    orderStatus: string
+    orderStatus: string,
+    statusType = "desktop"
   ) => (
     <StatusContainer>
       {orderStatus && (
