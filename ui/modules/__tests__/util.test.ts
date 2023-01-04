@@ -1,10 +1,14 @@
 import { ApolloError } from "@apollo/client";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 75136bce (Moves util tests to correct project)
 import {
   ApplicationEventSchedule,
   ApplicationEventSchedulePriority,
   Cell,
   DAY,
-} from "common/types/common";
+} from "common";
 import {
   cellsToApplicationEventSchedules,
   applicationEventSchedulesToCells,
