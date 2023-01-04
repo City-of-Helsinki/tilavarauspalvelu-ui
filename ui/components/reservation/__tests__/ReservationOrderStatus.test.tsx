@@ -4,7 +4,7 @@ import { render, screen } from "../../../test/testUtils";
 import ReservationOrderStatus, { Props } from "../ReservationOrderStatus";
 import mockTranslations from "../../../public/locales/fi/reservations.json";
 
-jest.mock("react-i18next", () => ({
+jest.mock("next-i18next", () => ({
   useTranslation: () => {
     return {
       t: (str: string, params?: Record<string, string | number>) => {

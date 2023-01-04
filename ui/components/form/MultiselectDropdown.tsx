@@ -354,6 +354,7 @@ const MultiSelectDropdown: React.FC<MultiselectDropdownProps> = ({
         onClick={handleToggleButtonClick}
         ref={toggleButton}
         type="button"
+        data-testid="multiselect-dropdown-toggle"
       >
         {icon && <IconWrapper>{icon}</IconWrapper>}
         <Title>
