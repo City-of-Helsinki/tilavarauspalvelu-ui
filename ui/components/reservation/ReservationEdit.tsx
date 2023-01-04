@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { PendingReservation } from "common/types/common";
 import { toApiDate } from "common/src/common/util";
+import { Subheading } from "common/src/reservation-form/styles";
 import {
   ADJUST_RESERVATION_TIME,
   GET_RESERVATION,
@@ -32,7 +33,6 @@ import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { getTranslation } from "../../modules/util";
 import Sanitize from "../common/Sanitize";
 import ReservationInfoCard from "./ReservationInfoCard";
-import { Subheading } from "./styles";
 import { CURRENT_USER } from "../../modules/queries/user";
 import {
   RESERVATION_UNIT,
@@ -247,7 +247,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
             applicationRound.reservationUnits
               .map((n) => n.pk)
               .includes(reservationUnit.pk)
-          )
+          ) || []
       );
     }
   }, [applicationRoundsData, reservationUnit]);
@@ -324,7 +324,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
     return (
       <Wrapper>
         <Content>
-          <LoadingSpinner style={{ margin: "var(--spacing-l) auto" }} />
+          <LoadingSpinner style={{ margin: "var(--spacing-layout-xl) auto" }} />
         </Content>
       </Wrapper>
     );

@@ -104,8 +104,8 @@ export const isReservationLongEnough = (
   return reservationDuration >= minDuration;
 };
 
-const areOpeningTimesAvailable = <T extends Record<string, unknown>>(
-  openingHours: T[],
+const areOpeningTimesAvailable = (
+  openingHours: OpeningTimesType[],
   slotDate: Date
 ): boolean => {
   return !!openingHours?.some((oh) => {
@@ -163,9 +163,9 @@ const doesSlotCollideWithApplicationRounds = (
   );
 };
 
-export const areSlotsReservable = <T extends Record<string, unknown>>(
+export const areSlotsReservable = (
   slots: Date[],
-  openingHours: T[],
+  openingHours: OpeningTimesType[],
   activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[] = [],
   reservationBegins?: Date,
   reservationEnds?: Date,
@@ -225,7 +225,7 @@ export const getDayIntervals = (
     default:
   }
 
-  if (!intervalSeconds || !start || !end || start >= end) return [];
+  if (!intervalSeconds || start === null || !end || start >= end) return [];
 
   for (let i = start; i <= end; i += intervalSeconds) {
     const { h, m, s } = secondsToHms(i);
@@ -274,7 +274,8 @@ export const getSlotPropGetter =
     activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[],
     reservationBegins: Date,
     reservationEnds: Date,
-    reservationsMinDaysBefore?: number
+    reservationsMinDaysBefore?: number,
+    customValidation?: (arg: Date) => boolean
   ) =>
   (date: Date): SlotProps => {
     switch (
@@ -285,7 +286,8 @@ export const getSlotPropGetter =
         reservationBegins,
         reservationEnds,
         reservationsMinDaysBefore
-      )
+      ) &&
+      (customValidation ? customValidation(date) : true)
     ) {
       case true:
         return {};
@@ -414,9 +416,13 @@ export const isReservationUnitReservable = (
   const negativeBuffer = Math.abs(bufferDays) * -1;
 
   const isAfterReservationStart =
-    now >= addDays(new Date(reservationUnit.reservationBegins), negativeBuffer);
+    now >=
+    addDays(
+      new Date(reservationUnit.reservationBegins as string),
+      negativeBuffer
+    );
   const isBeforeReservationEnd =
-    now <= new Date(reservationUnit.reservationEnds);
+    now <= new Date(reservationUnit.reservationEnds as string);
 
   return (
     !!reservationUnit.metadataSet?.supportedFields?.length &&
@@ -449,7 +455,7 @@ export const getNormalizedReservationBeginTime = (
   const negativeBuffer = Math.abs(bufferDays) * -1;
 
   return addDays(
-    new Date(reservationUnit.reservationBegins),
+    new Date(reservationUnit.reservationBegins as string),
     negativeBuffer
   ).toISOString();
 };
@@ -483,8 +489,8 @@ export const getAvailableTimes = (
   const { startTime, endTime } = openingTimes || {};
 
   const intervals = getDayIntervals(
-    startTime,
-    endTime,
+    startTime as string,
+    endTime as string,
     reservationStartInterval
   );
 
@@ -509,7 +515,7 @@ export const getOpenDays = (
 
   openingHours?.openingTimes?.forEach((openingTime) => {
     if (openingTime && openingTime.state === "open") {
-      const date = new Date(openingTime?.date);
+      const date = new Date(openingTime?.date as string);
       openDays.push(date);
     }
   });
