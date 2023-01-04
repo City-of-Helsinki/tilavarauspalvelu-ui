@@ -27,6 +27,7 @@ import {
   getReservationUnitName,
   getReservationUnitPrice,
   getUnitName,
+  isReservationUnitPaidInFuture,
   isReservationUnitPublished,
 } from "../reservationUnit";
 import mockTranslations from "../../public/locales/fi/prices.json";
@@ -1001,5 +1002,132 @@ describe("getReservationUnitPrice", () => {
     expect(getReservationUnitPrice(null as ReservationUnitByPkType)).toEqual(
       null
     );
+  });
+});
+
+describe("isReservationUnitPaidInFuture", () => {
+  it("return true if active and future are paid", () => {
+    const pricings = [
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 20,
+        highestPriceNet: 20,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 10,
+        highestPriceNet: 10,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+      },
+    ] as ReservationUnitPricingType[];
+
+    expect(isReservationUnitPaidInFuture(pricings)).toBe(true);
+  });
+
+  it("return true if only active is paid", () => {
+    const pricings = [
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 0,
+        highestPriceNet: 0,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 10,
+        highestPriceNet: 10,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+      },
+    ] as ReservationUnitPricingType[];
+
+    expect(isReservationUnitPaidInFuture(pricings)).toBe(true);
+  });
+
+  it("return true if only future one paid", () => {
+    const pricings = [
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 20,
+        highestPriceNet: 20,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 0,
+        highestPriceNet: 0,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+      },
+    ] as ReservationUnitPricingType[];
+
+    expect(isReservationUnitPaidInFuture(pricings)).toBe(true);
+  });
+
+  it("returns false if future one if paid but price is set in zero", () => {
+    const pricings = [
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 0,
+        highestPriceNet: 0,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 0,
+        highestPriceNet: 0,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+      },
+    ] as ReservationUnitPricingType[];
+
+    expect(isReservationUnitPaidInFuture(pricings)).toBe(false);
+  });
+
+  it("returns false all are free", () => {
+    const pricings = [
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 20,
+        highestPriceNet: 20,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Future,
+      },
+      {
+        pricingType:
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Free,
+        lowestPrice: 0,
+        lowestPriceNet: 0,
+        highestPrice: 20,
+        highestPriceNet: 20,
+        status: ReservationUnitsReservationUnitPricingStatusChoices.Active,
+      },
+    ] as ReservationUnitPricingType[];
+
+    expect(isReservationUnitPaidInFuture(pricings)).toBe(false);
   });
 });

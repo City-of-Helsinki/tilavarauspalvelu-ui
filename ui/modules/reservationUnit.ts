@@ -14,6 +14,7 @@ import {
   ReservationsReservationStateChoices,
   ReservationUnitByPkType,
   ReservationUnitPricingType,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitsReservationUnitPricingStatusChoices,
   ReservationUnitType,
   UnitType,
@@ -375,3 +376,20 @@ export const mockOpeningTimes = Array.from(Array(100)).map((val, index) => ({
   state: "open",
   periods: null,
 }));
+
+export const isReservationUnitPaidInFuture = (
+  pricings: ReservationUnitPricingType[]
+): boolean => {
+  return pricings
+    .filter(
+      (pricing) =>
+        [
+          ReservationUnitsReservationUnitPricingStatusChoices.Active,
+          ReservationUnitsReservationUnitPricingStatusChoices.Future,
+        ].includes(pricing.status) &&
+        pricing.pricingType ===
+          ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid
+    )
+    .map((pricing) => getPrice(pricing, undefined, false, true))
+    .some((n) => n !== "0");
+};
