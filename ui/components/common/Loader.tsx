@@ -9,7 +9,7 @@ type Params = {
   children: React.ReactNode;
 };
 
-const Loader = ({ children, datas }: Params) => {
+const Loader = ({ children, datas }: Params): JSX.Element => {
   const [triggerSpinner, setTriggerSpinner] = useState(false);
   const { t } = useTranslation();
 
@@ -35,7 +35,7 @@ const Loader = ({ children, datas }: Params) => {
     return <> </>;
   }
 
-  return { children };
+  return <div>{children}</div>;
 };
 
 export default Loader;
