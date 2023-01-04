@@ -177,6 +177,7 @@ const EditStep0 = ({
       },
     ]);
   }, [calendarEvents, initialReservation, reservationUnit]);
+
   const ToolbarWithProps = React.memo((props: ToolbarProps) => (
     <Toolbar {...props} />
   ));
