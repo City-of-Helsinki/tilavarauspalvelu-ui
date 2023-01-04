@@ -409,8 +409,8 @@ const ReservationUnitReservation = ({
         setErrorMsg(msg);
       } else if (confirmData) {
         if (steps?.length > 2) {
-          const { checkoutUrl, receiptUrl } =
-            confirmData.confirmReservation?.order;
+          const order = confirmData.confirmReservation?.order;
+          const { checkoutUrl, receiptUrl } = order ?? {};
           const userId = new URL(receiptUrl)?.searchParams?.get("user");
 
           if (checkoutUrl && receiptUrl && userId) {

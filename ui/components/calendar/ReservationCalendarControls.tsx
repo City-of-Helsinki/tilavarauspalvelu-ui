@@ -197,8 +197,10 @@ const Price = styled.div`
 const ResetButton = styled(Button).attrs({
   variant: "secondary",
   style: {
+    /* eslint-disable @typescript-eslint/naming-convention */
     "--border-color": "var(--color-black)",
     "--color": "var(--color-black)",
+    /* eslint-enable */
   } as CSSProperties,
 })`
   white-space: nowrap;

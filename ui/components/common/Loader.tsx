@@ -9,7 +9,7 @@ type Params = {
   children: React.ReactNode;
 };
 
-const Loader = ({ children, datas }: Params): JSX.Element => {
+const Loader = ({ children, datas }: Params) => {
   const [triggerSpinner, setTriggerSpinner] = useState(false);
   const { t } = useTranslation();
 
@@ -32,10 +32,10 @@ const Loader = ({ children, datas }: Params): JSX.Element => {
   }
 
   if (isLoading) {
-    return <></>;
+    return <> </>;
   }
 
-  return <>{children}</>;
+  return { children };
 };
 
 export default Loader;

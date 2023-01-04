@@ -280,14 +280,12 @@ const EditStep1 = ({
           id="generic-and-service-specific-terms"
           heading={t("reservationCalendar:heading.termsOfUse")}
           body={
-            <>
-              <Sanitize
-                html={getTranslation(
-                  reservationUnit.serviceSpecificTerms,
-                  "text"
-                )}
-              />
-            </>
+            <Sanitize
+              html={getTranslation(
+                reservationUnit.serviceSpecificTerms,
+                "text"
+              )}
+            />
           }
           links={
             hasTermsOfUse && [

@@ -163,6 +163,7 @@ const FilterTags = styled.div`
 
 const ResetButton = styled(StyledTag).attrs({
   theme: {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     "--tag-background": "transparent",
   },
 })``;

@@ -372,8 +372,8 @@ const StyledNotification = styled(Notification)`
 
 const eventStyleGetter = (
   { event }: CalendarEvent<Reservation | ReservationType>,
-  draggable = true,
-  ownReservations: number[]
+  ownReservations: number[],
+  draggable = true
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
     borderRadius: "0px",
@@ -417,6 +417,10 @@ const eventStyleGetter = (
     className,
   };
 };
+
+const ToolbarWithProps = React.memo((props: ToolbarProps) => (
+  <Toolbar {...props} />
+));
 
 const ReservationUnit = ({
   reservationUnit,
@@ -765,10 +769,6 @@ const ReservationUnit = ({
     [addReservation, reservationUnit.pk, setReservation]
   );
 
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar {...props} />
-  ));
-
   const isReservable = useMemo(() => {
     return isReservationUnitReservable(reservationUnit);
   }, [reservationUnit]);
@@ -800,6 +800,10 @@ const ReservationUnit = ({
 
   const quickReservationComponent = useCallback(
     (calendar, type: "mobile" | "desktop") => {
+      const scrollPosition = calendar?.current?.offsetTop
+        ? calendar.current.offsetTop - 20
+        : 0;
+
       return (
         !isReservationStartInFuture(reservationUnit) &&
         isReservable && (
@@ -808,7 +812,7 @@ const ReservationUnit = ({
             isReservationUnitReservable={!isReservationQuotaReached}
             createReservation={(res) => createReservation(res)}
             reservationUnit={reservationUnit}
-            scrollPosition={calendar?.current?.offsetTop - 20}
+            scrollPosition={scrollPosition}
             setErrorMsg={setErrorMsg}
             idPrefix={type}
             subventionSuffix={subventionSuffix}
@@ -946,8 +950,8 @@ const ReservationUnit = ({
                     eventStyleGetter={(event) =>
                       eventStyleGetter(
                         event,
-                        !isReservationQuotaReached,
-                        userReservations?.map((n) => n.pk)
+                        userReservations?.map((n) => n.pk),
+                        !isReservationQuotaReached
                       )
                     }
                     slotPropGetter={slotPropGetter}
@@ -1292,14 +1296,12 @@ const ReservationUnit = ({
       </Container>
       <BottomWrapper>
         {shouldDisplayBottomWrapper && (
-          <>
-            <BottomContainer>
-              <Subheading>
-                {t("reservationUnit:relatedReservationUnits")}
-              </Subheading>
-              <RelatedUnits units={relatedReservationUnits} />
-            </BottomContainer>
-          </>
+          <BottomContainer>
+            <Subheading>
+              {t("reservationUnit:relatedReservationUnits")}
+            </Subheading>
+            <RelatedUnits units={relatedReservationUnits} />
+          </BottomContainer>
         )}
       </BottomWrapper>
       {errorMsg && (

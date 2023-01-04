@@ -1,3 +1,4 @@
+import { NextApiRequest } from "next";
 import axios, { AxiosRequestConfig } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import applyCaseMiddleware from "axios-case-converter";
@@ -17,17 +18,19 @@ const axiosOptions = {
 
 const axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 if (isBrowser && authEnabled) {
-  axiosClient.interceptors.request.use((req: AxiosRequestConfig) => {
-    const [apiAccessToken, profileApiAccessToken] = getApiAccessTokens();
+  axiosClient.interceptors.request.use(
+    (req: AxiosRequestConfig & NextApiRequest) => {
+      const [apiAccessToken, profileApiAccessToken] = getApiAccessTokens();
 
-    if (apiAccessToken) {
-      req.headers.Authorization = `Bearer ${apiAccessToken}`;
+      if (apiAccessToken) {
+        req.headers.Authorization = `Bearer ${apiAccessToken}`;
+      }
+      if (profileApiAccessToken) {
+        req.headers[PROFILE_TOKEN_HEADER] = `${profileApiAccessToken}`;
+      }
+      return req;
     }
-    if (profileApiAccessToken) {
-      req.headers[PROFILE_TOKEN_HEADER] = `${profileApiAccessToken}`;
-    }
-    return req;
-  });
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const refreshAuthLogic = (failedRequest: any) => {

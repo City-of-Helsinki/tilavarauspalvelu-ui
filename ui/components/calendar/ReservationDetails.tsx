@@ -114,11 +114,11 @@ const ReservationDetails = ({
   label,
   event,
   authComponent,
-}: Props): JSX.Element => {
+}: Props) => {
   const { t } = useTranslation();
 
   if (event.event.state !== "INITIAL") {
-    return <>{children}</>;
+    return { children };
   }
 
   return (

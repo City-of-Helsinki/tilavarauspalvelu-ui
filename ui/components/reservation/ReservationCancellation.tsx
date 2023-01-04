@@ -215,13 +215,11 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
     const reservationUnit = reservation?.reservationUnits[0];
     return (
       reservation && (
-        <>
-          <ReservationInfoCard
-            reservation={reservation}
-            reservationUnit={reservationUnit}
-            type="confirmed"
-          />
-        </>
+        <ReservationInfoCard
+          reservation={reservation}
+          reservationUnit={reservationUnit}
+          type="confirmed"
+        />
       )
     );
   }, [reservation]);

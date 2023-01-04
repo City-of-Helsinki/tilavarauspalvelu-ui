@@ -182,12 +182,13 @@ const ReservationInfoCard = ({
             {capitalize(timeString)}, {formatDurationMinutes(duration)}
           </Strong>
         </Value>
-        {reservation?.description && ["confirmed", "complete"].includes(type) && (
-          <Value>
-            {t("reservationCalendar:label.description")}:{" "}
-            {reservation?.description}
-          </Value>
-        )}
+        {reservation?.description &&
+          ["confirmed", "complete"].includes(type) && (
+            <Value>
+              {t("reservationCalendar:label.description")}:{" "}
+              {reservation?.description}
+            </Value>
+          )}
         <Value>
           {t("reservationUnit:price")}: <Strong>{price}</Strong>{" "}
           {taxPercentageValue &&
