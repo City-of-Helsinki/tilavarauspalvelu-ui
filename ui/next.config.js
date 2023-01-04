@@ -6,6 +6,7 @@ const { PHASE_PRODUCTION_SERVER } = require("next/constants");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   i18n,
   serverRuntimeConfig: {
     apiBaseUrl: process.env.TILAVARAUS_API_URL,
@@ -28,6 +29,16 @@ const nextConfig = {
     mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     mockRequests: process.env.NEXT_PUBLIC_MOCK_REQUESTS === "true",
   },
+  transpilePackages: ["common"],
+  compiler: {
+    styledComponents: {
+      ssr: true,
+      displayName: true,
+    },
+  },
+  sentry: {
+    hideSourceMaps: true,
+  },
 };
 
 const sentryWebpackPluginOptions = {
@@ -45,11 +56,4 @@ const sentryWebpackPluginOptions = {
 
 // Make sure adding Sentry options is the last code to run before exporting, to
 // ensure that your source maps include changes from all other Webpack plugins
-module.exports = (phase) => {
-  return phase === PHASE_PRODUCTION_SERVER
-    ? withPlugins(
-        [nextTranspiler],
-        withSentryConfig(nextConfig, sentryWebpackPluginOptions)
-      )
-    : nextTranspiler(nextConfig);
-};
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
