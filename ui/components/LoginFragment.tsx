@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { UserProfile } from "common/types/common";
 import { breakpoints } from "common/src/common/style";
+import { useSession } from "next-auth/react";
 import { authEnabled, isBrowser } from "../modules/const";
 import RequireAuthentication from "./common/RequireAuthentication";
 import { MediumButton } from "../styles/util";
@@ -53,11 +53,10 @@ const LoginFragment = ({
   isActionDisabled,
   actionCallback,
 }: Props): JSX.Element => {
-  type InnerProps = {
-    profile: UserProfile | null;
-  };
-
+  const session = useSession();
   const { t } = useTranslation();
+
+  const isAuthenticated = session?.status === "authenticated";
 
   const [shouldLogin, setShouldLogin] = React.useState(false);
 
@@ -73,33 +72,25 @@ const LoginFragment = ({
     return null;
   }
 
-  const WithOidc = require("./common/WithOidc").default;
-
-  return (
-    <WithOidc
-      render={({ profile }: InnerProps) => {
-        return !profile && authEnabled ? (
-          <Wrapper>
-            <SubmitButton
-              onClick={() => {
-                if (actionCallback) {
-                  actionCallback();
-                }
-                setShouldLogin(true);
-              }}
-              aria-label={t("reservationCalendar:loginAndReserve")}
-              className="login-fragment__button--login"
-              disabled={isActionDisabled}
-            >
-              {t("reservationCalendar:loginAndReserve")}
-            </SubmitButton>
-            {text}
-          </Wrapper>
-        ) : (
-          { componentIfAuthenticated }
-        );
-      }}
-    />
+  return !isAuthenticated && authEnabled ? (
+    <Wrapper>
+      <SubmitButton
+        onClick={() => {
+          if (actionCallback) {
+            actionCallback();
+          }
+          setShouldLogin(true);
+        }}
+        aria-label={t("reservationCalendar:loginAndReserve")}
+        className="login-fragment__button--login"
+        disabled={isActionDisabled}
+      >
+        {t("reservationCalendar:loginAndReserve")}
+      </SubmitButton>
+      {text}
+    </Wrapper>
+  ) : (
+    <Wrapper>{componentIfAuthenticated}</Wrapper>
   );
 };
 
