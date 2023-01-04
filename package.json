@@ -11,16 +11,18 @@
   "license": "MIT",
   "scripts": {
     "ncu": "npm-check-updates -p yarn --deep --target minor --format group",
-    "ncu:upgrade": "npm-check-updates -p yarn --deep --target minor  --format group --upgrade"
+    "ncu:upgrade": "npm-check-updates -p yarn --deep --target minor  --format group --upgrade",
+    "clean": "npkill"
   },
   "resolutions": {
     "@types/node": "^16.0.0",
-    "graphql": "^15.8.0",
-    "next": "12.3.4",
-    "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "graphql": "^16.6.0",
+    "next": "13.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "npm-check-updates": "^16.6.2"
+    "npm-check-updates": "^16.6.2",
+    "npkill": "^0.10.0"
   }
 }

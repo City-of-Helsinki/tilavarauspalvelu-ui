@@ -175,8 +175,15 @@ export const getComboboxValues = (
     : [getSelectedOption(value, options)];
 };
 
-export const searchUrl = (params: unknown): string =>
-  `${searchPrefix}/?${queryString.parse(params)}`;
+export const searchUrl = (params: unknown): string => {
+  const response = `${searchPrefix}/`;
+
+  if (params && Object.keys(params).length > 0) {
+    return `${response}?${queryString.parse(params.toString())}`;
+  }
+
+  return response;
+};
 
 export const singleSearchUrl = (params: unknown): string => {
   const response = `${singleSearchPrefix}/`;

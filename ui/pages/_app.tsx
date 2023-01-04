@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ApolloProvider } from "@apollo/client";
 import { appWithTranslation, UserConfig } from "next-i18next";
 import { fi } from "date-fns/locale";
@@ -27,6 +27,16 @@ if (mockRequests) {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const MyApp = ({ Component, pageProps }: AppProps) => {
+  const [showChild, setShowChild] = useState(false);
+
+  useEffect(() => {
+    setShowChild(true);
+  }, []);
+
+  if (!showChild) {
+    return null;
+  }
+
   if (!isBrowser) {
     return (
       <DataContextProvider>
