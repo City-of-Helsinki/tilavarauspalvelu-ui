@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "baseUrl": "./",
     "target": "es5",
     "lib": ["esnext", "dom"],
