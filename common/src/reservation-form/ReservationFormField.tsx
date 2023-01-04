@@ -165,9 +165,11 @@ const ReservationFormField = ({
       rules={{ required }}
       render={({ field: formField }) => (
         <StyledSelect
-          label={t(
-            `reservationApplication:label.${normalizedReserveeType}.${field}`
-          )}
+          label={
+            t(
+              `reservationApplication:label.${normalizedReserveeType}.${field}`
+            ) as string
+          }
           id={field}
           options={options[field]}
           defaultValue={options[field].find(
@@ -175,7 +177,7 @@ const ReservationFormField = ({
           )}
           {...formField}
           value={formField.value || null}
-          error={get(errors, field) && t("forms:requiredField")}
+          error={get(errors, field) && (t("forms:requiredField") as string)}
           required={required}
           invalid={!!get(errors, field)}
           $isWide={isWideRow}
@@ -189,7 +191,7 @@ const ReservationFormField = ({
       $break={isBreakingColumn}
     >
       <Subheading>
-        {t("reservationApplication:label.subHeadings.subvention")}
+        {t("reservationApplication:label.subHeadings.subvention") as string}
       </Subheading>{" "}
       <Controller
         name={field}
