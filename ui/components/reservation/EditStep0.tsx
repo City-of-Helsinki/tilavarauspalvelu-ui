@@ -245,13 +245,12 @@ const EditStep0 = ({
         return false;
       }
 
-      const price = getReservationUnitPrice(
+      const price = getReservationUnitPrice({
         reservationUnit,
-        start,
-        0,
-        false,
-        true
-      );
+        pricingDate: start,
+        minutes: 0,
+        asInt: true,
+      });
 
       setInitialReservation({
         begin: newReservation.begin,
@@ -279,13 +278,12 @@ const EditStep0 = ({
         return false;
       }
 
-      const price = getReservationUnitPrice(
+      const price = getReservationUnitPrice({
         reservationUnit,
-        start,
-        0,
-        false,
-        true
-      );
+        pricingDate: start,
+        minutes: 0,
+        asInt: true,
+      });
 
       setInitialReservation({
         begin: start.toISOString(),

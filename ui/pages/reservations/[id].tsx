@@ -254,13 +254,11 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
   const shouldDisplayPricingTerms: boolean = useMemo(() => {
     if (!reservation || !reservationUnit) return false;
 
-    const reservationUnitPrice = getReservationUnitPrice(
+    const reservationUnitPrice = getReservationUnitPrice({
       reservationUnit,
-      reservation?.begin ? new Date(reservation.begin) : undefined,
-      undefined,
-      false,
-      true
-    );
+      pricingDate: reservation?.begin ? new Date(reservation.begin) : undefined,
+      asInt: true,
+    });
 
     return (
       reservation.applyingForFreeOfCharge ||

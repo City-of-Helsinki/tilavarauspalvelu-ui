@@ -56,7 +56,7 @@ describe("getPrice", () => {
       pricingType: "PAID",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing)).toBe("10 - 50,5 € / 15 min");
+    expect(getPrice({ pricing })).toBe("10 - 50,5 € / 15 min");
   });
 
   test("price range with no min", () => {
@@ -67,7 +67,7 @@ describe("getPrice", () => {
       pricingType: "PAID",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing)).toBe("0 - 50,5 € / 15 min");
+    expect(getPrice({ pricing })).toBe("0 - 50,5 € / 15 min");
   });
 
   test("price range with minutes", () => {
@@ -78,7 +78,7 @@ describe("getPrice", () => {
       pricingType: "PAID",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing, 60)).toBe("0 - 60,5 €");
+    expect(getPrice({ pricing, minutes: 60 })).toBe("0 - 60,5 €");
   });
 
   test("price range with minutes", () => {
@@ -89,7 +89,7 @@ describe("getPrice", () => {
       pricingType: "PAID",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing, 61)).toBe("0 - 121 €");
+    expect(getPrice({ pricing, minutes: 61 })).toBe("0 - 121 €");
   });
 
   test("fixed price", () => {
@@ -100,7 +100,7 @@ describe("getPrice", () => {
       pricingType: "PAID",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing)).toBe("50 €");
+    expect(getPrice({ pricing })).toBe("50 €");
   });
 
   test("fixed price with decimals", () => {
@@ -111,7 +111,7 @@ describe("getPrice", () => {
       pricingType: "PAID",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing, undefined, true)).toBe("50,00 €");
+    expect(getPrice({ pricing, trailingZeros: true })).toBe("50,00 €");
   });
 
   test("no price", () => {
@@ -119,8 +119,10 @@ describe("getPrice", () => {
       priceUnit: "FIXED",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing)).toBe("Maksuton");
-    expect(getPrice({} as ReservationUnitPricingType)).toBe("Maksuton");
+    expect(getPrice({ pricing })).toBe("Maksuton");
+    expect(getPrice({ pricing: {} as ReservationUnitPricingType })).toBe(
+      "Maksuton"
+    );
   });
 
   test("free", () => {
@@ -129,7 +131,7 @@ describe("getPrice", () => {
       pricingType: "FREE",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing)).toBe("Maksuton");
+    expect(getPrice({ pricing })).toBe("Maksuton");
   });
 
   test("total price with minutes", () => {
@@ -141,7 +143,7 @@ describe("getPrice", () => {
       status: "ACTIVE",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing, 180)).toBe("0 - 606 €");
+    expect(getPrice({ pricing, minutes: 180 })).toBe("0 - 606 €");
   });
 
   test("total price with minutes and decimals", () => {
@@ -153,7 +155,9 @@ describe("getPrice", () => {
       status: "ACTIVE",
     } as unknown as ReservationUnitPricingType;
 
-    expect(getPrice(pricing, 180, true)).toBe("0 - 606,00 €");
+    expect(getPrice({ pricing, minutes: 180, trailingZeros: true })).toBe(
+      "0 - 606,00 €"
+    );
   });
 });
 
@@ -989,19 +993,28 @@ describe("getReservationUnitPrice", () => {
   it("returns future data based on date lookup", () => {
     const data = cloneDeep(reservationUnit);
 
-    expect(getReservationUnitPrice(data, addDays(new Date(), 5))).toEqual(
-      "40 - 50 € / tunti"
-    );
+    expect(
+      getReservationUnitPrice({
+        reservationUnit: data,
+        pricingDate: addDays(new Date(), 5),
+      })
+    ).toEqual("40 - 50 € / tunti");
 
     expect(
-      getReservationUnitPrice(data, addDays(new Date(), 11), undefined, true)
+      getReservationUnitPrice({
+        reservationUnit: data,
+        pricingDate: addDays(new Date(), 11),
+        trailingZeros: true,
+      })
     ).toEqual("10,00 - 20,00 € / tunti");
   });
 
   it("returns null if incomplete data", () => {
-    expect(getReservationUnitPrice(null as ReservationUnitByPkType)).toEqual(
-      null
-    );
+    expect(
+      getReservationUnitPrice({
+        reservationUnit: null as ReservationUnitByPkType,
+      })
+    ).toEqual(null);
   });
 });
 

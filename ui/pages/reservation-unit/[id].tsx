@@ -1185,11 +1185,10 @@ const ReservationUnit = ({
                           {{ date: toUIDate(new Date(futurePricing.begins)) }}{" "}
                           alkaen. Uusi hinta on{" "}
                           {{
-                            price: getPrice(
-                              futurePricing,
-                              undefined,
-                              true
-                            ).toLocaleLowerCase(),
+                            price: getPrice({
+                              pricing: futurePricing,
+                              trailingZeros: true,
+                            }).toLocaleLowerCase(),
                           }}
                         </strong>
                       </Trans>
