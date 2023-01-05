@@ -46,6 +46,7 @@ import { DataContext, ReservationProps } from "../../context/DataContext";
 import { getDurationOptions } from "../../modules/reservation";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import LoginFragment from "../LoginFragment";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type Props<T> = {
   reservationUnit: ReservationUnitByPkType;
@@ -282,16 +283,22 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     }
   }, [reservation]);
 
+  const debouncedStartTime = useDebounce(begin, 200);
+  const debouncedEndTime = useDebounce(end, 200);
+
   useEffect(() => {
-    if (begin && end) {
-      const newDate = new Date(begin);
+    if (debouncedStartTime && debouncedEndTime) {
+      const newDate = new Date(debouncedStartTime);
 
       const newStartTime = `${newDate.getHours()}:${newDate
         .getMinutes()
         .toString()
         .padEnd(2, "0")}`;
       const diff = secondsToHms(
-        differenceInSeconds(new Date(end), new Date(begin))
+        differenceInSeconds(
+          new Date(debouncedEndTime),
+          new Date(debouncedStartTime)
+        )
       );
       const durationHMS = `${diff.h || "0"}:${String(diff.m).padEnd(2, "0")}`;
       const newDuration = durationOptions.find((n) => n.value === durationHMS);
@@ -300,7 +307,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       setStartTime(newStartTime);
       setDuration(newDuration);
     }
-  }, [begin, end, setDate, durationOptions]);
+  }, [debouncedStartTime, debouncedEndTime, setDate, durationOptions]);
 
   useEffect(() => {
     if (isValid(date) && startTime && duration) {
