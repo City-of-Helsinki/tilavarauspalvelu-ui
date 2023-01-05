@@ -201,7 +201,6 @@ const options = (): NextAuthOptions => {
         },
       },
     ],
-    secret: oidcClientSecret,
     session: {
       strategy: "jwt",
     },
@@ -244,8 +243,8 @@ const options = (): NextAuthOptions => {
       },
     },
     pages: {
-      signIn: `${process.env.NEXT_PUBLIC_BASE_URL}/`,
-      signOut: "",
+      signIn: `/`,
+      signOut: "/logout",
     },
   };
 };
