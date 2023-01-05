@@ -6,7 +6,6 @@ import {
 } from "hds-react";
 import React, { useState } from "react";
 import { useTranslation, TFunction } from "next-i18next";
-import dynamic from "next/dynamic";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -117,7 +116,7 @@ const modified = (
   );
 };
 
-const Reservations = (): JSX.Element | null => {
+const ReservationsPage = (): JSX.Element | null => {
   const router = useRouter();
   const { applicationId } = router.query;
 
@@ -142,11 +141,6 @@ const Reservations = (): JSX.Element | null => {
 
   if (!isBrowser) return null;
 
-  const OidcSecure = dynamic(() =>
-    // eslint-disable-next-line import/no-unresolved
-    import("@axa-fr/react-oidc-context").then((mod) => mod.OidcSecure)
-  );
-
   const hasReservations = reservations.data?.length;
 
   const reservationsResultText = t(
@@ -155,87 +149,83 @@ const Reservations = (): JSX.Element | null => {
       : "reservations:resultWithoutReservations"
   );
   return (
-    <OidcSecure>
-      <Container>
-        <Back label="reservations:back" />
-        <Loader datas={[application, applicationRound, reservations]}>
-          <RoundName>{applicationRound.data?.name}</RoundName>
-          <Applicant>
-            {getApplicant(application.data as Application, t)}
-          </Applicant>
-          {modified(application, t)}
-          <TwoColumnContainer>
-            <div>
-              <SubHeading>{t("reservations:titleResolution")}</SubHeading>
-              <ResolutionDescription>
-                {reservationsResultText}
-              </ResolutionDescription>
+    <Container>
+      <Back label="reservations:back" />
+      <Loader datas={[application, applicationRound, reservations]}>
+        <RoundName>{applicationRound.data?.name}</RoundName>
+        <Applicant>
+          {getApplicant(application.data as Application, t)}
+        </Applicant>
+        {modified(application, t)}
+        <TwoColumnContainer>
+          <div>
+            <SubHeading>{t("reservations:titleResolution")}</SubHeading>
+            <ResolutionDescription>
+              {reservationsResultText}
+            </ResolutionDescription>
 
-              {status === "error" ? (
-                <Notification
-                  type="error"
-                  label={t("reservations:errorGeneratingPDF")}
-                  position="top-center"
-                  displayAutoCloseProgress={false}
-                  autoClose
-                  onClose={() => setStatus("done")}
-                >
-                  {t("reservations:errorGeneratingPDF")}
-                </Notification>
-              ) : (
-                <ToggleButton
-                  theme="black"
-                  variant="secondary"
-                  iconLeft={<IconDownload />}
-                  isLoading={status === "loading"}
-                  loadingText={t("reservations:generating")}
-                  onClick={() => {
-                    setStatus("loading");
-                    setTimeout(() => {
-                      import("../../components/pdf/util").then(
-                        ({ download }) => {
-                          download(
-                            application.data as Application,
-                            reservations.data as RecurringReservation[],
-                            applicationRound.data?.approvedBy || null,
-                            setStatus
-                          );
-                        }
+            {status === "error" ? (
+              <Notification
+                type="error"
+                label={t("reservations:errorGeneratingPDF")}
+                position="top-center"
+                displayAutoCloseProgress={false}
+                autoClose
+                onClose={() => setStatus("done")}
+              >
+                {t("reservations:errorGeneratingPDF")}
+              </Notification>
+            ) : (
+              <ToggleButton
+                theme="black"
+                variant="secondary"
+                iconLeft={<IconDownload />}
+                isLoading={status === "loading"}
+                loadingText={t("reservations:generating")}
+                onClick={() => {
+                  setStatus("loading");
+                  setTimeout(() => {
+                    import("../../components/pdf/util").then(({ download }) => {
+                      download(
+                        application.data as Application,
+                        reservations.data as RecurringReservation[],
+                        applicationRound.data?.approvedBy || null,
+                        setStatus
                       );
-                    }, 0);
-                  }}
-                >
-                  {t("reservations:download")}
-                </ToggleButton>
-              )}
-            </div>
-            {hasReservations ? (
-              <Buttons>
-                <ToggleButton
-                  theme="black"
-                  aria-pressed={isCalendar}
-                  variant={(isCalendar && "secondary") || "primary"}
-                  iconLeft={<IconMenuHamburger />}
-                  onClick={() => setIsCalendar(false)}
-                >
-                  {t("reservations:showList")}
-                </ToggleButton>
-                <ToggleButton
-                  theme="black"
-                  variant={(isCalendar && "primary") || "secondary"}
-                  aria-pressed={!isCalendar}
-                  onClick={() => setIsCalendar(true)}
-                  iconLeft={<IconCalendar />}
-                >
-                  {t("reservations:showCalendar")}
-                </ToggleButton>
-              </Buttons>
-            ) : null}
-          </TwoColumnContainer>
-        </Loader>
-      </Container>
-    </OidcSecure>
+                    });
+                  }, 0);
+                }}
+              >
+                {t("reservations:download")}
+              </ToggleButton>
+            )}
+          </div>
+          {hasReservations ? (
+            <Buttons>
+              <ToggleButton
+                theme="black"
+                aria-pressed={isCalendar}
+                variant={(isCalendar && "secondary") || "primary"}
+                iconLeft={<IconMenuHamburger />}
+                onClick={() => setIsCalendar(false)}
+              >
+                {t("reservations:showList")}
+              </ToggleButton>
+              <ToggleButton
+                theme="black"
+                variant={(isCalendar && "primary") || "secondary"}
+                aria-pressed={!isCalendar}
+                onClick={() => setIsCalendar(true)}
+                iconLeft={<IconCalendar />}
+              >
+                {t("reservations:showCalendar")}
+              </ToggleButton>
+            </Buttons>
+          ) : null}
+        </TwoColumnContainer>
+      </Loader>
+    </Container>
   );
 };
 
-export default Reservations;
+export default ReservationsPage;
