@@ -14,19 +14,28 @@ const nextConfig = {
   },
   publicRuntimeConfig: {
     apiBaseUrl: process.env.TILAVARAUS_API_URL,
+
     authEnabled: process.env.DISABLE_AUTH !== "true",
+    oidcClientId: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID,
+    oidcClientSecret: process.env.NEXT_PUBLIC_OIDC_AUTH_SECRET,
+    oidcIssuer: process.env.NEXT_PUBLIC_OIDC_URL,
+    oidcTokenUrl: process.env.NEXT_PUBLIC_OIDC_TOKEN_URL,
+    oidcAccessTokenUrl: process.env.NEXT_PUBLIC_OIDC_ACCESS_TOKEN_URL,
+    oidcProfileApiUrl: process.env.NEXT_PUBLIC_OIDC_PROFILE_API_URL,
+    oidcTilavarausApiUrl: process.env.NEXT_PUBLIC_OIDC_TILAVARAUS_API_URL,
+    oidcScope: process.env.NEXT_PUBLIC_OIDC_SCOPE,
+    oidcCallbackUrl: process.env.NEXT_PUBLIC_OIDC_CALLBACK_URL,
+    oidcEndSessionUrl: process.env.NEXT_PUBLIC_OIDC_END_SESSION,
+
     sentryDSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     sentryEnvironment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
+
     cookiehubEnabled: process.env.NEXT_PUBLIC_COOKIEHUB_ENABLED === "true",
     matomoEnabled: process.env.NEXT_PUBLIC_MATOMO_ENABLED === "true",
     hotjarEnabled: process.env.NEXT_PUBLIC_HOTJAR_ENABLED === "true",
-    oidcClientId: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID,
-    oidcUrl: process.env.NEXT_PUBLIC_OIDC_URL,
-    apiTokenUrl: process.env.NEXT_PUBLIC_API_TOKEN_URL,
-    oidcScope: process.env.NEXT_PUBLIC_OIDC_SCOPE,
-    apiScope: process.env.NEXT_PUBLIC_TILAVARAUS_API_SCOPE,
-    profileApiScope: process.env.NEXT_PUBLIC_PROFILE_API_SCOPE,
+
     mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+
     mockRequests: process.env.NEXT_PUBLIC_MOCK_REQUESTS === "true",
   },
   transpilePackages: ["common"],

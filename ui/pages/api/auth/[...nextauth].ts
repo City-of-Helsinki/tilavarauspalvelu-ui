@@ -77,30 +77,31 @@ type SessionParams = {
   session: ExtendedSession;
 };
 
-const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID;
-const clientSecret = process.env.NEXT_PUBLIC_AUTH_SECRET;
-const issuer = process.env.NEXT_PUBLIC_OIDC_URL;
-const tokenUrl = process.env.NEXT_PUBLIC_OIDC_TOKEN_URL;
-const accessTokenUrl = process.env.NEXT_PUBLIC_OIDC_ACCESS_TOKEN_URL;
-const profileUrl = process.env.NEXT_PUBLIC_PROFILE_API_SCOPE;
-const scope = process.env.NEXT_PUBLIC_OIDC_SCOPE;
-const callbackUrl = process.env.NEXT_PUBLIC_OIDC_CALLBACK_URL;
-
 const {
-  publicRuntimeConfig: { apiScope, profileApiScope },
+  publicRuntimeConfig: {
+    oidcClientId,
+    oidcClientSecret,
+    oidcIssuer,
+    oidcTokenUrl,
+    oidcAccessTokenUrl,
+    oidcProfileApiUrl,
+    oidcTilavarausApiUrl,
+    oidcScope,
+    oidcCallbackUrl,
+  },
 } = getConfig();
 
 const getApiAccessTokens = async (accessToken: string | undefined) => {
   if (!accessToken) {
     throw new Error("Access token not available. Cannot update");
   }
-  if (!apiScope) {
-    throw new Error("Application configuration error, illegal api scope.");
+  if (!oidcProfileApiUrl || !oidcTilavarausApiUrl) {
+    throw new Error("Application configuration error, missing api urls.");
   }
   const response = await axios.request({
     responseType: "json",
     method: "POST",
-    url: accessTokenUrl,
+    url: oidcAccessTokenUrl,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -114,27 +115,19 @@ const getApiAccessTokens = async (accessToken: string | undefined) => {
     throw new Error("No api-tokens present");
   }
 
-  const apiAccessToken: string = data[apiScope];
-  const profileApiAccessToken: string = data[profileApiScope];
+  const apiAccessToken: string = data[oidcTilavarausApiUrl];
+  const profileApiAccessToken: string = data[oidcProfileApiUrl];
 
   return [apiAccessToken, profileApiAccessToken];
 };
 
 const refreshAccessToken = async (token: ExtendedJWT) => {
   try {
-    const searchParams =
-      clientId &&
-      clientSecret &&
-      new URLSearchParams({
-        refresh_token: token.refreshToken,
-      });
-    const url = `${tokenUrl}?${searchParams}`;
-
     const response = await axios.request({
-      url: tokenUrl,
+      url: oidcTokenUrl,
       method: "POST",
       data: {
-        client_id: clientId,
+        client_id: oidcClientId,
         grant_type: "refresh_token",
         refresh_token: token.refreshToken,
       },
@@ -176,7 +169,7 @@ const refreshAccessToken = async (token: ExtendedJWT) => {
 };
 
 const options = (): NextAuthOptions => {
-  const wellKnownUrl = `${issuer}/.well-known/openid-configuration`;
+  const wellKnownUrl = `${oidcIssuer}/.well-known/openid-configuration`;
 
   return {
     providers: [
@@ -184,20 +177,20 @@ const options = (): NextAuthOptions => {
         id: "tunnistamo",
         name: "Tunnistamo OIDC",
         type: "oauth",
-        issuer,
-        clientId,
-        clientSecret,
+        issuer: oidcIssuer,
+        clientId: oidcClientId,
+        clientSecret: oidcClientSecret,
         idToken: true,
         checks: ["pkce", "state"],
         wellKnown: wellKnownUrl,
-        accessTokenUrl,
-        token: tokenUrl,
-        profileUrl,
+        accessTokenUrl: oidcAccessTokenUrl,
+        token: oidcTokenUrl,
+        profileUrl: oidcProfileApiUrl,
         authorization: {
           params: {
-            scope,
+            scope: oidcScope,
             response_type: "code",
-            redirect_uri: callbackUrl,
+            redirect_uri: oidcCallbackUrl,
           },
         },
         profile(profile: TunnistamoProfile): Awaitable<TilavarauspalveluUser> {
@@ -208,7 +201,7 @@ const options = (): NextAuthOptions => {
         },
       },
     ],
-    secret: clientSecret,
+    secret: oidcClientSecret,
     session: {
       strategy: "jwt",
     },
@@ -262,13 +255,15 @@ export default function nextAuthApiHandler(
   res: NextApiResponse
 ): ReturnType<typeof NextAuth> {
   if (
-    !clientId ||
-    !clientSecret ||
-    !issuer ||
-    !tokenUrl ||
-    !accessTokenUrl ||
-    !scope ||
-    !callbackUrl
+    !oidcClientId ||
+    !oidcClientSecret ||
+    !oidcIssuer ||
+    !oidcTokenUrl ||
+    !oidcAccessTokenUrl ||
+    !oidcProfileApiUrl ||
+    !oidcTilavarausApiUrl ||
+    !oidcScope ||
+    !oidcCallbackUrl
   ) {
     throw new Error("Invalid configuration");
   }
