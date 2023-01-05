@@ -2,8 +2,15 @@ import { setContext } from "@apollo/client/link/context";
 import { ApolloClient, HttpLink, InMemoryCache, from } from "@apollo/client";
 import { relayStylePagination } from "@apollo/client/utilities";
 import { onError } from "@apollo/client/link/error";
-import { getSession } from "next-auth/react";
-import { apiBaseUrl, isBrowser, PROFILE_TOKEN_HEADER } from "./const";
+import { getSession, signOut } from "next-auth/react";
+import { GraphQLError } from "graphql";
+import axios from "axios";
+import {
+  apiBaseUrl,
+  isBrowser,
+  PROFILE_TOKEN_HEADER,
+  SESSION_EXPIRED_ERROR,
+} from "./const";
 import { ExtendedSession } from "../pages/api/auth/[...nextauth]";
 
 const authLink = setContext(
@@ -23,14 +30,28 @@ const authLink = setContext(
   }
 );
 
-// eslint-disable-next-line consistent-return
+const handleSignOut = async () => {
+  await axios.get("/api/auth/logout");
+  await signOut();
+};
+
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message }) => console.error(message));
+    const isSessionExpired = graphQLErrors.some((error) =>
+      error.message.includes(SESSION_EXPIRED_ERROR)
+    );
+
+    if (isSessionExpired) {
+      handleSignOut();
+    }
+
+    graphQLErrors.forEach(async (error: GraphQLError) => {
+      console.error(`GQL_ERROR: ${error.message}`);
+    });
   }
 
   if (networkError) {
-    console.error(networkError);
+    console.error(`NETWORK_ERROR: ${networkError.message}`);
   }
 });
 
