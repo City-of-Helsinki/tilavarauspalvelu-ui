@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import Link from "next/link";
 import styled from "styled-components";
-import { fontMedium, H2 } from "common/src/common/typography";
+import { fontMedium, H1 } from "common/src/common/typography";
 import { Reservation } from "common/src/reservation-form/types";
 import {
   ReservationsReservationStateChoices,
@@ -67,7 +67,7 @@ const ReservationConfirmation = ({
   return (
     <Wrapper>
       <div>
-        <H2>
+        <H1>
           {t(
             `reservationUnit:${
               requiresHandling
@@ -75,7 +75,7 @@ const ReservationConfirmation = ({
                 : "reservationSuccessful"
             }`
           )}
-        </H2>
+        </H1>
         <Paragraph style={{ margin: "var(--spacing-xl) 0" }}>
           <Trans
             i18nKey={`reservationUnit:reservationReminderText${
@@ -83,9 +83,6 @@ const ReservationConfirmation = ({
             }`}
             t={t}
             values={{ user: reservation?.user.email }}
-            components={{
-              link: <a href={reservationsUrl}> </a>,
-            }}
           />
         </Paragraph>
         <ActionContainer1 style={{ marginBottom: "var(--spacing-2-xl)" }}>
@@ -116,7 +113,13 @@ const ReservationConfirmation = ({
               {t("common:gotoFrontpage")}
               <IconArrowRight aria-hidden size="m" />
             </Anchor>
-          </Link>{" "}
+          </Link>
+          <Link href={reservationsUrl} passHref>
+            <Anchor>
+              {t("navigation:Item.reservations")}
+              <IconArrowRight aria-hidden size="m" />
+            </Anchor>
+          </Link>
           <Link href={reservationsUrl} passHref>
             <Anchor>
               {t("common:logout")} <IconSignout size="m" aria-hidden />
