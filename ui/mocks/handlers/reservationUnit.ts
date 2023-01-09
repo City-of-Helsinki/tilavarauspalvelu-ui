@@ -211,6 +211,7 @@ const selectedReservationUnitQuery = graphql.query<
       nameEn: "Nuorisopalvelut En",
       nameSv: "Nuorisopalvelut Sv",
     },
+    minPersons: 10,
     maxPersons: 60,
     unit: {
       descriptionFi: "Desc Fi",
@@ -414,6 +415,7 @@ const selectedReservationUnitQuery = graphql.query<
         : pricing;
     });
     reservationUnitByPk.pricings = pricings;
+    reservationUnitByPk.minPersons = 1;
   }
 
   if (req.variables.pk === 3) {
@@ -424,6 +426,8 @@ const selectedReservationUnitQuery = graphql.query<
       textFi: "Hinnoitteluehdot body Fi",
       termsType: TermsOfUseTermsOfUseTermsTypeChoices.PricingTerms,
     };
+    reservationUnitByPk.minPersons = undefined;
+    reservationUnitByPk.maxPersons = 60;
   }
 
   if (req.variables.pk === 800) {
