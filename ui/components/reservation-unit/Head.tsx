@@ -186,6 +186,12 @@ const Head = ({
                     }
                     text={t("reservationUnitCard:maxPersons", {
                       count: reservationUnit.maxPersons,
+                      value:
+                        reservationUnit.minPersons !==
+                          reservationUnit.maxPersons &&
+                        reservationUnit.minPersons > 1
+                          ? `${reservationUnit.minPersons} - ${reservationUnit.maxPersons}`
+                          : reservationUnit.maxPersons,
                     })}
                   />
                 )}
