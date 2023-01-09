@@ -250,13 +250,13 @@ const QuickReservation = ({
       const [hours, minutes] =
         duration?.value.toString().split(":").map(Number) || [];
       const length = hours * 60 + minutes;
-      return getReservationUnitPrice(
+      return getReservationUnitPrice({
         reservationUnit,
-        date,
-        length,
-        true,
-        asInt
-      );
+        pricingDate: date,
+        minutes: length,
+        trailingZeros: true,
+        asInt,
+      });
     },
     [duration?.value, reservationUnit, date]
   );
