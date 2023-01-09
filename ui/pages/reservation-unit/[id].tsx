@@ -53,6 +53,7 @@ import {
   ReservationUnitByPkType,
   ReservationUnitByPkTypeOpeningHoursArgs,
   ReservationUnitByPkTypeReservationsArgs,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitType,
   ReservationUnitTypeEdge,
   TermsOfUseType,
@@ -1192,15 +1193,17 @@ const ReservationUnit = ({
                           }}
                         </strong>
                       </Trans>
-                      {futurePricing.taxPercentage?.value > 0 && (
-                        <strong>
-                          {t("reservationUnit:futurePriceNoticeTax", {
-                            tax: formatters.strippedDecimal.format(
-                              futurePricing.taxPercentage.value
-                            ),
-                          })}
-                        </strong>
-                      )}
+                      {futurePricing.pricingType ===
+                        ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
+                        futurePricing.taxPercentage?.value > 0 && (
+                          <strong>
+                            {t("reservationUnit:futurePriceNoticeTax", {
+                              tax: formatters.strippedDecimal.format(
+                                futurePricing.taxPercentage.value
+                              ),
+                            })}
+                          </strong>
+                        )}
                       .
                     </p>
                   )}
