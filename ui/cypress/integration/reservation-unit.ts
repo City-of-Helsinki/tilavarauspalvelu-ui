@@ -78,7 +78,7 @@ const matchEvent = (): void => {
     });
 };
 
-const reservationEnds = format(addDays(new Date(), 10), "d.M.yyyy");
+const reservationEnds = format(addDays(new Date(), 10), "d.M.yyyy H:mm");
 
 const drawReservation = (): void => {
   hzNavigationFwd().click();
@@ -518,7 +518,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     it("should display no calendar controls when off season", () => {
       cy.visit("/reservation-unit/900");
 
-      calendarWrapper().should("exist");
+      calendarWrapper().should("not.exist");
       reservationControls().should("not.exist");
 
       reservationStartNotification().should(

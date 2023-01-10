@@ -12,9 +12,9 @@ import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
-import { IconInfoCircleFill, Notification } from "hds-react";
+import { Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { addSeconds, addYears, parseISO } from "date-fns";
+import { addSeconds, addYears } from "date-fns";
 import {
   formatSecondDuration,
   toApiDate,
@@ -23,7 +23,6 @@ import {
 import {
   getEventBuffers,
   getMaxReservation,
-  getNormalizedReservationBeginTime,
   getSlotPropGetter,
   getTimeslots,
   isReservationShortEnough,
@@ -885,29 +884,7 @@ const ReservationUnit = ({
                 </Content>
               </>
             )}
-            {isReservationStartInFuture(reservationUnit) && (
-              <StyledNotification
-                type="info"
-                size="small"
-                dismissible
-                closeButtonLabelText={t("common:close")}
-              >
-                <IconInfoCircleFill aria-hidden />
-                <span data-testid="reservation-unit--notification__reservation-start">
-                  {t("reservationUnit:notifications.notReservable")}{" "}
-                  {t("reservationCalendar:reservingStartsAt", {
-                    date: t("common:dateTimeNoYear", {
-                      date: parseISO(
-                        getNormalizedReservationBeginTime(reservationUnit)
-                      ),
-                    }),
-                  })}
-                </span>
-              </StyledNotification>
-            )}
-            {(isReservable ||
-              (!isReservable &&
-                isReservationStartInFuture(reservationUnit))) && (
+            {isReservable && (
               <CalendarWrapper
                 ref={calendarRef}
                 data-testid="reservation-unit__calendar--wrapper"
@@ -1118,7 +1095,8 @@ const ReservationUnit = ({
                           Varauskalenteri on auki{" "}
                           {{
                             reservationEnds: formatDate(
-                              reservationUnit.reservationEnds
+                              reservationUnit.reservationEnds,
+                              "d.M.yyyy H:mm"
                             ),
                           }}
                         </strong>{" "}
