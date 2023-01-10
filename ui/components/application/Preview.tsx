@@ -316,21 +316,19 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
                     "unit"
                   );
                   return (
-                    <React.Fragment key={reservationUnit.reservationUnitId}>
-                      <UnitName>
-                        <div>{index + 1}</div>
-                        <div>
-                          {getOldReservationUnitName(
-                            reservationUnit.reservationUnitDetails
-                          )}
-                          {unit &&
-                            `, ${localizedValue(
-                              get(unit, "building.name"),
-                              i18n.language
-                            )}`}
-                        </div>
-                      </UnitName>
-                    </React.Fragment>
+                    <UnitName key={reservationUnit.reservationUnitId}>
+                      <div>{index + 1}</div>
+                      <div>
+                        {getOldReservationUnitName(
+                          reservationUnit.reservationUnitDetails
+                        )}
+                        {unit &&
+                          `, ${localizedValue(
+                            get(unit, "building.name"),
+                            i18n.language
+                          )}`}
+                      </div>
+                    </UnitName>
                   );
                 }
               )}
