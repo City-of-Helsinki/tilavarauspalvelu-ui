@@ -53,6 +53,7 @@ import {
   ReservationUnitByPkType,
   ReservationUnitByPkTypeOpeningHoursArgs,
   ReservationUnitByPkTypeReservationsArgs,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitType,
   ReservationUnitTypeEdge,
   TermsOfUseType,
@@ -302,6 +303,7 @@ const Content = styled.div`
 
 const PaddedContent = styled(Content)`
   padding-top: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
 `;
 
 const CalendarFooter = styled.div<{ $cookiehubBannerHeight?: number }>`
@@ -1192,15 +1194,17 @@ const ReservationUnit = ({
                           }}
                         </strong>
                       </Trans>
-                      {futurePricing.taxPercentage?.value > 0 && (
-                        <strong>
-                          {t("reservationUnit:futurePriceNoticeTax", {
-                            tax: formatters.strippedDecimal.format(
-                              futurePricing.taxPercentage.value
-                            ),
-                          })}
-                        </strong>
-                      )}
+                      {futurePricing.pricingType ===
+                        ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
+                        futurePricing.taxPercentage?.value > 0 && (
+                          <strong>
+                            {t("reservationUnit:futurePriceNoticeTax", {
+                              tax: formatters.strippedDecimal.format(
+                                futurePricing.taxPercentage.value
+                              ),
+                            })}
+                          </strong>
+                        )}
                       .
                     </p>
                   )}
@@ -1231,12 +1235,13 @@ const ReservationUnit = ({
                 theme="thin"
                 data-testid="reservation-unit__payment-and-cancellation-terms"
               >
-                {paymentTermsContent && (
-                  <PaddedContent>
-                    <Sanitize html={paymentTermsContent} />
-                  </PaddedContent>
-                )}
                 <PaddedContent>
+                  {paymentTermsContent && (
+                    <Sanitize
+                      html={paymentTermsContent}
+                      style={{ marginBottom: "var(--spacing-m)" }}
+                    />
+                  )}
                   <Sanitize html={cancellationTermsContent} />
                 </PaddedContent>
               </Accordion>
@@ -1257,12 +1262,13 @@ const ReservationUnit = ({
               theme="thin"
               data-testid="reservation-unit__terms-of-use"
             >
-              {serviceSpecificTermsContent && (
-                <PaddedContent>
-                  <Sanitize html={serviceSpecificTermsContent} />
-                </PaddedContent>
-              )}
               <PaddedContent>
+                {serviceSpecificTermsContent && (
+                  <Sanitize
+                    html={serviceSpecificTermsContent}
+                    style={{ marginBottom: "var(--spacing-m)" }}
+                  />
+                )}
                 <Sanitize
                   html={getTranslation(termsOfUse.genericTerms, "text")}
                 />
