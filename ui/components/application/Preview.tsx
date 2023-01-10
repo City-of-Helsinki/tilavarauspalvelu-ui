@@ -320,14 +320,13 @@ const Preview = ({ onNext, application, tos }: Props): JSX.Element | null => {
                         {trim(
                           `${getOldReservationUnitName(
                             reservationUnit.reservationUnitDetails
-                          )}
-                        ${
-                          resUnit &&
-                          `, ${localizedValue(
-                            get(resUnit, "unit.name"),
-                            i18n.language
-                          )}`
-                        }`,
+                          )}${
+                            resUnit &&
+                            `, ${localizedValue(
+                              get(resUnit, "unit.name"),
+                              i18n.language
+                            )}`
+                          }`,
                           ","
                         )}
                       </div>
