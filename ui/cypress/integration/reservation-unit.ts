@@ -191,7 +191,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     });
 
     it("can open and close modal", () => {
-      textWithIcon(1).contains("20 henkilöä");
+      textWithIcon(1).contains("40 henkilöä");
 
       pricingTermsLink("reservation-unit-head").click();
 
@@ -212,7 +212,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     });
 
     it("can cancel reservation process", () => {
-      textWithIcon(1).contains("10 - 60 henkilöä");
+      textWithIcon(1).contains("20 henkilöä");
 
       drawReservation();
 

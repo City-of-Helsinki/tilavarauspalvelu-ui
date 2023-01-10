@@ -415,7 +415,8 @@ const selectedReservationUnitQuery = graphql.query<
         : pricing;
     });
     reservationUnitByPk.pricings = pricings;
-    reservationUnitByPk.minPersons = 1;
+    reservationUnitByPk.minPersons = undefined;
+    reservationUnitByPk.maxPersons = 20;
   }
 
   if (req.variables.pk === 3) {
@@ -426,8 +427,9 @@ const selectedReservationUnitQuery = graphql.query<
       textFi: "Hinnoitteluehdot body Fi",
       termsType: TermsOfUseTermsOfUseTermsTypeChoices.PricingTerms,
     };
-    reservationUnitByPk.minPersons = undefined;
-    reservationUnitByPk.maxPersons = 60;
+
+    reservationUnitByPk.minPersons = 1;
+    reservationUnitByPk.maxPersons = 40;
   }
 
   if (req.variables.pk === 800) {

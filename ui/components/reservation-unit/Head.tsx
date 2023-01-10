@@ -184,7 +184,7 @@ const Head = ({
                     icon={
                       <IconGroup aria-label={t("reservationUnit:maxPersons")} />
                     }
-                    text={t("reservationUnitCard:maxPersons", {
+                    text={t("reservationUnitCard:personRange", {
                       count: reservationUnit.maxPersons,
                       value:
                         reservationUnit.minPersons !==
