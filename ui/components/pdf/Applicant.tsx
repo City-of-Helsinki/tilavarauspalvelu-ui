@@ -12,13 +12,13 @@ const name = {
 const Applicant = ({ application }: Props): JSX.Element => {
   switch (application.applicantType) {
     case "individual": {
-      return <> sinulle</>;
+      return <> sinulle </>;
     }
 
     case "association":
     case "community":
     case "company": {
-      return <> edustamallenne {name[application.applicantType]}</>;
+      return <> edustamallenne {name[application.applicantType]} </>;
     }
 
     default: {

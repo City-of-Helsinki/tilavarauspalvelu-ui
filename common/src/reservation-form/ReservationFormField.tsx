@@ -3,7 +3,6 @@ import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import React, { ReactElement, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { TFunction } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationMetadataSetType } from "../../types/gql-types";
@@ -20,7 +19,7 @@ type Props = {
   form: ReturnType<typeof useForm>;
   params?: Record<string, Record<string, string | number>>;
   data?: Record<string, ReactElement>;
-  t: TFunction;
+  t: (key: string) => string;
 };
 
 const StyledCheckboxWrapper = styled(CheckboxWrapper)<{
@@ -62,6 +61,7 @@ const StyledTextInput = styled(TextInput)<{
 `;
 
 const StyledTextArea = styled(TextArea).attrs(({ $height }: TextAreaProps) => ({
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   style: { "--textarea-height": $height },
 }))<TextAreaProps>`
   ${({ $isWide }) => $isWide && "grid-column: 1 / -1"};

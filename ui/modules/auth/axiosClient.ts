@@ -12,6 +12,7 @@ import {
 const axiosOptions = {
   timeout: 20000,
   headers: {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     "Content-Type": "application/json",
   },
 };
