@@ -15,7 +15,7 @@ const Content = styled.main`
   height: 100%;
 `;
 
-const FallbackComponent = (err: any) => {
+const FallbackComponent = (err: unknown) => {
   Sentry.captureException(err);
   return <div>500 Something went wrong</div>;
 };
