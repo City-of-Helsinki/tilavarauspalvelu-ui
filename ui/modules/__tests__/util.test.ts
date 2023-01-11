@@ -1,8 +1,4 @@
 import { ApolloError } from "@apollo/client";
-<<<<<<< HEAD
-=======
-
->>>>>>> 75136bce (Moves util tests to correct project)
 import {
   ApplicationEventSchedule,
   ApplicationEventSchedulePriority,
