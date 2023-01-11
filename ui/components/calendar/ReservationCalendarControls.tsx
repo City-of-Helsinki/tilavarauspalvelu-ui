@@ -340,35 +340,41 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
         resetReservation();
       }
       if (
-        doBuffersCollide(reservationUnit.reservations, {
-          start: startDate,
-          end: endDate,
-          bufferTimeBefore: reservationUnit.bufferTimeBefore,
-          bufferTimeAfter: reservationUnit.bufferTimeAfter,
-        })
+        doBuffersCollide(
+          {
+            start: startDate,
+            end: endDate,
+            bufferTimeBefore: reservationUnit.bufferTimeBefore,
+            bufferTimeAfter: reservationUnit.bufferTimeAfter,
+          },
+          reservationUnit.reservations
+        )
       ) {
         setErrorMsg(t("reservationCalendar:errors.bufferCollision"));
       }
 
       if (
-        doReservationsCollide(reservationUnit.reservations, {
-          start: startDate,
-          end: endDate,
-        })
+        doReservationsCollide(
+          {
+            start: startDate,
+            end: endDate,
+          },
+          reservationUnit.reservations
+        )
       ) {
         setErrorMsg(t(`reservationCalendar:errors.collision`));
       } else if (
         !areSlotsReservable(
           [startDate, subMinutes(endDate, 1)],
           reservationUnit.openingHours?.openingTimes,
-          activeApplicationRounds,
           reservationUnit.reservationBegins
             ? new Date(reservationUnit.reservationBegins)
             : undefined,
           reservationUnit.reservationEnds
             ? new Date(reservationUnit.reservationEnds)
             : undefined,
-          reservationUnit.reservationsMinDaysBefore
+          reservationUnit.reservationsMinDaysBefore,
+          activeApplicationRounds
         ) ||
         (customAvailabilityValidation &&
           !customAvailabilityValidation(startDate))

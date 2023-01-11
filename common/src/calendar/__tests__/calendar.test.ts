@@ -84,7 +84,9 @@ test("isReservationLongEnough", () => {
 test("isSlotWithinTimeframe", () => {
   expect(isSlotWithinTimeframe(new Date(2021, 9, 9))).toBe(false);
   expect(isSlotWithinTimeframe(new Date())).toBe(false);
-  expect(isSlotWithinTimeframe(new Date(), -1)).toBe(true);
+  expect(isSlotWithinTimeframe(new Date(), undefined, undefined, -1)).toBe(
+    true
+  );
 });
 
 describe("areSlotsReservable", () => {
@@ -121,6 +123,9 @@ describe("areSlotsReservable", () => {
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 7)],
         openingTimes,
+        undefined,
+        undefined,
+        undefined,
         []
       )
     ).toBe(true);
@@ -132,6 +137,9 @@ describe("areSlotsReservable", () => {
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 7)],
         openingTimes,
+        undefined,
+        undefined,
+        undefined,
         []
       )
     ).toBe(true);
@@ -143,6 +151,9 @@ describe("areSlotsReservable", () => {
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 8)],
         openingTimes,
+        undefined,
+        undefined,
+        undefined,
         []
       )
     ).toBe(true);
@@ -154,6 +165,9 @@ describe("areSlotsReservable", () => {
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 8)],
         openingTimes,
+        undefined,
+        undefined,
+        undefined,
         activeApplicationRounds
       )
     ).toBe(false);
@@ -161,7 +175,14 @@ describe("areSlotsReservable", () => {
 
   test("Plus 10 days", () => {
     expect(
-      areSlotsReservable([addDays(new Date(), 10)], openingTimes, [])
+      areSlotsReservable(
+        [addDays(new Date(), 10)],
+        openingTimes,
+        undefined,
+        undefined,
+        undefined,
+        []
+      )
     ).toBe(false);
   });
 
@@ -171,30 +192,30 @@ describe("areSlotsReservable", () => {
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 7)],
         openingTimes,
-        [],
         undefined,
         undefined,
-        7
+        7,
+        []
       )
     ).toBe(true);
     expect(
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 7)],
         openingTimes,
-        [],
         addDays(new Date(), 8),
         undefined,
-        7
+        7,
+        []
       )
     ).toBe(false);
     expect(
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 7)],
         openingTimes,
-        [],
         undefined,
         addDays(new Date(), 6),
-        7
+        7,
+        []
       )
     ).toBe(false);
 
@@ -202,10 +223,10 @@ describe("areSlotsReservable", () => {
       areSlotsReservable(
         [addDays(new Date().setUTCHours(hours), 7)],
         openingTimes,
-        [],
         undefined,
         undefined,
-        8
+        8,
+        []
       )
     ).toBe(false);
   });
@@ -220,28 +241,40 @@ test("doReservationsCollide", () => {
   ] as ReservationType[];
 
   expect(
-    doReservationsCollide(reservations, {
-      start: new Date("2021-10-31T09:00:00+00:00"),
-      end: new Date("2021-10-31T09:30:00+00:00"),
-    })
+    doReservationsCollide(
+      {
+        start: new Date("2021-10-31T09:00:00+00:00"),
+        end: new Date("2021-10-31T09:30:00+00:00"),
+      },
+      reservations
+    )
   ).toBe(false);
   expect(
-    doReservationsCollide(reservations, {
-      start: new Date("2021-10-31T09:00:00+00:00"),
-      end: new Date("2021-10-31T09:31:00+00:00"),
-    })
+    doReservationsCollide(
+      {
+        start: new Date("2021-10-31T09:00:00+00:00"),
+        end: new Date("2021-10-31T09:31:00+00:00"),
+      },
+      reservations
+    )
   ).toBe(true);
   expect(
-    doReservationsCollide(reservations, {
-      start: new Date("2021-10-31T10:30:00+00:00"),
-      end: new Date("2021-10-31T11:30:00+00:00"),
-    })
+    doReservationsCollide(
+      {
+        start: new Date("2021-10-31T10:30:00+00:00"),
+        end: new Date("2021-10-31T11:30:00+00:00"),
+      },
+      reservations
+    )
   ).toBe(false);
   expect(
-    doReservationsCollide(reservations, {
-      start: new Date("2021-10-31T10:30:00+00:00"),
-      end: new Date("2021-10-31T11:30:00+00:00"),
-    })
+    doReservationsCollide(
+      {
+        start: new Date("2021-10-31T10:30:00+00:00"),
+        end: new Date("2021-10-31T11:30:00+00:00"),
+      },
+      reservations
+    )
   ).toBe(false);
 });
 
@@ -471,60 +504,81 @@ describe("doesBuffer(s)Collide", () => {
   ] as ReservationType[];
   test("detects collisions", () => {
     expect(
-      doesBufferCollide(reservations[0], {
-        start: new Date("2019-09-22T14:00:00+00:00"),
-        end: new Date("2019-09-22T15:00:00+00:00"),
-        bufferTimeBefore: 5400,
-      })
+      doesBufferCollide(
+        {
+          start: new Date("2019-09-22T14:00:00+00:00"),
+          end: new Date("2019-09-22T15:00:00+00:00"),
+          bufferTimeBefore: 5400,
+        },
+        reservations[0]
+      )
     ).toBe(true);
 
     expect(
-      doesBufferCollide(reservations[0], {
-        start: new Date("2019-09-22T10:00:00+00:00"),
-        end: new Date("2019-09-22T10:30:00+00:00"),
-        bufferTimeAfter: 5400,
-      })
+      doesBufferCollide(
+        {
+          start: new Date("2019-09-22T10:00:00+00:00"),
+          end: new Date("2019-09-22T10:30:00+00:00"),
+          bufferTimeAfter: 5400,
+        },
+        reservations[0]
+      )
     ).toBe(false);
 
     expect(
-      doesBufferCollide(reservations[0], {
-        start: new Date("2019-09-22T10:00:00+00:00"),
-        end: new Date("2019-09-22T10:30:00+00:00"),
-        bufferTimeAfter: 5460,
-      })
+      doesBufferCollide(
+        {
+          start: new Date("2019-09-22T10:00:00+00:00"),
+          end: new Date("2019-09-22T10:30:00+00:00"),
+          bufferTimeAfter: 5460,
+        },
+        reservations[0]
+      )
     ).toBe(true);
 
     expect(
-      doBuffersCollide(reservations, {
-        start: new Date("2019-09-22T14:00:00+00:00"),
-        end: new Date("2019-09-22T14:15:00+00:00"),
-        bufferTimeBefore: 3600,
-      })
+      doBuffersCollide(
+        {
+          start: new Date("2019-09-22T14:00:00+00:00"),
+          end: new Date("2019-09-22T14:15:00+00:00"),
+          bufferTimeBefore: 3600,
+        },
+        reservations
+      )
     ).toBe(false);
 
     expect(
-      doBuffersCollide(reservations, {
-        start: new Date("2019-09-22T14:00:00+00:00"),
-        end: new Date("2019-09-22T14:15:00+00:00"),
-        bufferTimeBefore: 3660,
-      })
+      doBuffersCollide(
+        {
+          start: new Date("2019-09-22T14:00:00+00:00"),
+          end: new Date("2019-09-22T14:15:00+00:00"),
+          bufferTimeBefore: 3660,
+        },
+        reservations
+      )
     ).toBe(true);
 
     expect(
-      doBuffersCollide(reservations, {
-        start: new Date("2019-09-22T14:00:00+00:00"),
-        end: new Date("2019-09-22T15:00:00+00:00"),
-        bufferTimeBefore: 3600,
-      })
+      doBuffersCollide(
+        {
+          start: new Date("2019-09-22T14:00:00+00:00"),
+          end: new Date("2019-09-22T15:00:00+00:00"),
+          bufferTimeBefore: 3600,
+        },
+        reservations
+      )
     ).toBe(false);
 
     expect(
-      doBuffersCollide(reservations, {
-        start: new Date("2019-09-22T14:00:00+00:00"),
-        end: new Date("2019-09-22T15:00:00+00:00"),
-        bufferTimeBefore: 3600,
-        bufferTimeAfter: 3660,
-      })
+      doBuffersCollide(
+        {
+          start: new Date("2019-09-22T14:00:00+00:00"),
+          end: new Date("2019-09-22T15:00:00+00:00"),
+          bufferTimeBefore: 3600,
+          bufferTimeAfter: 3660,
+        },
+        reservations
+      )
     ).toBe(true);
   });
 });
