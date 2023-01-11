@@ -2,8 +2,9 @@ import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
 import { Accordion, Button, Tag, TextArea } from "hds-react";
 import React, { useRef, useState } from "react";
-import { TFunction, useTranslation } from "react-i18next";
-import { useParams, useHistory } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
@@ -173,7 +174,7 @@ const RequestedReservation = (): JSX.Element | null => {
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
-  const { goBack } = useHistory();
+  const navigate = useNavigate();
   const { setModalContent } = useModal();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
@@ -281,7 +282,7 @@ const RequestedReservation = (): JSX.Element | null => {
           theme="black"
           size="small"
           disabled={false}
-          onClick={goBack}
+          onClick={() => navigate(-1)}
         >
           {t("RequestedReservation.cancel")}
         </Button>
@@ -330,7 +331,10 @@ const RequestedReservation = (): JSX.Element | null => {
           "requested-reservation",
         ]}
         aliases={[
-          { slug: "requested", title: t("breadcrumb.requested-reservations") },
+          {
+            slug: "requested",
+            title: t("breadcrumb.requested-reservations") as string,
+          },
           { slug: "requested-reservation", title: getName(reservation, t) },
         ]}
       />
@@ -350,6 +354,7 @@ const RequestedReservation = (): JSX.Element | null => {
               <AlignVertically>
                 {reservation.orderStatus && (
                   <Tag
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     theme={{ "--tag-background": "var(--color-engel-light)" }}
                     id="orderStatus"
                   >
@@ -421,8 +426,8 @@ const RequestedReservation = (): JSX.Element | null => {
         </Summary>
         <div>
           <Accordion
-            heading={t("RequestedReservation.workingMemo")}
-            initiallyOpen={get(reservation, "workingMemo.length") > 0}
+            heading={t("RequestedReservation.workingMemo") as string}
+            initiallyOpen={get(reservation, "workingMemo.length", 0) > 0}
           >
             <VerticalFlex>
               <VisibleIfPermission
@@ -433,7 +438,9 @@ const RequestedReservation = (): JSX.Element | null => {
                 <TextArea
                   label={t("RequestedReservation.workingMemoLabel")}
                   id="workingMemo"
-                  helperText={t("RequestedReservation.workingMemoHelperText")}
+                  helperText={
+                    t("RequestedReservation.workingMemoHelperText") as string
+                  }
                   value={workingMemo}
                   onChange={(e) => setWorkingMemo(e.target.value)}
                 />
@@ -480,7 +487,7 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
-          <Accordion heading={t("RequestedReservation.calendar")}>
+          <Accordion heading={t("RequestedReservation.calendar") as string}>
             <Calendar
               key={reservation.state}
               begin={reservation.begin}
@@ -488,7 +495,9 @@ const RequestedReservation = (): JSX.Element | null => {
               reservation={reservation}
             />
           </Accordion>
-          <Accordion heading={t("RequestedReservation.reservationDetails")}>
+          <Accordion
+            heading={t("RequestedReservation.reservationDetails") as string}
+          >
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.id")}
@@ -516,7 +525,9 @@ const RequestedReservation = (): JSX.Element | null => {
               />
             </ApplicationDatas>
           </Accordion>
-          <Accordion heading={t("RequestedReservation.reservationUser")}>
+          <Accordion
+            heading={t("RequestedReservation.reservationUser") as string}
+          >
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.reserveeType")}
@@ -581,7 +592,9 @@ const RequestedReservation = (): JSX.Element | null => {
           </Accordion>
 
           {isNonFree && (
-            <Accordion heading={t("RequestedReservation.pricingDetails")}>
+            <Accordion
+              heading={t("RequestedReservation.pricingDetails") as string}
+            >
               <ApplicationDatas>
                 <ApplicationData
                   label={t("RequestedReservation.price")}
@@ -610,7 +623,9 @@ const RequestedReservation = (): JSX.Element | null => {
               </ApplicationDatas>
             </Accordion>
           )}
-          <Accordion heading={t("RequestedReservation.reserveeDetails")}>
+          <Accordion
+            heading={t("RequestedReservation.reserveeDetails") as string}
+          >
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.user")}

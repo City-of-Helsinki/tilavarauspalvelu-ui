@@ -80,12 +80,7 @@ const Details = styled.div`
   padding-top: var(--spacing-xs);
 `;
 
-const StyledLink = styled(Link).attrs({
-  style: {
-    "--link-color": "var(--color-black)",
-    "--link-visited-color": "var(--color-black)",
-  },
-})`
+const StyledLink = styled(Link)`
   && {
     ${Strongish};
     border: 0;

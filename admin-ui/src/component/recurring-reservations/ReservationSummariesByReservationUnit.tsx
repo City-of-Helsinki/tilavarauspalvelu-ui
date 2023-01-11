@@ -41,6 +41,7 @@ import { applicationRoundUrl } from "../../common/urls";
 import { useNotification } from "../../context/NotificationContext";
 
 interface IRouteParams {
+  [key: string]: string;
   applicationRoundId: string;
   reservationUnitId: string;
 }
@@ -168,7 +169,10 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
   }, [applicationRoundId]);
 
   useEffect(() => {
-    fetchReservations(reservationUnitId);
+    if (reservationUnitId) {
+      fetchReservations(reservationUnitId);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservationUnitId]);
 
@@ -178,7 +182,7 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
     }
   }, [applicationRound, recurringReservations, reservationUnit]);
 
-  if (isLoading) {
+  if (isLoading || !applicationRoundId) {
     return <Loader />;
   }
 
@@ -186,13 +190,15 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
     <Wrapper>
       {applicationRound && reservationUnit && recurringReservations && (
         <>
-          <ContentContainer style={{ marginBottom: "var(--spacing-xl)" }}>
-            <LinkPrev
-              route={`${applicationRoundUrl(
-                applicationRoundId
-              )}/reservationUnit/${reservationUnitId}`}
-            />
-          </ContentContainer>
+          {applicationRoundId ? (
+            <ContentContainer style={{ marginBottom: "var(--spacing-xl)" }}>
+              <LinkPrev
+                route={`${applicationRoundUrl(
+                  applicationRoundId
+                )}/reservationUnit/${reservationUnitId}`}
+              />
+            </ContentContainer>
+          ) : null}
           <NarrowContainer>
             <p>{applicationRound.name}</p>
             <div>
@@ -222,7 +228,7 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
             {recurringReservations && recurringReservations.length > 0 ? (
               recurringReservations.map(
                 (recurringReservation: RecurringReservation) => {
-                  const reservationUser: string | null = get(
+                  const reservationUser: string | null | undefined = get(
                     recurringReservation,
                     "reservations.0.reservationUser"
                   );
@@ -233,22 +239,18 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
                   const endDate: string | null =
                     recurringReservation.lastReservationEnd;
 
-                  const weekday: number | null = get(
-                    recurringReservation,
-                    "reservations.0.beginWeekday"
-                  );
+                  const weekday: number | null | undefined =
+                    recurringReservation.reservations?.[0].beginWeekday;
 
-                  const applicationEventName: string | null = get(
+                  const applicationEventName: string | null | undefined = get(
                     recurringReservation,
                     "reservations.0.applicationEventName"
                   );
 
                   const duration: number = Math.abs(
                     differenceInSeconds(
-                      new Date(
-                        get(recurringReservation, "reservations.0.begin")
-                      ),
-                      new Date(get(recurringReservation, "reservations.0.end"))
+                      new Date(recurringReservation.reservations?.[0].begin),
+                      new Date(recurringReservation.reservations?.[0].end)
                     )
                   );
 

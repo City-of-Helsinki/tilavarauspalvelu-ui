@@ -71,7 +71,7 @@ const SubItemList = styled.ul`
   margin-top: 0.685rem;
 `;
 
-const SubItemHeading = styled(NavLink).attrs({ exact: true })<{
+const SubItemHeading = styled(NavLink).attrs({ exact: "true" })<{
   $disabled: boolean;
 }>`
   &.active {
@@ -175,9 +175,6 @@ const SubItems = ({
           {items.map((child: SubItemChild) => (
             <li key={child.title}>
               <SubItemHeading
-                isActive={(match, location) => {
-                  return location.pathname.startsWith(child.route);
-                }}
                 $disabled={child.route === ""}
                 to={child.route}
                 onClick={() => onItemSelection && onItemSelection()}
@@ -284,19 +281,7 @@ function MainMenu({
         menuItem ? (
           <MenuItem key={menuItem.title}>
             <Icon>{menuItem.icon}</Icon>
-            <Heading
-              to={menuItem.route || ""}
-              isActive={(match, location) => {
-                if (!menuItem?.route) {
-                  return false;
-                }
-                return menuItem.exact
-                  ? location.pathname === menuItem.route
-                  : location.pathname.startsWith(String(menuItem?.route));
-              }}
-            >
-              {t(menuItem.title)}
-            </Heading>
+            <Heading to={menuItem.route || ""}>{t(menuItem.title)}</Heading>
             <SubItems
               items={menuItem.items?.map((child) =>
                 child.title === "MainMenu.requestedReservations"

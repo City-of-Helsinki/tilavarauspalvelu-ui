@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { useTranslation } from "react-i18next";
 import {
   ReservationType,
   ReservationUnitPricingType,
@@ -9,8 +9,18 @@ import {
 } from "common/types/gql-types";
 import { getReservatinUnitPricing, getReservationPriceDetails } from "./util";
 
+jest.mock("react-i18next", () => ({
+  useTranslation: () => {
+    return {
+      t: (str: string) => str,
+    };
+  },
+}));
+
 describe("pricingDetails", () => {
   test("renders fixed price", () => {
+    const { t } = useTranslation();
+
     const r = {
       begin: "2022-01-01T10:00:00Z",
       end: "2022-01-01T11:00:00Z",
@@ -40,10 +50,12 @@ describe("pricingDetails", () => {
       ],
     } as ReservationType;
 
-    expect(getReservationPriceDetails(r, (t) => t)).toEqual("120 €");
+    expect(getReservationPriceDetails(r, t)).toEqual("120 €");
   });
 
   test("renders price in hours", () => {
+    const { t } = useTranslation();
+
     const reservation = {
       begin: "2022-01-01T10:00:00Z",
       end: "2022-01-01T11:30:00Z",
@@ -73,12 +85,8 @@ describe("pricingDetails", () => {
       ],
     } as ReservationType;
 
-    expect(
-      getReservationPriceDetails(reservation, (t, a) => get(a, "price"))
-    ).toEqual("180 €");
-    expect(
-      getReservationPriceDetails(reservation, (t, a) => get(a, "volume"))
-    ).toEqual("1,5");
+    expect(getReservationPriceDetails(reservation, t)).toEqual("180 €");
+    expect(getReservationPriceDetails(reservation, t)).toEqual("1,5");
   });
 });
 
