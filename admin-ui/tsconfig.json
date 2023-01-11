@@ -16,5 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "i18next.d.ts"]
+  "include": ["src", "i18next.d.ts"],
+  "exclude": ["**/*.test.*", "node_modules"]
 }
