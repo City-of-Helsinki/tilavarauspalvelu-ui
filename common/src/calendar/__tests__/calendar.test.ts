@@ -344,7 +344,9 @@ describe("getDayIntervals", () => {
 });
 
 describe("isStartTimeWithinInterval", () => {
-  const timeZoneHours = Math.abs(new Date().getTimezoneOffset() / 60)
+  const timeZoneHours = Math.abs(
+    new Date("2019-09-21").getTimezoneOffset() / 60
+  )
     .toString()
     .padStart(2, "0");
 
@@ -393,9 +395,16 @@ describe("isStartTimeWithinInterval", () => {
   });
 
   test("returns sane results", () => {
+    const tz = Math.abs(
+      new Date(`2019-09-22T11:30:00+${timeZoneHours}:00`).getTimezoneOffset() /
+        60
+    )
+      .toString()
+      .padStart(2, "0");
+
     expect(
       isStartTimeWithinInterval(
-        new Date(`2019-09-22T11:30:00+${timeZoneHours}:00`),
+        new Date(`2019-09-22T11:30:00+${tz}:00`),
         openingTimes,
         "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
       )
@@ -490,50 +499,44 @@ describe("getBufferedEventTimes", () => {
 describe("doesBuffer(s)Collide", () => {
   const reservations = [
     {
-      begin: new Date("2019-09-22T12:00:00+00:00"),
-      end: new Date("2019-09-22T13:00:00+00:00"),
+      id: "1111",
+      begin: new Date("2019-09-22T12:00:00+00:00").toString(),
+      end: new Date("2019-09-22T13:00:00+00:00").toString(),
       bufferTimeBefore: 3600,
       bufferTimeAfter: 3600,
     },
     {
-      begin: new Date("2019-09-22T16:00:00+00:00"),
-      end: new Date("2019-09-22T17:00:00+00:00"),
+      id: "2222",
+      begin: new Date("2019-09-22T16:00:00+00:00").toString(),
+      end: new Date("2019-09-22T17:00:00+00:00").toString(),
       bufferTimeBefore: 3600,
       bufferTimeAfter: 3600,
     },
   ] as ReservationType[];
+
   test("detects collisions", () => {
     expect(
-      doesBufferCollide(
-        {
-          start: new Date("2019-09-22T14:00:00+00:00"),
-          end: new Date("2019-09-22T15:00:00+00:00"),
-          bufferTimeBefore: 5400,
-        },
-        reservations[0]
-      )
+      doesBufferCollide(reservations[0], {
+        start: new Date("2019-09-22T14:00:00+00:00"),
+        end: new Date("2019-09-22T15:00:00+00:00"),
+        bufferTimeBefore: 5400,
+      })
     ).toBe(true);
 
     expect(
-      doesBufferCollide(
-        {
-          start: new Date("2019-09-22T10:00:00+00:00"),
-          end: new Date("2019-09-22T10:30:00+00:00"),
-          bufferTimeAfter: 5400,
-        },
-        reservations[0]
-      )
+      doesBufferCollide(reservations[0], {
+        start: new Date("2019-09-22T10:00:00+00:00"),
+        end: new Date("2019-09-22T10:30:00+00:00"),
+        bufferTimeAfter: 5400,
+      })
     ).toBe(false);
 
     expect(
-      doesBufferCollide(
-        {
-          start: new Date("2019-09-22T10:00:00+00:00"),
-          end: new Date("2019-09-22T10:30:00+00:00"),
-          bufferTimeAfter: 5460,
-        },
-        reservations[0]
-      )
+      doesBufferCollide(reservations[0], {
+        start: new Date("2019-09-22T10:00:00+00:00"),
+        end: new Date("2019-09-22T10:30:00+00:00"),
+        bufferTimeAfter: 5460,
+      })
     ).toBe(true);
 
     expect(
@@ -588,15 +591,15 @@ describe("getEventBuffers", () => {
     const events = [
       {
         id: "1234",
-        begin: new Date("2019-09-22T12:00:00+00:00"),
-        end: new Date("2019-09-22T13:00:00+00:00"),
+        begin: new Date("2019-09-22T12:00:00+00:00").toString(),
+        end: new Date("2019-09-22T13:00:00+00:00").toString(),
         bufferTimeBefore: 3600,
         bufferTimeAfter: 5400,
       },
       {
         id: "3456",
-        begin: new Date("2019-09-22T15:00:00+00:00"),
-        end: new Date("2019-09-22T16:00:00+00:00"),
+        begin: new Date("2019-09-22T15:00:00+00:00").toString(),
+        end: new Date("2019-09-22T16:00:00+00:00").toString(),
         bufferTimeBefore: null,
         bufferTimeAfter: 9000,
       },
@@ -647,6 +650,7 @@ describe("isReservationUnitReservable", () => {
   test("returns true for a unit that is reservable", () => {
     expect(
       isReservationUnitReservable({
+        id: "1234",
         minReservationDuration: 3600,
         maxReservationDuration: 3600,
         reservationBegins: addMinutes(new Date(), -10),

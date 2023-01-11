@@ -156,7 +156,6 @@ const doesSlotCollideWithApplicationRounds = (
 ): boolean => {
   if (applicationRounds?.length < 1) return false;
 
-  console.log("applicationroundes", applicationRounds, slot);
   return applicationRounds.some((applicationRound) =>
     isWithinInterval(slot, {
       start: new Date(applicationRound.reservationPeriodBegin),

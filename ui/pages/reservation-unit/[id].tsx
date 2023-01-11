@@ -53,7 +53,6 @@ import {
   ReservationUnitByPkType,
   ReservationUnitByPkTypeOpeningHoursArgs,
   ReservationUnitByPkTypeReservationsArgs,
-  ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitType,
   ReservationUnitTypeEdge,
   TermsOfUseType,
@@ -797,6 +796,7 @@ const ReservationUnit = ({
   );
 
   const quickReservationComponent = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (calendar: React.MutableRefObject<any>, type: "mobile" | "desktop") => {
       const scrollPosition = calendar?.current?.offsetTop
         ? calendar.current.offsetTop - 20

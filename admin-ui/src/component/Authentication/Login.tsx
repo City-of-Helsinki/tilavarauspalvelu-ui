@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-// eslint-disable-next-line import/no-unresolved
 import { useReactOidc } from "@axa-fr/react-oidc-context";
 import { useTranslation } from "react-i18next";
 import { BrowserRouter } from "react-router-dom";
@@ -9,7 +8,6 @@ import { H1 } from "common/src/common/typography";
 import { NarrowContainer } from "../../styles/layout";
 import EmptyContent from "../EmptyContent";
 import PageWrapper from "../PageWrapper";
-import { publicUrl } from "../../common/const";
 
 const Wrapper = styled(NarrowContainer)`
   margin-top: var(--spacing-4-xl);
@@ -18,8 +16,6 @@ const Wrapper = styled(NarrowContainer)`
 function Login(): JSX.Element {
   const { t } = useTranslation();
   const { login } = useReactOidc();
-  const path = publicUrl || "";
-  const base = `${document.location.protocol}//${document.location.host}${path}`;
 
   return (
     <BrowserRouter>
