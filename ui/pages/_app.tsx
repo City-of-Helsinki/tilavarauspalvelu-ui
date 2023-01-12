@@ -12,7 +12,7 @@ import ExternalScripts from "../components/ExternalScripts";
 import { DataContextProvider } from "../context/DataContext";
 import apolloClient from "../modules/apolloClient";
 import oidcConfiguration from "../modules/auth/configuration";
-import { authEnabled, mockRequests } from "../modules/const";
+import { isBrowser, mockRequests } from "../modules/const";
 import { TrackingWrapper } from "../modules/tracking";
 import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
@@ -37,7 +37,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     return null;
   }
 
-  if (!authEnabled) {
+  if (!isBrowser) {
     return (
       <DataContextProvider>
         <ApolloProvider client={apolloClient}>
