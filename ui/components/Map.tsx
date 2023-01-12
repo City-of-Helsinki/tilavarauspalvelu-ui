@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import ReactMapGL, { Marker, NavigationControl, ViewState } from "react-map-gl";
 import { mapboxToken, mapStyle } from "../modules/const";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 type Props = {
   title: string;
@@ -41,10 +42,20 @@ const Map = ({
       onMove={(event) => {
         setViewport(event.viewState);
       }}
+      initialViewState={{
+        longitude,
+        latitude,
+        zoom: ZOOM,
+      }}
       mapboxAccessToken={mapboxToken}
     >
-      <NavigationControl style={navControlStyle} showCompass={false} />
-      <Marker key={title} longitude={longitude} latitude={latitude}>
+      <Marker
+        key={title}
+        longitude={longitude}
+        latitude={latitude}
+        anchor="bottom"
+      >
+        <NavigationControl style={navControlStyle} showCompass={false} />
         <Image src="/icons/map_marker_icon.svg" height="42" width="32" alt="" />
       </Marker>
     </ReactMapGL>

@@ -175,21 +175,21 @@ export const getComboboxValues = (
     : [getSelectedOption(value, options)];
 };
 
-export const searchUrl = (params: unknown): string => {
+export const searchUrl = (params: any): string => {
   const response = `${searchPrefix}/`;
 
   if (params && Object.keys(params).length > 0) {
-    return `${response}?${queryString.parse(params.toString())}`;
+    return `${response}?${queryString.stringify(params)}`;
   }
 
   return response;
 };
 
-export const singleSearchUrl = (params: unknown): string => {
+export const singleSearchUrl = (params: any): string => {
   const response = `${singleSearchPrefix}/`;
 
   if (params && Object.keys(params).length > 0) {
-    return `${response}?${queryString.parse(params.toString())}`;
+    return `${response}?${queryString.stringify(params)}`;
   }
 
   return response;
