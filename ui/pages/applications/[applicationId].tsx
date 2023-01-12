@@ -26,6 +26,7 @@ import Loader from "../../components/common/Loader";
 import { TwoColumnContainer } from "../../components/common/common";
 import { isBrowser } from "../../modules/const";
 import { MediumButton } from "../../styles/util";
+import RequireAuthentication from "../../components/common/RequireAuthentication";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
@@ -142,11 +143,6 @@ const Reservations = (): JSX.Element | null => {
 
   if (!isBrowser) return null;
 
-  const OidcSecure = dynamic(() =>
-    // eslint-disable-next-line import/no-unresolved
-    import("@axa-fr/react-oidc-context").then((mod) => mod.OidcSecure)
-  );
-
   const hasReservations = reservations.data?.length;
 
   const reservationsResultText = t(
@@ -155,7 +151,7 @@ const Reservations = (): JSX.Element | null => {
       : "reservations:resultWithoutReservations"
   );
   return (
-    <OidcSecure>
+    <RequireAuthentication>
       <Container>
         <Back label="reservations:back" />
         <Loader datas={[application, applicationRound, reservations]}>
@@ -234,7 +230,7 @@ const Reservations = (): JSX.Element | null => {
           </TwoColumnContainer>
         </Loader>
       </Container>
-    </OidcSecure>
+    </RequireAuthentication>
   );
 };
 
