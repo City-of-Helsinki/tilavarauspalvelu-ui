@@ -1,13 +1,13 @@
 import React from "react";
 import dynamic from "next/dynamic";
-import { isBrowser } from "../../modules/const";
+import { authEnabled } from "../../modules/const";
 
 type Props = {
   children: React.ReactNode;
 };
 
 const RequireAuthentication = ({ children }: Props): JSX.Element => {
-  if (!isBrowser) {
+  if (!authEnabled) {
     return null;
   }
 
