@@ -72,6 +72,7 @@ export type ReserveeType = "individual" | "nonprofit" | "business";
 
 export const reservationApplicationFields = {
   individual: [
+    "home_city",
     "reservee_first_name",
     "reservee_last_name",
     "reservee_address_street",
