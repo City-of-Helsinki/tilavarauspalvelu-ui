@@ -18,8 +18,10 @@ export const searchPrefix = "/search";
 export const singleSearchPrefix = "/search/single";
 export const applicationsPrefix = "/applications";
 export const applicationPrefix = "/application";
+export const applicationRoundPrefix = "/application_round";
 export const reservationsPrefix = "/reservations";
 export const criteriaPrefix = "/criteria";
+export const parametersPrefix = "/parameters";
 
 export const mapStyle: MapboxStyle = {
   version: 8,

@@ -28,6 +28,9 @@ import {
   PurposeTypeConnection,
   ReservationUnitType,
 } from "common/types/gql-types";
+import { apiBaseUrl, reservationUnitPrefix } from "../../modules/const";
+
+import getJSONResponse from "../../cypress/fixtures/v1/reservation_unit/2.json";
 
 const equipmentCategories: EquipmentCategoryType[] = [
   {
@@ -72,6 +75,22 @@ const equipmentCategories: EquipmentCategoryType[] = [
     nameEn: "Muu En",
     nameSv: "Muu Sv",
   },
+];
+
+const reservationUnitREST = [
+  rest.get(
+    `${apiBaseUrl}/v1${reservationUnitPrefix}/:id/*`,
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(getJSONResponse));
+    }
+  ),
+
+  rest.get(
+    `${apiBaseUrl}/v1${reservationUnitPrefix}/:id/*`,
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(getJSONResponse));
+    }
+  ),
 ];
 
 const selectedReservationUnitQuery = graphql.query<
@@ -1154,6 +1173,7 @@ export const reservationUnitPurposes = graphql.query<Query, QueryPurposesArgs>(
 );
 
 export const reservationUnitHandlers = [
+  ...reservationUnitREST,
   selectedReservationUnitQuery,
   openingHoursQuery,
   relatedReservationUnits,

@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import Container from "./Container";
-import { MediumButton } from "../../styles/util";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 
 type Props = {
@@ -39,10 +38,6 @@ const ReservationUnitCount = styled.div`
   right: 0;
   white-space: nowrap;
 `;
-
-const SubmitButton = styled(MediumButton).attrs({
-  variant: "secondary",
-})``;
 
 const InnerContainer = styled.div`
   display: flex;
@@ -110,8 +105,9 @@ const StartApplicationBar = ({
               </JustForMobile>
             </DeleteButton>
           </Left>
-          <SubmitButton
+          <Button
             id="startApplicationButton"
+            variant="primary"
             iconRight={<IconArrowRight />}
             onClick={() => {
               router.push(`/intro`);
@@ -119,7 +115,7 @@ const StartApplicationBar = ({
           >
             <JustForDesktop>{t("shoppingCart:next")}</JustForDesktop>
             <JustForMobile>{t("shoppingCart:nextShort")}</JustForMobile>
-          </SubmitButton>
+          </Button>
         </InnerContainer>
       </Container>
     </BackgroundContainer>

@@ -37,6 +37,8 @@ interface ApiParameters extends QueryParameters {
 async function request<T>(requestConfig: AxiosRequestConfig): Promise<T> {
   const config: AxiosRequestConfig = requestConfig;
 
+  console.log("config request", config);
+
   try {
     const response: AxiosResponse<T> = await axiosClient.request<
       T,
@@ -163,6 +165,7 @@ export function getParameters(
 }
 
 export function getApplication(id: number): Promise<Application> {
+  console.log("GET", id);
   return apiGet<Application>({
     path: `v1/${applicationBasePath}/${id}`,
   });
@@ -171,6 +174,7 @@ export function getApplication(id: number): Promise<Application> {
 export function saveApplication(
   application: Application
 ): Promise<Application> {
+  console.log("SAVE", application);
   if (application.id === undefined) {
     return apiPost<Application>({
       data: application,
@@ -188,6 +192,8 @@ export const cancelApplication = async (
 ): Promise<void> => {
   const application = await getApplication(applicationId);
   application.status = "cancelled";
+
+  console.log("CANCEL", application);
   await saveApplication(application);
 };
 

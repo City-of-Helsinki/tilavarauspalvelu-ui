@@ -1,4 +1,4 @@
-import { graphql } from "msw";
+import { graphql, rest } from "msw";
 import {
   ApplicationsApplicationApplicantTypeChoices,
   ApplicationStatus,
@@ -7,6 +7,27 @@ import {
   Query,
   QueryApplicationsArgs,
 } from "common/types/gql-types";
+import { apiBaseUrl, applicationPrefix } from "../../modules/const";
+import getJSONResponse from "../../cypress/fixtures/v1/application/get.json";
+import get138Page1JSONResponse from "../../cypress/fixtures/v1/application/138_page_1.json";
+import postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
+
+const applicationREST = [
+  rest.get(`${apiBaseUrl}/v1${applicationPrefix}/:id/*`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(get138Page1JSONResponse));
+  }),
+  rest.get(`${apiBaseUrl}/v1${applicationPrefix}/:id`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(getJSONResponse));
+  }),
+
+  rest.post(`${apiBaseUrl}/v1${applicationPrefix}/`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(postJSONResponse));
+  }),
+
+  rest.put(`${apiBaseUrl}/v1${applicationPrefix}/:id`, (req, res, ctx) => {
+    return res(ctx.status(200));
+  }),
+];
 
 const applications = graphql.query<Query, QueryApplicationsArgs>(
   "Applications",
@@ -549,4 +570,4 @@ const applications = graphql.query<Query, QueryApplicationsArgs>(
   }
 );
 
-export const applicationHandlers = [applications];
+export const applicationHandlers = [...applicationREST, applications];

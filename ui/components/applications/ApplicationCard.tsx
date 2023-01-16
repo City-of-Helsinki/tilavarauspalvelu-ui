@@ -161,6 +161,7 @@ const ApplicationCard = ({
       actionCallback("cancel");
     } catch (e) {
       actionCallback("error");
+      setState("ok");
     }
   };
 

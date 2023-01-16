@@ -33,50 +33,10 @@ const applicationEventNames = ["Kurikan vimma", "Toca"];
 
 describe("application", () => {
   beforeEach(() => {
-    Cypress.config("defaultCommandTimeout", 20000);
-
-    cy.fixture("v1/application_round").then((json) => {
-      cy.intercept("GET", "/v1/application_round/*", json);
-    });
-
-    cy.fixture("v1/application_round_1").then((json) => {
-      cy.intercept("GET", "/v1/application_round/1/*", json).as(
-        "applicationRound1"
-      );
-    });
-
-    cy.fixture("v1/application/post").then((json) => {
-      cy.intercept("POST", "/v1/application/", json).as("applicationPost");
-    });
-    cy.fixture("v1/application/put_page_1").then((json) => {
-      cy.intercept("PUT", "/v1/application/138", json);
-    });
-
-    cy.fixture("v1/application/138_page_1.json").then((json) => {
-      cy.intercept("GET", "/v1/application/138/*", json).as("applicationPage1");
-    });
-
-    cy.fixture("v1/parameters/ability_group").then((json) => {
-      cy.intercept("GET", "/v1/parameters/ability_group/*", json).as(
-        "abilityGroup"
-      );
-    });
-
-    cy.fixture("v1/parameters/age_group").then((json) => {
-      cy.intercept("GET", "/v1/parameters/age_group/*", json).as("ageGroup");
-    });
-
-    cy.fixture("v1/parameters/city").then((json) => {
-      cy.intercept("GET", "/v1/parameters/city/*", json).as("city");
-    });
-
-    cy.fixture("v1/reservation_unit/2").then((json) => {
-      cy.intercept("GET", "/v1/reservation_unit/2/*", json);
-    });
-
     cy.window().then((win) => {
       win.sessionStorage.clear();
       cy.visit("/search/?search=");
+      cy.injectAxe();
     });
   });
 
@@ -92,7 +52,7 @@ describe("application", () => {
     addReservationUnitButton(2).click();
 
     cy.get("h1").should("contain", "Varaa tila koko kaudeksi");
-    cy.a11yCheck();
+    cy.checkA11y(undefined, undefined, undefined, true);
 
     startApplicationButton().click();
 
@@ -101,28 +61,20 @@ describe("application", () => {
     selectApplicationRoundButton().click();
     firstAvailableApplicationRound().click();
 
-    cy.a11yCheck();
+    cy.checkA11y(undefined, undefined, undefined, true);
 
     proceedToPage1Button().click();
 
-    cy.wait(
-      ["@applicationPost", "@applicationPage1", "@ageGroup", "@abilityGroup"],
-      { timeout: 20000 }
-    );
-
     cy.get("h1").should("contain", "varauksen tiedot");
 
-    cy.a11yCheck();
+    cy.checkA11y(undefined, undefined, undefined, true);
 
     applicationName(0).clear().type(applicationEventNames[0]);
     numPersons(0).type("3");
     selectOption("applicationEvents[0].ageGroupId", 1);
     selectOption("applicationEvents[0].purposeId", 1);
 
-    cy.intercept("PUT", "/v1/application/*").as("savePage1");
     acceptAndSaveEvent(0).click();
-
-    cy.wait("@savePage1", { timeout: 20000 });
 
     addNewApplicationButton().click();
     applicationName(1).clear().type(applicationEventNames[1]);
@@ -283,7 +235,7 @@ describe("application", () => {
 
     cy.get("h1").should("contain", "varaajan tiedot");
 
-    cy.a11yCheck();
+    cy.checkA11y(undefined, undefined, undefined, true);
 
     fillAsIndividual();
 
