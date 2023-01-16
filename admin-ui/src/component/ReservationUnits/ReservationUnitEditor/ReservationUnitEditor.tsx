@@ -188,7 +188,6 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         ...omitBy(state.reservationUnitEdit, (v) => v === ""),
         surfaceArea: Number(state.reservationUnitEdit?.surfaceArea),
         isDraft: !publish,
-        priceUnit: state.reservationUnitEdit?.priceUnit?.toLocaleLowerCase(), /// due to api inconsistency
         reservationStartInterval:
           state.reservationUnitEdit?.reservationStartInterval?.toLocaleLowerCase(), /// due to api inconsistency
         maxReservationsPerUser: state.reservationUnitEdit
