@@ -523,7 +523,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
 
       reservationStartNotification().should(
         "contain",
-        "Varauskalenteri aukeaa"
+        "Varauskalenteri avautuu"
       );
     });
   });
