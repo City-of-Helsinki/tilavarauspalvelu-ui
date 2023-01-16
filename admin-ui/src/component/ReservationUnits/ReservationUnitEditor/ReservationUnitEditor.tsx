@@ -1913,11 +1913,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               );
 
               if (validationErrors.error) {
-                dispatch({ type: "setValidatioErrors", validationErrors });
+                dispatch({ type: "setValidationErrors", validationErrors });
               } else {
                 saveReservationUnit(false);
                 dispatch({
-                  type: "setValidatioErrors",
+                  type: "setValidationErrors",
                   validationErrors: null,
                 });
               }
@@ -1935,11 +1935,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
               );
 
               if (validationErrors.error) {
-                dispatch({ type: "setValidatioErrors", validationErrors });
+                dispatch({ type: "setValidationErrors", validationErrors });
               } else {
                 saveReservationUnit(true);
                 dispatch({
-                  type: "setValidatioErrors",
+                  type: "setValidationErrors",
                   validationErrors: null,
                 });
               }

@@ -540,7 +540,7 @@ export const reducer = (state: State, action: Action): State => {
         qualifierPks: action.qualifiers.map((ot) => ot.value as number),
       });
     }
-    case "setValidatioErrors": {
+    case "setValidationErrors": {
       return {
         ...state,
         validationErrors: action.validationErrors,
