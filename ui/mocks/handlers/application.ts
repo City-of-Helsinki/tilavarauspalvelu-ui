@@ -10,14 +10,26 @@ import {
 import { apiBaseUrl, applicationPrefix } from "../../modules/const";
 import getJSONResponse from "../../cypress/fixtures/v1/application/get.json";
 import get138Page1JSONResponse from "../../cypress/fixtures/v1/application/138_page_1.json";
+import get138Page2JSONResponse from "../../cypress/fixtures/v1/application/138_page_2.json";
+import put138Page1JSONResponse from "../../cypress/fixtures/v1/application/put_page_1.json";
 import postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
 
 const applicationREST = [
-  rest.get(`${apiBaseUrl}/v1${applicationPrefix}/:id/*`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(get138Page1JSONResponse));
-  }),
+  rest.get(
+    `${apiBaseUrl}/v1${applicationPrefix}/:id/page1`,
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(get138Page1JSONResponse));
+    }
+  ),
+  rest.get(
+    `${apiBaseUrl}/v1${applicationPrefix}/:id/page2`,
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(get138Page2JSONResponse));
+    }
+  ),
+
   rest.get(`${apiBaseUrl}/v1${applicationPrefix}/:id`, (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(getJSONResponse));
+    return res(ctx.status(200), ctx.json(postJSONResponse));
   }),
 
   rest.post(`${apiBaseUrl}/v1${applicationPrefix}/`, (req, res, ctx) => {
@@ -25,7 +37,15 @@ const applicationREST = [
   }),
 
   rest.put(`${apiBaseUrl}/v1${applicationPrefix}/:id`, (req, res, ctx) => {
-    return res(ctx.status(200));
+    const {
+      params: { id },
+    } = req;
+
+    if (id) {
+      return res(ctx.status(200), ctx.json(put138Page1JSONResponse));
+    }
+
+    return res(ctx.status(200), ctx.json(postJSONResponse));
   }),
 ];
 

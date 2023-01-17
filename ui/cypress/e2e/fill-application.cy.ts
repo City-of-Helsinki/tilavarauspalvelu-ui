@@ -29,7 +29,7 @@ import {
   startApplicationButton,
 } from "../model/search";
 
-const applicationEventNames = ["Kurikan vimma", "Toca"];
+const applicationEventNames = ["Kurikan vimma", "Toca", "Kolmas"];
 
 describe("application", () => {
   beforeEach(() => {
@@ -73,7 +73,7 @@ describe("application", () => {
     numPersons(0).type("3");
     selectOption("applicationEvents[0].ageGroupId", 1);
     selectOption("applicationEvents[0].purposeId", 1);
-
+    cy.pause();
     acceptAndSaveEvent(0).click();
 
     addNewApplicationButton().click();
@@ -83,13 +83,13 @@ describe("application", () => {
     selectOption("applicationEvents[1].purposeId", 2);
     acceptAndSaveEvent(1).click();
 
-    cy.fixture("v1/application/138_page_2").then((json) => {
-      cy.intercept("GET", "/v1/application/138/*", json).as("page2");
-    });
+    applicationName(2).clear().type(applicationEventNames[2]);
+    numPersons(2).type("4");
+    selectOption("applicationEvents[2].ageGroupId", 2);
+    selectOption("applicationEvents[2].purposeId", 2);
+    acceptAndSaveEvent(2).click();
 
     nextButton().click();
-
-    cy.wait(["@page2"]);
 
     cy.get("h1").should("contain", "ajankohta");
 

@@ -315,6 +315,8 @@ const cities = graphql.query<Query, QueryCitiesArgs>(
 const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
   "reservationByPk",
   (req, res, ctx) => {
+    console.log("ANOTHER HERERERERRERERR");
+
     const { pk } = req.variables;
     const data = {
       pk,
@@ -1288,6 +1290,8 @@ const reservationData = [
 const listReservations = graphql.query<Query, QueryReservationsArgs>(
   "listReservations",
   async (req, res, ctx) => {
+    console.log("HERERERRE", req.variables);
+
     return res(
       ctx.data({
         reservations: {

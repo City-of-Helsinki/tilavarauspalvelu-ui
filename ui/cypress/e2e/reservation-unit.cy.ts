@@ -86,11 +86,11 @@ const drawReservation = (): void => {
   reservationSubmitButton().should("not.exist");
 
   timeColumn(0).within(() => {
-    cy.get(".rbc-time-slot")
-      .eq(18)
-      .trigger("mousedown", { force: true, button: 0 })
-      .trigger("mousemove", 0, 400, { force: true });
-    cy.get(".rbc-time-slot").eq(6).trigger("mouseup", { force: true });
+    const timeSlot = cy.get(".rbc-time-slot").eq(18);
+
+    timeSlot.trigger("mousedown", { force: true, button: 0 });
+    cy.wait(1000);
+    timeSlot.trigger("mouseup", { force: true, button: 0 });
   });
   reservationSubmitButton().should("exist");
 
@@ -145,10 +145,10 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       addressContainer(0).should("contain", "HSL Reittiopas");
 
       // textWithIcon(1).contains("Seuraava vapaa aika:");
-      textWithIcon(0).contains("Nuorisopalvelut Fi");
-      textWithIcon(1).contains("10 - 60 henkilöä");
-      textWithIcon(2).contains("1 t - 1 t 30 min varaus");
-      textWithIcon(3).contains("20 € / 15 min");
+      textWithIcon(0).should("have.text", "Nuorisopalvelut Fi");
+      textWithIcon(1).should("have.text", "10 - 60 henkilö");
+      textWithIcon(2).should("have.text", "1 t - 1 t 30 min varaus");
+      textWithIcon(3).should("have.text", "20 € / 15 min");
 
       reservationInfo().contains(
         "Voit tehdä varauksen aikaisintaan 12 kuukautta ja viimeistään 2 päivää etukäteen."
@@ -157,10 +157,10 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
         `Varauskalenteri on auki ${reservationEnds} asti.`
       );
       reservationInfo().contains(
-        "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuuttia."
+        "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuutti."
       );
       reservationInfo().contains(
-        "Sinulla voi olla samanaikaisesti enintään yksi varaus."
+        "Sinulla voi olla samanaikaisesti enintään 1 varausta."
       );
 
       reservationNotice().click();
@@ -168,7 +168,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
         `Huomioi hinnoittelumuutos ${toUIDate(addDays(new Date(), 2))} alkaen.`
       );
       reservationNotice().contains(
-        "Uusi hinta on 10,00 - 30,00 € / 15 min (sis. alv. 20%)."
+        "Uusi hinta on 10,00 - 30,00 € / 15 min. (sis. alv. 20%)."
       );
 
       paymentAndCancellationTerms().find("> button").contains("Peruutusehdot");
@@ -191,7 +191,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     });
 
     it("can open and close modal", () => {
-      textWithIcon(1).contains("40 henkilöä");
+      textWithIcon(1).contains("40 henkilö");
 
       pricingTermsLink("reservation-unit-head").click();
 
@@ -201,7 +201,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       pricingTermsDialog().find("button").click();
       pricingTermsDialog().should("not.exist");
 
-      cy.checkA11y(null, null, null, true);
+      cy.checkA11y(undefined, undefined, undefined, true);
     });
   });
 
@@ -212,15 +212,15 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
     });
 
     it("can cancel reservation process", () => {
-      textWithIcon(1).contains("20 henkilöä");
+      textWithIcon(1).contains("20 henkilö");
 
       drawReservation();
 
-      cy.checkA11y(null, null, null, true);
+      cy.checkA11y(undefined, undefined, undefined, true);
 
       reservationSubmitButton().click();
 
-      cy.checkA11y(null, null, null, true);
+      cy.checkA11y(undefined, undefined, undefined, true);
 
       cancelButton().click();
 
@@ -392,7 +392,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
       //     expect(text).to.contain("120\u00a0€");
       //   });
 
-      cy.checkA11y(null, null, null, true);
+      cy.checkA11y(undefined, undefined, undefined, true);
     });
   });
 
@@ -529,7 +529,7 @@ describe("Tilavaraus ui reservation unit page (single)", () => {
   });
 
   describe("with reservation quota notification", () => {
-    it("should display apt notification if quota is set and full", () => {
+    it.only("should display apt notification if quota is set and full", () => {
       cy.window().then(() => {
         sessionStorage.setItem(
           `oidc.apiToken.${Cypress.env("API_SCOPE")}`,

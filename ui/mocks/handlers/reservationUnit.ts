@@ -27,10 +27,11 @@ import {
   QueryPurposesArgs,
   PurposeTypeConnection,
   ReservationUnitType,
+  QueryReservationsArgs,
 } from "common/types/gql-types";
 import { apiBaseUrl, reservationUnitPrefix } from "../../modules/const";
 
-import getJSONResponse from "../../cypress/fixtures/v1/reservation_unit/2.json";
+import getJSONResponse from "../../cypress/fixtures/v1/reservation_unit.json";
 
 const equipmentCategories: EquipmentCategoryType[] = [
   {
@@ -78,13 +79,6 @@ const equipmentCategories: EquipmentCategoryType[] = [
 ];
 
 const reservationUnitREST = [
-  rest.get(
-    `${apiBaseUrl}/v1${reservationUnitPrefix}/:id/*`,
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(getJSONResponse));
-    }
-  ),
-
   rest.get(
     `${apiBaseUrl}/v1${reservationUnitPrefix}/:id/*`,
     (req, res, ctx) => {
@@ -728,6 +722,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         nameFi: "Pukinmäen nuorisotalon yläkerta Fi",
         nameEn: "Pukinmäen nuorisotalon yläkerta En",
         nameSv: "Pukinmäen nuorisotalon yläkerta Sv",
+        publishBegins: toUIDate(new Date(), "yyyy-MM-dd"),
+        publishEnds: toUIDate(addDays(new Date(), 10), "yyyy-MM-dd"),
         authentication:
           ReservationUnitsReservationUnitAuthenticationChoices.Weak,
         images: [],
@@ -819,6 +815,8 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         nameFi: "Pukinmäen nuorisotalon sali Fi",
         nameEn: "Pukinmäen nuorisotalon sali En",
         nameSv: "Pukinmäen nuorisotalon sali Sv",
+        publishBegins: toUIDate(new Date(), "yyyy-MM-dd"),
+        publishEnds: toUIDate(addDays(new Date(), 10), "yyyy-MM-dd"),
         authentication:
           ReservationUnitsReservationUnitAuthenticationChoices.Weak,
         pricings: [
@@ -842,16 +840,19 @@ const relatedReservationUnitsData: ReservationUnitTypeConnection = {
         images: [
           {
             imageUrl: "https://via.placeholder.com/1024x768",
+            mediumUrl: "https://via.placeholder.com/250x250",
             smallUrl: "https://via.placeholder.com/250x250",
             imageType: "MAIN",
           },
           {
             imageUrl: "https://via.placeholder.com/1024x768",
+            mediumUrl: "https://via.placeholder.com/250x250",
             smallUrl: "https://via.placeholder.com/250x250",
             imageType: "OTHER",
           },
           {
             imageUrl: "https://via.placeholder.com/1024x768",
+            mediumUrl: "https://via.placeholder.com/250x250",
             smallUrl: "https://via.placeholder.com/250x250",
             imageType: "OTHER",
           },
