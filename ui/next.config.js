@@ -6,7 +6,7 @@ const { PHASE_PRODUCTION_SERVER } = require("next/constants");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   i18n,
   serverRuntimeConfig: {
     apiBaseUrl: process.env.TILAVARAUS_API_URL,

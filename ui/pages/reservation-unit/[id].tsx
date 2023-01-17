@@ -1030,7 +1030,7 @@ const ReservationUnit = ({
                       {reservationUnit.reservationsMaxDaysBefore > 0 &&
                         reservationUnit.reservationsMinDaysBefore > 0 && (
                           <Trans
-                            defaults="Voit tehdä asdasdasdasdasd varauksenaaa <strong>aikaisintaan {{reservationsMaxDaysBefore}} {{unit}}</strong> ja <bold>viimeistään {{reservationsMinDaysBefore}} päivää etukäteen</bold>."
+                            defaults="Voit tehdä varauksen <strong>aikaisintaan {{reservationsMaxDaysBefore}} {{unit}}</strong> ja <bold>viimeistään {{reservationsMinDaysBefore}} päivää etukäteen</bold>."
                             values={{
                               reservationsMaxDaysBefore: daysByMonths.find(
                                 (n) =>
