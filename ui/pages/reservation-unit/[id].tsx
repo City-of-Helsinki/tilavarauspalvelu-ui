@@ -9,17 +9,12 @@ import React, {
 } from "react";
 import { GetServerSideProps } from "next";
 import { Trans, useTranslation } from "next-i18next";
-import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { addSeconds, addYears } from "date-fns";
-import {
-  formatSecondDuration,
-  toApiDate,
-  toUIDate,
-} from "common/src/common/util";
+import { toApiDate, toUIDate } from "common/src/common/util";
 import {
   getEventBuffers,
   getMaxReservation,
@@ -38,7 +33,6 @@ import {
   PendingReservation,
   Reservation,
 } from "common/types/common";
-import { H4 } from "common/src/common/typography";
 import {
   Query,
   QueryReservationsArgs,
@@ -68,7 +62,6 @@ import Map from "../../components/Map";
 import Legend from "../../components/calendar/Legend";
 import ReservationCalendarControls from "../../components/calendar/ReservationCalendarControls";
 import {
-  formatDate,
   getTranslation,
   parseDate,
   printErrorMessages,
@@ -95,13 +88,27 @@ import {
   mockOpeningTimes,
 } from "../../modules/reservationUnit";
 import EquipmentList from "../../components/reservation-unit/EquipmentList";
-import { daysByMonths } from "../../modules/const";
 import QuickReservation from "../../components/reservation-unit/QuickReservation";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { CURRENT_USER } from "../../modules/queries/user";
 import { isReservationReservable } from "../../modules/reservation";
 import SubventionSuffix from "../../components/reservation/SubventionSuffix";
 import InfoDialog from "../../components/common/InfoDialog";
+import {
+  BottomContainer,
+  BottomWrapper,
+  CalendarFooter,
+  CalendarWrapper,
+  Content,
+  Left,
+  MapWrapper,
+  PaddedContent,
+  StyledNotification,
+  Subheading,
+  TwoColumnLayout,
+  Wrapper,
+} from "../../components/reservation-unit/ReservationUnitStyles";
+import ReservationInfoContainer from "../../components/reservation-unit/ReservationInfoContainer";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
@@ -270,104 +277,6 @@ export const getServerSideProps: GetServerSideProps = async ({
     },
   };
 };
-
-const Wrapper = styled.div`
-  padding-bottom: var(--spacing-layout-xl);
-`;
-
-const TwoColumnLayout = styled.div`
-  display: block;
-  margin-bottom: var(--spacing-m);
-
-  @media (min-width: ${breakpoints.l}) {
-    display: grid;
-    gap: var(--spacing-layout-s);
-    grid-template-columns: 7fr 390px;
-    margin-top: var(--spacing-m);
-    margin-bottom: var(--spacing-xl);
-  }
-`;
-
-const Left = styled.div`
-  max-width: 100%;
-`;
-
-const Content = styled.div`
-  font-size: var(--fontsize-body-l);
-  line-height: var(--lineheight-l);
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-bottom: var(--spacing-2-xl);
-`;
-
-const PaddedContent = styled(Content)`
-  padding-top: var(--spacing-m);
-  margin-bottom: var(--spacing-m);
-`;
-
-const CalendarFooter = styled.div<{ $cookiehubBannerHeight?: number }>`
-  position: sticky;
-  bottom: ${({ $cookiehubBannerHeight }) =>
-    $cookiehubBannerHeight ? `${$cookiehubBannerHeight}px` : 0};
-  background-color: var(--color-white);
-  z-index: var(--tilavaraus-stack-order-sticky-container);
-
-  display: flex;
-  flex-direction: column-reverse;
-
-  @media (min-width: ${breakpoints.l}) {
-    flex-direction: column;
-    gap: var(--spacing-2-xl);
-    justify-content: space-between;
-  }
-`;
-
-const BottomWrapper = styled.div`
-  margin: 0;
-  padding: 0;
-`;
-
-const BottomContainer = styled(Container)`
-  margin-bottom: calc(var(--spacing-s) * -1 + var(--spacing-layout-xl) * -1);
-  padding-bottom: var(--spacing-layout-xl);
-`;
-
-const Subheading = styled(H4).attrs({ as: "h3" })<{ $withBorder?: boolean }>`
-  ${({ $withBorder }) =>
-    $withBorder &&
-    `
-      border-bottom: 1px solid var(--color-black-50);
-      padding-bottom: var(--spacing-s);
-    `}
-`;
-
-const CalendarWrapper = styled.div`
-  margin-bottom: var(--spacing-layout-l);
-  position: relative;
-`;
-
-const MapWrapper = styled.div`
-  margin-top: var(--spacing-m);
-  margin-bottom: var(--spacing-xs);
-`;
-
-const StyledNotification = styled(Notification)`
-  div > div {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-  }
-  margin-bottom: var(--spacing-xl);
-
-  svg {
-    color: var(--color-info);
-    min-width: 24px;
-  }
-
-  button > svg {
-    color: inherit;
-  }
-`;
 
 const eventStyleGetter = (
   { event }: CalendarEvent<Reservation | ReservationType>,
@@ -858,24 +767,6 @@ const ReservationUnit = ({
     [i18n.language]
   );
 
-  const reservationStatus = useMemo(() => {
-    const { reservationBegins, reservationEnds } = reservationUnit;
-
-    if (reservationEnds && reservationEnds < now) {
-      return "hasClosed";
-    }
-
-    if (reservationBegins && reservationBegins > now) {
-      return "willOpen";
-    }
-
-    if (reservationBegins && reservationBegins < now) {
-      if (reservationEnds) return "isOpen";
-    }
-
-    return null;
-  }, [now, reservationUnit]);
-
   return reservationUnit ? (
     <Wrapper>
       <Head
@@ -1016,203 +907,10 @@ const ReservationUnit = ({
                   )}
               </CalendarWrapper>
             )}
-            {(isReservable || reservationStatus === "hasClosed") && (
-              <>
-                <Subheading $withBorder>
-                  {t("reservationCalendar:reservationInfo")}
-                </Subheading>
-                <Content data-testid="reservation-unit__reservation-info">
-                  {isReservable &&
-                    (reservationUnit.reservationsMaxDaysBefore ||
-                      reservationUnit.reservationsMinDaysBefore) && (
-                      <p>
-                        {reservationUnit.reservationsMaxDaysBefore > 0 &&
-                          reservationUnit.reservationsMinDaysBefore > 0 && (
-                            <Trans i18nKey="reservationUnit:reservationInfo1-1">
-                              Voit tehdä varauksen{" "}
-                              <strong>
-                                aikaisintaan{" "}
-                                {{
-                                  reservationsMaxDaysBefore: daysByMonths.find(
-                                    (n) =>
-                                      n.value ===
-                                      reservationUnit.reservationsMaxDaysBefore
-                                  )?.label,
-                                }}
-                                {{
-                                  unit: t(
-                                    `reservationUnit:reservationInfo1-${
-                                      reservationUnit.reservationsMaxDaysBefore ===
-                                      14
-                                        ? "weeks"
-                                        : "months"
-                                    }`
-                                  ),
-                                }}
-                              </strong>{" "}
-                              ja{" "}
-                              <strong>
-                                viimeistään
-                                {{
-                                  reservationsMinDaysBefore:
-                                    reservationUnit.reservationsMinDaysBefore,
-                                }}{" "}
-                                päivää etukäteen
-                              </strong>
-                              .
-                            </Trans>
-                          )}
-                        {reservationUnit.reservationsMaxDaysBefore > 0 &&
-                          !reservationUnit.reservationsMinDaysBefore && (
-                            <Trans i18nKey="reservationUnit:reservationInfo1-2">
-                              Voit tehdä varauksen{" "}
-                              <strong>
-                                aikaisintaan{" "}
-                                {{
-                                  reservationsMaxDaysBefore: daysByMonths.find(
-                                    (n) =>
-                                      n.value ===
-                                      reservationUnit.reservationsMaxDaysBefore
-                                  )?.label,
-                                }}{" "}
-                                {{
-                                  unit: t(
-                                    `reservationUnit:reservationInfo1-${
-                                      reservationUnit.reservationsMaxDaysBefore ===
-                                      14
-                                        ? "weeks"
-                                        : "months"
-                                    }`
-                                  ),
-                                }}{" "}
-                                etukäteen
-                              </strong>
-                              .
-                            </Trans>
-                          )}
-                        {reservationUnit.reservationsMaxDaysBefore === 0 &&
-                          reservationUnit.reservationsMinDaysBefore > 0 && (
-                            <Trans i18nKey="reservationUnit:reservationInfo1-3">
-                              Voit tehdä varauksen{" "}
-                              <strong>
-                                viimeistään{" "}
-                                {{
-                                  reservationsMinDaysBefore:
-                                    reservationUnit.reservationsMinDaysBefore,
-                                }}{" "}
-                                päivää etukäteen
-                              </strong>
-                              .
-                            </Trans>
-                          )}
-                      </p>
-                    )}
-                  {reservationStatus === "willOpen" && (
-                    <p>
-                      <Trans i18nKey="reservationUnit:reservationInfo2-1">
-                        <strong>
-                          Varauskalenteri avautuu{" "}
-                          {{
-                            date: formatDate(
-                              reservationUnit.reservationBegins,
-                              "d.M.yyyy"
-                            ),
-                            time: formatDate(
-                              reservationUnit.reservationBegins,
-                              "H.mm"
-                            ),
-                          }}
-                        </strong>
-                        .
-                      </Trans>
-                    </p>
-                  )}
-                  {reservationStatus === "isOpen" && (
-                    <p>
-                      <Trans i18nKey="reservationUnit:reservationInfo2-2">
-                        <strong>
-                          Varauskalenteri on auki{" "}
-                          {{
-                            date: formatDate(
-                              reservationUnit.reservationEnds,
-                              "d.M.yyyy"
-                            ),
-                            time: formatDate(
-                              reservationUnit.reservationEnds,
-                              "H.mm"
-                            ),
-                          }}
-                        </strong>{" "}
-                        asti.
-                      </Trans>
-                    </p>
-                  )}
-                  {reservationStatus === "hasClosed" && (
-                    <p>
-                      <Trans i18nKey="reservationUnit:reservationInfo2-3">
-                        <strong>
-                          Varauskalenteri on sulkeutunut{" "}
-                          {{
-                            date: formatDate(
-                              reservationUnit.reservationEnds,
-                              "d.M.yyyy"
-                            ),
-                            time: formatDate(
-                              reservationUnit.reservationEnds,
-                              "H.mm"
-                            ),
-                          }}
-                        </strong>
-                        .
-                      </Trans>
-                    </p>
-                  )}
-                  {isReservable &&
-                    reservationUnit.minReservationDuration &&
-                    reservationUnit.maxReservationDuration && (
-                      <p>
-                        <Trans i18nKey="reservationUnit:reservationInfo3">
-                          Varauksen keston tulee olla välillä{" "}
-                          <strong>
-                            {{
-                              minReservationDuration: formatSecondDuration(
-                                reservationUnit.minReservationDuration,
-                                false
-                              ),
-                            }}
-                          </strong>{" "}
-                          ja{" "}
-                          <strong>
-                            {{
-                              maxReservationDuration: formatSecondDuration(
-                                reservationUnit.maxReservationDuration,
-                                false
-                              ),
-                            }}
-                          </strong>
-                          .
-                        </Trans>
-                      </p>
-                    )}
-                  {isReservable && reservationUnit.maxReservationsPerUser && (
-                    <p>
-                      <Trans
-                        i18nKey="reservationUnit:reservationInfo4"
-                        count={reservationUnit.maxReservationsPerUser}
-                      >
-                        Sinulla voi olla samanaikaisesti{" "}
-                        <strong>
-                          enintään{" "}
-                          {{ count: reservationUnit.maxReservationsPerUser }}{" "}
-                          varausta
-                        </strong>
-                        .
-                      </Trans>
-                    </p>
-                  )}
-                </Content>
-              </>
-            )}
+            <ReservationInfoContainer
+              reservationUnit={reservationUnit}
+              isReservable={isReservable}
+            />
             {termsOfUseContent && (
               <Accordion
                 heading={t("reservationUnit:terms")}
