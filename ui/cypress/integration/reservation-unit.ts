@@ -78,7 +78,7 @@ const matchEvent = (): void => {
     });
 };
 
-const reservationEnds = format(addDays(new Date(), 10), "d.M.yyyy H:mm");
+const reservationEnds = format(addDays(new Date(), 10), "d.M.yyyy 'klo' H.mm");
 
 const drawReservation = (): void => {
   hzNavigationFwd().click();
