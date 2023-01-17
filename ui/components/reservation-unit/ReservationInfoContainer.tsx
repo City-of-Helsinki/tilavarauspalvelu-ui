@@ -131,53 +131,44 @@ const ReservationInfoContainer = ({
           )}
           {reservationStatus === "willOpen" && (
             <p>
-              <Trans i18nKey="reservationUnit:reservationInfo2-1">
-                <strong>
-                  Varauskalenteri avautuu{" "}
-                  {{
-                    date: formatDate(
-                      reservationUnit.reservationBegins,
-                      "d.M.yyyy"
-                    ),
-                    time: formatDate(reservationUnit.reservationBegins, "H.mm"),
-                  }}
-                </strong>
-                .
-              </Trans>
+              <Trans
+                i18nKey="reservationUnit:reservationInfo2-1"
+                values={{
+                  date: formatDate(
+                    reservationUnit.reservationBegins,
+                    "d.M.yyyy"
+                  ),
+                  time: formatDate(reservationUnit.reservationBegins, "H.mm"),
+                }}
+                defaults="<bold>Varauskalenteri avautuu {{date}} klo {{time}}</bold>."
+                components={{ bold: <strong /> }}
+              />
             </p>
           )}
           {reservationStatus === "isOpen" && (
             <p>
-              <Trans i18nKey="reservationUnit:reservationInfo2-2">
-                <strong>
-                  Varauskalenteri on auki{" "}
-                  {{
-                    date: formatDate(
-                      reservationUnit.reservationEnds,
-                      "d.M.yyyy"
-                    ),
-                    time: formatDate(reservationUnit.reservationEnds, "H.mm"),
-                  }}
-                </strong>{" "}
-                asti.
-              </Trans>
+              <Trans
+                i18nKey="reservationUnit:reservationInfo2-2"
+                values={{
+                  date: formatDate(reservationUnit.reservationEnds, "d.M.yyyy"),
+                  time: formatDate(reservationUnit.reservationEnds, "H.mm"),
+                }}
+                defaults="<bold>Varauskalenteri on auki {{date}} klo {{time}}</bold> asti."
+                components={{ bold: <strong /> }}
+              />
             </p>
           )}
           {reservationStatus === "hasClosed" && (
             <p>
-              <Trans i18nKey="reservationUnit:reservationInfo2-3">
-                <strong>
-                  Varauskalenteri on sulkeutunut{" "}
-                  {{
-                    date: formatDate(
-                      reservationUnit.reservationEnds,
-                      "d.M.yyyy"
-                    ),
-                    time: formatDate(reservationUnit.reservationEnds, "H.mm"),
-                  }}
-                </strong>
-                .
-              </Trans>
+              <Trans
+                i18nKey="reservationUnit:reservationInfo2-3"
+                values={{
+                  date: formatDate(reservationUnit.reservationEnds, "d.M.yyyy"),
+                  time: formatDate(reservationUnit.reservationEnds, "H.mm"),
+                }}
+                defaults="<bold>Varauskalenteri on sulkeutunut {{date}} klo {{time}}</bold>."
+                components={{ bold: <strong /> }}
+              />
             </p>
           )}
           {isReservable &&
