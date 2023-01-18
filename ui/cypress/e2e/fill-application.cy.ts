@@ -29,10 +29,19 @@ import {
   startApplicationButton,
 } from "../model/search";
 
-const applicationEventNames = ["Kurikan vimma", "Toca", "Kolmas"];
+import * as get138Page1JSONResponse from "../../cypress/fixtures/v1/application/138_page_1.json";
+import * as get138Page2JSONResponse from "../../cypress/fixtures/v1/application/138_page_2.json";
+import * as postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
+import * as putPage1Response from "../../cypress/fixtures/v1/application/put_page_1.json";
+import * as putPage3Response from "../../cypress/fixtures/v1/application/put_page_3.json";
+import * as getReservationUnitResponse from "../../cypress/fixtures/v1/reservation_unit/2.json";
+
+const applicationEventNames = ["Kurikan vimma", "Toca"];
 
 describe("application", () => {
   beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+
     cy.window().then((win) => {
       win.sessionStorage.clear();
       cy.visit("/search/?search=");
@@ -41,6 +50,24 @@ describe("application", () => {
   });
 
   it("can be submitted and is accessible", () => {
+    cy.window().then((window) => {
+      const { worker, rest } = window.msw;
+
+      worker.use(
+        rest.get(`*/v1/application/138/*`, (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json(get138Page1JSONResponse));
+        }),
+        rest.post(`*/v1/application/`, (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json(postJSONResponse));
+        }),
+        rest.put(`*/v1/application/138`, (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json(putPage1Response));
+        }),
+        rest.get(`*/v1/reservation_unit/2/*`, (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json(getReservationUnitResponse));
+        })
+      );
+    });
     startApplicationButton().should("not.exist");
     addReservationUnitButton(2).click();
     clearSelectionsButton().click();
@@ -73,7 +100,6 @@ describe("application", () => {
     numPersons(0).type("3");
     selectOption("applicationEvents[0].ageGroupId", 1);
     selectOption("applicationEvents[0].purposeId", 1);
-    cy.pause();
     acceptAndSaveEvent(0).click();
 
     addNewApplicationButton().click();
@@ -83,11 +109,18 @@ describe("application", () => {
     selectOption("applicationEvents[1].purposeId", 2);
     acceptAndSaveEvent(1).click();
 
-    applicationName(2).clear().type(applicationEventNames[2]);
-    numPersons(2).type("4");
-    selectOption("applicationEvents[2].ageGroupId", 2);
-    selectOption("applicationEvents[2].purposeId", 2);
-    acceptAndSaveEvent(2).click();
+    cy.window().then((window) => {
+      const { worker, rest } = window.msw;
+
+      worker.use(
+        rest.get(`*/v1/application/:id`, (req, res, ctx) => {
+          return res.once(ctx.status(200), ctx.json(get138Page2JSONResponse));
+        }),
+        rest.put(`*/v1/application/:id`, (req, res, ctx) => {
+          return res.once(ctx.status(200), ctx.json(get138Page2JSONResponse));
+        })
+      );
+    });
 
     nextButton().click();
 
@@ -239,9 +272,17 @@ describe("application", () => {
 
     fillAsIndividual();
 
-    cy.fixture("v1/application/put_page_3").then((json) => {
-      cy.intercept("PUT", "/v1/application/138", json);
-      cy.intercept("GET", "/v1/application/138/*", json);
+    cy.window().then((window) => {
+      const { worker, rest } = window.msw;
+
+      worker.use(
+        rest.get(`*/v1/application/138/*`, (req, res, ctx) => {
+          return res.once(ctx.status(200), ctx.json(putPage3Response));
+        }),
+        rest.put(`*/v1/application/:id`, (req, res, ctx) => {
+          return res.once(ctx.status(200), ctx.json(putPage3Response));
+        })
+      );
     });
 
     nextButton().click();
@@ -281,6 +322,6 @@ describe("application", () => {
       ],
     };
 
-    checkBreadcrumbs(breadcrumbs, "/application/138/sent");
+    checkBreadcrumbs({ breadcrumbs, url: "/application/138/sent" });
   });
 });

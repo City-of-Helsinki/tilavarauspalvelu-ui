@@ -37,8 +37,6 @@ interface ApiParameters extends QueryParameters {
 async function request<T>(requestConfig: AxiosRequestConfig): Promise<T> {
   const config: AxiosRequestConfig = requestConfig;
 
-  console.log("config request", config);
-
   try {
     const response: AxiosResponse<T> = await axiosClient.request<
       T,

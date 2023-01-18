@@ -10,13 +10,12 @@ import {
   ApplicationsApplicationRoundTargetGroupChoices,
   ApplicationRoundStatus,
 } from "common/types/gql-types";
-import { apiBaseUrl, applicationRoundPrefix } from "../../modules/const";
 
 import getApplicationRoundJSONResponse from "../../cypress/fixtures/v1/application_round.json";
 import getApplicationRoundOneJSONResponse from "../../cypress/fixtures/v1/application_round_1.json";
 
 const applicationRoundsREST = [
-  rest.get(`${apiBaseUrl}/v1${applicationRoundPrefix}/`, (req, res, ctx) => {
+  rest.get(`*/v1/application_round/`, (req, res, ctx) => {
     const result: ApplicationRound[] = [
       {
         id: 2,
@@ -394,11 +393,11 @@ const applicationRoundsREST = [
     return res(ctx.status(200), ctx.json(result));
   }),
 
-  rest.get(`${apiBaseUrl}/v1${applicationRoundPrefix}/*`, (req, res, ctx) => {
+  rest.get(`*/v1/application_round/*`, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(getApplicationRoundJSONResponse));
   }),
 
-  rest.get(`${apiBaseUrl}/v1${applicationRoundPrefix}/1/*`, (req, res, ctx) => {
+  rest.get(`*/v1/application_round/1/*`, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(getApplicationRoundOneJSONResponse));
   }),
 ];

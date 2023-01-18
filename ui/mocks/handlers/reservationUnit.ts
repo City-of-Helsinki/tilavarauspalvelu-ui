@@ -29,7 +29,6 @@ import {
   ReservationUnitType,
   QueryReservationsArgs,
 } from "common/types/gql-types";
-import { apiBaseUrl, reservationUnitPrefix } from "../../modules/const";
 
 import getJSONResponse from "../../cypress/fixtures/v1/reservation_unit.json";
 
@@ -79,12 +78,9 @@ const equipmentCategories: EquipmentCategoryType[] = [
 ];
 
 const reservationUnitREST = [
-  rest.get(
-    `${apiBaseUrl}/v1${reservationUnitPrefix}/:id/*`,
-    (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(getJSONResponse));
-    }
-  ),
+  rest.get(`*/v1/reservation-unit/:id/*`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(getJSONResponse));
+  }),
 ];
 
 const selectedReservationUnitQuery = graphql.query<
