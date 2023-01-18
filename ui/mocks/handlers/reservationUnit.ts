@@ -27,7 +27,6 @@ import {
   QueryPurposesArgs,
   PurposeTypeConnection,
   ReservationUnitType,
-  QueryReservationsArgs,
 } from "common/types/gql-types";
 
 import getJSONResponse from "../../cypress/fixtures/v1/reservation_unit.json";
