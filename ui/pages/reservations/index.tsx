@@ -105,8 +105,6 @@ const Reservations = (): JSX.Element => {
     fetchPolicy: "no-cache",
   });
 
-  console.log("test data", currentUser?.pk.toString(), reservationData);
-
   useEffect(() => {
     const reservations = reservationData?.reservations?.edges
       ?.map((edge) => edge?.node)

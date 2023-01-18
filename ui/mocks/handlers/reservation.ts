@@ -526,10 +526,9 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
   }
 );
 
-const reservations = graphql.query<Query, QueryReservationsArgs>(
-  "Reservations",
+const listReservations = graphql.query<Query, QueryReservationsArgs>(
+  "listReservations",
   (req, res, ctx) => {
-    console.log("reservationsQUERY", req);
     const reservationData = [
       {
         node: {
@@ -1318,7 +1317,7 @@ export const reservationHandlers = [
   cancelReservation,
   deleteReservation,
   adjustReservationTime,
-  reservations,
+  listReservations,
   reservationCancelReasons,
   reservationPurposes,
   ageGroups,
