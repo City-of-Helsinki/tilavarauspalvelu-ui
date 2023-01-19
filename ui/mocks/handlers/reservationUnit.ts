@@ -425,6 +425,9 @@ const selectedReservationUnitQuery = graphql.query<
     reservationUnitByPk.pricings = pricings;
     reservationUnitByPk.minPersons = undefined;
     reservationUnitByPk.maxPersons = 20;
+    reservationUnitByPk.maxReservationsPerUser = 30;
+    reservationUnitByPk.publishEnds = addMinutes(new Date(), 10).toISOString();
+    reservationUnitByPk.canApplyFreeOfCharge = true;
   }
 
   if (req.variables.pk === 3) {
@@ -505,6 +508,9 @@ const selectedReservationUnitQuery = graphql.query<
   }
 
   if (req.variables.pk === 903) {
+    reservationUnitByPk.maxReservationsPerUser = 30;
+    reservationUnitByPk.publishEnds = addMinutes(new Date(), 10).toISOString();
+    reservationUnitByPk.canApplyFreeOfCharge = true;
     reservationUnitByPk.pk = 903;
     reservationUnitByPk.metadataSet = {
       id: "UmVzZXJ2YXRpb25NZXRhZGF0YVNldFR5cGU6MQ==",
