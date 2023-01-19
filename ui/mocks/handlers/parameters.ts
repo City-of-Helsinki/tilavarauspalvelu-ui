@@ -1,9 +1,20 @@
 import { rest } from "msw";
 
-import getAbilityGroupJSONResponse from "../../cypress/fixtures/v1/parameters/ability_group.json";
-import getAgeGroupJSONResponse from "../../cypress/fixtures/v1/parameters/age_group.json";
-import getCityJSONResponse from "../../cypress/fixtures/v1/parameters/city.json";
-import getTypeJSONResponse from "../../cypress/fixtures/v1/parameters/reservation_unit_type.json";
+const getAbilityGroupJSONResponse = [{ id: 1, name: "Keskitaso" }];
+
+const getAgeGroupJSONResponse = [
+  { id: 1, minimum: 5, maximum: 8 },
+  { id: 2, minimum: 9, maximum: 12 },
+  { id: 3, minimum: 12, maximum: 16 },
+  { id: 4, minimum: 17, maximum: 20 },
+];
+
+const getCityJSONResponse = [{ id: 1, name: "Helsinki" }];
+
+const getTypeJSONResponse = [
+  { id: 1, name: "Äänitysstudio" },
+  { id: 2, name: "Kokoustila" },
+];
 
 const parametersREST = [
   rest.get(`*/v1/parameters/ability_group/*`, (req, res, ctx) => {

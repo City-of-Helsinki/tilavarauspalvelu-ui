@@ -8,7 +8,22 @@ import {
   QueryApplicationsArgs,
 } from "common/types/gql-types";
 
-import * as postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
+const postJSONResponse = {
+  id: 138,
+  applicant_type: null,
+  applicant_id: 101,
+  applicant_name: "n n",
+  organisation: null,
+  application_round_id: 1,
+  contact_person: null,
+  application_events: [],
+  status: "draft",
+  aggregated_data: {},
+  billing_address: null,
+  home_city_id: null,
+  created_date: "2021-06-09T10:48:02.253999Z",
+  last_modified_date: "2021-06-09T10:48:02.294241Z",
+};
 
 const applicationREST = [
   rest.get(`*/v1/application/:id`, (req, res, ctx) => {
