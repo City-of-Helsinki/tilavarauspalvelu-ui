@@ -404,7 +404,7 @@ const StyledCalendar = styled(BigCalendar)<{
   }
 
   .isSmall .rbc-event-label {
-    white-space: nowrap !important;
+    white-space: nowrap;
   }
 `;
 
