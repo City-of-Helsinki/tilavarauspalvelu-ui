@@ -8,7 +8,7 @@ import {
   QueryApplicationsArgs,
 } from "common/types/gql-types";
 
-import postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
+import * as postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
 
 const applicationREST = [
   rest.get(`*/v1/application/:id`, (req, res, ctx) => {
