@@ -994,7 +994,6 @@ const ReservationUnit = ({
                     aria-hidden
                   />
                 </div>
-                <Legend wrapBreakpoint={breakpoints.l} />
                 {!isReservationQuotaReached &&
                   !isReservationStartInFuture(reservationUnit) && (
                     <CalendarFooter
@@ -1019,6 +1018,7 @@ const ReservationUnit = ({
                       />
                     </CalendarFooter>
                   )}
+                <Legend />
               </CalendarWrapper>
             )}
             {isReservable && (
