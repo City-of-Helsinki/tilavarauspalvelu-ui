@@ -249,17 +249,16 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
 }: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
 
-  const durationOptions = useMemo(
-    () =>
-      getDurationOptions(
-        reservationUnit.minReservationDuration,
-        reservationUnit.maxReservationDuration
-      ),
-    [
+  const durationOptions = useMemo(() => {
+    const options = getDurationOptions(
       reservationUnit.minReservationDuration,
-      reservationUnit.maxReservationDuration,
-    ]
-  );
+      reservationUnit.maxReservationDuration
+    );
+    return [{ value: "", label: "" }, ...options];
+  }, [
+    reservationUnit.minReservationDuration,
+    reservationUnit.maxReservationDuration,
+  ]);
 
   const { reservation, setReservation } = useContext(DataContext);
   const [date, setDate] = useState<Date | null>(new Date());
@@ -551,6 +550,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             onClick={() => {
               setStartTime(null);
               resetReservation();
+              setDate(new Date());
+              setDuration(null);
               setReservation(null);
             }}
             disabled={!startTime}
