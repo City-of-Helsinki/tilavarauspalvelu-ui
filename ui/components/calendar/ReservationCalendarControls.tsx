@@ -348,19 +348,18 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       ) {
         setErrorMsg(t(`reservationCalendar:errors.collision`));
       } else if (
-        (duration.value &&
-          !areSlotsReservable(
-            [startDate, subMinutes(endDate, 1)],
-            reservationUnit.openingHours?.openingTimes,
-            activeApplicationRounds,
-            reservationUnit.reservationBegins
-              ? new Date(reservationUnit.reservationBegins)
-              : undefined,
-            reservationUnit.reservationEnds
-              ? new Date(reservationUnit.reservationEnds)
-              : undefined,
-            reservationUnit.reservationsMinDaysBefore
-          )) ||
+        !areSlotsReservable(
+          [startDate, subMinutes(endDate, 1)],
+          reservationUnit.openingHours?.openingTimes,
+          activeApplicationRounds,
+          reservationUnit.reservationBegins
+            ? new Date(reservationUnit.reservationBegins)
+            : undefined,
+          reservationUnit.reservationEnds
+            ? new Date(reservationUnit.reservationEnds)
+            : undefined,
+          reservationUnit.reservationsMinDaysBefore
+        ) ||
         (customAvailabilityValidation &&
           !customAvailabilityValidation(startDate))
       ) {
