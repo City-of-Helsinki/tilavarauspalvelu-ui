@@ -10,7 +10,7 @@ import { useLocalStorage } from "react-use";
 import { isEqual, omit, pick } from "lodash";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { OptionType } from "common/types/common";
-import { H1 } from "common/src/common/typography";
+import { H2 } from "common/src/common/typography";
 import {
   PageInfo,
   Query,
@@ -22,7 +22,6 @@ import Container from "../../components/common/Container";
 import SearchForm from "../../components/single-search/SearchForm";
 import { capitalize, singleSearchUrl } from "../../modules/util";
 import { isBrowser } from "../../modules/const";
-import { HeroSubheading } from "../../modules/style/typography";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
 import KorosDefault from "../../components/common/KorosDefault";
@@ -39,14 +38,10 @@ const Wrapper = styled.div`
 
 const HeadContainer = styled.div`
   background-color: white;
-  padding-top: var(--spacing-layout-xs);
+  padding-top: var(--spacing-m);
 `;
 
-const Heading = styled(H1)``;
-
-const Subheading = styled(HeroSubheading)`
-  margin-bottom: var(--spacing-xs);
-`;
+const Heading = styled(H2).attrs({ as: "h1" })``;
 
 const StyledSorting = styled(Sorting)`
   display: block;
@@ -230,7 +225,6 @@ const SearchSingle = (): JSX.Element => {
       <HeadContainer>
         <Container>
           <Heading>{t("search:single.heading")}</Heading>
-          <Subheading>{t("search:single.text")}</Subheading>
           <SearchForm
             onSearch={onSearch}
             formValues={omit(values, ["order", "sort"])}
@@ -238,7 +232,11 @@ const SearchSingle = (): JSX.Element => {
           />
         </Container>
       </HeadContainer>
-      <KorosDefault from="white" to="var(--tilavaraus-gray)" />
+      <KorosDefault
+        from="white"
+        to="var(--tilavaraus-gray)"
+        style={{ marginBottom: "-32px" }}
+      />
       <ClientOnly>
         <>
           <ListWithPagination

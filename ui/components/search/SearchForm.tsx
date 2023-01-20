@@ -60,8 +60,7 @@ const TopContainer = styled.div`
 const FilterToggleWrapper = styled.div`
   display: grid;
   justify-items: center;
-  margin-top: var(--spacing-l);
-  padding-bottom: var(--spacing-m);
+  margin: var(--spacing-xs) 0;
 `;
 
 const Hr = styled.hr`
@@ -70,7 +69,7 @@ const Hr = styled.hr`
 `;
 
 const Filters = styled.div<{ $areFiltersVisible: boolean }>`
-  margin-top: var(--spacing-l);
+  margin-top: 0;
   max-width: 100%;
   display: grid;
   grid-template-columns: 1fr;
@@ -91,26 +90,8 @@ const Filters = styled.div<{ $areFiltersVisible: boolean }>`
     font-weight: 500;
   }
 
-  .inputGroupEnd {
-    & > div {
-      border-left-width: 0;
-    }
-    margin-left: 0;
-  }
-
-  .inputGroupStart {
-    & > div {
-      border-right-width: 0;
-    }
-
-    & + .inputGroupEnd > div {
-      border-left-width: 2px;
-    }
-
-    margin-right: 0;
-  }
-
   @media (min-width: ${breakpoints.m}) {
+    margin-top: var(--spacing-s);
     grid-template-columns: 1fr 1fr;
   }
 
@@ -131,11 +112,29 @@ const StyledSelect = styled(Select)`
 `;
 
 const Group = styled.div<{ children: ReactNode[]; $gap?: string }>`
-  /* stylelint-disable-next-line no-descending-specificity */
   > div:first-of-type {
     label {
       width: calc(${({ children }) => children.length} * 100%);
     }
+  }
+
+  .inputGroupEnd {
+    & > div {
+      border-left-width: 0;
+    }
+    margin-left: 0;
+  }
+
+  .inputGroupStart {
+    & > div {
+      border-right-width: 0;
+    }
+
+    & + .inputGroupEnd > div {
+      border-left-width: 2px;
+    }
+
+    margin-right: 0;
   }
 
   display: grid;
@@ -452,67 +451,62 @@ const SearchForm = ({
       </JustForMobile>
       {areOptionsLoaded && (
         <ButtonContainer>
-          <TagControls>
-            {Object.keys(formValues).length > 0 && (
-              <>
-                <FilterTags data-test-id="search-form__filter--tags">
-                  {Object.keys(formValues)
-                    .sort(
-                      (a, b) => filterOrder.indexOf(a) - filterOrder.indexOf(b)
-                    )
-                    .map((value) => {
-                      const label = t(`searchForm:filters.${value}`, {
-                        label: getFormValueLabel(value),
-                        value: formValues[value],
-                        count: Number(formValues[value]),
-                      });
+          {Object.keys(formValues).length > 0 && (
+            <TagControls>
+              <FilterTags data-test-id="search-form__filter--tags">
+                {Object.keys(formValues)
+                  .sort(
+                    (a, b) => filterOrder.indexOf(a) - filterOrder.indexOf(b)
+                  )
+                  .map((value) => {
+                    const label = t(`searchForm:filters.${value}`, {
+                      label: getFormValueLabel(value),
+                      value: formValues[value],
+                      count: Number(formValues[value]),
+                    });
 
-                      const result = multiSelectFilters.includes(value) ? (
-                        formValues[value].split(",").map((subValue) => (
-                          <StyledTag
-                            id={`filter-tag__${value}-${subValue}`}
-                            onClick={() => removeValue([subValue], value)}
-                            onDelete={() => removeValue([subValue], value)}
-                            key={`${value}-${subValue}`}
-                            deleteButtonAriaLabel={t(
-                              `searchForm:removeFilter`,
-                              {
-                                value: getFormSubValueLabel(value, subValue),
-                              }
-                            )}
-                          >
-                            {getFormSubValueLabel(value, subValue)}
-                          </StyledTag>
-                        ))
-                      ) : (
+                    const result = multiSelectFilters.includes(value) ? (
+                      formValues[value].split(",").map((subValue) => (
                         <StyledTag
-                          id={`filter-tag__${value}`}
-                          onClick={() => removeValue([value])}
-                          onDelete={() => removeValue([value])}
-                          key={value}
+                          id={`filter-tag__${value}-${subValue}`}
+                          onClick={() => removeValue([subValue], value)}
+                          onDelete={() => removeValue([subValue], value)}
+                          key={`${value}-${subValue}`}
                           deleteButtonAriaLabel={t(`searchForm:removeFilter`, {
-                            value: label,
+                            value: getFormSubValueLabel(value, subValue),
                           })}
                         >
-                          {label}
+                          {getFormSubValueLabel(value, subValue)}
                         </StyledTag>
-                      );
-                      return result;
-                    })}
-                </FilterTags>
-                {Object.keys(formValues).length > 0 && (
-                  <ResetButton
-                    aria-label={t("searchForm:resetForm")}
-                    onClick={() => removeValue()}
-                    onDelete={() => removeValue()}
-                    data-test-id="search-form__reset-button"
-                  >
-                    {t("searchForm:resetForm")}
-                  </ResetButton>
-                )}
-              </>
-            )}
-          </TagControls>
+                      ))
+                    ) : (
+                      <StyledTag
+                        id={`filter-tag__${value}`}
+                        onClick={() => removeValue([value])}
+                        onDelete={() => removeValue([value])}
+                        key={value}
+                        deleteButtonAriaLabel={t(`searchForm:removeFilter`, {
+                          value: label,
+                        })}
+                      >
+                        {label}
+                      </StyledTag>
+                    );
+                    return result;
+                  })}
+              </FilterTags>
+              {Object.keys(formValues).length > 0 && (
+                <ResetButton
+                  aria-label={t("searchForm:resetForm")}
+                  onClick={() => removeValue()}
+                  onDelete={() => removeValue()}
+                  data-test-id="search-form__reset-button"
+                >
+                  {t("searchForm:resetForm")}
+                </ResetButton>
+              )}
+            </TagControls>
+          )}
           <JustForMobile
             style={{ width: "100%" }}
             customBreakpoint={desktopBreakpoint}
