@@ -8,11 +8,12 @@ import {
   TermsOfUseType,
   Query,
 } from "common/types/gql-types";
+import { H1 } from "common/src/common/typography";
 import apolloClient from "../../../modules/apolloClient";
 import Sanitize from "../../../components/common/Sanitize";
 import { getTranslation } from "../../../modules/util";
 import { TERMS_OF_USE } from "../../../modules/queries/reservationUnit";
-import Container from "../../../components/common/Container";
+import { ExtraNarrowCenteredContainer } from "../../../modules/style/layout";
 
 type Props = {
   genericTerms: TermsOfUseType;
@@ -41,8 +42,9 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   };
 };
 
-const Wrapper = styled(Container)`
+const Wrapper = styled(ExtraNarrowCenteredContainer)`
   margin-top: var(--spacing-layout-m);
+  padding-bottom: var(--spacing-layout-xl);
 `;
 
 const GenericTerms = ({ genericTerms }: Props): JSX.Element => {
@@ -50,7 +52,7 @@ const GenericTerms = ({ genericTerms }: Props): JSX.Element => {
 
   return (
     <Wrapper>
-      <h1>{t("reservationCalendar:heading.generalTerms")}</h1>
+      <H1>{t("reservationCalendar:heading.generalTerms")}</H1>
       <Sanitize
         html={getTranslation(genericTerms, "text")}
         style={{ whiteSpace: "pre-wrap" }}
