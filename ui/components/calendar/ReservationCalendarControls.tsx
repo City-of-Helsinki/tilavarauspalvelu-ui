@@ -429,7 +429,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     date: end && parseISO(end),
   });
 
-  const togglerLabel = useMemo(() => {
+  const togglerLabel = (() => {
     const dateStr = trim(
       `${beginDate} ${beginTime}-${
         endDate !== beginDate ? endDate : ""
@@ -441,7 +441,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     );
 
     return `${dateStr}, ${durationStr}`;
-  }, [beginDate, beginTime, endDate, endTime, begin, end]);
+  })();
 
   const price = getReservationUnitPrice({
     reservationUnit,
