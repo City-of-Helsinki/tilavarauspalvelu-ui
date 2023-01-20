@@ -272,7 +272,7 @@ describe("Tilavaraus user reservations", () => {
     secondBackButton().should("exist");
   });
 
-  it.only("should do time modification", () => {
+  it("should do time modification", () => {
     const titles = ["Muuta varauksen aikaa", "Tarkista varauksen tiedot"];
 
     detailButton().eq(0).click();
