@@ -314,6 +314,8 @@ const SearchForm = ({
     ]
   );
 
+  const formValueKeys = Object.keys(formValues);
+
   return (
     <>
       <TopContainer>
@@ -451,10 +453,10 @@ const SearchForm = ({
       </JustForMobile>
       {areOptionsLoaded && (
         <ButtonContainer>
-          {Object.keys(formValues).length > 0 && (
+          {formValueKeys.length > 0 && (
             <TagControls>
               <FilterTags data-test-id="search-form__filter--tags">
-                {Object.keys(formValues)
+                {formValueKeys
                   .sort(
                     (a, b) => filterOrder.indexOf(a) - filterOrder.indexOf(b)
                   )
@@ -495,7 +497,7 @@ const SearchForm = ({
                     return result;
                   })}
               </FilterTags>
-              {Object.keys(formValues).length > 0 && (
+              {formValueKeys.length > 0 && (
                 <ResetButton
                   aria-label={t("searchForm:resetForm")}
                   onClick={() => removeValue()}
