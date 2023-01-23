@@ -62,7 +62,7 @@ const PurposeContainer = styled.div`
   }
 `;
 
-const PurposeItem = styled.a`
+const PurposeItem = styled.div`
   &:hover {
     span {
       text-decoration: underline;
