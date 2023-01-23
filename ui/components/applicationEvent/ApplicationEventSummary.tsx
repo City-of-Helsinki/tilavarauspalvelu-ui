@@ -10,6 +10,7 @@ import IconWithText from "../common/IconWithText";
 
 type Props = {
   applicationEvent: ApplicationEvent;
+  name: string;
 };
 
 const Message = styled.div`
@@ -61,6 +62,7 @@ function displayDuration(duration: string, t: TFunction) {
 
 const ApplicationEventSummary = ({
   applicationEvent,
+  name,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -95,7 +97,7 @@ const ApplicationEventSummary = ({
           <Trans
             count={hours}
             defaults="Olet tekemässä varausta {{ name }} kaudeksi  <bold>{{startDate}} - {{endDate}}</bold>.<br />Varausten yhteenlaskettu kesto on vähintään  <bold>{{hours}} tuntia</bold>."
-            values={{ startDate: begin, endDate: end, hours }}
+            values={{ name, startDate: begin, endDate: end, hours }}
             components={{ bold: <strong />, br: <br /> }}
           />
         </Message>
