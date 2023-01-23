@@ -83,6 +83,14 @@ const Wrapper = styled.div`
   background-color: var(--tilavaraus-gray);
 `;
 
+const StyledContainer = styled(Container)`
+  padding-bottom: var(--spacing-3-xs);
+
+  @media (min-width: ${breakpoints.s}) {
+    padding-bottom: var(--spacing-2-xs);
+  }
+`;
+
 const HeadContainer = styled.div`
   background-color: white;
 
@@ -95,6 +103,10 @@ const Title = styled(H2).attrs({ as: "h1" })``;
 
 const Ingress = styled(HeroSubheading)`
   margin-bottom: var(--spacing-xs);
+`;
+
+const BottomWrapper = styled.div`
+  padding-top: var(--spacing-l);
 `;
 
 const StyledSorting = styled(Sorting)`
@@ -280,7 +292,7 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
       ) : null}
       <HeadContainer>
         <BreadcrumbWrapper route={["/recurring", "search"]} />
-        <Container>
+        <StyledContainer>
           <Title>{t("search:recurring.heading")}</Title>
           <Ingress>{t("search:recurring.text")}</Ingress>
           <SearchForm
@@ -289,15 +301,10 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
             formValues={omit(values, ["order", "sort"])}
             removeValue={onRemove}
           />
-        </Container>
+        </StyledContainer>
       </HeadContainer>
-      <KorosDefault
-        from="white"
-        to="var(--tilavaraus-gray)"
-        style={{ marginBottom: "-32px" }}
-      />
       <ClientOnly>
-        <>
+        <BottomWrapper>
           <ListWithPagination
             id="searchResultList"
             items={reservationUnits?.map((ru) => (
@@ -348,7 +355,7 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
             count={selectedReservationUnits.length}
             clearSelections={clearSelections}
           />
-        </>
+        </BottomWrapper>
       </ClientOnly>
     </Wrapper>
   );

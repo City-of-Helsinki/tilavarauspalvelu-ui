@@ -9,6 +9,7 @@ import { Notification } from "hds-react";
 import { useLocalStorage } from "react-use";
 import { isEqual, omit, pick } from "lodash";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { breakpoints } from "common/src/common/style";
 import { OptionType } from "common/types/common";
 import { H2 } from "common/src/common/typography";
 import {
@@ -24,7 +25,6 @@ import { capitalize, singleSearchUrl } from "../../modules/util";
 import { isBrowser } from "../../modules/const";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
-import KorosDefault from "../../components/common/KorosDefault";
 import ClientOnly from "../../components/ClientOnly";
 import ListWithPagination from "../../components/common/ListWithPagination";
 import ReservationUnitCard from "../../components/single-search/ReservationUnitCard";
@@ -36,12 +36,24 @@ const Wrapper = styled.div`
   background-color: var(--tilavaraus-gray);
 `;
 
+const StyledContainer = styled(Container)`
+  padding-bottom: var(--spacing-3-xs);
+
+  @media (min-width: ${breakpoints.s}) {
+    padding-bottom: var(--spacing-2-xs);
+  }
+`;
+
 const HeadContainer = styled.div`
   background-color: white;
   padding-top: var(--spacing-m);
 `;
 
 const Heading = styled(H2).attrs({ as: "h1" })``;
+
+const BottomWrapper = styled.div`
+  padding-top: var(--spacing-l);
+`;
 
 const StyledSorting = styled(Sorting)`
   display: block;
@@ -223,22 +235,17 @@ const SearchSingle = (): JSX.Element => {
         </Notification>
       ) : null}
       <HeadContainer>
-        <Container>
+        <StyledContainer>
           <Heading>{t("search:single.heading")}</Heading>
           <SearchForm
             onSearch={onSearch}
             formValues={omit(values, ["order", "sort"])}
             removeValue={onRemove}
           />
-        </Container>
+        </StyledContainer>
       </HeadContainer>
-      <KorosDefault
-        from="white"
-        to="var(--tilavaraus-gray)"
-        style={{ marginBottom: "-32px" }}
-      />
       <ClientOnly>
-        <>
+        <BottomWrapper>
           <ListWithPagination
             id="searchResultList"
             items={reservationUnits?.map((ru) => (
@@ -279,7 +286,7 @@ const SearchSingle = (): JSX.Element => {
               />
             }
           />
-        </>
+        </BottomWrapper>
       </ClientOnly>
     </Wrapper>
   );

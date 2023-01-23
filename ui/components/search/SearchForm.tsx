@@ -143,7 +143,7 @@ const Group = styled.div<{ children: ReactNode[]; $gap?: string }>`
 `;
 
 const ButtonContainer = styled.div`
-  margin: var(--spacing-l) 0;
+  margin: var(--spacing-m) 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
