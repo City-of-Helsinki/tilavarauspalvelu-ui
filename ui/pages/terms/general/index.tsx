@@ -8,7 +8,7 @@ import {
   TermsOfUseType,
   Query,
 } from "common/types/gql-types";
-import { H1, H2 } from "common/src/common/typography";
+import { H2 } from "common/src/common/typography";
 import apolloClient from "../../../modules/apolloClient";
 import Sanitize from "../../../components/common/Sanitize";
 import { getTranslation } from "../../../modules/util";
