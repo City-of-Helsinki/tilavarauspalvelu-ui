@@ -31,7 +31,6 @@ import {
 import { isBrowser } from "../../modules/const";
 import ClientOnly from "../../components/ClientOnly";
 import { HeroSubheading } from "../../modules/style/typography";
-import KorosDefault from "../../components/common/KorosDefault";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
 import apolloClient from "../../modules/apolloClient";
