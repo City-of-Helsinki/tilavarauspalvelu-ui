@@ -60,7 +60,7 @@ const ApplicationGroups = ({
   t: TFunction;
 }) => {
   if (Object.keys(applications).length === 0) {
-    return <span>{t("applications:noApplications") as string}</span>;
+    return <span>{t("applications:noApplications")}</span>;
   }
   return (
     <>

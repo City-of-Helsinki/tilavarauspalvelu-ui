@@ -154,7 +154,7 @@ const EventReservationUnitDetails = (): JSX.Element | null => {
         }
       />
       <ReservationList
-        groupName={applicationEvent?.name as string}
+        groupName={applicationEvent?.name}
         reservations={unitReservations}
       />
     </Container>

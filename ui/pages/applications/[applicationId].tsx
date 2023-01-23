@@ -109,9 +109,9 @@ const modified = (
   return (
     <Modified>
       {application.data?.lastModifiedDate
-        ? (t("applicationCard:saved", {
+        ? t("applicationCard:saved", {
             date: parseDate(application.data?.lastModifiedDate),
-          }) as string)
+          })
         : ""}
     </Modified>
   );
