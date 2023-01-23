@@ -48,7 +48,7 @@ export const H2 = styled.h2`
 
   @media (min-width: ${breakpoints.s}) {
     font-size: var(--fontsize-heading-xl);
-    line-height: var(--lineheight-m);
+    line-height: var(--lineheight-s);
   }
 `;
 
