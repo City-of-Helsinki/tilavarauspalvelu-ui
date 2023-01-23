@@ -351,7 +351,7 @@ const StyledCalendar = styled(BigCalendar)<{
     width: 100% !important;
     left: 0 !important;
     z-index: 2 !important;
-    padding-top: var(--spacing-2-xs);
+    padding-top: 2px;
   }
 
   .rbc-event-buffer {
