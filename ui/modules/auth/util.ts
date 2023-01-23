@@ -61,7 +61,6 @@ export const updateApiAccessTokens = async (
   if (!apiScope) {
     throw new Error("Application configuration error, illegal api scope.");
   }
-  console.log("test", `Bearer ${accessToken}`);
 
   const response = await axios.request({
     responseType: "json",

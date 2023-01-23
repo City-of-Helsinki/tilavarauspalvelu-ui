@@ -163,7 +163,6 @@ export function getParameters(
 }
 
 export function getApplication(id: number): Promise<Application> {
-  console.log("GET", id);
   return apiGet<Application>({
     path: `v1/${applicationBasePath}/${id}`,
   });
@@ -172,7 +171,6 @@ export function getApplication(id: number): Promise<Application> {
 export function saveApplication(
   application: Application
 ): Promise<Application> {
-  console.log("SAVE", application);
   if (application.id === undefined) {
     return apiPost<Application>({
       data: application,
@@ -191,7 +189,6 @@ export const cancelApplication = async (
   const application = await getApplication(applicationId);
   application.status = "cancelled";
 
-  console.log("CANCEL", application);
   await saveApplication(application);
 };
 
