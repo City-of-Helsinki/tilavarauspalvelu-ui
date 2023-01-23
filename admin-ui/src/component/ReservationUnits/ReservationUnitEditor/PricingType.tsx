@@ -164,16 +164,14 @@ const PricingType = ({
             <Span6>
               <EnumSelect
                 optionPrefix="priceUnit"
-                placeholder={t("common.select") as string}
+                placeholder={t("common.select")}
                 id={`pricings,${labelIndex},priceUnit`}
                 required
                 value={pricing.priceUnit as string}
                 label={t("ReservationUnitEditor.label.priceUnit")}
                 type={ReservationUnitsReservationUnitPricingPriceUnitChoices}
                 onChange={(priceUnit) => setPricingTypeValue({ priceUnit })}
-                tooltipText={
-                  t("ReservationUnitEditor.tooltip.priceUnit") as string
-                }
+                tooltipText={t("ReservationUnitEditor.tooltip.priceUnit")}
                 errorText={getValidationError(
                   `pricings,${labelIndex},priceUnit`
                 )}
@@ -181,7 +179,7 @@ const PricingType = ({
             </Span6>
             <Span6>
               <Select
-                placeholder={t("common.select") as string}
+                placeholder={t("common.select")}
                 required
                 id={`pricings,${labelIndex},taxPercentagePk`}
                 label={t(`ReservationUnitEditor.label.taxPercentagePk`)}
@@ -211,16 +209,15 @@ const PricingType = ({
                 id={`pricings,${labelIndex},lowestPriceNet`}
                 required
                 label={t("ReservationUnitEditor.label.lowestPriceNet")}
-                minusStepButtonAriaLabel={
-                  t("common.decreaseByOneAriaLabel") as string
-                }
-                plusStepButtonAriaLabel={
-                  t("common.increaseByOneAriaLabel") as string
-                }
+                minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
+                plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
                 onChange={(e) => {
                   setPricingTypeValue(
                     {
-                      lowestPriceNet: Number(e.target.value),
+                      lowestPriceNet: formatDecimal({
+                        input: e.target.value,
+                        decimals: 2,
+                      }),
                     },
                     "lowestPriceNet"
                   );
@@ -228,7 +225,7 @@ const PricingType = ({
                 step={1}
                 min={0}
                 errorText={getValidationError(
-                  `pricings,${labelIndex},lowestPrice`
+                  `pricings,${labelIndex},lowestPriceNet`
                 )}
                 invalid={
                   !!getValidationError(`pricings,${labelIndex},lowestPriceNet`)
@@ -245,16 +242,15 @@ const PricingType = ({
                 id={`pricings,${labelIndex},lowestPrice`}
                 required
                 label={t("ReservationUnitEditor.label.lowestPrice")}
-                minusStepButtonAriaLabel={
-                  t("common.decreaseByOneAriaLabel") as string
-                }
-                plusStepButtonAriaLabel={
-                  t("common.increaseByOneAriaLabel") as string
-                }
+                minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
+                plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
                 onChange={(e) => {
                   setPricingTypeValue(
                     {
-                      lowestPrice: Number(e.target.value),
+                      lowestPrice: formatDecimal({
+                        input: e.target.value,
+                        decimals: 2,
+                      }),
                     },
                     "lowestPrice"
                   );
@@ -267,9 +263,7 @@ const PricingType = ({
                 invalid={
                   !!getValidationError(`pricings,${labelIndex},lowestPrice`)
                 }
-                tooltipText={
-                  t("ReservationUnitEditor.tooltip.lowestPrice") as string
-                }
+                tooltipText={t("ReservationUnitEditor.tooltip.lowestPrice")}
               />
             </Span3>
             <Span3>
@@ -282,16 +276,14 @@ const PricingType = ({
                 }
                 id={`pricings,${labelIndex},highestPriceNet`}
                 label={t("ReservationUnitEditor.label.highestPriceNet")}
-                minusStepButtonAriaLabel={
-                  t("common.decreaseByOneAriaLabel") as string
-                }
-                plusStepButtonAriaLabel={
-                  t("common.increaseByOneAriaLabel") as string
-                }
+                minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
+                plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
                 onChange={(e) => {
                   setPricingTypeValue(
                     {
-                      highestPriceNet: Number(e.target.value),
+                      highestPriceNet: formatDecimal({
+                        input: e.target.value,
+                      }),
                     },
                     "highestPriceNet"
                   );
@@ -312,16 +304,14 @@ const PricingType = ({
                 }
                 id={`pricings,${labelIndex},highestPrice`}
                 label={t("ReservationUnitEditor.label.highestPrice")}
-                minusStepButtonAriaLabel={
-                  t("common.decreaseByOneAriaLabel") as string
-                }
-                plusStepButtonAriaLabel={
-                  t("common.increaseByOneAriaLabel") as string
-                }
+                minusStepButtonAriaLabel={t("common.decreaseByOneAriaLabel")}
+                plusStepButtonAriaLabel={t("common.increaseByOneAriaLabel")}
                 onChange={(e) => {
                   setPricingTypeValue(
                     {
-                      highestPrice: Number(e.target.value),
+                      highestPrice: formatDecimal({
+                        input: e.target.value,
+                      }),
                     },
                     "highestPrice"
                   );
@@ -330,9 +320,7 @@ const PricingType = ({
                 min={0}
                 errorText={getValidationError("highestPrice")}
                 invalid={!!getValidationError("highestPrice")}
-                tooltipText={
-                  t("ReservationUnitEditor.tooltip.highestPrice") as string
-                }
+                tooltipText={t("ReservationUnitEditor.tooltip.highestPrice")}
               />
             </Span3>
             {type === "ACTIVE" && (
@@ -342,7 +330,7 @@ const PricingType = ({
                   sort
                   multiselect
                   required
-                  placeholder={t("common.select") as string}
+                  placeholder={t("common.select")}
                   options={state.paymentTypeOptions}
                   value={[
                     ...getSelectedOptions(
@@ -355,9 +343,7 @@ const PricingType = ({
                   onChange={(paymentTypes) =>
                     dispatch({ type: "setPaymentTypes", paymentTypes })
                   }
-                  tooltipText={
-                    t("ReservationUnitEditor.tooltip.paymentTypes") as string
-                  }
+                  tooltipText={t("ReservationUnitEditor.tooltip.paymentTypes")}
                   error={getValidationError("paymentTypes")}
                   invalid={!!getValidationError("paymentTypes")}
                 />
