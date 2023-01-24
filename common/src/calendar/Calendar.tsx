@@ -65,7 +65,7 @@ type Props<T> = {
   draggableAccessor?: (event: CalendarEvent<T>) => boolean;
   resizableAccessor?: (event: CalendarEvent<T>) => boolean;
   toolbarComponent?: (props: ToolbarProps) => JSX.Element | React.ReactNode;
-  eventWrapperComponent?: React.ReactNode;
+  eventWrapperComponent?: (props: unknown) => JSX.Element | React.ReactNode;
   dateCellWrapperComponent?: (props: unknown) => JSX.Element | React.ReactNode;
   showToolbar?: boolean;
   reservable?: boolean;

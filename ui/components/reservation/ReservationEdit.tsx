@@ -50,6 +50,8 @@ import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";
 
 type Props = {
   id: number;
+  // eslint-disable-next-line react/no-unused-prop-types
+  logout?: () => void;
 };
 
 const allowedReservationStates: ReservationsReservationStateChoices[] = [
