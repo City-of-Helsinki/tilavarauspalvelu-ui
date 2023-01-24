@@ -42,180 +42,173 @@ const ReservationInfoContainer = ({
       reservationUnit.reservationsMinDaysBefore);
 
   return (
-    (isReservable || reservationStatus === "hasClosed") && (
-      <>
-        <Subheading $withBorder>
-          {t("reservationCalendar:reservationInfo")}
-        </Subheading>
-        <Content data-testid="reservation-unit__reservation-info">
-          {reservationUnitIsReservableAndHasReservationBuffers && (
-            <p>
-              {reservationUnit.reservationsMaxDaysBefore > 0 &&
-                reservationUnit.reservationsMinDaysBefore > 0 && (
-                  <Trans i18nKey="reservationUnit:reservationInfo1-1">
-                    Voit tehdä varauksen{" "}
-                    <strong>
-                      aikaisintaan{" "}
-                      {{
-                        reservationsMaxDaysBefore: daysByMonths.find(
-                          (n) =>
-                            n.value ===
-                            reservationUnit.reservationsMaxDaysBefore
-                        )?.label,
-                      }}
-                      {{
-                        unit: t(
-                          `reservationUnit:reservationInfo1-${
-                            reservationUnit.reservationsMaxDaysBefore === 14
-                              ? "weeks"
-                              : "months"
-                          }`
-                        ),
-                      }}
-                    </strong>{" "}
-                    ja{" "}
-                    <strong>
-                      viimeistään
-                      {{
-                        reservationsMinDaysBefore:
-                          reservationUnit.reservationsMinDaysBefore,
-                      }}{" "}
-                      päivää etukäteen
-                    </strong>
-                    .
-                  </Trans>
-                )}
-              {reservationUnit.reservationsMaxDaysBefore > 0 &&
-                !reservationUnit.reservationsMinDaysBefore && (
-                  <Trans i18nKey="reservationUnit:reservationInfo1-2">
-                    Voit tehdä varauksen{" "}
-                    <strong>
-                      aikaisintaan{" "}
-                      {{
-                        reservationsMaxDaysBefore: daysByMonths.find(
-                          (n) =>
-                            n.value ===
-                            reservationUnit.reservationsMaxDaysBefore
-                        )?.label,
-                      }}{" "}
-                      {{
-                        unit: t(
-                          `reservationUnit:reservationInfo1-${
-                            reservationUnit.reservationsMaxDaysBefore === 14
-                              ? "weeks"
-                              : "months"
-                          }`
-                        ),
-                      }}{" "}
-                      etukäteen
-                    </strong>
-                    .
-                  </Trans>
-                )}
-              {reservationUnit.reservationsMaxDaysBefore === 0 &&
-                reservationUnit.reservationsMinDaysBefore > 0 && (
-                  <Trans i18nKey="reservationUnit:reservationInfo1-3">
-                    Voit tehdä varauksen{" "}
-                    <strong>
-                      viimeistään{" "}
-                      {{
-                        reservationsMinDaysBefore:
-                          reservationUnit.reservationsMinDaysBefore,
-                      }}{" "}
-                      päivää etukäteen
-                    </strong>
-                    .
-                  </Trans>
-                )}
-            </p>
-          )}
-          {reservationStatus === "willOpen" && (
-            <p>
-              <Trans
-                i18nKey="reservationUnit:reservationInfo2-1"
-                values={{
-                  date: formatDate(
-                    reservationUnit.reservationBegins,
-                    "d.M.yyyy"
-                  ),
-                  time: formatDate(reservationUnit.reservationBegins, "H.mm"),
-                }}
-                defaults="<bold>Varauskalenteri avautuu {{date}} klo {{time}}</bold>."
-                components={{ bold: <strong /> }}
-              />
-            </p>
-          )}
-          {reservationStatus === "isOpen" && (
-            <p>
-              <Trans
-                i18nKey="reservationUnit:reservationInfo2-2"
-                values={{
-                  date: formatDate(reservationUnit.reservationEnds, "d.M.yyyy"),
-                  time: formatDate(reservationUnit.reservationEnds, "H.mm"),
-                }}
-                defaults="<bold>Varauskalenteri on auki {{date}} klo {{time}}</bold> asti."
-                components={{ bold: <strong /> }}
-              />
-            </p>
-          )}
-          {reservationStatus === "hasClosed" && (
-            <p>
-              <Trans
-                i18nKey="reservationUnit:reservationInfo2-3"
-                values={{
-                  date: formatDate(reservationUnit.reservationEnds, "d.M.yyyy"),
-                  time: formatDate(reservationUnit.reservationEnds, "H.mm"),
-                }}
-                defaults="<bold>Varauskalenteri on sulkeutunut {{date}} klo {{time}}</bold>."
-                components={{ bold: <strong /> }}
-              />
-            </p>
-          )}
-          {isReservable &&
-            reservationUnit.minReservationDuration &&
-            reservationUnit.maxReservationDuration && (
-              <p>
-                <Trans i18nKey="reservationUnit:reservationInfo3">
-                  Varauksen keston tulee olla välillä{" "}
+    <>
+      <Subheading $withBorder>
+        {t("reservationCalendar:reservationInfo")}
+      </Subheading>
+      <Content data-testid="reservation-unit__reservation-info">
+        {reservationUnitIsReservableAndHasReservationBuffers && (
+          <p>
+            {reservationUnit.reservationsMaxDaysBefore > 0 &&
+              reservationUnit.reservationsMinDaysBefore > 0 && (
+                <Trans i18nKey="reservationUnit:reservationInfo1-1">
+                  Voit tehdä varauksen{" "}
                   <strong>
+                    aikaisintaan{" "}
                     {{
-                      minReservationDuration: formatSecondDuration(
-                        reservationUnit.minReservationDuration,
-                        false
+                      reservationsMaxDaysBefore: daysByMonths.find(
+                        (n) =>
+                          n.value === reservationUnit.reservationsMaxDaysBefore
+                      )?.label,
+                    }}
+                    {{
+                      unit: t(
+                        `reservationUnit:reservationInfo1-${
+                          reservationUnit.reservationsMaxDaysBefore === 14
+                            ? "weeks"
+                            : "months"
+                        }`
                       ),
                     }}
                   </strong>{" "}
                   ja{" "}
                   <strong>
+                    viimeistään
                     {{
-                      maxReservationDuration: formatSecondDuration(
-                        reservationUnit.maxReservationDuration,
-                        false
-                      ),
-                    }}
+                      reservationsMinDaysBefore:
+                        reservationUnit.reservationsMinDaysBefore,
+                    }}{" "}
+                    päivää etukäteen
                   </strong>
                   .
                 </Trans>
-              </p>
-            )}
-          {isReservable && reservationUnit.maxReservationsPerUser && (
+              )}
+            {reservationUnit.reservationsMaxDaysBefore > 0 &&
+              !reservationUnit.reservationsMinDaysBefore && (
+                <Trans i18nKey="reservationUnit:reservationInfo1-2">
+                  Voit tehdä varauksen{" "}
+                  <strong>
+                    aikaisintaan{" "}
+                    {{
+                      reservationsMaxDaysBefore: daysByMonths.find(
+                        (n) =>
+                          n.value === reservationUnit.reservationsMaxDaysBefore
+                      )?.label,
+                    }}{" "}
+                    {{
+                      unit: t(
+                        `reservationUnit:reservationInfo1-${
+                          reservationUnit.reservationsMaxDaysBefore === 14
+                            ? "weeks"
+                            : "months"
+                        }`
+                      ),
+                    }}{" "}
+                    etukäteen
+                  </strong>
+                  .
+                </Trans>
+              )}
+            {reservationUnit.reservationsMaxDaysBefore === 0 &&
+              reservationUnit.reservationsMinDaysBefore > 0 && (
+                <Trans i18nKey="reservationUnit:reservationInfo1-3">
+                  Voit tehdä varauksen{" "}
+                  <strong>
+                    viimeistään{" "}
+                    {{
+                      reservationsMinDaysBefore:
+                        reservationUnit.reservationsMinDaysBefore,
+                    }}{" "}
+                    päivää etukäteen
+                  </strong>
+                  .
+                </Trans>
+              )}
+          </p>
+        )}
+        {reservationStatus === "willOpen" && (
+          <p>
+            <Trans
+              i18nKey="reservationUnit:reservationInfo2-1"
+              values={{
+                date: formatDate(reservationUnit.reservationBegins, "d.M.yyyy"),
+                time: formatDate(reservationUnit.reservationBegins, "H.mm"),
+              }}
+              defaults="<bold>Varauskalenteri avautuu {{date}} klo {{time}}</bold>."
+              components={{ bold: <strong /> }}
+            />
+          </p>
+        )}
+        {reservationStatus === "isOpen" && (
+          <p>
+            <Trans
+              i18nKey="reservationUnit:reservationInfo2-2"
+              values={{
+                date: formatDate(reservationUnit.reservationEnds, "d.M.yyyy"),
+                time: formatDate(reservationUnit.reservationEnds, "H.mm"),
+              }}
+              defaults="<bold>Varauskalenteri on auki {{date}} klo {{time}}</bold> asti."
+              components={{ bold: <strong /> }}
+            />
+          </p>
+        )}
+        {reservationStatus === "hasClosed" && (
+          <p>
+            <Trans
+              i18nKey="reservationUnit:reservationInfo2-3"
+              values={{
+                date: formatDate(reservationUnit.reservationEnds, "d.M.yyyy"),
+                time: formatDate(reservationUnit.reservationEnds, "H.mm"),
+              }}
+              defaults="<bold>Varauskalenteri on sulkeutunut {{date}} klo {{time}}</bold>."
+              components={{ bold: <strong /> }}
+            />
+          </p>
+        )}
+        {isReservable &&
+          reservationUnit.minReservationDuration &&
+          reservationUnit.maxReservationDuration && (
             <p>
-              <Trans
-                i18nKey="reservationUnit:reservationInfo4"
-                count={reservationUnit.maxReservationsPerUser}
-              >
-                Sinulla voi olla samanaikaisesti{" "}
+              <Trans i18nKey="reservationUnit:reservationInfo3">
+                Varauksen keston tulee olla välillä{" "}
                 <strong>
-                  enintään {{ count: reservationUnit.maxReservationsPerUser }}{" "}
-                  varausta
+                  {{
+                    minReservationDuration: formatSecondDuration(
+                      reservationUnit.minReservationDuration,
+                      false
+                    ),
+                  }}
+                </strong>{" "}
+                ja{" "}
+                <strong>
+                  {{
+                    maxReservationDuration: formatSecondDuration(
+                      reservationUnit.maxReservationDuration,
+                      false
+                    ),
+                  }}
                 </strong>
                 .
               </Trans>
             </p>
           )}
-        </Content>
-      </>
-    )
+        {isReservable && reservationUnit.maxReservationsPerUser && (
+          <p>
+            <Trans
+              i18nKey="reservationUnit:reservationInfo4"
+              count={reservationUnit.maxReservationsPerUser}
+            >
+              Sinulla voi olla samanaikaisesti{" "}
+              <strong>
+                enintään {{ count: reservationUnit.maxReservationsPerUser }}{" "}
+                varausta
+              </strong>
+              .
+            </Trans>
+          </p>
+        )}
+      </Content>
+    </>
   );
 };
 
