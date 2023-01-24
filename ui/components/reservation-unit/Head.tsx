@@ -7,7 +7,7 @@ import { omit } from "lodash";
 import styled from "styled-components";
 import { isReservationStartInFuture } from "common/src/calendar/util";
 import { formatSecondDuration } from "common/src/common/util";
-import { fontRegular, H1, H2 } from "common/src/common/typography";
+import { fontRegular, H2, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ReservationUnitByPkType } from "common/types/gql-types";
 import {
@@ -94,11 +94,11 @@ const StyledAltNotification = styled(AltNotification)`
   margin-bottom: var(--spacing-m);
 `;
 
-const ReservationUnitName = styled(H1)`
+const ReservationUnitName = styled(H2).attrs({ as: "h1" })`
   margin-top: 0;
 `;
 
-const UnitName = styled(H2)`
+const UnitName = styled(H3).attrs({ as: "h2" })`
   margin-top: 0;
   margin-bottom: var(--spacing-m);
 
