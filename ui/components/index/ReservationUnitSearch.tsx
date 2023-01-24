@@ -1,3 +1,4 @@
+import { breakpoints } from "common/src/common/style";
 import { IconSearch, TextInput } from "hds-react";
 import { useRouter } from "next/router";
 import React, { useRef } from "react";
@@ -9,19 +10,23 @@ const Wrapper = styled.form``;
 
 const StyledTextInput = styled(TextInput)`
   position: relative;
-  width: 245px;
-  height: 44px;
+  width: 100%;
 
   &&& input {
     font-size: var(--fontsize-body-m);
     padding-right: var(--spacing-2-xl);
+    height: 44px;
   }
 
   label {
     position: absolute;
-    top: 35%;
+    top: 26%;
     right: var(--spacing-s);
     z-index: 1;
+  }
+
+  @media (min-width: ${breakpoints.s}) {
+    min-width: 286px;
   }
 `;
 

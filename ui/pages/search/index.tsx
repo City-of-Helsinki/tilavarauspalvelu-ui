@@ -10,7 +10,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { isEqual, omit, pick, sortBy } from "lodash";
 import { NetworkStatus, useQuery } from "@apollo/client";
 import { OptionType } from "common/types/common";
-import { H1 } from "common/src/common/typography";
+import { H2 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
   ApplicationRoundType,
@@ -31,7 +31,6 @@ import {
 import { isBrowser } from "../../modules/const";
 import ClientOnly from "../../components/ClientOnly";
 import { HeroSubheading } from "../../modules/style/typography";
-import KorosDefault from "../../components/common/KorosDefault";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
 import apolloClient from "../../modules/apolloClient";
@@ -83,6 +82,14 @@ const Wrapper = styled.div`
   background-color: var(--tilavaraus-gray);
 `;
 
+const StyledContainer = styled(Container)`
+  padding-bottom: var(--spacing-3-xs);
+
+  @media (min-width: ${breakpoints.s}) {
+    padding-bottom: var(--spacing-2-xs);
+  }
+`;
+
 const HeadContainer = styled.div`
   background-color: white;
 
@@ -91,12 +98,14 @@ const HeadContainer = styled.div`
   }
 `;
 
-const Title = styled(H1)`
-  margin-top: var(--spacing-xl);
-`;
+const Title = styled(H2).attrs({ as: "h1" })``;
 
 const Ingress = styled(HeroSubheading)`
   margin-bottom: var(--spacing-xs);
+`;
+
+const BottomWrapper = styled.div`
+  padding-top: var(--spacing-l);
 `;
 
 const StyledSorting = styled(Sorting)`
@@ -282,7 +291,7 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
       ) : null}
       <HeadContainer>
         <BreadcrumbWrapper route={["/recurring", "search"]} />
-        <Container>
+        <StyledContainer>
           <Title>{t("search:recurring.heading")}</Title>
           <Ingress>{t("search:recurring.text")}</Ingress>
           <SearchForm
@@ -291,11 +300,10 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
             formValues={omit(values, ["order", "sort"])}
             removeValue={onRemove}
           />
-        </Container>
+        </StyledContainer>
       </HeadContainer>
-      <KorosDefault from="white" to="var(--tilavaraus-gray)" />
       <ClientOnly>
-        <>
+        <BottomWrapper>
           <ListWithPagination
             id="searchResultList"
             items={reservationUnits?.map((ru) => (
@@ -346,7 +354,7 @@ const Search = ({ applicationRounds }: Props): JSX.Element => {
             count={selectedReservationUnits.length}
             clearSelections={clearSelections}
           />
-        </>
+        </BottomWrapper>
       </ClientOnly>
     </Wrapper>
   );

@@ -356,7 +356,7 @@ const StyledCalendar = styled(BigCalendar)<{
     width: 100% !important;
     left: 0 !important;
     z-index: 2 !important;
-    padding-top: var(--spacing-2-xs);
+    padding-top: 2px;
   }
 
   .rbc-event-buffer {
@@ -401,6 +401,15 @@ const StyledCalendar = styled(BigCalendar)<{
 
   .rbc-slot-selection {
     display: none;
+  }
+
+  .rbc-event-label {
+    text-overflow: unset;
+    white-space: normal;
+  }
+
+  .isSmall .rbc-event-label {
+    white-space: nowrap;
   }
 `;
 
@@ -456,6 +465,8 @@ const Calendar = <T extends Record<string, unknown>>({
       formats={{
         dayFormat: "EEEEEE d.M.",
         timeGutterFormat: "H",
+        eventTimeRangeFormat: ({ start, end }: { start: Date; end: Date }) =>
+          `${format(start, "H:mm")}-${format(end, "H:mm")}`,
       }}
       eventPropGetter={eventStyleGetter}
       events={events}
