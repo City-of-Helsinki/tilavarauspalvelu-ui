@@ -29,21 +29,21 @@ export const Regular = styled.span`
 `;
 
 export const H1 = styled.h1<{ $legacy?: boolean }>`
-  font-size: 2.5em;
+  font-size: var(--fontsize-heading-xl-mobile);
   ${fontRegular}
   line-height: var(--lineheight-s);
   margin: var(--spacing-s) 0 var(--spacing-m);
 
   @media (min-width: ${breakpoints.s}) {
     font-size: ${({ $legacy }) =>
-      $legacy ? "3em" : "var(--fontsize-heading-xxl)"};
+      $legacy ? "var(--fontsize-heading-xl)" : "var(--fontsize-heading-xxl)"};
     line-height: var(--lineheight-s);
   }
 `;
 
 export const H2 = styled.h2<{ $legacy?: boolean }>`
   font-size: ${({ $legacy }) =>
-    $legacy ? `var(--fontsize-heading-m)` : `var(--fontsize-heading-l)`}
+    $legacy ? `var(--fontsize-heading-m)` : `var(--fontsize-heading-l)`};
   ${fontRegular}
   line-height: var(--lineheight-s);
   margin-bottom: var(--spacing-m);
@@ -52,7 +52,7 @@ export const H2 = styled.h2<{ $legacy?: boolean }>`
     ${({ $legacy }) =>
       $legacy
         ? `
-          font-size: 2em;
+          font-size: var(--fontsize-heading-l);
           line-height: var(--lineheight-m);
         `
         : `
