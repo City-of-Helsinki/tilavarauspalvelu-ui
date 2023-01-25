@@ -1033,7 +1033,7 @@ const ReservationUnit = ({
                     )}
                     culture={i18n.language}
                     aria-hidden
-                    longPressThreshold={0}
+                    longPressThreshold={100}
                   />
                 </div>
                 {!isReservationQuotaReached &&
