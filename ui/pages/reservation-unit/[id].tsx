@@ -14,7 +14,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { IconInfoCircleFill, Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { addSeconds, addYears, parseISO } from "date-fns";
+import { addSeconds, addYears, differenceInMinutes, parseISO } from "date-fns";
 import {
   formatSecondDuration,
   toApiDate,
@@ -369,6 +369,8 @@ const StyledNotification = styled(Notification)`
     color: inherit;
   }
 `;
+
+const EventWrapper = styled.div``;
 
 const eventStyleGetter = (
   { event }: CalendarEvent<Reservation | ReservationType>,
@@ -989,6 +991,20 @@ const ReservationUnit = ({
                         onSelectSlot={handleSlotClick}
                       />
                     )}
+                    eventWrapperComponent={(props) => {
+                      let isSmall = false;
+                      if (props.event.event.state === "INITIAL") {
+                        const { start, end } = props.event;
+                        const diff = differenceInMinutes(end, start);
+                        if (diff <= 30) isSmall = true;
+                      }
+                      return (
+                        <EventWrapper
+                          {...props}
+                          className={isSmall ? "isSmall" : ""}
+                        />
+                      );
+                    }}
                     resizable={!isReservationQuotaReached}
                     draggable={!isReservationQuotaReached}
                     onEventDrop={handleEventChange}
@@ -1012,7 +1028,6 @@ const ReservationUnit = ({
                     aria-hidden
                   />
                 </div>
-                <Legend wrapBreakpoint={breakpoints.l} />
                 {!isReservationQuotaReached &&
                   !isReservationStartInFuture(reservationUnit) && (
                     <CalendarFooter
@@ -1024,6 +1039,7 @@ const ReservationUnit = ({
                         end={initialReservation?.end}
                         resetReservation={() => {
                           setInitialReservation(null);
+                          setFocusDate(new Date());
                         }}
                         isSlotReservable={(startDate, endDate) =>
                           isSlotReservable(startDate, endDate)
@@ -1043,6 +1059,7 @@ const ReservationUnit = ({
                       />
                     </CalendarFooter>
                   )}
+                <Legend />
               </CalendarWrapper>
             )}
             {isReservable && (
