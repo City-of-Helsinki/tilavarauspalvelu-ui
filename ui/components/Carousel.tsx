@@ -48,7 +48,6 @@ const SmallArrowButton = styled(Button).attrs({
   "data-testid": "slot-carousel-button",
 })<{
   $disabled: boolean;
-  $side: "left" | "right";
 }>`
   &&& {
     --color-bus: transparent;
@@ -75,11 +74,6 @@ const SmallArrowButton = styled(Button).attrs({
       color: black;
       transform: scale(1.5);
     }
-
-    & > span {
-      margin: 0;
-      padding: 0;
-    }
   }
 `;
 
@@ -88,7 +82,6 @@ const MediumArrowButton = styled(Button).attrs({
   "data-testid": "slot-carousel-button",
 })<{
   $disabled: boolean;
-  $side: "left" | "right";
 }>`
   ${({ $disabled }) =>
     $disabled
@@ -111,18 +104,9 @@ const MediumArrowButton = styled(Button).attrs({
       opacity: 1;
     }
 
-    position: absolute;
     opacity: 1;
     background-color: transparent !important;
     color: var(--color-black-90) !important;
-    ${({ $side }) =>
-      $side === "left"
-        ? `
-      left: -70px;
-    `
-        : `
-      left: 70px;
-    `}
 
     svg {
       --icon-size: var(--spacing-2-xl) !important;
@@ -132,38 +116,11 @@ const MediumArrowButton = styled(Button).attrs({
 
 const StyledCarousel = styled(NukaCarousel)<{
   children: React.ReactNode;
-  $showCenterControls: boolean;
 }>`
   width: calc(100% + var(--spacing-xs) * 2) !important;
   height: fit-content !important;
   margin-right: calc(var(--spacing-xs) * -1);
   margin-left: calc(var(--spacing-xs) * -1);
-
-  .slider-control-bottomcenter {
-    ${({ $showCenterControls }) => !$showCenterControls && "display: none;"}
-    position: relative !important;
-    bottom: unset !important;
-    left: unset !important;
-    transform: unset !important;
-
-    .paging-item {
-      button {
-        svg {
-          transform: scale(1.9);
-          border-radius: 50%;
-          fill: var(--color-black-20);
-        }
-      }
-    }
-
-    ul {
-      gap: var(--spacing-3-xs);
-      flex-wrap: wrap;
-      width: 100%;
-      justify-content: center;
-      position: static !important;
-    }
-  }
 
   @media (min-width: ${breakpoints.m}) {
     width: 100% !important;
@@ -192,49 +149,31 @@ const Carousel = ({
 
   return (
     <StyledCarousel
-      renderCenterLeftControls={({ currentSlide, previousSlide }) => {
-        const isDisabled =
-          (!wrapAround && currentSlide === 0) || children.length < 2;
-        return (
-          <ButtonComponent
-            $disabled={isDisabled}
-            $side="left"
-            type="button"
-            onClick={previousSlide}
-            aria-label={t("common:prev")}
-          >
-            <IconAngleLeft aria-label={t("common:prev")} />
-          </ButtonComponent>
-        );
-      }}
-      renderCenterRightControls={({
-        currentSlide,
-        slidesToShow: sts,
-        slideCount,
-        nextSlide,
-      }) => {
-        const isDisabled =
-          (!wrapAround && currentSlide + sts >= slideCount) ||
-          children.length < 2;
-        return (
-          <ButtonComponent
-            $disabled={isDisabled}
-            $side="right"
-            type="button"
-            onClick={nextSlide}
-            aria-label={t("common:next")}
-          >
-            <IconAngleRight aria-label={t("common:next")} />
-          </ButtonComponent>
-        );
-      }}
+      renderCenterLeftControls={({ previousSlide, previousDisabled }) => (
+        <ButtonComponent
+          $disabled={previousDisabled}
+          type="button"
+          onClick={previousSlide}
+          aria-label={t("common:prev")}
+        >
+          <IconAngleLeft aria-label={t("common:prev")} />
+        </ButtonComponent>
+      )}
+      renderCenterRightControls={({ nextSlide, nextDisabled }) => (
+        <ButtonComponent
+          $disabled={nextDisabled}
+          type="button"
+          onClick={nextSlide}
+          aria-label={t("common:next")}
+        >
+          <IconAngleRight aria-label={t("common:next")} />
+        </ButtonComponent>
+      )}
       wrapAround={wrapAround}
       slidesToShow={slidesToShow}
       slidesToScroll={slidesToScroll}
       cellSpacing={cellSpacing}
-      $showCenterControls={
-        !hideCenterControls && children?.length > slidesToShow
-      }
+      withoutControls={hideCenterControls || children?.length < slidesToShow}
       {...rest}
     >
       {children}

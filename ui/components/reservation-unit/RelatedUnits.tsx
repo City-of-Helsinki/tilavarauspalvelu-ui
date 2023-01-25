@@ -41,6 +41,7 @@ const StyledCarousel = styled(Carousel)`
 const Content = styled.div`
   padding: var(--spacing-s);
   height: 180px;
+  position: relative;
 `;
 
 const Unit = styled.div`
