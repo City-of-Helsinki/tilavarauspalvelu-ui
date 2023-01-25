@@ -1914,6 +1914,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             setModalContent(
               <DiscardChangesDialog
                 onAccept={async () => {
+                  setModalContent(null);
                   history(-1);
                 }}
                 onClose={() => setModalContent(null)}
