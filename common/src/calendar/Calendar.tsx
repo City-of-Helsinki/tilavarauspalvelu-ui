@@ -71,6 +71,7 @@ type Props<T> = {
   step?: number;
   timeslots?: number;
   culture?: string;
+  longPressThreshold?: number;
 };
 
 const StyledCalendar = styled(BigCalendar)<{
@@ -449,6 +450,7 @@ const Calendar = <T extends Record<string, unknown>>({
   step = 30,
   timeslots = 2,
   culture = "fi",
+  longPressThreshold = 250,
 }: Props<T>): JSX.Element => {
   const Component: React.ElementType = draggable
     ? StyledCalendarDND
@@ -493,6 +495,7 @@ const Calendar = <T extends Record<string, unknown>>({
       overflowBreakpoint={overflowBreakpoint}
       step={step}
       timeslots={timeslots}
+      longPressThreshold={longPressThreshold}
     />
   );
 };

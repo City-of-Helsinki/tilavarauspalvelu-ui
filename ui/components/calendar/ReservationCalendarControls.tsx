@@ -132,7 +132,6 @@ const Content = styled.div<{ $isAnimated: boolean }>`
     `
     max-height: 0;
     transition: all 0.5s ease-out;
-    overflow-y: hidden;
 
     &.entering,
     &.entered {

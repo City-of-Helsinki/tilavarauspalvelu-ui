@@ -626,25 +626,31 @@ const ReservationUnit = ({
   );
 
   const handleSlotClick = useCallback(
-    ({ start, end: endi, action }, skipLengthCheck = false): boolean => {
+    (
+      { start: startTime, end: endTime, action },
+      skipLengthCheck = false
+    ): boolean => {
       if (isReservationQuotaReached) {
         return false;
       }
 
       const end =
-        action === "click"
+        action === "click" ||
+        (action === "select" &&
+          isTouchDevice &&
+          differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
-              new Date(start),
+              new Date(startTime),
               reservationUnit.minReservationDuration || 0
             )
-          : new Date(endi);
+          : new Date(endTime);
 
-      if (!isSlotReservable(start, end, skipLengthCheck)) {
+      if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
       }
 
       setInitialReservation({
-        begin: start.toISOString(),
+        begin: startTime.toISOString(),
         end: end.toISOString(),
         state: "INITIAL",
       } as PendingReservation);
@@ -655,6 +661,7 @@ const ReservationUnit = ({
       isReservationQuotaReached,
       isSlotReservable,
       reservationUnit.minReservationDuration,
+      isTouchDevice,
     ]
   );
 
@@ -1026,6 +1033,7 @@ const ReservationUnit = ({
                     )}
                     culture={i18n.language}
                     aria-hidden
+                    longPressThreshold={0}
                   />
                 </div>
                 {!isReservationQuotaReached &&
