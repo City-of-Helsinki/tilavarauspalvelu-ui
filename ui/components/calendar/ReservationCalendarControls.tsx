@@ -23,7 +23,8 @@ import {
   toApiDate,
   toUIDate,
 } from "common/src/common/util";
-import { useLocalStorage } from "react-use";
+import { useLocalStorage, useMedia } from "react-use";
+import { Transition } from "react-transition-group";
 import {
   areSlotsReservable,
   doBuffersCollide,
@@ -63,6 +64,8 @@ type Props<T> = {
   ) => boolean;
   mode: "create" | "edit";
   customAvailabilityValidation?: (start: Date) => boolean;
+  shouldCalendarControlsBeVisible?: boolean;
+  setShouldCalendarControlsBeVisible?: (value: boolean) => void;
 };
 
 const Wrapper = styled.div`
@@ -116,13 +119,26 @@ const TogglerPrice = styled.div`
   line-height: var(--lineheight-l);
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ $isAnimated: boolean }>`
   display: grid;
   gap: var(--spacing-xs);
   align-items: flex-end;
-  padding-top: var(--spacing-s);
-  padding-bottom: var(--spacing-s);
+  padding: 0;
   grid-template-columns: repeat(2, 1fr);
+
+  ${({ $isAnimated }) =>
+    $isAnimated &&
+    `
+    max-height: 0;
+    transition: all 0.5s ease-out;
+    overflow-y: hidden;
+
+    &.entering,
+    &.entered {
+      max-height: 300px;
+      padding: var(--spacing-s) 0;
+    }
+  `}
 
   button {
     width: 100% !important;
@@ -246,6 +262,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   handleEventChange,
   mode,
   customAvailabilityValidation,
+  shouldCalendarControlsBeVisible,
+  setShouldCalendarControlsBeVisible,
 }: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
 
@@ -270,6 +288,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   const [isReserving, setIsReserving] = useState(false);
   const [areControlsVisible, setAreControlsVisible] = useState(false);
 
+  const isMobile = useMedia(`(max-width: ${breakpoints.s})`);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
   const [_, setStoredReservation] =
     useLocalStorage<ReservationProps>("reservation");
@@ -279,6 +299,12 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       setStartTime(null);
     }
   }, [reservation]);
+
+  useEffect(() => {
+    if (setShouldCalendarControlsBeVisible) {
+      setAreControlsVisible(shouldCalendarControlsBeVisible);
+    }
+  }, [setShouldCalendarControlsBeVisible, shouldCalendarControlsBeVisible]);
 
   useEffect(() => {
     if (begin && end) {
@@ -486,7 +512,12 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             )}
           </TogglerLabel>
           <ToggleButton
-            onClick={() => setAreControlsVisible(!areControlsVisible)}
+            onClick={() => {
+              setAreControlsVisible(!areControlsVisible);
+              if (shouldCalendarControlsBeVisible) {
+                setShouldCalendarControlsBeVisible(!areControlsVisible);
+              }
+            }}
             data-testid="reservation-unit__reservation-controls--toggle-button"
           >
             {areControlsVisible ? (
@@ -500,66 +531,73 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       <TogglerBottom>
         {isReservable && !areControlsVisible && submitButton}
       </TogglerBottom>
-      {areControlsVisible && (
-        <Content>
-          <DateInput
-            onChange={(val, valueAsDate) => {
-              if (
-                !val ||
-                !isValid(valueAsDate) ||
-                toApiDate(valueAsDate) < toApiDate(new Date())
-              ) {
+      <Transition
+        mountOnEnter
+        unmountOnExit
+        timeout={isMobile ? 500 : 0}
+        in={areControlsVisible}
+      >
+        {(state) => (
+          <Content className={state} $isAnimated={isMobile}>
+            <DateInput
+              onChange={(val, valueAsDate) => {
+                if (
+                  !val ||
+                  !isValid(valueAsDate) ||
+                  toApiDate(valueAsDate) < toApiDate(new Date())
+                ) {
+                  resetReservation();
+                } else {
+                  setDate(valueAsDate);
+                  setCalendarFocusDate(valueAsDate);
+                }
+              }}
+              value={toUIDate(date)}
+              id="reservation__input--date"
+              initialMonth={new Date()}
+              label={t("reservationCalendar:startDate")}
+              language={i18n.language as Language}
+              minDate={new Date()}
+            />
+            <StyledSelect
+              key={`startTime-${startTime}`}
+              id="reservation__input--start-time"
+              label={t("reservationCalendar:startTime")}
+              onChange={(val: OptionType) => setStartTime(val.value as string)}
+              options={startingTimesOptions}
+              value={startingTimesOptions.find((n) => n.value === startTime)}
+            />
+            <StyledSelect
+              id="reservation__input--duration"
+              label={t("reservationCalendar:duration")}
+              onChange={(val: OptionType) => {
+                setDuration(val);
+              }}
+              options={durationOptions}
+              value={duration}
+            />
+            <PriceWrapper>
+              {isReservable && (
+                <>
+                  <Label>{t("reservationUnit:price")}:</Label>
+                  <Price data-testid="reservation__price--value">{price}</Price>
+                </>
+              )}
+            </PriceWrapper>
+            <ResetButton
+              onClick={() => {
+                setStartTime(null);
                 resetReservation();
-              } else {
-                setDate(valueAsDate);
-                setCalendarFocusDate(valueAsDate);
-              }
-            }}
-            value={toUIDate(date)}
-            id="reservation__input--date"
-            initialMonth={new Date()}
-            label={t("reservationCalendar:startDate")}
-            language={i18n.language as Language}
-            minDate={new Date()}
-          />
-          <StyledSelect
-            key={`startTime-${startTime}`}
-            id="reservation__input--start-time"
-            label={t("reservationCalendar:startTime")}
-            onChange={(val: OptionType) => setStartTime(val.value as string)}
-            options={startingTimesOptions}
-            value={startingTimesOptions.find((n) => n.value === startTime)}
-          />
-          <StyledSelect
-            id="reservation__input--duration"
-            label={t("reservationCalendar:duration")}
-            onChange={(val: OptionType) => {
-              setDuration(val);
-            }}
-            options={durationOptions}
-            value={duration}
-          />
-          <PriceWrapper>
-            {isReservable && (
-              <>
-                <Label>{t("reservationUnit:price")}:</Label>
-                <Price data-testid="reservation__price--value">{price}</Price>
-              </>
-            )}
-          </PriceWrapper>
-          <ResetButton
-            onClick={() => {
-              setStartTime(null);
-              resetReservation();
-              setReservation(null);
-            }}
-            disabled={!startTime}
-          >
-            {t("searchForm:resetForm")}
-          </ResetButton>
-          {mode === "create" && submitButton}
-        </Content>
-      )}
+                setReservation(null);
+              }}
+              disabled={!startTime}
+            >
+              {t("searchForm:resetForm")}
+            </ResetButton>
+            {mode === "create" && submitButton}
+          </Content>
+        )}
+      </Transition>
     </Wrapper>
   );
 };

@@ -96,7 +96,7 @@ import {
   mockOpeningTimes,
 } from "../../modules/reservationUnit";
 import EquipmentList from "../../components/reservation-unit/EquipmentList";
-import { daysByMonths } from "../../modules/const";
+import { daysByMonths, isBrowser } from "../../modules/const";
 import QuickReservation from "../../components/reservation-unit/QuickReservation";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { CURRENT_USER } from "../../modules/queries/user";
@@ -567,6 +567,14 @@ const ReservationUnit = ({
     );
   }, [reservationUnit.canApplyFreeOfCharge, reservationUnit.pricings]);
 
+  const isTouchDevice = useMemo(
+    () => isBrowser && window?.matchMedia("(any-hover: none)").matches,
+    []
+  );
+
+  const [shouldCalendarControlsBeVisible, setShouldCalendarControlsBeVisible] =
+    useState(false);
+
   const handleEventChange = useCallback(
     (
       { start, end }: CalendarEvent<Reservation | ReservationType>,
@@ -600,25 +608,34 @@ const ReservationUnit = ({
         end: newReservation.end,
         state: "INITIAL",
       } as PendingReservation);
+
+      if (isTouchDevice) {
+        setShouldCalendarControlsBeVisible(true);
+      }
+
       return true;
     },
     [
       isReservationQuotaReached,
       isSlotReservable,
+      isTouchDevice,
       reservationUnit.maxReservationDuration,
     ]
   );
 
   const handleSlotClick = useCallback(
-    ({ start, action }, skipLengthCheck = false): boolean => {
-      if (action !== "click" || isReservationQuotaReached) {
+    ({ start, end: endi, action }, skipLengthCheck = false): boolean => {
+      if (isReservationQuotaReached) {
         return false;
       }
 
-      const end = addSeconds(
-        new Date(start),
-        reservationUnit.minReservationDuration || 0
-      );
+      const end =
+        action === "click"
+          ? addSeconds(
+              new Date(start),
+              reservationUnit.minReservationDuration || 0
+            )
+          : new Date(endi);
 
       if (!isSlotReservable(start, end, skipLengthCheck)) {
         return false;
@@ -629,6 +646,7 @@ const ReservationUnit = ({
         end: end.toISOString(),
         state: "INITIAL",
       } as PendingReservation);
+
       return true;
     },
     [
@@ -1016,6 +1034,12 @@ const ReservationUnit = ({
                         setErrorMsg={setErrorMsg}
                         handleEventChange={handleEventChange}
                         mode="create"
+                        shouldCalendarControlsBeVisible={
+                          shouldCalendarControlsBeVisible
+                        }
+                        setShouldCalendarControlsBeVisible={
+                          setShouldCalendarControlsBeVisible
+                        }
                       />
                     </CalendarFooter>
                   )}
