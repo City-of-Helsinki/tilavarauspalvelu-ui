@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
-import { Accordion, Button, Tag, TextArea } from "hds-react";
+import { Button, Tag, TextArea } from "hds-react";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
@@ -51,6 +51,7 @@ import { formatDateTime } from "../../../common/util";
 import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
+import { Accordion } from "../../../common/hds-fork/Accordion";
 
 const Dot = styled.div`
   display: inline-block;
@@ -174,7 +175,6 @@ const RequestedReservation = (): JSX.Element | null => {
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { setModalContent } = useModal();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
@@ -276,41 +276,30 @@ const RequestedReservation = (): JSX.Element | null => {
         </Button>
       </VisibleIfPermission>
     ) : (
-      <>
+      <VisibleIfPermission
+        permissionName="can_manage_reservations"
+        unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
+      >
         <Button
+          size="small"
           variant="secondary"
           theme="black"
-          size="small"
           disabled={false}
-          onClick={() => navigate(-1)}
+          onClick={(e) => {
+            e.preventDefault();
+            setModalContent(
+              <ReturnToRequiredHandlingDialog
+                reservation={reservation}
+                onAccept={closeDialogAndRefetch}
+                onClose={closeDialog}
+              />,
+              true
+            );
+          }}
         >
-          {t("RequestedReservation.cancel")}
+          {t("RequestedReservation.returnToHandling")}
         </Button>
-        <VisibleIfPermission
-          permissionName="can_manage_reservations"
-          unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
-        >
-          <Button
-            size="small"
-            variant="secondary"
-            theme="black"
-            disabled={false}
-            onClick={(e) => {
-              e.preventDefault();
-              setModalContent(
-                <ReturnToRequiredHandlingDialog
-                  reservation={reservation}
-                  onAccept={closeDialogAndRefetch}
-                  onClose={closeDialog}
-                />,
-                true
-              );
-            }}
-          >
-            {t("RequestedReservation.returnToHandling")}
-          </Button>
-        </VisibleIfPermission>
-      </>
+      </VisibleIfPermission>
     );
 
   const reservationTagline = `${reservationDateTime(
@@ -426,7 +415,7 @@ const RequestedReservation = (): JSX.Element | null => {
         </Summary>
         <div>
           <Accordion
-            heading={t("RequestedReservation.workingMemo") as string}
+            heading={t("RequestedReservation.workingMemo")}
             initiallyOpen={get(reservation, "workingMemo.length", 0) > 0}
           >
             <VerticalFlex>

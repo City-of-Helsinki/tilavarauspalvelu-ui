@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
 import {
-  Accordion,
   Button,
   Checkbox,
   IconAlertCircleFill,
@@ -92,6 +91,7 @@ import FieldGroup from "./FieldGroup";
 import PricingType from "./PricingType";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import { parseAddress } from "../../../common/util";
+import { Accordion } from "../../../common/hds-fork/Accordion";
 
 const bufferTimeOptions = [
   { value: 900, label: "15 minuuttia" },
