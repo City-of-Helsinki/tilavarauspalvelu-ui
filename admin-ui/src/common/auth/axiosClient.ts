@@ -16,14 +16,6 @@ const apiAccessToken = getApiAccessToken();
 
 axiosClient.defaults.headers.common.Authorization = `Bearer ${apiAccessToken}`;
 
-// axiosClient.interceptors.request.use((req: AxiosRequestConfig) => {
-
-//   if (apiAccessToken) {
-//     req.headers.Authorization = `Bearer ${apiAccessToken}`;
-//   }
-//   return req;
-// });
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const refreshAuthLogic = (failedRequest: any) => {
   const detail = failedRequest.response.data.detail as string;

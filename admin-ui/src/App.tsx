@@ -172,7 +172,7 @@ const App = () => {
             }
           />
           <Route
-            path="/spaces"
+            path="/premises-and-settings/spaces"
             element={
               <PrivateRoute>
                 <SpacesList />
@@ -180,7 +180,7 @@ const App = () => {
             }
           />
           <Route
-            path={`${prefixes.reservationUnits}`}
+            path={`/premises-and-settings${prefixes.reservationUnits}`}
             element={
               <PrivateRoute>
                 <ReservationUnits />
@@ -188,7 +188,7 @@ const App = () => {
             }
           />
           <Route
-            path="/resources"
+            path="/premises-and-settings/resources"
             element={
               <PrivateRoute>
                 <ResourcesList />
@@ -196,7 +196,7 @@ const App = () => {
             }
           />
           <Route
-            path="/units"
+            path="/premises-and-settings/units"
             element={
               <PrivateRoute>
                 <Units />

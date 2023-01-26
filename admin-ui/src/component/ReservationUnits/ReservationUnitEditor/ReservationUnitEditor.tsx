@@ -1203,7 +1203,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                   <Span6>
                     <EnumSelect
                       id="reservationStartInterval"
-                      placeholder={t("common.select") as string}
+                      placeholder={t("common.select")}
                       required
                       value={
                         state.reservationUnitEdit
@@ -1375,12 +1375,12 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     <NumberInput
                       id="maxReservationsPerUser"
                       label={t("ReservationUnitEditor.maxReservationsPerUser")}
-                      minusStepButtonAriaLabel={
-                        t("common.decreaseByOneAriaLabel") as string
-                      }
-                      plusStepButtonAriaLabel={
-                        t("common.increaseByOneAriaLabel") as string
-                      }
+                      minusStepButtonAriaLabel={t(
+                        "common.decreaseByOneAriaLabel"
+                      )}
+                      plusStepButtonAriaLabel={t(
+                        "common.increaseByOneAriaLabel"
+                      )}
                       min={1}
                       max={15}
                       step={1}
@@ -1459,7 +1459,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             )}
             <Accordion
               initiallyOpen={state.validationErrors != null}
-              heading={t("ReservationUnitEditor.label.pricings") as string}
+              heading={t("ReservationUnitEditor.label.pricings")}
             >
               <Grid>
                 <Span12>
@@ -1468,9 +1468,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                     heading={`${t(
                       "ReservationUnitEditor.label.pricingType"
                     )} *`}
-                    tooltip={
-                      t("ReservationUnitEditor.tooltip.pricingType") as string
-                    }
+                    tooltip={t("ReservationUnitEditor.tooltip.pricingType")}
                   />
                   <Span12>
                     <VerticalFlex>
@@ -1535,7 +1533,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                           label={t(
                             "ReservationUnitEditor.label.pricingTermsPk"
                           )}
-                          placeholder={t("common.select") as string}
+                          placeholder={t("common.select")}
                           options={get(state, "pricingTermsOptions")}
                           onChange={(pricingTermsPk) => {
                             setValue({
@@ -1563,7 +1561,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             {onlyForDirect && (
               <Accordion
                 initiallyOpen={state.validationErrors != null}
-                heading={t("ReservationUnitEditor.termsInstructions") as string}
+                heading={t("ReservationUnitEditor.termsInstructions")}
               >
                 <Grid>
                   {["serviceSpecific", "payment", "cancellation"].map(
@@ -1644,15 +1642,13 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             )}
             <Accordion
               initiallyOpen={state.validationErrors != null}
-              heading={t("ReservationUnitEditor.communication") as string}
+              heading={t("ReservationUnitEditor.communication")}
             >
               <Grid>
                 <Span12>
                   <ExpandLink
                     initiallyOpen={state.validationErrors != null}
-                    heading={
-                      t("ReservationUnitEditor.pendingExpandLink") as string
-                    }
+                    heading={t("ReservationUnitEditor.pendingExpandLink")}
                   >
                     <SlimH4>
                       {t("ReservationUnitEditor.pendingInstructions")}
@@ -1742,9 +1738,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                 <Span12>
                   <ExpandLink
                     initiallyOpen={state.validationErrors != null}
-                    heading={
-                      t("ReservationUnitEditor.cancelledExpandLink") as string
-                    }
+                    heading={t("ReservationUnitEditor.cancelledExpandLink")}
                   >
                     <Span12>
                       <SlimH4>
@@ -1817,7 +1811,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
             </Accordion>
             <Accordion
               initiallyOpen={state.validationErrors != null}
-              heading={t("ReservationUnitEditor.openingHours") as string}
+              heading={t("ReservationUnitEditor.openingHours")}
             >
               {state.reservationUnit?.haukiUrl?.url ? (
                 <>

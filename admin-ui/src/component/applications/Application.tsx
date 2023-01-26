@@ -356,14 +356,14 @@ const Application = () => {
     case "in_review":
     case "review_done":
       action = {
-        text: t("Application.actions.declineApplication") as string,
+        text: t("Application.actions.declineApplication"),
         button: "secondary",
         function: () => modifyApplicationStatus(application, "declined", true),
       };
       break;
     case "declined":
       action = {
-        text: t("Application.actions.returnAsPartOfAllocation") as string,
+        text: t("Application.actions.returnAsPartOfAllocation"),
         button: "primary",
         function: () => modifyApplicationStatus(application, "in_review", true),
       };
@@ -480,7 +480,7 @@ const Application = () => {
                       <th>{t("ApplicationRound.appliedReservations")}</th>
                       <td data-testid="application__data--applied-reservations-total">{`${formatNumber(
                         application.aggregatedData.appliedReservationsTotal,
-                        t("common.volumeUnit") as string
+                        t("common.volumeUnit")
                       )}`}</td>
                     </tr>
                     <tr>

@@ -177,7 +177,7 @@ const ReservationFormField = ({
           )}
           {...formField}
           value={formField.value || null}
-          error={get(errors, field) && (t("forms:requiredField") as string)}
+          error={get(errors, field) && t("forms:requiredField")}
           required={required}
           invalid={!!get(errors, field)}
           $isWide={isWideRow}
@@ -191,7 +191,7 @@ const ReservationFormField = ({
       $break={isBreakingColumn}
     >
       <Subheading>
-        {t("reservationApplication:label.subHeadings.subvention") as string}
+        {t("reservationApplication:label.subHeadings.subvention")}
       </Subheading>{" "}
       <Controller
         name={field}
@@ -212,9 +212,7 @@ const ReservationFormField = ({
                 {required ? " * " : ""}
               </>
             }
-            errorText={
-              get(errors, field) && (t("forms:requiredField") as string)
-            }
+            errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
       />
@@ -235,9 +233,7 @@ const ReservationFormField = ({
             label={`${t(
               `reservationApplication:label.${normalizedReserveeType}.${field}`
             )}${required ? " * " : ""}`}
-            errorText={
-              get(errors, field) && (t("forms:requiredField") as string)
-            }
+            errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
       />
@@ -258,9 +254,7 @@ const ReservationFormField = ({
             label={`${t(
               `reservationApplication:label.${normalizedReserveeType}.${field}`
             )}${required ? " * " : ""}`}
-            errorText={
-              get(errors, field) && (t("forms:requiredField") as string)
-            }
+            errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
       />
@@ -295,7 +289,7 @@ const ReservationFormField = ({
       })}
       key={field}
       defaultValue={get(reservation, field) as number}
-      errorText={get(errors, field) && (t("forms:requiredField") as string)}
+      errorText={get(errors, field) && t("forms:requiredField")}
       invalid={!!get(errors, field)}
       step={1}
       minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
@@ -350,7 +344,7 @@ const ReservationFormField = ({
       key={field}
       type="text"
       defaultValue={get(reservation, field)}
-      errorText={get(errors, field) && (t("forms:requiredField") as string)}
+      errorText={get(errors, field) && t("forms:requiredField")}
       invalid={!!get(errors, field)}
       $isWide={isWideRow}
       $hidden={

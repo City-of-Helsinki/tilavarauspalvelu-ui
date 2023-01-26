@@ -14,7 +14,6 @@ import {
 import { OptionType } from "../../../common/types";
 
 export type IProps = {
-  [key: string]: string | undefined;
   reservationUnitPk?: string;
   unitPk: string;
 };

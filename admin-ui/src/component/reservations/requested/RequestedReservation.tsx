@@ -322,7 +322,7 @@ const RequestedReservation = (): JSX.Element | null => {
         aliases={[
           {
             slug: "requested",
-            title: t("breadcrumb.requested-reservations") as string,
+            title: t("breadcrumb.requested-reservations"),
           },
           { slug: "requested-reservation", title: getName(reservation, t) },
         ]}
@@ -427,9 +427,7 @@ const RequestedReservation = (): JSX.Element | null => {
                 <TextArea
                   label={t("RequestedReservation.workingMemoLabel")}
                   id="workingMemo"
-                  helperText={
-                    t("RequestedReservation.workingMemoHelperText") as string
-                  }
+                  helperText={t("RequestedReservation.workingMemoHelperText")}
                   value={workingMemo}
                   onChange={(e) => setWorkingMemo(e.target.value)}
                 />
@@ -476,7 +474,7 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
-          <Accordion heading={t("RequestedReservation.calendar") as string}>
+          <Accordion heading={t("RequestedReservation.calendar")}>
             <Calendar
               key={reservation.state}
               begin={reservation.begin}
@@ -484,9 +482,7 @@ const RequestedReservation = (): JSX.Element | null => {
               reservation={reservation}
             />
           </Accordion>
-          <Accordion
-            heading={t("RequestedReservation.reservationDetails") as string}
-          >
+          <Accordion heading={t("RequestedReservation.reservationDetails")}>
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.id")}
@@ -514,9 +510,7 @@ const RequestedReservation = (): JSX.Element | null => {
               />
             </ApplicationDatas>
           </Accordion>
-          <Accordion
-            heading={t("RequestedReservation.reservationUser") as string}
-          >
+          <Accordion heading={t("RequestedReservation.reservationUser")}>
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.reserveeType")}
@@ -581,9 +575,7 @@ const RequestedReservation = (): JSX.Element | null => {
           </Accordion>
 
           {isNonFree && (
-            <Accordion
-              heading={t("RequestedReservation.pricingDetails") as string}
-            >
+            <Accordion heading={t("RequestedReservation.pricingDetails")}>
               <ApplicationDatas>
                 <ApplicationData
                   label={t("RequestedReservation.price")}
@@ -612,9 +604,7 @@ const RequestedReservation = (): JSX.Element | null => {
               </ApplicationDatas>
             </Accordion>
           )}
-          <Accordion
-            heading={t("RequestedReservation.reserveeDetails") as string}
-          >
+          <Accordion heading={t("RequestedReservation.reserveeDetails")}>
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.user")}
