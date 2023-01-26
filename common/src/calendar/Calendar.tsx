@@ -78,6 +78,7 @@ const StyledCalendar = styled(BigCalendar)<{
   overflowBreakpoint: string;
   step: number;
   timeslots: number;
+  $isDraggable: boolean;
 }>`
   ${({ timeslots }) => {
     switch (timeslots) {
@@ -370,6 +371,8 @@ const StyledCalendar = styled(BigCalendar)<{
     overflow: visible !important;
 
     .rbc-addons-dnd-resize-ns-anchor {
+      ${({ $isDraggable }) => $isDraggable === false && "display: none;"}
+
       &:first-child {
         top: -10px;
       }
@@ -496,6 +499,7 @@ const Calendar = <T extends Record<string, unknown>>({
       step={step}
       timeslots={timeslots}
       longPressThreshold={longPressThreshold}
+      $isDraggable={draggable}
     />
   );
 };
