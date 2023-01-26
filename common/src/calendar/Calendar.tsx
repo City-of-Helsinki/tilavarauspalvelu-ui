@@ -371,7 +371,7 @@ const StyledCalendar = styled(BigCalendar)<{
 
     .rbc-addons-dnd-resize-ns-anchor {
       &:first-child {
-        top: -15px;
+        top: -10px;
       }
 
       &:last-child {

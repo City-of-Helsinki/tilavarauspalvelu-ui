@@ -24,7 +24,7 @@ import {
   toApiDate,
   toUIDate,
 } from "common/src/common/util";
-import { useLocalStorage, useMedia } from "react-use";
+import { useLocalStorage } from "react-use";
 import { Transition } from "react-transition-group";
 import {
   areSlotsReservable,
@@ -68,6 +68,7 @@ type Props<T> = {
   customAvailabilityValidation?: (start: Date) => boolean;
   shouldCalendarControlsBeVisible?: boolean;
   setShouldCalendarControlsBeVisible?: (value: boolean) => void;
+  isAnimated?: boolean;
 };
 
 const Wrapper = styled.div`
@@ -131,12 +132,17 @@ const Content = styled.div<{ $isAnimated: boolean }>`
     $isAnimated &&
     `
     max-height: 0;
-    transition: all 0.5s ease-out;
+    transition: max-height 0.5s ease-out;
 
     &.entering,
     &.entered {
       max-height: 300px;
       padding: var(--spacing-s) 0;
+    }
+
+    &.exiting,
+    &.entering {
+      overflow-y: hidden;
     }
   `}
 
@@ -264,6 +270,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   customAvailabilityValidation,
   shouldCalendarControlsBeVisible,
   setShouldCalendarControlsBeVisible,
+  isAnimated = false,
 }: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
 
@@ -286,8 +293,6 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   );
   const [isReserving, setIsReserving] = useState(false);
   const [areControlsVisible, setAreControlsVisible] = useState(false);
-
-  const isMobile = useMedia(`(max-width: ${breakpoints.s})`);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
   const [_, setStoredReservation] =
@@ -540,11 +545,11 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       <Transition
         mountOnEnter
         unmountOnExit
-        timeout={isMobile ? 500 : 0}
+        timeout={isAnimated ? 500 : 0}
         in={areControlsVisible}
       >
         {(state) => (
-          <Content className={state} $isAnimated={isMobile}>
+          <Content className={state} $isAnimated={isAnimated}>
             <DateInput
               onChange={(val, valueAsDate) => {
                 if (

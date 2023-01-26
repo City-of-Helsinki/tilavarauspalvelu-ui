@@ -1013,7 +1013,7 @@ const ReservationUnit = ({
                       );
                     }}
                     resizable={!isReservationQuotaReached}
-                    draggable={!isReservationQuotaReached}
+                    draggable={!isReservationQuotaReached || !isTouchDevice}
                     onEventDrop={handleEventChange}
                     onEventResize={handleEventChange}
                     onSelectSlot={handleSlotClick}
@@ -1064,6 +1064,7 @@ const ReservationUnit = ({
                         setShouldCalendarControlsBeVisible={
                           setShouldCalendarControlsBeVisible
                         }
+                        isAnimated={isMobile}
                       />
                     </CalendarFooter>
                   )}

@@ -14,12 +14,14 @@ import {
   ReservationType,
   ReservationUnitByPkType,
 } from "common/types/gql-types";
-import { addSeconds } from "date-fns";
+import { addSeconds, differenceInMinutes } from "date-fns";
 import { IconArrowRight, IconCross } from "hds-react";
 import { useRouter } from "next/router";
 import React, { Children, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useMedia } from "react-use";
 import styled from "styled-components";
+import { isBrowser } from "../../modules/const";
 import {
   canReservationTimeBeChanged,
   isReservationReservable,
@@ -140,8 +142,18 @@ const EditStep0 = ({
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
+  const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
+
   const [focusDate, setFocusDate] = useState(new Date(reservation.begin));
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
+
+  const isTouchDevice = useMemo(
+    () => isBrowser && window?.matchMedia("(any-hover: none)").matches,
+    []
+  );
+
+  const [shouldCalendarControlsBeVisible, setShouldCalendarControlsBeVisible] =
+    useState(false);
 
   const calendarEvents: CalendarEvent<ReservationType>[] = useMemo(() => {
     const shownReservation = initialReservation || {
@@ -294,42 +306,52 @@ const EditStep0 = ({
         state: "INITIAL",
         price,
       } as PendingReservation);
+
+      if (isTouchDevice) {
+        setShouldCalendarControlsBeVisible(true);
+      }
+
       return true;
     },
-    [isSlotReservable, reservationUnit, setInitialReservation]
+    [isSlotReservable, reservationUnit, setInitialReservation, isTouchDevice]
   );
 
   const handleSlotClick = useCallback(
-    ({ start, action }, skipLengthCheck = false): boolean => {
-      if (action !== "click") {
-        return false;
-      }
+    (
+      { start: startTime, end: endTime, action },
+      skipLengthCheck = false
+    ): boolean => {
+      const end =
+        action === "click" ||
+        (action === "select" &&
+          isTouchDevice &&
+          differenceInMinutes(endTime, startTime) <= 30)
+          ? addSeconds(
+              new Date(startTime),
+              reservationUnit.minReservationDuration || 0
+            )
+          : new Date(endTime);
 
-      const end = addSeconds(
-        new Date(start),
-        reservationUnit.minReservationDuration || 0
-      );
-
-      if (!isSlotReservable(start, end, skipLengthCheck)) {
+      if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
       }
 
       const price = getReservationUnitPrice({
         reservationUnit,
-        pricingDate: start,
+        pricingDate: startTime,
         minutes: 0,
         asInt: true,
       });
 
       setInitialReservation({
-        begin: start.toISOString(),
+        begin: startTime.toISOString(),
         end: end.toISOString(),
         state: "INITIAL",
         price,
       } as PendingReservation);
       return true;
     },
-    [isSlotReservable, reservationUnit, setInitialReservation]
+    [isSlotReservable, reservationUnit, setInitialReservation, isTouchDevice]
   );
 
   return (
@@ -366,7 +388,7 @@ const EditStep0 = ({
               <TouchCellWrapper {...props} onSelectSlot={handleSlotClick} />
             )}
             resizable
-            draggable
+            draggable={!isTouchDevice}
             onEventDrop={handleEventChange}
             onEventResize={handleEventChange}
             onSelectSlot={handleSlotClick}
@@ -380,6 +402,7 @@ const EditStep0 = ({
             timeslots={getTimeslots(reservationUnit.reservationStartInterval)}
             culture={i18n.language}
             aria-hidden
+            longPressThreshold={100}
           />
         </div>
         <CalendarFooter>
@@ -399,6 +422,11 @@ const EditStep0 = ({
             handleEventChange={handleEventChange}
             mode="edit"
             customAvailabilityValidation={isSlotFree}
+            shouldCalendarControlsBeVisible={shouldCalendarControlsBeVisible}
+            setShouldCalendarControlsBeVisible={
+              setShouldCalendarControlsBeVisible
+            }
+            isAnimated={isMobile}
           />
         </CalendarFooter>
         <Legend />
