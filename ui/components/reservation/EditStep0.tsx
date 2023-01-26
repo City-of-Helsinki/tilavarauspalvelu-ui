@@ -81,6 +81,8 @@ const Actions = styled.div`
   }
 `;
 
+const EventWrapper = styled.div``;
+
 const eventStyleGetter = (
   { event }: CalendarEvent<ReservationType>,
   draggable = true,
@@ -387,6 +389,17 @@ const EditStep0 = ({
             dateCellWrapperComponent={(props) => (
               <TouchCellWrapper {...props} onSelectSlot={handleSlotClick} />
             )}
+            eventWrapperComponent={(props) => {
+              let isSmall = false;
+              if (props.event.event.state === "INITIAL") {
+                const { start, end } = props.event;
+                const diff = differenceInMinutes(end, start);
+                if (diff <= 30) isSmall = true;
+              }
+              return (
+                <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />
+              );
+            }}
             resizable
             draggable={!isTouchDevice}
             onEventDrop={handleEventChange}

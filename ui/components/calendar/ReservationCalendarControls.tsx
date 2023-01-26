@@ -137,7 +137,7 @@ const Content = styled.div<{ $isAnimated: boolean }>`
     &.entering,
     &.entered {
       max-height: 300px;
-      padding: var(--spacing-s) 0;
+      padding: var(--spacing-s) 0 var(--spacing-m) 0;
     }
 
     &.exiting,
