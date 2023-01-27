@@ -95,8 +95,9 @@ const ApplicationEventSummary = ({
       <Box>
         <Message>
           <Trans
-            count={hours}
+            i18nKey="applicationEventSummary:message"
             defaults="Olet tekemässä varausta {{ name }} kaudeksi  <bold>{{startDate}} - {{endDate}}</bold>.<br />Varausten yhteenlaskettu kesto on vähintään  <bold>{{hours}} tuntia</bold>."
+            count={hours}
             values={{ name, startDate: begin, endDate: end, hours }}
             components={{ bold: <strong />, br: <br /> }}
           />

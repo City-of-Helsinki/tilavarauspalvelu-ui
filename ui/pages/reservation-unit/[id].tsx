@@ -1044,6 +1044,7 @@ const ReservationUnit = ({
                       {reservationUnit.reservationsMaxDaysBefore > 0 &&
                         reservationUnit.reservationsMinDaysBefore > 0 && (
                           <Trans
+                            i18nKey="reservationUnit:reservationInfo1-1"
                             defaults="Voit tehdä varauksen <strong>aikaisintaan {{reservationsMaxDaysBefore}} {{unit}}</strong> ja <bold>viimeistään {{reservationsMinDaysBefore}} päivää etukäteen</bold>."
                             values={{
                               reservationsMaxDaysBefore: daysByMonths.find(
@@ -1068,6 +1069,7 @@ const ReservationUnit = ({
                       {reservationUnit.reservationsMaxDaysBefore > 0 &&
                         !reservationUnit.reservationsMinDaysBefore && (
                           <Trans
+                            i18nKey="reservationUnit:reservationInfo1-2"
                             defaults="Voit tehdä varauksen <bold>aikaisintaan {{reservationsMaxDaysBefore}} {{unit}} etukäteen</bold>."
                             values={{
                               reservationsMaxDaysBefore: daysByMonths.find(
@@ -1090,6 +1092,7 @@ const ReservationUnit = ({
                       {reservationUnit.reservationsMaxDaysBefore === 0 &&
                         reservationUnit.reservationsMinDaysBefore > 0 && (
                           <Trans
+                            i18nKey="reservationUnit:reservationInfo1-3"
                             defaults="Voit tehdä varauksen <bold>viimeistään {{reservationsMinDaysBefore}} päivää etukäteen</bold>."
                             values={{
                               reservationsMinDaysBefore:
@@ -1103,6 +1106,7 @@ const ReservationUnit = ({
                   {reservationUnit.reservationEnds && (
                     <p>
                       <Trans
+                        i18nKey="reservationUnit:reservationInfo2"
                         defaults="Varauskalenteri on auki <bold>{{reservationEnds}}</bold> asti."
                         values={{
                           reservationEnds: formatDate(
@@ -1117,6 +1121,7 @@ const ReservationUnit = ({
                     reservationUnit.maxReservationDuration && (
                       <p>
                         <Trans
+                          i18nKey="reservationUnit:reservationInfo3"
                           defaults="Varauksen keston tulee olla välillä <bold>{{minReservationDuration}}</bold> ja <bold>{{maxReservationDuration}}</bold>."
                           values={{
                             minReservationDuration: formatSecondDuration(
@@ -1135,6 +1140,7 @@ const ReservationUnit = ({
                   {reservationUnit.maxReservationsPerUser && (
                     <p>
                       <Trans
+                        i18nKey="reservationUnit:reservationInfo4"
                         count={reservationUnit.maxReservationsPerUser}
                         defaults="Sinulla voi olla samanaikaisesti <bold>enintään {{count}} varausta</bold>."
                         values={{
@@ -1157,6 +1163,7 @@ const ReservationUnit = ({
                   {futurePricing && (
                     <p style={{ marginTop: 0 }}>
                       <Trans
+                        i18nKey="reservationUnit:futurePricingNotice"
                         defaults="Huomioi <bold>hinnoittelumuutos {{date}} alkaen. Uusi hinta on {{price}}</bold>."
                         values={{
                           date: toUIDate(new Date(futurePricing.begins)),

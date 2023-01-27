@@ -145,20 +145,24 @@ const Step0 = ({
                   }}
                   data={{
                     subventionLabel: (
-                      <Trans i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink">
-                        Haen maksuttomuutta tai hinnan alennusta ja olen
-                        tutustunut
-                        <a
-                          href="#"
-                          ref={openPricingTermsRef}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setIsDialogOpen(true);
-                          }}
-                        >
-                          alennusperusteisiin
-                        </a>
-                      </Trans>
+                      <Trans
+                        i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink"
+                        defaults="Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <a />"
+                        components={{
+                          a: (
+                            <a
+                              href="#"
+                              ref={openPricingTermsRef}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setIsDialogOpen(true);
+                              }}
+                            >
+                              alennusperusteisiin
+                            </a>
+                          ),
+                        }}
+                      />
                     ),
                   }}
                 />

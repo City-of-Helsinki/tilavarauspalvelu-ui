@@ -150,7 +150,7 @@ const Purposes = ({ purposes }: Props): JSX.Element => {
             data-testid="front-page__purposes--more-link"
             onClick={() => setShowAll(!showAll)}
           >
-            {t(`${showAll ? "common:showLess" : "common:showMore"}`)}
+            {t(`${showAll ? "common:showLess" : "common:showMore"}`)}{" "}
             {showAll ? (
               <IconAngleUp aria-hidden />
             ) : (

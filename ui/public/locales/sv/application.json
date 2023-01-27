@@ -60,7 +60,7 @@
   "Page2": {
     "heading": "2. Välj bokningens tidpunkt",
     "subHeading": "Välj alla tidpunkter som du önskar att din bokning faller in på.",
-    "info": "Kontrollera öppethållningstiderna för de enskilda lokalerna i <0>ansökningsanvisningarna (FI)</0>. Välj de tider som du i första hand önskar. Välj också tider som alternativt passar för dig.",
+    "info": "Kontrollera öppethållningstiderna för de enskilda lokalerna i <a>ansökningsanvisningarna (FI)</a>. Välj de tider som du i första hand önskar. Välj också tider som alternativt passar för dig.",
     "text": "Ange de tidpunkter du önskar för säsongbokningen",
     "copyTimes": "Kopiera tiderna till alla önskemål",
     "resetTimes": "Töm kalendern",

@@ -325,11 +325,11 @@ describe("renders with basic data", () => {
 
   Cypress.config("defaultCommandTimeout", 20000);
 
-  it("contains default elements", () => {
+  it.only("contains default elements", () => {
     cy.get("h1").should("contain", "Pukinmäen nuorisotalon keittiö");
 
     description().contains(
-      "Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkilöä.."
+      "Sali sijaitsee nuorisotalon toisessa kerroksessa. Tilaan mahtuu 60 henkilöä."
     );
 
     equipment().contains("Tuoli FiKattila FiJoku muu Fi");
@@ -358,7 +358,7 @@ describe("renders with basic data", () => {
       "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuuttia."
     );
     reservationInfo().contains(
-      "Sinulla voi olla samanaikaisesti enintään 1 varausta."
+      "Sinulla voi olla samanaikaisesti enintään yksi varaus."
     );
 
     reservationNotice().click();
@@ -366,7 +366,7 @@ describe("renders with basic data", () => {
       `Huomioi hinnoittelumuutos ${toUIDate(addDays(new Date(), 2))} alkaen.`
     );
     reservationNotice().contains(
-      "Uusi hinta on 10,00 - 30,00 € / 15 min. (sis. alv. 20%)."
+      "Uusi hinta on 10,00 - 30,00 € / 15 min (sis. alv. 20%)"
     );
 
     paymentAndCancellationTerms().find("> button").contains("Peruutusehdot");

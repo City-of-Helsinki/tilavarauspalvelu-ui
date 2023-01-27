@@ -60,7 +60,7 @@
   "Page2": {
     "heading": "2. Valitse varauksen ajankohta",
     "subHeading": "Valitse kaikki ne ajankohdat, joille toivot varauksesi asettuvan.",
-    "info": "Tarkista tilakohtaiset aukioloajat <0>koosteesta</0> tai tilan sivulta. Valitse ajat, joita ensisijaisesti toivot. Valitse myös toissijaisia aikoja, jotka sopivat sinulle.",
+    "info": "Tarkista tilakohtaiset aukioloajat <a>koosteesta</a> tai tilan sivulta. Valitse ajat, joita ensisijaisesti toivot. Valitse myös toissijaisia aikoja, jotka sopivat sinulle.",
     "text": "Ilmoita toivomasi ajankohdat kausivaraukselle",
     "copyTimes": "Kopioi ajat kaikille varaustoiveille",
     "resetTimes": "Tyhjennä kalenteri",

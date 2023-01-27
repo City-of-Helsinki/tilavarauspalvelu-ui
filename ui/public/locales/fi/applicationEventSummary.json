@@ -1,6 +1,6 @@
 {
-  "message_one": "Olet tekemässä varausta <1>{{name}}</1> kaudeksi <4>{{startDate}} - {{endDate}}</4>.\nVarausten yhteenlaskettu kesto on vähintään <4>{{hours}} tunti</4>.",
-  "message_other": "Olet tekemässä varausta <1>{{name}}</1> kaudeksi <4>{{startDate}} - {{endDate}}</4>.\nVarausten yhteenlaskettu kesto on vähintään <4>{{hours}} tuntia</4>.",
+  "message_one": "Olet tekemässä varausta {{name}} kaudeksi <bold>{{startDate}} - {{endDate}}</bold>.<br />Varausten yhteenlaskettu kesto on vähintään <bold>{{hours}} tunti</bold>.",
+  "message_other": "Olet tekemässä varausta {{name}} kaudeksi <bold>{{startDate}} - {{endDate}}</bold>.<br />Varausten yhteenlaskettu kesto on vähintään <bold>{{hours}} tuntia</bold>.",
   "numPersons": "Ryhmän koko on {{count}} henkilöä",
   "minDuration": "Yhden varauksen kesto vähintään {{minDuration}}",
   "durations": "Yhden varauksen kesto vähintään {{minDuration}} ja enintään {{maxDuration}}",

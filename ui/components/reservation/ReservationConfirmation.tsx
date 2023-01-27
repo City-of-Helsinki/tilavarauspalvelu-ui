@@ -91,6 +91,7 @@ const ReservationConfirmation = ({
             }`}
             t={t}
             values={{ user: reservation?.user.email }}
+            components={{ bold: <strong />, br: <br /> }}
           >
             <InlineAnchor href={reservationsUrl}> </InlineAnchor>
           </Trans>
