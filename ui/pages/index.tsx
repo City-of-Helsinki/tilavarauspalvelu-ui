@@ -30,7 +30,7 @@ const Wrapper = styled.div`
 `;
 
 const Home = ({ purposes, units }: Props): JSX.Element => {
-  const { t } = useTranslation("home");
+  const { t } = useTranslation(["home", "common"]);
 
   return (
     <Wrapper>

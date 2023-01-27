@@ -353,10 +353,12 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     <Wrapper>
       <Container>
         <StyledBreadcrumbWrapper
-          route={[
-            "",
-            "/reservations",
-            t("reservations:reservationName", { id: reservation.pk }),
+          route={["", "/reservations", "reservationName"]}
+          aliases={[
+            {
+              slug: "reservationName",
+              title: t("reservations:reservationName", { id: reservation.pk }),
+            },
           ]}
         />
         <Columns>

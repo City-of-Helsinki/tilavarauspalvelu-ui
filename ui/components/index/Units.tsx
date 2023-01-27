@@ -104,7 +104,7 @@ const Units = ({ units }: Props): JSX.Element => {
           {units?.length > itemLimit && (
             <Link href={`${singleSearchPrefix}`} passHref>
               <SearchLink data-testid="front-page__units--more-link">
-                {t("showAll")} <IconAngleRight aria-hidden />
+                {t("common:showAll")} <IconAngleRight aria-hidden />
               </SearchLink>
             </Link>
           )}

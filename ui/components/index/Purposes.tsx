@@ -109,7 +109,7 @@ const MoreLink = styled.a`
 `;
 
 const Purposes = ({ purposes }: Props): JSX.Element => {
-  const { t } = useTranslation("home");
+  const { t } = useTranslation(["home", "common"]);
 
   const [showAll, setShowAll] = React.useState(false);
   const isMobile = useMedia(`(max-width: ${mobileBreakpoint})`, false);
@@ -150,7 +150,7 @@ const Purposes = ({ purposes }: Props): JSX.Element => {
             data-testid="front-page__purposes--more-link"
             onClick={() => setShowAll(!showAll)}
           >
-            {t(`show${showAll ? "Less" : "More"}`)}
+            {t(`${showAll ? "common:showLess" : "common:showMore"}`)}
             {showAll ? (
               <IconAngleUp aria-hidden />
             ) : (
