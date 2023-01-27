@@ -1100,6 +1100,7 @@ const translations: ITranslations = {
         reserveeAddressCity: ["Postitoimipaikka"],
         reserveeEmail: ["Sähköpostiosoite"],
         reserveePhone: ["Puhelinnumero"],
+        homeCity: ["Kotipaikka"],
         showBillingAddress: ["Erillinen laskutusosoite"],
         billingFirstName: ["Varaajan etunimi"],
         billingLastName: ["Varaajan sukunimi"],
