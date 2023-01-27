@@ -81,8 +81,8 @@
       "minDuration": {
         "title": "Valittujen toiveaikojen kesto on pienempi kuin varauksen vähimmäiskesto",
         "bodySingle": "Kalenterista valittu toiveaikojen kesto on pienempi kuin edellisessä vaiheessa toivottu varauksen vähimmäiskesto. Valitse kalenterista enemmän toiveaikoja, tai pienennä valitsemaasi vähimmäiskestoa.",
-        "body": "Varauksella {{title}} kalenterista valittu toiveaikojen kesto on pienempi kuin edellisessä vaiheessa toivottu varauksen vähimmäiskesto. Valitse kalenterista enemmän toiveaikoja, tai pienennä valitsemaasi vähimmäiskestoa.",
-        "body_plural": "Varauksilla {{title}} kalenterista valittu toiveaikojen kesto on pienempi kuin edellisessä vaiheessa toivottu varauksen vähimmäiskesto. Valitse kalenterista enemmän toiveaikoja, tai pienennä valitsemaasi vähimmäiskestoa."
+        "body_one": "Varauksella {{title}} kalenterista valittu toiveaikojen kesto on pienempi kuin edellisessä vaiheessa toivottu varauksen vähimmäiskesto. Valitse kalenterista enemmän toiveaikoja, tai pienennä valitsemaasi vähimmäiskestoa.",
+        "body_other": "Varauksilla {{title}} kalenterista valittu toiveaikojen kesto on pienempi kuin edellisessä vaiheessa toivottu varauksen vähimmäiskesto. Valitse kalenterista enemmän toiveaikoja, tai pienennä valitsemaasi vähimmäiskestoa."
       }
     }
   },

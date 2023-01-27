@@ -3,6 +3,6 @@
   "numPersons": "Group size is {{count}} persons",
   "minDuration": "Minimum duration of a single booking is {{minDuration}}",
   "durations": "Duration of one booking is from {{minDuration}} to {{maxDuration}}",
-  "eventsPerWeek": "{{count}} booking per week",
-  "eventsPerWeek_plural": "{{count}} bookings per week"
+  "eventsPerWeek_one": "{{count}} booking per week",
+  "eventsPerWeek_other": "{{count}} bookings per week"
 }

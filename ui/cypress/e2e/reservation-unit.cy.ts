@@ -344,7 +344,7 @@ describe("renders with basic data", () => {
 
     // textWithIcon(1).contains("Seuraava vapaa aika:");
     textWithIcon(0).should("have.text", "Nuorisopalvelut Fi");
-    textWithIcon(1).should("have.text", "10 - 60 henkilö");
+    textWithIcon(1).should("have.text", "10 - 60 henkilöä");
     textWithIcon(2).should("have.text", "1 t - 1 t 30 min varaus");
     textWithIcon(3).should("have.text", "20 € / 15 min");
 
@@ -355,7 +355,7 @@ describe("renders with basic data", () => {
       `Varauskalenteri on auki ${reservationEnds} asti.`
     );
     reservationInfo().contains(
-      "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuutti."
+      "Varauksen keston tulee olla välillä 1 tunti ja 1 tunti 30 minuuttia."
     );
     reservationInfo().contains(
       "Sinulla voi olla samanaikaisesti enintään 1 varausta."
