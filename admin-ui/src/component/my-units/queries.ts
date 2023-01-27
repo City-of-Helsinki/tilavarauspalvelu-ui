@@ -27,6 +27,25 @@ export const UNIT_QUERY = gql`
   }
 `;
 
+export const RECURRING_RESERVATION_UNIT_QUERY = gql`
+  query units($pk: [ID]) {
+    units(pk: $pk) {
+      edges {
+        node {
+          nameFi
+          pk
+          reservationUnits {
+            pk
+            nameFi
+            bufferTimeBefore
+            bufferTimeAfter
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const RESERVATIONS_BY_RESERVATIONUNITS = gql`
   query ReservationUnit($pk: Int, $from: Date, $to: Date) {
     reservationUnitByPk(pk: $pk) {

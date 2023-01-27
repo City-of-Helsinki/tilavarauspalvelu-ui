@@ -95,6 +95,7 @@ const translations: ITranslations = {
     close: ["Sulje"],
     approve: ["Hyväksy"],
     cancel: ["Peruuta"],
+    reserve: ["Varaa"],
     accordion: ["sisältö"],
     search: ["Hae"],
     noResults: ["Ei tuloksia"],
@@ -284,6 +285,9 @@ const translations: ITranslations = {
         byUnit: ["Varaukset varausyksiköittäin"],
         byReservationUnit: ["Kaikki toimipisteen varaukset"],
       },
+      header: {
+        recurringReservation: ["Tee toistuva varaus"],
+      },
       legend: {
         confirmed: ["Hyväksytty varaus"],
         unconfirmed: ["Varaustoive"],
@@ -295,6 +299,28 @@ const translations: ITranslations = {
         reservationUnitReleased: ["Varausyksikkö julkaistu"],
         reservationUnitDraft: ["Varausyksikkö luonnostilassa"],
       },
+    },
+    RecurringReservationForm: {
+      reservationUnit: ["Varausyksikkö"],
+      startingDate: ["Aloituspäivä"],
+      endingDate: ["Päättymispäivä"],
+      repeatPattern: ["Varauksen toisto"],
+      startingTime: ["Aloitusaika"],
+      endingTime: ["Lopetusaika"],
+      buffers: ["Varauksen tauko"],
+      repeatOnDays: ["Toistoviikonpäivät"],
+      typeOfReservation: ["Varauksen tyyppi"],
+      name: ["Varaussarjan nimi"],
+      comments: ["Kommentit"],
+      reservationType: {
+        STAFF: [
+          "Kaupungin oma käytto, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
+        ],
+        NORMAL: ["Asiakkaan puolesta"],
+        BLOCKED: ["Suljettu"],
+      },
+      bufferTimeBefore: ["Ennen vuoroa ({{minutes}} min)"],
+      bufferTimeAfter: ["Vuoron jälkeen ({{minutes}} min)"],
     },
   },
   Application: {
