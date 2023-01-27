@@ -175,7 +175,12 @@ export const getComboboxValues = (
     : [getSelectedOption(value, options)];
 };
 
-export const searchUrl = (params: any): string => {
+type SearchParams = Record<
+  string,
+  string | string[] | number | boolean | undefined
+>;
+
+export const searchUrl = (params: SearchParams): string => {
   const response = `${searchPrefix}/`;
 
   if (params && Object.keys(params).length > 0) {
@@ -185,7 +190,7 @@ export const searchUrl = (params: any): string => {
   return response;
 };
 
-export const singleSearchUrl = (params: any): string => {
+export const singleSearchUrl = (params: SearchParams): string => {
   const response = `${singleSearchPrefix}/`;
 
   if (params && Object.keys(params).length > 0) {
