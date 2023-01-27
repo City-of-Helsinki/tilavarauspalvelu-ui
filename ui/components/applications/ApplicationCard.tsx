@@ -18,6 +18,9 @@ import { MediumButton } from "../../styles/util";
 import { getApplicationRoundName } from "../../modules/applicationRound";
 
 const Card = styled(HdsCard)`
+  border-width: 0;
+  padding-inline: var(--spacing-s);
+  padding-block: var(--spacing-s);
   margin-bottom: var(--spacing-m);
   width: auto;
   grid-template-columns: 1fr;

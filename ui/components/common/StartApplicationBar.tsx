@@ -70,6 +70,11 @@ const DeleteButton = styled(Button).attrs({
   "data-testid": "start-application-bar__button--clear-selections",
 })``;
 
+const SubmitButton = styled(Button)`
+  background-color: var(--color-white);
+  color: var(--color-bus);
+`;
+
 const StartApplicationBar = ({
   count,
   clearSelections,
@@ -105,7 +110,7 @@ const StartApplicationBar = ({
               </JustForMobile>
             </DeleteButton>
           </Left>
-          <Button
+          <SubmitButton
             id="startApplicationButton"
             variant="primary"
             iconRight={<IconArrowRight />}
@@ -115,7 +120,7 @@ const StartApplicationBar = ({
           >
             <JustForDesktop>{t("shoppingCart:next")}</JustForDesktop>
             <JustForMobile>{t("shoppingCart:nextShort")}</JustForMobile>
-          </Button>
+          </SubmitButton>
         </InnerContainer>
       </Container>
     </BackgroundContainer>

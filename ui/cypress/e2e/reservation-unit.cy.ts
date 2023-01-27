@@ -325,7 +325,7 @@ describe("renders with basic data", () => {
 
   Cypress.config("defaultCommandTimeout", 20000);
 
-  it.only("contains default elements", () => {
+  it("contains default elements", () => {
     cy.get("h1").should("contain", "Pukinmäen nuorisotalon keittiö");
 
     description().contains(
