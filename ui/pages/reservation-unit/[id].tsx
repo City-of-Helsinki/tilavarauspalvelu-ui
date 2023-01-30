@@ -1013,7 +1013,7 @@ const ReservationUnit = ({
                       );
                     }}
                     resizable={!isReservationQuotaReached}
-                    draggable={!isReservationQuotaReached || !isTouchDevice}
+                    draggable={!isReservationQuotaReached && !isTouchDevice}
                     onEventDrop={handleEventChange}
                     onEventResize={handleEventChange}
                     onSelectSlot={handleSlotClick}
