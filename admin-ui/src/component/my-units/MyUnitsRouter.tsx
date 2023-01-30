@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import MyUnitRecurringReservation from "./MyUnitRecurringReservation";
+import MyUnitRecurringReservation from "./MyUnitRecurringReservation/MyUnitRecurringReservation";
 import MyUnits from "./MyUnits";
 import MyUnitView from "./MyUnitView";
 
