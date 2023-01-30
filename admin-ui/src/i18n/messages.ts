@@ -1040,7 +1040,7 @@ const translations: ITranslations = {
     comment: ["Kommentit"],
     reservationInfo: ["Varauksen tiedot"],
     reserverInfo: ["Varaajan tiedot"],
-    reserveeTypePrefix: ["Luon hakemuksen"],
+    reserveeTypePrefix: ["Varaan"],
     reserveeTypes: {
       labels: {
         nonprofit: ["järjestön, ryhmän tai yhteisön puolesta"],
@@ -1069,7 +1069,7 @@ const translations: ITranslations = {
         applyingForFreeOfCharge: [
           "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut alennusperusteisiin",
         ],
-        freeOfChargeReason: ["Perusteet maksuttomaan varaukseen"],
+        freeOfChargeReason: ["Perustelut maksuttomaan varaukseen"],
       },
       nonprofit: {
         reserveeFirstName: ["Yhteyshenkilön etunimi"],
