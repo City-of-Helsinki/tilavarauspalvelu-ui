@@ -309,6 +309,7 @@ const translations: ITranslations = {
       endingTime: ["Lopetusaika"],
       buffers: ["Varauksen tauko"],
       repeatOnDays: ["Toistoviikonpäivät"],
+      reservationsList: ["Olet tekemässä {{count}} varausta"],
       typeOfReservation: ["Varauksen tyyppi"],
       name: ["Varaussarjan nimi"],
       comments: ["Kommentit"],

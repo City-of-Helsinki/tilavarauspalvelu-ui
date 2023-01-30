@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { getDayIntervals } from "common/src/calendar/util";
 import { ReservationUnitType } from "common/types/gql-types";
@@ -22,22 +22,24 @@ import {
 } from "./RecurringReservationSchema";
 import {
   Grid,
+  Span12,
   Span3,
-  Span4,
   Span6,
   VerticalFlex,
 } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
+import { generateReservations, ReservationList } from "./ReservationsList";
 
-const Label = styled.p`
+const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
+  font-weight: ${({ $bold }) => ($bold ? "700" : "500")};
 `;
 
 const ActionsWrapper = styled.div`
   display: flex;
-  grid-area: auto / -6;
+  grid-area: auto / -2;
   gap: var(--spacing-m);
   justify-content: end;
 `;
@@ -106,6 +108,29 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     reservationUnits,
     pk: selectedReservationUnit?.value,
   });
+
+  const selectedReservationParams = watch([
+    "startingDate",
+    "endingDate",
+    "startingTime",
+    "endingTime",
+    "repeatPattern",
+    "repeatOnDays",
+  ]);
+
+  const newReservations = useMemo(
+    () =>
+      generateReservations({
+        reservationUnit: selectedReservationUnit,
+        startingDate: selectedReservationParams[0],
+        endingDate: selectedReservationParams[1],
+        startingTime: selectedReservationParams[2],
+        endingTime: selectedReservationParams[3],
+        repeatPattern: selectedReservationParams[4],
+        repeatOnDays: selectedReservationParams[5],
+      }),
+    [selectedReservationUnit, selectedReservationParams]
+  );
 
   const reservationUnitOptions =
     reservationUnits.map((reservationUnit) => ({
@@ -283,6 +308,17 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           />
         </Span3>
 
+        {newReservations ? (
+          <Span12>
+            <Label $bold>
+              {t(`MyUnits.RecurringReservationForm.reservationsList`, {
+                count: newReservations.length,
+              })}
+            </Label>
+            <ReservationList items={newReservations} />
+          </Span12>
+        ) : null}
+
         <Span6>
           <Controller
             name="typeOfReservation"
@@ -311,24 +347,24 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         </Span6>
 
         <Grid>
-          <Span4>
+          <Span6>
             <TextInput
               id="name"
               label={t(`MyUnits.RecurringReservationForm.name`)}
               {...register("name")}
               errorText={errors.name?.message}
             />
-          </Span4>
+          </Span6>
         </Grid>
         <Grid>
-          <Span4>
+          <Span6>
             <TextArea
               id="comments"
               label={t(`MyUnits.RecurringReservationForm.comments`)}
               {...register("comments")}
               errorText={errors.comments?.message}
             />
-          </Span4>
+          </Span6>
         </Grid>
 
         <Grid>
