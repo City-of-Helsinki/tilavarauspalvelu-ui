@@ -37,6 +37,7 @@ export const RECURRING_RESERVATION_UNIT_QUERY = gql`
           reservationUnits {
             pk
             nameFi
+            reservationStartInterval
             bufferTimeBefore
             bufferTimeAfter
           }

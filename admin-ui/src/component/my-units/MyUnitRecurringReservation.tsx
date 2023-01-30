@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { getDayIntervals } from "common/src/calendar/util";
 import { H2 } from "common/src/common/typography";
 import {
   Query,
@@ -12,10 +13,12 @@ import {
   DateInput,
   IconAngleLeft,
   RadioButton,
+  Select,
   SelectionGroup,
   TextArea,
   TextInput,
 } from "hds-react";
+import { trimStart } from "lodash";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -81,16 +84,39 @@ const getReservationUnitBuffers = ({
   return hasBuffers ? buffers : undefined;
 };
 
+const getReservationUnitStartInterval = ({
+  reservationUnits,
+  pk,
+}: {
+  reservationUnits?: ReservationUnitType[];
+  pk?: string;
+}) => {
+  if (!reservationUnits || !pk) return undefined;
+
+  const unit = reservationUnits.find((ru) => ru.pk === parseInt(pk, 10));
+
+  return unit?.reservationStartInterval;
+};
+
 const MyUnitRecurringReservation = () => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
   // FIXME the maybe unitId causes problems with hook rules (stupid: ?? "0" hack)
   const { unitId } = useParams<Params>();
-  const { handleSubmit, control, register, watch } =
-    useForm<RecurringReservationForm>({
-      mode: "onChange",
-      resolver: joiResolver(RecurringReservationFormSchema),
-    });
+  const {
+    handleSubmit,
+    control,
+    register,
+    watch,
+    formState: { errors },
+  } = useForm<RecurringReservationForm>({
+    mode: "onChange",
+    resolver: joiResolver(RecurringReservationFormSchema),
+    defaultValues: {
+      bufferTimeAfter: false,
+      bufferTimeBefore: false,
+    },
+  });
 
   const previousUrl = myUnitUrl(parseInt(unitId ?? "0", 10));
 
@@ -107,17 +133,38 @@ const MyUnitRecurringReservation = () => {
     }
   );
   const unit = unitData?.units?.edges[0];
+  const reservationUnits = unit?.node?.reservationUnits?.filter(
+    (item): item is ReservationUnitType => !!item
+  );
 
   const selectedReservationUnit = watch("reservationUnit");
   const buffers = getReservationUnitBuffers({
-    reservationUnits: unit?.node?.reservationUnits?.filter(
-      (item): item is ReservationUnitType => !!item
-    ),
+    reservationUnits,
+    pk: selectedReservationUnit?.value,
+  });
+  const startInterval = getReservationUnitStartInterval({
+    reservationUnits,
     pk: selectedReservationUnit?.value,
   });
 
-  const onSubmit = (data: any) => {
+  const timeSelectionOptions = startInterval
+    ? getDayIntervals("01:00", "23:00", startInterval).map((n) => ({
+        label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
+        value: trimStart(n.substring(0, 5), "0"),
+      }))
+    : [];
+
+  const repeatPatternOptions = [
+    { value: "weekly", label: t("common.weekly") },
+    { value: "biweekly", label: t("common.biweekly") },
+  ];
+
+  const onSubmit = (data: RecurringReservationForm) => {
     console.log("data", data);
+  };
+
+  const onError = () => {
+    console.log("errors", errors);
   };
 
   return (
@@ -138,7 +185,7 @@ const MyUnitRecurringReservation = () => {
       <Container>
         <H2>Tee toistuva varaus</H2>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit, onError)}>
           <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
             <Grid>
               <Span6>
@@ -160,6 +207,7 @@ const MyUnitRecurringReservation = () => {
                           value: String(reservationUnit?.pk as number),
                         })
                       )}
+                      error={errors.reservationUnit}
                       {...field}
                     />
                   )}
@@ -179,6 +227,7 @@ const MyUnitRecurringReservation = () => {
                       placeholder={t("common.select")}
                       disableConfirmation
                       language="fi"
+                      errorText={errors.startingDate?.message}
                       {...field}
                     />
                   )}
@@ -196,6 +245,7 @@ const MyUnitRecurringReservation = () => {
                       placeholder={t("common.select")}
                       disableConfirmation
                       language="fi"
+                      errorText={errors.endingDate?.message}
                       {...field}
                     />
                   )}
@@ -214,10 +264,8 @@ const MyUnitRecurringReservation = () => {
                       )}
                       multiselect={false}
                       placeholder={t("common.select")}
-                      options={[
-                        { value: "weekly", label: t("common.weekly") },
-                        { value: "biweekly", label: t("common.biweekly") },
-                      ]}
+                      options={repeatPatternOptions}
+                      error={errors.repeatPattern?.message}
                       {...field}
                     />
                   )}
@@ -230,13 +278,13 @@ const MyUnitRecurringReservation = () => {
                   name="startingTime"
                   control={control}
                   render={({ field }) => (
-                    <SortedSelect
-                      disabled={loading}
-                      sort
+                    <Select
+                      disabled={loading || !timeSelectionOptions.length}
                       label={t("MyUnits.RecurringReservationForm.startingTime")}
                       multiselect={false}
                       placeholder={t("common.select")}
-                      options={[]}
+                      options={timeSelectionOptions}
+                      error={errors.startingTime?.message}
                       {...field}
                     />
                   )}
@@ -247,13 +295,13 @@ const MyUnitRecurringReservation = () => {
                   name="endingTime"
                   control={control}
                   render={({ field }) => (
-                    <SortedSelect
-                      disabled={loading}
-                      sort
+                    <Select
+                      disabled={loading || !timeSelectionOptions.length}
                       label={t("MyUnits.RecurringReservationForm.endingTime")}
                       multiselect={false}
                       placeholder={t("common.select")}
-                      options={[]}
+                      options={timeSelectionOptions}
+                      error={errors.endingTime?.message}
                       {...field}
                     />
                   )}
@@ -306,10 +354,10 @@ const MyUnitRecurringReservation = () => {
                 control={control}
                 render={({ field }) => (
                   <SelectionGroup
-                    required
                     label={t(
                       `MyUnits.RecurringReservationForm.typeOfReservation`
                     )}
+                    errorText={errors.typeOfReservation?.message}
                   >
                     {Object.values(ReservationType)
                       .filter((v) => typeof v === "string")
@@ -335,6 +383,7 @@ const MyUnitRecurringReservation = () => {
                   id="name"
                   label={t(`MyUnits.RecurringReservationForm.name`)}
                   {...register("name")}
+                  errorText={errors.name?.message}
                 />
               </Span4>
             </Grid>
@@ -344,6 +393,7 @@ const MyUnitRecurringReservation = () => {
                   id="comments"
                   label={t(`MyUnits.RecurringReservationForm.comments`)}
                   {...register("comments")}
+                  errorText={errors.comments?.message}
                 />
               </Span4>
             </Grid>
