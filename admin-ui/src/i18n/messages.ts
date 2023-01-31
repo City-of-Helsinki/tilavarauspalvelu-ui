@@ -1766,7 +1766,7 @@ const translations: ITranslations = {
     returnToHandling: ["Palauta käsiteltäväksi"],
     cancel: ["Takaisin"],
     pricingDetails: ["Hintatiedot"],
-    noPrice: ["ilmainen"],
+    noPrice: ["maksuton"],
     price: ["Hinta"],
     createdAt: ["Lähetetty"],
     applicantType: ["Asiakastyyppi"],
