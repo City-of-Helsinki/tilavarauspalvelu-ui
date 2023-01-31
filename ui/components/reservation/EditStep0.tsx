@@ -127,9 +127,7 @@ const eventStyleGetter = (
   };
 };
 
-const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-  <Toolbar {...props} />
-));
+const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
 
 const EditStep0 = ({
   reservation,

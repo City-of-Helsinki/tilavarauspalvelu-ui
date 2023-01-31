@@ -34,10 +34,16 @@ const Heading = styled.div`
   margin-bottom: var(--spacing-layout-l);
 `;
 
-const StyledTabList = styled(TabList)`
+const StyledTabList = styled(TabList).attrs({
+  style: {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    "--tablist-border-color": "white",
+  } as React.CSSProperties,
+})`
   ul {
     width: 100% !important;
     position: relative;
+    border-width: 0 !important;
   }
 `;
 

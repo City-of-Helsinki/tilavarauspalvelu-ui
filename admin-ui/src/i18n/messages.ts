@@ -691,6 +691,7 @@ const translations: ITranslations = {
       purpose: ["Toimintatyyppi"],
     },
     statuses: {
+      approved: ["Päätös tehty"],
       created: ["Käsittelemättä"],
       validated: ["Ehdotus hyväksytty"],
       declined: ["Ehdotus hylätty"],

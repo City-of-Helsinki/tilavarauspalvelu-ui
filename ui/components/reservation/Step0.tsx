@@ -99,7 +99,7 @@ const Step0 = ({
         icon: (
           <Image
             src="/icons/icon_premises.svg"
-            alt="On premises icon"
+            alt={t("common:headAlt")}
             width="24"
             height="24"
             aria-hidden

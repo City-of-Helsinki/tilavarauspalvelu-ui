@@ -18,7 +18,7 @@ const Applicant = ({ application }: Props): JSX.Element => {
     case "association":
     case "community":
     case "company": {
-      return <> edustamallenne {name[application.applicantType]} </>;
+      return <> edustamallenne {name[application.applicantType]}</>;
     }
 
     default: {

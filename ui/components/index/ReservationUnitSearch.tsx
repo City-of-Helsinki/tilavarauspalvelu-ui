@@ -12,10 +12,12 @@ const StyledTextInput = styled(TextInput)`
   position: relative;
   width: 100%;
 
+
   &&& input {
     font-size: var(--fontsize-body-m);
     padding-right: var(--spacing-2-xl);
     height: 44px;
+    border-color: var(--color-black-30);
   }
 
   label {

@@ -106,6 +106,3 @@ export const NotificationContextProvider: React.FC<Props> = ({
     </NotificationContext.Provider>
   );
 };
-
-// (title?: string, message?: string | undefined, options?: NotificationOptions | undefined) => void
-// (title: string, message?: string | undefined, options?: NotificationOptions | undefined) => void

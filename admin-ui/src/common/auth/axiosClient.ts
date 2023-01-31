@@ -14,7 +14,12 @@ const axiosOptions = {
 const axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 const apiAccessToken = getApiAccessToken();
 
-axiosClient.defaults.headers.common.Authorization = `Bearer ${apiAccessToken}`;
+axiosClient.interceptors.request.use((req: any) => {
+  if (apiAccessToken) {
+    req.headers.Authorization = `Bearer ${apiAccessToken}`;
+  }
+  return req;
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const refreshAuthLogic = (failedRequest: any) => {

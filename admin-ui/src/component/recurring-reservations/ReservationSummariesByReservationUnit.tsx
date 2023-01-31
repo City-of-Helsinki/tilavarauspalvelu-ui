@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { IconLocation } from "hds-react";
-import get from "lodash/get";
 import trim from "lodash/trim";
 import differenceInSeconds from "date-fns/differenceInSeconds";
 import { H2, H3, Strong } from "common/src/common/typography";
@@ -228,10 +227,8 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
             {recurringReservations && recurringReservations.length > 0 ? (
               recurringReservations.map(
                 (recurringReservation: RecurringReservation) => {
-                  const reservationUser: string | null | undefined = get(
-                    recurringReservation,
-                    "reservations.0.reservationUser"
-                  );
+                  const reservationUser: string | null | undefined =
+                    recurringReservation.reservations[0]?.reservationUser;
 
                   const beginDate: string | null =
                     recurringReservation.firstReservationBegin;
@@ -242,10 +239,8 @@ function ReservationSummariesByReservationUnit(): JSX.Element | null {
                   const weekday: number | null | undefined =
                     recurringReservation.reservations?.[0].beginWeekday;
 
-                  const applicationEventName: string | null | undefined = get(
-                    recurringReservation,
-                    "reservations.0.applicationEventName"
-                  );
+                  const applicationEventName: string | null | undefined =
+                    recurringReservation.reservations[0]?.applicationEventName;
 
                   const duration: number = Math.abs(
                     differenceInSeconds(

@@ -202,7 +202,7 @@ const ReservationUnitCard = ({ reservationUnit }: Props): JSX.Element => {
                 icon={
                   <NextImage
                     src="/icons/icon_premises.svg"
-                    alt="On premises icon"
+                    alt={t("common:headAlt")}
                     width="24"
                     height="24"
                     aria-label={t("reservationUnitCard:type")}
