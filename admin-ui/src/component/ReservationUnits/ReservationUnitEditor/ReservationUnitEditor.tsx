@@ -580,21 +580,26 @@ const ReservationUnitEditor = (): JSX.Element | null => {
         <Container>
           {state.unit ? (
             <DenseVerticalFlex>
-              <HorisontalFlex style={{ justifyContent: "space-between" }}>
-                <H1>
-                  {state.reservationUnitEdit.nameFi ||
-                    t("ReservationUnitEditor.defaultHeading")}
-                </H1>
-                <span>{reservationUnitState}</span>
-              </HorisontalFlex>
-              <div
-                style={{
-                  lineHeight: "24px",
-                  fontSize: "var(--fontsize-heading-s)",
-                }}
-              >
-                <div>
-                  <Strong>{state.unit.nameFi}</Strong>
+              <div>
+                <HorisontalFlex style={{ justifyContent: "space-between" }}>
+                  <H1 $legacy>
+                    {state.reservationUnitEdit.nameFi ||
+                      t("ReservationUnitEditor.defaultHeading")}
+                  </H1>
+                  <span>{reservationUnitState}</span>
+                </HorisontalFlex>
+                <div
+                  style={{
+                    lineHeight: "24px",
+                    fontSize: "var(--fontsize-heading-s)",
+                  }}
+                >
+                  <div>
+                    <Strong>{state.unit.nameFi}</Strong>
+                  </div>
+                  {state.unit.location ? (
+                    <span>{parseAddress(state.unit.location)}</span>
+                  ) : null}
                 </div>
                 {state.unit.location ? (
                   <span>{parseAddress(state.unit.location)}</span>
