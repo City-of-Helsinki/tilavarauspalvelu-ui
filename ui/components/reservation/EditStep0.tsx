@@ -28,7 +28,7 @@ import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import { BlackButton, MediumButton } from "../../styles/util";
 import Legend from "../calendar/Legend";
 import ReservationCalendarControls from "../calendar/ReservationCalendarControls";
-import Toolbar, { ToolbarProps } from "../calendar/Toolbar";
+import Toolbar from "../calendar/Toolbar";
 
 type Props = {
   reservation: ReservationType;
@@ -198,10 +198,6 @@ const EditStep0 = ({
     reservationUnit?.bufferTimeBefore,
   ]);
 
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar {...props} />
-  ));
-
   const isSlotFree = useCallback(
     (start: Date): boolean => {
       const price = getReservationUnitPrice({
@@ -359,9 +355,7 @@ const EditStep0 = ({
             }
             showToolbar
             reservable
-            toolbarComponent={
-              reservationUnit?.nextAvailableSlot ? ToolbarWithProps : Toolbar
-            }
+            toolbarComponent={Toolbar}
             dateCellWrapperComponent={(props) => (
               <TouchCellWrapper {...props} onSelectSlot={handleSlotClick} />
             )}

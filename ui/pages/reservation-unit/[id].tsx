@@ -74,7 +74,7 @@ import {
   parseDate,
   printErrorMessages,
 } from "../../modules/util";
-import Toolbar, { ToolbarProps } from "../../components/calendar/Toolbar";
+import Toolbar from "../../components/calendar/Toolbar";
 import {
   OPENING_HOURS,
   RELATED_RESERVATION_UNITS,
@@ -767,10 +767,6 @@ const ReservationUnit = ({
     [addReservation, reservationUnit.pk, setReservation]
   );
 
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar {...props} />
-  ));
-
   const isReservable = useMemo(() => {
     return isReservationUnitReservable(reservationUnit);
   }, [reservationUnit]);
@@ -962,11 +958,7 @@ const ReservationUnit = ({
                     ) => handleEventChange(event, true)}
                     showToolbar
                     reservable={!isReservationQuotaReached}
-                    toolbarComponent={
-                      reservationUnit.nextAvailableSlot
-                        ? ToolbarWithProps
-                        : Toolbar
-                    }
+                    toolbarComponent={Toolbar}
                     dateCellWrapperComponent={(props) => (
                       <TouchCellWrapper
                         {...props}
