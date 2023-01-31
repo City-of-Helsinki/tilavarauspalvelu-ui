@@ -107,7 +107,7 @@ const Step0 = ({
         ),
       },
     ];
-  }, []);
+  }, [t]);
 
   return (
     <Form

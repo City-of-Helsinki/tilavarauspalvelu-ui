@@ -12,7 +12,6 @@ const StyledTextInput = styled(TextInput)`
   position: relative;
   width: 100%;
 
-
   &&& input {
     font-size: var(--fontsize-body-m);
     padding-right: var(--spacing-2-xl);
