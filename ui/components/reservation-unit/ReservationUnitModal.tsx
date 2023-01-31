@@ -168,7 +168,11 @@ const ReservationUnitCard = ({
       <Main>
         <Name>{reservationUnitName}</Name>
         <Unit>{getUnitName(reservationUnit.unit)}</Unit>
-        <Link href={reservationUnitPath(reservationUnit.pk)}>
+        <Link
+          href={reservationUnitPath(reservationUnit.pk)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <LinkContent>
             <IconLinkExternal />
             <LinkText>{t("reservationUnitModal:openLinkToNewTab")}</LinkText>
