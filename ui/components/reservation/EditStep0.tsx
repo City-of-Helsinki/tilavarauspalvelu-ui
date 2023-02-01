@@ -30,7 +30,7 @@ import { isTouchDevice } from "../../modules/util";
 import { BlackButton, MediumButton } from "../../styles/util";
 import Legend from "../calendar/Legend";
 import ReservationCalendarControls from "../calendar/ReservationCalendarControls";
-import { Toolbar, ToolbarProps } from "../calendar/Toolbar";
+import { Toolbar } from "../calendar/Toolbar";
 
 type Props = {
   reservation: ReservationType;
@@ -128,8 +128,6 @@ const eventStyleGetter = (
     className,
   };
 };
-
-const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
 
 const EventWrapperComponent = (props) => {
   let isSmall = false;
@@ -395,9 +393,7 @@ const EditStep0 = ({
             }
             showToolbar
             reservable
-            toolbarComponent={
-              reservationUnit?.nextAvailableSlot ? ToolbarWithProps : Toolbar
-            }
+            toolbarComponent={Toolbar}
             dateCellWrapperComponent={TouchCellWrapper}
             eventWrapperComponent={EventWrapperComponent}
             resizable

@@ -75,7 +75,7 @@ import {
   parseDate,
   printErrorMessages,
 } from "../../modules/util";
-import { Toolbar, ToolbarProps } from "../../components/calendar/Toolbar";
+import { Toolbar } from "../../components/calendar/Toolbar";
 import {
   OPENING_HOURS,
   RELATED_RESERVATION_UNITS,
@@ -418,8 +418,6 @@ const eventStyleGetter = (
     className,
   };
 };
-
-const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
 
 const EventWrapperComponent = (props) => {
   let isSmall = false;
@@ -996,11 +994,7 @@ const ReservationUnit = ({
                     ) => handleEventChange(event, true)}
                     showToolbar
                     reservable={!isReservationQuotaReached}
-                    toolbarComponent={
-                      reservationUnit.nextAvailableSlot
-                        ? ToolbarWithProps
-                        : Toolbar
-                    }
+                    toolbarComponent={Toolbar}
                     dateCellWrapperComponent={TouchCellWrapper}
                     eventWrapperComponent={EventWrapperComponent}
                     resizable={!isReservationQuotaReached}
