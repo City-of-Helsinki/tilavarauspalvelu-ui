@@ -4,7 +4,7 @@ import { relayStylePagination } from "@apollo/client/utilities";
 import { onError } from "@apollo/client/link/error";
 import { getSession, signOut } from "next-auth/react";
 import { GraphQLError } from "graphql";
-import axios from "axios";
+
 import {
   apiBaseUrl,
   isBrowser,
@@ -31,7 +31,6 @@ const authLink = setContext(
 );
 
 const handleSignOut = async () => {
-  await axios.get("/api/auth/logout");
   await signOut();
 };
 
@@ -68,14 +67,14 @@ const client = new ApolloClient({
     },
   }),
   link: isBrowser ? from([errorLink, authLink, httpLink]) : from([httpLink]),
-  ssrMode: typeof window === undefined,
+  ssrMode: !isBrowser,
   defaultOptions: {
     watchQuery: {
       errorPolicy: "ignore",
     },
     query: {
       errorPolicy: "ignore",
-      fetchPolicy: typeof window === undefined ? "no-cache" : "cache-first",
+      fetchPolicy: isBrowser ? "cache-first" : "no-cache",
     },
   },
 });

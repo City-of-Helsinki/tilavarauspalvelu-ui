@@ -1,10 +1,10 @@
 import React from "react";
 import { IconSignout, Navigation as HDSNavigation } from "hds-react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
-import axios from "axios";
+import getConfig from "next/config";
 import { MenuItem } from "../NavigationMenu";
 import { NavigationUserMenuUserCard } from "./NavigationUserMenuUserCard";
 
@@ -95,6 +95,9 @@ const NavigationUserMenu = () => {
   const router = useRouter();
   const session = useSession();
   const { t } = useTranslation();
+  const {
+    publicRuntimeConfig: { baseUrl },
+  } = getConfig();
 
   const user = session.data?.user;
   const isActive = userMenuItems
@@ -103,13 +106,12 @@ const NavigationUserMenu = () => {
 
   const handleSignIn = () => {
     signIn("tunnistamo", {
-      callbackUrl: "https://local-tilavaraus.hel.fi:3000/",
+      callbackUrl: baseUrl,
     });
   };
 
-  const handleSignOut = async () => {
-    await axios.get("/api/auth/logout");
-    await signOut();
+  const handleSignOut = () => {
+    router.push("/api/auth/logout");
   };
 
   return (
