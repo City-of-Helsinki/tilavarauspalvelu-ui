@@ -421,8 +421,6 @@ const eventStyleGetter = (
 
 const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
 
-const EventWrapper = styled.div``;
-
 const EventWrapperComponent = (props) => {
   let isSmall = false;
   if (props.event.event.state === "INITIAL") {
@@ -430,7 +428,7 @@ const EventWrapperComponent = (props) => {
     const diff = differenceInMinutes(end, start);
     if (diff <= 30) isSmall = true;
   }
-  return <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />;
+  return <div {...props} className={isSmall ? "isSmall" : ""} />;
 };
 
 const ReservationUnit = ({
