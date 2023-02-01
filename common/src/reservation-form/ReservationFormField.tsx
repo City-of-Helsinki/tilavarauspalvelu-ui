@@ -165,11 +165,9 @@ const ReservationFormField = ({
       rules={{ required }}
       render={({ field: formField }) => (
         <StyledSelect
-          label={
-            t(
-              `reservationApplication:label.${normalizedReserveeType}.${field}`
-            ) as string
-          }
+          label={t(
+            `reservationApplication:label.${normalizedReserveeType}.${field}`
+          )}
           id={field}
           options={options[field]}
           defaultValue={options[field].find(
@@ -177,7 +175,7 @@ const ReservationFormField = ({
           )}
           {...formField}
           value={formField.value || null}
-          error={get(errors, field) && (t("forms:requiredField") as string)}
+          error={get(errors, field) && t("forms:requiredField")}
           required={required}
           invalid={!!get(errors, field)}
           $isWide={isWideRow}
@@ -212,9 +210,7 @@ const ReservationFormField = ({
                 {required ? " * " : ""}
               </>
             }
-            errorText={
-              get(errors, field) && (t("forms:requiredField") as string)
-            }
+            errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
       />
@@ -235,9 +231,7 @@ const ReservationFormField = ({
             label={`${t(
               `reservationApplication:label.${normalizedReserveeType}.${field}`
             )}${required ? " * " : ""}`}
-            errorText={
-              get(errors, field) && (t("forms:requiredField") as string)
-            }
+            errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
       />
@@ -258,9 +252,7 @@ const ReservationFormField = ({
             label={`${t(
               `reservationApplication:label.${normalizedReserveeType}.${field}`
             )}${required ? " * " : ""}`}
-            errorText={
-              get(errors, field) && (t("forms:requiredField") as string)
-            }
+            errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
       />
@@ -295,7 +287,7 @@ const ReservationFormField = ({
       })}
       key={field}
       defaultValue={get(reservation, field) as number}
-      errorText={get(errors, field) && (t("forms:requiredField") as string)}
+      errorText={get(errors, field) && t("forms:requiredField")}
       invalid={!!get(errors, field)}
       step={1}
       minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
@@ -350,7 +342,7 @@ const ReservationFormField = ({
       key={field}
       type="text"
       defaultValue={get(reservation, field)}
-      errorText={get(errors, field) && (t("forms:requiredField") as string)}
+      errorText={get(errors, field) && t("forms:requiredField")}
       invalid={!!get(errors, field)}
       $isWide={isWideRow}
       $hidden={
@@ -379,13 +371,13 @@ const ReservationFormField = ({
       type="text"
       errorText={
         get(errors, field) &&
-        (t(
+        t(
           `forms:${
             get(errors, field)?.message === "email"
               ? "invalidEmail"
               : "requiredField"
           }`
-        ) as string)
+        )
       }
       invalid={!!get(errors, field)}
       $isWide={isWideRow}

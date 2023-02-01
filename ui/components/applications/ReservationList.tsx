@@ -37,11 +37,10 @@ const reservationLine = (reservation: Reservation, t: TFunction) => {
   const end = parseDate(reservation.end);
   return (
     <tr>
-      <td>{t(`common:weekDayLong.${begin.getDay()}`) as string} </td>
-      <td>{t("common:dateLong", { date: begin }) as string} </td>
+      <td>{t(`common:weekDayLong.${begin.getDay()}`)} </td>
+      <td>{t("common:dateLong", { date: begin })} </td>
       <td>
-        {t("common:time", { date: begin }) as string}-
-        {t("common:time", { date: end }) as string}
+        {t("common:time", { date: begin })}-{t("common:time", { date: end })}
       </td>
     </tr>
   );
