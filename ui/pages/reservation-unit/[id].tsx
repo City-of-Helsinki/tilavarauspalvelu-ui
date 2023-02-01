@@ -74,7 +74,7 @@ import {
   parseDate,
   printErrorMessages,
 } from "../../modules/util";
-import Toolbar from "../../components/calendar/Toolbar";
+import { Toolbar } from "../../components/calendar/Toolbar";
 import {
   OPENING_HOURS,
   RELATED_RESERVATION_UNITS,
