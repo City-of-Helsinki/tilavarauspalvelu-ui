@@ -2,7 +2,7 @@ import React from "react";
 import { Navigation as HDSNavigation } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { NavigationMenuItem } from "./NavigationMenuItem";
 
 const StyledNavigationMenu = styled(HDSNavigation.Row)`

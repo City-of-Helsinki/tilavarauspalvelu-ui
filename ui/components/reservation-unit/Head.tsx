@@ -8,7 +8,6 @@ import { formatSecondDuration } from "common/src/common/util";
 import { fontRegular, H2, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ReservationUnitByPkType } from "common/types/gql-types";
-import { useRouter } from "next/router";
 import { omit } from "lodash";
 import { useLocalStorage } from "react-use";
 import {
@@ -115,7 +114,6 @@ const Head = ({
   isReservable,
   subventionSuffix,
 }: PropsType): JSX.Element => {
-  const { asPath } = useRouter();
   const { t } = useTranslation();
 
   const storageKey = "reservationUnit-search";

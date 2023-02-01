@@ -1,8 +1,4 @@
-import axios, {
-  AxiosRequestConfig,
-  AxiosHeaders,
-  RawAxiosRequestHeaders,
-} from "axios";
+import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import applyCaseMiddleware from "axios-case-converter";
 import { authEnabled } from "../const";

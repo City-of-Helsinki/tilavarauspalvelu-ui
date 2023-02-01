@@ -1,10 +1,9 @@
 import { Navigation as HDSNavigation } from "hds-react";
-import Link from "next/link";
 import styled from "styled-components";
 
 const NavigationMenuItem = styled(HDSNavigation.Item)`
   white-space: nowrap !important;
-  font-family: "HelsinkiGrotesk-Medium" !important;
+  font-family: "HelsinkiGrotesk-Medium", sans-serif !important;
   font-weight: 500 !important;
 
   &.active {

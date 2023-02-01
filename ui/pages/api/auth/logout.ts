@@ -7,7 +7,10 @@ const {
   publicRuntimeConfig: { baseUrl, oidcEndSessionUrl },
 } = getConfig();
 
-const federatedLogOut = async (req: NextApiRequest, res: NextApiResponse) => {
+const federatedLogOut = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<NextApiResponse> => {
   try {
     const token = (await getToken({ req })) as ExtendedJWT;
     if (!token) {
@@ -22,7 +25,7 @@ const federatedLogOut = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res.redirect(fullUrl);
   } catch (error) {
-    res.redirect(baseUrl);
+    return res.redirect(baseUrl);
   }
 };
 
