@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-// eslint-disable-next-line import/no-unresolved
 import { useReactOidc } from "@axa-fr/react-oidc-context";
 import { useTranslation } from "react-i18next";
 import { BrowserRouter } from "react-router-dom";
@@ -23,7 +22,7 @@ function Login(): JSX.Element {
       <PageWrapper>
         <EmptyContent>
           <Wrapper>
-            <H1>{t("errors.loginNeeded")}</H1>
+            <H1 $legacy>{t("errors.loginNeeded")}</H1>
             <p style={{ marginBottom: "var(--spacing-xl)" }}>
               {t("common.loginWithTunnistamo")}
             </p>

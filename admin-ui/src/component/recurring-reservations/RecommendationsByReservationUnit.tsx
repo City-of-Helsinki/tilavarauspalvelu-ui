@@ -60,6 +60,7 @@ import { applicationRoundUrl } from "../../common/urls";
 import { useNotification } from "../../context/NotificationContext";
 
 interface IRouteParams {
+  [key: string]: string;
   applicationRoundId: string;
   reservationUnitId: string;
 }
@@ -89,7 +90,7 @@ const ImageFiller = styled.div`
   width: 1px;
 `;
 
-const Title = styled(H1)`
+const Title = styled(H1).attrs({ $legacy: true })`
   margin: var(--spacing-s) 0 var(--spacing-2-xs) 0;
 `;
 
@@ -478,7 +479,9 @@ function RecommendationsByReservationUnit(): JSX.Element {
         cellConfig && (
           <>
             <ContentContainer style={{ paddingBottom: "var(--spacing-s)" }}>
-              <LinkPrev route={applicationRoundUrl(applicationRoundId)} />
+              {applicationRoundId ? (
+                <LinkPrev route={applicationRoundUrl(applicationRoundId)} />
+              ) : null}
               <IngressContainer>
                 <Ingress>
                   {mainImage ? (
@@ -520,7 +523,9 @@ function RecommendationsByReservationUnit(): JSX.Element {
                 </Ingress>
                 <TitleContainer>
                   <div>
-                    <H1 as="h2">{applicationRound?.name}</H1>
+                    <H1 as="h2" $legacy>
+                      {applicationRound?.name}
+                    </H1>
                     {["approved"].includes(applicationRound?.status) &&
                       reservationUnitCalendarUrl && (
                         <CalendarLink
@@ -562,7 +567,8 @@ function RecommendationsByReservationUnit(): JSX.Element {
                     recommendationCount={recommendations.length}
                     unhandledCount={unhandledRecommendationCount}
                   />
-                  {["approved"].includes(applicationRound.status) && (
+                  {["approved"].includes(applicationRound.status) &&
+                  applicationRoundId ? (
                     <ReservationLink
                       to={`${applicationRoundUrl(
                         applicationRoundId
@@ -574,7 +580,7 @@ function RecommendationsByReservationUnit(): JSX.Element {
                       )}
                       <IconArrowRight aria-hidden />
                     </ReservationLink>
-                  )}
+                  ) : null}
                 </BottomContainer>
               </IngressContainer>
             </ContentContainer>

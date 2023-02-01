@@ -30,7 +30,7 @@ import { isTouchDevice } from "../../modules/util";
 import { BlackButton, MediumButton } from "../../styles/util";
 import Legend from "../calendar/Legend";
 import ReservationCalendarControls from "../calendar/ReservationCalendarControls";
-import Toolbar, { ToolbarProps } from "../calendar/Toolbar";
+import { Toolbar, ToolbarProps } from "../calendar/Toolbar";
 
 type Props = {
   reservation: ReservationType;
@@ -81,12 +81,10 @@ const Actions = styled.div`
   }
 `;
 
-const EventWrapper = styled.div``;
-
 const eventStyleGetter = (
   { event }: CalendarEvent<ReservationType>,
-  draggable = true,
-  ownReservations: number[]
+  ownReservations: number[],
+  draggable = true
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
     borderRadius: "0px",
@@ -129,6 +127,18 @@ const eventStyleGetter = (
     style,
     className,
   };
+};
+
+const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
+
+const EventWrapperComponent = (props) => {
+  let isSmall = false;
+  if (props.event.event.state === "INITIAL") {
+    const { start, end } = props.event;
+    const diff = differenceInMinutes(end, start);
+    if (diff <= 30) isSmall = true;
+  }
+  return <div {...props} className={isSmall ? "isSmall" : ""} />;
 };
 
 const EditStep0 = ({
@@ -207,10 +217,6 @@ const EditStep0 = ({
     reservationUnit?.bufferTimeAfter,
     reservationUnit?.bufferTimeBefore,
   ]);
-
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar {...props} />
-  ));
 
   const isSlotFree = useCallback(
     (start: Date): boolean => {
@@ -375,8 +381,8 @@ const EditStep0 = ({
             eventStyleGetter={(event) =>
               eventStyleGetter(
                 event,
-                true,
-                userReservations?.map((n) => n.pk)
+                userReservations?.map((n) => n.pk),
+                true
               )
             }
             slotPropGetter={slotPropGetter}
@@ -392,20 +398,8 @@ const EditStep0 = ({
             toolbarComponent={
               reservationUnit?.nextAvailableSlot ? ToolbarWithProps : Toolbar
             }
-            dateCellWrapperComponent={(props) => (
-              <TouchCellWrapper {...props} onSelectSlot={handleSlotClick} />
-            )}
-            eventWrapperComponent={(props) => {
-              let isSmall = false;
-              if (props.event.event.state === "INITIAL") {
-                const { start, end } = props.event;
-                const diff = differenceInMinutes(end, start);
-                if (diff <= 30) isSmall = true;
-              }
-              return (
-                <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />
-              );
-            }}
+            dateCellWrapperComponent={TouchCellWrapper}
+            eventWrapperComponent={EventWrapperComponent}
             resizable
             draggable={!isClientATouchDevice}
             onEventDrop={handleEventChange}

@@ -30,6 +30,7 @@ import { getNormalizedApplicationStatus } from "./util";
 import { useNotification } from "../../context/NotificationContext";
 
 interface IRouteParams {
+  [key: string]: string;
   applicationRoundId: string;
 }
 
@@ -38,7 +39,7 @@ const Wrapper = styled.div`
   margin-bottom: var(--spacing-layout-xl);
 `;
 
-const Title = styled(H1)`
+const Title = styled(H1).attrs({ $legacy: true })`
   margin: var(--spacing-layout-xl) 0 var(--spacing-2-xs);
 `;
 
