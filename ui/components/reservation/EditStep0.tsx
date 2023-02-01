@@ -18,7 +18,7 @@ import { addSeconds } from "date-fns";
 import { IconArrowRight, IconCross } from "hds-react";
 import { useRouter } from "next/router";
 import React, { Children, useCallback, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import {
   canReservationTimeBeChanged,
@@ -28,7 +28,7 @@ import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import { BlackButton, MediumButton } from "../../styles/util";
 import Legend from "../calendar/Legend";
 import ReservationCalendarControls from "../calendar/ReservationCalendarControls";
-import Toolbar from "../calendar/Toolbar";
+import { Toolbar } from "../calendar/Toolbar";
 
 type Props = {
   reservation: ReservationType;
@@ -81,8 +81,8 @@ const Actions = styled.div`
 
 const eventStyleGetter = (
   { event }: CalendarEvent<ReservationType>,
-  draggable = true,
-  ownReservations: number[]
+  ownReservations: number[],
+  draggable = true
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
     borderRadius: "0px",
@@ -341,8 +341,8 @@ const EditStep0 = ({
             eventStyleGetter={(event) =>
               eventStyleGetter(
                 event,
-                true,
-                userReservations?.map((n) => n.pk)
+                userReservations?.map((n) => n.pk),
+                true
               )
             }
             slotPropGetter={slotPropGetter}
@@ -356,9 +356,7 @@ const EditStep0 = ({
             showToolbar
             reservable
             toolbarComponent={Toolbar}
-            dateCellWrapperComponent={(props) => (
-              <TouchCellWrapper {...props} onSelectSlot={handleSlotClick} />
-            )}
+            dateCellWrapperComponent={TouchCellWrapper}
             resizable
             draggable
             onEventDrop={handleEventChange}
