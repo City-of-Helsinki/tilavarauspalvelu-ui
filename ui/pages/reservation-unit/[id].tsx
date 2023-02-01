@@ -71,6 +71,7 @@ import ReservationCalendarControls from "../../components/calendar/ReservationCa
 import {
   formatDate,
   getTranslation,
+  isTouchDevice,
   parseDate,
   printErrorMessages,
 } from "../../modules/util";
@@ -96,7 +97,7 @@ import {
   mockOpeningTimes,
 } from "../../modules/reservationUnit";
 import EquipmentList from "../../components/reservation-unit/EquipmentList";
-import { daysByMonths, isBrowser } from "../../modules/const";
+import { daysByMonths } from "../../modules/const";
 import QuickReservation from "../../components/reservation-unit/QuickReservation";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { CURRENT_USER } from "../../modules/queries/user";
@@ -457,6 +458,8 @@ const ReservationUnit = ({
   const openPricingTermsRef = useRef(null);
   const hash = router.asPath.split("#")[1];
 
+  const isClientATouchDevice = isTouchDevice();
+
   const subventionSuffix = useCallback(
     (placement: "reservation-unit-head" | "quick-reservation") =>
       reservationUnit.canApplyFreeOfCharge ? (
@@ -569,11 +572,6 @@ const ReservationUnit = ({
     );
   }, [reservationUnit.canApplyFreeOfCharge, reservationUnit.pricings]);
 
-  const isTouchDevice = useMemo(
-    () => isBrowser && window?.matchMedia("(any-hover: none)").matches,
-    []
-  );
-
   const [shouldCalendarControlsBeVisible, setShouldCalendarControlsBeVisible] =
     useState(false);
 
@@ -611,16 +609,16 @@ const ReservationUnit = ({
         state: "INITIAL",
       } as PendingReservation);
 
-      if (isTouchDevice) {
+      if (isClientATouchDevice) {
         setShouldCalendarControlsBeVisible(true);
       }
 
       return true;
     },
     [
+      isClientATouchDevice,
       isReservationQuotaReached,
       isSlotReservable,
-      isTouchDevice,
       reservationUnit.maxReservationDuration,
     ]
   );
@@ -637,7 +635,7 @@ const ReservationUnit = ({
       const end =
         action === "click" ||
         (action === "select" &&
-          isTouchDevice &&
+          isClientATouchDevice &&
           differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
               new Date(startTime),
@@ -658,10 +656,10 @@ const ReservationUnit = ({
       return true;
     },
     [
+      isClientATouchDevice,
       isReservationQuotaReached,
       isSlotReservable,
       reservationUnit.minReservationDuration,
-      isTouchDevice,
     ]
   );
 
@@ -1013,7 +1011,9 @@ const ReservationUnit = ({
                       );
                     }}
                     resizable={!isReservationQuotaReached}
-                    draggable={!isReservationQuotaReached && !isTouchDevice}
+                    draggable={
+                      !isReservationQuotaReached && !isClientATouchDevice
+                    }
                     onEventDrop={handleEventChange}
                     onEventResize={handleEventChange}
                     onSelectSlot={handleSlotClick}

@@ -21,12 +21,12 @@ import React, { Children, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMedia } from "react-use";
 import styled from "styled-components";
-import { isBrowser } from "../../modules/const";
 import {
   canReservationTimeBeChanged,
   isReservationReservable,
 } from "../../modules/reservation";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
+import { isTouchDevice } from "../../modules/util";
 import { BlackButton, MediumButton } from "../../styles/util";
 import Legend from "../calendar/Legend";
 import ReservationCalendarControls from "../calendar/ReservationCalendarControls";
@@ -149,11 +149,7 @@ const EditStep0 = ({
   const [focusDate, setFocusDate] = useState(new Date(reservation.begin));
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
-  const isTouchDevice = useMemo(
-    () => isBrowser && window?.matchMedia("(any-hover: none)").matches,
-    []
-  );
-
+  const isClientATouchDevice = isTouchDevice();
   const [shouldCalendarControlsBeVisible, setShouldCalendarControlsBeVisible] =
     useState(false);
 
@@ -309,13 +305,18 @@ const EditStep0 = ({
         price,
       } as PendingReservation);
 
-      if (isTouchDevice) {
+      if (isClientATouchDevice) {
         setShouldCalendarControlsBeVisible(true);
       }
 
       return true;
     },
-    [isSlotReservable, reservationUnit, setInitialReservation, isTouchDevice]
+    [
+      isClientATouchDevice,
+      isSlotReservable,
+      reservationUnit,
+      setInitialReservation,
+    ]
   );
 
   const handleSlotClick = useCallback(
@@ -326,7 +327,7 @@ const EditStep0 = ({
       const end =
         action === "click" ||
         (action === "select" &&
-          isTouchDevice &&
+          isClientATouchDevice &&
           differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
               new Date(startTime),
@@ -353,7 +354,12 @@ const EditStep0 = ({
       } as PendingReservation);
       return true;
     },
-    [isSlotReservable, reservationUnit, setInitialReservation, isTouchDevice]
+    [
+      isClientATouchDevice,
+      isSlotReservable,
+      reservationUnit,
+      setInitialReservation,
+    ]
   );
 
   return (
@@ -401,7 +407,7 @@ const EditStep0 = ({
               );
             }}
             resizable
-            draggable={!isTouchDevice}
+            draggable={!isClientATouchDevice}
             onEventDrop={handleEventChange}
             onEventResize={handleEventChange}
             onSelectSlot={handleSlotClick}
