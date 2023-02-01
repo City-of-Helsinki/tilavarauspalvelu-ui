@@ -1,16 +1,29 @@
-import axios from "axios";
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getToken } from "next-auth/jwt";
+import getConfig from "next/config";
+import { ExtendedJWT } from "./[...nextauth]";
 
-const logoutUrl = process.env.NEXT_PUBLIC_OIDC_END_SESSION;
-const authCallback = process.env.NEXT_PUBLIC_BASE_URL;
-const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID;
+const {
+  publicRuntimeConfig: { baseUrl, oidcEndSessionUrl },
+} = getConfig();
 
-export default async function nextAuthLogoutHandler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const path = `${logoutUrl}?client_id=${clientId}`;
-  const response = await axios.get(path);
+const federatedLogOut = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const token = (await getToken({ req })) as ExtendedJWT;
+    if (!token) {
+      return res.redirect(baseUrl);
+    }
 
-  res.status(response.status).json({ path: authCallback });
-}
+    const redirectURL = `${baseUrl}/logout`;
+    const endSessionParams = new URLSearchParams({
+      post_logout_redirect_uri: redirectURL,
+    });
+    const fullUrl = `${oidcEndSessionUrl}?${endSessionParams.toString()}`;
+
+    return res.redirect(fullUrl);
+  } catch (error) {
+    res.redirect(baseUrl);
+  }
+};
+
+export default federatedLogOut;
