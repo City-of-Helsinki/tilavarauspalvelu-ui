@@ -3,12 +3,12 @@ import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
-import { isFinite } from "lodash";
+import { get, isFinite } from "lodash";
 import { IconCalendar, IconCross, Notification } from "hds-react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { H1, H4 } from "common/src/common/typography";
+import { H2, H4 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
   Query,
@@ -40,6 +40,7 @@ import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
 import {
   getReservationUnitInstructionsKey,
   getReservationUnitName,
+  getReservationUnitPrice,
 } from "../../modules/reservationUnit";
 import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
 import ReservationStatus from "../../components/reservation/ReservationStatus";
@@ -108,7 +109,7 @@ const Container = styled(NarrowCenteredContainer)`
   }
 `;
 
-const Heading = styled(H1)`
+const Heading = styled(H2).attrs({ as: "h1" })`
   margin-top: 0;
   margin-bottom: var(--spacing-m);
 `;
@@ -233,11 +234,14 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
   });
 
   const reservation: ReservationType = useMemo(
-    () => reservationData?.reservationByPk,
+    () => ({
+      ...reservationData?.reservationByPk,
+      applyingForFreeOfCharge: true,
+    }),
     [reservationData]
   );
 
-  const reservationUnit = reservation?.reservationUnits[0];
+  const reservationUnit = get(reservation?.reservationUnits, "0");
 
   const instructionsKey = useMemo(
     () => getReservationUnitInstructionsKey(reservation?.state),
@@ -246,6 +250,21 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
 
   const isReservationCancelled = reservation?.state === "CANCELLED";
   const isBeingHandled = reservation?.state === "REQUIRES_HANDLING";
+
+  const shouldDisplayPricingTerms: boolean = useMemo(() => {
+    if (!reservation || !reservationUnit) return false;
+
+    const reservationUnitPrice = getReservationUnitPrice({
+      reservationUnit,
+      pricingDate: reservation?.begin ? new Date(reservation.begin) : undefined,
+      asInt: true,
+    });
+
+    return (
+      reservation.applyingForFreeOfCharge ||
+      (reservationUnit.canApplyFreeOfCharge && reservationUnitPrice !== "0")
+    );
+  }, [reservation, reservationUnit]);
 
   const paymentTermsContent = useMemo(
     () => getTranslation(reservationUnit?.paymentTerms, "text"),
@@ -334,10 +353,12 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     <Wrapper>
       <Container>
         <StyledBreadcrumbWrapper
-          route={[
-            "",
-            "/reservations",
-            t("reservations:reservationName", { id: reservation.pk }),
+          route={["", "/reservations", "reservationName"]}
+          aliases={[
+            {
+              slug: "reservationName",
+              title: t("reservations:reservationName", { id: reservation.pk }),
+            },
           ]}
         />
         <Columns>
@@ -505,7 +526,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                     </AccordionContent>
                   </Accordion>
                 )}
-                {pricingTermsContent && (
+                {shouldDisplayPricingTerms && pricingTermsContent && (
                   <Accordion
                     heading={t("reservationUnit:pricingTerms")}
                     theme="thin"

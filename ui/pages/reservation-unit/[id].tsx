@@ -14,7 +14,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { IconInfoCircleFill, Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { addSeconds, addYears, parseISO } from "date-fns";
+import { addSeconds, addYears, differenceInMinutes, parseISO } from "date-fns";
 import {
   formatSecondDuration,
   toApiDate,
@@ -53,6 +53,7 @@ import {
   ReservationUnitByPkType,
   ReservationUnitByPkTypeOpeningHoursArgs,
   ReservationUnitByPkTypeReservationsArgs,
+  ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitType,
   ReservationUnitTypeEdge,
   TermsOfUseType,
@@ -89,6 +90,7 @@ import {
 import {
   getFuturePricing,
   getPrice,
+  isReservationUnitPaidInFuture,
   isReservationUnitPublished,
   mockOpeningTimePeriods,
   mockOpeningTimes,
@@ -301,6 +303,7 @@ const Content = styled.div`
 
 const PaddedContent = styled(Content)`
   padding-top: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
 `;
 
 const CalendarFooter = styled.div<{ $cookiehubBannerHeight?: number }>`
@@ -416,6 +419,18 @@ const eventStyleGetter = (
 };
 
 const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
+
+const EventWrapper = styled.div``;
+
+const EventWrapperComponent = (props) => {
+  let isSmall = false;
+  if (props.event.event.state === "INITIAL") {
+    const { start, end } = props.event;
+    const diff = differenceInMinutes(end, start);
+    if (diff <= 30) isSmall = true;
+  }
+  return <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />;
+};
 
 const ReservationUnit = ({
   reservationUnit,
@@ -558,6 +573,13 @@ const ReservationUnit = ({
     },
     [activeApplicationRounds, reservationUnit]
   );
+
+  const shouldDisplayPricingTerms = useMemo(() => {
+    return (
+      reservationUnit.canApplyFreeOfCharge &&
+      isReservationUnitPaidInFuture(reservationUnit.pricings)
+    );
+  }, [reservationUnit.canApplyFreeOfCharge, reservationUnit.pricings]);
 
   const handleEventChange = useCallback(
     (
@@ -787,6 +809,7 @@ const ReservationUnit = ({
   );
 
   const quickReservationComponent = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (calendar: React.MutableRefObject<any>, type: "mobile" | "desktop") => {
       const scrollPosition = calendar?.current?.offsetTop
         ? calendar.current.offsetTop - 20
@@ -958,6 +981,7 @@ const ReservationUnit = ({
                         : Toolbar
                     }
                     dateCellWrapperComponent={TouchCellWrapper}
+                    eventWrapperComponent={EventWrapperComponent}
                     resizable={!isReservationQuotaReached}
                     draggable={!isReservationQuotaReached}
                     onEventDrop={handleEventChange}
@@ -981,7 +1005,6 @@ const ReservationUnit = ({
                     aria-hidden
                   />
                 </div>
-                <Legend wrapBreakpoint={breakpoints.l} />
                 {!isReservationQuotaReached &&
                   !isReservationStartInFuture(reservationUnit) && (
                     <CalendarFooter
@@ -993,6 +1016,7 @@ const ReservationUnit = ({
                         end={initialReservation?.end}
                         resetReservation={() => {
                           setInitialReservation(null);
+                          setFocusDate(new Date());
                         }}
                         isSlotReservable={(startDate, endDate) =>
                           isSlotReservable(startDate, endDate)
@@ -1006,6 +1030,7 @@ const ReservationUnit = ({
                       />
                     </CalendarFooter>
                   )}
+                <Legend />
               </CalendarWrapper>
             )}
             {isReservable && (
@@ -1036,6 +1061,8 @@ const ReservationUnit = ({
                                     : "months"
                                 }`
                               ),
+                              reservationsMinDaysBefore:
+                                reservationUnit.reservationsMinDaysBefore,
                             }}
                             components={{ bold: <strong /> }}
                           />
@@ -1141,23 +1168,24 @@ const ReservationUnit = ({
                         defaults="Huomioi <bold>hinnoittelumuutos {{date}} alkaen. Uusi hinta on {{price}}</bold>."
                         values={{
                           date: toUIDate(new Date(futurePricing.begins)),
-                          price: getPrice(
-                            futurePricing,
-                            undefined,
-                            true
-                          ).toLocaleLowerCase(),
+                          price: getPrice({
+                            pricing: futurePricing,
+                            trailingZeros: true,
+                          }).toLocaleLowerCase(),
                         }}
                         components={{ bold: <strong /> }}
                       />
-                      {futurePricing.taxPercentage?.value > 0 && (
-                        <strong>
-                          {t("reservationUnit:futurePriceNoticeTax", {
-                            tax: formatters.strippedDecimal.format(
-                              futurePricing.taxPercentage.value
-                            ),
-                          })}
-                        </strong>
-                      )}
+                      {futurePricing.pricingType ===
+                        ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
+                        futurePricing.taxPercentage?.value > 0 && (
+                          <strong>
+                            {t("reservationUnit:futurePriceNoticeTax", {
+                              tax: formatters.strippedDecimal.format(
+                                futurePricing.taxPercentage.value
+                              ),
+                            })}
+                          </strong>
+                        )}
                       .
                     </p>
                   )}
@@ -1188,17 +1216,18 @@ const ReservationUnit = ({
                 theme="thin"
                 data-testid="reservation-unit__payment-and-cancellation-terms"
               >
-                {paymentTermsContent && (
-                  <PaddedContent>
-                    <Sanitize html={paymentTermsContent} />
-                  </PaddedContent>
-                )}
                 <PaddedContent>
+                  {paymentTermsContent && (
+                    <Sanitize
+                      html={paymentTermsContent}
+                      style={{ marginBottom: "var(--spacing-m)" }}
+                    />
+                  )}
                   <Sanitize html={cancellationTermsContent} />
                 </PaddedContent>
               </Accordion>
             )}
-            {pricingTermsContent && (
+            {shouldDisplayPricingTerms && pricingTermsContent && (
               <Accordion
                 heading={t("reservationUnit:pricingTerms")}
                 theme="thin"
@@ -1214,12 +1243,13 @@ const ReservationUnit = ({
               theme="thin"
               data-testid="reservation-unit__terms-of-use"
             >
-              {serviceSpecificTermsContent && (
-                <PaddedContent>
-                  <Sanitize html={serviceSpecificTermsContent} />
-                </PaddedContent>
-              )}
               <PaddedContent>
+                {serviceSpecificTermsContent && (
+                  <Sanitize
+                    html={serviceSpecificTermsContent}
+                    style={{ marginBottom: "var(--spacing-m)" }}
+                  />
+                )}
                 <Sanitize
                   html={getTranslation(termsOfUse.genericTerms, "text")}
                 />

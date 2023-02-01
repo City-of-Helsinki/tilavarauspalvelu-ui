@@ -4,6 +4,7 @@ import {
   ApplicationRound,
   Parameter,
   RecurringReservation,
+  ReservationUnit,
 } from "common/types/common";
 import { apiBaseUrl } from "./const";
 import axiosClient from "./auth/axiosClient";
@@ -141,6 +142,12 @@ interface IDParameter {
   id: number;
 }
 
+export function getReservationUnit(id: number): Promise<ReservationUnit> {
+  return apiGet<ReservationUnit>({
+    path: `v1/reservation_unit/${id}`,
+  });
+}
+
 export function getParameters(
   name:
     | "purpose"
@@ -181,6 +188,7 @@ export const cancelApplication = async (
 ): Promise<void> => {
   const application = await getApplication(applicationId);
   application.status = "cancelled";
+
   await saveApplication(application);
 };
 

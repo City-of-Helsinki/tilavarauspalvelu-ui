@@ -1,5 +1,5 @@
 import { IconClock, IconGroup, IconTicket } from "hds-react";
-import React from "react";
+import React, { useMemo } from "react";
 import NextImage from "next/image";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
@@ -9,11 +9,17 @@ import {
 } from "common/src/calendar/util";
 import { parseISO } from "date-fns";
 import { formatSecondDuration } from "common/src/common/util";
-import { fontRegular, H1, H2 } from "common/src/common/typography";
+import { fontRegular, H2, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ReservationUnitByPkType } from "common/types/gql-types";
 import { useRouter } from "next/router";
-import { getTranslation, orderImages } from "../../modules/util";
+import { omit } from "lodash";
+import { useLocalStorage } from "react-use";
+import {
+  getTranslation,
+  orderImages,
+  singleSearchUrl,
+} from "../../modules/util";
 import Container from "../common/Container";
 import IconWithText from "../common/IconWithText";
 import Images from "./Images";
@@ -93,11 +99,11 @@ const StyledAltNotification = styled(AltNotification)`
   margin-bottom: var(--spacing-m);
 `;
 
-const ReservationUnitName = styled(H1)`
+const ReservationUnitName = styled(H2).attrs({ as: "h1" })`
   margin-top: 0;
 `;
 
-const UnitName = styled(H2)`
+const UnitName = styled(H3).attrs({ as: "h2" })`
   margin-top: 0;
   margin-bottom: var(--spacing-m);
 
@@ -115,6 +121,14 @@ const Head = ({
   const { asPath } = useRouter();
   const { t } = useTranslation();
 
+  const storageKey = "reservationUnit-search";
+
+  const [storedValues] = useLocalStorage(storageKey, null);
+
+  const searchUrlWithParams = useMemo(() => {
+    return singleSearchUrl(omit(storedValues, "applicationRound"));
+  }, [storedValues]);
+
   const minReservationDuration = formatSecondDuration(
     reservationUnit.minReservationDuration,
     true
@@ -125,15 +139,11 @@ const Head = ({
     true
   );
 
-  // const openingTimesTextArr = activeOpeningTimes?.map((openingTime, index) =>
-  //   getDayOpeningTimes(openingTime, index)
-  // );
-
   const pricing = getActivePricing(reservationUnit);
-  const unitPrice = getPrice(pricing);
+  const unitPrice = getPrice({ pricing });
 
   const unitPriceSuffix =
-    getPrice(pricing, undefined, false, true) !== "0" &&
+    getPrice({ pricing, asInt: true }) !== "0" &&
     subventionSuffix("reservation-unit-head");
 
   const reservationUnitName = getReservationUnitName(reservationUnit);
@@ -143,8 +153,8 @@ const Head = ({
   return (
     <>
       <BreadcrumbWrapper
-        route={["", asPath, "reservationUnit"]}
-        aliases={[{ slug: asPath, title: t("breadcrumb:search") }]}
+        route={["", searchUrlWithParams, "reservationUnit"]}
+        aliases={[{ slug: searchUrlWithParams, title: t("breadcrumb:search") }]}
       />
       <TopContainer>
         <Container>
@@ -158,7 +168,7 @@ const Head = ({
                     icon={
                       <NextImage
                         src="/icons/icon_premises.svg"
-                        alt="On premises icon"
+                        alt={t("common:headAlt")}
                         width="24"
                         height="24"
                         aria-label={t("reservationUnitCard:type")}
@@ -175,8 +185,14 @@ const Head = ({
                     icon={
                       <IconGroup aria-label={t("reservationUnit:maxPersons")} />
                     }
-                    text={t("reservationUnitCard:maxPersons", {
+                    text={t("reservationUnitCard:personRange", {
                       count: reservationUnit.maxPersons,
+                      value:
+                        reservationUnit.minPersons !==
+                          reservationUnit.maxPersons &&
+                        reservationUnit.minPersons > 1
+                          ? `${reservationUnit.minPersons} - ${reservationUnit.maxPersons}`
+                          : reservationUnit.maxPersons,
                     })}
                   />
                 )}

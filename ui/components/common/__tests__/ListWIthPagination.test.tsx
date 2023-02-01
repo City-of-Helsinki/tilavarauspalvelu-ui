@@ -10,8 +10,8 @@ jest.mock("next-i18next", () => ({
       t: (str: string, params?: Record<string, string | number>) => {
         const path = str.replace("searchResultList:", "");
         const key =
-          mockGet(mockTranslations, `${path}_plural`) && params?.count > 1
-            ? `${path}_plural`
+          mockGet(mockTranslations, `${path}_other`) && params?.count > 1
+            ? `${path}_other`
             : path;
         return mockGet(mockTranslations, key)?.replace(
           /{{(.*?)}}/g,

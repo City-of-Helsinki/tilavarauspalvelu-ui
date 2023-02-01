@@ -9,8 +9,9 @@ import { Notification } from "hds-react";
 import { useLocalStorage } from "react-use";
 import { isEqual, omit, pick } from "lodash";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { breakpoints } from "common/src/common/style";
 import { OptionType } from "common/types/common";
-import { H1 } from "common/src/common/typography";
+import { H2 } from "common/src/common/typography";
 import {
   PageInfo,
   Query,
@@ -22,10 +23,8 @@ import Container from "../../components/common/Container";
 import SearchForm from "../../components/single-search/SearchForm";
 import { capitalize, singleSearchUrl } from "../../modules/util";
 import { isBrowser } from "../../modules/const";
-import { HeroSubheading } from "../../modules/style/typography";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";
-import KorosDefault from "../../components/common/KorosDefault";
 import ClientOnly from "../../components/ClientOnly";
 import ListWithPagination from "../../components/common/ListWithPagination";
 import ReservationUnitCard from "../../components/single-search/ReservationUnitCard";
@@ -37,15 +36,23 @@ const Wrapper = styled.div`
   background-color: var(--tilavaraus-gray);
 `;
 
-const HeadContainer = styled.div`
-  background-color: white;
-  padding-top: var(--spacing-layout-xs);
+const StyledContainer = styled(Container)`
+  padding-bottom: var(--spacing-3-xs);
+
+  @media (min-width: ${breakpoints.s}) {
+    padding-bottom: var(--spacing-2-xs);
+  }
 `;
 
-const Heading = styled(H1)``;
+const HeadContainer = styled.div`
+  background-color: white;
+  padding-top: var(--spacing-m);
+`;
 
-const Subheading = styled(HeroSubheading)`
-  margin-bottom: var(--spacing-xs);
+const Heading = styled(H2).attrs({ as: "h1" })``;
+
+const BottomWrapper = styled.div`
+  padding-top: var(--spacing-l);
 `;
 
 const StyledSorting = styled(Sorting)`
@@ -126,10 +133,7 @@ const SearchSingle = (): JSX.Element => {
   );
 
   const [values, setValues] = useState({} as Record<string, string>);
-  const setStoredValues = useLocalStorage(
-    "reservationUnit-search-single",
-    null
-  )[1];
+  const setStoredValues = useLocalStorage("reservationUnit-search", null)[1];
 
   const { data, fetchMore, loading, error, networkStatus } = useQuery<
     Query,
@@ -231,58 +235,58 @@ const SearchSingle = (): JSX.Element => {
         </Notification>
       ) : null}
       <HeadContainer>
-        <Container>
+        <StyledContainer>
           <Heading>{t("search:single.heading")}</Heading>
-          <Subheading>{t("search:single.text")}</Subheading>
           <SearchForm
             onSearch={onSearch}
             formValues={omit(values, ["order", "sort"])}
             removeValue={onRemove}
           />
-        </Container>
+        </StyledContainer>
       </HeadContainer>
-      <KorosDefault from="white" to="var(--tilavaraus-gray)" />
       <ClientOnly>
-        <ListWithPagination
-          id="searchResultList"
-          items={reservationUnits?.map((ru) => (
-            <ReservationUnitCard reservationUnit={ru} key={ru.id} />
-          ))}
-          loading={loading}
-          loadingMore={loadingMore}
-          pageInfo={pageInfo}
-          totalCount={totalCount}
-          fetchMore={(cursor) => {
-            const variables = {
-              ...values,
-              after: cursor,
-            };
-            fetchMore({
-              variables: processVariables(variables, i18n.language),
-            });
-          }}
-          sortingComponent={
-            <StyledSorting
-              value={values.sort}
-              sortingOptions={sortingOptions}
-              setSorting={(val: OptionType) => {
-                const params = {
-                  ...values,
-                  sort: String(val.value),
-                };
-                history.replace(singleSearchUrl(params));
-              }}
-              isOrderingAsc={isOrderingAsc}
-              setIsOrderingAsc={(isAsc: boolean) => {
-                const params = {
-                  ...values,
-                  order: isAsc ? "asc" : "desc",
-                };
-                history.replace(singleSearchUrl(params));
-              }}
-            />
-          }
-        />
+        <BottomWrapper>
+          <ListWithPagination
+            id="searchResultList"
+            items={reservationUnits?.map((ru) => (
+              <ReservationUnitCard reservationUnit={ru} key={ru.id} />
+            ))}
+            loading={loading}
+            loadingMore={loadingMore}
+            pageInfo={pageInfo}
+            totalCount={totalCount}
+            fetchMore={(cursor) => {
+              const variables = {
+                ...values,
+                after: cursor,
+              };
+              fetchMore({
+                variables: processVariables(variables, i18n.language),
+              });
+            }}
+            sortingComponent={
+              <StyledSorting
+                value={values.sort}
+                sortingOptions={sortingOptions}
+                setSorting={(val: OptionType) => {
+                  const params = {
+                    ...values,
+                    sort: String(val.value),
+                  };
+                  history.replace(singleSearchUrl(params));
+                }}
+                isOrderingAsc={isOrderingAsc}
+                setIsOrderingAsc={(isAsc: boolean) => {
+                  const params = {
+                    ...values,
+                    order: isAsc ? "asc" : "desc",
+                  };
+                  history.replace(singleSearchUrl(params));
+                }}
+              />
+            }
+          />
+        </BottomWrapper>
       </ClientOnly>
     </Wrapper>
   );

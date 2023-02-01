@@ -11,9 +11,13 @@ import {
 } from "common/types/gql-types";
 import { Reservation } from "common/src/reservation-form/types";
 import TermsBox from "common/src/termsbox/TermsBox";
+import {
+  Subheading,
+  TwoColumnContainer,
+} from "common/src/reservation-form/styles";
 import { ReservationStep } from "../../modules/types";
 import { capitalize, getTranslation } from "../../modules/util";
-import { ActionContainer, Subheading, TwoColumnContainer } from "./styles";
+import { ActionContainer } from "./styles";
 import Sanitize from "../common/Sanitize";
 import { MediumButton } from "../../styles/util";
 
@@ -124,7 +128,7 @@ const Step1 = ({
       <Subheading>{t("reservationCalendar:reserverInfo")}</Subheading>
       <TwoColumnContainer style={{ marginBottom: "var(--spacing-2-xl)" }}>
         <>
-          {reservationApplicationFields.includes("reserveeType") && (
+          {reservationApplicationFields?.includes("reserveeType") && (
             <ParagraphAlt $isWide>
               <PreviewLabel>
                 {t("reservationApplication:reserveeTypePrefix")}
@@ -139,7 +143,7 @@ const Step1 = ({
             </ParagraphAlt>
           )}
           {reservationApplicationFields
-            .filter(
+            ?.filter(
               (key) =>
                 !["", undefined, false, 0, null].includes(get(reservation, key))
             )

@@ -2,19 +2,20 @@ import { NextApiRequest } from "next";
 import { getSession } from "next-auth/react";
 import axios, { AxiosRequestConfig } from "axios";
 import applyCaseMiddleware from "axios-case-converter";
-import { PROFILE_TOKEN_HEADER } from "../const";
+import { authEnabled, isBrowser, PROFILE_TOKEN_HEADER } from "../const";
 import { ExtendedSession } from "../../pages/api/auth/[...nextauth]";
 
 const axiosOptions = {
   timeout: 20000,
   headers: {
-    /* eslint-disable @typescript-eslint/naming-convention */
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     "Content-Type": "application/json",
   },
 };
 
 const axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 
+if (isBrowser && authEnabled) {
 axiosClient.interceptors.request.use(
   async (req: AxiosRequestConfig & NextApiRequest) => {
     const session = (await getSession()) as ExtendedSession;
@@ -30,5 +31,6 @@ axiosClient.interceptors.request.use(
     return req;
   }
 );
+}
 
 export default axiosClient;

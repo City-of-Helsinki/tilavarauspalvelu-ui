@@ -169,7 +169,20 @@ const Page2 = ({ application, onNext }: Props): JSX.Element => {
               size="small"
               type="info"
             >
-              <Trans i18nKey="application:Page2.info">
+              <Trans
+                i18nKey="application:Page2.info"
+                components={{
+                  a: (
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href="/Tilavarauspalvelu_Varausyksikoiden-aukioloajat.pdf"
+                    >
+                      {" "}
+                    </a>
+                  ),
+                }}
+              >
                 <a
                   target="_blank"
                   rel="noopener noreferrer"

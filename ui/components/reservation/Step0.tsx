@@ -13,13 +13,13 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import { Inputs, Reservation } from "common/src/reservation-form/types";
-import { MediumButton } from "../../styles/util";
 import {
-  ActionContainer,
   GroupHeading,
   Subheading,
   TwoColumnContainer,
-} from "./styles";
+} from "common/src/reservation-form/styles";
+import { MediumButton } from "../../styles/util";
+import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
 import InfoDialog from "../common/InfoDialog";
 
@@ -99,7 +99,7 @@ const Step0 = ({
         icon: (
           <Image
             src="/icons/icon_premises.svg"
-            alt="On premises icon"
+            alt={t("common:headAlt")}
             width="24"
             height="24"
             aria-hidden
@@ -107,7 +107,7 @@ const Step0 = ({
         ),
       },
     ];
-  }, []);
+  }, [t]);
 
   return (
     <Form
@@ -145,20 +145,24 @@ const Step0 = ({
                   }}
                   data={{
                     subventionLabel: (
-                      <Trans i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink">
-                        Haen maksuttomuutta tai hinnan alennusta ja olen
-                        tutustunut
-                        <a
-                          href="#"
-                          ref={openPricingTermsRef}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setIsDialogOpen(true);
-                          }}
-                        >
-                          alennusperusteisiin
-                        </a>
-                      </Trans>
+                      <Trans
+                        i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink"
+                        defaults="Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <a />"
+                        components={{
+                          a: (
+                            <a
+                              href="#"
+                              ref={openPricingTermsRef}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setIsDialogOpen(true);
+                              }}
+                            >
+                              alennusperusteisiin
+                            </a>
+                          ),
+                        }}
+                      />
                     ),
                   }}
                 />
@@ -174,7 +178,7 @@ const Step0 = ({
       >
         {t("reservationCalendar:reserverInfo")}
       </Subheading>
-      {reservationUnit?.metadataSet?.supportedFields.includes(
+      {reservationUnit?.metadataSet?.supportedFields?.includes(
         "reservee_type"
       ) && (
         <>

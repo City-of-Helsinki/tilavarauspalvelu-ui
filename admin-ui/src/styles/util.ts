@@ -168,13 +168,6 @@ export const Divider = styled.hr`
   grid-column: 1/-1;
 `;
 
-export const PlainButton = styled(Button).attrs({
-  variant: "secondary",
-  style: {
-    "--color-bus": "var(--color-black)",
-  },
-})``;
-
 export const NotificationBox = styled.div`
   background-color: var(--tilavaraus-admin-gray-darker);
   padding: 110px var(--spacing-layout-m) 100px;
@@ -193,7 +186,7 @@ export const ButtonsStripe = styled.div`
   display: flex;
   padding: var(--spacing-s);
   background-color: var(--color-bus-dark);
-  z-index: var(--tilavaraus-admin-button-stripe-stack);
+  z-index: var(--tilavaraus-admin-stack-button-stripe);
 `;
 
 export const WhiteButton = styled(Button)<{
@@ -242,7 +235,7 @@ export const WhiteButton = styled(Button)<{
 `;
 
 export const StyledNotification = styled(Notification)`
-  z-index: var(--tilavaraus-admin-notification-stack);
+  z-index: var(--tilavaraus-admin-stack-notification);
   margin: var(--spacing-xs) var(--spacing-layout-2-xs);
   width: auto;
   @media (min-width: ${breakpoints.xl}) {

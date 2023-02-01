@@ -6,7 +6,7 @@ const { PHASE_PRODUCTION_SERVER } = require("next/constants");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   i18n,
   serverRuntimeConfig: {
     apiBaseUrl: process.env.TILAVARAUS_API_URL,
@@ -38,6 +38,16 @@ const nextConfig = {
     mockRequests: process.env.NEXT_PUBLIC_MOCK_REQUESTS === "true",
 
     mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+  },
+  transpilePackages: ["common"],
+  compiler: {
+    styledComponents: {
+      ssr: true,
+      displayName: true,
+    },
+  },
+  sentry: {
+    hideSourceMaps: true,
   },
   transpilePackages: ["common"],
   compiler: {

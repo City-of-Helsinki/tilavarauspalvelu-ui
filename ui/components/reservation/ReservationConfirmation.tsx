@@ -5,16 +5,18 @@ import React, { useMemo } from "react";
 import { Trans, useTranslation } from "next-i18next";
 import Link from "next/link";
 import styled from "styled-components";
-import { fontMedium, H2 } from "common/src/common/typography";
+import { fontMedium, fontRegular, H2 } from "common/src/common/typography";
 import { Reservation } from "common/src/reservation-form/types";
 import {
   ReservationsReservationStateChoices,
   ReservationUnitType,
 } from "common/types/gql-types";
+import { Subheading } from "common/src/reservation-form/styles";
 import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
 import { getTranslation, reservationsUrl } from "../../modules/util";
 import { BlackButton } from "../../styles/util";
-import { Paragraph, Subheading } from "./styles";
+import { Paragraph } from "./styles";
+import { reservationUnitPath } from "../../modules/const";
 
 type Props = {
   reservation: Reservation;
@@ -24,6 +26,8 @@ type Props = {
 const Wrapper = styled.div`
   align-items: flex-start;
 `;
+
+const Heading = styled(H2).attrs({ as: "h1" })``;
 
 const ActionContainer1 = styled.div`
   margin: var(--spacing-m) 0 var(--spacing-l);
@@ -47,6 +51,11 @@ const Anchor = styled.a`
   ${fontMedium}
 `;
 
+const InlineAnchor = styled(Anchor)`
+  display: inline;
+  ${fontRegular};
+`;
+
 const ReservationConfirmation = ({
   reservation,
   reservationUnit,
@@ -66,7 +75,7 @@ const ReservationConfirmation = ({
   return (
     <Wrapper>
       <div>
-        <H2>
+        <Heading>
           {t(
             `reservationUnit:${
               requiresHandling
@@ -74,7 +83,7 @@ const ReservationConfirmation = ({
                 : "reservationSuccessful"
             }`
           )}
-        </H2>
+        </Heading>
         <Paragraph style={{ margin: "var(--spacing-xl) 0" }}>
           <Trans
             i18nKey={`reservationUnit:reservationReminderText${
@@ -82,10 +91,10 @@ const ReservationConfirmation = ({
             }`}
             t={t}
             values={{ user: reservation?.user.email }}
-            components={{
-              link: <a href={reservationsUrl}> </a>,
-            }}
-          />
+            components={{ bold: <strong />, br: <br /> }}
+          >
+            <InlineAnchor href={reservationsUrl}> </InlineAnchor>
+          </Trans>
         </Paragraph>
         <ActionContainer1 style={{ marginBottom: "var(--spacing-2-xl)" }}>
           <BlackButton
@@ -110,12 +119,18 @@ const ReservationConfirmation = ({
             marginTop: "var(--spacing-3-xl)",
           }}
         >
+          <Link href={reservationUnitPath(reservationUnit.pk)} passHref>
+            <Anchor>
+              {t("reservations:backToReservationUnit")}
+              <IconArrowRight aria-hidden size="m" />
+            </Anchor>
+          </Link>
           <Link href="/" passHref>
             <Anchor>
               {t("common:gotoFrontpage")}
               <IconArrowRight aria-hidden size="m" />
             </Anchor>
-          </Link>{" "}
+          </Link>
           <Link href={reservationsUrl} passHref>
             <Anchor>
               {t("common:logout")} <IconSignout size="m" aria-hidden />

@@ -13,10 +13,10 @@ import {
 } from "common/types/gql-types";
 import { OptionType } from "../../../common/types";
 
-export interface IProps {
+export type IProps = {
   reservationUnitPk?: string;
   unitPk: string;
-}
+};
 export type NotificationType = {
   title: string;
   text: string;
@@ -58,7 +58,7 @@ export type Action =
   | { type: "setMaxPersons"; maxPersons: number }
   | { type: "setReservationsMaxDaysBefore"; reservationsMaxDaysBefore: number }
   | {
-      type: "setValidatioErrors";
+      type: "setValidationErrors";
       validationErrors: Joi.ValidationResult | null;
     }
   | { type: "setImages"; images: Image[] };

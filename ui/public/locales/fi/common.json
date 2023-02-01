@@ -1,11 +1,15 @@
 {
   "dateTime": "{{date, d.M.yyyy 'klo' H.mm}}",
+  "dateTimeInForm": "{{date, d.M.yyyy 'klo' H:mm}}",
   "dateWithWeekday": "{{date, cccccc d.M.yyyy}}",
   "dateTimeNoYear": "{{date, d. MMMM 'klo' H.mm}}",
+  "dateTimeNoYearInForm": "{{date, d. MMMM 'klo' H:mm}}",
   "date": "{{date, d.M.yy}}",
   "dateLong": "{{date, d.M.yyyy}}",
   "time": "{{date, H.mm}}",
+  "timeInForm": "{{date, H:mm}}",
   "timeWithPrefix": "{{date, 'klo' H.mm}}",
+  "timeWithPrefixInForm": "{{date, 'klo' H:mm}}",
   "today": "Tänään",
   "day": "Päivä",
   "week": "Viikko",
@@ -39,10 +43,10 @@
   "month.9": "Lokakuu",
   "month.10": "Marraskuu",
   "month.11": "Joulukuu",
-  "hour": "{{count}} tunti",
-  "hour_plural": "{{count}} tuntia",
-  "minute": "{{count}} minuutti",
-  "minute_plural": "{{count}} minuuttia",
+  "hour_one": "{{count}} tunti",
+  "hour_other": "{{count}} tuntia",
+  "minute_one": "{{count}} minuutti",
+  "minute_other": "{{count}} minuuttia",
   "error": {
     "dataError": "Tietoja ei saatu haettua",
     "error": "Virhe",
@@ -101,5 +105,6 @@
   "fyiLabel": "Tiedoksi",
   "add": "Lisää",
   "subtract": "Vähennä",
-  "inclTax": "sis. alv {{taxPercentage}}%"
+  "inclTax": "sis. alv {{taxPercentage}}%",
+  "headAlt": "Tilan ikoni"
 }

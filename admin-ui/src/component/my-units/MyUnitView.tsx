@@ -1,9 +1,10 @@
 import React from "react";
-import { useQuery } from "@apollo/client";
 import { H1 } from "common/src/common/typography";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { LocationType, Query, QueryUnitsArgs } from "common/types/gql-types";
+import { LoadingSpinner } from "hds-react";
+import { useQuery } from "@apollo/client";
 import { publicUrl } from "../../common/const";
 import { parseAddress } from "../../common/util";
 import { useNotification } from "../../context/NotificationContext";
@@ -36,19 +37,17 @@ const MyUnitView = () => {
   const { loading, data: unitData } = useQuery<Query, QueryUnitsArgs>(
     UNIT_QUERY,
     {
-      variables: {
-        pk: [unitId],
-        offset: 0,
-      },
+      skip: !unitId,
       onError: (err) => {
         notifyError(err.message);
       },
+      variables: { pk: [unitId as string], offset: 0 },
     }
   );
 
   const unit = unitData?.units?.edges[0];
 
-  if (loading) return null;
+  if (loading || !unit) return <LoadingSpinner />;
 
   return (
     <>
@@ -58,7 +57,7 @@ const MyUnitView = () => {
       />
       <Container>
         <div>
-          <H1>{unit?.node?.nameFi}</H1>
+          <H1 $legacy>{unit?.node?.nameFi}</H1>
           <p>{parseAddress(unit?.node?.location as LocationType)}</p>
         </div>
         <Tabs headers={TabHeaders}>

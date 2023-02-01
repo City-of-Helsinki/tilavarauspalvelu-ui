@@ -1,11 +1,15 @@
 {
   "dateTime": "{{date, d.M.yyyy',' H.mm}}",
+  "dateTimeInForm": "{{date, d.M.yyyy',' H:mm}}",
   "dateWithWeekday": "{{date, cccccc d.M.yyyy}}",
   "dateTimeNoYear": "{{date, d. MMMM',' H.mm}}",
+  "dateTimeNoYearInForm": "{{date, d. MMMM',' H:mm}}",
   "date": "{{date, d.M.yy}}",
   "dateLong": "{{date, d.M.yyyy}}",
   "time": "{{date, H.mm}}",
+  "timeInForm": "{{date, H:mm}}",
   "timeWithPrefix": "{{date, ',' H.mm}}",
+  "timeWithPrefixInForm": "{{date, ',' H:mm}}",
   "today": "Today",
   "day": "Day",
   "week": "Week",
@@ -39,10 +43,10 @@
   "month.9": "October",
   "month.10": "November",
   "month.11": "December",
-  "hour": "{{count}} hour",
-  "hour_plural": "{{count}} hours",
-  "minute": "{{count}} minute",
-  "minute_plural": "{{count}} minutes",
+  "hour_one": "{{count}} hour",
+  "hour_other": "{{count}} hours",
+  "minute_one": "{{count}} minute",
+  "minute_other": "{{count}} minutes",
   "error": {
     "dataError": "Information could not be retrieved",
     "error": "Error",
@@ -101,5 +105,6 @@
   "fyiLabel": "For information",
   "add": "Add",
   "subtract": "Subtract",
-  "inclTax": ""
+  "inclTax": "",
+  "headAlt": "Tilan ikoni"
 }

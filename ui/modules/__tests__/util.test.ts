@@ -1,5 +1,4 @@
 import { ApolloError } from "@apollo/client";
-
 import {
   ApplicationEventSchedule,
   ApplicationEventSchedulePriority,

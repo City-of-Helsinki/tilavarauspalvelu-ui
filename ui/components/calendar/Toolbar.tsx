@@ -195,7 +195,7 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           }}
           aria-label={i18n.t("reservationCalendar:showCurrentDay")}
         >
-          {i18n.t("common:today") as string}
+          {i18n.t("common:today")}
         </button>
       </ButtonWrapper>
       <div className="rbc-toolbar-navigation-hz">
@@ -233,7 +233,7 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
             view: String(i18n.t("common:day")).toLowerCase(),
           })}
         >
-          {i18n.t("common:day") as string}
+          {i18n.t("common:day")}
         </button>
         <button
           className={classNames("", {
@@ -246,7 +246,7 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
             view: String(i18n.t("common:week")).toLowerCase(),
           })}
         >
-          {i18n.t("common:week") as string}
+          {i18n.t("common:week")}
         </button>
         <button
           className={classNames("", {
@@ -259,7 +259,7 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
             view: String(i18n.t("common:month")).toLowerCase(),
           })}
         >
-          {i18n.t("common:month") as string}
+          {i18n.t("common:month")}
         </button>
       </div>
     </Wrapper>

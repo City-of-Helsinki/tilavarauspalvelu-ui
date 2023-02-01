@@ -127,9 +127,7 @@ const eventStyleGetter = (
   };
 };
 
-const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-  <Toolbar {...props} />
-));
+const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
 
 const EditStep0 = ({
   reservation,
@@ -144,12 +142,17 @@ const EditStep0 = ({
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
-  const [focusDate, setFocusDate] = useState(new Date());
+  const [focusDate, setFocusDate] = useState(new Date(reservation.begin));
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   const calendarEvents: CalendarEvent<ReservationType>[] = useMemo(() => {
+    const shownReservation = initialReservation || {
+      begin: reservation.begin,
+      end: reservation.end,
+      state: "OWN",
+    };
     return userReservations && reservationUnit?.reservations
-      ? [...reservationUnit.reservations, initialReservation]
+      ? [...reservationUnit.reservations, shownReservation]
           .filter((n: ReservationType) => n)
           .map((n: ReservationType) => {
             const event = {
@@ -167,20 +170,47 @@ const EditStep0 = ({
             return event;
           })
       : [];
-  }, [reservationUnit, t, initialReservation, userReservations]);
+  }, [
+    reservationUnit,
+    t,
+    initialReservation,
+    userReservations,
+    reservation.begin,
+    reservation.end,
+  ]);
 
   const eventBuffers = useMemo(() => {
     return getEventBuffers([
       ...(calendarEvents.flatMap((e) => e.event) as ReservationType[]),
+
       {
-        begin: initialReservation?.begin,
-        end: initialReservation?.end,
+        begin: initialReservation?.begin || reservation.begin,
+        end: initialReservation?.end || reservation.end,
         state: "INITIAL",
-        bufferTimeBefore: reservationUnit?.bufferTimeBefore.toString(),
-        bufferTimeAfter: reservationUnit?.bufferTimeAfter.toString(),
+        bufferTimeBefore: reservationUnit?.bufferTimeBefore?.toString(),
+        bufferTimeAfter: reservationUnit?.bufferTimeAfter?.toString(),
       },
     ]);
-  }, [calendarEvents, initialReservation, reservationUnit]);
+  }, [
+    calendarEvents,
+    initialReservation,
+    reservation.begin,
+    reservation.end,
+    reservationUnit?.bufferTimeAfter,
+    reservationUnit?.bufferTimeBefore,
+  ]);
+
+  const isSlotFree = useCallback(
+    (start: Date): boolean => {
+      const price = getReservationUnitPrice({
+        reservationUnit,
+        pricingDate: start,
+        asInt: true,
+      });
+      return price === "0";
+    },
+    [reservationUnit]
+  );
 
   const slotPropGetter = useMemo(
     () =>
@@ -194,9 +224,10 @@ const EditStep0 = ({
         reservationUnit.reservationEnds
           ? new Date(reservationUnit.reservationEnds)
           : undefined,
-        reservationUnit.reservationsMinDaysBefore
+        reservationUnit.reservationsMinDaysBefore,
+        (date) => isSlotFree(date)
       ),
-    [activeApplicationRounds, reservationUnit]
+    [activeApplicationRounds, reservationUnit, isSlotFree]
   );
 
   const TouchCellWrapper = ({ children, value, onSelectSlot }): JSX.Element => {
@@ -210,15 +241,17 @@ const EditStep0 = ({
 
   const isSlotReservable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
-      return isReservationReservable({
-        reservationUnit,
-        activeApplicationRounds,
-        start,
-        end,
-        skipLengthCheck,
-      });
+      return (
+        isReservationReservable({
+          reservationUnit,
+          activeApplicationRounds,
+          start,
+          end,
+          skipLengthCheck,
+        }) && isSlotFree(start)
+      );
     },
-    [activeApplicationRounds, reservationUnit]
+    [activeApplicationRounds, reservationUnit, isSlotFree]
   );
 
   const handleEventChange = useCallback(
@@ -246,13 +279,12 @@ const EditStep0 = ({
         return false;
       }
 
-      const price = getReservationUnitPrice(
+      const price = getReservationUnitPrice({
         reservationUnit,
-        start,
-        0,
-        false,
-        true
-      );
+        pricingDate: start,
+        minutes: 0,
+        asInt: true,
+      });
 
       setInitialReservation({
         begin: newReservation.begin,
@@ -280,13 +312,12 @@ const EditStep0 = ({
         return false;
       }
 
-      const price = getReservationUnitPrice(
+      const price = getReservationUnitPrice({
         reservationUnit,
-        start,
-        0,
-        false,
-        true
-      );
+        pricingDate: start,
+        minutes: 0,
+        asInt: true,
+      });
 
       setInitialReservation({
         begin: start.toISOString(),
@@ -363,6 +394,7 @@ const EditStep0 = ({
             setErrorMsg={setErrorMsg}
             handleEventChange={handleEventChange}
             mode="edit"
+            customAvailabilityValidation={isSlotFree}
           />
         </CalendarFooter>
         <Legend />
@@ -374,6 +406,7 @@ const EditStep0 = ({
           onClick={() => {
             router.push(`/reservations/${reservation.pk}`);
           }}
+          data-testid="reservation-edit__button--cancel"
         >
           {t("reservations:cancelEditReservationTime")}
         </BlackButton>
@@ -399,6 +432,7 @@ const EditStep0 = ({
               setStep(1);
             }
           }}
+          data-testid="reservation-edit__button--continue"
         >
           {t("reservationCalendar:nextStep")}
         </MediumButton>

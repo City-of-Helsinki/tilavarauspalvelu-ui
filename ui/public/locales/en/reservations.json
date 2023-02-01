@@ -67,7 +67,6 @@
   "contactEmail": "",
   "saveToCalendar": "",
   "reservationInfoBoxHeading": "",
-  "reservationInfoBoxContent": "",
   "steps": {
     "1": "",
     "2": "",
@@ -91,5 +90,6 @@
     "paid": "",
     "paidManually": ""
   },
-  "reservationEditFailed": ""
+  "reservationEditFailed": "",
+  "backToReservationUnit": ""
 }

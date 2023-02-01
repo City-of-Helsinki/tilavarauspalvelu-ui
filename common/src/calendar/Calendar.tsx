@@ -65,8 +65,8 @@ type Props<T> = {
   draggableAccessor?: (event: CalendarEvent<T>) => boolean;
   resizableAccessor?: (event: CalendarEvent<T>) => boolean;
   toolbarComponent?: (props: ToolbarProps) => JSX.Element | React.ReactNode;
-  eventWrapperComponent?: React.ReactNode;
-  dateCellWrapperComponent?: (props: any) => JSX.Element | React.ReactNode;
+  eventWrapperComponent?: (props: unknown) => JSX.Element | React.ReactNode;
+  dateCellWrapperComponent?: (props: unknown) => JSX.Element | React.ReactNode;
   showToolbar?: boolean;
   reservable?: boolean;
   draggable?: boolean;
@@ -356,7 +356,7 @@ const StyledCalendar = styled(BigCalendar)<{
     width: 100% !important;
     left: 0 !important;
     z-index: 2 !important;
-    padding-top: var(--spacing-2-xs);
+    padding-top: 2px;
   }
 
   .rbc-event-buffer {
@@ -402,6 +402,15 @@ const StyledCalendar = styled(BigCalendar)<{
   .rbc-slot-selection {
     display: none;
   }
+
+  .rbc-event-label {
+    text-overflow: unset;
+    white-space: normal;
+  }
+
+  .isSmall .rbc-event-label {
+    white-space: nowrap;
+  }
 `;
 
 const StyledCalendarDND = styled(withDragAndDrop(StyledCalendar))``;
@@ -411,9 +420,10 @@ const locales = {
 };
 
 const localizer = dateFnsLocalizer({
-  format,
+  format: (date: Date, fmt: string) =>
+    format(date, fmt, { locale: locales.fi }),
   parse: parseDate,
-  startOfWeek,
+  startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 1 }),
   getDay,
   locales,
 });
@@ -455,6 +465,8 @@ const Calendar = <T extends Record<string, unknown>>({
       formats={{
         dayFormat: "EEEEEE d.M.",
         timeGutterFormat: "H",
+        eventTimeRangeFormat: ({ start, end }: { start: Date; end: Date }) =>
+          `${format(start, "H:mm")}-${format(end, "H:mm")}`,
       }}
       eventPropGetter={eventStyleGetter}
       events={events}

@@ -27,7 +27,7 @@ const Heading = styled(H3).attrs({ as: "h2" })`
 const Content = styled(Container)`
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-layout-s) var(--spacing-m) var(--spacing-layout-m);
+  padding: var(--spacing-m);
 `;
 
 const Top = styled.div`
@@ -37,7 +37,7 @@ const Top = styled.div`
   gap: var(--spacing-m);
   padding-bottom: var(--spacing-m);
 
-  @media (min-width: ${breakpoints.m}) {
+  @media (min-width: ${breakpoints.s}) {
     flex-direction: row;
     align-items: flex-end;
   }
@@ -47,7 +47,6 @@ const PurposeContainer = styled.div`
   display: grid;
   gap: var(--spacing-l) var(--spacing-m);
   grid-template-columns: 1fr;
-  margin-top: var(--spacing-m);
 
   @media (min-width: ${mobileBreakpoint}) {
     grid-template-columns: repeat(2, minmax(20px, 1fr));
@@ -62,7 +61,7 @@ const PurposeContainer = styled.div`
   }
 `;
 
-const PurposeItem = styled.a`
+const PurposeItem = styled.div`
   &:hover {
     span {
       text-decoration: underline;
@@ -110,7 +109,7 @@ const MoreLink = styled.a`
 `;
 
 const Purposes = ({ purposes }: Props): JSX.Element => {
-  const { t } = useTranslation("home");
+  const { t } = useTranslation(["home", "common"]);
 
   const [showAll, setShowAll] = React.useState(false);
   const isMobile = useMedia(`(max-width: ${mobileBreakpoint})`, false);
@@ -134,7 +133,6 @@ const Purposes = ({ purposes }: Props): JSX.Element => {
             <Link
               key={item.pk}
               href={`${singleSearchPrefix}?purposes=${item.pk}`}
-              passHref
             >
               <PurposeItem data-testid="front-page__purposes--purpose">
                 <Image src={item.smallUrl} alt="" aria-hidden />
@@ -151,7 +149,7 @@ const Purposes = ({ purposes }: Props): JSX.Element => {
             data-testid="front-page__purposes--more-link"
             onClick={() => setShowAll(!showAll)}
           >
-            {t(`show${showAll ? "Less" : "More"}`)}
+            {t(`${showAll ? "common:showLess" : "common:showMore"}`)}{" "}
             {showAll ? (
               <IconAngleUp aria-hidden />
             ) : (

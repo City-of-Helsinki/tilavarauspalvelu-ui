@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import Container from "./Container";
-import { MediumButton } from "../../styles/util";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 
 type Props = {
@@ -40,10 +39,6 @@ const ReservationUnitCount = styled.div`
   white-space: nowrap;
 `;
 
-const SubmitButton = styled(MediumButton).attrs({
-  variant: "secondary",
-})``;
-
 const InnerContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -74,6 +69,11 @@ const DeleteButton = styled(Button).attrs({
   // eslint-disable-next-line @typescript-eslint/naming-convention
   "data-testid": "start-application-bar__button--clear-selections",
 })``;
+
+const SubmitButton = styled(Button)`
+  background-color: var(--color-white);
+  color: var(--color-bus);
+`;
 
 const StartApplicationBar = ({
   count,
@@ -112,6 +112,7 @@ const StartApplicationBar = ({
           </Left>
           <SubmitButton
             id="startApplicationButton"
+            variant="primary"
             iconRight={<IconArrowRight />}
             onClick={() => {
               router.push(`/intro`);

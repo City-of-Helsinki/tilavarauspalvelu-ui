@@ -16,10 +16,9 @@ jest.mock("next-i18next", () => ({
 
 test("secondToHms", () => {
   expect(secondsToHms(9832475)).toEqual({ h: 2731, m: 14, s: 35 });
-  expect(secondsToHms(0)).toEqual({});
+  expect(secondsToHms(0)).toEqual({ h: 0, m: 0, s: 0 });
   expect(secondsToHms(-190)).toEqual({});
-  expect(secondsToHms()).toEqual({});
-  expect(secondsToHms(undefined)).toEqual({});
+  expect(secondsToHms(null)).toEqual({});
 });
 
 test("convertHMSToSeconds", () => {

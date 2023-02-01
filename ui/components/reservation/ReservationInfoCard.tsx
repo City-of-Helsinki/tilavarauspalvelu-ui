@@ -2,6 +2,7 @@ import { getReservationPrice, formatters as getFormatters } from "common";
 import { breakpoints } from "common/src/common/style";
 import { H4, Strong } from "common/src/common/typography";
 import { differenceInMinutes, parseISO } from "date-fns";
+import Link from "next/link";
 import { trim } from "lodash";
 import React, { useMemo } from "react";
 import { useTranslation } from "next-i18next";
@@ -18,6 +19,7 @@ import {
   getMainImage,
   getTranslation,
 } from "../../modules/util";
+import { reservationUnitPath } from "../../modules/const";
 
 type Type = "pending" | "confirmed" | "complete";
 
@@ -55,6 +57,12 @@ const Heading = styled(H4).attrs({ as: "h3" })`
   margin-bottom: var(--spacing-xs);
 `;
 
+const Anchor = styled.a`
+  text-decoration: underline;
+  color: var(--color-black-90);
+  text-underline-offset: 4px;
+`;
+
 const Value = styled.div`
   margin-bottom: var(--spacing-s);
   line-height: var(--lineheight-l);
@@ -80,7 +88,7 @@ const ReservationInfoCard = ({
     date: begin && parseISO(begin),
   });
 
-  const beginTime = t("common:timeWithPrefix", {
+  const beginTime = t("common:timeWithPrefixInForm", {
     date: begin && parseISO(begin),
   });
 
@@ -88,14 +96,14 @@ const ReservationInfoCard = ({
     date: end && parseISO(end),
   });
 
-  const endTime = t("common:time", {
+  const endTime = t("common:timeInForm", {
     date: end && parseISO(end),
   });
 
   const duration = differenceInMinutes(new Date(end), new Date(begin));
 
   const timeString = trim(
-    `${beginDate} ${beginTime} - ${
+    `${beginDate} ${beginTime}-${
       endDate !== beginDate ? endDate : ""
     }${endTime}`,
     " - "
@@ -110,18 +118,27 @@ const ReservationInfoCard = ({
     " - "
   );
 
+  const headingContent =
+    type === "confirmed" ? (
+      <Link passHref href={reservationUnitPath(reservationUnit.pk)}>
+        <Anchor>{getTranslation(reservationUnit, "name")}</Anchor>
+      </Link>
+    ) : (
+      getTranslation(reservationUnit, "name")
+    );
+
   const purpose = getTranslation(reservation?.purpose, "name");
 
   const price: string =
     begin &&
     (reservation?.state === "REQUIRES_HANDLING" ||
       shouldDisplayReservationUnitPrice)
-      ? getReservationUnitPrice(
+      ? getReservationUnitPrice({
           reservationUnit,
-          new Date(begin),
-          duration,
-          true
-        )
+          pricingDate: new Date(begin),
+          minutes: duration,
+          trailingZeros: true,
+        })
       : getReservationPrice(
           reservation?.price,
           t("prices:priceFree"),
@@ -131,13 +148,12 @@ const ReservationInfoCard = ({
 
   const shouldDisplayTaxPercentage: boolean =
     reservation?.state === "REQUIRES_HANDLING" && begin
-      ? getReservationUnitPrice(
+      ? getReservationUnitPrice({
           reservationUnit,
-          new Date(begin),
-          0,
-          false,
-          true
-        ) !== "0"
+          pricingDate: new Date(begin),
+          minutes: 0,
+          asInt: true,
+        }) !== "0"
       : reservation?.price > 0;
 
   const formatters = useMemo(
@@ -154,7 +170,7 @@ const ReservationInfoCard = ({
         />
       )}
       <Content data-testid="reservation__reservation-info-card__content">
-        <Heading>{getTranslation(reservationUnit, "name")}</Heading>
+        <Heading>{headingContent}</Heading>
         {["confirmed", "complete"].includes(type) && (
           <Subheading>
             {t("reservations:reservationNumber")}: {reservation?.pk}

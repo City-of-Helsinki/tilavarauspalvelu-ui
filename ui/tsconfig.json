@@ -16,7 +16,13 @@
     "incremental": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "jest.setup.js", "jest.config.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "*.d.ts",
+    "jest.setup.js",
+    "jest.config.ts"
+  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts",

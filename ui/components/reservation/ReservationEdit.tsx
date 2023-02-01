@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { breakpoints } from "common/src/common/style";
-import { H1 } from "common/src/common/typography";
+import { H2 } from "common/src/common/typography";
 import {
   ApplicationRoundType,
   Query,
@@ -23,6 +23,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { PendingReservation } from "common/types/common";
 import { toApiDate } from "common/src/common/util";
+import { Subheading } from "common/src/reservation-form/styles";
 import {
   ADJUST_RESERVATION_TIME,
   GET_RESERVATION,
@@ -32,7 +33,6 @@ import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
 import { getTranslation } from "../../modules/util";
 import Sanitize from "../common/Sanitize";
 import ReservationInfoCard from "./ReservationInfoCard";
-import { Subheading } from "./styles";
 import { CURRENT_USER } from "../../modules/queries/user";
 import {
   RESERVATION_UNIT,
@@ -50,6 +50,8 @@ import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";
 
 type Props = {
   id: number;
+  // eslint-disable-next-line react/no-unused-prop-types
+  logout?: () => void;
 };
 
 const allowedReservationStates: ReservationsReservationStateChoices[] = [
@@ -66,6 +68,8 @@ const Wrapper = styled.div`
 const Content = styled(Container)`
   display: block;
 `;
+
+const Heading = styled(H2).attrs({ as: "h1" })``;
 
 const Columns = styled.div`
   display: block;
@@ -247,7 +251,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
             applicationRound.reservationUnits
               .map((n) => n.pk)
               .includes(reservationUnit.pk)
-          )
+          ) || []
       );
     }
   }, [applicationRoundsData, reservationUnit]);
@@ -324,7 +328,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
     return (
       <Wrapper>
         <Content>
-          <LoadingSpinner style={{ margin: "var(--spacing-l) auto" }} />
+          <LoadingSpinner style={{ margin: "var(--spacing-layout-xl) auto" }} />
         </Content>
       </Wrapper>
     );
@@ -340,7 +344,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
             </JustForDesktop>
           </div>
           <div>
-            <H1>
+            <Heading>
               {t(
                 `${
                   step === 0
@@ -348,7 +352,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
                     : "reservationCalendar:heading.pendingReservation"
                 }`
               )}
-            </H1>
+            </Heading>
             <StyledStepper
               language={i18n.language}
               selectedStep={step}
