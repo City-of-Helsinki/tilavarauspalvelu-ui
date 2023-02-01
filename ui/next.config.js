@@ -11,11 +11,7 @@ const nextConfig = {
   serverRuntimeConfig: {
     apiBaseUrl: process.env.TILAVARAUS_API_URL,
     authEnabled: process.env.DISABLE_AUTH !== "true",
-  },
-  publicRuntimeConfig: {
-    apiBaseUrl: process.env.TILAVARAUS_API_URL,
 
-    authEnabled: process.env.DISABLE_AUTH !== "true",
     oidcClientId: process.env.NEXT_PUBLIC_OIDC_CLIENT_ID,
     oidcClientSecret: process.env.NEXT_PUBLIC_OIDC_AUTH_SECRET,
     oidcIssuer: process.env.NEXT_PUBLIC_OIDC_URL,
@@ -25,6 +21,12 @@ const nextConfig = {
     oidcTilavarausApiUrl: process.env.NEXT_PUBLIC_OIDC_TILAVARAUS_API_URL,
     oidcScope: process.env.NEXT_PUBLIC_OIDC_SCOPE,
     oidcCallbackUrl: process.env.NEXT_PUBLIC_OIDC_CALLBACK_URL,
+  },
+  publicRuntimeConfig: {
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+    apiBaseUrl: process.env.TILAVARAUS_API_URL,
+    authEnabled: process.env.DISABLE_AUTH !== "true",
+
     oidcEndSessionUrl: process.env.NEXT_PUBLIC_OIDC_END_SESSION,
 
     sentryDSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -33,10 +35,9 @@ const nextConfig = {
     cookiehubEnabled: process.env.NEXT_PUBLIC_COOKIEHUB_ENABLED === "true",
     matomoEnabled: process.env.NEXT_PUBLIC_MATOMO_ENABLED === "true",
     hotjarEnabled: process.env.NEXT_PUBLIC_HOTJAR_ENABLED === "true",
+    mockRequests: process.env.NEXT_PUBLIC_MOCK_REQUESTS === "true",
 
     mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
-
-    mockRequests: process.env.NEXT_PUBLIC_MOCK_REQUESTS === "true",
   },
   transpilePackages: ["common"],
   compiler: {

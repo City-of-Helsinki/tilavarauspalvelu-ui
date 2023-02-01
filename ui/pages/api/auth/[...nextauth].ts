@@ -78,7 +78,7 @@ type SessionParams = {
 };
 
 const {
-  publicRuntimeConfig: {
+  serverRuntimeConfig: {
     oidcClientId,
     oidcClientSecret,
     oidcIssuer,
@@ -270,4 +270,4 @@ export default function nextAuthApiHandler(
   return NextAuth(req, res, options());
 }
 
-export type { ExtendedSession };
+export type { ExtendedSession, ExtendedJWT };
