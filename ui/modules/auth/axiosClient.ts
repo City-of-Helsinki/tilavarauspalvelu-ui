@@ -19,30 +19,20 @@ const axiosOptions = {
 
 const axiosClient = applyCaseMiddleware(axios.create(axiosOptions));
 
-type RequestParams = Omit<AxiosRequestConfig, "headers"> & {
-  headers?: (RawAxiosRequestHeaders | AxiosHeaders) & {
-    Authorization?: string;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    "X-Authorization"?: string;
-  };
-};
-
 if (isBrowser && authEnabled) {
-  axiosClient.interceptors.request.use(
-    async (req: AxiosRequestConfig & NextApiRequest) => {
-      const session = (await getSession()) as ExtendedSession;
+  axiosClient.interceptors.request.use(async (req) => {
+    const session = (await getSession()) as ExtendedSession;
 
-      if (session?.apiTokens?.tilavaraus) {
-        req.headers.Authorization = `Bearer ${session.apiTokens.tilavaraus}`;
-      }
-
-      if (session?.apiTokens?.profile) {
-        req.headers[PROFILE_TOKEN_HEADER] = `${session?.apiTokens.profile}`;
-      }
-
-      return req;
+    if (session?.apiTokens?.tilavaraus) {
+      req.headers.Authorization = `Bearer ${session.apiTokens.tilavaraus}`;
     }
-  );
+
+    if (session?.apiTokens?.profile) {
+      req.headers[PROFILE_TOKEN_HEADER] = `${session?.apiTokens.profile}`;
+    }
+
+    return req;
+  });
 }
 
 export default axiosClient;

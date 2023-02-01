@@ -25,7 +25,6 @@ import Loader from "../../components/common/Loader";
 import { TwoColumnContainer } from "../../components/common/common";
 import { isBrowser } from "../../modules/const";
 import { MediumButton } from "../../styles/util";
-import RequireAuthentication from "../../components/common/RequireAuthentication";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
