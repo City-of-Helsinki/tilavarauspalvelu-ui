@@ -64,11 +64,11 @@ const Content = styled.div`
   }
 `;
 
-const Ingress = styled(H2)`
+const Ingress = styled(H2).attrs({ $legacy: true })`
   line-height: 1.8125rem;
 `;
 
-function MainLander({ withSiteWrapper = false }: IProps): JSX.Element {
+function MainLander({ withSiteWrapper = false }: IProps) {
   const { t } = useTranslation();
   const { authState } = useAuthState();
 

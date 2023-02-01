@@ -14,7 +14,6 @@ import { useRouter } from "next/router";
 import { Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { addSeconds, addYears, differenceInMinutes } from "date-fns";
-import styled from "styled-components";
 import { toApiDate, toUIDate } from "common/src/common/util";
 import {
   getEventBuffers,
@@ -67,7 +66,7 @@ import {
   parseDate,
   printErrorMessages,
 } from "../../modules/util";
-import Toolbar, { ToolbarProps } from "../../components/calendar/Toolbar";
+import { Toolbar, ToolbarProps } from "../../components/calendar/Toolbar";
 import {
   OPENING_HOURS,
   RELATED_RESERVATION_UNITS,
@@ -279,12 +278,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
-const EventWrapper = styled.div``;
-
 const eventStyleGetter = (
   { event }: CalendarEvent<Reservation | ReservationType>,
-  draggable = true,
-  ownReservations: number[]
+  ownReservations: number[],
+  draggable = true
 ): { style: React.CSSProperties; className?: string } => {
   const style = {
     borderRadius: "0px",
@@ -327,6 +324,18 @@ const eventStyleGetter = (
     style,
     className,
   };
+};
+
+const ToolbarWithProps = (props: ToolbarProps) => <Toolbar {...props} />;
+
+const EventWrapperComponent = (props) => {
+  let isSmall = false;
+  if (props.event.event.state === "INITIAL") {
+    const { start, end } = props.event;
+    const diff = differenceInMinutes(end, start);
+    if (diff <= 30) isSmall = true;
+  }
+  return <div {...props} className={isSmall ? "isSmall" : ""} />;
 };
 
 const ReservationUnit = ({
@@ -676,10 +685,6 @@ const ReservationUnit = ({
     [addReservation, reservationUnit.pk, setReservation]
   );
 
-  const ToolbarWithProps = React.memo((props: ToolbarProps) => (
-    <Toolbar {...props} />
-  ));
-
   const isReservable = useMemo(() => {
     return isReservationUnitReservable(reservationUnit);
   }, [reservationUnit]);
@@ -710,7 +715,12 @@ const ReservationUnit = ({
   );
 
   const quickReservationComponent = useCallback(
-    (calendar, type: "mobile" | "desktop") => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (calendar: React.MutableRefObject<any>, type: "mobile" | "desktop") => {
+      const scrollPosition = calendar?.current?.offsetTop
+        ? calendar.current.offsetTop - 20
+        : undefined;
+
       return (
         !isReservationStartInFuture(reservationUnit) &&
         isReservable && (
@@ -719,7 +729,7 @@ const ReservationUnit = ({
             isReservationUnitReservable={!isReservationQuotaReached}
             createReservation={(res) => createReservation(res)}
             reservationUnit={reservationUnit}
-            scrollPosition={calendar?.current?.offsetTop - 20}
+            scrollPosition={scrollPosition}
             setErrorMsg={setErrorMsg}
             idPrefix={type}
             subventionSuffix={subventionSuffix}
@@ -835,8 +845,8 @@ const ReservationUnit = ({
                     eventStyleGetter={(event) =>
                       eventStyleGetter(
                         event,
-                        !isReservationQuotaReached,
-                        userReservations?.map((n) => n.pk)
+                        userReservations?.map((n) => n.pk),
+                        !isReservationQuotaReached
                       )
                     }
                     slotPropGetter={slotPropGetter}
@@ -854,26 +864,8 @@ const ReservationUnit = ({
                         ? ToolbarWithProps
                         : Toolbar
                     }
-                    dateCellWrapperComponent={(props) => (
-                      <TouchCellWrapper
-                        {...props}
-                        onSelectSlot={handleSlotClick}
-                      />
-                    )}
-                    eventWrapperComponent={(props) => {
-                      let isSmall = false;
-                      if (props.event.event.state === "INITIAL") {
-                        const { start, end } = props.event;
-                        const diff = differenceInMinutes(end, start);
-                        if (diff <= 30) isSmall = true;
-                      }
-                      return (
-                        <EventWrapper
-                          {...props}
-                          className={isSmall ? "isSmall" : ""}
-                        />
-                      );
-                    }}
+                    dateCellWrapperComponent={TouchCellWrapper}
+                    eventWrapperComponent={EventWrapperComponent}
                     resizable={!isReservationQuotaReached}
                     draggable={!isReservationQuotaReached}
                     onEventDrop={handleEventChange}
@@ -938,20 +930,18 @@ const ReservationUnit = ({
                 <PaddedContent>
                   {futurePricing && (
                     <p style={{ marginTop: 0 }}>
-                      <Trans i18nKey="reservationUnit:futurePricingNotice">
-                        Huomioi{" "}
-                        <strong>
-                          hinnoittelumuutos{" "}
-                          {{ date: toUIDate(new Date(futurePricing.begins)) }}{" "}
-                          alkaen. Uusi hinta on{" "}
-                          {{
-                            price: getPrice({
-                              pricing: futurePricing,
-                              trailingZeros: true,
-                            }).toLocaleLowerCase(),
-                          }}
-                        </strong>
-                      </Trans>
+                      <Trans
+                        i18nKey="reservationUnit:futurePricingNotice"
+                        defaults="Huomioi <bold>hinnoittelumuutos {{date}} alkaen. Uusi hinta on {{price}}</bold>."
+                        values={{
+                          date: toUIDate(new Date(futurePricing.begins)),
+                          price: getPrice({
+                            pricing: futurePricing,
+                            trailingZeros: true,
+                          }).toLocaleLowerCase(),
+                        }}
+                        components={{ bold: <strong /> }}
+                      />
                       {futurePricing.pricingType ===
                         ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
                         futurePricing.taxPercentage?.value > 0 && (
@@ -1050,14 +1040,12 @@ const ReservationUnit = ({
       </Container>
       <BottomWrapper>
         {shouldDisplayBottomWrapper && (
-          <>
-            <BottomContainer>
-              <Subheading>
-                {t("reservationUnit:relatedReservationUnits")}
-              </Subheading>
-              <RelatedUnits units={relatedReservationUnits} />
-            </BottomContainer>
-          </>
+          <BottomContainer>
+            <Subheading>
+              {t("reservationUnit:relatedReservationUnits")}
+            </Subheading>
+            <RelatedUnits units={relatedReservationUnits} />
+          </BottomContainer>
         )}
       </BottomWrapper>
       {errorMsg && (
