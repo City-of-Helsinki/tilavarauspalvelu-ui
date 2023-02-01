@@ -112,8 +112,13 @@ export const SESSION_EXPIRED_ERROR = "JWT too old";
 
 const { serverRuntimeConfig, publicRuntimeConfig } = getConfig();
 
-export const { cookiehubEnabled, matomoEnabled, hotjarEnabled, mockRequests } =
-  publicRuntimeConfig;
+export const {
+  cookiehubEnabled,
+  matomoEnabled,
+  hotjarEnabled,
+  mockRequests,
+  mapboxToken,
+} = publicRuntimeConfig;
 
 export const apiBaseUrl = isBrowser
   ? publicRuntimeConfig.apiBaseUrl
