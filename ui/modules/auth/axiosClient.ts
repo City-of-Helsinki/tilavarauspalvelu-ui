@@ -1,10 +1,6 @@
-import axios, {
-  AxiosHeaders,
-  AxiosRequestConfig,
-  RawAxiosRequestHeaders,
-} from "axios";
+import axios from "axios";
 import applyCaseMiddleware from "axios-case-converter";
-import { NextApiRequest } from "next";
+
 import { getSession } from "next-auth/react";
 import { ExtendedSession } from "../../pages/api/auth/[...nextauth]";
 import { authEnabled, isBrowser, PROFILE_TOKEN_HEADER } from "../const";

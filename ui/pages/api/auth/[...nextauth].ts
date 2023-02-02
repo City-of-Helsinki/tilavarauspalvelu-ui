@@ -2,6 +2,7 @@ import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth, { NextAuthOptions, Session, Awaitable, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import { signOut } from "next-auth/react";
 import getConfig from "next/config";
 
 type TunnistamoAccount = {
@@ -56,6 +57,7 @@ type ExtendedJWT = JWT & {
   refreshToken: string;
   user: TilavarauspalveluUser;
   apiTokens: APITokens;
+  error?: string;
 };
 
 type JwtParams = {
@@ -226,12 +228,20 @@ const options = (): NextAuthOptions => {
           return token;
         }
 
-        return refreshAccessToken(token);
+        const refreshedToken = await refreshAccessToken(token);
+
+        if (refreshedToken?.error) {
+          return undefined;
+        }
+
+        return refreshedToken;
       },
       async session({
         session,
         token,
       }: SessionParams): Promise<ExtendedSession> {
+        if (!token) return undefined;
+
         const { accessToken, accessTokenExpires, user, apiTokens } = token;
 
         return { ...session, accessToken, accessTokenExpires, user, apiTokens };
