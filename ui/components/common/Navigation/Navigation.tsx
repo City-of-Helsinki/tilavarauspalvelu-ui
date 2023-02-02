@@ -45,7 +45,7 @@ const Navigation = () => {
       onTitleClick={handleNavigationTitleClick}
       menuToggleAriaLabel="Menu"
       skipTo="main"
-      skipToContentLabel="Siirry sivun pääsisältöön"
+      skipToContentLabel={t("navigation:skipToMainContent")}
     >
       <NavigationMenu menuItems={menuItems} />
       <HDSNavigation.Actions>

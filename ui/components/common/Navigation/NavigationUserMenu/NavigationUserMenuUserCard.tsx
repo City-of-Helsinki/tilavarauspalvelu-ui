@@ -5,7 +5,6 @@ const StyledUserInfo = styled.div`
   word-break: break-all;
   padding-bottom: ${(props) => props.theme.spacing.s};
   padding-left: ${(props) => props.theme.spacing.s};
-  /* padding: 0 0 var(--spacing-s) 36px; */
   border: 0;
 
   @media (min-width: ${(props) => props.theme.breakpoints.s}) {
