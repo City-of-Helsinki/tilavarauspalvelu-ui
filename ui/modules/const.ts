@@ -118,6 +118,7 @@ export const {
   hotjarEnabled,
   mockRequests,
   mapboxToken,
+  baseUrl,
 } = publicRuntimeConfig;
 
 export const apiBaseUrl = isBrowser
@@ -126,3 +127,7 @@ export const apiBaseUrl = isBrowser
 export const authEnabled = isBrowser
   ? publicRuntimeConfig.authEnabled
   : serverRuntimeConfig.authEnabled;
+
+export const authenticationIssuer = "tunnistamo";
+export const authenticationApiRoute = "/api/auth";
+export const authenticationLogoutApiRoute = "/api/auth/logout";

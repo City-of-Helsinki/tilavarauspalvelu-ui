@@ -11,12 +11,6 @@ const StyledNavigation = styled(HDSNavigation)`
   color: ${(props) => props.theme.colors.black.medium};
   min-width: ${(props) => props.theme.breakpoints.xs};
 
-  /* .btn-logout {
-    display: flex;
-    margin-top: var(--spacing-m);
-    cursor: pointer;
-  }*/
-
   #languageSelector-menu {
     right: 0;
     left: unset;
@@ -26,13 +20,6 @@ const StyledNavigation = styled(HDSNavigation)`
     position: fixed !important;
     z-index: ${(props) => props.theme.zIndex.navigation} !important;
   }
-
-  /* @media (max-width:${(props) => props.theme.breakpoints.m}) {
-    .navigation__language-selector--button {
-      position: absolute;
-      right: var(--spacing-layout-l);
-    }
-  } */
 `;
 
 const menuItems: MenuItem[] = [

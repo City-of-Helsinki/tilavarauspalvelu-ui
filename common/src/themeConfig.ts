@@ -13,6 +13,7 @@ const colors = {
   black: {
     dark: "#000000",
     medium: "#1A1A1A",
+    light: "#CCCCCC",
   },
   blue: {
     dark: "#00005E",

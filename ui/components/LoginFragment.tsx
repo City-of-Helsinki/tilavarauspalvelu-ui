@@ -3,7 +3,12 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { signIn, useSession } from "next-auth/react";
-import { authEnabled, isBrowser } from "../modules/const";
+import {
+  authEnabled,
+  authenticationIssuer,
+  baseUrl,
+  isBrowser,
+} from "../modules/const";
 import { MediumButton } from "../styles/util";
 
 type Props = {
@@ -60,8 +65,8 @@ const LoginFragment = ({
   const [shouldLogin, setShouldLogin] = React.useState(false);
 
   if (shouldLogin) {
-    signIn("tunnistamo", {
-      callbackUrl: "https://local-tilavaraus.hel.fi:3000/",
+    signIn(authenticationIssuer, {
+      callbackUrl: baseUrl,
     });
   }
 

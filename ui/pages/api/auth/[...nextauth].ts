@@ -2,7 +2,6 @@ import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth, { NextAuthOptions, Session, Awaitable, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { signOut } from "next-auth/react";
 import getConfig from "next/config";
 
 type TunnistamoAccount = {

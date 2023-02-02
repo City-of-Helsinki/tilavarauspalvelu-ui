@@ -4,9 +4,13 @@ import { signIn, useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
-import getConfig from "next/config";
 import { MenuItem } from "../NavigationMenu";
 import { NavigationUserMenuUserCard } from "./NavigationUserMenuUserCard";
+import {
+  authenticationIssuer,
+  baseUrl,
+  authenticationLogoutApiRoute,
+} from "../../../../modules/const";
 
 const StyledUserMenu = styled(HDSNavigation.User)<{
   $active?: boolean;
@@ -59,7 +63,7 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
         content: "";
         border-top-style: solid;
         border-top-width: 1px;
-        border-top-color: ${(props) => props.theme.colors.black.medium};
+        border-top-color: ${(props) => props.theme.colors.black.light};
         position: absolute;
         width: 100%;
         top: 0;
@@ -95,9 +99,6 @@ const NavigationUserMenu = () => {
   const router = useRouter();
   const session = useSession();
   const { t } = useTranslation();
-  const {
-    publicRuntimeConfig: { baseUrl },
-  } = getConfig();
 
   const user = session.data?.user;
   const isActive = userMenuItems
@@ -105,13 +106,13 @@ const NavigationUserMenu = () => {
     .includes(router.pathname);
 
   const handleSignIn = () => {
-    signIn("tunnistamo", {
+    signIn(authenticationIssuer, {
       callbackUrl: baseUrl,
     });
   };
 
   const handleSignOut = () => {
-    router.push("/api/auth/logout");
+    router.push(authenticationLogoutApiRoute);
   };
 
   return (

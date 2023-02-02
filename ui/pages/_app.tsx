@@ -11,7 +11,11 @@ import PageWrapper from "../components/common/PageWrapper";
 import ExternalScripts from "../components/ExternalScripts";
 import { DataContextProvider } from "../context/DataContext";
 import apolloClient from "../modules/apolloClient";
-import { isBrowser, mockRequests } from "../modules/const";
+import {
+  authenticationApiRoute,
+  isBrowser,
+  mockRequests,
+} from "../modules/const";
 import { TrackingWrapper } from "../modules/tracking";
 import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
@@ -49,7 +53,10 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     <>
       <DataContextProvider>
         <TrackingWrapper>
-          <SessionProvider session={pageProps.session} basePath="/api/auth">
+          <SessionProvider
+            session={pageProps.session}
+            basePath={authenticationApiRoute}
+          >
             <ApolloProvider client={apolloClient}>
               <ThemeProvider theme={theme}>
                 <PageWrapper {...pageProps}>

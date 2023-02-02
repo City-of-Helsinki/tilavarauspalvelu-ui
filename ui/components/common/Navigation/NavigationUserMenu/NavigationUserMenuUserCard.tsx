@@ -31,7 +31,7 @@ const Email = styled.div`
     padding-bottom: ${(props) => props.theme.spacing.xs};
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    border-bottom-color: ${(props) => props.theme.colors.black.medium};
+    border-bottom-color: ${(props) => props.theme.colors.black.light};
   }
 `;
 
