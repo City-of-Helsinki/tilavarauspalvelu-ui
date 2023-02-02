@@ -33,6 +33,7 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   ReservationUnitByPkType,
   ReservationUnitState,
+  ReservationUnitPricingType,
 } from "common/types/gql-types";
 
 import { languages, previewUrlPrefix, publicUrl } from "../../../common/const";
@@ -195,9 +196,24 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           ? Number(state.reservationUnitEdit?.maxReservationsPerUser)
           : null,
         isArchived: archive,
-        pricings: state.reservationUnitEdit.pricings?.map((pricing) =>
-          omitBy(pricing, isNull)
-        ),
+        pricings: state.reservationUnitEdit.pricings?.map((pricing) => {
+          // convert Decimal typed values to strings per graphene requirement
+          const row = Object.keys(pricing as ReservationUnitPricingType).reduce(
+            (acc, key) => {
+              const value = [
+                "lowestPrice",
+                "lowestPriceNet",
+                "highestPrice",
+                "highestPriceNet",
+              ].includes(key)
+                ? String(get(pricing, key))
+                : get(pricing, key);
+              return { ...acc, [key]: value };
+            },
+            {}
+          );
+          return omitBy(row, isNull);
+        }),
       },
       [
         "reservationKind",
@@ -1526,39 +1542,40 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       )}
                     </VerticalFlex>
 
-                    {state.reservationUnitEdit?.canApplyFreeOfCharge && isPaid && (
-                      <Span6>
-                        <Select
-                          required
-                          sort
-                          clearable={
-                            !!get(state.reservationUnitEdit, "pricingTermsPk")
-                          }
-                          id="pricingTerms"
-                          label={t(
-                            "ReservationUnitEditor.label.pricingTermsPk"
-                          )}
-                          placeholder={t("common.select")}
-                          options={get(state, "pricingTermsOptions")}
-                          onChange={(pricingTermsPk) => {
-                            setValue({
-                              pricingTermsPk,
-                            });
-                          }}
-                          value={
-                            get(
-                              state.reservationUnitEdit,
-                              "pricingTermsPk"
-                            ) as string
-                          }
-                          tooltipText={
-                            t(
-                              "ReservationUnitEditor.tooltip.pricingTermsPk"
-                            ) as string
-                          }
-                        />
-                      </Span6>
-                    )}
+                    {state.reservationUnitEdit?.canApplyFreeOfCharge &&
+                      isPaid && (
+                        <Span6>
+                          <Select
+                            required
+                            sort
+                            clearable={
+                              !!get(state.reservationUnitEdit, "pricingTermsPk")
+                            }
+                            id="pricingTerms"
+                            label={t(
+                              "ReservationUnitEditor.label.pricingTermsPk"
+                            )}
+                            placeholder={t("common.select")}
+                            options={get(state, "pricingTermsOptions")}
+                            onChange={(pricingTermsPk) => {
+                              setValue({
+                                pricingTermsPk,
+                              });
+                            }}
+                            value={
+                              get(
+                                state.reservationUnitEdit,
+                                "pricingTermsPk"
+                              ) as string
+                            }
+                            tooltipText={
+                              t(
+                                "ReservationUnitEditor.tooltip.pricingTermsPk"
+                              ) as string
+                            }
+                          />
+                        </Span6>
+                      )}
                   </Span12>
                 </Span12>
               </Grid>
