@@ -341,7 +341,7 @@ export const OPENING_HOURS = gql`
 `;
 
 export const TERMS_OF_USE = gql`
-  query TermsOfUse($termsType: String) {
+  query TermsOfUse($termsType: TermsOfUseTermsOfUseTermsTypeChoices) {
     termsOfUse(termsType: $termsType) {
       edges {
         node {

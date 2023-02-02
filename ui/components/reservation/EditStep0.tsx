@@ -391,6 +391,7 @@ const EditStep0 = ({
             handleEventChange={handleEventChange}
             mode="edit"
             customAvailabilityValidation={isSlotFree}
+            isReserving={false}
           />
         </CalendarFooter>
         <Legend />
