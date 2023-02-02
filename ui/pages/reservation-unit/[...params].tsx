@@ -46,7 +46,7 @@ import { Subheading } from "common/src/reservation-form/styles";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import apolloClient from "../../modules/apolloClient";
 import { isBrowser, reservationUnitPrefix } from "../../modules/const";
-import { getTranslation, printErrorMessages } from "../../modules/util";
+import { getTranslation } from "../../modules/util";
 import {
   RESERVATION_UNIT,
   TERMS_OF_USE,
