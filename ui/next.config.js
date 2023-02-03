@@ -1,8 +1,5 @@
 const { i18n } = require("./next-i18next.config");
 const { withSentryConfig } = require("@sentry/nextjs");
-const withPlugins = require("next-compose-plugins");
-const nextTranspiler = require("next-transpile-modules")(["common"]);
-const { PHASE_PRODUCTION_SERVER } = require("next/constants");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
