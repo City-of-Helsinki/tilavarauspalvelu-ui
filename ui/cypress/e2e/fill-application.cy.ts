@@ -29,12 +29,12 @@ import {
   startApplicationButton,
 } from "../model/search";
 
-import * as get138Page1JSONResponse from "../../cypress/fixtures/v1/application/138_page_1.json";
-import * as get138Page2JSONResponse from "../../cypress/fixtures/v1/application/138_page_2.json";
-import * as postJSONResponse from "../../cypress/fixtures/v1/application/post.json";
-import * as putPage1Response from "../../cypress/fixtures/v1/application/put_page_1.json";
-import * as putPage3Response from "../../cypress/fixtures/v1/application/put_page_3.json";
-import * as getReservationUnitResponse from "../../cypress/fixtures/v1/reservation_unit/2.json";
+import * as get138Page1JSONResponse from "../fixtures/v1/application/138_page_1.json";
+import * as get138Page2JSONResponse from "../fixtures/v1/application/138_page_2.json";
+import * as postJSONResponse from "../fixtures/v1/application/post.json";
+import * as putPage1Response from "../fixtures/v1/application/put_page_1.json";
+import * as putPage3Response from "../fixtures/v1/application/put_page_3.json";
+import * as getReservationUnitResponse from "../fixtures/v1/reservation_unit/2.json";
 
 const applicationEventNames = ["Kurikan vimma", "Toca"];
 
