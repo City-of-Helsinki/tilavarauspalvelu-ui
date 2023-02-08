@@ -154,8 +154,8 @@ export const RESERVATION_UNITS = gql`
     $textSearch: String
     $pk: [ID]
     $applicationRound: [ID]
-    $minPersons: Float
-    $maxPersons: Float
+    $minPersons: Decimal
+    $maxPersons: Decimal
     $unit: [ID]
     $reservationUnitType: [ID]
     $purposes: [ID]

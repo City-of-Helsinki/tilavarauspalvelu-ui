@@ -1886,12 +1886,8 @@ input ReservationApproveMutationInput {
 
   """Additional information for approval."""
   handlingDetails: String!
-
-  """The price of this particular reservation including VAT"""
-  price: Decimal!
-
-  """The price of this particular reservation excluding VAT"""
-  priceNet: Decimal!
+  price: Float!
+  priceNet: Float!
   clientMutationId: String
 }
 
@@ -1904,12 +1900,8 @@ type ReservationApproveMutationPayload {
 
   """When this reservation was handled."""
   handledAt: DateTime
-
-  """The price of this particular reservation including VAT"""
-  price: Decimal
-
-  """The price of this particular reservation excluding VAT"""
-  priceNet: Decimal
+  price: Float
+  priceNet: Float
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -2799,24 +2791,24 @@ input ReservationUnitCreateMutationInput {
   pricingTerms: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingCreateSerializerInput]
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   clientMutationId: String
 }
 
@@ -2923,24 +2915,24 @@ type ReservationUnitCreateMutationPayload {
   pricingTerms: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingType]
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -3045,18 +3037,10 @@ input ReservationUnitPricingCreateSerializerInput {
   Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED.
   """
   priceUnit: String
-
-  """Minimum price of the reservation unit including VAT"""
-  lowestPrice: Decimal
-
-  """Minimum price of the reservation unit excluding VAT"""
-  lowestPriceNet: Decimal
-
-  """Maximum price of the reservation unit including VAT"""
-  highestPrice: Decimal
-
-  """Maximum price of the reservation unit excluding VAT"""
-  highestPriceNet: Decimal
+  lowestPrice: Float
+  lowestPriceNet: Float
+  highestPrice: Float
+  highestPriceNet: Float
   taxPercentagePk: Int
 
   """Pricing status. Possible values are PAST, ACTIVE, FUTURE."""
@@ -3108,18 +3092,10 @@ input ReservationUnitPricingUpdateSerializerInput {
   Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED.
   """
   priceUnit: String
-
-  """Minimum price of the reservation unit including VAT"""
-  lowestPrice: Decimal
-
-  """Minimum price of the reservation unit excluding VAT"""
-  lowestPriceNet: Decimal
-
-  """Maximum price of the reservation unit including VAT"""
-  highestPrice: Decimal
-
-  """Maximum price of the reservation unit excluding VAT"""
-  highestPriceNet: Decimal
+  lowestPrice: Float
+  lowestPriceNet: Float
+  highestPrice: Float
+  highestPriceNet: Float
   taxPercentagePk: Int
 
   """Pricing status. Possible values are PAST, ACTIVE, FUTURE."""
@@ -3483,24 +3459,24 @@ input ReservationUnitUpdateMutationInput {
   pricingTerms: String
   paymentTypes: [String]
   pricings: [ReservationUnitPricingUpdateSerializerInput]!
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
   clientMutationId: String
 }
 
@@ -3606,24 +3582,24 @@ type ReservationUnitUpdateMutationPayload {
   state: String
   pricingTerms: String
   paymentTypes: [String]
-  descriptionFi: String
-  descriptionEn: String
-  descriptionSv: String
-  termsOfUseFi: String
-  termsOfUseEn: String
-  termsOfUseSv: String
   reservationPendingInstructionsFi: String
   reservationPendingInstructionsEn: String
   reservationPendingInstructionsSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
-  reservationCancelledInstructionsFi: String
-  reservationCancelledInstructionsEn: String
-  reservationCancelledInstructionsSv: String
   nameFi: String
   nameEn: String
   nameSv: String
+  termsOfUseFi: String
+  termsOfUseEn: String
+  termsOfUseSv: String
+  reservationCancelledInstructionsFi: String
+  reservationCancelledInstructionsEn: String
+  reservationCancelledInstructionsSv: String
+  descriptionFi: String
+  descriptionEn: String
+  descriptionSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -4017,9 +3993,7 @@ type ServiceType implements Node {
 input SpaceCreateMutationInput {
   """PK of the parent space for this space."""
   parentPk: Int
-
-  """Surface area of the space as square meters"""
-  surfaceArea: Decimal
+  surfaceArea: Float
 
   """PK of the district for this space."""
   districtPk: Int
@@ -4037,9 +4011,7 @@ type SpaceCreateMutationPayload {
 
   """PK of the parent space for this space."""
   parentPk: Int
-
-  """Surface area of the space as square meters"""
-  surfaceArea: Decimal
+  surfaceArea: Float
 
   """PK of the district for this space."""
   districtPk: Int
@@ -4108,9 +4080,7 @@ input SpaceUpdateMutationInput {
 
   """PK of the parent space for this space."""
   parentPk: Int
-
-  """Surface area of the space as square meters"""
-  surfaceArea: Decimal
+  surfaceArea: Float
 
   """PK of the district for this space."""
   districtPk: Int
@@ -4128,9 +4098,7 @@ type SpaceUpdateMutationPayload {
 
   """PK of the parent space for this space."""
   parentPk: Int
-
-  """Surface area of the space as square meters"""
-  surfaceArea: Decimal
+  surfaceArea: Float
 
   """PK of the district for this space."""
   districtPk: Int

@@ -33,7 +33,6 @@ import {
   ReservationUnitsReservationUnitAuthenticationChoices,
   ReservationUnitByPkType,
   ReservationUnitState,
-  ReservationUnitPricingType,
 } from "common/types/gql-types";
 
 import { languages, previewUrlPrefix, publicUrl } from "../../../common/const";
@@ -196,24 +195,9 @@ const ReservationUnitEditor = (): JSX.Element | null => {
           ? Number(state.reservationUnitEdit?.maxReservationsPerUser)
           : null,
         isArchived: archive,
-        pricings: state.reservationUnitEdit.pricings?.map((pricing) => {
-          // convert Decimal typed values to strings per graphene requirement
-          const row = Object.keys(pricing as ReservationUnitPricingType).reduce(
-            (acc, key) => {
-              const value = [
-                "lowestPrice",
-                "lowestPriceNet",
-                "highestPrice",
-                "highestPriceNet",
-              ].includes(key)
-                ? String(get(pricing, key))
-                : get(pricing, key);
-              return { ...acc, [key]: value };
-            },
-            {}
-          );
-          return omitBy(row, isNull);
-        }),
+        pricings: state.reservationUnitEdit.pricings?.map((pricing) =>
+          omitBy(pricing, isNull)
+        ),
       },
       [
         "reservationKind",

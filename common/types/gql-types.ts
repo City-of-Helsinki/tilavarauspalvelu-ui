@@ -2205,10 +2205,8 @@ export type ReservationApproveMutationInput = {
   /** Additional information for approval. */
   handlingDetails: Scalars["String"];
   pk?: InputMaybe<Scalars["Int"]>;
-  /** The price of this particular reservation including VAT */
-  price: Scalars["Decimal"];
-  /** The price of this particular reservation excluding VAT */
-  priceNet: Scalars["Decimal"];
+  price: Scalars["Float"];
+  priceNet: Scalars["Float"];
 };
 
 export type ReservationApproveMutationPayload = {
@@ -2221,10 +2219,8 @@ export type ReservationApproveMutationPayload = {
   /** Additional information for approval. */
   handlingDetails?: Maybe<Scalars["String"]>;
   pk?: Maybe<Scalars["Int"]>;
-  /** The price of this particular reservation including VAT */
-  price?: Maybe<Scalars["Decimal"]>;
-  /** The price of this particular reservation excluding VAT */
-  priceNet?: Maybe<Scalars["Decimal"]>;
+  price?: Maybe<Scalars["Float"]>;
+  priceNet?: Maybe<Scalars["Float"]>;
   state?: Maybe<State>;
 };
 
@@ -3163,14 +3159,10 @@ export type ReservationUnitPaymentTypeType = Node & {
 export type ReservationUnitPricingCreateSerializerInput = {
   /** When pricing is activated */
   begins: Scalars["Date"];
-  /** Maximum price of the reservation unit including VAT */
-  highestPrice?: InputMaybe<Scalars["Decimal"]>;
-  /** Maximum price of the reservation unit excluding VAT */
-  highestPriceNet?: InputMaybe<Scalars["Decimal"]>;
-  /** Minimum price of the reservation unit including VAT */
-  lowestPrice?: InputMaybe<Scalars["Decimal"]>;
-  /** Minimum price of the reservation unit excluding VAT */
-  lowestPriceNet?: InputMaybe<Scalars["Decimal"]>;
+  highestPrice?: InputMaybe<Scalars["Float"]>;
+  highestPriceNet?: InputMaybe<Scalars["Float"]>;
+  lowestPrice?: InputMaybe<Scalars["Float"]>;
+  lowestPriceNet?: InputMaybe<Scalars["Float"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
   priceUnit?: InputMaybe<Scalars["String"]>;
   /** What kind of pricing type this pricing has. Possible values are PAID, FREE. */
@@ -3206,14 +3198,10 @@ export type ReservationUnitPricingType = {
 export type ReservationUnitPricingUpdateSerializerInput = {
   /** When pricing is activated */
   begins: Scalars["Date"];
-  /** Maximum price of the reservation unit including VAT */
-  highestPrice?: InputMaybe<Scalars["Decimal"]>;
-  /** Maximum price of the reservation unit excluding VAT */
-  highestPriceNet?: InputMaybe<Scalars["Decimal"]>;
-  /** Minimum price of the reservation unit including VAT */
-  lowestPrice?: InputMaybe<Scalars["Decimal"]>;
-  /** Minimum price of the reservation unit excluding VAT */
-  lowestPriceNet?: InputMaybe<Scalars["Decimal"]>;
+  highestPrice?: InputMaybe<Scalars["Float"]>;
+  highestPriceNet?: InputMaybe<Scalars["Float"]>;
+  lowestPrice?: InputMaybe<Scalars["Float"]>;
+  lowestPriceNet?: InputMaybe<Scalars["Float"]>;
   pk?: InputMaybe<Scalars["Int"]>;
   /** Unit of the price. Possible values are PER_15_MINS, PER_30_MINS, PER_HOUR, PER_HALF_DAY, PER_DAY, PER_WEEK, FIXED. */
   priceUnit?: InputMaybe<Scalars["String"]>;
@@ -4036,8 +4024,7 @@ export type SpaceCreateMutationInput = {
   nameSv?: InputMaybe<Scalars["String"]>;
   /** PK of the parent space for this space. */
   parentPk?: InputMaybe<Scalars["Int"]>;
-  /** Surface area of the space as square meters */
-  surfaceArea?: InputMaybe<Scalars["Decimal"]>;
+  surfaceArea?: InputMaybe<Scalars["Float"]>;
   unitPk?: InputMaybe<Scalars["Int"]>;
 };
 
@@ -4057,8 +4044,7 @@ export type SpaceCreateMutationPayload = {
   parentPk?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
   space?: Maybe<SpaceType>;
-  /** Surface area of the space as square meters */
-  surfaceArea?: Maybe<Scalars["Decimal"]>;
+  surfaceArea?: Maybe<Scalars["Float"]>;
   unitPk?: Maybe<Scalars["Int"]>;
 };
 
@@ -4122,8 +4108,7 @@ export type SpaceUpdateMutationInput = {
   /** PK of the parent space for this space. */
   parentPk?: InputMaybe<Scalars["Int"]>;
   pk: Scalars["Int"];
-  /** Surface area of the space as square meters */
-  surfaceArea?: InputMaybe<Scalars["Decimal"]>;
+  surfaceArea?: InputMaybe<Scalars["Float"]>;
   unitPk?: InputMaybe<Scalars["Int"]>;
 };
 
@@ -4143,8 +4128,7 @@ export type SpaceUpdateMutationPayload = {
   parentPk?: Maybe<Scalars["Int"]>;
   pk?: Maybe<Scalars["Int"]>;
   space?: Maybe<SpaceType>;
-  /** Surface area of the space as square meters */
-  surfaceArea?: Maybe<Scalars["Decimal"]>;
+  surfaceArea?: Maybe<Scalars["Float"]>;
   unitPk?: Maybe<Scalars["Int"]>;
 };
 
