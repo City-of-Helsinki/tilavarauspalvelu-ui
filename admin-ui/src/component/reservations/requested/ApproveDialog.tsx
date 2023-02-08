@@ -36,10 +36,9 @@ const ActionButtons = styled(Dialog.ActionButtons)`
 
 const parseNumber = (n: string): number => Number(n.replace(",", "."));
 const calcPriceNet = (price: string, taxPercentageValue?: number | null) => {
-  const priceNet =
-    taxPercentageValue && Number(taxPercentageValue) !== 0
-      ? Number(price) / ((1 + taxPercentageValue) / 100)
-      : Number(price);
+  const priceNet = taxPercentageValue
+    ? Number(price) / ((1 + taxPercentageValue) / 100)
+    : Number(price);
 
   return Number(priceNet.toFixed(2));
 };
