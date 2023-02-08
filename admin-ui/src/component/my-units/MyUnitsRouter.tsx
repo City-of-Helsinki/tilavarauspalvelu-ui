@@ -6,10 +6,10 @@ import MyUnitView from "./MyUnitView";
 
 const MyUnitsRouter = (): JSX.Element => (
   <Routes>
-    <Route path="/my-units" element={<MyUnits />} />
-    <Route path="/my-units/:unitId" element={<MyUnitView />} />
+    <Route index element={<MyUnits />} />
+    <Route path=":unitId" element={<MyUnitView />} />
     <Route
-      path="/my-units/:unitId/recurring-reservation"
+      path=":unitId/recurring-reservation"
       element={<MyUnitRecurringReservation />}
     />
   </Routes>

@@ -31,14 +31,15 @@ type Params = {
 const MyUnitRecurringReservation = () => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
+  // FIXME maybe params need better handling
   const { unitId } = useParams<Params>();
 
-  const previousUrl = myUnitUrl(parseInt(unitId, 10));
+  const previousUrl = myUnitUrl(parseInt(unitId ?? "0", 10));
   const { loading, data: unitData } = useQuery<Query, QueryUnitsArgs>(
     RECURRING_RESERVATION_UNIT_QUERY,
     {
       variables: {
-        pk: [unitId],
+        pk: [unitId ?? "0"],
         offset: 0,
       },
       onError: (err) => {
@@ -70,9 +71,14 @@ const MyUnitRecurringReservation = () => {
 
       <Container>
         <H2>Tee toistuva varaus</H2>
-        {reservationUnits ? (
+        {reservationUnits != null && reservationUnits.length > 0 ? (
           <MyUnitRecurringReservationForm reservationUnits={reservationUnits} />
-        ) : null}
+        ) : (
+          <div>
+            WIP: no reservation units this should block the button on the
+            previous page
+          </div>
+        )}
       </Container>
     </>
   );

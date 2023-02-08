@@ -151,11 +151,13 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   ];
 
   const onSubmit = (data: RecurringReservationForm) => {
-    console.log("data", data);
+    console.log("submitted: ", data);
+    alert("submitted: ".concat(JSON.stringify(data, null, 2)));
   };
 
   const onError = () => {
-    console.log("errors", errors);
+    console.warn("errors: ", errors);
+    alert("errors: ".concat(JSON.stringify(errors, null, 2)));
   };
 
   return (
@@ -173,7 +175,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={reservationUnitOptions}
-                  error={errors.reservationUnit}
+                  error={errors.reservationUnit?.message}
                   {...field}
                 />
               )}
