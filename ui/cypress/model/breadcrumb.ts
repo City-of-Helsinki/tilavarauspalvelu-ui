@@ -27,22 +27,25 @@ export const checkBreadcrumbs = ({
   url: string;
 }) => {
   for (const [key, value] of Object.entries(breadcrumbs)) {
-    const keyString = key === "fi" ? "" : `/${key}`;
-    cy.visit(`${keyString}${url}`);
+    cy.get("#languageSelector-button").click();
+    cy.get(`#languageSelector-menu > a[lang="${key}"]`)
+      .click()
+      .wait(1000)
+      .then(() => {
+        breadcrumbsRoot()
+          .find("*[class^='Breadcrumb__Item']")
+          .each((el, index) => {
+            const isLastElement = !value[index].url;
+            const wrappedEl = isLastElement
+              ? cy.wrap(el).find("span[class^='Breadcrumb__Slug']")
+              : cy.wrap(el).find("a[class^='Breadcrumb__Anchor']");
+            wrappedEl.should("contain.text", value[index].title);
+            wrappedEl.should("have.attr", "title", value[index].title);
 
-    breadcrumbsRoot()
-      .find("*[class^='Breadcrumb__Item']")
-      .each((el, index) => {
-        const isLastElement = !value[index].url;
-        const wrappedEl = isLastElement
-          ? cy.wrap(el).find("span[class^='Breadcrumb__Slug']")
-          : cy.wrap(el).find("a[class^='Breadcrumb__Anchor']");
-        wrappedEl.should("contain.text", value[index].title);
-        wrappedEl.should("have.attr", "title", value[index].title);
-
-        if (value[index]?.url) {
-          wrappedEl.parent().should("have.attr", "href", value[index].url);
-        }
+            if (value[index]?.url) {
+              wrappedEl.parent().should("have.attr", "href", value[index].url);
+            }
+          });
       });
   }
 };
