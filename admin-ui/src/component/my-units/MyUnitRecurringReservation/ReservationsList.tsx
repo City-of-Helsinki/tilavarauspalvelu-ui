@@ -58,6 +58,9 @@ const ReservationList = ({ items }: Props) => {
   );
 };
 
+const toMondayFirst = (day: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
+  day === 0 ? 6 : day - 1;
+
 const generateReservations = ({
   reservationUnit,
   startingDate,
@@ -92,7 +95,7 @@ const generateReservations = ({
     start: parse(startingDate, "d.M.yyyy", new Date()),
     end: parse(endingDate, "d.M.yyyy", new Date()),
   })
-    .filter((day) => repeatOnDays.includes(getDay(day)))
+    .filter((day) => repeatOnDays.includes(toMondayFirst(getDay(day))))
     .map(
       (day) =>
         ({
