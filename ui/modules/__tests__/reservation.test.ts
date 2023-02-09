@@ -400,13 +400,16 @@ describe("canReservationBeChanged", () => {
     reservationBegins: addDays(new Date(), -1).toISOString(),
     reservationEnds: addDays(new Date(), 100).toISOString(),
     openingHours: {
-      openingTimes: Array.from(Array(100)).map((val, index) => ({
-        date: format(addDays(new Date(), index), "yyyy-MM-dd"),
-        startTime: "07:00:00+00:00",
-        endTime: "20:00:00+00:00",
-        state: "open",
-        periods: null,
-      })),
+      openingTimes: Array.from(Array(100)).map((val, index) => {
+        const date = format(addDays(new Date(), index), "yyyy-MM-dd");
+        return {
+          date,
+          startTime: `${date}T07:00:00+00:00`,
+          endTime: `${date}T20:00:00+00:00`,
+          state: "open",
+          periods: null,
+        };
+      }),
     },
     reservations: [],
   } as ReservationUnitByPkType;

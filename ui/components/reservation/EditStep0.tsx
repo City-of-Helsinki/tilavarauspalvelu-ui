@@ -14,7 +14,12 @@ import {
   ReservationType,
   ReservationUnitByPkType,
 } from "common/types/gql-types";
-import { addSeconds, differenceInMinutes } from "date-fns";
+import {
+  addHours,
+  addSeconds,
+  differenceInMinutes,
+  startOfDay,
+} from "date-fns";
 import { IconArrowRight, IconCross } from "hds-react";
 import { useRouter } from "next/router";
 import React, { Children, useCallback, useMemo, useState } from "react";
@@ -129,14 +134,17 @@ const eventStyleGetter = (
   };
 };
 
+const EventWrapper = styled.div``;
+
 const EventWrapperComponent = (props) => {
+  const { event } = props;
   let isSmall = false;
-  if (props.event.event.state === "INITIAL") {
+  if (event.event.state === "INITIAL") {
     const { start, end } = props.event;
     const diff = differenceInMinutes(end, start);
     if (diff <= 30) isSmall = true;
   }
-  return <div {...props} className={isSmall ? "isSmall" : ""} />;
+  return <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />;
 };
 
 const EditStep0 = ({
@@ -366,13 +374,17 @@ const EditStep0 = ({
     ]
   );
 
+  const currentDate = focusDate || new Date();
+
+  const dayStartTime = addHours(startOfDay(currentDate), 6);
+
   return (
     <>
       <CalendarWrapper>
         <div aria-hidden>
           <Calendar<ReservationType>
             events={[...calendarEvents, ...eventBuffers]}
-            begin={focusDate || new Date()}
+            begin={currentDate}
             onNavigate={(d: Date) => {
               setFocusDate(d);
             }}
@@ -391,6 +403,7 @@ const EditStep0 = ({
             onSelecting={(event: CalendarEvent<ReservationType>) =>
               handleEventChange(event, true)
             }
+            min={dayStartTime}
             showToolbar
             reservable
             toolbarComponent={Toolbar}
@@ -435,6 +448,7 @@ const EditStep0 = ({
             setShouldCalendarControlsBeVisible={
               setShouldCalendarControlsBeVisible
             }
+            minTime={dayStartTime}
             isAnimated={isMobile}
           />
         </CalendarFooter>

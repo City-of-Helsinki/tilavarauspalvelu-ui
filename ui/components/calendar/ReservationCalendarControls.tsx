@@ -66,6 +66,7 @@ type Props<T> = {
     skipLengthCheck?: boolean
   ) => boolean;
   mode: "create" | "edit";
+  minTime: Date;
   customAvailabilityValidation?: (start: Date) => boolean;
   shouldCalendarControlsBeVisible?: boolean;
   setShouldCalendarControlsBeVisible?: (value: boolean) => void;
@@ -270,6 +271,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   setErrorMsg,
   handleEventChange,
   mode,
+  minTime,
   customAvailabilityValidation,
   shouldCalendarControlsBeVisible,
   setShouldCalendarControlsBeVisible,
@@ -432,20 +434,21 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
 
   const startingTimesOptions: OptionType[] = useMemo(() => {
     if (!dayStartTime || !dayEndTime) return [];
-    const [startHours, startMinutes] = dayStartTime.split(":").map(Number);
-    const [endHours, endMinutes] = dayEndTime.split(":").map(Number);
-    const startDate = new Date().setUTCHours(startHours, startMinutes);
-    const endDate = new Date().setUTCHours(endHours, endMinutes);
 
     return getDayIntervals(
-      format(startDate, "HH:mm"),
-      format(endDate, "HH:mm"),
+      format(minTime, "HH:mm"),
+      format(new Date(dayEndTime), "HH:mm"),
       reservationUnit.reservationStartInterval
     ).map((n) => ({
       label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
       value: trimStart(n.substring(0, 5), "0"),
     }));
-  }, [dayStartTime, dayEndTime, reservationUnit.reservationStartInterval]);
+  }, [
+    dayStartTime,
+    dayEndTime,
+    reservationUnit.reservationStartInterval,
+    minTime,
+  ]);
 
   const isReservable = useMemo(
     () =>
@@ -475,8 +478,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
 
   const togglerLabel = (() => {
     const dateStr = trim(
-      `${beginDate} ${beginTime}-${
-        endDate !== beginDate ? endDate : ""
+      `${beginDate} ${beginTime}${
+        endDate !== beginDate ? ` - ${capitalize(endDate)} ` : "-"
       }${endTime}`,
       "-"
     );
@@ -613,6 +616,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             <ResetButton
               onClick={() => {
                 setStartTime(null);
+                setDuration(null);
                 resetReservation();
                 setReservation(null);
               }}

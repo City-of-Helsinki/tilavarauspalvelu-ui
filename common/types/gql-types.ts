@@ -1341,10 +1341,10 @@ export type OpeningHoursType = {
 export type OpeningTimesType = {
   __typename?: "OpeningTimesType";
   date?: Maybe<Scalars["Date"]>;
-  endTime?: Maybe<Scalars["Time"]>;
+  endTime?: Maybe<Scalars["DateTime"]>;
   isReservable?: Maybe<Scalars["Boolean"]>;
   periods?: Maybe<Array<Maybe<Scalars["Int"]>>>;
-  startTime?: Maybe<Scalars["Time"]>;
+  startTime?: Maybe<Scalars["DateTime"]>;
   state?: Maybe<Scalars["String"]>;
 };
 

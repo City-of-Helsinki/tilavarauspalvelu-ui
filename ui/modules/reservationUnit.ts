@@ -385,13 +385,16 @@ export const mockOpeningTimePeriods = [
   },
 ];
 
-export const mockOpeningTimes = Array.from(Array(100)).map((val, index) => ({
-  date: toApiDate(addDays(new Date(), index)),
-  startTime: "04:00:00+00:00",
-  endTime: "20:00:00+00:00",
-  state: "open",
-  periods: null,
-}));
+export const mockOpeningTimes = Array.from(Array(100)).map((val, index) => {
+  const date = toApiDate(addDays(new Date(), index));
+  return {
+    date,
+    startTime: `${date}T04:00:00+00:00`,
+    endTime: `${date}T20:00:00+00:00`,
+    state: "open",
+    periods: null,
+  };
+});
 
 export const isReservationUnitPaidInFuture = (
   pricings: ReservationUnitPricingType[]

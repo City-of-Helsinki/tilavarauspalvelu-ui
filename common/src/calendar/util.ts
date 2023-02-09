@@ -109,17 +109,13 @@ const areOpeningTimesAvailable = (
   slotDate: Date
 ): boolean => {
   return !!openingHours?.some((oh) => {
-    const startDate = oh.date;
-    const startDateTime = new Date(`${startDate}T${oh.startTime}`);
-    const endDateTime = new Date(`${startDate}T${oh.endTime}`);
+    if (oh.state !== "open") return false;
 
-    return (
-      toApiDate(slotDate) === startDate?.toString() &&
-      slotDate < endDateTime &&
-      startDateTime.getDay() === slotDate.getDay() &&
-      startDateTime.getHours() <= slotDate.getHours() &&
-      endDateTime.getHours() >= slotDate.getHours()
-    );
+    const { startTime, endTime } = oh;
+    const startDate = new Date(startTime as string);
+    const endDate = new Date(endTime as string);
+
+    return startDate <= slotDate && endDate > slotDate;
   });
 };
 
@@ -205,8 +201,10 @@ export const getDayIntervals = (
   endTime: string,
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ): string[] => {
+  const normalizedEndTime = endTime === "00:00" ? "23:59" : endTime;
+
   const start = convertHMSToSeconds(startTime?.substring(0, 5));
-  const end = convertHMSToSeconds(endTime?.substring(0, 5));
+  const end = convertHMSToSeconds(normalizedEndTime?.substring(0, 5));
   const intervals: string[] = [];
 
   let intervalSeconds = 0;
@@ -237,7 +235,7 @@ export const getDayIntervals = (
     );
   }
 
-  return intervals.filter((n) => n.substring(0, 5) !== endTime);
+  return intervals.filter((n) => n.substring(0, 5) !== normalizedEndTime);
 };
 
 export const isStartTimeWithinInterval = (
@@ -249,22 +247,14 @@ export const isStartTimeWithinInterval = (
   if (!interval) return true;
 
   const startHMS = `${toUIDate(start, "HH:mm")}:00`;
-  const { startTime: dayStartTime, endTime: dayEndTime } =
+  const { startTime, endTime } =
     openingTimes?.find((n) => n.date === toApiDate(start)) || {};
 
-  const [startHours, startMinutes] = dayStartTime?.split(":").map(Number) || [
-    0, 0,
-  ];
-  const startTime = new Date();
-  startTime.setUTCHours(startHours, startMinutes, 0);
-
-  const [endHours, endMinutes] = dayEndTime?.split(":").map(Number) || [0, 0];
-  const endTime = new Date();
-  endTime.setUTCHours(endHours, endMinutes, 0);
+  if (!startTime || !endTime) return false;
 
   return getDayIntervals(
-    format(startTime, "HH:mm"),
-    format(endTime, "HH:mm"),
+    format(new Date(startTime as string), "HH:mm"),
+    format(new Date(endTime as string), "HH:mm"),
     interval
   ).includes(startHMS);
 };
@@ -482,19 +472,18 @@ export const getAvailableTimes = (
 
   const { startTime, endTime } = openingTimes || {};
 
+  if (!startTime || !endTime) return [];
+
   const intervals = getDayIntervals(
-    startTime as string,
-    endTime as string,
+    format(new Date(startTime), "HH:mm"),
+    format(new Date(endTime), "HH:mm"),
     reservationStartInterval
   );
 
   const times: string[] = intervals.map((val) => {
-    const [startHours, startMinutes] = val.split(":").map(Number);
+    const [startHours, startMinutes] = val.split(":");
 
-    const start = new Date(date);
-    start.setHours(startHours, startMinutes);
-
-    return toUIDate(start, "HH:mm");
+    return `${startHours}:${startMinutes}`;
   });
 
   return times;
