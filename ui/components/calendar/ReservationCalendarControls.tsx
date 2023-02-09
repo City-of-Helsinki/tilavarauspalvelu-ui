@@ -57,6 +57,7 @@ type Props<T> = {
   end?: string;
   resetReservation: () => void;
   isSlotReservable: (start: Date, end: Date) => boolean;
+  isReserving: boolean;
   setCalendarFocusDate: (date: Date) => void;
   activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[];
   createReservation?: (arg: ReservationProps) => void;
@@ -265,6 +266,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   end,
   resetReservation,
   isSlotReservable,
+  isReserving,
   setCalendarFocusDate,
   activeApplicationRounds,
   createReservation,
@@ -296,7 +298,6 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   const [duration, setDuration] = useState<OptionType | null>(
     durationOptions[0]
   );
-  const [isReserving, setIsReserving] = useState(false);
   const [areControlsVisible, setAreControlsVisible] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
@@ -507,7 +508,6 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
         componentIfAuthenticated={
           <SubmitButton
             onClick={() => {
-              setIsReserving(true);
               createReservation(reservation);
             }}
             disabled={!isReservable || isReserving}
