@@ -1532,9 +1532,11 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                                 "pricingTermsPk"
                               ) as string
                             }
-                            tooltipText={t(
-                              "ReservationUnitEditor.tooltip.pricingTermsPk"
-                            )}
+                            tooltipText={
+                              t(
+                                "ReservationUnitEditor.tooltip.pricingTermsPk"
+                              ) as string
+                            }
                           />
                         </Span6>
                       )}
