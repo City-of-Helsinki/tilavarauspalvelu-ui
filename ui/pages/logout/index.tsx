@@ -1,8 +1,7 @@
-import { LoadingSpinner } from "hds-react";
 import { signOut } from "next-auth/react";
 import getConfig from "next/config";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const {
   publicRuntimeConfig: { baseUrl },
@@ -19,7 +18,7 @@ const LogoutPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <LoadingSpinner />;
+  return null;
 };
 
 export default LogoutPage;

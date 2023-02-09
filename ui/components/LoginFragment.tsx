@@ -64,14 +64,14 @@ const LoginFragment = ({
 
   const [shouldLogin, setShouldLogin] = React.useState(false);
 
-  if (shouldLogin) {
-    signIn(authenticationIssuer, {
-      callbackUrl: baseUrl,
-    });
-  }
-
   if (!isBrowser) {
     return null;
+  }
+
+  if (shouldLogin) {
+    signIn(authenticationIssuer, {
+      callbackUrl: window.location.href,
+    });
   }
 
   return !isAuthenticated && authEnabled ? (

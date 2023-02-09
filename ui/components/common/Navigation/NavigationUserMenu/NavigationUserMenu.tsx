@@ -107,7 +107,7 @@ const NavigationUserMenu = () => {
 
   const handleSignIn = () => {
     signIn(authenticationIssuer, {
-      callbackUrl: baseUrl,
+      callbackUrl: window.location.href,
     });
   };
 
