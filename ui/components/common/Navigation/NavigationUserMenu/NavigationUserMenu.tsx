@@ -8,7 +8,6 @@ import { MenuItem } from "../NavigationMenu";
 import { NavigationUserMenuUserCard } from "./NavigationUserMenuUserCard";
 import {
   authenticationIssuer,
-  baseUrl,
   authenticationLogoutApiRoute,
 } from "../../../../modules/const";
 

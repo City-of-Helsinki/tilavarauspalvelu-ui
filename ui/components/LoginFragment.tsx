@@ -3,12 +3,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { signIn, useSession } from "next-auth/react";
-import {
-  authEnabled,
-  authenticationIssuer,
-  baseUrl,
-  isBrowser,
-} from "../modules/const";
+import { authEnabled, authenticationIssuer, isBrowser } from "../modules/const";
 import { MediumButton } from "../styles/util";
 
 type Props = {

@@ -21,14 +21,12 @@ function breadcrumbsRoot(): Cypress.Chainable<JQuery<HTMLElement>> {
 
 export const checkBreadcrumbs = ({
   breadcrumbs,
-  url,
 }: {
   breadcrumbs: BreadcrumbsByLang;
-  url: string;
 }) => {
   for (const [key, value] of Object.entries(breadcrumbs)) {
-    cy.get("#languageSelector-button").click();
-    cy.get(`#languageSelector-menu > a[lang="${key}"]`)
+    languageSelector().click();
+    languageSelectorMenuItem(key)
       .click()
       .wait(1000)
       .then(() => {

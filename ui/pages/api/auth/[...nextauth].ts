@@ -160,6 +160,7 @@ const refreshAccessToken = async (token: ExtendedJWT) => {
       },
     };
   } catch (error) {
+    // eslint-disable-next-line
     console.error(error);
 
     return {
