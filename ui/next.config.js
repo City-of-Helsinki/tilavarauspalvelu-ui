@@ -1,7 +1,8 @@
 const { i18n } = require("./next-i18next.config");
 const { withSentryConfig } = require("@sentry/nextjs");
 
-/** @type {import('next').NextConfig} */
+const redirects = JSON.parse(process.env.NEXT_PUBLIC_REDIRECTS || "[]");
+
 const nextConfig = {
   reactStrictMode: false,
   i18n,
@@ -37,6 +38,13 @@ const nextConfig = {
       ssr: true,
       displayName: true,
     },
+  },
+  async redirects() {
+    return redirects.map((redirect) => ({
+      source: redirect.source,
+      destination: redirect.destination,
+      permanent: redirect.permanent,
+    }));
   },
 };
 
