@@ -17,6 +17,7 @@ const nextConfig = {
     oidcCallbackUrl: process.env.OIDC_CALLBACK_URL,
     oidcProfileApiUrl: process.env.OIDC_PROFILE_API_SCOPE,
     oidcTilavarausApiUrl: process.env.OIDC_TILAVARAUS_API_SCOPE,
+    env: process.env.NEXT_ENV,
   },
   publicRuntimeConfig: {
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,

@@ -89,6 +89,7 @@ const {
     oidcTilavarausApiUrl,
     oidcScope,
     oidcCallbackUrl,
+    env,
   },
 } = getConfig();
 
@@ -256,6 +257,7 @@ const options = (): NextAuthOptions => {
       signIn: `/`,
       signOut: "/logout",
     },
+    debug: env === "development",
   };
 };
 

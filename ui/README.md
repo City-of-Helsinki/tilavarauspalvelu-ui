@@ -138,3 +138,4 @@ You can write handlers for rest and graphql requests in '/mocks/handlers.ts'. Ca
 | NEXT_PUBLIC_OIDC_END_SESSION   | url for ending session with OIDC-provider                       |
 | NEXT_PUBLIC_COOKIEHUB_ENABLED  | 'true' enables cookiehub consent module                         |
 | NEXT_PUBLIC_HOTJAR_ENABLED     | 'true' enables hotjar tracking                                  |
+| NEXT_ENV                       | 'development' or 'production'                                   |
