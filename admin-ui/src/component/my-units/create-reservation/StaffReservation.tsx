@@ -7,20 +7,14 @@ import { ReservationFormType } from "./types";
 import { HR } from "../../lists/components";
 import MetadataSetForm from "./MetadataSetForm";
 
-type Props = {
-  form: UseFormReturn<ReservationFormType>;
-  reservationUnit: ReservationUnitType;
-};
-
-const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
+const BufferController = (
+  name: "bufferTimeBefore" | "bufferTimeAfter",
+  seconds: number,
+  form: UseFormReturn<ReservationFormType>
+) => {
   const { t } = useTranslation();
 
-  const bufferControllers = [] as JSX.Element[];
-
-  const bufferController = (
-    name: "bufferTimeBefore" | "bufferTimeAfter",
-    seconds: number
-  ) => (
+  return (
     <Controller
       name={name}
       control={form.control}
@@ -40,16 +34,31 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
       )}
     />
   );
+};
+
+type Props = {
+  form: UseFormReturn<ReservationFormType>;
+  reservationUnit: ReservationUnitType;
+};
+
+const StaffReservation = ({ form, reservationUnit }: Props) => {
+  const { t } = useTranslation();
+
+  const bufferControllers = [] as JSX.Element[];
 
   if (reservationUnit.bufferTimeBefore) {
     bufferControllers.push(
-      bufferController("bufferTimeBefore", reservationUnit.bufferTimeBefore)
+      BufferController(
+        "bufferTimeBefore",
+        reservationUnit.bufferTimeBefore,
+        form
+      )
     );
   }
 
   if (reservationUnit.bufferTimeAfter) {
     bufferControllers.push(
-      bufferController("bufferTimeAfter", reservationUnit.bufferTimeAfter)
+      BufferController("bufferTimeAfter", reservationUnit.bufferTimeAfter, form)
     );
   }
 
@@ -71,5 +80,4 @@ const StaffReservation = ({ form, reservationUnit }: Props): JSX.Element => {
   );
 };
 
-StaffReservation.displayName = "StaffResedrvation";
 export default StaffReservation;

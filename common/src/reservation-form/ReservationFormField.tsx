@@ -1,7 +1,7 @@
 import { Checkbox, NumberInput, Select, TextArea, TextInput } from "hds-react";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
-import React, { ReactElement, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
@@ -18,7 +18,7 @@ type Props = {
   metadataSet: ReservationMetadataSetType;
   form: ReturnType<typeof useForm>;
   params?: Record<string, Record<string, string | number>>;
-  data?: Record<string, ReactElement>;
+  data?: Record<string, string>;
   t: (key: string) => string;
 };
 
@@ -201,15 +201,14 @@ const ReservationFormField = ({
             id={field}
             onChange={(e) => formField.onChange(e.target.checked)}
             checked={formField.value}
-            label={
-              <>
-                {data?.subventionLabel ||
-                  t(
-                    `reservationApplication:label.${normalizedReserveeType}.${field}`
-                  )}
-                {required ? " * " : ""}
-              </>
+            label={`${
+              data?.subventionLabel ??
+              t(
+                `reservationApplication:label.${normalizedReserveeType}.${field}`
+              )
             }
+            ${required ? " * " : ""}
+            `}
             errorText={get(errors, field) && t("forms:requiredField")}
           />
         )}
@@ -286,14 +285,26 @@ const ReservationFormField = ({
         }),
       })}
       key={field}
-      defaultValue={get(reservation, field) as number}
+      defaultValue={
+        Number.isNaN(get(reservation, field))
+          ? undefined
+          : Number(get(reservation, field))
+      }
       errorText={get(errors, field) && t("forms:requiredField")}
       invalid={!!get(errors, field)}
       step={1}
       minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
-      min={get(params, field)?.min as number}
-      max={get(params, field)?.max as number}
+      min={
+        Number.isNaN(get(params, field)?.min)
+          ? undefined
+          : Number(get(params, field)?.min)
+      }
+      max={
+        Number.isNaN(get(params, field)?.max)
+          ? undefined
+          : Number(get(params, field)?.max)
+      }
     />
   ) : isTextArea ? (
     <StyledTextArea

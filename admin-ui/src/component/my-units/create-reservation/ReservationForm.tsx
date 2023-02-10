@@ -1,8 +1,8 @@
 import { OptionType } from "common/types/common";
 import { IconGroup, IconUser } from "hds-react";
-import React, { Fragment, ReactElement, useMemo } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
 import {
@@ -60,6 +60,21 @@ const ReserveeTypeContainer = styled.div`
   flex-wrap: wrap;
 `;
 
+const reserveeOptions = [
+  {
+    id: ReservationsReservationReserveeTypeChoices.Individual,
+    icon: <IconUser aria-hidden />,
+  },
+  {
+    id: ReservationsReservationReserveeTypeChoices.Nonprofit,
+    icon: <IconGroup aria-hidden />,
+  },
+  {
+    id: ReservationsReservationReserveeTypeChoices.Business,
+    icon: <IconPremises width="24" height="24" aria-hidden />,
+  },
+];
+
 const ReservationForm = ({
   reservationUnit,
   reserveeType,
@@ -77,26 +92,6 @@ const ReservationForm = ({
     key.indexOf(":") !== -1
       ? originalT(`ReservationDialog.${key.substring(key.indexOf(":") + 1)}`)
       : originalT(key);
-
-  const reserveeOptions = useMemo((): {
-    id: ReservationsReservationReserveeTypeChoices;
-    icon: ReactElement;
-  }[] => {
-    return [
-      {
-        id: ReservationsReservationReserveeTypeChoices.Individual,
-        icon: <IconUser aria-hidden />,
-      },
-      {
-        id: ReservationsReservationReserveeTypeChoices.Nonprofit,
-        icon: <IconGroup aria-hidden />,
-      },
-      {
-        id: ReservationsReservationReserveeTypeChoices.Business,
-        icon: <IconPremises width="24" height="24" aria-hidden />,
-      },
-    ];
-  }, []);
 
   if (!reservationUnit.metadataSet) {
     return null;
@@ -120,7 +115,7 @@ const ReservationForm = ({
 
   return (
     <Container>
-      {generalFields?.length > 0 && (
+      {generalFields.length > 0 && (
         <>
           <Subheading
             style={{
@@ -150,11 +145,9 @@ const ReservationForm = ({
                   },
                 }}
                 data={{
-                  subventionLabel: (
-                    <Trans i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink">
-                      Haen maksuttomuutta tai hinnan alennusta ja olen
-                      tutustunut
-                    </Trans>
+                  // TODO where is the link? (it wasn't working in the previous commit either)
+                  subventionLabel: t(
+                    "reservationApplication:label.common.applyingForFreeOfChargeWithLink"
                   ),
                 }}
                 t={t}
@@ -198,43 +191,41 @@ const ReservationForm = ({
           margin: "var(--spacing-layout-m) 0 var(--spacing-layout-m)",
         }}
       >
-        {reservationApplicationFields.map((field, index) => {
-          return (
-            <Fragment key={`key-${field}`}>
-              {headingForNonProfit(index) && (
-                <GroupHeading style={{ marginTop: 0 }}>
-                  {t("reservationApplication:label.headings.nonprofitInfo")}
-                </GroupHeading>
-              )}
-              {headingForNonProfitContactInfo(field) && (
-                <GroupHeading>
-                  {t("reservationApplication:label.headings.contactInfo")}
-                </GroupHeading>
-              )}
-              {headingForCompanyInfo(index) && (
-                <GroupHeading style={{ marginTop: 0 }}>
-                  {t("reservationApplication:label.headings.companyInfo")}
-                </GroupHeading>
-              )}{" "}
-              {headingForContactInfo(field) && (
-                <GroupHeading>
-                  {t("reservationApplication:label.headings.contactInfo")}
-                </GroupHeading>
-              )}
+        {reservationApplicationFields.map((field, index) => (
+          <>
+            {headingForNonProfit(index) && (
+              <GroupHeading style={{ marginTop: 0 }}>
+                {t("reservationApplication:label.headings.nonprofitInfo")}
+              </GroupHeading>
+            )}
+            {headingForNonProfitContactInfo(field) && (
+              <GroupHeading>
+                {t("reservationApplication:label.headings.contactInfo")}
+              </GroupHeading>
+            )}
+            {headingForCompanyInfo(index) && (
+              <GroupHeading style={{ marginTop: 0 }}>
+                {t("reservationApplication:label.headings.companyInfo")}
+              </GroupHeading>
+            )}{" "}
+            {headingForContactInfo(field) && (
+              <GroupHeading>
+                {t("reservationApplication:label.headings.contactInfo")}
+              </GroupHeading>
+            )}
+            {reservationUnit.metadataSet != null && (
               <ReservationFormField
                 field={field as unknown as keyof Inputs}
                 options={options}
                 reserveeType={reserveeType}
-                metadataSet={
-                  reservationUnit.metadataSet as ReservationMetadataSetType
-                }
+                metadataSet={reservationUnit.metadataSet}
                 reservation={reservation}
                 form={form}
                 t={t}
               />
-            </Fragment>
-          );
-        })}
+            )}
+          </>
+        ))}
       </TwoColumnContainer>
     </Container>
   );
