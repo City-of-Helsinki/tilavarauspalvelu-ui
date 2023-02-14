@@ -2,7 +2,6 @@ import { OptionType } from "common/types/common";
 import { IconArrowLeft, IconArrowRight, IconGroup, IconUser } from "hds-react";
 import Image from "next/image";
 import React, { Fragment, ReactElement, useMemo, useRef } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
 import { useTranslation, Trans } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
@@ -38,7 +37,6 @@ type Props = {
   reservationApplicationFields: string[];
   cancelReservation: () => void;
   options: Record<string, OptionType[]>;
-  form: UseFormReturn<Inputs>;
 };
 
 const Form = styled.form`
@@ -77,7 +75,6 @@ const Step0 = ({
   reservationApplicationFields,
   cancelReservation,
   options,
-  form,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -138,7 +135,6 @@ const Step0 = ({
                   key={`key-${field}`}
                   field={field as unknown as keyof Inputs}
                   options={options}
-                  form={form as unknown as ReturnType<typeof useForm>}
                   metadataSet={reservationUnit.metadataSet}
                   reserveeType="common"
                   reservation={reservation}
@@ -249,7 +245,6 @@ const Step0 = ({
                 reserveeType={reserveeType}
                 metadataSet={reservationUnit.metadataSet}
                 reservation={reservation}
-                form={form as unknown as ReturnType<typeof useForm>}
               />
             </Fragment>
           );

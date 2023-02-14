@@ -2,7 +2,7 @@ import { Checkbox, NumberInput, Select, TextArea, TextInput } from "hds-react";
 import camelCase from "lodash/camelCase";
 import get from "lodash/get";
 import React, { useMemo } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationMetadataSetType } from "../../types/gql-types";
@@ -13,10 +13,11 @@ import { OptionType } from "../../types/common";
 type Props = {
   field: keyof Inputs;
   options: Record<string, OptionType[]>;
+  // TODO why is this a string and not an enum?
+  // 'common' and 'individual' are at least input types
   reserveeType?: string;
   reservation: Reservation;
   metadataSet: ReservationMetadataSetType;
-  form: ReturnType<typeof useForm>;
   params?: Record<string, Record<string, string | number>>;
   data?: Record<string, string>;
   t: (key: string) => string;
@@ -91,12 +92,6 @@ const ReservationFormField = ({
   reserveeType,
   metadataSet,
   reservation,
-  form: {
-    register,
-    control,
-    watch,
-    formState: { errors },
-  },
   params = {},
   data = {},
   t,
@@ -117,6 +112,13 @@ const ReservationFormField = ({
       ].includes(field),
     [field]
   );
+
+  const {
+    watch,
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   const isTextArea = useMemo(
     (): boolean => ["description"].includes(field),

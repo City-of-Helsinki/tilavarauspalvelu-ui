@@ -1,7 +1,6 @@
 import { OptionType } from "common/types/common";
 import { IconGroup, IconUser } from "hds-react";
 import React from "react";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
@@ -31,7 +30,6 @@ type Props = {
   generalFields: string[];
   reservationApplicationFields: string[];
   options: Record<string, OptionType[]>;
-  form: ReturnType<typeof useForm>;
 };
 
 const Container = styled.div`
@@ -83,7 +81,6 @@ const ReservationForm = ({
   reservation,
   reservationApplicationFields,
   options,
-  form,
 }: Props): JSX.Element | null => {
   const { t: originalT } = useTranslation();
 
@@ -220,7 +217,6 @@ const ReservationForm = ({
                 reserveeType={reserveeType}
                 metadataSet={reservationUnit.metadataSet}
                 reservation={reservation}
-                form={form}
                 t={t}
               />
             )}

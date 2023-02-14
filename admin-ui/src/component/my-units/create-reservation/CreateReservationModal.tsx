@@ -1,6 +1,6 @@
 import React from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FormProvider } from "react-hook-form";
 import {
   RadioButton,
   Button,
@@ -150,87 +150,87 @@ const DialogContent = ({
   return (
     <>
       <Dialog.Content>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
-            <CommonFields>
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
+              <CommonFields>
+                <Controller
+                  name="date"
+                  control={form.control}
+                  render={({ field }) => (
+                    <DateInput
+                      id="reservationDialog.date"
+                      label={t("ReservationDialog.date")}
+                      minDate={new Date()}
+                      disableConfirmation
+                      language="fi"
+                      errorText={errors.date?.message}
+                      {...field}
+                    />
+                  )}
+                />
+                <Controller
+                  name="startTime"
+                  control={form.control}
+                  render={({ field }) => (
+                    <TimeInput
+                      id="ReservationDialog.startTime"
+                      label={t("ReservationDialog.startTime")}
+                      hoursLabel={t("common.hoursLabel")}
+                      minutesLabel={t("common.minutesLabel")}
+                      required
+                      errorText={errors.startTime?.message}
+                      {...field}
+                    />
+                  )}
+                />
+                <Controller
+                  name="endTime"
+                  control={form.control}
+                  render={({ field }) => (
+                    <TimeInput
+                      id="ReservationDialog.endtime"
+                      label={t("ReservationDialog.endTime")}
+                      hoursLabel={t("common.hoursLabel")}
+                      minutesLabel={t("common.minutesLabel")}
+                      required
+                      errorText={errors.endTime?.message}
+                      {...field}
+                    />
+                  )}
+                />
+              </CommonFields>
               <Controller
-                name="date"
+                name="type"
                 control={form.control}
                 render={({ field }) => (
-                  <DateInput
-                    id="reservationDialog.date"
-                    label={t("ReservationDialog.date")}
-                    minDate={new Date()}
-                    disableConfirmation
-                    language="fi"
-                    errorText={errors.date?.message}
-                    {...field}
-                  />
-                )}
-              />
-              <Controller
-                name="startTime"
-                control={form.control}
-                render={({ field }) => (
-                  <TimeInput
-                    id="ReservationDialog.startTime"
-                    label={t("ReservationDialog.startTime")}
-                    hoursLabel={t("common.hoursLabel")}
-                    minutesLabel={t("common.minutesLabel")}
+                  <SelectionGroup
                     required
-                    errorText={errors.startTime?.message}
-                    {...field}
-                  />
+                    label={t("ReservationDialog.type")}
+                    errorText={errors.type?.message}
+                  >
+                    {Object.values(ReservationType)
+                      .filter((v) => typeof v === "string")
+                      .map((v) => (
+                        <RadioButton
+                          key={v}
+                          id={v as string}
+                          checked={v === field.value}
+                          label={t(`ReservationDialog.reservationType.${v}`)}
+                          onChange={() => field.onChange(v)}
+                        />
+                      ))}
+                  </SelectionGroup>
                 )}
               />
-              <Controller
-                name="endTime"
-                control={form.control}
-                render={({ field }) => (
-                  <TimeInput
-                    id="ReservationDialog.endtime"
-                    label={t("ReservationDialog.endTime")}
-                    hoursLabel={t("common.hoursLabel")}
-                    minutesLabel={t("common.minutesLabel")}
-                    required
-                    errorText={errors.endTime?.message}
-                    {...field}
-                  />
-                )}
-              />
-            </CommonFields>
-            <Controller
-              name="type"
-              control={form.control}
-              render={({ field }) => (
-                <SelectionGroup
-                  required
-                  label={t("ReservationDialog.type")}
-                  errorText={errors.type?.message}
-                >
-                  {Object.values(ReservationType)
-                    .filter((v) => typeof v === "string")
-                    .map((v) => (
-                      <RadioButton
-                        key={v}
-                        id={v as string}
-                        checked={v === field.value}
-                        label={t(`ReservationDialog.reservationType.${v}`)}
-                        onChange={() => field.onChange(v)}
-                      />
-                    ))}
-                </SelectionGroup>
-              )}
-            />
-            {type === ReservationType.BLOCKED && (
-              <BlockedReservation form={form} />
-            )}
-            {type === ReservationType.STAFF ||
-            type === ReservationType.NORMAL ? (
-              <StaffReservation form={form} reservationUnit={reservationUnit} />
-            ) : null}
-          </VerticalFlex>
-        </form>
+              {type === ReservationType.BLOCKED && <BlockedReservation />}
+              {type === ReservationType.STAFF ||
+              type === ReservationType.NORMAL ? (
+                <StaffReservation reservationUnit={reservationUnit} />
+              ) : null}
+            </VerticalFlex>
+          </form>
+        </FormProvider>
       </Dialog.Content>
       <ActionButtons>
         <Button variant="secondary" onClick={onClose} theme="black">

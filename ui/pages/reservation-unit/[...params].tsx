@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import router from "next/router";
 import { useLocalStorage, useSessionStorage } from "react-use";
 import { Notification, Stepper } from "hds-react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import { isFinite, omit } from "lodash";
 import { useTranslation } from "next-i18next";
@@ -555,7 +555,7 @@ const ReservationUnitReservation = ({
         )}
         <BodyContainer>
           {formStatus === "pending" && (
-            <>
+            <FormProvider {...form}>
               <div>
                 <Title>{pageTitle}</Title>
                 <StyledStepper
@@ -583,7 +583,6 @@ const ReservationUnitReservation = ({
                   setReserveeType={setReserveeType}
                   cancelReservation={cancelReservation}
                   options={options}
-                  form={form}
                 />
               )}
               {step === 1 && (
@@ -601,7 +600,7 @@ const ReservationUnitReservation = ({
                   setErrorMsg={setErrorMsg}
                 />
               )}
-            </>
+            </FormProvider>
           )}
           {formStatus === "sent" && (
             <ReservationConfirmation

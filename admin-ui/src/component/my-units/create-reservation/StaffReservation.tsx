@@ -1,23 +1,24 @@
 import React from "react";
 import { Checkbox, SelectionGroup, TextArea } from "hds-react";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ReservationUnitType } from "common/types/gql-types";
-import { ReservationFormType } from "./types";
 import { HR } from "../../lists/components";
 import MetadataSetForm from "./MetadataSetForm";
 
-const BufferController = (
-  name: "bufferTimeBefore" | "bufferTimeAfter",
-  seconds: number,
-  form: UseFormReturn<ReservationFormType>
-) => {
+type BufferControllerProps = {
+  name: "bufferTimeBefore" | "bufferTimeAfter";
+  seconds: number;
+};
+const BufferController = ({ name, seconds }: BufferControllerProps) => {
   const { t } = useTranslation();
+
+  const { control, setValue } = useFormContext();
 
   return (
     <Controller
       name={name}
-      control={form.control}
+      control={control}
       render={({ field }) => (
         <Checkbox
           id={name}
@@ -28,7 +29,7 @@ const BufferController = (
           {...field}
           value={String(field.value)}
           onChange={() => {
-            form.setValue(name, !field.value);
+            setValue(name, !field.value);
           }}
         />
       )}
@@ -37,45 +38,40 @@ const BufferController = (
 };
 
 type Props = {
-  form: UseFormReturn<ReservationFormType>;
   reservationUnit: ReservationUnitType;
 };
 
-const StaffReservation = ({ form, reservationUnit }: Props) => {
+const StaffReservation = ({ reservationUnit }: Props) => {
   const { t } = useTranslation();
 
-  const bufferControllers = [] as JSX.Element[];
-
-  if (reservationUnit.bufferTimeBefore) {
-    bufferControllers.push(
-      BufferController(
-        "bufferTimeBefore",
-        reservationUnit.bufferTimeBefore,
-        form
-      )
-    );
-  }
-
-  if (reservationUnit.bufferTimeAfter) {
-    bufferControllers.push(
-      BufferController("bufferTimeAfter", reservationUnit.bufferTimeAfter, form)
-    );
-  }
+  const { register } = useFormContext();
 
   return (
     <>
-      {bufferControllers.length > 0 ? (
-        <SelectionGroup label={t("ReservationDialog.buffers")}>
-          {bufferControllers}
-        </SelectionGroup>
-      ) : null}
+      {reservationUnit.bufferTimeAfter ||
+        (reservationUnit.bufferTimeAfter && (
+          <SelectionGroup label={t("ReservationDialog.buffers")}>
+            {reservationUnit.bufferTimeBefore && (
+              <BufferController
+                name="bufferTimeBefore"
+                seconds={reservationUnit.bufferTimeBefore}
+              />
+            )}
+            {reservationUnit.bufferTimeAfter && (
+              <BufferController
+                name="bufferTimeAfter"
+                seconds={reservationUnit.bufferTimeAfter}
+              />
+            )}
+          </SelectionGroup>
+        ))}
       <TextArea
         label={t("ReservationDialog.comment")}
         id="ReservationDialog.comment"
-        {...form.register("workingMemo")}
+        {...register("workingMemo")}
       />
       <HR />
-      <MetadataSetForm reservationUnit={reservationUnit} form={form} />
+      <MetadataSetForm reservationUnit={reservationUnit} />
     </>
   );
 };

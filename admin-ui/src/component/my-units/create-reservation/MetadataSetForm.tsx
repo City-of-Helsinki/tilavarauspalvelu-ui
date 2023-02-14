@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { UseFormReturn, useForm } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import {
   Query,
   ReservationsReservationReserveeTypeChoices,
@@ -9,20 +9,21 @@ import { useQuery } from "@apollo/client";
 import { sortBy } from "lodash";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import { OPTIONS_QUERY } from "./queries";
-import { ReservationFormType } from "./types";
 import ReservationForm from "./ReservationForm";
+import { ReservationFormType } from "./types";
 
 type Props = {
-  form: UseFormReturn<ReservationFormType>;
   reservationUnit: ReservationUnitType;
 };
 
-const MetadataSetForm = ({ form, reservationUnit }: Props): JSX.Element => {
+const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
   const [reserveeType, setReserveeType] = useState<
     ReservationsReservationReserveeTypeChoices | undefined
   >(undefined);
 
   const { data: optionsData } = useQuery<Query>(OPTIONS_QUERY);
+
+  const { getValues } = useFormContext<ReservationFormType>();
 
   const purpose = sortBy(optionsData?.purposes?.edges || [], "node.nameFi").map(
     (purposeType) => ({
@@ -77,14 +78,13 @@ const MetadataSetForm = ({ form, reservationUnit }: Props): JSX.Element => {
 
   return (
     <ReservationForm
-      form={form as unknown as ReturnType<typeof useForm>}
       reservationUnit={reservationUnit}
       options={options}
       reserveeType={reserveeType}
       setReserveeType={setReserveeType}
       generalFields={generalFields}
       reservationApplicationFields={reservationApplicationFields}
-      reservation={form.getValues()}
+      reservation={getValues()}
     />
   );
 };
