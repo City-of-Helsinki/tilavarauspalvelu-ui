@@ -15,8 +15,10 @@ type Props = {
   items: NewReservationListItem[];
 };
 
+// TODO the 22rem for max-height is defined with the label, but scroll doesn't work unless it's defined here
+// check what the real measurement is
 const ListWrapper = styled.div`
-  max-height: 350px;
+  max-height: 18.5rem;
   overflow-y: auto;
   overflow-x: hidden;
 `;

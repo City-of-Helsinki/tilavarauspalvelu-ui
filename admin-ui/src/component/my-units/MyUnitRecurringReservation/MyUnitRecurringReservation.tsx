@@ -70,7 +70,7 @@ const MyUnitRecurringReservation = () => {
       </PreviousLinkWrapper>
 
       <Container>
-        <H2>Tee toistuva varaus</H2>
+        <H2 as="h1">Tee toistuva varaus</H2>
         {reservationUnits != null && reservationUnits.length > 0 ? (
           <MyUnitRecurringReservationForm reservationUnits={reservationUnits} />
         ) : (
