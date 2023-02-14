@@ -105,9 +105,9 @@ const DialogContent = ({
         Object.values(metadataSetValues).map((v) => get(v, "value") || v)
       );
 
-      const input = {
+      const input: ReservationStaffCreateMutationInput = {
         reservationUnitPks: [reservationUnit.pk as number],
-        type: values.type,
+        type: values.type ?? "",
         begin: myDateTime(new Date(values.date), values.startTime),
         end: myDateTime(new Date(values.date), values.endTime as string),
         bufferTimeBefore: values.bufferTimeBefore
@@ -118,7 +118,7 @@ const DialogContent = ({
           : undefined,
         workingMemo: values.workingMemo,
         ...flattenedMetadataSetValues,
-      } as ReservationStaffCreateMutationInput;
+      };
 
       const { data: createResponse } = await createStaffReservation(input);
 
