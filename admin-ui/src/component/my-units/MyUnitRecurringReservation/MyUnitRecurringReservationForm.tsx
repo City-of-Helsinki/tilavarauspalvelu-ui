@@ -1,10 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useMemo } from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { getDayIntervals } from "common/src/calendar/util";
-import { ReservationUnitType } from "common/types/gql-types";
-import { trimStart } from "lodash";
+import {
+  RecurringReservationCreateMutationInput,
+  RecurringReservationCreateMutationPayload,
+  ReservationStaffCreateMutationInput,
+  ReservationStaffCreateMutationPayload,
+  ReservationUnitType,
+} from "common/types/gql-types";
+import { camelCase, get, pick, trimStart, zipObject } from "lodash";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "@apollo/client";
+import { format } from "date-fns";
 import {
   Button,
   Checkbox,
@@ -20,17 +29,15 @@ import {
   RecurringReservationForm,
   RecurringReservationFormSchema,
 } from "./RecurringReservationSchema";
-import {
-  Grid,
-  Span12,
-  Span3,
-  Span6,
-  VerticalFlex,
-} from "../../../styles/layout";
+import { Grid, Span3, Span6, VerticalFlex } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
 import { generateReservations, ReservationList } from "./ReservationsList";
+import { CREATE_RECURRING_RESERVATION } from "./queries";
+import { useNotification } from "../../../context/NotificationContext";
+import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
+import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -76,6 +83,13 @@ const getReservationUnitStartInterval = ({
 
   return unit?.reservationStartInterval;
 };
+
+function removeRefParam<Type>(
+  params: Type & { ref: unknown }
+): Omit<Type, "ref"> {
+  const { ref, ...rest } = params;
+  return rest;
+}
 
 type Props = {
   reservationUnits: ReservationUnitType[];
@@ -150,47 +164,193 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     { value: "biweekly", label: t("common.biweekly") },
   ];
 
-  const onSubmit = (data: RecurringReservationForm) => {
+  const tnamespace = "MyUnits.RecurringReservationForm";
+
+  // Form submission
+  const [create] = useMutation<
+    { createRecurringReservation: RecurringReservationCreateMutationPayload },
+    { input: RecurringReservationCreateMutationInput }
+  >(CREATE_RECURRING_RESERVATION);
+
+  const createRecurringReservation = (
+    input: RecurringReservationCreateMutationInput
+  ) => create({ variables: { input } });
+
+  const createReservationMutation = useMutation<
+    { createStaffReservation: ReservationStaffCreateMutationPayload },
+    { input: ReservationStaffCreateMutationInput }
+  >(CREATE_STAFF_RESERVATION);
+
+  const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
+    createReservationMutation[0]({ variables: { input } });
+
+  // Why is this a thing?
+  const renamePkFields = ["ageGroup", "homeCity", "purpose"];
+
+  const { notifyError, notifySuccess } = useNotification();
+
+  const onSubmit = async (data: RecurringReservationForm) => {
     console.log("submitted: ", data);
-    alert("submitted: ".concat(JSON.stringify(data, null, 2)));
+    // TODO this is coppied from StaffReservation (Modal)
+    try {
+      // this is the pk as a number
+      const unit = Number(data.reservationUnit.value);
+      console.log("reservation unit: ", unit);
+      /* TODO the metadata needs to be implemented after selecting the unit
+      const metadataSetFields = (
+        (reservationUnit.metadataSet?.supportedFields || []) as string[]
+      ).map(camelCase);
+
+      const metadataSetValues = pick(data, metadataSetFields);
+
+      const flattenedMetadataSetValues = zipObject(
+        Object.keys(metadataSetValues).map((k) =>
+          renamePkFields.includes(k) ? `${k}Pk` : k
+        ),
+        Object.values(metadataSetValues).map((v) => get(v, "value") || v)
+      );
+      */
+
+      // TODO this is common with the ReservationForm combine them
+      const myDateTime = (date: Date, time: string) =>
+        dateTime(format(date, "dd.MM.yyyy"), time);
+
+      const input: RecurringReservationCreateMutationInput = {
+        reservationUnitPk: unit,
+        // type: data.type,
+        // TODO convert 13.2.2023 date into 2023-02-13
+        beginDate: "2023-02-13", // data.startingDate, // myDateTime(new Date(
+        beginTime: data.startingTime.value,
+        endDate: "2023-02-28", // data.endingDate,
+        endTime: data.endingTime.value,
+        weekdays: data.repeatOnDays,
+        recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
+        // myDateTime(new Date(data.endingDate), data.endingTime),
+        // bufferTimeBefore: data.bufferTimeBefore,
+        // ? String(reservationUnit.bufferTimeBefore)
+        // : undefined,
+        // bufferTimeAfter: data.bufferTimeAfter,
+        // ? String(reservationUnit.bufferTimeAfter)
+        // : undefined,
+        // workingMemo: data.workingMemo,
+        // FIXME metadata
+        // ...flattenedMetadataSetValues,
+      };
+      // TODO really really hate the use of as in Typescript
+
+      const { data: createResponse } = await createRecurringReservation(input);
+
+      console.log("mutation response: ", createResponse);
+
+      // What??? why is this done like this
+      const firstError = (
+        createResponse?.createRecurringReservation?.errors || []
+      ).find(() => true);
+
+      console.log("first error: ", firstError);
+
+      if (firstError) {
+        console.error("GraphQL failed: first error:", firstError);
+        notifyError(
+          t("ReservationDialog.saveFailed", {
+            error: get(firstError, "messages[0]"),
+          })
+        );
+      } else {
+        // TODO we don't want it notifications here we want them after all the individual reservations are done
+        console.log("GraphQL success: adding individual reservations");
+        /*
+        notifySuccess(
+          t("ReservationDialog.saveSuccess", {
+            reservationUnit:
+              "FIXME this should be the unit name, but it needs a query",
+          })
+        );
+        */
+
+        // Use CreateStaffReservationMutation here and set the
+        // RecurringReservation.id on it to link them to the parent
+        // TODO this needs to be run in a loop based on the days
+        // TODO once a prototype is working, see if we can combine some of it
+        newReservations.map(async (x) => {
+          const staffInput: ReservationStaffCreateMutationInput = {
+            reservationUnitPks: [Number(unit)],
+            type: "STAFF", // FIXME
+            begin: myDateTime(new Date(x.date), x.startTime),
+            end: myDateTime(new Date(x.date), x.endTime),
+            bufferTimeBefore: buffers?.bufferTimeBefore
+              ? String(buffers.bufferTimeBefore)
+              : undefined,
+            bufferTimeAfter: buffers?.bufferTimeAfter
+              ? String(buffers.bufferTimeAfter)
+              : undefined,
+            // TODO what?
+            // workingMemo: values.workingMemo,
+            // TODO metadata requires us to move the form here
+            // ...flattenedMetadataSetValues,
+          };
+          const { data: resData } = await createStaffReservation(staffInput);
+
+          if (resData?.createStaffReservation?.errors) {
+            console.log(
+              "failed to create reservation with error",
+              resData?.createStaffReservation?.errors
+            );
+          } else {
+            console.log("successfully created reservation: ", staffInput);
+          }
+        });
+
+        // TODO after all is done, do something (show the user the list of reservations / redirect etc.)
+      }
+    } catch (e) {
+      console.log("exception", e);
+      notifyError(
+        t("ReservationDialog.saveFailed", { error: get(e, "message") })
+      );
+      // on exception in StaffReservation (first of them)
+      // we need to cleanup the RecurringReservation (if it has zero connections)
+    }
   };
 
-  const onError = () => {
-    console.warn("errors: ", errors);
-    alert("errors: ".concat(JSON.stringify(errors, null, 2)));
-  };
-
+  // TODO this prints errors because radio buttons needs default values
+  // TODO replace the Grid / SpanX with proper Grid for this page
+  // currently Grid is used like a flexbox.
+  // We should use grid-column-start for stuff that's alligned at the start, not start a new grid.
   return (
-    <form onSubmit={handleSubmit(onSubmit, onError)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
         <Grid>
           <Span6>
             <Controller
               name="reservationUnit"
               control={control}
+              defaultValue={{ label: "", value: "" }}
               render={({ field }) => (
                 <SortedSelect
                   sort
-                  label={t("MyUnits.RecurringReservationForm.reservationUnit")}
+                  label={t(`${tnamespace}.reservationUnit`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={reservationUnitOptions}
                   error={errors.reservationUnit?.message}
-                  {...field}
+                  {...removeRefParam(field)}
                 />
               )}
             />
           </Span6>
         </Grid>
+
         <Grid>
           <Span3>
             <Controller
               name="startingDate"
               control={control}
+              defaultValue=""
               render={({ field }) => (
                 <DateInput
                   id="startingDate"
-                  label={t("MyUnits.RecurringReservationForm.startingDate")}
+                  label={t(`${tnamespace}.startingDate`)}
                   minDate={new Date()}
                   placeholder={t("common.select")}
                   disableConfirmation
@@ -205,10 +365,11 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             <Controller
               name="endingDate"
               control={control}
+              defaultValue=""
               render={({ field }) => (
                 <DateInput
                   id="endingDate"
-                  label={t("MyUnits.RecurringReservationForm.endingDate")}
+                  label={t(`${tnamespace}.endingDate`)}
                   minDate={new Date()}
                   placeholder={t("common.select")}
                   disableConfirmation
@@ -223,34 +384,37 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             <Controller
               name="repeatPattern"
               control={control}
+              defaultValue={{ label: "", value: "weekly" }}
               render={({ field }) => (
                 <SortedSelect
                   sort
-                  label={t("MyUnits.RecurringReservationForm.repeatPattern")}
+                  label={t(`${tnamespace}.repeatPattern`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={repeatPatternOptions}
                   error={errors.repeatPattern?.message}
-                  {...field}
+                  {...removeRefParam(field)}
                 />
               )}
             />
           </Span3>
         </Grid>
+
         <Grid>
           <Span3>
             <Controller
               name="startingTime"
               control={control}
+              defaultValue={{ label: "", value: "" }}
               render={({ field }) => (
                 <Select
                   disabled={!timeSelectionOptions.length}
-                  label={t("MyUnits.RecurringReservationForm.startingTime")}
+                  label={t(`${tnamespace}.startingTime`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={timeSelectionOptions}
                   error={errors.startingTime?.message}
-                  {...field}
+                  {...removeRefParam(field)}
                 />
               )}
             />
@@ -259,15 +423,16 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             <Controller
               name="endingTime"
               control={control}
+              defaultValue={{ label: "", value: "" }}
               render={({ field }) => (
                 <Select
                   disabled={!timeSelectionOptions.length}
-                  label={t("MyUnits.RecurringReservationForm.endingTime")}
+                  label={t(`${tnamespace}.endingTime`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={timeSelectionOptions}
                   error={errors.endingTime?.message}
-                  {...field}
+                  {...removeRefParam(field)}
                 />
               )}
             />
@@ -275,8 +440,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         </Grid>
 
         {buffers ? (
-          <Span3>
-            <Label>{t(`MyUnits.RecurringReservationForm.buffers`)}</Label>
+          <div>
+            <Label>{t(`${tnamespace}.buffers`)}</Label>
             {Object.entries(buffers).map(
               ([key, value]) =>
                 value && (
@@ -286,21 +451,22 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                     render={({ field }) => (
                       <Checkbox
                         id={key}
-                        label={t(`MyUnits.RecurringReservationForm.${key}`, {
+                        label={t(`${tnamespace}.${key}`, {
                           minutes: value / 60,
                         })}
                         checked={String(field.value) === "true"}
                         {...field}
+                        ref={null}
                         value={String(field.value)}
                       />
                     )}
                   />
                 )
             )}
-          </Span3>
+          </div>
         ) : null}
-        <Span3>
-          <Label>{t(`MyUnits.RecurringReservationForm.repeatOnDays`)}</Label>
+        <div>
+          <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
           <Controller
             name="repeatOnDays"
             control={control}
@@ -308,26 +474,26 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
               <WeekdaysSelector value={value} onChange={onChange} />
             )}
           />
-        </Span3>
+        </div>
 
         {newReservations ? (
-          <Span12>
+          <div>
             <Label $bold>
-              {t(`MyUnits.RecurringReservationForm.reservationsList`, {
+              {t(`${tnamespace}.reservationsList`, {
                 count: newReservations.length,
               })}
             </Label>
             <ReservationList items={newReservations} />
-          </Span12>
+          </div>
         ) : null}
 
-        <Span6>
+        <div>
           <Controller
             name="typeOfReservation"
             control={control}
             render={({ field }) => (
               <SelectionGroup
-                label={t(`MyUnits.RecurringReservationForm.typeOfReservation`)}
+                label={t(`${tnamespace}.typeOfReservation`)}
                 errorText={errors.typeOfReservation?.message}
               >
                 {Object.values(ReservationType)
@@ -337,22 +503,20 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                       key={v}
                       id={v as string}
                       checked={v === field.value}
-                      label={t(
-                        `MyUnits.RecurringReservationForm.reservationType.${v}`
-                      )}
+                      label={t(`${tnamespace}.reservationType.${v}`)}
                       onChange={() => field.onChange(v)}
                     />
                   ))}
               </SelectionGroup>
             )}
           />
-        </Span6>
+        </div>
 
         <Grid>
           <Span6>
             <TextInput
               id="name"
-              label={t(`MyUnits.RecurringReservationForm.name`)}
+              label={t(`${tnamespace}.name`)}
               {...register("name")}
               errorText={errors.name?.message}
             />
@@ -362,7 +526,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           <Span6>
             <TextArea
               id="comments"
-              label={t(`MyUnits.RecurringReservationForm.comments`)}
+              label={t(`${tnamespace}.comments`)}
               {...register("comments")}
               errorText={errors.comments?.message}
             />
@@ -370,7 +534,15 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         </Grid>
 
         <Grid>
+          <Span6>
+            This should be ReservationForm or MetadataSetForm but they are
+            tangled in the single reservation
+          </Span6>
+        </Grid>
+
+        <Grid>
           <ActionsWrapper>
+            {/* TODO is the cancel button useful here? */}
             <Button variant="secondary" onClick={() => console.log("test")}>
               {t("common.cancel")}
             </Button>
