@@ -30,7 +30,7 @@ const NavigationLanguageSelection = () => {
 
   return (
     <HDSNavigation.LanguageSelector
-      label={i18n.language.toUpperCase()}
+      label={i18n?.language?.toUpperCase()}
       className="navigation__language-selector--button"
     >
       {languageOptions.map((languageOption) => (
