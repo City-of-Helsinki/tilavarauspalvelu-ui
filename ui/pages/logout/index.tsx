@@ -12,7 +12,7 @@ const LogoutPage = () => {
 
   useEffect(() => {
     signOut({ redirect: false }).then(() => {
-      router.push(baseUrl);
+      router.push(baseUrl || "/");
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
