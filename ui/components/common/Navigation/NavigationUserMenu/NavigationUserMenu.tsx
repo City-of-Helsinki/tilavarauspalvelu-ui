@@ -1,6 +1,6 @@
 import React from "react";
 import { IconSignout, Navigation as HDSNavigation } from "hds-react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
@@ -111,7 +111,7 @@ const NavigationUserMenu = () => {
   };
 
   const handleSignOut = () => {
-    router.push(authenticationLogoutApiRoute);
+    signOut({ redirect: true, callbackUrl: authenticationLogoutApiRoute });
   };
 
   return (
