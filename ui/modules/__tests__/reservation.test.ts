@@ -408,6 +408,7 @@ describe("canReservationBeChanged", () => {
           endTime: `${date}T20:00:00+00:00`,
           state: "open",
           periods: null,
+          isReservable: true,
         };
       }),
     },

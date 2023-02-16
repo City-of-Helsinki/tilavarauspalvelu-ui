@@ -393,6 +393,7 @@ export const mockOpeningTimes = Array.from(Array(100)).map((val, index) => {
     endTime: `${date}T20:00:00+00:00`,
     state: "open",
     periods: null,
+    isReservable: true,
   };
 });
 
