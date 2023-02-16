@@ -261,7 +261,7 @@ export const getServerSideProps: GetServerSideProps = async ({
             openingTimes: allowReservationsWithoutOpeningHours
               ? mockOpeningTimes
               : additionalData.reservationUnitByPk?.openingHours?.openingTimes.filter(
-                  (n) => n.state === "open"
+                  (n) => n.isReservable
                 ) || [],
             openingTimePeriods: allowReservationsWithoutOpeningHours
               ? mockOpeningTimePeriods

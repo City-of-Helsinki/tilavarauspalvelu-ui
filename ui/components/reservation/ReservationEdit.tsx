@@ -211,7 +211,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
         openingTimes: allowReservationsWithoutOpeningHours
           ? mockOpeningTimes
           : additionalData?.reservationUnitByPk?.openingHours?.openingTimes.filter(
-              (n) => n.state === "open"
+              (n) => n.isReservable
             ) || [],
       },
       reservations: additionalData?.reservationUnitByPk?.reservations,

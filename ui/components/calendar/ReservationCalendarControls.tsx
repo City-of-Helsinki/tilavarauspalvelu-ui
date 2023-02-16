@@ -479,7 +479,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
 
   const togglerLabel = (() => {
     const dateStr = trim(
-      `${beginDate} ${beginTime}${
+      `${capitalize(beginDate)} ${beginTime}${
         endDate !== beginDate ? ` - ${capitalize(endDate)} ` : "-"
       }${endTime}`,
       "-"
@@ -530,7 +530,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
                 <div>&nbsp;</div>
               ) : (
                 <>
-                  <TogglerDate>{capitalize(togglerLabel)}</TogglerDate>
+                  <TogglerDate>{togglerLabel}</TogglerDate>
                   <TogglerPrice>
                     {t("reservationUnit:price")}: {price}
                   </TogglerPrice>

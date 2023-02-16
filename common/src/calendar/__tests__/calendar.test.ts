@@ -766,6 +766,7 @@ describe("getEventBuffers", () => {
 });
 
 describe("isReservationUnitReservable", () => {
+  const date = new Date().toISOString();
   const reservationUnit: ReservationUnitByPkType = {
     id: "1234",
     allowReservationsWithoutOpeningHours: false,
@@ -784,9 +785,9 @@ describe("isReservationUnitReservable", () => {
     openingHours: {
       openingTimes: [
         {
-          date: new Date().toISOString(),
-          startTime: `${new Date().toISOString()}T04:00:00+00:00`,
-          endTime: `${new Date().toISOString()}T20:00:00+00:00`,
+          date,
+          startTime: `${date}T04:00:00+00:00`,
+          endTime: `${date}T20:00:00+00:00`,
           state: "open",
           isReservable: true,
           periods: null,

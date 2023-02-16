@@ -112,8 +112,11 @@ const areOpeningTimesAvailable = (
     if (oh.state !== "open") return false;
 
     const { startTime, endTime } = oh;
-    const startDate = new Date(startTime as string);
-    const endDate = new Date(endTime as string);
+
+    if (!startTime || !endTime) return false;
+
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
 
     return oh.isReservable && startDate <= slotDate && endDate > slotDate;
   });
@@ -254,8 +257,8 @@ export const isStartTimeWithinInterval = (
   if (!startTime || !endTime) return false;
 
   return getDayIntervals(
-    format(new Date(startTime as string), "HH:mm"),
-    format(new Date(endTime as string), "HH:mm"),
+    format(new Date(startTime), "HH:mm"),
+    format(new Date(endTime), "HH:mm"),
     interval
   ).includes(startHMS);
 };
