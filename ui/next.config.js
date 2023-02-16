@@ -39,15 +39,6 @@ const nextConfig = {
       displayName: true,
     },
   },
-  async redirects() {
-    return [
-      {
-        source: "/login/helsinki/return",
-        destination: "/api/auth/callback/tunnistamo",
-        permanent: true,
-      },
-    ];
-  },
 };
 
 const sentryWebpackPluginOptions = {
