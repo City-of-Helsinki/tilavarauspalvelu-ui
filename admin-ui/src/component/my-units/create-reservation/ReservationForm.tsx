@@ -1,7 +1,6 @@
 import { OptionType } from "common/types/common";
 import { IconGroup, IconUser } from "hds-react";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
 import {
@@ -12,6 +11,7 @@ import {
 import ReservationFormField from "common/src/reservation-form/ReservationFormField";
 import { Inputs, Reservation } from "common/src/reservation-form/types";
 import RadioButtonWithImage from "common/src/reservation-form/RadioButtonWithImage";
+import camelCase from "lodash/camelCase";
 
 import {
   GroupHeading,
@@ -19,7 +19,12 @@ import {
   TwoColumnContainer,
 } from "common/src/reservation-form/styles";
 import { ReactComponent as IconPremises } from "../../../images/icon_premises.svg";
+import { useReservationTranslation } from "./hooks";
 
+// TODO this file should be split logically
+// TODO this file should be renamed because it's only used by Metadata (that is not metadata)
+// TODO this file should be in common since ui uses the same thing
+// TODO this is duplicated in the ui part
 type Props = {
   reservationUnit: ReservationUnitType;
   reserveeType?: ReservationsReservationReserveeTypeChoices;
@@ -58,6 +63,18 @@ const ReserveeTypeContainer = styled.div`
   flex-wrap: wrap;
 `;
 
+const InfoHeading = styled(Subheading)`
+  margin: "0 0 var(--spacing-xs)";
+`;
+
+const ReserverInfoHeading = styled(Subheading)`
+  margin: "var(--spacing-layout-m) 0 var(--spacing-xs)";
+`;
+
+const ReservationApplicationFieldsContainer = styled(TwoColumnContainer)`
+  margin: "var(--spacing-layout-m) 0 var(--spacing-layout-m)";
+`;
+
 const reserveeOptions = [
   {
     id: ReservationsReservationReserveeTypeChoices.Individual,
@@ -73,6 +90,128 @@ const reserveeOptions = [
   },
 ];
 
+const SubheadingByType = ({
+  reserveeType,
+  index,
+  field,
+  t,
+}: {
+  reserveeType: ReservationsReservationReserveeTypeChoices;
+  index: number;
+  field: string;
+  t: (key: string) => string;
+}) => {
+  const headingForNonProfit =
+    reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
+    index === 0;
+
+  const headingForNonProfitContactInfo =
+    reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
+    field === "reserveeFirstName";
+
+  const headingForCompanyInfo =
+    reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
+    index === 0;
+
+  const headingForContactInfo =
+    reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
+    field === "reserveeFirstName";
+
+  return (
+    <>
+      {headingForNonProfit && (
+        <GroupHeading style={{ marginTop: 0 }}>
+          {t("reservationApplication:label.headings.nonprofitInfo")}
+        </GroupHeading>
+      )}
+      {headingForNonProfitContactInfo && (
+        <GroupHeading>
+          {t("reservationApplication:label.headings.contactInfo")}
+        </GroupHeading>
+      )}
+      {headingForCompanyInfo && (
+        <GroupHeading style={{ marginTop: 0 }}>
+          {t("reservationApplication:label.headings.companyInfo")}
+        </GroupHeading>
+      )}{" "}
+      {headingForContactInfo && (
+        <GroupHeading>
+          {t("reservationApplication:label.headings.contactInfo")}
+        </GroupHeading>
+      )}
+    </>
+  );
+};
+
+const ReservationFormFields = ({
+  fields,
+  reservation,
+  options,
+  // subheading is needed because application form uses it and requires index / field data to render it
+  hasSubheading,
+  reserveeType,
+  metadata,
+  params,
+}: {
+  fields: string[];
+  reservation: Reservation;
+  // TODO this is bad it just hides unsafe types behind a keymap
+  options: Record<string, OptionType[]>;
+  hasSubheading?: boolean;
+  reserveeType?: ReservationsReservationReserveeTypeChoices;
+  metadata?: ReservationMetadataSetType;
+  params?: { numPersons: { min: number; max: number } };
+}) => {
+  const { t } = useReservationTranslation();
+
+  const fieldsExtended = fields.map((field) => ({
+    field,
+    required: (metadata?.requiredFields || [])
+      .filter((x): x is string => x != null)
+      .map(camelCase)
+      .includes(field),
+  }));
+
+  return (
+    <>
+      {fieldsExtended.map(({ field, required }, index) => (
+        <>
+          {hasSubheading && reserveeType != null && (
+            <SubheadingByType
+              reserveeType={reserveeType}
+              index={index}
+              field={field}
+              t={t}
+            />
+          )}
+          <ReservationFormField
+            key={`key-${field}`}
+            field={field as unknown as keyof Inputs}
+            options={options}
+            required={required}
+            reserveeType={reserveeType}
+            reservation={reservation}
+            params={params}
+            t={t}
+            data={{
+              // The link that this uses is only on the ui side of this
+              subventionLabel: t(
+                "reservationApplication:label.common.applyingForFreeOfChargeWithLink"
+              ),
+            }}
+          />
+        </>
+      ))}
+    </>
+  );
+};
+
+// This is NOT a ReservationForm
+// this is a metadata section / part of that form
+// you can confirm this by removing all metadata in the backend
+// this form part is never rendered
+// Though there is a super component that is the only consumer of this component
+// This is the part that does Layout and Rendering while that other one is a logic Wrapper for this
 const ReservationForm = ({
   reservationUnit,
   reserveeType,
@@ -81,88 +220,42 @@ const ReservationForm = ({
   reservation,
   reservationApplicationFields,
   options,
-}: Props): JSX.Element | null => {
-  const { t: originalT } = useTranslation();
-
-  /** 'til namespaces are used in admin-ui, strip away napespace, add prefix */
-  const t = (key: string) =>
-    key.indexOf(":") !== -1
-      ? originalT(`ReservationDialog.${key.substring(key.indexOf(":") + 1)}`)
-      : originalT(key);
+}: Props) => {
+  const { t } = useReservationTranslation();
 
   if (!reservationUnit.metadataSet) {
     return null;
   }
 
-  const headingForNonProfit = (index: number) =>
-    reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
-    index === 0;
-
-  const headingForNonProfitContactInfo = (field: string) =>
-    reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
-    field === "reserveeFirstName";
-
-  const headingForCompanyInfo = (index: number) =>
-    reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
-    index === 0;
-
-  const headingForContactInfo = (field: string) =>
-    reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
-    field === "reserveeFirstName";
+  const isTypeSelectable =
+    reservationUnit?.metadataSet?.supportedFields?.includes("reservee_type") ??
+    false;
 
   return (
     <Container>
-      {generalFields.length > 0 && (
-        <>
-          <Subheading
-            style={{
-              margin: "0 0 var(--spacing-xs)",
-            }}
-          >
-            {t("ReservationDialog.reservationInfo")}
-          </Subheading>
-          <TwoColumnContainer>
-            {generalFields.map((field) => (
-              <ReservationFormField
-                key={`key-${field}`}
-                field={field as unknown as keyof Inputs}
-                options={options}
-                form={form}
-                metadataSet={
-                  reservationUnit.metadataSet as ReservationMetadataSetType
-                }
-                reserveeType="common"
-                reservation={reservation}
-                params={{
-                  numPersons: {
-                    min: reservationUnit.minPersons || 0,
-                    max: !Number.isNaN(reservationUnit.maxPersons)
-                      ? (reservationUnit.maxPersons as number)
-                      : reservationUnit.minPersons || 0,
-                  },
-                }}
-                data={{
-                  // TODO where is the link? (it wasn't working in the previous commit either)
-                  subventionLabel: t(
-                    "reservationApplication:label.common.applyingForFreeOfChargeWithLink"
-                  ),
-                }}
-                t={t}
-              />
-            ))}
-          </TwoColumnContainer>
-        </>
-      )}
-      <Subheading
-        style={{
-          margin: "var(--spacing-layout-m) 0 var(--spacing-xs)",
-        }}
-      >
+      <InfoHeading>{t("ReservationDialog.reservationInfo")}</InfoHeading>
+      <TwoColumnContainer>
+        <ReservationFormFields
+          options={options}
+          fields={generalFields}
+          metadata={reservationUnit.metadataSet}
+          reservation={reservation}
+          reserveeType={reserveeType}
+          params={{
+            // TODO numPersons should take undefined for example for max unlimited
+            numPersons: {
+              min: reservationUnit.minPersons ?? 0,
+              max: !Number.isNaN(reservationUnit.maxPersons)
+                ? Number(reservationUnit.maxPersons)
+                : 0,
+            },
+          }}
+        />
+      </TwoColumnContainer>
+      <ReserverInfoHeading>
         {t("reservationCalendar:reserverInfo")}
-      </Subheading>
-      {reservationUnit?.metadataSet?.supportedFields?.includes(
-        "reservee_type"
-      ) && (
+      </ReserverInfoHeading>
+      {isTypeSelectable && (
         <>
           <p>{t("reservationApplication:reserveeTypePrefix")}</p>
           <ReserveeTypeContainer data-testid="reservation__checkbox--reservee-type">
@@ -183,46 +276,15 @@ const ReservationForm = ({
           </ReserveeTypeContainer>
         </>
       )}
-      <TwoColumnContainer
-        style={{
-          margin: "var(--spacing-layout-m) 0 var(--spacing-layout-m)",
-        }}
-      >
-        {reservationApplicationFields.map((field, index) => (
-          <>
-            {headingForNonProfit(index) && (
-              <GroupHeading style={{ marginTop: 0 }}>
-                {t("reservationApplication:label.headings.nonprofitInfo")}
-              </GroupHeading>
-            )}
-            {headingForNonProfitContactInfo(field) && (
-              <GroupHeading>
-                {t("reservationApplication:label.headings.contactInfo")}
-              </GroupHeading>
-            )}
-            {headingForCompanyInfo(index) && (
-              <GroupHeading style={{ marginTop: 0 }}>
-                {t("reservationApplication:label.headings.companyInfo")}
-              </GroupHeading>
-            )}{" "}
-            {headingForContactInfo(field) && (
-              <GroupHeading>
-                {t("reservationApplication:label.headings.contactInfo")}
-              </GroupHeading>
-            )}
-            {reservationUnit.metadataSet != null && (
-              <ReservationFormField
-                field={field as unknown as keyof Inputs}
-                options={options}
-                reserveeType={reserveeType}
-                metadataSet={reservationUnit.metadataSet}
-                reservation={reservation}
-                t={t}
-              />
-            )}
-          </>
-        ))}
-      </TwoColumnContainer>
+      <ReservationApplicationFieldsContainer>
+        <ReservationFormFields
+          fields={reservationApplicationFields}
+          reservation={reservation}
+          options={options}
+          hasSubheading
+          reserveeType={reserveeType}
+        />
+      </ReservationApplicationFieldsContainer>
     </Container>
   );
 };

@@ -16,6 +16,44 @@ type Props = {
   reservationUnit: ReservationUnitType;
 };
 
+const useApplicatioonFields = (
+  reservationUnit: ReservationUnitType,
+  reserveeType?: ReservationsReservationReserveeTypeChoices
+) => {
+  return useMemo(() => {
+    const reserveeTypeString =
+      reserveeType || ReservationsReservationReserveeTypeChoices.Individual;
+
+    const type = reservationUnit.metadataSet?.supportedFields?.includes(
+      "reservee_type"
+    )
+      ? reserveeTypeString
+      : ReservationsReservationReserveeTypeChoices.Individual;
+
+    return getReservationApplicationFields({
+      supportedFields:
+        reservationUnit.metadataSet?.supportedFields?.filter(
+          (x): x is string => x != null
+        ) ?? [],
+      reserveeType: type,
+      camelCaseOutput: true,
+    });
+  }, [reservationUnit.metadataSet?.supportedFields, reserveeType]);
+};
+
+const useGeneralFields = (reservationUnit: ReservationUnitType) => {
+  return useMemo(() => {
+    return getReservationApplicationFields({
+      supportedFields:
+        reservationUnit.metadataSet?.supportedFields?.filter(
+          (x): x is string => x != null
+        ) ?? [],
+      reserveeType: "common",
+      camelCaseOutput: true,
+    }).filter((n) => n !== "reserveeType");
+  }, [reservationUnit]);
+};
+
 const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
   const [reserveeType, setReserveeType] = useState<
     ReservationsReservationReserveeTypeChoices | undefined
@@ -27,8 +65,8 @@ const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
 
   const purpose = sortBy(optionsData?.purposes?.edges || [], "node.nameFi").map(
     (purposeType) => ({
-      label: purposeType?.node?.nameFi as string,
-      value: purposeType?.node?.pk as number,
+      label: purposeType?.node?.nameFi ?? "",
+      value: Number(purposeType?.node?.pk),
     })
   );
 
@@ -37,44 +75,23 @@ const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
     "node.minimum"
   ).map((group) => ({
     label: `${group?.node?.minimum}-${group?.node?.maximum || ""}`,
-    value: group?.node?.pk as number,
+    value: Number(group?.node?.pk),
   }));
 
   const homeCity = sortBy(optionsData?.cities?.edges || [], "node.nameFi").map(
     (cityType) => ({
-      label: cityType?.node?.nameFi as string,
-      value: cityType?.node?.pk as number,
+      label: cityType?.node?.nameFi ?? "",
+      value: Number(cityType?.node?.pk),
     })
   );
 
+  const generalFields = useGeneralFields(reservationUnit);
+  const reservationApplicationFields = useApplicatioonFields(
+    reservationUnit,
+    reserveeType
+  );
+
   const options = { ageGroup, purpose, homeCity };
-
-  const reserveeTypeString =
-    reserveeType || ReservationsReservationReserveeTypeChoices.Individual;
-
-  const reservationApplicationFields = useMemo(() => {
-    const type = reservationUnit.metadataSet?.supportedFields?.includes(
-      "reservee_type"
-    )
-      ? reserveeTypeString
-      : ReservationsReservationReserveeTypeChoices.Individual;
-
-    return getReservationApplicationFields({
-      supportedFields: (reservationUnit.metadataSet?.supportedFields ||
-        []) as string[],
-      reserveeType: type,
-      camelCaseOutput: true,
-    });
-  }, [reservationUnit.metadataSet?.supportedFields, reserveeTypeString]);
-
-  const generalFields = useMemo(() => {
-    return getReservationApplicationFields({
-      supportedFields: (reservationUnit.metadataSet?.supportedFields ||
-        []) as string[],
-      reserveeType: "common",
-      camelCaseOutput: true,
-    }).filter((n) => n !== "reserveeType");
-  }, [reservationUnit]);
 
   return (
     <ReservationForm
