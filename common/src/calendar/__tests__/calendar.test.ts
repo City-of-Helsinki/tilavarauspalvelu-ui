@@ -386,7 +386,7 @@ describe("getDayIntervals", () => {
     const result = getDayIntervals(
       "09:00:00",
       "12:00:00",
-      "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+      ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
     );
 
     expect(result).toEqual([
@@ -409,7 +409,7 @@ describe("getDayIntervals", () => {
     const result = getDayIntervals(
       "09:00:00",
       "21:00:00",
-      "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+      ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
     );
 
     expect(result).toEqual([
@@ -429,7 +429,7 @@ describe("getDayIntervals", () => {
     const result = getDayIntervals(
       "09:00",
       "09:00",
-      "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+      ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
     );
 
     expect(result).toEqual([]);
@@ -493,7 +493,7 @@ describe("isStartTimeWithinInterval", () => {
       isStartTimeWithinInterval(
         new Date(`2019-09-22T12:15:00+${timeZoneHours}:00`),
         openingTimes,
-        "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
       )
     ).toBe(true);
 
@@ -501,7 +501,7 @@ describe("isStartTimeWithinInterval", () => {
       isStartTimeWithinInterval(
         new Date(`2019-09-22T12:15:00+${timeZoneHours}:00`),
         openingTimes,
-        "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
       )
     ).toBe(true);
 
@@ -509,7 +509,7 @@ describe("isStartTimeWithinInterval", () => {
       isStartTimeWithinInterval(
         new Date(`2019-09-24T12:15:00+${timeZoneHours}:00`),
         openingTimes,
-        "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
       )
     ).toBe(false);
   });
@@ -519,7 +519,7 @@ describe("isStartTimeWithinInterval", () => {
       isStartTimeWithinInterval(
         new Date(`2019-09-22T12:10:00+${timeZoneHours}:00`),
         openingTimes,
-        "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
       )
     ).toBe(false);
   });
@@ -536,7 +536,7 @@ describe("isStartTimeWithinInterval", () => {
       isStartTimeWithinInterval(
         new Date(`2019-09-22T11:30:00+${tz}:00`),
         openingTimes,
-        "INTERVAL_90_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
       )
     ).toBe(false);
   });
@@ -550,7 +550,50 @@ describe("isStartTimeWithinInterval", () => {
       isStartTimeWithinInterval(
         new Date(),
         [],
-        "INTERVAL_15_MINS" as ReservationUnitsReservationUnitReservationStartIntervalChoices
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
+      )
+    ).toBe(false);
+  });
+
+  test("with multiple slots in one day", () => {
+    openingTimes.push({
+      date: "2019-09-28",
+      startTime: `2019-09-28T19:15:00+${timeZoneHours}:00`,
+      endTime: `2019-09-28T21:00:00+${timeZoneHours}:00`,
+      state: "open",
+      isReservable: true,
+      periods: [38600],
+    });
+
+    expect(
+      isStartTimeWithinInterval(
+        new Date(`2019-09-28T11:00:00+${timeZoneHours}:00`),
+        openingTimes,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_60Mins
+      )
+    ).toBe(true);
+
+    expect(
+      isStartTimeWithinInterval(
+        new Date(`2019-09-28T19:20:00+${timeZoneHours}:00`),
+        openingTimes,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
+      )
+    ).toBe(false);
+
+    expect(
+      isStartTimeWithinInterval(
+        new Date(`2019-09-28T19:15:00+${timeZoneHours}:00`),
+        openingTimes,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
+      )
+    ).toBe(true);
+
+    expect(
+      isStartTimeWithinInterval(
+        new Date(`2019-09-28T21:00:00+${timeZoneHours}:00`),
+        openingTimes,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
       )
     ).toBe(false);
   });

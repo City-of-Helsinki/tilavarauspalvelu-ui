@@ -109,16 +109,14 @@ const areOpeningTimesAvailable = (
   slotDate: Date
 ): boolean => {
   return !!openingHours?.some((oh) => {
-    if (oh.state !== "open") return false;
+    const { startTime, endTime, isReservable } = oh;
 
-    const { startTime, endTime } = oh;
-
-    if (!startTime || !endTime) return false;
+    if (!isReservable || !startTime || !endTime) return false;
 
     const startDate = new Date(startTime);
     const endDate = new Date(endTime);
 
-    return oh.isReservable && startDate <= slotDate && endDate > slotDate;
+    return startDate <= slotDate && endDate > slotDate;
   });
 };
 
@@ -173,6 +171,7 @@ export const areSlotsReservable = (
 ): boolean => {
   return slots.every((slot) => {
     const slotDate = new Date(slot);
+
     return (
       areOpeningTimesAvailable(openingHours, slotDate) &&
       isSlotWithinTimeframe(
@@ -250,17 +249,33 @@ export const isStartTimeWithinInterval = (
   if (!interval) return true;
 
   const startHMS = `${toUIDate(start, "HH:mm")}:00`;
-  const { startTime, endTime } =
-    openingTimes?.find((n) => n.isReservable && n.date === toApiDate(start)) ||
-    {};
 
-  if (!startTime || !endTime) return false;
+  const timeframe: OpeningTimesType =
+    openingTimes?.find((n) => {
+      if (!n.startTime || !n.endTime) return false;
+      const startTime = `${toUIDate(new Date(n.startTime), "HH:mm")}:00`;
+      const endTime = `${toUIDate(
+        addMinutes(new Date(n.endTime), -1),
+        "HH:mm"
+      )}:00`;
 
-  return getDayIntervals(
-    format(new Date(startTime), "HH:mm"),
-    format(new Date(endTime), "HH:mm"),
-    interval
-  ).includes(startHMS);
+      return (
+        n.isReservable &&
+        n.date === toApiDate(start) &&
+        startTime <= startHMS &&
+        endTime > startHMS
+      );
+    }) || {};
+
+  return (
+    !!timeframe.startTime &&
+    !!timeframe.endTime &&
+    getDayIntervals(
+      format(new Date(timeframe.startTime), "HH:mm"),
+      format(new Date(timeframe.endTime), "HH:mm"),
+      interval
+    ).includes(startHMS)
+  );
 };
 
 export const getSlotPropGetter =
@@ -468,29 +483,32 @@ export const getAvailableTimes = (
   reservationUnit: ReservationUnitByPkType,
   date: Date
 ): string[] => {
+  const allTimes: string[] = [];
   const { openingHours, reservationStartInterval } = reservationUnit;
 
-  const openingTimes = openingHours?.openingTimes?.find(
+  const openingTimes = openingHours?.openingTimes?.filter(
     (n) => n?.isReservable && n?.date === toUIDate(date, "yyyy-MM-dd")
   );
 
-  const { startTime, endTime } = openingTimes || {};
+  openingTimes?.forEach((openingTime) => {
+    if (!openingTime?.startTime || !openingTime?.endTime) return;
 
-  if (!startTime || !endTime) return [];
+    const intervals = getDayIntervals(
+      format(new Date(openingTime.startTime), "HH:mm"),
+      format(new Date(openingTime.endTime), "HH:mm"),
+      reservationStartInterval
+    );
 
-  const intervals = getDayIntervals(
-    format(new Date(startTime), "HH:mm"),
-    format(new Date(endTime), "HH:mm"),
-    reservationStartInterval
-  );
+    const times: string[] = intervals.map((val) => {
+      const [startHours, startMinutes] = val.split(":");
 
-  const times: string[] = intervals.map((val) => {
-    const [startHours, startMinutes] = val.split(":");
+      return `${startHours}:${startMinutes}`;
+    });
 
-    return `${startHours}:${startMinutes}`;
+    allTimes.push(...times);
   });
 
-  return times;
+  return allTimes;
 };
 
 export const getOpenDays = (

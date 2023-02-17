@@ -6,6 +6,8 @@ import {
   differenceInSeconds,
   format,
   isValid,
+  max,
+  min,
   parseISO,
   subMinutes,
 } from "date-fns";
@@ -426,11 +428,18 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     startTime: dayStartTime,
     endTime: dayEndTime,
   }: { startTime?: string; endTime?: string } = useMemo(() => {
-    return (
-      reservationUnit.openingHours?.openingTimes?.find(
-        (n) => n.date === toApiDate(date)
-      ) || { startTime: null, endTime: null }
-    );
+    const timeframes = reservationUnit.openingHours?.openingTimes?.filter(
+      (n) => n.date === toApiDate(date)
+    ) || [{ startTime: null, endTime: null }];
+
+    return {
+      startTime: min(
+        timeframes.map((n) => n.startTime && new Date(n.startTime))
+      ).toISOString(),
+      endTime: max(
+        timeframes.map((n) => n.endTime && new Date(n.endTime))
+      ).toISOString(),
+    };
   }, [reservationUnit.openingHours?.openingTimes, date]);
 
   const startingTimesOptions: OptionType[] = useMemo(() => {

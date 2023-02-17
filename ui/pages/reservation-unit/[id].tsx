@@ -16,6 +16,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import {
   addHours,
+  addMinutes,
   addSeconds,
   addYears,
   differenceInMinutes,
@@ -509,9 +510,12 @@ const ReservationUnit = ({
       { start, end }: CalendarEvent<Reservation | ReservationType>,
       skipLengthCheck = false
     ): boolean => {
+      const normalizedEnd =
+        toUIDate(end, "H:mm") === "23:59" ? addMinutes(end, 1) : end;
+
       const newReservation = {
         begin: start?.toISOString(),
-        end: end?.toISOString(),
+        end: normalizedEnd?.toISOString(),
       } as PendingReservation;
       if (
         !isReservationShortEnough(

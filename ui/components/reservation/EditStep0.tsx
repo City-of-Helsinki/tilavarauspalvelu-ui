@@ -7,7 +7,7 @@ import {
   isReservationShortEnough,
 } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
-import { parseDate } from "common/src/common/util";
+import { parseDate, toUIDate } from "common/src/common/util";
 import { PendingReservation } from "common/types/common";
 import {
   ApplicationRoundType,
@@ -16,6 +16,7 @@ import {
 } from "common/types/gql-types";
 import {
   addHours,
+  addMinutes,
   addSeconds,
   differenceInMinutes,
   startOfDay,
@@ -283,9 +284,12 @@ const EditStep0 = ({
       { start, end }: CalendarEvent<ReservationType>,
       skipLengthCheck = false
     ): boolean => {
+      const normalizedEnd =
+        toUIDate(end, "H:mm") === "23:59" ? addMinutes(end, 1) : end;
+
       const newReservation = {
         begin: start?.toISOString(),
-        end: end?.toISOString(),
+        end: normalizedEnd?.toISOString(),
       } as PendingReservation;
       if (
         !isReservationShortEnough(
