@@ -9,7 +9,7 @@ import {
   max,
   min,
   parseISO,
-  subMinutes,
+  addMinutes,
 } from "date-fns";
 import {
   Button,
@@ -400,7 +400,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
         setErrorMsg(t(`reservationCalendar:errors.collision`));
       } else if (
         !areSlotsReservable(
-          [startDate, subMinutes(endDate, 1)],
+          [startDate, addMinutes(endDate, -1)],
           reservationUnit.openingHours?.openingTimes,
           reservationUnit.reservationBegins
             ? new Date(reservationUnit.reservationBegins)
@@ -409,7 +409,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             ? new Date(reservationUnit.reservationEnds)
             : undefined,
           reservationUnit.reservationsMinDaysBefore,
-          activeApplicationRounds
+          activeApplicationRounds,
+          true
         ) ||
         (customAvailabilityValidation &&
           !customAvailabilityValidation(startDate))

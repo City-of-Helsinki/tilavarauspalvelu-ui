@@ -227,7 +227,8 @@ export const isReservationReservable = (
       reservationBegins ? new Date(reservationBegins) : undefined,
       reservationEnds ? new Date(reservationEnds) : undefined,
       reservationsMinDaysBefore,
-      activeApplicationRounds
+      activeApplicationRounds,
+      false
     ) ||
     (!skipLengthCheck &&
       !isReservationLongEnough(start, end, minReservationDuration)) ||

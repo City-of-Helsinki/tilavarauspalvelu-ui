@@ -106,7 +106,8 @@ export const isReservationLongEnough = (
 
 const areOpeningTimesAvailable = (
   openingHours: OpeningTimesType[],
-  slotDate: Date
+  slotDate: Date,
+  validateEnding = false
 ): boolean => {
   return !!openingHours?.some((oh) => {
     const { startTime, endTime, isReservable } = oh;
@@ -116,7 +117,9 @@ const areOpeningTimesAvailable = (
     const startDate = new Date(startTime);
     const endDate = new Date(endTime);
 
-    return startDate <= slotDate && endDate > slotDate;
+    return validateEnding
+      ? startDate <= slotDate && endDate >= slotDate
+      : startDate <= slotDate && endDate > slotDate;
   });
 };
 
@@ -167,13 +170,14 @@ export const areSlotsReservable = (
   reservationBegins?: Date,
   reservationEnds?: Date,
   reservationsMinDaysBefore = 0,
-  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[] = []
+  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[] = [],
+  validateEnding = false
 ): boolean => {
   return slots.every((slot) => {
     const slotDate = new Date(slot);
 
     return (
-      areOpeningTimesAvailable(openingHours, slotDate) &&
+      areOpeningTimesAvailable(openingHours, slotDate, validateEnding) &&
       isSlotWithinTimeframe(
         slotDate,
         reservationBegins,
@@ -295,7 +299,8 @@ export const getSlotPropGetter =
         reservationBegins,
         reservationEnds,
         reservationsMinDaysBefore,
-        activeApplicationRounds
+        activeApplicationRounds,
+        false
       ) &&
       (customValidation ? customValidation(date) : true)
     ) {

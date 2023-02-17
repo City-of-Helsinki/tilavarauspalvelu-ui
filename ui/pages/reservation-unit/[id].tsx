@@ -16,10 +16,10 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import {
   addHours,
-  addMinutes,
   addSeconds,
   addYears,
   differenceInMinutes,
+  roundToNearestMinutes,
   startOfDay,
 } from "date-fns";
 import { toApiDate, toUIDate } from "common/src/common/util";
@@ -510,13 +510,13 @@ const ReservationUnit = ({
       { start, end }: CalendarEvent<Reservation | ReservationType>,
       skipLengthCheck = false
     ): boolean => {
-      const normalizedEnd =
-        toUIDate(end, "H:mm") === "23:59" ? addMinutes(end, 1) : end;
+      const normalizedEnd = roundToNearestMinutes(end);
 
       const newReservation = {
         begin: start?.toISOString(),
         end: normalizedEnd?.toISOString(),
       } as PendingReservation;
+
       if (
         !isReservationShortEnough(
           start,
@@ -562,20 +562,26 @@ const ReservationUnit = ({
       { start: startTime, end: endTime, action },
       skipLengthCheck = false
     ): boolean => {
+      const isTouchClick = action === "select" && isClientATouchDevice;
+
+      if (action === "select" && !isClientATouchDevice) {
+        return false;
+      }
+
       if (isReservationQuotaReached) {
         return false;
       }
 
       const end =
         action === "click" ||
-        (action === "select" &&
-          isClientATouchDevice &&
-          differenceInMinutes(endTime, startTime) <= 30)
+        (isTouchClick && differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
               new Date(startTime),
               reservationUnit.minReservationDuration || 0
             )
           : new Date(endTime);
+
+      const normalizedEnd = roundToNearestMinutes(end);
 
       if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
@@ -584,7 +590,7 @@ const ReservationUnit = ({
       setIsReserving(false);
       setInitialReservation({
         begin: startTime.toISOString(),
-        end: end.toISOString(),
+        end: normalizedEnd.toISOString(),
         state: "INITIAL",
       } as PendingReservation);
 

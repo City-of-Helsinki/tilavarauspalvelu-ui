@@ -7,7 +7,7 @@ import {
   isReservationShortEnough,
 } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
-import { parseDate, toUIDate } from "common/src/common/util";
+import { parseDate } from "common/src/common/util";
 import { PendingReservation } from "common/types/common";
 import {
   ApplicationRoundType,
@@ -16,9 +16,9 @@ import {
 } from "common/types/gql-types";
 import {
   addHours,
-  addMinutes,
   addSeconds,
   differenceInMinutes,
+  roundToNearestMinutes,
   startOfDay,
 } from "date-fns";
 import { IconArrowRight, IconCross } from "hds-react";
@@ -284,13 +284,13 @@ const EditStep0 = ({
       { start, end }: CalendarEvent<ReservationType>,
       skipLengthCheck = false
     ): boolean => {
-      const normalizedEnd =
-        toUIDate(end, "H:mm") === "23:59" ? addMinutes(end, 1) : end;
+      const normalizedEnd = roundToNearestMinutes(end);
 
       const newReservation = {
         begin: start?.toISOString(),
         end: normalizedEnd?.toISOString(),
       } as PendingReservation;
+
       if (
         !isReservationShortEnough(
           start,
@@ -340,16 +340,22 @@ const EditStep0 = ({
       { start: startTime, end: endTime, action },
       skipLengthCheck = false
     ): boolean => {
+      const isTouchClick = action === "select" && isClientATouchDevice;
+
+      if (action === "select" && !isClientATouchDevice) {
+        return false;
+      }
+
       const end =
         action === "click" ||
-        (action === "select" &&
-          isClientATouchDevice &&
-          differenceInMinutes(endTime, startTime) <= 30)
+        (isTouchClick && differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
               new Date(startTime),
               reservationUnit.minReservationDuration || 0
             )
           : new Date(endTime);
+
+      const normalizedEnd = roundToNearestMinutes(end);
 
       if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
@@ -364,7 +370,7 @@ const EditStep0 = ({
 
       setInitialReservation({
         begin: startTime.toISOString(),
-        end: end.toISOString(),
+        end: normalizedEnd.toISOString(),
         state: "INITIAL",
         price,
       } as PendingReservation);
