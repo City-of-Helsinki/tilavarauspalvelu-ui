@@ -1,33 +1,35 @@
-import { OptionType } from "common/types/common";
+/**
+ * MetaFields component
+ * Defines the form fields that are available and required when making a
+ * reservation.
+ *
+ * This is not really metadata but it's named metadata in the backend
+ *
+ * TODO this file should be split logically (and renamed after)
+ * TODO when admin-ui uses translation namespaces remove passing the t function
+ */
 import { IconGroup, IconUser } from "hds-react";
 import React from "react";
 import styled from "styled-components";
-import { fontMedium, fontRegular } from "common/src/common/typography";
+import camelCase from "lodash/camelCase";
+
 import {
   ReservationMetadataSetType,
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitType,
-} from "common/types/gql-types";
-import ReservationFormField from "common/src/reservation-form/ReservationFormField";
-import { Inputs, Reservation } from "common/src/reservation-form/types";
-import RadioButtonWithImage from "common/src/reservation-form/RadioButtonWithImage";
-import camelCase from "lodash/camelCase";
+} from "../../types/gql-types";
+import ReservationFormField from "./ReservationFormField";
+import { Inputs, Reservation } from "./types";
+import RadioButtonWithImage from "./RadioButtonWithImage";
+import { fontMedium, fontRegular } from "../common/typography";
+import { OptionType } from "../../types/common";
 
-import {
-  GroupHeading,
-  Subheading,
-  TwoColumnContainer,
-} from "common/src/reservation-form/styles";
-import { ReactComponent as IconPremises } from "../../../images/icon_premises.svg";
-import { useReservationTranslation } from "./hooks";
+import { GroupHeading, Subheading, TwoColumnContainer } from "./styles";
+import IconPremises from "../icons/IconPremises";
 
-// TODO this file should be split logically
-// TODO this file should be renamed because it's only used by Metadata (that is not metadata)
-// TODO this file should be in common since ui uses the same thing
-// TODO this is duplicated in the ui part
 type Props = {
   reservationUnit: ReservationUnitType;
-  reserveeType?: ReservationsReservationReserveeTypeChoices;
+  reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   setReserveeType: React.Dispatch<
     React.SetStateAction<ReservationsReservationReserveeTypeChoices | undefined>
   >;
@@ -35,6 +37,7 @@ type Props = {
   generalFields: string[];
   reservationApplicationFields: string[];
   options: Record<string, OptionType[]>;
+  t: (key: string) => string;
 };
 
 const Container = styled.div`
@@ -64,7 +67,7 @@ const ReserveeTypeContainer = styled.div`
 `;
 
 const InfoHeading = styled(Subheading)`
-  margin: "0 0 var(--spacing-xs)";
+  margin: "var(--spacing-layout-m) 0 var(--spacing-xs)";
 `;
 
 const ReserverInfoHeading = styled(Subheading)`
@@ -117,36 +120,30 @@ const SubheadingByType = ({
     reserveeType === ReservationsReservationReserveeTypeChoices.Business &&
     field === "reserveeFirstName";
 
-  return (
-    <>
-      {headingForNonProfit && (
-        <GroupHeading style={{ marginTop: 0 }}>
-          {t("reservationApplication:label.headings.nonprofitInfo")}
-        </GroupHeading>
-      )}
-      {headingForNonProfitContactInfo && (
-        <GroupHeading>
-          {t("reservationApplication:label.headings.contactInfo")}
-        </GroupHeading>
-      )}
-      {headingForCompanyInfo && (
-        <GroupHeading style={{ marginTop: 0 }}>
-          {t("reservationApplication:label.headings.companyInfo")}
-        </GroupHeading>
-      )}{" "}
-      {headingForContactInfo && (
-        <GroupHeading>
-          {t("reservationApplication:label.headings.contactInfo")}
-        </GroupHeading>
-      )}
-    </>
-  );
+  return headingForNonProfit ? (
+    <GroupHeading style={{ marginTop: 0 }}>
+      {t("reservationApplication:label.headings.nonprofitInfo")}
+    </GroupHeading>
+  ) : headingForNonProfitContactInfo ? (
+    <GroupHeading>
+      {t("reservationApplication:label.headings.contactInfo")}
+    </GroupHeading>
+  ) : headingForCompanyInfo ? (
+    <GroupHeading style={{ marginTop: 0 }}>
+      {t("reservationApplication:label.headings.companyInfo")}
+    </GroupHeading>
+  ) : headingForContactInfo ? (
+    <GroupHeading>
+      {t("reservationApplication:label.headings.contactInfo")}
+    </GroupHeading>
+  ) : null;
 };
 
 const ReservationFormFields = ({
   fields,
   reservation,
   options,
+  t,
   // subheading is needed because application form uses it and requires index / field data to render it
   hasSubheading,
   reserveeType,
@@ -157,13 +154,16 @@ const ReservationFormFields = ({
   reservation: Reservation;
   // TODO this is bad it just hides unsafe types behind a keymap
   options: Record<string, OptionType[]>;
+  t: (key: string) => string;
   hasSubheading?: boolean;
-  reserveeType?: ReservationsReservationReserveeTypeChoices;
+  // TODO this is silly, but it's because this is also the translation key
+  // need to check down the field component if the prop can be renamed.
+  // Use of this is for the general fields we need common translation key
+  // and for the application fields we need the type specific key
+  reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   metadata?: ReservationMetadataSetType;
   params?: { numPersons: { min: number; max: number } };
 }) => {
-  const { t } = useReservationTranslation();
-
   const fieldsExtended = fields.map((field) => ({
     field,
     required: (metadata?.requiredFields || [])
@@ -176,14 +176,16 @@ const ReservationFormFields = ({
     <>
       {fieldsExtended.map(({ field, required }, index) => (
         <>
-          {hasSubheading && reserveeType != null && (
-            <SubheadingByType
-              reserveeType={reserveeType}
-              index={index}
-              field={field}
-              t={t}
-            />
-          )}
+          {hasSubheading &&
+            reserveeType != null &&
+            reserveeType !== "COMMON" && (
+              <SubheadingByType
+                reserveeType={reserveeType}
+                index={index}
+                field={field}
+                t={t}
+              />
+            )}
           <ReservationFormField
             key={`key-${field}`}
             field={field as unknown as keyof Inputs}
@@ -206,13 +208,7 @@ const ReservationFormFields = ({
   );
 };
 
-// This is NOT a ReservationForm
-// this is a metadata section / part of that form
-// you can confirm this by removing all metadata in the backend
-// this form part is never rendered
-// Though there is a super component that is the only consumer of this component
-// This is the part that does Layout and Rendering while that other one is a logic Wrapper for this
-const ReservationForm = ({
+const MetaFields = ({
   reservationUnit,
   reserveeType,
   setReserveeType,
@@ -220,9 +216,8 @@ const ReservationForm = ({
   reservation,
   reservationApplicationFields,
   options,
+  t,
 }: Props) => {
-  const { t } = useReservationTranslation();
-
   if (!reservationUnit.metadataSet) {
     return null;
   }
@@ -233,16 +228,18 @@ const ReservationForm = ({
 
   return (
     <Container>
-      <InfoHeading>{t("ReservationDialog.reservationInfo")}</InfoHeading>
+      {generalFields.length > 0 && (
+        <InfoHeading>{t("reservationCalendar:reservationInfo")}</InfoHeading>
+      )}
       <TwoColumnContainer>
         <ReservationFormFields
           options={options}
           fields={generalFields}
           metadata={reservationUnit.metadataSet}
           reservation={reservation}
-          reserveeType={reserveeType}
+          reserveeType="COMMON"
           params={{
-            // TODO numPersons should take undefined for example for max unlimited
+            // TODO numPersons should take undefined for example if the max is unlimited
             numPersons: {
               min: reservationUnit.minPersons ?? 0,
               max: !Number.isNaN(reservationUnit.maxPersons)
@@ -250,6 +247,7 @@ const ReservationForm = ({
                 : 0,
             },
           }}
+          t={t}
         />
       </TwoColumnContainer>
       <ReserverInfoHeading>
@@ -283,10 +281,11 @@ const ReservationForm = ({
           options={options}
           hasSubheading
           reserveeType={reserveeType}
+          t={t}
         />
       </ReservationApplicationFieldsContainer>
     </Container>
   );
 };
 
-export default ReservationForm;
+export default MetaFields;

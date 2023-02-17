@@ -8,9 +8,10 @@ import {
 import { useQuery } from "@apollo/client";
 import { sortBy } from "lodash";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
+import MetaFields from "common/src/reservation-form/MetaFields";
 import { OPTIONS_QUERY } from "./queries";
-import ReservationForm from "./ReservationForm";
 import { ReservationFormType } from "./types";
+import { useReservationTranslation } from "./hooks";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -59,6 +60,8 @@ const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
     ReservationsReservationReserveeTypeChoices | undefined
   >(undefined);
 
+  const { t } = useReservationTranslation();
+
   const { data: optionsData } = useQuery<Query>(OPTIONS_QUERY);
 
   const { getValues } = useFormContext<ReservationFormType>();
@@ -94,7 +97,7 @@ const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
   const options = { ageGroup, purpose, homeCity };
 
   return (
-    <ReservationForm
+    <MetaFields
       reservationUnit={reservationUnit}
       options={options}
       reserveeType={reserveeType}
@@ -102,6 +105,7 @@ const MetadataSetForm = ({ reservationUnit }: Props): JSX.Element => {
       generalFields={generalFields}
       reservationApplicationFields={reservationApplicationFields}
       reservation={getValues()}
+      t={t}
     />
   );
 };
