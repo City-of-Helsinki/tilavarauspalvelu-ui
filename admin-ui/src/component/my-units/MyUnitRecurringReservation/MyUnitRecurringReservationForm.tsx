@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { getDayIntervals } from "common/src/calendar/util";
 import {
+  Query,
+  QueryReservationUnitsArgs,
   RecurringReservationCreateMutationInput,
   RecurringReservationCreateMutationPayload,
   ReservationStaffCreateMutationInput,
@@ -10,9 +12,14 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import { camelCase, get, pick, trimStart, zipObject } from "lodash";
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { format } from "date-fns";
 import {
   Button,
@@ -37,7 +44,11 @@ import { generateReservations, ReservationList } from "./ReservationsList";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
-import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
+import {
+  CREATE_STAFF_RESERVATION,
+  RESERVATION_UNIT_QUERY,
+} from "../create-reservation/queries";
+import MetadataSetForm from "../create-reservation/MetadataSetForm";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -91,6 +102,48 @@ function removeRefParam<Type>(
   return rest;
 }
 
+// TODO this does a full render any time you switch out any fields, not just the reservation unit
+// i.e. the watch for the reservation unit refreshes on any change
+const MetadataPart = () => {
+  // TODO modify the data to get the pk
+  // Do a GraphQL query to get the actual unit info so we can pass it to the form part
+  // TODO <MetadataSetForm reservationUnit={reservationUnit} />
+
+  const { watch } = useFormContext<RecurringReservationForm>();
+
+  // TODO This needs a memo or something because it's run on all changes not just reservationUnit changes
+  // or component split so that the sub component doesn't rerun
+  const selection = watch(["reservationUnit"]);
+
+  // TODO there is a type error in the form value can be undefined in JS even though it shouldn't in TS
+  // the default value for reservationUnit in the form is { label: undefined, value: undefined } not undefined
+  const unit =
+    selection != null && selection.length > 0 ? selection[0]?.value : undefined;
+  console.log("MetadataPart: reservation units: ", unit);
+
+  // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
+  const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
+    RESERVATION_UNIT_QUERY,
+    {
+      variables: { pk: [`${unit}`] },
+    }
+  );
+
+  const reservationUnit = data?.reservationUnits?.edges.find((ru) => ru)?.node;
+
+  // TODO this should be nicely formatted and translated (don't use Loader because this is a subset of a form)
+  if (loading) {
+    return <div>Loading metadata</div>;
+  }
+  if (!unit || !reservationUnit) {
+    return <div>Invalid unit</div>;
+  }
+
+  console.log("metadata from gql: ", reservationUnit);
+  return <MetadataSetForm reservationUnit={reservationUnit} />;
+  // return <>TODO render metadata</>;
+};
+
 type Props = {
   reservationUnits: ReservationUnitType[];
 };
@@ -98,13 +151,7 @@ type Props = {
 const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const { t } = useTranslation();
 
-  const {
-    handleSubmit,
-    control,
-    register,
-    watch,
-    formState: { errors },
-  } = useForm<RecurringReservationForm>({
+  const form = useForm<RecurringReservationForm>({
     mode: "onChange",
     resolver: joiResolver(RecurringReservationFormSchema),
     defaultValues: {
@@ -112,6 +159,13 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
       bufferTimeBefore: false,
     },
   });
+  const {
+    handleSubmit,
+    control,
+    register,
+    watch,
+    formState: { errors },
+  } = form;
 
   const selectedReservationUnit = watch("reservationUnit");
   const buffers = getReservationUnitBuffers({
@@ -132,6 +186,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     "repeatOnDays",
   ]);
 
+  const reservationUnit = watch(["reservationUnit"]);
+
   const newReservations = useMemo(
     () =>
       generateReservations({
@@ -147,9 +203,9 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   );
 
   const reservationUnitOptions =
-    reservationUnits.map((reservationUnit) => ({
-      label: reservationUnit?.nameFi as string,
-      value: String(reservationUnit?.pk as number),
+    reservationUnits.map((unit) => ({
+      label: unit?.nameFi ?? "",
+      value: String(unit?.pk),
     })) || [];
 
   const timeSelectionOptions = startInterval
@@ -273,31 +329,37 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         // TODO this needs to be run in a loop based on the days
         // TODO once a prototype is working, see if we can combine some of it
         newReservations.map(async (x) => {
-          const staffInput: ReservationStaffCreateMutationInput = {
-            reservationUnitPks: [Number(unit)],
-            type: "STAFF", // FIXME
-            begin: myDateTime(new Date(x.date), x.startTime),
-            end: myDateTime(new Date(x.date), x.endTime),
-            bufferTimeBefore: buffers?.bufferTimeBefore
-              ? String(buffers.bufferTimeBefore)
-              : undefined,
-            bufferTimeAfter: buffers?.bufferTimeAfter
-              ? String(buffers.bufferTimeAfter)
-              : undefined,
-            // TODO what?
-            // workingMemo: values.workingMemo,
-            // TODO metadata requires us to move the form here
-            // ...flattenedMetadataSetValues,
-          };
-          const { data: resData } = await createStaffReservation(staffInput);
+          try {
+            const staffInput: ReservationStaffCreateMutationInput = {
+              reservationUnitPks: [Number(unit)],
+              type: "STAFF", // FIXME
+              begin: myDateTime(new Date(x.date), x.startTime),
+              end: myDateTime(new Date(x.date), x.endTime),
+              bufferTimeBefore: buffers?.bufferTimeBefore
+                ? String(buffers.bufferTimeBefore)
+                : undefined,
+              bufferTimeAfter: buffers?.bufferTimeAfter
+                ? String(buffers.bufferTimeAfter)
+                : undefined,
+              // TODO what?
+              // workingMemo: values.workingMemo,
+              // TODO metadata requires us to move the form here
+              // ...flattenedMetadataSetValues,
+            };
+            const { data: resData } = await createStaffReservation(staffInput);
 
-          if (resData?.createStaffReservation?.errors) {
-            console.log(
-              "failed to create reservation with error",
-              resData?.createStaffReservation?.errors
-            );
-          } else {
-            console.log("successfully created reservation: ", staffInput);
+            // TODO When does the graphql send errors as data?
+            if (resData?.createStaffReservation?.errors) {
+              console.log(
+                "failed to create reservation with error",
+                resData?.createStaffReservation?.errors
+              );
+            } else {
+              console.log("successfully created reservation: ", staffInput);
+            }
+          } catch (e) {
+            // This happens at least when the start time is in the past
+            console.error("failed single reservation with error: ", e);
           }
         });
 
@@ -318,241 +380,242 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   // currently Grid is used like a flexbox.
   // We should use grid-column-start for stuff that's alligned at the start, not start a new grid.
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
-        <Grid>
-          <Span6>
-            <Controller
-              name="reservationUnit"
-              control={control}
-              defaultValue={{ label: "", value: "" }}
-              render={({ field }) => (
-                <SortedSelect
-                  sort
-                  label={t(`${tnamespace}.reservationUnit`)}
-                  multiselect={false}
-                  placeholder={t("common.select")}
-                  options={reservationUnitOptions}
-                  error={errors.reservationUnit?.message}
-                  {...removeRefParam(field)}
-                />
-              )}
-            />
-          </Span6>
-        </Grid>
-
-        <Grid>
-          <Span3>
-            <Controller
-              name="startingDate"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <DateInput
-                  id="startingDate"
-                  label={t(`${tnamespace}.startingDate`)}
-                  minDate={new Date()}
-                  placeholder={t("common.select")}
-                  disableConfirmation
-                  language="fi"
-                  errorText={errors.startingDate?.message}
-                  {...field}
-                />
-              )}
-            />
-          </Span3>
-          <Span3>
-            <Controller
-              name="endingDate"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <DateInput
-                  id="endingDate"
-                  label={t(`${tnamespace}.endingDate`)}
-                  minDate={new Date()}
-                  placeholder={t("common.select")}
-                  disableConfirmation
-                  language="fi"
-                  errorText={errors.endingDate?.message}
-                  {...field}
-                />
-              )}
-            />
-          </Span3>
-          <Span3>
-            <Controller
-              name="repeatPattern"
-              control={control}
-              defaultValue={{ label: "", value: "weekly" }}
-              render={({ field }) => (
-                <SortedSelect
-                  sort
-                  label={t(`${tnamespace}.repeatPattern`)}
-                  multiselect={false}
-                  placeholder={t("common.select")}
-                  options={repeatPatternOptions}
-                  error={errors.repeatPattern?.message}
-                  {...removeRefParam(field)}
-                />
-              )}
-            />
-          </Span3>
-        </Grid>
-
-        <Grid>
-          <Span3>
-            <Controller
-              name="startingTime"
-              control={control}
-              defaultValue={{ label: "", value: "" }}
-              render={({ field }) => (
-                <Select
-                  disabled={!timeSelectionOptions.length}
-                  label={t(`${tnamespace}.startingTime`)}
-                  multiselect={false}
-                  placeholder={t("common.select")}
-                  options={timeSelectionOptions}
-                  error={errors.startingTime?.message}
-                  {...removeRefParam(field)}
-                />
-              )}
-            />
-          </Span3>
-          <Span3>
-            <Controller
-              name="endingTime"
-              control={control}
-              defaultValue={{ label: "", value: "" }}
-              render={({ field }) => (
-                <Select
-                  disabled={!timeSelectionOptions.length}
-                  label={t(`${tnamespace}.endingTime`)}
-                  multiselect={false}
-                  placeholder={t("common.select")}
-                  options={timeSelectionOptions}
-                  error={errors.endingTime?.message}
-                  {...removeRefParam(field)}
-                />
-              )}
-            />
-          </Span3>
-        </Grid>
-
-        {buffers ? (
-          <div>
-            <Label>{t(`${tnamespace}.buffers`)}</Label>
-            {Object.entries(buffers).map(
-              ([key, value]) =>
-                value && (
-                  <Controller
-                    name={key as keyof RecurringReservationForm}
-                    control={control}
-                    render={({ field }) => (
-                      <Checkbox
-                        id={key}
-                        label={t(`${tnamespace}.${key}`, {
-                          minutes: value / 60,
-                        })}
-                        checked={String(field.value) === "true"}
-                        {...field}
-                        ref={null}
-                        value={String(field.value)}
-                      />
-                    )}
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
+          <Grid>
+            <Span6>
+              <Controller
+                name="reservationUnit"
+                control={control}
+                defaultValue={{ label: "", value: "" }}
+                render={({ field }) => (
+                  <SortedSelect
+                    sort
+                    label={t(`${tnamespace}.reservationUnit`)}
+                    multiselect={false}
+                    placeholder={t("common.select")}
+                    options={reservationUnitOptions}
+                    error={errors.reservationUnit?.message}
+                    {...removeRefParam(field)}
                   />
-                )
-            )}
-          </div>
-        ) : null}
-        <div>
-          <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
-          <Controller
-            name="repeatOnDays"
-            control={control}
-            render={({ field: { value, onChange } }) => (
-              <WeekdaysSelector value={value} onChange={onChange} />
-            )}
-          />
-        </div>
+                )}
+              />
+            </Span6>
+          </Grid>
 
-        {newReservations ? (
-          <div>
-            <Label $bold>
-              {t(`${tnamespace}.reservationsList`, {
-                count: newReservations.length,
-              })}
-            </Label>
-            <ReservationList items={newReservations} />
-          </div>
-        ) : null}
+          <Grid>
+            <Span3>
+              <Controller
+                name="startingDate"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <DateInput
+                    id="startingDate"
+                    label={t(`${tnamespace}.startingDate`)}
+                    minDate={new Date()}
+                    placeholder={t("common.select")}
+                    disableConfirmation
+                    language="fi"
+                    errorText={errors.startingDate?.message}
+                    {...field}
+                  />
+                )}
+              />
+            </Span3>
+            <Span3>
+              <Controller
+                name="endingDate"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <DateInput
+                    id="endingDate"
+                    label={t(`${tnamespace}.endingDate`)}
+                    minDate={new Date()}
+                    placeholder={t("common.select")}
+                    disableConfirmation
+                    language="fi"
+                    errorText={errors.endingDate?.message}
+                    {...field}
+                  />
+                )}
+              />
+            </Span3>
+            <Span3>
+              <Controller
+                name="repeatPattern"
+                control={control}
+                defaultValue={{ label: "", value: "weekly" }}
+                render={({ field }) => (
+                  <SortedSelect
+                    sort
+                    label={t(`${tnamespace}.repeatPattern`)}
+                    multiselect={false}
+                    placeholder={t("common.select")}
+                    options={repeatPatternOptions}
+                    error={errors.repeatPattern?.message}
+                    {...removeRefParam(field)}
+                  />
+                )}
+              />
+            </Span3>
+          </Grid>
 
-        <div>
-          <Controller
-            name="typeOfReservation"
-            control={control}
-            render={({ field }) => (
-              <SelectionGroup
-                label={t(`${tnamespace}.typeOfReservation`)}
-                errorText={errors.typeOfReservation?.message}
-              >
-                {Object.values(ReservationType)
-                  .filter((v) => typeof v === "string")
-                  .map((v) => (
-                    <RadioButton
-                      key={v}
-                      id={v as string}
-                      checked={v === field.value}
-                      label={t(`${tnamespace}.reservationType.${v}`)}
-                      onChange={() => field.onChange(v)}
+          <Grid>
+            <Span3>
+              <Controller
+                name="startingTime"
+                control={control}
+                defaultValue={{ label: "", value: "" }}
+                render={({ field }) => (
+                  <Select
+                    disabled={!timeSelectionOptions.length}
+                    label={t(`${tnamespace}.startingTime`)}
+                    multiselect={false}
+                    placeholder={t("common.select")}
+                    options={timeSelectionOptions}
+                    error={errors.startingTime?.message}
+                    {...removeRefParam(field)}
+                  />
+                )}
+              />
+            </Span3>
+            <Span3>
+              <Controller
+                name="endingTime"
+                control={control}
+                defaultValue={{ label: "", value: "" }}
+                render={({ field }) => (
+                  <Select
+                    disabled={!timeSelectionOptions.length}
+                    label={t(`${tnamespace}.endingTime`)}
+                    multiselect={false}
+                    placeholder={t("common.select")}
+                    options={timeSelectionOptions}
+                    error={errors.endingTime?.message}
+                    {...removeRefParam(field)}
+                  />
+                )}
+              />
+            </Span3>
+          </Grid>
+
+          {buffers ? (
+            <div>
+              <Label>{t(`${tnamespace}.buffers`)}</Label>
+              {Object.entries(buffers).map(
+                ([key, value]) =>
+                  value && (
+                    <Controller
+                      name={key as keyof RecurringReservationForm}
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id={key}
+                          label={t(`${tnamespace}.${key}`, {
+                            minutes: value / 60,
+                          })}
+                          checked={String(field.value) === "true"}
+                          {...field}
+                          ref={null}
+                          value={String(field.value)}
+                        />
+                      )}
                     />
-                  ))}
-              </SelectionGroup>
-            )}
-          />
-        </div>
-
-        <Grid>
-          <Span6>
-            <TextInput
-              id="name"
-              label={t(`${tnamespace}.name`)}
-              {...register("name")}
-              errorText={errors.name?.message}
+                  )
+              )}
+            </div>
+          ) : null}
+          <div>
+            <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
+            <Controller
+              name="repeatOnDays"
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <WeekdaysSelector value={value} onChange={onChange} />
+              )}
             />
-          </Span6>
-        </Grid>
-        <Grid>
-          <Span6>
-            <TextArea
-              id="comments"
-              label={t(`${tnamespace}.comments`)}
-              {...register("comments")}
-              errorText={errors.comments?.message}
+          </div>
+
+          {newReservations ? (
+            <div>
+              <Label $bold>
+                {t(`${tnamespace}.reservationsList`, {
+                  count: newReservations.length,
+                })}
+              </Label>
+              <ReservationList items={newReservations} />
+            </div>
+          ) : null}
+
+          <div>
+            <Controller
+              name="typeOfReservation"
+              control={control}
+              render={({ field }) => (
+                <SelectionGroup
+                  label={t(`${tnamespace}.typeOfReservation`)}
+                  errorText={errors.typeOfReservation?.message}
+                >
+                  {Object.values(ReservationType)
+                    .filter((v) => typeof v === "string")
+                    .map((v) => (
+                      <RadioButton
+                        key={v}
+                        id={v as string}
+                        checked={v === field.value}
+                        label={t(`${tnamespace}.reservationType.${v}`)}
+                        onChange={() => field.onChange(v)}
+                      />
+                    ))}
+                </SelectionGroup>
+              )}
             />
-          </Span6>
-        </Grid>
+          </div>
 
-        <Grid>
-          <Span6>
-            This should be ReservationForm or MetadataSetForm but they are
-            tangled in the single reservation
-          </Span6>
-        </Grid>
+          <Grid>
+            <Span6>
+              <TextInput
+                id="name"
+                label={t(`${tnamespace}.name`)}
+                {...register("name")}
+                errorText={errors.name?.message}
+              />
+            </Span6>
+          </Grid>
+          <Grid>
+            <Span6>
+              <TextArea
+                id="comments"
+                label={t(`${tnamespace}.comments`)}
+                {...register("comments")}
+                errorText={errors.comments?.message}
+              />
+            </Span6>
+          </Grid>
 
-        <Grid>
-          <ActionsWrapper>
-            {/* TODO is the cancel button useful here? */}
-            <Button variant="secondary" onClick={() => console.log("test")}>
-              {t("common.cancel")}
-            </Button>
-            <Button variant="primary" type="submit">
-              {t("common.reserve")}
-            </Button>
-          </ActionsWrapper>
-        </Grid>
-      </VerticalFlex>
-    </form>
+          <Grid>
+            <Span6>
+              <MetadataPart />
+            </Span6>
+          </Grid>
+
+          <Grid>
+            <ActionsWrapper>
+              {/* TODO is the cancel button useful here? */}
+              <Button variant="secondary" onClick={() => console.log("test")}>
+                {t("common.cancel")}
+              </Button>
+              <Button variant="primary" type="submit">
+                {t("common.reserve")}
+              </Button>
+            </ActionsWrapper>
+          </Grid>
+        </VerticalFlex>
+      </form>
+    </FormProvider>
   );
 };
 
