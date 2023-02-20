@@ -1,5 +1,5 @@
 import { toUIDate } from "common/src/common/util";
-import { eachDayOfInterval, getDay, parse } from "date-fns";
+import { eachDayOfInterval, getDay } from "date-fns";
 import React from "react";
 import styled from "styled-components";
 import { RecurringReservationForm } from "./RecurringReservationSchema";
@@ -94,19 +94,16 @@ const generateReservations = ({
   }
 
   const newReservations = eachDayOfInterval({
-    start: parse(startingDate, "d.M.yyyy", new Date()),
-    end: parse(endingDate, "d.M.yyyy", new Date()),
+    start: startingDate,
+    end: endingDate,
   })
     .filter((day) => repeatOnDays.includes(toMondayFirst(getDay(day))))
-    .map(
-      (day) =>
-        ({
-          reservationUnitPk: reservationUnit.value,
-          date: day,
-          startTime: startingTime.value,
-          endTime: endingTime.value,
-        } as NewReservationListItem)
-    );
+    .map((day) => ({
+      reservationUnitPk: reservationUnit.value,
+      date: day,
+      startTime: startingTime.value,
+      endTime: endingTime.value,
+    }));
 
   return newReservations;
 };

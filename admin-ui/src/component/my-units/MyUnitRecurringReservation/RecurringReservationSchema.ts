@@ -14,14 +14,14 @@ const Option = Joi.object({
 // const RecurringReservationRepeatPattern: string = "weekly" || "biweekly";
 const RecurringReservationFormSchema = Joi.object({
   reservationUnit: Option.required(),
-  startingDate: Joi.string().required(),
-  endingDate: Joi.string().required(),
+  startingDate: Joi.date().required(),
+  endingDate: Joi.date().required(),
   repeatPattern: Option.required(),
   startingTime: Option.required(),
   endingTime: Option.required(),
   repeatOnDays: Joi.array().items(Joi.number()).required(),
   typeOfReservation: Joi.string().required(),
-  name: Joi.string().required(),
+  seriesName: Joi.string().required(),
   comments: Joi.string().empty("").max(500).optional(),
   bufferTimeBefore: Joi.boolean(),
   bufferTimeAfter: Joi.boolean(),
@@ -29,15 +29,15 @@ const RecurringReservationFormSchema = Joi.object({
 
 type RecurringReservationForm = {
   reservationUnit: { value: string; label: string };
-  startingDate: string;
-  endingDate: string;
+  startingDate: Date;
+  endingDate: Date;
   repeatPattern: { value: "weekly" | "biweekly"; label: string };
   startingTime: { value: string; label: string };
   endingTime: { value: string; label: string };
   startInterval: boolean;
   repeatOnDays: number[];
   typeOfReservation: string;
-  name: string;
+  seriesName: string;
   comments: string;
   bufferTimeBefore: boolean;
   bufferTimeAfter: boolean;
