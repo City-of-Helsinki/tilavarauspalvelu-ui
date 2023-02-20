@@ -9,7 +9,7 @@
  * TODO when admin-ui uses translation namespaces remove passing the t function
  */
 import { IconGroup, IconUser } from "hds-react";
-import React from "react";
+import React, { Fragment } from "react";
 import styled from "styled-components";
 import camelCase from "lodash/camelCase";
 
@@ -175,7 +175,7 @@ const ReservationFormFields = ({
   return (
     <>
       {fieldsExtended.map(({ field, required }, index) => (
-        <>
+        <Fragment key={`key-${field}-container`}>
           {hasSubheading &&
             reserveeType != null &&
             reserveeType !== "COMMON" && (
@@ -184,6 +184,7 @@ const ReservationFormFields = ({
                 index={index}
                 field={field}
                 t={t}
+                key={`key-${field}-subheading`}
               />
             )}
           <ReservationFormField
@@ -202,7 +203,7 @@ const ReservationFormFields = ({
               ),
             }}
           />
-        </>
+        </Fragment>
       ))}
     </>
   );

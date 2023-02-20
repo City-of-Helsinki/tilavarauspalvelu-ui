@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { getDayIntervals } from "common/src/calendar/util";
 import {
@@ -13,12 +12,7 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import { camelCase, get, pick, trimStart, zipObject } from "lodash";
-import {
-  Controller,
-  FormProvider,
-  useForm,
-  useFormContext,
-} from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@apollo/client";
 import { format } from "date-fns";
@@ -37,13 +31,7 @@ import {
   RecurringReservationForm,
   RecurringReservationFormSchema,
 } from "./RecurringReservationSchema";
-import {
-  Grid,
-  Span12,
-  Span3,
-  Span6,
-  VerticalFlex,
-} from "../../../styles/layout";
+import { Grid, Span3, Span6, VerticalFlex } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
@@ -117,9 +105,26 @@ const getReservationUnitStartInterval = ({
 function removeRefParam<Type>(
   params: Type & { ref: unknown }
 ): Omit<Type, "ref"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { ref, ...rest } = params;
   return rest;
 }
+
+// TODO passing pk: undefined into this is bad, but hooks can't be conditional
+// TODO this should be combined with the code in CreateReservationModal (duplicated for now)
+const useReservationUnitQuery = (unitPk?: number) => {
+  const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
+    RESERVATION_UNIT_QUERY,
+    {
+      variables: { pk: [`${unitPk}`] },
+    }
+  );
+
+  const reservationUnit =
+    data?.reservationUnits?.edges.find((ru) => ru)?.node ?? undefined;
+
+  return { reservationUnit, loading };
+};
 
 type Props = {
   reservationUnits: ReservationUnitType[];
@@ -134,8 +139,10 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     defaultValues: {
       bufferTimeAfter: false,
       bufferTimeBefore: false,
+      typeOfReservation: "STAFF",
     },
   });
+
   const {
     handleSubmit,
     control,
@@ -145,6 +152,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   } = form;
 
   const selectedReservationUnit = watch("reservationUnit");
+
   const buffers = getReservationUnitBuffers({
     reservationUnits,
     pk: selectedReservationUnit?.value,
@@ -215,32 +223,11 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     createReservationMutation[0]({ variables: { input } });
 
-  // Metadata section
-  // TODO this refreshes on all changes not just reservationUnit changes
-  // so no matter what form field is changed the whole component gets rerendered
-  const reservationUnitSelection = watch(["reservationUnit"]);
+  const unit = selectedReservationUnit?.value;
 
-  // TODO there is a type error in the form. Value can be undefined in JS even though it shouldn't in TS
-  // the default value for reservationUnit in the form is { label: undefined, value: undefined } not undefined
-  // TODO I can't understand my own comment; test this and rewrite either the comment or preferably the type definition
-  const unit =
-    reservationUnitSelection != null && reservationUnitSelection.length > 0
-      ? reservationUnitSelection[0]?.value
-      : undefined;
-
-  // TODO passing pk: undefined into this is bad, but hooks can't be conditional (wrap inside it's own hook?)
-  // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
-  // use a custom hook, yay
-  const { data: metadata, loading: metadataLoading } = useQuery<
-    Query,
-    QueryReservationUnitsArgs
-  >(RESERVATION_UNIT_QUERY, {
-    variables: { pk: [`${unit}`] },
-  });
-
-  const reservationUnit = metadata?.reservationUnits?.edges.find(
-    (ru) => ru
-  )?.node;
+  const { reservationUnit, loading: unitLoading } = useReservationUnitQuery(
+    unit ? Number(unit) : undefined
+  );
 
   // Why is this a thing?
   const renamePkFields = ["ageGroup", "homeCity", "purpose"];
@@ -592,7 +579,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                       .map((v) => (
                         <RadioButton
                           key={v}
-                          id={v as string}
+                          id={v}
                           checked={v === field.value}
                           label={t(`${tnamespace}.reservationType.${v}`)}
                           onChange={() => field.onChange(v)}
@@ -623,7 +610,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           </Grid>
           <Grid>
             {/* TODO this should be nicely formatted and translated (can we use Loader even when it's a subset of a form) */}
-            {metadataLoading ? (
+            {/* TODO "invalid unit" is rendered when no unit is selected => should be something else */}
+            {unitLoading ? (
               <div>Loading metadata</div>
             ) : !unit || !reservationUnit ? (
               <div>Invalid unit</div>

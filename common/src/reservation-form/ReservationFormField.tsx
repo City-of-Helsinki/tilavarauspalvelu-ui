@@ -85,6 +85,15 @@ const StyledCheckbox = styled(Checkbox)`
   }
 `;
 
+// TODO duplicated in RecurringReservation
+function removeRefParam<Type>(
+  params: Type & { ref: unknown }
+): Omit<Type, "ref"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { ref, ...rest } = params;
+  return rest;
+}
+
 const ReservationFormField = ({
   field,
   options,
@@ -174,7 +183,7 @@ const ReservationFormField = ({
           defaultValue={options[field].find(
             (n) => n.value === get(reservation, field)
           )}
-          {...formField}
+          {...removeRefParam(formField)}
           value={formField.value || null}
           error={errorText}
           required={required}
@@ -274,11 +283,6 @@ const ReservationFormField = ({
         }),
       })}
       key={field}
-      defaultValue={
-        Number.isNaN(get(reservation, field))
-          ? undefined
-          : Number(get(reservation, field))
-      }
       errorText={errorText}
       invalid={!!get(errors, field)}
       step={1}
