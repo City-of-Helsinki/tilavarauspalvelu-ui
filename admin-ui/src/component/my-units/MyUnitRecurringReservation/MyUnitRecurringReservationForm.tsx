@@ -36,7 +36,13 @@ import {
   RecurringReservationForm,
   RecurringReservationFormSchema,
 } from "./RecurringReservationSchema";
-import { Grid, Span3, Span6, VerticalFlex } from "../../../styles/layout";
+import {
+  Grid,
+  Span12,
+  Span3,
+  Span6,
+  VerticalFlex,
+} from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
@@ -57,9 +63,21 @@ const Label = styled.p<{ $bold?: boolean }>`
 
 const ActionsWrapper = styled.div`
   display: flex;
-  grid-area: auto / -2;
+  grid-column: 1 / -1;
   gap: var(--spacing-m);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
   justify-content: end;
+`;
+
+const FullRow = styled.div`
+  grid-column: 1 / -1;
+`;
+
+// TODO max width should be a prose variable (in the theme)
+const CommentsTextArea = styled(TextArea)`
+  grid-column: 1 / -1;
+  max-width: 66ch;
 `;
 
 const getReservationUnitBuffers = ({
@@ -139,8 +157,12 @@ const MetadataPart = () => {
     return <div>Invalid unit</div>;
   }
 
-  console.log("metadata from gql: ", reservationUnit);
-  return <MetadataSetForm reservationUnit={reservationUnit} />;
+  // TODO hack to deal with the components not supporting style / styled components
+  return (
+    <div style={{ gridColumn: "1 / -1" }}>
+      <MetadataSetForm reservationUnit={reservationUnit} />;
+    </div>
+  );
   // return <>TODO render metadata</>;
 };
 
@@ -148,6 +170,8 @@ type Props = {
   reservationUnits: ReservationUnitType[];
 };
 
+// TODO this has double 'name' fields
+// one from the Metadata, one for the 'recurring', do we only need one? or both and rename them slightly
 const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const { t } = useTranslation();
 
@@ -185,8 +209,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     "repeatPattern",
     "repeatOnDays",
   ]);
-
-  const reservationUnit = watch(["reservationUnit"]);
 
   const newReservations = useMemo(
     () =>
@@ -379,6 +401,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   // TODO replace the Grid / SpanX with proper Grid for this page
   // currently Grid is used like a flexbox.
   // We should use grid-column-start for stuff that's alligned at the start, not start a new grid.
+  // TODO responsive breakpoints are really high up for Span3 (should be at 450px or 500px) now they are at 950px
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -402,9 +425,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                 )}
               />
             </Span6>
-          </Grid>
 
-          <Grid>
             <Span3>
               <Controller
                 name="startingDate"
@@ -461,9 +482,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                 )}
               />
             </Span3>
-          </Grid>
-
-          <Grid>
             <Span3>
               <Controller
                 name="startingTime"
@@ -500,109 +518,99 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                 )}
               />
             </Span3>
-          </Grid>
 
-          {buffers ? (
-            <div>
-              <Label>{t(`${tnamespace}.buffers`)}</Label>
-              {Object.entries(buffers).map(
-                ([key, value]) =>
-                  value && (
-                    <Controller
-                      name={key as keyof RecurringReservationForm}
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id={key}
-                          label={t(`${tnamespace}.${key}`, {
-                            minutes: value / 60,
-                          })}
-                          checked={String(field.value) === "true"}
-                          {...field}
-                          ref={null}
-                          value={String(field.value)}
-                        />
-                      )}
-                    />
-                  )
-              )}
-            </div>
-          ) : null}
-          <div>
-            <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
-            <Controller
-              name="repeatOnDays"
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <WeekdaysSelector value={value} onChange={onChange} />
-              )}
-            />
-          </div>
-
-          {newReservations ? (
-            <div>
-              <Label $bold>
-                {t(`${tnamespace}.reservationsList`, {
-                  count: newReservations.length,
-                })}
-              </Label>
-              <ReservationList items={newReservations} />
-            </div>
-          ) : null}
-
-          <div>
-            <Controller
-              name="typeOfReservation"
-              control={control}
-              render={({ field }) => (
-                <SelectionGroup
-                  label={t(`${tnamespace}.typeOfReservation`)}
-                  errorText={errors.typeOfReservation?.message}
-                >
-                  {Object.values(ReservationType)
-                    .filter((v) => typeof v === "string")
-                    .map((v) => (
-                      <RadioButton
-                        key={v}
-                        id={v as string}
-                        checked={v === field.value}
-                        label={t(`${tnamespace}.reservationType.${v}`)}
-                        onChange={() => field.onChange(v)}
+            {buffers ? (
+              <FullRow>
+                <Label>{t(`${tnamespace}.buffers`)}</Label>
+                {Object.entries(buffers).map(
+                  ([key, value]) =>
+                    value && (
+                      <Controller
+                        name={key as keyof RecurringReservationForm}
+                        control={control}
+                        render={({ field }) => (
+                          <Checkbox
+                            id={key}
+                            label={t(`${tnamespace}.${key}`, {
+                              minutes: value / 60,
+                            })}
+                            checked={String(field.value) === "true"}
+                            {...field}
+                            ref={null}
+                            value={String(field.value)}
+                          />
+                        )}
                       />
-                    ))}
-                </SelectionGroup>
-              )}
+                    )
+                )}
+              </FullRow>
+            ) : null}
+            <FullRow>
+              <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
+              <Controller
+                name="repeatOnDays"
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <WeekdaysSelector value={value} onChange={onChange} />
+                )}
+              />
+            </FullRow>
+
+            {newReservations ? (
+              <FullRow>
+                <Label $bold>
+                  {t(`${tnamespace}.reservationsList`, {
+                    count: newReservations.length,
+                  })}
+                </Label>
+                <ReservationList items={newReservations} />
+              </FullRow>
+            ) : null}
+            <FullRow>
+              <Controller
+                name="typeOfReservation"
+                control={control}
+                render={({ field }) => (
+                  <SelectionGroup
+                    label={t(`${tnamespace}.typeOfReservation`)}
+                    errorText={errors.typeOfReservation?.message}
+                  >
+                    {Object.values(ReservationType)
+                      .filter((v) => typeof v === "string")
+                      .map((v) => (
+                        <RadioButton
+                          key={v}
+                          id={v as string}
+                          checked={v === field.value}
+                          label={t(`${tnamespace}.reservationType.${v}`)}
+                          onChange={() => field.onChange(v)}
+                        />
+                      ))}
+                  </SelectionGroup>
+                )}
+              />
+            </FullRow>
+
+            <FullRow>
+              <Span6>
+                <TextInput
+                  id="name"
+                  label={t(`${tnamespace}.name`)}
+                  {...register("name")}
+                  errorText={errors.name?.message}
+                />
+              </Span6>
+            </FullRow>
+            <CommentsTextArea
+              id="comments"
+              label={t(`${tnamespace}.comments`)}
+              {...register("comments")}
+              errorText={errors.comments?.message}
+              required={false}
             />
-          </div>
-
-          <Grid>
-            <Span6>
-              <TextInput
-                id="name"
-                label={t(`${tnamespace}.name`)}
-                {...register("name")}
-                errorText={errors.name?.message}
-              />
-            </Span6>
           </Grid>
           <Grid>
-            <Span6>
-              <TextArea
-                id="comments"
-                label={t(`${tnamespace}.comments`)}
-                {...register("comments")}
-                errorText={errors.comments?.message}
-              />
-            </Span6>
-          </Grid>
-
-          <Grid>
-            <Span6>
-              <MetadataPart />
-            </Span6>
-          </Grid>
-
-          <Grid>
+            <MetadataPart />
             <ActionsWrapper>
               {/* TODO is the cancel button useful here? */}
               <Button variant="secondary" onClick={() => console.log("test")}>
