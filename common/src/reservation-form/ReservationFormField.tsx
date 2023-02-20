@@ -159,6 +159,7 @@ const ReservationFormField = ({
   )}${required ? " * " : ""}`;
 
   const errorText = get(errors, field) && t("forms:requiredField");
+
   return Object.keys(options).includes(field) ? (
     <Controller
       name={field}
@@ -175,7 +176,7 @@ const ReservationFormField = ({
           )}
           {...formField}
           value={formField.value || null}
-          error={get(errors, field) && t("forms:requiredField")}
+          error={errorText}
           required={required}
           invalid={!!get(errors, field)}
           $isWide={isWideRow}
@@ -247,12 +248,15 @@ const ReservationFormField = ({
     </StyledCheckboxWrapper>
   ) : field === "freeOfChargeReason" ? (
     <StyledTextArea
-      label={`${t(label)}${isFreeOfChargeReasonRequired ? " * " : ""}`}
+      // TODO this needs to be separated or use required like all the other components
+      label={`${t(
+        `reservationApplication:label.${normalizedReserveeType}.${field}`
+      )}${isFreeOfChargeReasonRequired ? " * " : ""}`}
       id={field}
       key={field}
       {...register(field, { required: isFreeOfChargeReasonRequired })}
       defaultValue={get(reservation, field) || ""}
-      errorText={get(errors, field) && t("forms:requiredField")}
+      errorText={errorText}
       invalid={!!get(errors, field)}
       $hidden={!watch("applyingForFreeOfCharge")}
       $isWide
@@ -260,7 +264,7 @@ const ReservationFormField = ({
     />
   ) : isNumField ? (
     <NumberInput
-      label={`${t(label)}${required ? " * " : ""}`}
+      label={`${label}`}
       id={field}
       {...register(field, {
         valueAsNumber: true,
@@ -281,14 +285,14 @@ const ReservationFormField = ({
       minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
       min={
-        Number.isNaN(get(params, field)?.min)
-          ? undefined
-          : Number(get(params, field)?.min)
+        get(params, field)?.min != null && !Number.isNaN(get(params, field).min)
+          ? Number(get(params, field)?.min)
+          : undefined
       }
       max={
-        Number.isNaN(get(params, field)?.max)
-          ? undefined
-          : Number(get(params, field)?.max)
+        get(params, field)?.max != null && !Number.isNaN(get(params, field).max)
+          ? Number(get(params, field)?.max)
+          : undefined
       }
     />
   ) : isTextArea ? (

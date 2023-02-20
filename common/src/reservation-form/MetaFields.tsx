@@ -162,7 +162,7 @@ const ReservationFormFields = ({
   // and for the application fields we need the type specific key
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   metadata?: ReservationMetadataSetType;
-  params?: { numPersons: { min: number; max: number } };
+  params?: { numPersons: { min?: number; max?: number } };
 }) => {
   const fieldsExtended = fields.map((field) => ({
     field,
@@ -239,12 +239,14 @@ const MetaFields = ({
           reservation={reservation}
           reserveeType="COMMON"
           params={{
-            // TODO numPersons should take undefined for example if the max is unlimited
             numPersons: {
               min: reservationUnit.minPersons ?? 0,
-              max: !Number.isNaN(reservationUnit.maxPersons)
-                ? Number(reservationUnit.maxPersons)
-                : 0,
+              max:
+                reservationUnit.maxPersons != null &&
+                !Number.isNaN(reservationUnit.maxPersons) &&
+                reservationUnit.maxPersons > 0
+                  ? reservationUnit.maxPersons
+                  : undefined,
             },
           }}
           t={t}
