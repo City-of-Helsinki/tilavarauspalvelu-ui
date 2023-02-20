@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import getConfig from "next/config";
-import { ExtendedJWT } from "./[...nextauth]";
 
 const {
   publicRuntimeConfig: { baseUrl, oidcEndSessionUrl },
@@ -12,7 +11,7 @@ const federatedLogOut = async (
   res: NextApiResponse
 ): Promise<NextApiResponse> => {
   try {
-    const token = (await getToken({ req })) as ExtendedJWT;
+    const token = await getToken({ req });
     if (!token) {
       return res.redirect(baseUrl);
     }
