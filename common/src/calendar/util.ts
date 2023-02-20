@@ -207,6 +207,7 @@ export const getDayIntervals = (
   endTime: string,
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ): string[] => {
+  // normalize end time to allow comparison
   const normalizedEndTime = endTime === "00:00" ? "23:59" : endTime;
 
   const start = convertHMSToSeconds(startTime?.substring(0, 5));
