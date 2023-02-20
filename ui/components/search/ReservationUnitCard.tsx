@@ -239,7 +239,6 @@ const ReservationUnitCard = ({
             >
               <MediumButton
                 variant="secondary"
-                onClick={() => {}}
                 iconRight={<IconLinkExternal aria-hidden />}
               >
                 {t("reservationUnitCard:seeMore")}
