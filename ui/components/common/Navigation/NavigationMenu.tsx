@@ -30,7 +30,10 @@ const NavigationMenu = ({ menuItems }: Props) => {
       {menuItems.map((item) => (
         <NavigationMenuItem
           key={item.title}
-          href={item.path}
+          href="#"
+          onClick={() =>
+            router.push(item.path, item.path, { locale: router.locale })
+          }
           className={router.pathname === item.path ? "active" : ""}
         >
           {t(`navigation:Item.${item.title}`)}

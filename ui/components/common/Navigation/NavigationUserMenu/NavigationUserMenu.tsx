@@ -126,7 +126,13 @@ const NavigationUserMenu = () => {
         <>
           <NavigationUserMenuUserCard user={user} />
           {userMenuItems.map((item) => (
-            <NavigationUserMenuItem href={item.path} key={item.path}>
+            <NavigationUserMenuItem
+              href="#"
+              key={item.path}
+              onClick={() =>
+                router.push(item.path, item.path, { locale: router.locale })
+              }
+            >
               {t(`navigation:Item.${item.title}`)}
             </NavigationUserMenuItem>
           ))}

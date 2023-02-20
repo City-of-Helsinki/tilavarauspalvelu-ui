@@ -23,7 +23,7 @@ const NavigationLanguageSelection = () => {
     language: string
   ) => {
     e.preventDefault();
-    router.push(router.pathname, router.asPath, {
+    router.replace(router.pathname, router.asPath, {
       locale: language,
     });
   };
