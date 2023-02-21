@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { H2 } from "common/src/common/typography";
+import { H1 } from "common/src/common/typography";
 import {
   Query,
   QueryUnitsArgs,
@@ -81,7 +81,8 @@ const MyUnitRecurringReservation = () => {
           <RecurringSuccess data={sent} />
         ) : (
           <>
-            <H2 as="h1">Tee toistuva varaus</H2>
+            {/* TODO translation */}
+            <H1 $legacy>Tee toistuva varaus</H1>
             {reservationUnits != null && reservationUnits.length > 0 ? (
               <MyUnitRecurringReservationForm
                 onReservation={handleReservation}

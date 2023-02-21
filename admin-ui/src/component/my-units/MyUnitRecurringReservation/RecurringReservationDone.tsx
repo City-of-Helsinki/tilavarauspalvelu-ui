@@ -3,18 +3,13 @@ import type { ErrorType } from "common/types/gql-types";
 import { Button } from "hds-react/components/Button";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { H2, H6 } from "common/src/common/typography";
+import { H1, H6 } from "common/src/common/typography";
 import { ActionsWrapper } from "./commonStyling";
 import { ReservationList } from "./ReservationsList";
 
 const InfoSection = styled.p`
   margin-bottom: 2rem;
   margin-top: 0;
-`;
-
-const StyledH2 = styled(H2)`
-  margin-top: 2rem;
-  margin-bottom: 2rem;
 `;
 
 const StyledH6 = styled(H6)`
@@ -43,7 +38,7 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
 
   return (
     <>
-      <StyledH2 as="h1">{t(`${locPrefix}.title`)}</StyledH2>
+      <H1 $legacy>{t(`${locPrefix}.title`)}</H1>
       <InfoSection>
         {failed.length === 0
           ? t(`${locPrefix}.successInfo`)
