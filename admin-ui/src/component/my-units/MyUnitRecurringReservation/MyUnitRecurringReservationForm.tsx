@@ -31,7 +31,6 @@ import { useNavigate } from "react-router-dom";
 import { removeRefParam } from "common/src/reservation-form/util";
 import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
-import { Grid, Span3, Span6, VerticalFlex } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
@@ -52,8 +51,26 @@ const Label = styled.p<{ $bold?: boolean }>`
   font-weight: ${({ $bold }) => ($bold ? "700" : "500")};
 `;
 
+const Grid = styled.div`
+  display: grid;
+  gap: 1rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+`;
+
 const FullRow = styled.div`
   grid-column: 1 / -1;
+  max-width: 66ch;
+`;
+
+// TODO rename these to something more clear
+// TODO parametrize (1 for start / auto for other)
+// TODO if possible remove the extra div from Controller
+const SmallRowStart = styled.div`
+  grid-column: 1 / span 2;
+`;
+
+const SmallRowAuto = styled.div`
+  grid-column: auto / span 2;
 `;
 
 // TODO max width should be a prose variable (in the theme)
@@ -376,217 +393,217 @@ const MyUnitRecurringReservationForm = ({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
-          <Grid>
-            <Span6>
-              <Controller
-                name="reservationUnit"
-                control={control}
-                defaultValue={{ label: "", value: "" }}
-                render={({ field }) => (
-                  <SortedSelect
-                    sort
-                    label={t(`${tnamespace}.reservationUnit`)}
-                    multiselect={false}
-                    placeholder={t("common.select")}
-                    options={reservationUnitOptions}
-                    required
-                    invalid={errors.reservationUnit != null}
-                    error={errors.reservationUnit?.label?.message}
-                    {...removeRefParam(field)}
-                  />
-                )}
-              />
-            </Span6>
-
-            <Span3>
-              <Controller
-                name="startingDate"
-                control={control}
-                render={({ field: { name, onChange } }) => (
-                  <DateInput
-                    name={name}
-                    id="startingDate"
-                    label={t(`${tnamespace}.startingDate`)}
-                    minDate={new Date()}
-                    placeholder={t("common.select")}
-                    onChange={(_, date) => onChange(date)}
-                    disableConfirmation
-                    language="fi"
-                    required
-                    errorText={errors.startingDate?.message}
-                  />
-                )}
-              />
-            </Span3>
-            <Span3>
-              <Controller
-                name="endingDate"
-                control={control}
-                render={({ field: { name, onChange } }) => (
-                  <DateInput
-                    id="endingDate"
-                    name={name}
-                    label={t(`${tnamespace}.endingDate`)}
-                    minDate={new Date()}
-                    placeholder={t("common.select")}
-                    onChange={(_, date) => onChange(date)}
-                    disableConfirmation
-                    language="fi"
-                    required
-                    errorText={errors.endingDate?.message}
-                  />
-                )}
-              />
-            </Span3>
-            <Span3>
-              <Controller
-                name="repeatPattern"
-                control={control}
-                defaultValue={{ label: "", value: "weekly" }}
-                render={({ field }) => (
-                  <SortedSelect
-                    {...removeRefParam(field)}
-                    sort
-                    label={t(`${tnamespace}.repeatPattern`)}
-                    multiselect={false}
-                    placeholder={t("common.select")}
-                    options={repeatPatternOptions}
-                    required
-                    invalid={errors.repeatPattern?.label?.message != null}
-                    error={errors.repeatPattern?.label?.message}
-                  />
-                )}
-              />
-            </Span3>
-            <Span3>
-              <Controller
-                name="startingTime"
-                control={control}
-                defaultValue={{ label: "", value: "" }}
-                render={({ field }) => (
-                  <Select
-                    {...removeRefParam(field)}
-                    disabled={!timeSelectionOptions.length}
-                    label={t(`${tnamespace}.startingTime`)}
-                    multiselect={false}
-                    placeholder={t("common.select")}
-                    options={timeSelectionOptions}
-                    required
-                    error={errors.startingTime?.label?.message}
-                  />
-                )}
-              />
-            </Span3>
-            <Span3>
-              <Controller
-                name="endingTime"
-                control={control}
-                defaultValue={{ label: "", value: "" }}
-                render={({ field }) => (
-                  <Select
-                    {...removeRefParam(field)}
-                    disabled={!timeSelectionOptions.length}
-                    label={t(`${tnamespace}.endingTime`)}
-                    multiselect={false}
-                    placeholder={t("common.select")}
-                    options={timeSelectionOptions}
-                    required
-                    error={errors.endingTime?.message}
-                  />
-                )}
-              />
-            </Span3>
-
-            {buffers ? (
-              <FullRow>
-                <Label>{t(`${tnamespace}.buffers`)}</Label>
-                {Object.entries(buffers).map(
-                  ([key, value]) =>
-                    value && (
-                      <Controller
-                        name={key as keyof RecurringReservationForm}
-                        control={control}
-                        render={({ field }) => (
-                          <Checkbox
-                            id={key}
-                            label={t(`${tnamespace}.${key}`, {
-                              minutes: value / 60,
-                            })}
-                            // TODO why is this converted to string?
-                            // validate and make it a type error if it isn't a string
-                            checked={String(field.value) === "true"}
-                            {...field}
-                            ref={null}
-                            // TODO why is this converted to string?
-                            value={String(field.value)}
-                          />
-                        )}
-                      />
-                    )
-                )}
-              </FullRow>
-            ) : null}
-            <FullRow>
-              {/* TODO one weekday needs to be selected. It's a form validation error, but display it to user here. */}
-              {/* TODO Label is not a label => it's a paragraph but it should be a header or something */}
-              <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
-              <Controller
-                name="repeatOnDays"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <WeekdaysSelector value={value} onChange={onChange} />
-                )}
-              />
-            </FullRow>
-
-            {newReservations ? (
-              <FullRow>
-                <Label $bold>
-                  {t(`${tnamespace}.reservationsList`, {
-                    count: newReservations.length,
-                  })}
-                </Label>
-                <ReservationList items={newReservations} />
-              </FullRow>
-            ) : null}
-            <FullRow>
-              <Controller
-                name="typeOfReservation"
-                control={control}
-                render={({ field }) => (
-                  <SelectionGroup
-                    label={t(`${tnamespace}.typeOfReservation`)}
-                    required
-                    errorText={errors.typeOfReservation?.message}
-                  >
-                    {Object.values(ReservationType)
-                      .filter((v) => typeof v === "string")
-                      .map((v) => (
-                        <RadioButton
-                          key={v}
-                          id={v}
-                          checked={v === field.value}
-                          label={t(`${tnamespace}.reservationType.${v}`)}
-                          onChange={() => field.onChange(v)}
-                        />
-                      ))}
-                  </SelectionGroup>
-                )}
-              />
-            </FullRow>
-
-            <FullRow>
-              <Span6>
-                <TextInput
-                  id="name"
-                  label={t(`${tnamespace}.name`)}
+        <Grid>
+          <FullRow>
+            <Controller
+              name="reservationUnit"
+              control={control}
+              defaultValue={{ label: "", value: "" }}
+              render={({ field }) => (
+                <SortedSelect
+                  sort
+                  label={t(`${tnamespace}.reservationUnit`)}
+                  multiselect={false}
+                  placeholder={t("common.select")}
+                  options={reservationUnitOptions}
                   required
-                  {...register("seriesName")}
-                  errorText={errors.seriesName?.message}
+                  invalid={errors.reservationUnit != null}
+                  error={errors.reservationUnit?.label?.message}
+                  {...removeRefParam(field)}
                 />
-              </Span6>
+              )}
+            />
+          </FullRow>
+
+          <SmallRowStart>
+            <Controller
+              name="startingDate"
+              control={control}
+              render={({ field: { name, onChange } }) => (
+                <DateInput
+                  name={name}
+                  id="startingDate"
+                  label={t(`${tnamespace}.startingDate`)}
+                  minDate={new Date()}
+                  placeholder={t("common.select")}
+                  onChange={(_, date) => onChange(date)}
+                  disableConfirmation
+                  language="fi"
+                  required
+                  errorText={errors.startingDate?.message}
+                />
+              )}
+            />
+          </SmallRowStart>
+
+          <SmallRowAuto>
+            <Controller
+              name="endingDate"
+              control={control}
+              render={({ field: { name, onChange } }) => (
+                <DateInput
+                  id="endingDate"
+                  name={name}
+                  label={t(`${tnamespace}.endingDate`)}
+                  minDate={new Date()}
+                  placeholder={t("common.select")}
+                  onChange={(_, date) => onChange(date)}
+                  disableConfirmation
+                  language="fi"
+                  required
+                  errorText={errors.endingDate?.message}
+                />
+              )}
+            />
+          </SmallRowAuto>
+          <SmallRowAuto>
+            <Controller
+              name="repeatPattern"
+              control={control}
+              defaultValue={{ label: "", value: "weekly" }}
+              render={({ field }) => (
+                <SortedSelect
+                  {...removeRefParam(field)}
+                  sort
+                  label={t(`${tnamespace}.repeatPattern`)}
+                  multiselect={false}
+                  placeholder={t("common.select")}
+                  options={repeatPatternOptions}
+                  required
+                  invalid={errors.repeatPattern?.label?.message != null}
+                  error={errors.repeatPattern?.label?.message}
+                />
+              )}
+            />
+          </SmallRowAuto>
+
+          <SmallRowStart>
+            <Controller
+              name="startingTime"
+              control={control}
+              defaultValue={{ label: "", value: "" }}
+              render={({ field }) => (
+                <Select
+                  {...removeRefParam(field)}
+                  disabled={!timeSelectionOptions.length}
+                  label={t(`${tnamespace}.startingTime`)}
+                  multiselect={false}
+                  placeholder={t("common.select")}
+                  options={timeSelectionOptions}
+                  required
+                  error={errors.startingTime?.label?.message}
+                />
+              )}
+            />
+          </SmallRowStart>
+          <SmallRowAuto>
+            <Controller
+              name="endingTime"
+              control={control}
+              defaultValue={{ label: "", value: "" }}
+              render={({ field }) => (
+                <Select
+                  {...removeRefParam(field)}
+                  disabled={!timeSelectionOptions.length}
+                  label={t(`${tnamespace}.endingTime`)}
+                  multiselect={false}
+                  placeholder={t("common.select")}
+                  options={timeSelectionOptions}
+                  required
+                  error={errors.endingTime?.message}
+                />
+              )}
+            />
+          </SmallRowAuto>
+
+          {buffers ? (
+            <FullRow>
+              <Label>{t(`${tnamespace}.buffers`)}</Label>
+              {Object.entries(buffers).map(
+                ([key, value]) =>
+                  value && (
+                    <Controller
+                      name={key as keyof RecurringReservationForm}
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id={key}
+                          label={t(`${tnamespace}.${key}`, {
+                            minutes: value / 60,
+                          })}
+                          // TODO why is this converted to string?
+                          // validate and make it a type error if it isn't a string
+                          checked={String(field.value) === "true"}
+                          {...field}
+                          ref={null}
+                          // TODO why is this converted to string?
+                          value={String(field.value)}
+                        />
+                      )}
+                    />
+                  )
+              )}
             </FullRow>
+          ) : null}
+          <FullRow>
+            {/* TODO one weekday needs to be selected. It's a form validation error, but display it to user here. */}
+            {/* TODO Label is not a label => it's a paragraph but it should be a header or something */}
+            <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
+            <Controller
+              name="repeatOnDays"
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <WeekdaysSelector value={value} onChange={onChange} />
+              )}
+            />
+          </FullRow>
+
+          {newReservations ? (
+            <FullRow>
+              <Label $bold>
+                {t(`${tnamespace}.reservationsList`, {
+                  count: newReservations.length,
+                })}
+              </Label>
+              <ReservationList items={newReservations} />
+            </FullRow>
+          ) : null}
+          <FullRow>
+            <Controller
+              name="typeOfReservation"
+              control={control}
+              render={({ field }) => (
+                <SelectionGroup
+                  label={t(`${tnamespace}.typeOfReservation`)}
+                  required
+                  errorText={errors.typeOfReservation?.message}
+                >
+                  {Object.values(ReservationType)
+                    .filter((v) => typeof v === "string")
+                    .map((v) => (
+                      <RadioButton
+                        key={v}
+                        id={v}
+                        checked={v === field.value}
+                        label={t(`${tnamespace}.reservationType.${v}`)}
+                        onChange={() => field.onChange(v)}
+                      />
+                    ))}
+                </SelectionGroup>
+              )}
+            />
+          </FullRow>
+
+          <FullRow>
+            <TextInput
+              id="name"
+              label={t(`${tnamespace}.name`)}
+              required
+              {...register("seriesName")}
+              errorText={errors.seriesName?.message}
+            />
+          </FullRow>
+          <FullRow>
             <CommentsTextArea
               id="comments"
               label={t(`${tnamespace}.comments`)}
@@ -594,29 +611,28 @@ const MyUnitRecurringReservationForm = ({
               errorText={errors.comments?.message}
               required={false}
             />
-          </Grid>
-          <Grid>
-            {/* TODO this should be nicely formatted and translated (can we use Loader even when it's a subset of a form) */}
-            {unitLoading ? (
-              <div>Loading metadata</div>
-            ) : !unit || !reservationUnit ? null : (
-              <div style={{ gridColumn: "1 / -1" }}>
-                {/* TODO hack to deal with the components not supporting style / styled components */}
-                <MetadataSetForm reservationUnit={reservationUnit} />
-              </div>
-            )}
-            <ActionsWrapper>
-              <Button variant="secondary" onClick={handleCancel}>
-                {t("common.cancel")}
-              </Button>
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {t("common.reserve")}
-              </Button>
-            </ActionsWrapper>
-            {/* TODO this should be a loading indicator but how to do it nicely without CLS */}
-            {isSubmitting && <div>Submitting</div>}
-          </Grid>
-        </VerticalFlex>
+          </FullRow>
+
+          {/* TODO this should be nicely formatted and translated (can we use Loader even when it's a subset of a form) */}
+          {unitLoading ? (
+            <div>Loading metadata</div>
+          ) : !unit || !reservationUnit ? null : (
+            <div style={{ gridColumn: "1 / -1" }}>
+              {/* TODO hack to deal with the components not supporting style / styled components */}
+              <MetadataSetForm reservationUnit={reservationUnit} />
+            </div>
+          )}
+          <ActionsWrapper>
+            <Button variant="secondary" onClick={handleCancel}>
+              {t("common.cancel")}
+            </Button>
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
+              {t("common.reserve")}
+            </Button>
+          </ActionsWrapper>
+          {/* TODO this should be a loading indicator but how to do it nicely without CLS */}
+          {isSubmitting && <div>Submitting</div>}
+        </Grid>
       </form>
     </FormProvider>
   );
