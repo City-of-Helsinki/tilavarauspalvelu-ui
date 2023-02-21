@@ -300,6 +300,23 @@ const translations: ITranslations = {
         reservationUnitDraft: ["Varausyksikkö luonnostilassa"],
       },
     },
+    RecurringReservation: {
+      Confirmation: {
+        title: ["Toistuva varaus tehty"],
+        failedTitle: ["Päällekkäiset varaukset"],
+        successTitle: ["Varaukset"],
+        successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
+        // TODO pyhapaivat not implemented
+        failureInfo: [
+          "{{conflicts}} / {{total}} epäonnistui päällekkäisyyksien takia. (Pyhäpäivällisten varausten määrä) / {{total}} varaus osuu pyhäpäivälle, mutta varaus päivälle on silti tehty.",
+        ],
+        failureInfoSecondParagraph: [
+          "Voit halutessasi etsiä näille toistoille uuden ajan varauksen sivulta.",
+        ],
+        buttonToUnit: ["Palaa toimipisteen sivulle"],
+        buttonToReservation: ["Siirry varauksen sivulle"],
+      },
+    },
     RecurringReservationForm: {
       reservationUnit: ["Varausyksikkö"],
       startingDate: ["Aloituspäivä"],

@@ -6,7 +6,7 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import { Button, IconAngleLeft } from "hds-react";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -18,6 +18,8 @@ import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { MyUnitRecurringReservationForm } from "./MyUnitRecurringReservationForm";
+import type { ReservationsMade } from "./RecurringReservationConfirmation";
+import RecurringSuccess from "./RecurringReservationConfirmation";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-xs);
@@ -29,6 +31,7 @@ type Params = {
 };
 
 const MyUnitRecurringReservation = () => {
+  const [sent, setSent] = useState<ReservationsMade | null>(null);
   const { notifyError } = useNotification();
   const { t } = useTranslation();
   // FIXME maybe params need better handling
@@ -52,6 +55,10 @@ const MyUnitRecurringReservation = () => {
     (item): item is ReservationUnitType => !!item
   );
 
+  const handleReservation = (res: ReservationsMade) => {
+    setSent(res);
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -70,14 +77,23 @@ const MyUnitRecurringReservation = () => {
       </PreviousLinkWrapper>
 
       <Container>
-        <H2 as="h1">Tee toistuva varaus</H2>
-        {reservationUnits != null && reservationUnits.length > 0 ? (
-          <MyUnitRecurringReservationForm reservationUnits={reservationUnits} />
+        {sent != null ? (
+          <RecurringSuccess data={sent} />
         ) : (
-          <div>
-            WIP: no reservation units this should block the button on the
-            previous page
-          </div>
+          <>
+            <H2 as="h1">Tee toistuva varaus</H2>
+            {reservationUnits != null && reservationUnits.length > 0 ? (
+              <MyUnitRecurringReservationForm
+                onReservation={handleReservation}
+                reservationUnits={reservationUnits}
+              />
+            ) : (
+              <div>
+                WIP: no reservation units this should block the button on the
+                previous page
+              </div>
+            )}
+          </>
         )}
       </Container>
     </>

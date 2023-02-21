@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { RecurringReservationForm } from "./RecurringReservationSchema";
 
 type NewReservationListItem = {
-  reservationUnitPk: string;
   date: Date;
   startTime: string;
   endTime: string;
@@ -99,7 +98,6 @@ const generateReservations = ({
   })
     .filter((day) => repeatOnDays.includes(toMondayFirst(getDay(day))))
     .map((day) => ({
-      reservationUnitPk: reservationUnit.value,
       date: day,
       startTime: startingTime.value,
       endTime: endingTime.value,

@@ -44,19 +44,12 @@ import {
   RESERVATION_UNIT_QUERY,
 } from "../create-reservation/queries";
 import MetadataSetForm from "../create-reservation/MetadataSetForm";
+import { ReservationsMade } from "./RecurringSuccess";
+import { ActionsWrapper } from "./commonStyling";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
   font-weight: ${({ $bold }) => ($bold ? "700" : "500")};
-`;
-
-const ActionsWrapper = styled.div`
-  display: flex;
-  grid-column: 1 / -1;
-  gap: var(--spacing-m);
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  justify-content: end;
 `;
 
 const FullRow = styled.div`
@@ -128,9 +121,13 @@ const useReservationUnitQuery = (unitPk?: number) => {
 
 type Props = {
   reservationUnits: ReservationUnitType[];
+  onReservation: (res: ReservationsMade) => void;
 };
 
-const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
+const MyUnitRecurringReservationForm = ({
+  reservationUnits,
+  onReservation,
+}: Props) => {
   const { t } = useTranslation();
 
   const form = useForm<RecurringReservationForm>({
@@ -153,6 +150,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
 
   const selectedReservationUnit = watch("reservationUnit");
 
+  // TODO these can be replaced by directly using the unit after useReservationUnit
   const buffers = getReservationUnitBuffers({
     reservationUnits,
     pk: selectedReservationUnit?.value,
@@ -205,7 +203,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
 
   const tnamespace = "MyUnits.RecurringReservationForm";
 
-  // Form submission
   const [create] = useMutation<
     { createRecurringReservation: RecurringReservationCreateMutationPayload },
     { input: RecurringReservationCreateMutationInput }
@@ -232,7 +229,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   // Why is this a thing?
   const renamePkFields = ["ageGroup", "homeCity", "purpose"];
 
-  const { notifyError, notifySuccess } = useNotification();
+  const { notifyError } = useNotification();
 
   // TODO before submitting do a query when the time / dates change to check if the space is available
   // check against newReservations and display it to the user before submitting
@@ -274,8 +271,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
 
       const { data: createResponse } = await createRecurringReservation(input);
 
-      console.log("mutation response: ", createResponse);
-
       if (
         createResponse?.createRecurringReservation == null ||
         createResponse?.createRecurringReservation.errors != null
@@ -285,8 +280,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           createResponse?.createRecurringReservation?.errors || []
         ).find(() => true);
 
-        console.log("first error: ", firstError);
-
         console.error("GraphQL failed: first error:", firstError);
         notifyError(
           t("ReservationDialog.saveFailed", {
@@ -294,18 +287,18 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           })
         );
       } else {
-        // TODO we don't want it notifications here we want them after all the individual reservations are done
-        console.log("GraphQL success: NOW adding individual reservations");
-
         // TODO this is common with the ReservationForm combine them
         const myDateTime = (date: Date, time: string) =>
           dateTime(format(date, "dd.MM.yyyy"), time);
 
-        // Use CreateStaffReservationMutation here and set the
-        // RecurringReservation.id on it to link them to the parent
-        // TODO this needs to be run in a loop based on the days
-        // TODO once a prototype is working, see if we can combine some of it
+        // TODO see if this can be combined with ReservationDialog (it's very similar)
         const rets = newReservations.map(async (x) => {
+          const common = {
+            startTime: x.startTime,
+            endTime: x.endTime,
+            date: x.date,
+          };
+
           try {
             const staffInput: ReservationStaffCreateMutationInput = {
               reservationUnitPks: [Number(unit)],
@@ -326,65 +319,42 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             const { data: resData } = await createStaffReservation(staffInput);
 
             if (resData == null) {
-              return { data: undefined, error: "Null error" };
+              return {
+                ...common,
+                reservationPk: undefined,
+                error: "Null error",
+              };
             }
 
             // TODO When does the graphql send errors as data? oposed to exceptions
             if (resData.createStaffReservation.errors != null) {
               return {
-                data: undefined,
+                ...common,
+                reservationPk: undefined,
                 error:
                   resData.createStaffReservation.errors.filter(
                     (y): y is ErrorType => y != null
                   ) ?? "unkown error",
               };
             }
-            return { data: resData, error: undefined };
+            return {
+              ...common,
+              reservationPk: resData.createStaffReservation.pk ?? undefined,
+              error: undefined,
+            };
           } catch (e) {
             // This happens at least when the start time is in the past
             // or if there is a another reservation on that time slot
-            // console.error("failed single reservation with error: ", e);
-            return { data: undefined, error: String(e) };
+            return {
+              ...common,
+              reservationPk: undefined,
+              error: String(e),
+            };
           }
         });
 
-        const createReservationErrors = await Promise.all(rets).then((y) => {
-          return y.filter(({ error }) => error != null);
-        });
-        const createReservationSuccesses = await Promise.all(rets).then((y) => {
-          return y.filter(({ error }) => error == null);
-        });
-
-        createReservationErrors.forEach(({ error }) => {
-          console.error("Failed to create Staff reservation: ", error);
-        });
-        createReservationSuccesses.forEach(({ data: resData }) => {
-          console.log("Succesfully created a single reservations: ", resData);
-        });
-
-        // TODO specify the notification for this reservation type instead of using ReservationDialog
-        if (createReservationErrors.length === 0) {
-          notifySuccess(
-            t("ReservationDialog.saveSuccess", {
-              // TODO translation
-              reservationUnit: reservationUnit?.nameFi,
-            })
-          );
-        }
-        // TODO this should rollback the recurring reservation
-        else if (createReservationSuccesses.length === 0) {
-          notifyError(
-            "all single reservations failed; TODO should rollback the recurring reservation set"
-          );
-        }
-        // The third case where we have both is difficult (check the UI spec)
-        else {
-          notifyError(
-            "Some single reservation failed but other succeeded. TODO show which is which to the user."
-          );
-        }
-
-        // TODO after all is done, do something (show the user the list of reservations / redirect etc.)
+        const result = await Promise.all(rets).then((y) => y);
+        onReservation(result);
       }
     } catch (e) {
       console.log("exception", e);
@@ -392,7 +362,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         t("ReservationDialog.saveFailed", { error: get(e, "message") })
       );
       // on exception in RecurringReservation (because we are catching the individual errors)
-      // TODO we need to cleanup the RecurringReservation (it has zero connections)
+      // We don't need to cleanup the RecurringReservation that has zero connections.
+      // Based on documentation backend will do this for us.
     }
   };
 
@@ -610,12 +581,9 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           </Grid>
           <Grid>
             {/* TODO this should be nicely formatted and translated (can we use Loader even when it's a subset of a form) */}
-            {/* TODO "invalid unit" is rendered when no unit is selected => should be something else */}
             {unitLoading ? (
               <div>Loading metadata</div>
-            ) : !unit || !reservationUnit ? (
-              <div>Invalid unit</div>
-            ) : (
+            ) : !unit || !reservationUnit ? null : (
               <div style={{ gridColumn: "1 / -1" }}>
                 {/* TODO hack to deal with the components not supporting style / styled components */}
                 <MetadataSetForm reservationUnit={reservationUnit} />
