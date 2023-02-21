@@ -28,10 +28,9 @@ import {
 } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import {
-  RecurringReservationForm,
-  RecurringReservationFormSchema,
-} from "./RecurringReservationSchema";
+import { removeRefParam } from "common/src/reservation-form/util";
+import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
+import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import { Grid, Span3, Span6, VerticalFlex } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
@@ -95,14 +94,6 @@ const getReservationUnitStartInterval = ({
 
   return unit?.reservationStartInterval;
 };
-
-function removeRefParam<Type>(
-  params: Type & { ref: unknown }
-): Omit<Type, "ref"> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { ref, ...rest } = params;
-  return rest;
-}
 
 // TODO passing pk: undefined into this is bad, but hooks can't be conditional
 // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
@@ -455,6 +446,7 @@ const MyUnitRecurringReservationForm = ({
                 defaultValue={{ label: "", value: "weekly" }}
                 render={({ field }) => (
                   <SortedSelect
+                    {...removeRefParam(field)}
                     sort
                     label={t(`${tnamespace}.repeatPattern`)}
                     multiselect={false}
@@ -463,7 +455,6 @@ const MyUnitRecurringReservationForm = ({
                     required
                     invalid={errors.repeatPattern?.label?.message != null}
                     error={errors.repeatPattern?.label?.message}
-                    {...removeRefParam(field)}
                   />
                 )}
               />
@@ -475,6 +466,7 @@ const MyUnitRecurringReservationForm = ({
                 defaultValue={{ label: "", value: "" }}
                 render={({ field }) => (
                   <Select
+                    {...removeRefParam(field)}
                     disabled={!timeSelectionOptions.length}
                     label={t(`${tnamespace}.startingTime`)}
                     multiselect={false}
@@ -482,7 +474,6 @@ const MyUnitRecurringReservationForm = ({
                     options={timeSelectionOptions}
                     required
                     error={errors.startingTime?.label?.message}
-                    {...removeRefParam(field)}
                   />
                 )}
               />
@@ -494,6 +485,7 @@ const MyUnitRecurringReservationForm = ({
                 defaultValue={{ label: "", value: "" }}
                 render={({ field }) => (
                   <Select
+                    {...removeRefParam(field)}
                     disabled={!timeSelectionOptions.length}
                     label={t(`${tnamespace}.endingTime`)}
                     multiselect={false}
@@ -501,7 +493,6 @@ const MyUnitRecurringReservationForm = ({
                     options={timeSelectionOptions}
                     required
                     error={errors.endingTime?.message}
-                    {...removeRefParam(field)}
                   />
                 )}
               />

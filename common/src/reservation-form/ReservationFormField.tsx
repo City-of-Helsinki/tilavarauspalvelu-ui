@@ -8,6 +8,7 @@ import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-type
 import { Inputs, Reservation } from "./types";
 import { CheckboxWrapper } from "./components";
 import { OptionType } from "../../types/common";
+import { removeRefParam } from "./util";
 
 type Props = {
   field: keyof Inputs;
@@ -84,15 +85,6 @@ const StyledCheckbox = styled(Checkbox)`
     }
   }
 `;
-
-// TODO duplicated in RecurringReservation
-function removeRefParam<Type>(
-  params: Type & { ref: unknown }
-): Omit<Type, "ref"> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { ref, ...rest } = params;
-  return rest;
-}
 
 const ReservationFormField = ({
   field,

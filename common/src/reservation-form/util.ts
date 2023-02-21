@@ -28,3 +28,11 @@ export const getReservationApplicationFields = ({
 
   return camelCaseOutput ? fields.map(camelCase) : fields;
 };
+
+export function removeRefParam<Type>(
+  params: Type & { ref: unknown }
+): Omit<Type, "ref"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { ref, ...rest } = params;
+  return rest;
+}
