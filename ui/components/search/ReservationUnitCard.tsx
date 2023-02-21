@@ -219,6 +219,7 @@ const ReservationUnitCard = ({
               <MediumButton
                 iconRight={<IconCheck />}
                 onClick={() => removeReservationUnit(reservationUnit)}
+                data-testid="reservation-unit-card__button--select"
               >
                 {t("common:removeReservationUnit")}
               </MediumButton>
@@ -227,6 +228,7 @@ const ReservationUnitCard = ({
                 iconRight={<IconPlus />}
                 onClick={() => selectReservationUnit(reservationUnit)}
                 variant="secondary"
+                data-testid="reservation-unit-card__button--select"
               >
                 {t("common:selectReservationUnit")}
               </MediumButton>
@@ -240,6 +242,7 @@ const ReservationUnitCard = ({
               <MediumButton
                 variant="secondary"
                 iconRight={<IconLinkExternal aria-hidden />}
+                data-testid="reservation-unit-card__button--link"
               >
                 {t("reservationUnitCard:seeMore")}
               </MediumButton>
