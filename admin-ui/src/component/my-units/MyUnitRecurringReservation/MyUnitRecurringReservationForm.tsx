@@ -27,6 +27,7 @@ import {
   TextInput,
 } from "hds-react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import {
   RecurringReservationForm,
   RecurringReservationFormSchema,
@@ -44,7 +45,7 @@ import {
   RESERVATION_UNIT_QUERY,
 } from "../create-reservation/queries";
 import MetadataSetForm from "../create-reservation/MetadataSetForm";
-import { ReservationsMade } from "./RecurringSuccess";
+import { ReservationsMade } from "./RecurringReservationConfirmation";
 import { ActionsWrapper } from "./commonStyling";
 
 const Label = styled.p<{ $bold?: boolean }>`
@@ -124,6 +125,11 @@ type Props = {
   onReservation: (res: ReservationsMade) => void;
 };
 
+/* TODO
+  label styling is wrong but it's a project wide problem
+  font-weight: 500 doesn't work at all (Medium font)
+  label line-height is incorrect (1.15, should be 1.5) => HDS problem
+*/
 const MyUnitRecurringReservationForm = ({
   reservationUnits,
   onReservation,
@@ -145,7 +151,7 @@ const MyUnitRecurringReservationForm = ({
     control,
     register,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = form;
 
   const selectedReservationUnit = watch("reservationUnit");
@@ -172,7 +178,6 @@ const MyUnitRecurringReservationForm = ({
   const newReservations = useMemo(
     () =>
       generateReservations({
-        reservationUnit: selectedReservationUnit,
         startingDate: selectedReservationParams[0],
         endingDate: selectedReservationParams[1],
         startingTime: selectedReservationParams[2],
@@ -180,7 +185,7 @@ const MyUnitRecurringReservationForm = ({
         repeatPattern: selectedReservationParams[4],
         repeatOnDays: selectedReservationParams[5],
       }),
-    [selectedReservationUnit, selectedReservationParams]
+    [selectedReservationParams]
   );
 
   const reservationUnitOptions =
@@ -367,7 +372,12 @@ const MyUnitRecurringReservationForm = ({
     }
   };
 
-  // TODO this prints errors because radio buttons needs default values
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
   // TODO replace the Grid / SpanX with proper Grid for this page
   // currently Grid is used like a flexbox.
   // We should use grid-column-start for stuff that's alligned at the start, not start a new grid.
@@ -389,7 +399,9 @@ const MyUnitRecurringReservationForm = ({
                     multiselect={false}
                     placeholder={t("common.select")}
                     options={reservationUnitOptions}
-                    error={errors.reservationUnit?.message}
+                    required
+                    invalid={errors.reservationUnit != null}
+                    error={errors.reservationUnit?.label?.message}
                     {...removeRefParam(field)}
                   />
                 )}
@@ -410,6 +422,7 @@ const MyUnitRecurringReservationForm = ({
                     onChange={(_, date) => onChange(date)}
                     disableConfirmation
                     language="fi"
+                    required
                     errorText={errors.startingDate?.message}
                   />
                 )}
@@ -429,6 +442,7 @@ const MyUnitRecurringReservationForm = ({
                     onChange={(_, date) => onChange(date)}
                     disableConfirmation
                     language="fi"
+                    required
                     errorText={errors.endingDate?.message}
                   />
                 )}
@@ -446,7 +460,9 @@ const MyUnitRecurringReservationForm = ({
                     multiselect={false}
                     placeholder={t("common.select")}
                     options={repeatPatternOptions}
-                    error={errors.repeatPattern?.message}
+                    required
+                    invalid={errors.repeatPattern?.label?.message != null}
+                    error={errors.repeatPattern?.label?.message}
                     {...removeRefParam(field)}
                   />
                 )}
@@ -464,7 +480,8 @@ const MyUnitRecurringReservationForm = ({
                     multiselect={false}
                     placeholder={t("common.select")}
                     options={timeSelectionOptions}
-                    error={errors.startingTime?.message}
+                    required
+                    error={errors.startingTime?.label?.message}
                     {...removeRefParam(field)}
                   />
                 )}
@@ -482,6 +499,7 @@ const MyUnitRecurringReservationForm = ({
                     multiselect={false}
                     placeholder={t("common.select")}
                     options={timeSelectionOptions}
+                    required
                     error={errors.endingTime?.message}
                     {...removeRefParam(field)}
                   />
@@ -504,9 +522,12 @@ const MyUnitRecurringReservationForm = ({
                             label={t(`${tnamespace}.${key}`, {
                               minutes: value / 60,
                             })}
+                            // TODO why is this converted to string?
+                            // validate and make it a type error if it isn't a string
                             checked={String(field.value) === "true"}
                             {...field}
                             ref={null}
+                            // TODO why is this converted to string?
                             value={String(field.value)}
                           />
                         )}
@@ -516,6 +537,8 @@ const MyUnitRecurringReservationForm = ({
               </FullRow>
             ) : null}
             <FullRow>
+              {/* TODO one weekday needs to be selected. It's a form validation error, but display it to user here. */}
+              {/* TODO Label is not a label => it's a paragraph but it should be a header or something */}
               <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
               <Controller
                 name="repeatOnDays"
@@ -543,6 +566,7 @@ const MyUnitRecurringReservationForm = ({
                 render={({ field }) => (
                   <SelectionGroup
                     label={t(`${tnamespace}.typeOfReservation`)}
+                    required
                     errorText={errors.typeOfReservation?.message}
                   >
                     {Object.values(ReservationType)
@@ -566,6 +590,7 @@ const MyUnitRecurringReservationForm = ({
                 <TextInput
                   id="name"
                   label={t(`${tnamespace}.name`)}
+                  required
                   {...register("seriesName")}
                   errorText={errors.seriesName?.message}
                 />
@@ -590,14 +615,15 @@ const MyUnitRecurringReservationForm = ({
               </div>
             )}
             <ActionsWrapper>
-              {/* TODO is the cancel button useful here? */}
-              <Button variant="secondary" onClick={() => console.log("test")}>
+              <Button variant="secondary" onClick={handleCancel}>
                 {t("common.cancel")}
               </Button>
-              <Button variant="primary" type="submit">
+              <Button variant="primary" type="submit" disabled={isSubmitting}>
                 {t("common.reserve")}
               </Button>
             </ActionsWrapper>
+            {/* TODO this should be a loading indicator but how to do it nicely without CLS */}
+            {isSubmitting && <div>Submitting</div>}
           </Grid>
         </VerticalFlex>
       </form>

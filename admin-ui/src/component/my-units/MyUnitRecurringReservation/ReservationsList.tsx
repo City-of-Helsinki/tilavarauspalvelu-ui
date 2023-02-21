@@ -2,7 +2,9 @@ import { toUIDate } from "common/src/common/util";
 import { eachDayOfInterval, getDay } from "date-fns";
 import React from "react";
 import styled from "styled-components";
-import { RecurringReservationForm } from "./RecurringReservationSchema";
+import Joi from "joi";
+import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
+import type { RecurringReservationForm } from "./RecurringReservationSchema";
 
 type NewReservationListItem = {
   date: Date;
@@ -62,35 +64,40 @@ const ReservationList = ({ items }: Props) => {
 const toMondayFirst = (day: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
   day === 0 ? 6 : day - 1;
 
-const generateReservations = ({
-  reservationUnit,
-  startingDate,
-  startingTime,
-  endingDate,
-  endingTime,
-  repeatPattern,
-  repeatOnDays,
-}: Pick<
-  RecurringReservationForm,
-  | "reservationUnit"
-  | "startingDate"
-  | "endingDate"
-  | "startingTime"
-  | "endingTime"
-  | "repeatPattern"
-  | "repeatOnDays"
->): NewReservationListItem[] => {
-  if (
-    !reservationUnit ||
-    !startingDate ||
-    !startingTime ||
-    !endingDate ||
-    !endingTime ||
-    !repeatPattern ||
-    !repeatOnDays
-  ) {
+const validator = Joi.object({
+  startingDate: RecurringReservationFormSchema.extract("startingDate"),
+  endingDate: RecurringReservationFormSchema.extract("endingDate"),
+  startingTime: RecurringReservationFormSchema.extract("startingTime"),
+  endingTime: RecurringReservationFormSchema.extract("endingTime"),
+  repeatOnDays: RecurringReservationFormSchema.extract("repeatOnDays"),
+  repeatPattern: RecurringReservationFormSchema.extract("repeatPattern"),
+});
+const generateReservations = (
+  props: Pick<
+    RecurringReservationForm,
+    | "startingDate"
+    | "endingDate"
+    | "startingTime"
+    | "endingTime"
+    | "repeatPattern"
+    | "repeatOnDays"
+  >
+): NewReservationListItem[] => {
+  const vals = validator.validate(props);
+
+  if (vals.error != null) {
     return [];
   }
+
+  const {
+    startingDate,
+    startingTime,
+    endingDate,
+    endingTime,
+    // TODO implement repeatPattern
+    // repeatPattern,
+    repeatOnDays,
+  } = vals.value;
 
   const newReservations = eachDayOfInterval({
     start: startingDate,
