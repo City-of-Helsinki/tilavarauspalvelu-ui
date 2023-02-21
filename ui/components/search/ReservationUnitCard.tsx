@@ -13,7 +13,12 @@ import {
   getTranslation,
 } from "../../modules/util";
 import IconWithText from "../common/IconWithText";
-import { MediumButton, pixel, truncatedText } from "../../styles/util";
+import {
+  BlackButton,
+  MediumButton,
+  pixel,
+  truncatedText,
+} from "../../styles/util";
 import { reservationUnitPrefix } from "../../modules/const";
 import {
   getReservationUnitName,
@@ -224,14 +229,14 @@ const ReservationUnitCard = ({
                 {t("common:removeReservationUnit")}
               </MediumButton>
             ) : (
-              <MediumButton
+              <BlackButton
                 iconRight={<IconPlus />}
                 onClick={() => selectReservationUnit(reservationUnit)}
                 variant="secondary"
                 data-testid="reservation-unit-card__button--select"
               >
                 {t("common:selectReservationUnit")}
-              </MediumButton>
+              </BlackButton>
             )}{" "}
             <Link
               href={link}
@@ -239,13 +244,13 @@ const ReservationUnitCard = ({
               rel="noopener noreferrer"
               style={{ display: "contents" }}
             >
-              <MediumButton
+              <BlackButton
                 variant="secondary"
                 iconRight={<IconLinkExternal aria-hidden />}
                 data-testid="reservation-unit-card__button--link"
               >
                 {t("reservationUnitCard:seeMore")}
-              </MediumButton>
+              </BlackButton>
             </Link>
           </Actions>
         </Bottom>
