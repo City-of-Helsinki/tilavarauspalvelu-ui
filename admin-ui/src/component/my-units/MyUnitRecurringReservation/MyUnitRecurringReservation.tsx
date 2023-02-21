@@ -18,8 +18,8 @@ import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { MyUnitRecurringReservationForm } from "./MyUnitRecurringReservationForm";
-import type { ReservationsMade } from "./RecurringReservationConfirmation";
-import RecurringSuccess from "./RecurringReservationConfirmation";
+import type { ReservationsMade } from "./RecurringReservationDone";
+import RecurringSuccess from "./RecurringReservationDone";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-xs);

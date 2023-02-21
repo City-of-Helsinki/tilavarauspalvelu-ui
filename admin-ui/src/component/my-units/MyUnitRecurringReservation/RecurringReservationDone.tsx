@@ -32,7 +32,7 @@ export type ReservationsMade = Array<{
 type RecurringSuccessProps = {
   data: ReservationsMade;
 };
-const RecurringSuccess = (props: RecurringSuccessProps) => {
+const RecurringReservationDone = (props: RecurringSuccessProps) => {
   const failed = props.data.filter(({ error }) => error != null);
 
   const successes = props.data.filter(({ error }) => error == null);
@@ -86,4 +86,4 @@ const RecurringSuccess = (props: RecurringSuccessProps) => {
   );
 };
 
-export default RecurringSuccess;
+export default RecurringReservationDone;

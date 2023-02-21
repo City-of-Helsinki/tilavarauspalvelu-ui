@@ -45,7 +45,7 @@ import {
   RESERVATION_UNIT_QUERY,
 } from "../create-reservation/queries";
 import MetadataSetForm from "../create-reservation/MetadataSetForm";
-import { ReservationsMade } from "./RecurringReservationConfirmation";
+import { ReservationsMade } from "./RecurringReservationDone";
 import { ActionsWrapper } from "./commonStyling";
 
 const Label = styled.p<{ $bold?: boolean }>`
