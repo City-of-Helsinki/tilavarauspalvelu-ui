@@ -51,32 +51,32 @@ const Label = styled.p<{ $bold?: boolean }>`
   font-weight: ${({ $bold }) => ($bold ? "700" : "500")};
 `;
 
+// Three column grid on desktop and one on small screens.
 const Grid = styled.div`
+  max-width: var(--container-width-small);
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: 1rem 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 `;
 
 const FullRow = styled.div`
   grid-column: 1 / -1;
-  max-width: 66ch;
+  max-width: var(--prose-width);
 `;
 
-// TODO rename these to something more clear
 // TODO parametrize (1 for start / auto for other)
 // TODO if possible remove the extra div from Controller
-const SmallRowStart = styled.div`
-  grid-column: 1 / span 2;
+const SmallElementRowBegin = styled.div`
+  grid-column: 1 / span 1;
 `;
 
-const SmallRowAuto = styled.div`
-  grid-column: auto / span 2;
+const SmallElement = styled.div`
+  grid-column: auto / span 1;
 `;
 
-// TODO max width should be a prose variable (in the theme)
 const CommentsTextArea = styled(TextArea)`
   grid-column: 1 / -1;
-  max-width: 66ch;
+  max-width: var(--prose-width);
 `;
 
 const getReservationUnitBuffers = ({
@@ -394,7 +394,7 @@ const MyUnitRecurringReservationForm = ({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid>
-          <FullRow>
+          <SmallElementRowBegin>
             <Controller
               name="reservationUnit"
               control={control}
@@ -413,9 +413,9 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </FullRow>
+          </SmallElementRowBegin>
 
-          <SmallRowStart>
+          <SmallElementRowBegin>
             <Controller
               name="startingDate"
               control={control}
@@ -434,9 +434,9 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallRowStart>
+          </SmallElementRowBegin>
 
-          <SmallRowAuto>
+          <SmallElement>
             <Controller
               name="endingDate"
               control={control}
@@ -455,8 +455,8 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallRowAuto>
-          <SmallRowAuto>
+          </SmallElement>
+          <SmallElement>
             <Controller
               name="repeatPattern"
               control={control}
@@ -475,9 +475,9 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallRowAuto>
+          </SmallElement>
 
-          <SmallRowStart>
+          <SmallElementRowBegin>
             <Controller
               name="startingTime"
               control={control}
@@ -495,8 +495,8 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallRowStart>
-          <SmallRowAuto>
+          </SmallElementRowBegin>
+          <SmallElement>
             <Controller
               name="endingTime"
               control={control}
@@ -514,7 +514,7 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallRowAuto>
+          </SmallElement>
 
           {buffers ? (
             <FullRow>
