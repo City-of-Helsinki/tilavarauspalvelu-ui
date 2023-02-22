@@ -1,48 +1,39 @@
-import Joi from "joi";
+import { z } from "zod";
 
-// TODO handle metadata (variable form fields) instead of using .unkown(true)
+// TODO handle metadata (variable form fields) instead of using .passthrough
 // It should be it's own schema object that is included in both forms
 // and it should be constructed based on the backend data.
 
-// NOTE this is really wonky since to get the error you have to do
-// variable.value.message instead of just variable.message like with primitives
-const Option = Joi.object({
-  label: Joi.string().required(),
-  value: Joi.string().required(),
+// NOTE this is wonky since to get the error in hook-form you have to do
+// variable?.value?.message instead of just variable?.message like with primitives
+// the optionals are mandatory and will silently fail on invalid code.
+const Option = z.object({
+  label: z.string(),
+  value: z.string(),
 });
 
-// const RecurringReservationRepeatPattern: string = "weekly" || "biweekly";
-const RecurringReservationFormSchema = Joi.object({
-  reservationUnit: Option.required(),
-  // TODO check that the endingDate > startingDate > today
-  startingDate: Joi.date().required(),
-  endingDate: Joi.date().required(),
-  repeatPattern: Option.required(),
-  startingTime: Option.required(),
-  endingTime: Option.required(),
-  repeatOnDays: Joi.array().items(Joi.number()).min(1).max(7).required(),
-  typeOfReservation: Joi.string().required(),
-  seriesName: Joi.string().required(),
-  comments: Joi.string().empty("").max(500).optional(),
-  bufferTimeBefore: Joi.boolean(),
-  bufferTimeAfter: Joi.boolean(),
-}).unknown(true);
+const RecurringReservationFormSchema = z
+  .object({
+    reservationUnit: Option,
+    startingDate: z.date(),
+    endingDate: z.date(),
+    repeatPattern: z.object({
+      label: z.string(),
+      value: z.literal("weekly").or(z.literal("biweekly")),
+    }),
+    startingTime: Option,
+    endingTime: Option,
+    repeatOnDays: z.array(z.number()).min(1).max(7),
+    typeOfReservation: z.string(),
+    seriesName: z.string(),
+    comments: z.string().max(500).optional(),
+    bufferTimeBefore: z.boolean(),
+    bufferTimeAfter: z.boolean(),
+  })
+  .passthrough()
+  .refine((schema) => schema.startingDate < schema.endingDate);
 
-type RecurringReservationForm = {
-  reservationUnit: { value: string; label: string };
-  startingDate: Date;
-  endingDate: Date;
-  repeatPattern: { value: "weekly" | "biweekly"; label: string };
-  startingTime: { value: string; label: string };
-  endingTime: { value: string; label: string };
-  startInterval: boolean;
-  repeatOnDays: number[];
-  typeOfReservation: string;
-  seriesName: string;
-  comments: string;
-  bufferTimeBefore: boolean;
-  bufferTimeAfter: boolean;
-};
+type RecurringReservationForm = z.infer<typeof RecurringReservationFormSchema>;
 
 export { RecurringReservationFormSchema };
 export type { RecurringReservationForm };

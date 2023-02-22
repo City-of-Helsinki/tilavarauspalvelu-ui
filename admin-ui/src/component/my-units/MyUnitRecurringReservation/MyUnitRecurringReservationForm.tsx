@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { getDayIntervals } from "common/src/calendar/util";
 import {
   ErrorType,
@@ -146,7 +146,7 @@ const MyUnitRecurringReservationForm = ({
 
   const form = useForm<RecurringReservationForm>({
     mode: "onChange",
-    resolver: joiResolver(RecurringReservationFormSchema),
+    resolver: zodResolver(RecurringReservationFormSchema),
     defaultValues: {
       bufferTimeAfter: false,
       bufferTimeBefore: false,

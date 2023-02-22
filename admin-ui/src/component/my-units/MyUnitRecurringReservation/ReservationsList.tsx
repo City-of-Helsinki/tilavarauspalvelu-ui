@@ -2,9 +2,8 @@ import { toUIDate } from "common/src/common/util";
 import { eachDayOfInterval, getDay } from "date-fns";
 import React from "react";
 import styled from "styled-components";
-import Joi from "joi";
+import { z } from "zod";
 import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
-import type { RecurringReservationForm } from "./RecurringReservationSchema";
 
 type NewReservationListItem = {
   date: Date;
@@ -64,28 +63,23 @@ const ReservationList = ({ items }: Props) => {
 const toMondayFirst = (day: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
   day === 0 ? 6 : day - 1;
 
-const validator = Joi.object({
-  startingDate: RecurringReservationFormSchema.extract("startingDate"),
-  endingDate: RecurringReservationFormSchema.extract("endingDate"),
-  startingTime: RecurringReservationFormSchema.extract("startingTime"),
-  endingTime: RecurringReservationFormSchema.extract("endingTime"),
-  repeatOnDays: RecurringReservationFormSchema.extract("repeatOnDays"),
-  repeatPattern: RecurringReservationFormSchema.extract("repeatPattern"),
+const validator = RecurringReservationFormSchema.innerType().pick({
+  startingDate: true,
+  endingDate: true,
+  startingTime: true,
+  endingTime: true,
+  repeatOnDays: true,
+  repeatPattern: true,
 });
-const generateReservations = (
-  props: Pick<
-    RecurringReservationForm,
-    | "startingDate"
-    | "endingDate"
-    | "startingTime"
-    | "endingTime"
-    | "repeatPattern"
-    | "repeatOnDays"
-  >
-): NewReservationListItem[] => {
-  const vals = validator.validate(props);
 
-  if (vals.error != null) {
+type GenInputType = z.infer<typeof validator>;
+
+const generateReservations = (
+  props: GenInputType
+): NewReservationListItem[] => {
+  const vals = validator.safeParse(props);
+
+  if (!vals.success) {
     return [];
   }
 
@@ -97,7 +91,7 @@ const generateReservations = (
     // TODO implement repeatPattern
     // repeatPattern,
     repeatOnDays,
-  } = vals.value;
+  } = vals.data;
 
   const newReservations = eachDayOfInterval({
     start: startingDate,
