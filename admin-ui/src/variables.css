@@ -34,6 +34,8 @@
   --font-bold: HelsinkiGrotesk-Bold, var(--font-default);
   --prose-width: 66ch;
 
+  --helper-color-invalid: #b01038;
+
   /*
   calendar
   */

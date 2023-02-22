@@ -386,10 +386,6 @@ const MyUnitRecurringReservationForm = ({
     navigate(-1);
   };
 
-  // TODO replace the Grid / SpanX with proper Grid for this page
-  // currently Grid is used like a flexbox.
-  // We should use grid-column-start for stuff that's alligned at the start, not start a new grid.
-  // TODO responsive breakpoints are really high up for Span3 (should be at 450px or 500px) now they are at 950px
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -546,14 +542,17 @@ const MyUnitRecurringReservationForm = ({
             </FullRow>
           ) : null}
           <FullRow>
-            {/* TODO one weekday needs to be selected. It's a form validation error, but display it to user here. */}
             {/* TODO Label is not a label => it's a paragraph but it should be a header or something */}
             <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
             <Controller
               name="repeatOnDays"
               control={control}
               render={({ field: { value, onChange } }) => (
-                <WeekdaysSelector value={value} onChange={onChange} />
+                <WeekdaysSelector
+                  value={value}
+                  onChange={onChange}
+                  errorText={errors.repeatOnDays?.message}
+                />
               )}
             />
           </FullRow>
@@ -617,21 +616,24 @@ const MyUnitRecurringReservationForm = ({
           {unitLoading ? (
             <div>Loading metadata</div>
           ) : !unit || !reservationUnit ? null : (
-            <div style={{ gridColumn: "1 / -1" }}>
-              {/* TODO hack to deal with the components not supporting style / styled components */}
+            <FullRow>
+              {/* TODO hack to deal with the component not supporting style / styled components */}
               <MetadataSetForm reservationUnit={reservationUnit} />
-            </div>
+            </FullRow>
           )}
           <ActionsWrapper>
-            <Button variant="secondary" onClick={handleCancel}>
+            {/* disabled while sending because we have no rollback functionality */}
+            <Button
+              variant="secondary"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
               {t("common.cancel")}
             </Button>
-            <Button variant="primary" type="submit" disabled={isSubmitting}>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>
               {t("common.reserve")}
             </Button>
           </ActionsWrapper>
-          {/* TODO this should be a loading indicator but how to do it nicely without CLS */}
-          {isSubmitting && <div>Submitting</div>}
         </Grid>
       </form>
     </FormProvider>

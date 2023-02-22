@@ -33,14 +33,45 @@ const Day = styled.div`
   }
 `;
 
+// Custom copy of HDS error field component which isn't exported
+const ErrorText = styled.div`
+  position: relative;
+  color: var(--helper-color-invalid);
+  padding-left: calc(var(--icon-size) + var(--spacing-2-xs));
+  display: flex;
+  line-height: var(--lineheight-l);
+  font-size: var(--fontsize-body-m);
+  margin-top: var(--spacing-3-xs);
+  white-space: pre-line;
+
+  & svg {
+    margin-right: 0.5rem;
+    max-width: 24px;
+    max-height: 24px;
+  }
+`;
+
+const WarningIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="none" fillRule="evenodd">
+      <path d="M0 0h24v24H0z" />
+      <path
+        fill="currentColor"
+        d="M12 3a9 9 0 110 18 9 9 0 010-18zm1 13v2h-2v-2h2zm0-10v8h-2V6h2z"
+      />
+    </g>
+  </svg>
+);
+
 const weekdays = [0, 1, 2, 3, 4, 5, 6];
 
 type Props = {
   value: number[];
   onChange: (value: number[]) => void;
+  errorText?: string;
 };
 
-const WeekdaysSelector = ({ value = [], onChange }: Props) => {
+const WeekdaysSelector = ({ value = [], onChange, errorText }: Props) => {
   const { t } = useTranslation();
   const [selectedDays, setSelectedDays] = useState<number[]>(value);
 
@@ -59,17 +90,24 @@ const WeekdaysSelector = ({ value = [], onChange }: Props) => {
   };
 
   return (
-    <Wrapper>
-      {weekdays.map((weekday) => (
-        <Day
-          key={`weekday-${weekday}`}
-          onClick={() => handleDayToggle(weekday)}
-          className={value.includes(weekday) ? "active" : ""}
-        >
-          {t(`dayShort.${weekday}`)}
-        </Day>
-      ))}
-    </Wrapper>
+    <div>
+      <Wrapper>
+        {weekdays.map((weekday) => (
+          <Day
+            key={`weekday-${weekday}`}
+            onClick={() => handleDayToggle(weekday)}
+            className={value.includes(weekday) ? "active" : ""}
+          >
+            {t(`dayShort.${weekday}`)}
+          </Day>
+        ))}
+      </Wrapper>
+      {errorText && (
+        <ErrorText>
+          <WarningIcon /> {errorText}
+        </ErrorText>
+      )}
+    </div>
   );
 };
 
