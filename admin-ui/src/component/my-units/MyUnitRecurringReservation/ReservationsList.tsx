@@ -63,14 +63,42 @@ const ReservationList = ({ items }: Props) => {
 const toMondayFirst = (day: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
   day === 0 ? 6 : day - 1;
 
-const validator = RecurringReservationFormSchema.innerType().pick({
-  startingDate: true,
-  endingDate: true,
-  startingTime: true,
-  endingTime: true,
-  repeatOnDays: true,
-  repeatPattern: true,
-});
+const tenYearsInMs = 10 * 365 * 24 * 60 * 60 * 1000;
+
+// TODO duplicated code for refinements because of innerType
+// TODO these aren't shown to the user (since they are here and not in the form validation)
+// after removing the dupes check that this is shown to the user also
+const validator = RecurringReservationFormSchema.innerType()
+  .pick({
+    startingDate: true,
+    endingDate: true,
+    startingTime: true,
+    endingTime: true,
+    repeatOnDays: true,
+    repeatPattern: true,
+  })
+  // TODO should we add startDate >= today? or near at least
+  .refine((schema) => schema.startingDate < schema.endingDate, {
+    message: "start date can't be after end date",
+  })
+  // Need to have a year limit otherwise a single backspace can crash the application (due to computing).
+  // 1.1.2023 -> press backspace => 1.1.203 calculates the interval of 1820 years.
+  // distance(startDate, endDate) < 10 years
+  .refine(
+    (schema) =>
+      Math.abs(schema.endingDate.getTime() - schema.startingDate.getTime()) <
+      tenYearsInMs,
+    {
+      message: "start and end time needs to be within a decade",
+    }
+  )
+  // start time < end time (weird time format)
+  .refine(
+    (schema) =>
+      Number(schema.startingTime.value.replace(":", ".")) <
+      Number(schema.endingTime.value.replace(":", ".")),
+    { message: "start time can't be after end time" }
+  );
 
 type GenInputType = z.infer<typeof validator>;
 

@@ -15,8 +15,8 @@ const Option = z.object({
 const RecurringReservationFormSchema = z
   .object({
     reservationUnit: Option,
-    startingDate: z.date(),
-    endingDate: z.date(),
+    startingDate: z.coerce.date(),
+    endingDate: z.coerce.date(),
     repeatPattern: z.object({
       label: z.string(),
       value: z.literal("weekly").or(z.literal("biweekly")),
@@ -30,8 +30,11 @@ const RecurringReservationFormSchema = z
     bufferTimeBefore: z.boolean(),
     bufferTimeAfter: z.boolean(),
   })
+  // TODO is passthrough necessary?
   .passthrough()
-  .refine((schema) => schema.startingDate < schema.endingDate);
+  .refine((schema) => schema.startingDate < schema.endingDate, {
+    message: "start date can't be after end date",
+  });
 
 type RecurringReservationForm = z.infer<typeof RecurringReservationFormSchema>;
 
