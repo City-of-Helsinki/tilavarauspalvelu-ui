@@ -1,7 +1,6 @@
 import { IconGroup, IconCheck, IconPlus, IconLinkExternal } from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
-import Link from "next/link";
 import NextImage from "next/image";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
@@ -237,21 +236,15 @@ const ReservationUnitCard = ({
               >
                 {t("common:selectReservationUnit")}
               </BlackButton>
-            )}{" "}
-            <Link
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "contents" }}
+            )}
+            <BlackButton
+              variant="secondary"
+              iconRight={<IconLinkExternal aria-hidden />}
+              onClick={() => window.open(link, "_blank")}
+              data-testid="reservation-unit-card__button--link"
             >
-              <BlackButton
-                variant="secondary"
-                iconRight={<IconLinkExternal aria-hidden />}
-                data-testid="reservation-unit-card__button--link"
-              >
-                {t("reservationUnitCard:seeMore")}
-              </BlackButton>
-            </Link>
+              {t("reservationUnitCard:seeMore")}
+            </BlackButton>
           </Actions>
         </Bottom>
       </MainContent>
