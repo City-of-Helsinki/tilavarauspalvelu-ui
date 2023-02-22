@@ -79,40 +79,6 @@ const CommentsTextArea = styled(TextArea)`
   max-width: var(--prose-width);
 `;
 
-const getReservationUnitBuffers = ({
-  reservationUnits,
-  pk,
-}: {
-  reservationUnits?: ReservationUnitType[];
-  pk?: string;
-}) => {
-  if (!reservationUnits || !pk) return undefined;
-
-  const unit = reservationUnits.find((ru) => ru.pk === parseInt(pk, 10));
-  const buffers = {
-    bufferTimeBefore: unit?.bufferTimeBefore || undefined,
-    bufferTimeAfter: unit?.bufferTimeAfter || undefined,
-  };
-  const hasBuffers = Object.values(buffers).some(Boolean);
-
-  return hasBuffers ? buffers : undefined;
-};
-
-const getReservationUnitStartInterval = ({
-  reservationUnits,
-  pk,
-}: {
-  reservationUnits?: ReservationUnitType[];
-  pk?: string;
-}) => {
-  if (!reservationUnits || !pk) return undefined;
-
-  const unit = reservationUnits.find((ru) => ru.pk === parseInt(pk, 10));
-
-  return unit?.reservationStartInterval;
-};
-
-// TODO passing pk: undefined into this is bad, but hooks can't be conditional
 // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
 const useReservationUnitQuery = (unitPk?: number) => {
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
@@ -133,11 +99,6 @@ type Props = {
   onReservation: (res: ReservationsMade) => void;
 };
 
-/* TODO
-  label styling is wrong but it's a project wide problem
-  font-weight: 500 doesn't work at all (Medium font)
-  label line-height is incorrect (1.15, should be 1.5) => HDS problem
-*/
 const MyUnitRecurringReservationForm = ({
   reservationUnits,
   onReservation,
@@ -163,16 +124,6 @@ const MyUnitRecurringReservationForm = ({
   } = form;
 
   const selectedReservationUnit = watch("reservationUnit");
-
-  // TODO these can be replaced by directly using the unit after useReservationUnit
-  const buffers = getReservationUnitBuffers({
-    reservationUnits,
-    pk: selectedReservationUnit?.value,
-  });
-  const startInterval = getReservationUnitStartInterval({
-    reservationUnits,
-    pk: selectedReservationUnit?.value,
-  });
 
   const selectedReservationParams = watch([
     "startingDate",
@@ -201,13 +152,6 @@ const MyUnitRecurringReservationForm = ({
       label: unit?.nameFi ?? "",
       value: String(unit?.pk),
     })) || [];
-
-  const timeSelectionOptions = startInterval
-    ? getDayIntervals("01:00", "23:00", startInterval).map((n) => ({
-        label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
-        value: trimStart(n.substring(0, 5), "0"),
-      }))
-    : [];
 
   const repeatPatternOptions = [
     { value: "weekly", label: t("common.weekly") },
@@ -239,14 +183,30 @@ const MyUnitRecurringReservationForm = ({
     unit ? Number(unit) : undefined
   );
 
-  // Why is this a thing?
-  const renamePkFields = ["ageGroup", "homeCity", "purpose"];
+  const buffers = ((u?: ReservationUnitType) => {
+    if (u == null) {
+      return undefined;
+    }
+    if (u.bufferTimeAfter == null && u.bufferTimeBefore == null) {
+      return undefined;
+    }
+    return {
+      bufferTimeBefore: u?.bufferTimeBefore ?? undefined,
+      bufferTimeAfter: u?.bufferTimeAfter ?? undefined,
+    };
+  })(reservationUnit);
+
+  const startInterval = reservationUnit?.reservationStartInterval;
+
+  const timeSelectionOptions = startInterval
+    ? getDayIntervals("01:00", "23:00", startInterval).map((n) => ({
+        label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
+        value: trimStart(n.substring(0, 5), "0"),
+      }))
+    : [];
 
   const { notifyError } = useNotification();
 
-  // TODO before submitting do a query when the time / dates change to check if the space is available
-  // check against newReservations and display it to the user before submitting
-  // Apollo throws an error on overlapping reservation but we should not send those at all.
   const onSubmit = async (data: RecurringReservationForm) => {
     try {
       const unitPk = Number(data.reservationUnit.value);
@@ -256,6 +216,9 @@ const MyUnitRecurringReservationForm = ({
           .map(camelCase) ?? [];
 
       const metadataSetValues = pick(data, metadataSetFields);
+
+      // Why is this a thing?
+      const renamePkFields = ["ageGroup", "homeCity", "purpose"];
 
       const flattenedMetadataSetValues = zipObject(
         Object.keys(metadataSetValues).map((k) =>
@@ -542,7 +505,11 @@ const MyUnitRecurringReservationForm = ({
             </FullRow>
           ) : null}
           <FullRow>
-            {/* TODO Label is not a label => it's a paragraph but it should be a header or something */}
+            {/* TODO Label is not a label => it's a paragraph but it should be a header or something
+                FIXME this is not an input => it's not accessible
+                the label should be passed into it as a prop like other input fields
+                and the html should have input + label, not just a bunch of divs
+            */}
             <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
             <Controller
               name="repeatOnDays"
