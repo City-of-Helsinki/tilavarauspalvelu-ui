@@ -18,6 +18,7 @@ import {
   ReservationType,
   TermsOfUseType,
   TermsOfUseTermsOfUseTermsTypeChoices,
+  ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import apolloClient from "../../modules/apolloClient";
 import { GET_RESERVATION } from "../../modules/queries/reservation";
@@ -296,18 +297,21 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
             reservationUnit={reservationUnit}
             type="complete"
           />
-          <SecondaryActions>
-            <Link href={reservation.calendarUrl} passHref>
-              <BlackButton
-                variant="secondary"
-                iconRight={<IconCalendar aria-hidden />}
-                disabled={!reservation.calendarUrl}
-                data-testid="reservation__button--calendar-link"
-              >
-                {t("reservations:saveToCalendar")}
-              </BlackButton>
-            </Link>
-          </SecondaryActions>
+          {reservation.state ===
+            ReservationsReservationStateChoices.Confirmed && (
+            <SecondaryActions>
+              <Link href={reservation.calendarUrl} passHref>
+                <BlackButton
+                  variant="secondary"
+                  iconRight={<IconCalendar aria-hidden />}
+                  disabled={!reservation.calendarUrl}
+                  data-testid="reservation__button--calendar-link"
+                >
+                  {t("reservations:saveToCalendar")}
+                </BlackButton>
+              </Link>
+            </SecondaryActions>
+          )}
         </>
       )
     );
