@@ -1,4 +1,4 @@
-import { camelCase, get } from "lodash";
+import { camelCase, get, uniq } from "lodash";
 import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
 import { reservationApplicationFields } from "./types";
 
@@ -14,10 +14,11 @@ export const getReservationApplicationFields = ({
   if (!supportedFields || supportedFields?.length === 0 || !reserveeType)
     return [];
 
-  const fields = get(
-    reservationApplicationFields,
-    reserveeType.toLocaleLowerCase()
-  ).filter((field: string) => supportedFields.includes(field));
+  const fields = uniq<string>(
+    get(reservationApplicationFields, reserveeType.toLocaleLowerCase()).filter(
+      (field: string) => supportedFields.includes(field)
+    )
+  );
 
   for (let i = 0; i < fields.length; i += 1) {
     if (fields[i].includes("billing_")) {
