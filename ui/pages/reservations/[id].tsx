@@ -6,7 +6,6 @@ import router from "next/router";
 import { get, isFinite } from "lodash";
 import { IconCalendar, IconCross, Notification } from "hds-react";
 import { useQuery } from "@apollo/client";
-import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { H2, H4 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
@@ -300,16 +299,15 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
           {reservation.state ===
             ReservationsReservationStateChoices.Confirmed && (
             <SecondaryActions>
-              <Link href={reservation.calendarUrl} passHref>
-                <BlackButton
-                  variant="secondary"
-                  iconRight={<IconCalendar aria-hidden />}
-                  disabled={!reservation.calendarUrl}
-                  data-testid="reservation__button--calendar-link"
-                >
-                  {t("reservations:saveToCalendar")}
-                </BlackButton>
-              </Link>
+              <BlackButton
+                variant="secondary"
+                iconRight={<IconCalendar aria-hidden />}
+                disabled={!reservation.calendarUrl}
+                data-testid="reservation__button--calendar-link"
+                onClick={() => router.push(reservation.calendarUrl)}
+              >
+                {t("reservations:saveToCalendar")}
+              </BlackButton>
             </SecondaryActions>
           )}
         </>
