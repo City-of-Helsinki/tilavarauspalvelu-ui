@@ -12,6 +12,7 @@ import { IconGroup, IconUser } from "hds-react";
 import React, { Fragment } from "react";
 import styled from "styled-components";
 import camelCase from "lodash/camelCase";
+import { useFormContext } from "react-hook-form";
 
 import {
   ReservationMetadataSetType,
@@ -33,7 +34,6 @@ type Props = {
   setReserveeType: React.Dispatch<
     React.SetStateAction<ReservationsReservationReserveeTypeChoices | undefined>
   >;
-  reservation: Reservation;
   generalFields: string[];
   reservationApplicationFields: string[];
   options: Record<string, OptionType[]>;
@@ -141,7 +141,6 @@ const SubheadingByType = ({
 
 const ReservationFormFields = ({
   fields,
-  reservation,
   options,
   t,
   // subheading is needed because application form uses it and requires index / field data to render it
@@ -151,7 +150,6 @@ const ReservationFormFields = ({
   params,
 }: {
   fields: string[];
-  reservation: Reservation;
   // TODO this is bad it just hides unsafe types behind a keymap
   options: Record<string, OptionType[]>;
   t: (key: string) => string;
@@ -164,6 +162,8 @@ const ReservationFormFields = ({
   metadata?: ReservationMetadataSetType;
   params?: { numPersons: { min?: number; max?: number } };
 }) => {
+  const { getValues } = useFormContext<Reservation>();
+
   const fieldsExtended = fields.map((field) => ({
     field,
     required: (metadata?.requiredFields || [])
@@ -193,7 +193,7 @@ const ReservationFormFields = ({
             options={options}
             required={required}
             reserveeType={reserveeType}
-            reservation={reservation}
+            reservation={getValues()}
             params={params}
             t={t}
             data={{
@@ -214,7 +214,6 @@ const MetaFields = ({
   reserveeType,
   setReserveeType,
   generalFields,
-  reservation,
   reservationApplicationFields,
   options,
   t,
@@ -237,7 +236,6 @@ const MetaFields = ({
           options={options}
           fields={generalFields}
           metadata={reservationUnit.metadataSet}
-          reservation={reservation}
           reserveeType="COMMON"
           params={{
             numPersons: {
@@ -281,7 +279,6 @@ const MetaFields = ({
         <ReservationFormFields
           fields={reservationApplicationFields}
           metadata={reservationUnit.metadataSet}
-          reservation={reservation}
           options={options}
           hasSubheading
           reserveeType={reserveeType}

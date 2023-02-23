@@ -13,7 +13,6 @@ import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitType,
 } from "common/types/gql-types";
-import { Reservation } from "common/src/reservation-form/types";
 import { MediumButton } from "../../styles/util";
 import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
@@ -23,7 +22,6 @@ import { PinkBox, Subheading } from "../reservation-unit/ReservationUnitStyles";
 import Sanitize from "../common/Sanitize";
 
 type Props = {
-  reservation: Reservation;
   reservationUnit: ReservationUnitType;
   reserveeType: ReservationsReservationReserveeTypeChoices;
   setReserveeType: React.Dispatch<
@@ -59,7 +57,6 @@ const StyledActionContainer = styled(ActionContainer)`
 `;
 
 const Step0 = ({
-  reservation,
   reservationUnit,
   reserveeType,
   setReserveeType,
@@ -116,7 +113,6 @@ const Step0 = ({
         setReserveeType={setReserveeType}
         generalFields={generalFields}
         reservationApplicationFields={reservationApplicationFields}
-        reservation={reservation}
         t={t}
       />
       <InfoDialog

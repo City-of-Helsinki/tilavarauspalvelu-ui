@@ -574,7 +574,6 @@ const ReservationUnitReservation = ({
               </div>
               {step === 0 && (
                 <Step0
-                  reservation={reservation}
                   reservationUnit={reservationUnit}
                   handleSubmit={handleSubmit(onSubmitStep0)}
                   generalFields={generalFields}
