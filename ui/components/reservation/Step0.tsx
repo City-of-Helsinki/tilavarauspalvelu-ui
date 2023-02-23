@@ -4,7 +4,7 @@
  */
 import { OptionType } from "common/types/common";
 import { IconArrowLeft, IconArrowRight } from "hds-react";
-import React, { useRef } from "react";
+import React from "react";
 import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
@@ -56,6 +56,14 @@ const StyledActionContainer = styled(ActionContainer)`
   padding-top: var(--spacing-xl);
 `;
 
+const LinkLikeButton = styled.button`
+  border: unset;
+  background: unset;
+  color: blue;
+  padding: unset;
+  cursor: pointer;
+`;
+
 const Step0 = ({
   reservationUnit,
   reserveeType,
@@ -68,7 +76,6 @@ const Step0 = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const openPricingTermsRef = useRef();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const termsOfUse = getTranslation(reservationUnit, "termsOfUse");
@@ -88,23 +95,16 @@ const Step0 = ({
         generalFields={generalFields}
         reservationApplicationFields={reservationApplicationFields}
         data={{
-          subventionLabel: (
+          termsForDiscount: (
             <Trans
-              i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink"
-              defaults="Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <a />"
-              // TODO this should be an icon button, not a link (html semantics)
+              i18nKey="reservationApplication:label.common.applyingForFreeOfChargeButton"
+              defaults="Lue lisää <button>alennusperiaatteista</button>"
               components={{
-                a: (
-                  <a
-                    href="#"
-                    ref={openPricingTermsRef}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsDialogOpen(true);
-                    }}
-                  >
-                    alennusperusteisiin
-                  </a>
+                button: (
+                  <LinkLikeButton
+                    type="button"
+                    onClick={() => setIsDialogOpen(true)}
+                  />
                 ),
               }}
             />

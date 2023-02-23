@@ -18,7 +18,7 @@
       "purpose": "Varauksen käyttötarkoitus",
       "numPersons": "Osallistujamäärä",
       "ageGroup": "Ikäryhmä",
-      "applyingForFreeOfChargeWithLink": "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <a />",
+      "applyingForFreeOfChargeButton": "Lue lisää <button>alennusperusteista</button>.",
       "applyingForFreeOfCharge": "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut alennusperusteisiin",
       "freeOfChargeReason": "Perustelut maksuttomaan varaukseen"
     },

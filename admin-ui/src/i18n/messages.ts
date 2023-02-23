@@ -1108,8 +1108,8 @@ const translations: ITranslations = {
         purpose: ["Varauksen käyttötarkoitus"],
         numPersons: ["Osallistujamäärä"],
         ageGroup: ["Ikäryhmä"],
-        applyingForFreeOfChargeWithLink: [
-          "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <1>alennusperusteisiin</1>",
+        applyingForFreeOfChargeButton: [
+          "Lue lisää <button>alennusperusteista</button>.",
         ],
         applyingForFreeOfCharge: [
           "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut alennusperusteisiin",

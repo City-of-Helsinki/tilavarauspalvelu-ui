@@ -34,7 +34,7 @@ type CommonProps = {
   // TODO this should be refactored out to be the translation key
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   data?: {
-    subventionLabel?: JSX.Element | string;
+    termsForDiscount?: JSX.Element | string;
   };
 };
 
@@ -197,13 +197,7 @@ const ReservationFormFields = ({
             reservation={getValues()}
             params={params}
             t={t}
-            data={{
-              ...data,
-              // The link that this uses is only on the ui side of this
-              subventionLabel: t(
-                "reservationApplication:label.common.applyingForFreeOfChargeWithLink"
-              ),
-            }}
+            data={data}
           />
         </Fragment>
       ))}
@@ -251,6 +245,7 @@ const MetaFields = ({
                   : undefined,
             },
           }}
+          data={data}
           t={t}
         />
       </TwoColumnContainer>

@@ -26,7 +26,7 @@ type Props = {
   t: (key: string) => string;
   params?: Record<string, Record<string, string | number>>;
   data?: {
-    subventionLabel?: JSX.Element | string;
+    termsForDiscount?: JSX.Element | string;
   };
 };
 
@@ -246,11 +246,9 @@ const ReservationFormField = ({
         {t("reservationApplication:label.subHeadings.subvention")}
       </Subheading>{" "}
       <ControlledCheckbox {...checkParams} />
-      {/* TODO the subvention label should be here not inside the checkbox
-       * TODO test this
-       * TODO style it nicely (next to the checkbox with flexbox styling)
-       */}
-      {data.subventionLabel != null && data.subventionLabel}
+      {data.termsForDiscount && (
+        <div style={{ marginTop: "0.5rem" }}>{data.termsForDiscount}</div>
+      )}
     </StyledCheckboxWrapper>
   ) : field === "reserveeIsUnregisteredAssociation" ? (
     <StyledCheckboxWrapper key={field} $break={isBreakingColumn}>
