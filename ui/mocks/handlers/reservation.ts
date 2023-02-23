@@ -41,6 +41,16 @@ const createReservation = graphql.mutation<
   { createReservation: ReservationCreateMutationPayload },
   { input: ReservationCreateMutationInput }
 >("createReservation", (req, res, ctx) => {
+  const getPk = (resUnitPk: number): number => {
+    switch (resUnitPk) {
+      case 908:
+      case 909:
+        return 99;
+      default:
+        return 42;
+    }
+  };
+
   const getPrice = (pk: number): number => {
     switch (pk) {
       case 903:
@@ -50,11 +60,13 @@ const createReservation = graphql.mutation<
     }
   };
 
+  const resUnitPk = req.variables?.input?.reservationUnitPks[0];
+
   return res(
     ctx.data({
       createReservation: {
-        pk: 42,
-        price: getPrice(req.variables?.input?.reservationUnitPks[0]),
+        pk: getPk(resUnitPk),
+        price: getPrice(resUnitPk),
         errors: null,
       },
     })
@@ -517,6 +529,10 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
 
     if (pk === 42) {
       data.price = 0;
+    }
+
+    if (pk === 99) {
+      data.description = "";
     }
 
     return res(
