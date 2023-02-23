@@ -29,7 +29,6 @@ import {
   ReservationUnitsReservationUnitReservationKindChoices,
 } from "../../../types/gql-types";
 import { ApplicationRound } from "../../../types/common";
-import { toUIDate } from "../../common/util";
 
 jest.mock("next/config", () => () => ({
   serverRuntimeConfig: {},
