@@ -29,6 +29,7 @@ import {
   ReservationUnitsReservationUnitReservationKindChoices,
 } from "../../../types/gql-types";
 import { ApplicationRound } from "../../../types/common";
+import { toUIDate } from "../../common/util";
 
 jest.mock("next/config", () => () => ({
   serverRuntimeConfig: {},
@@ -809,7 +810,8 @@ describe("getEventBuffers", () => {
 });
 
 describe("isReservationUnitReservable", () => {
-  const date = new Date().toISOString();
+  const dateTime = new Date().toISOString();
+  const date = new Date().toISOString().split("T")[0];
   const reservationUnit: ReservationUnitByPkType = {
     id: "1234",
     allowReservationsWithoutOpeningHours: false,
@@ -828,7 +830,7 @@ describe("isReservationUnitReservable", () => {
     openingHours: {
       openingTimes: [
         {
-          date,
+          date: dateTime,
           startTime: `${date}T04:00:00+00:00`,
           endTime: `${date}T20:00:00+00:00`,
           state: "open",
