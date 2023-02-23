@@ -89,6 +89,7 @@ const WeekdaysSelector = ({ value = [], onChange, errorText }: Props) => {
     }
   };
 
+  // NOTE This is not accessible (even with the role="checkbox")
   return (
     <div>
       <Wrapper>
@@ -97,6 +98,7 @@ const WeekdaysSelector = ({ value = [], onChange, errorText }: Props) => {
             key={`weekday-${weekday}`}
             onClick={() => handleDayToggle(weekday)}
             className={value.includes(weekday) ? "active" : ""}
+            role="checkbox"
           >
             {t(`dayShort.${weekday}`)}
           </Day>
