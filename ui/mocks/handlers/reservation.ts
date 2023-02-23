@@ -35,6 +35,7 @@ import {
   ReservationAdjustTimeMutationPayload,
   ReservationAdjustTimeMutationInput,
 } from "common/types/gql-types";
+import { toUIDate } from "common/src/common/util";
 
 const createReservation = graphql.mutation<
   { createReservation: ReservationCreateMutationPayload },
@@ -975,6 +976,42 @@ const listReservations = graphql.query<Query, QueryReservationsArgs>(
               cancellationRule: null,
               location: null,
               images: [],
+              pricings: [
+                {
+                  begins: toUIDate(addDays(new Date(), 2), "yyyy-MM-dd"),
+                  lowestPrice: 10,
+                  lowestPriceNet: 10 / 1.24,
+                  highestPrice: 30,
+                  highestPriceNet: 30 / 1.24,
+                  priceUnit:
+                    ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+                  pricingType:
+                    ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+                  taxPercentage: {
+                    id: "goier1",
+                    value: 20,
+                  },
+                  status:
+                    ReservationUnitsReservationUnitPricingStatusChoices.Future,
+                },
+                {
+                  begins: toUIDate(new Date(), "yyyy-MM-dd"),
+                  lowestPrice: 20,
+                  lowestPriceNet: 20 / 1.24,
+                  highestPrice: 20,
+                  highestPriceNet: 20 / 1.24,
+                  priceUnit:
+                    ReservationUnitsReservationUnitPricingPriceUnitChoices.Per_15Mins,
+                  pricingType:
+                    ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid,
+                  taxPercentage: {
+                    id: "goier1",
+                    value: 20,
+                  },
+                  status:
+                    ReservationUnitsReservationUnitPricingStatusChoices.Active,
+                },
+              ],
             } as ReservationUnitType,
           ],
         },
