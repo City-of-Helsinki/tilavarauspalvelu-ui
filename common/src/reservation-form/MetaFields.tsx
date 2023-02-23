@@ -280,6 +280,7 @@ const MetaFields = ({
       <ReservationApplicationFieldsContainer>
         <ReservationFormFields
           fields={reservationApplicationFields}
+          metadata={reservationUnit.metadataSet}
           reservation={reservation}
           options={options}
           hasSubheading
