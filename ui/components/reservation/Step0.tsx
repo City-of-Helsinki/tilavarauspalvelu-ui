@@ -4,8 +4,8 @@
  */
 import { OptionType } from "common/types/common";
 import { IconArrowLeft, IconArrowRight } from "hds-react";
-import React from "react";
-import { useTranslation } from "next-i18next";
+import React, { useRef } from "react";
+import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
 import MetaFields from "common/src/reservation-form/MetaFields";
@@ -68,34 +68,8 @@ const Step0 = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  // const openPricingTermsRef = useRef();
+  const openPricingTermsRef = useRef();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
-  // FIXME (this is broken in an earlier commit where we typed the label properly)
-  // This should not be a label but an extra React component that is rendered near the label
-  // because labels are supposed to be text only (not buttons or links).
-  // It isn't shown on the test server either because the link is not defined
-  // TODO it should be an icon button, not a link (html semantics)
-  /* subventionLabel: "FIXME" (
-    <Trans
-    i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink"
-    defaults="Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <a />"
-    components={{
-      a: (
-        <a
-        href="#"
-        ref={openPricingTermsRef}
-        onClick={(e) => {
-          e.preventDefault();
-          setIsDialogOpen(true);
-        }}
-        >
-          alennusperusteisiin
-        </a>
-      ),
-    }}
-    />
-  ) */
 
   const termsOfUse = getTranslation(reservationUnit, "termsOfUse");
 
@@ -113,6 +87,29 @@ const Step0 = ({
         setReserveeType={setReserveeType}
         generalFields={generalFields}
         reservationApplicationFields={reservationApplicationFields}
+        data={{
+          subventionLabel: (
+            <Trans
+              i18nKey="reservationApplication:label.common.applyingForFreeOfChargeWithLink"
+              defaults="Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut <a />"
+              // TODO this should be an icon button, not a link (html semantics)
+              components={{
+                a: (
+                  <a
+                    href="#"
+                    ref={openPricingTermsRef}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsDialogOpen(true);
+                    }}
+                  >
+                    alennusperusteisiin
+                  </a>
+                ),
+              }}
+            />
+          ),
+        }}
         t={t}
       />
       <InfoDialog

@@ -28,16 +28,24 @@ import { OptionType } from "../../types/common";
 import { GroupHeading, Subheading, TwoColumnContainer } from "./styles";
 import IconPremises from "../icons/IconPremises";
 
-type Props = {
-  reservationUnit: ReservationUnitType;
+type CommonProps = {
+  options: Record<string, OptionType[]>;
+  t: (key: string) => string;
+  // TODO this should be refactored out to be the translation key
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
+  data?: {
+    subventionLabel?: JSX.Element | string;
+  };
+};
+
+type Field = string;
+type Props = CommonProps & {
+  reservationUnit: ReservationUnitType;
   setReserveeType: React.Dispatch<
     React.SetStateAction<ReservationsReservationReserveeTypeChoices | undefined>
   >;
-  generalFields: string[];
-  reservationApplicationFields: string[];
-  options: Record<string, OptionType[]>;
-  t: (key: string) => string;
+  generalFields: Field[];
+  reservationApplicationFields: Field[];
 };
 
 const Container = styled.div`
@@ -148,17 +156,10 @@ const ReservationFormFields = ({
   reserveeType,
   metadata,
   params,
-}: {
-  fields: string[];
-  // TODO this is bad it just hides unsafe types behind a keymap
-  options: Record<string, OptionType[]>;
-  t: (key: string) => string;
+  data,
+}: CommonProps & {
+  fields: Field[];
   hasSubheading?: boolean;
-  // TODO this is silly, but it's because this is also the translation key
-  // need to check down the field component if the prop can be renamed.
-  // Use of this is for the general fields we need common translation key
-  // and for the application fields we need the type specific key
-  reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   metadata?: ReservationMetadataSetType;
   params?: { numPersons: { min?: number; max?: number } };
 }) => {
@@ -197,6 +198,7 @@ const ReservationFormFields = ({
             params={params}
             t={t}
             data={{
+              ...data,
               // The link that this uses is only on the ui side of this
               subventionLabel: t(
                 "reservationApplication:label.common.applyingForFreeOfChargeWithLink"
@@ -217,6 +219,7 @@ const MetaFields = ({
   reservationApplicationFields,
   options,
   t,
+  data,
 }: Props) => {
   if (!reservationUnit.metadataSet) {
     return null;
@@ -283,6 +286,7 @@ const MetaFields = ({
           hasSubheading
           reserveeType={reserveeType}
           t={t}
+          data={data}
         />
       </ReservationApplicationFieldsContainer>
     </Container>

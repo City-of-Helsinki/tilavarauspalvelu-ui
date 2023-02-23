@@ -25,7 +25,9 @@ type Props = {
   // and admin is lacking translation namespaces
   t: (key: string) => string;
   params?: Record<string, Record<string, string | number>>;
-  data?: Record<string, string>;
+  data?: {
+    subventionLabel?: JSX.Element | string;
+  };
 };
 
 const StyledCheckboxWrapper = styled(CheckboxWrapper)<{
@@ -126,7 +128,6 @@ const ReservationFormField = ({
   reservation,
   t,
   params = {},
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   data = {},
 }: Props) => {
   const normalizedReserveeType =
@@ -243,9 +244,13 @@ const ReservationFormField = ({
     >
       <Subheading>
         {t("reservationApplication:label.subHeadings.subvention")}
-        {/* TODO the subvention label should be here not inside the checkbox */}
       </Subheading>{" "}
       <ControlledCheckbox {...checkParams} />
+      {/* TODO the subvention label should be here not inside the checkbox
+       * TODO test this
+       * TODO style it nicely (next to the checkbox with flexbox styling)
+       */}
+      {data.subventionLabel != null && data.subventionLabel}
     </StyledCheckboxWrapper>
   ) : field === "reserveeIsUnregisteredAssociation" ? (
     <StyledCheckboxWrapper key={field} $break={isBreakingColumn}>
