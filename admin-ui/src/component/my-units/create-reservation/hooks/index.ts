@@ -1,4 +1,14 @@
+import { useMemo } from "react";
+import {
+  Query,
+  ReservationUnitType,
+  ReservationsReservationReserveeTypeChoices,
+} from "common/types/gql-types";
+import { sortBy } from "lodash";
+import { getReservationApplicationFields } from "common/src/reservation-form/util";
+import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
+import { OPTIONS_QUERY } from "../queries";
 
 // Custom hook to fix admin-ui lacking translation namespaces
 export const useReservationTranslation = () => {
@@ -11,4 +21,70 @@ export const useReservationTranslation = () => {
       : originalT(key);
 
   return { t, ...rest };
+};
+
+export const useApplicatioonFields = (
+  reservationUnit: ReservationUnitType,
+  reserveeType?: ReservationsReservationReserveeTypeChoices
+) => {
+  return useMemo(() => {
+    const reserveeTypeString =
+      reserveeType || ReservationsReservationReserveeTypeChoices.Individual;
+
+    const type = reservationUnit.metadataSet?.supportedFields?.includes(
+      "reservee_type"
+    )
+      ? reserveeTypeString
+      : ReservationsReservationReserveeTypeChoices.Individual;
+
+    return getReservationApplicationFields({
+      supportedFields:
+        reservationUnit.metadataSet?.supportedFields?.filter(
+          (x): x is string => x != null
+        ) ?? [],
+      reserveeType: type,
+      camelCaseOutput: true,
+    });
+  }, [reservationUnit.metadataSet?.supportedFields, reserveeType]);
+};
+
+export const useGeneralFields = (reservationUnit: ReservationUnitType) => {
+  return useMemo(() => {
+    return getReservationApplicationFields({
+      supportedFields:
+        reservationUnit.metadataSet?.supportedFields?.filter(
+          (x): x is string => x != null
+        ) ?? [],
+      reserveeType: "common",
+      camelCaseOutput: true,
+    }).filter((n) => n !== "reserveeType");
+  }, [reservationUnit.metadataSet?.supportedFields]);
+};
+
+export const useOptions = () => {
+  const { data: optionsData } = useQuery<Query>(OPTIONS_QUERY);
+
+  const purpose = sortBy(optionsData?.purposes?.edges || [], "node.nameFi").map(
+    (purposeType) => ({
+      label: purposeType?.node?.nameFi ?? "",
+      value: Number(purposeType?.node?.pk),
+    })
+  );
+
+  const ageGroup = sortBy(
+    optionsData?.ageGroups?.edges || [],
+    "node.minimum"
+  ).map((group) => ({
+    label: `${group?.node?.minimum}-${group?.node?.maximum || ""}`,
+    value: Number(group?.node?.pk),
+  }));
+
+  const homeCity = sortBy(optionsData?.cities?.edges || [], "node.nameFi").map(
+    (cityType) => ({
+      label: cityType?.node?.nameFi ?? "",
+      value: Number(cityType?.node?.pk),
+    })
+  );
+
+  return { ageGroup, purpose, homeCity };
 };
