@@ -57,7 +57,7 @@ const Heading = styled(H4).attrs({ as: "h3" })`
   margin-bottom: var(--spacing-xs);
 `;
 
-const Anchor = styled.a`
+const StyledLink = styled(Link)`
   text-decoration: underline;
   color: var(--color-black-90);
   text-underline-offset: 4px;
@@ -118,15 +118,6 @@ const ReservationInfoCard = ({
     " - "
   );
 
-  const headingContent =
-    type === "confirmed" ? (
-      <Link passHref href={reservationUnitPath(reservationUnit.pk)}>
-        <Anchor>{getTranslation(reservationUnit, "name")}</Anchor>
-      </Link>
-    ) : (
-      getTranslation(reservationUnit, "name")
-    );
-
   const purpose = getTranslation(reservation?.purpose, "name");
 
   const price: string =
@@ -170,7 +161,11 @@ const ReservationInfoCard = ({
         />
       )}
       <Content data-testid="reservation__reservation-info-card__content">
-        <Heading>{headingContent}</Heading>
+        <Heading>
+          <StyledLink href={reservationUnitPath(reservationUnit.pk)}>
+            {getTranslation(reservationUnit, "name")}
+          </StyledLink>
+        </Heading>
         {["confirmed", "complete"].includes(type) && (
           <Subheading>
             {t("reservations:reservationNumber")}: {reservation?.pk}

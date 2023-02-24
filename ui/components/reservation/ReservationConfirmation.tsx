@@ -42,7 +42,7 @@ const ActionContainer2 = styled.div`
   align-items: flex-start;
 `;
 
-const Anchor = styled.a`
+const StyledLink = styled(Link)`
   display: flex;
   align-items: center;
   gap: var(--spacing-2-xs);
@@ -51,9 +51,13 @@ const Anchor = styled.a`
   ${fontMedium}
 `;
 
-const InlineAnchor = styled(Anchor)`
-  display: inline;
-  ${fontRegular};
+const InlineStyledLink = styled(Link)`
+  && {
+    display: inline;
+    color: var(--color-black);
+    text-decoration: underline;
+    ${fontRegular};
+  }
 `;
 
 const ReservationConfirmation = ({
@@ -91,21 +95,31 @@ const ReservationConfirmation = ({
             }`}
             t={t}
             values={{ user: reservation?.user.email }}
-            components={{ bold: <strong />, br: <br /> }}
+            components={{
+              br: <br />,
+              lnk: (
+                <InlineStyledLink href={reservationsUrl}>
+                  Omat varaukset -sivulta
+                </InlineStyledLink>
+              ),
+            }}
           >
-            <InlineAnchor href={reservationsUrl}> </InlineAnchor>
+            {" "}
           </Trans>
         </Paragraph>
-        <ActionContainer1 style={{ marginBottom: "var(--spacing-2-xl)" }}>
-          <BlackButton
-            data-testid="reservation__confirmation--button__calendar-url"
-            onClick={() => router.push(reservation.calendarUrl)}
-            variant="secondary"
-            iconRight={<IconCalendar aria-hidden />}
-          >
-            {t("reservations:saveToCalendar")}
-          </BlackButton>
-        </ActionContainer1>
+        {reservation.state ===
+          ReservationsReservationStateChoices.Confirmed && (
+          <ActionContainer1 style={{ marginBottom: "var(--spacing-2-xl)" }}>
+            <BlackButton
+              data-testid="reservation__confirmation--button__calendar-url"
+              onClick={() => router.push(reservation.calendarUrl)}
+              variant="secondary"
+              iconRight={<IconCalendar aria-hidden />}
+            >
+              {t("reservations:saveToCalendar")}
+            </BlackButton>
+          </ActionContainer1>
+        )}
         {getTranslation(reservationUnit, instructionsKey) && (
           <>
             <Subheading>{t("reservations:reservationInfo")}</Subheading>
@@ -119,23 +133,17 @@ const ReservationConfirmation = ({
             marginTop: "var(--spacing-3-xl)",
           }}
         >
-          <Link href={reservationUnitPath(reservationUnit.pk)} passHref>
-            <Anchor>
-              {t("reservations:backToReservationUnit")}
-              <IconArrowRight aria-hidden size="m" />
-            </Anchor>
-          </Link>
-          <Link href="/" passHref>
-            <Anchor>
-              {t("common:gotoFrontpage")}
-              <IconArrowRight aria-hidden size="m" />
-            </Anchor>
-          </Link>
-          <Link href={reservationsUrl} passHref>
-            <Anchor>
-              {t("common:logout")} <IconSignout size="m" aria-hidden />
-            </Anchor>
-          </Link>
+          <StyledLink href={reservationUnitPath(reservationUnit.pk)}>
+            {t("reservations:backToReservationUnit")}
+            <IconArrowRight aria-hidden size="m" />
+          </StyledLink>
+          <StyledLink href="/">
+            {t("common:gotoFrontpage")}
+            <IconArrowRight aria-hidden size="m" />
+          </StyledLink>
+          <StyledLink href={reservationsUrl}>
+            {t("common:logout")} <IconSignout size="m" aria-hidden />
+          </StyledLink>
         </ActionContainer2>
       </div>
     </Wrapper>

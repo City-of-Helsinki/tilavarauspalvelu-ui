@@ -53,6 +53,7 @@ const Name = styled.div`
     opacity: 0.5;
   }
 
+  color: var(--color-black-90);
   cursor: pointer;
   font-family: var(--font-bold);
   font-weight: 700;
@@ -131,7 +132,7 @@ const RelatedUnits = ({ units }: PropsType): JSX.Element | null => {
                 style={{ marginTop: 0 }}
               />
               <Content>
-                <Link href={reservationUnitPath(unit.pk)} passHref>
+                <Link href={reservationUnitPath(unit.pk)}>
                   <Name>{getReservationUnitName(unit)}</Name>
                 </Link>
                 <Building>{getUnitName(unit.unit)}</Building>
