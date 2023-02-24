@@ -19,7 +19,7 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import styled from "styled-components";
-import { camelCase, get, pick, zipObject } from "lodash";
+import { camelCase, get } from "lodash";
 import { format } from "date-fns";
 import {
   valueForDateInput,
@@ -35,6 +35,7 @@ import { reservationSchema } from "./validator";
 import { ReservationFormType, ReservationType } from "./types";
 import BlockedReservation from "./BlockedReservation";
 import StaffReservation from "./StaffReservation";
+import { flattenMetadata } from "./utils";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -88,21 +89,16 @@ const DialogContent = ({
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
-  const renamePkFields = ["ageGroup", "homeCity", "purpose"];
-
   const onSubmit = async (values: ReservationFormType) => {
     try {
-      const metadataSetFields = (
-        (reservationUnit.metadataSet?.supportedFields || []) as string[]
-      ).map(camelCase);
+      const metadataSetFields =
+        reservationUnit.metadataSet?.supportedFields
+          ?.filter((x): x is string => x != null)
+          .map(camelCase) ?? [];
 
-      const metadataSetValues = pick(values, metadataSetFields);
-
-      const flattenedMetadataSetValues = zipObject(
-        Object.keys(metadataSetValues).map((k) =>
-          renamePkFields.includes(k) ? `${k}Pk` : k
-        ),
-        Object.values(metadataSetValues).map((v) => get(v, "value") || v)
+      const flattenedMetadataSetValues = flattenMetadata(
+        values,
+        metadataSetFields
       );
 
       const input: ReservationStaffCreateMutationInput = {
@@ -290,11 +286,13 @@ const CreateReservationModal = ({
           reservationUnit: reservationUnit?.nameFi,
         })}
       />
-      <DialogContent
-        onClose={onClose}
-        reservationUnit={reservationUnit as ReservationUnitType}
-        start={start}
-      />
+      {reservationUnit != null && (
+        <DialogContent
+          onClose={onClose}
+          reservationUnit={reservationUnit}
+          start={start}
+        />
+      )}
     </Dialog>
   );
 };

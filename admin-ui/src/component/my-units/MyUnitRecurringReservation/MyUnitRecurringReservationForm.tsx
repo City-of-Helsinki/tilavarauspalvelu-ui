@@ -11,7 +11,7 @@ import {
   ReservationStaffCreateMutationPayload,
   ReservationUnitType,
 } from "common/types/gql-types";
-import { camelCase, get, pick, trimStart, zipObject } from "lodash";
+import { camelCase, get, trimStart } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@apollo/client";
@@ -45,6 +45,7 @@ import {
 import MetadataSetForm from "../create-reservation/MetadataSetForm";
 import { ReservationsMade } from "./RecurringReservationDone";
 import { ActionsWrapper } from "./commonStyling";
+import { flattenMetadata } from "../create-reservation/utils";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -183,18 +184,8 @@ const MyUnitRecurringReservationForm = ({
     unit ? Number(unit) : undefined
   );
 
-  const buffers = ((u?: ReservationUnitType) => {
-    if (u == null) {
-      return undefined;
-    }
-    if (u.bufferTimeAfter == null && u.bufferTimeBefore == null) {
-      return undefined;
-    }
-    return {
-      bufferTimeBefore: u?.bufferTimeBefore ?? undefined,
-      bufferTimeAfter: u?.bufferTimeAfter ?? undefined,
-    };
-  })(reservationUnit);
+  const bufferTimeBefore = reservationUnit?.bufferTimeBefore ?? undefined;
+  const bufferTimeAfter = reservationUnit?.bufferTimeAfter ?? undefined;
 
   const startInterval = reservationUnit?.reservationStartInterval;
 
@@ -209,22 +200,19 @@ const MyUnitRecurringReservationForm = ({
 
   const onSubmit = async (data: RecurringReservationForm) => {
     try {
-      const unitPk = Number(data.reservationUnit.value);
+      const unitPk = reservationUnit?.pk;
+      if (unitPk == null) {
+        throw new Error("Reservation unit not selected");
+      }
+
       const metadataSetFields =
         reservationUnit?.metadataSet?.supportedFields
           ?.filter((x): x is string => x != null)
           .map(camelCase) ?? [];
 
-      const metadataSetValues = pick(data, metadataSetFields);
-
-      // Why is this a thing?
-      const renamePkFields = ["ageGroup", "homeCity", "purpose"];
-
-      const flattenedMetadataSetValues = zipObject(
-        Object.keys(metadataSetValues).map((k) =>
-          renamePkFields.includes(k) ? `${k}Pk` : k
-        ),
-        Object.values(metadataSetValues).map((v) => get(v, "value") || v)
+      const flattenedMetadataSetValues = flattenMetadata(
+        data,
+        metadataSetFields
       );
 
       const input: RecurringReservationCreateMutationInput = {
@@ -277,17 +265,17 @@ const MyUnitRecurringReservationForm = ({
 
           try {
             const staffInput: ReservationStaffCreateMutationInput = {
-              reservationUnitPks: [Number(unit)],
+              reservationUnitPks: [unitPk],
               recurringReservationPk:
                 createResponse.createRecurringReservation.pk,
               type: data.typeOfReservation,
               begin: myDateTime(x.date, x.startTime),
               end: myDateTime(x.date, x.endTime),
-              bufferTimeBefore: buffers?.bufferTimeBefore
-                ? String(buffers.bufferTimeBefore)
+              bufferTimeBefore: bufferTimeBefore
+                ? String(bufferTimeBefore)
                 : undefined,
-              bufferTimeAfter: buffers?.bufferTimeAfter
-                ? String(buffers.bufferTimeAfter)
+              bufferTimeAfter: bufferTimeBefore
+                ? String(bufferTimeBefore)
                 : undefined,
               workingMemo: data.comments,
               ...flattenedMetadataSetValues,
@@ -475,33 +463,42 @@ const MyUnitRecurringReservationForm = ({
             />
           </SmallElement>
 
-          {buffers ? (
+          {bufferTimeBefore || bufferTimeAfter ? (
             <FullRow>
               <Label>{t(`${tnamespace}.buffers`)}</Label>
-              {Object.entries(buffers).map(
-                ([key, value]) =>
-                  value && (
-                    <Controller
-                      name={key as keyof RecurringReservationForm}
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id={key}
-                          label={t(`${tnamespace}.${key}`, {
-                            minutes: value / 60,
-                          })}
-                          // TODO why is this converted to string?
-                          // validate and make it a type error if it isn't a string
-                          checked={String(field.value) === "true"}
-                          {...field}
-                          ref={null}
-                          // TODO why is this converted to string?
-                          value={String(field.value)}
-                        />
-                      )}
-                    />
-                  )
-              )}
+              {[
+                { name: "bufferTimeBefore", time: bufferTimeBefore },
+                { name: "bufferTimeAfter", time: bufferTimeAfter },
+              ]
+                .filter(
+                  (
+                    x
+                  ): x is {
+                    name: "bufferTimeBefore" | "bufferTimeAfter";
+                    time: number;
+                  } => x.time != null
+                )
+                .map((x) => (
+                  <Controller
+                    name={x.name}
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id={x.name}
+                        label={t(`${tnamespace}.${x.name}`, {
+                          minutes: x.time / 60,
+                        })}
+                        // TODO why is this converted to string?
+                        // validate and make it a type error if it isn't a string
+                        checked={String(field.value) === "true"}
+                        {...field}
+                        ref={null}
+                        // TODO why is this converted to string?
+                        value={String(field.value)}
+                      />
+                    )}
+                  />
+                ))}
             </FullRow>
           ) : null}
           <FullRow>
