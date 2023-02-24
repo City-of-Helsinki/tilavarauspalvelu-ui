@@ -1,5 +1,5 @@
 import { toUIDate } from "common/src/common/util";
-import { eachDayOfInterval, getDay } from "date-fns";
+import { addDays, eachDayOfInterval, getDay, max, min } from "date-fns";
 import React from "react";
 import styled from "styled-components";
 import { z } from "zod";
@@ -116,23 +116,49 @@ const generateReservations = (
     startingTime,
     endingDate,
     endingTime,
-    // TODO implement repeatPattern
-    // repeatPattern,
+    repeatPattern,
     repeatOnDays,
   } = vals.data;
 
-  const newReservations = eachDayOfInterval({
-    start: startingDate,
-    end: endingDate,
-  })
-    .filter((day) => repeatOnDays.includes(toMondayFirst(getDay(day))))
-    .map((day) => ({
-      date: day,
-      startTime: startingTime.value,
-      endTime: endingTime.value,
-    }));
+  // split it based on weekdays, then combine the intervals
+  // that is repeatOnDays, startingDate => firstRightDays
+  // firstRightDays.map(toInterval(endDate, pattern))
+  //    .reduce(val, [...val], [])
+  // TODO check the edge cases (first day / last day inclusion)
+  // TODO write a test for this (biweekly vs. weekly)
+  try {
+    const sDay = max([startingDate, new Date()]);
+    const firstWeek = eachDayOfInterval({
+      start: sDay,
+      end: min([addDays(sDay, 6), endingDate]),
+    });
 
-  return newReservations;
+    return firstWeek
+      .filter((day) => repeatOnDays.includes(toMondayFirst(getDay(day))))
+      .map((x) =>
+        eachDayOfInterval(
+          {
+            start: x,
+            end: endingDate,
+          },
+          {
+            step: repeatPattern.value === "weekly" ? 7 : 14,
+          }
+        )
+      )
+      .reduce((acc, x) => [...acc, ...x], [])
+      .map((day) => ({
+        date: day,
+        startTime: startingTime.value,
+        endTime: endingTime.value,
+      }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+  } catch (e) {
+    // date-fns throws => ignore (could also alert)
+    console.warn("date-fns exception:", e);
+  }
+
+  return [];
 };
 
 export { ReservationList, generateReservations };
