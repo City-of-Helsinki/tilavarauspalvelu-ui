@@ -18,7 +18,6 @@ import { useMutation, useQuery } from "@apollo/client";
 import { format } from "date-fns";
 import {
   Button,
-  Checkbox,
   DateInput,
   RadioButton,
   Select,
@@ -46,6 +45,8 @@ import MetadataSetForm from "../create-reservation/MetadataSetForm";
 import { ReservationsMade } from "./RecurringReservationDone";
 import { ActionsWrapper } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
+import Loader from "../../Loader";
+import BufferToggles from "../create-reservation/BufferToggles";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -79,6 +80,8 @@ const CommentsTextArea = styled(TextArea)`
   grid-column: 1 / -1;
   max-width: var(--prose-width);
 `;
+
+const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
 // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
 const useReservationUnitQuery = (unitPk?: number) => {
@@ -158,8 +161,6 @@ const MyUnitRecurringReservationForm = ({
     { value: "weekly", label: t("common.weekly") },
     { value: "biweekly", label: t("common.biweekly") },
   ];
-
-  const tnamespace = "MyUnits.RecurringReservationForm";
 
   const [create] = useMutation<
     { createRecurringReservation: RecurringReservationCreateMutationPayload },
@@ -349,7 +350,7 @@ const MyUnitRecurringReservationForm = ({
               render={({ field }) => (
                 <SortedSelect
                   sort
-                  label={t(`${tnamespace}.reservationUnit`)}
+                  label={t(`${TRANS_PREFIX}.reservationUnit`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={reservationUnitOptions}
@@ -370,7 +371,7 @@ const MyUnitRecurringReservationForm = ({
                 <DateInput
                   name={name}
                   id="startingDate"
-                  label={t(`${tnamespace}.startingDate`)}
+                  label={t(`${TRANS_PREFIX}.startingDate`)}
                   minDate={new Date()}
                   placeholder={t("common.select")}
                   onChange={(_, date) => onChange(date)}
@@ -391,7 +392,7 @@ const MyUnitRecurringReservationForm = ({
                 <DateInput
                   id="endingDate"
                   name={name}
-                  label={t(`${tnamespace}.endingDate`)}
+                  label={t(`${TRANS_PREFIX}.endingDate`)}
                   minDate={new Date()}
                   placeholder={t("common.select")}
                   onChange={(_, date) => onChange(date)}
@@ -412,7 +413,7 @@ const MyUnitRecurringReservationForm = ({
                 <SortedSelect
                   {...removeRefParam(field)}
                   sort
-                  label={t(`${tnamespace}.repeatPattern`)}
+                  label={t(`${TRANS_PREFIX}.repeatPattern`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={repeatPatternOptions}
@@ -433,7 +434,7 @@ const MyUnitRecurringReservationForm = ({
                 <Select
                   {...removeRefParam(field)}
                   disabled={!timeSelectionOptions.length}
-                  label={t(`${tnamespace}.startingTime`)}
+                  label={t(`${TRANS_PREFIX}.startingTime`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={timeSelectionOptions}
@@ -452,7 +453,7 @@ const MyUnitRecurringReservationForm = ({
                 <Select
                   {...removeRefParam(field)}
                   disabled={!timeSelectionOptions.length}
-                  label={t(`${tnamespace}.endingTime`)}
+                  label={t(`${TRANS_PREFIX}.endingTime`)}
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={timeSelectionOptions}
@@ -465,54 +466,19 @@ const MyUnitRecurringReservationForm = ({
 
           {bufferTimeBefore || bufferTimeAfter ? (
             <FullRow>
-              <Label>{t(`${tnamespace}.buffers`)}</Label>
-              {[
-                { name: "bufferTimeBefore", time: bufferTimeBefore },
-                { name: "bufferTimeAfter", time: bufferTimeAfter },
-              ]
-                .filter(
-                  (
-                    x
-                  ): x is {
-                    name: "bufferTimeBefore" | "bufferTimeAfter";
-                    time: number;
-                  } => x.time != null
-                )
-                .map((x) => (
-                  <Controller
-                    name={x.name}
-                    control={control}
-                    render={({ field }) => (
-                      <Checkbox
-                        id={x.name}
-                        label={t(`${tnamespace}.${x.name}`, {
-                          minutes: x.time / 60,
-                        })}
-                        // TODO why is this converted to string?
-                        // validate and make it a type error if it isn't a string
-                        checked={String(field.value) === "true"}
-                        {...field}
-                        ref={null}
-                        // TODO why is this converted to string?
-                        value={String(field.value)}
-                      />
-                    )}
-                  />
-                ))}
+              <BufferToggles
+                before={bufferTimeBefore}
+                after={bufferTimeAfter}
+              />
             </FullRow>
           ) : null}
           <FullRow>
-            {/* TODO Label is not a label => it's a paragraph but it should be a header or something
-                FIXME this is not an input => it's not accessible
-                the label should be passed into it as a prop like other input fields
-                and the html should have input + label, not just a bunch of divs
-            */}
-            <Label>{t(`${tnamespace}.repeatOnDays`)}</Label>
             <Controller
               name="repeatOnDays"
               control={control}
               render={({ field: { value, onChange } }) => (
                 <WeekdaysSelector
+                  label={t(`${TRANS_PREFIX}.repeatOnDays`)}
                   value={value}
                   onChange={onChange}
                   errorText={errors.repeatOnDays?.message}
@@ -524,7 +490,7 @@ const MyUnitRecurringReservationForm = ({
           {newReservations ? (
             <FullRow>
               <Label $bold>
-                {t(`${tnamespace}.reservationsList`, {
+                {t(`${TRANS_PREFIX}.reservationsList`, {
                   count: newReservations.length,
                 })}
               </Label>
@@ -537,7 +503,7 @@ const MyUnitRecurringReservationForm = ({
               control={control}
               render={({ field }) => (
                 <SelectionGroup
-                  label={t(`${tnamespace}.typeOfReservation`)}
+                  label={t(`${TRANS_PREFIX}.typeOfReservation`)}
                   required
                   errorText={errors.typeOfReservation?.message}
                 >
@@ -548,7 +514,7 @@ const MyUnitRecurringReservationForm = ({
                         key={v}
                         id={v}
                         checked={v === field.value}
-                        label={t(`${tnamespace}.reservationType.${v}`)}
+                        label={t(`${TRANS_PREFIX}.reservationType.${v}`)}
                         onChange={() => field.onChange(v)}
                       />
                     ))}
@@ -560,7 +526,7 @@ const MyUnitRecurringReservationForm = ({
           <FullRow>
             <TextInput
               id="name"
-              label={t(`${tnamespace}.name`)}
+              label={t(`${TRANS_PREFIX}.name`)}
               required
               {...register("seriesName")}
               errorText={errors.seriesName?.message}
@@ -569,24 +535,22 @@ const MyUnitRecurringReservationForm = ({
           <FullRow>
             <CommentsTextArea
               id="comments"
-              label={t(`${tnamespace}.comments`)}
+              label={t(`${TRANS_PREFIX}.comments`)}
               {...register("comments")}
               errorText={errors.comments?.message}
               required={false}
             />
           </FullRow>
 
-          {/* TODO this should be nicely formatted and translated (can we use Loader even when it's a subset of a form) */}
           {unitLoading ? (
-            <div>Loading metadata</div>
-          ) : !unit || !reservationUnit ? null : (
+            <Loader />
+          ) : reservationUnit != null ? (
             <FullRow>
-              {/* TODO hack to deal with the component not supporting style / styled components */}
               <MetadataSetForm reservationUnit={reservationUnit} />
             </FullRow>
-          )}
+          ) : null}
           <ActionsWrapper>
-            {/* disabled while sending because we have no rollback functionality */}
+            {/* cancel is disabled while sending because we have no rollback */}
             <Button
               variant="secondary"
               onClick={handleCancel}

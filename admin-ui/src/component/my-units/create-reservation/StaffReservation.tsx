@@ -1,41 +1,11 @@
 import React from "react";
-import { Checkbox, SelectionGroup, TextArea } from "hds-react";
-import { Controller, useFormContext } from "react-hook-form";
+import { TextArea } from "hds-react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ReservationUnitType } from "common/types/gql-types";
 import { HR } from "../../lists/components";
 import MetadataSetForm from "./MetadataSetForm";
-
-type BufferControllerProps = {
-  name: "bufferTimeBefore" | "bufferTimeAfter";
-  seconds: number;
-};
-const BufferController = ({ name, seconds }: BufferControllerProps) => {
-  const { t } = useTranslation();
-
-  const { control, setValue } = useFormContext();
-
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <Checkbox
-          id={name}
-          checked={String(field.value) === "true"}
-          label={t(`ReservationDialog.${name}`, {
-            minutes: seconds / 60,
-          })}
-          {...field}
-          value={String(field.value)}
-          onChange={() => {
-            setValue(name, !field.value);
-          }}
-        />
-      )}
-    />
-  );
-};
+import BufferToggles from "./BufferToggles";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -48,22 +18,12 @@ const StaffReservation = ({ reservationUnit }: Props) => {
 
   return (
     <>
-      {reservationUnit.bufferTimeAfter ||
+      {reservationUnit.bufferTimeBefore ||
         (reservationUnit.bufferTimeAfter && (
-          <SelectionGroup label={t("ReservationDialog.buffers")}>
-            {reservationUnit.bufferTimeBefore && (
-              <BufferController
-                name="bufferTimeBefore"
-                seconds={reservationUnit.bufferTimeBefore}
-              />
-            )}
-            {reservationUnit.bufferTimeAfter && (
-              <BufferController
-                name="bufferTimeAfter"
-                seconds={reservationUnit.bufferTimeAfter}
-              />
-            )}
-          </SelectionGroup>
+          <BufferToggles
+            before={reservationUnit.bufferTimeBefore ?? undefined}
+            after={reservationUnit.bufferTimeAfter ?? undefined}
+          />
         ))}
       <TextArea
         label={t("ReservationDialog.comment")}

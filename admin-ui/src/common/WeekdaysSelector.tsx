@@ -1,3 +1,7 @@
+/**
+ * Selector component for weekdays
+ * TODO this not accessible
+ */
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
@@ -51,6 +55,12 @@ const ErrorText = styled.div`
   }
 `;
 
+// TODO this is not a label
+const Label = styled.p<{ $bold?: boolean }>`
+  font-family: var(--fontsize-body-m);
+  font-weight: ${({ $bold }) => ($bold ? "700" : "500")};
+`;
+
 const WarningIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <g fill="none" fillRule="evenodd">
@@ -66,12 +76,18 @@ const WarningIcon = () => (
 const weekdays = [0, 1, 2, 3, 4, 5, 6];
 
 type Props = {
-  value: number[];
+  label: string;
+  value?: number[];
   onChange: (value: number[]) => void;
   errorText?: string;
 };
 
-const WeekdaysSelector = ({ value = [], onChange, errorText }: Props) => {
+const WeekdaysSelector = ({
+  label,
+  value = [],
+  onChange,
+  errorText,
+}: Props) => {
   const { t } = useTranslation();
   const [selectedDays, setSelectedDays] = useState<number[]>(value);
 
@@ -92,6 +108,7 @@ const WeekdaysSelector = ({ value = [], onChange, errorText }: Props) => {
   // NOTE This is not accessible (even with the role="checkbox")
   return (
     <div>
+      <Label>{label}</Label>
       <Wrapper>
         {weekdays.map((weekday) => (
           <Day
