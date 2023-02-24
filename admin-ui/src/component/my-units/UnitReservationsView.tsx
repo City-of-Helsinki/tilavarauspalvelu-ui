@@ -96,13 +96,11 @@ const UnitReservationsView = (): JSX.Element => {
           {t("common.today")}
         </Button>
         <DayNavigation date={begin} onDateChange={onDateChange} />
-        {recurringReservationUrl && (
-          <BasicLink to={recurringReservationUrl}>
-            <Button disabled={false} variant="secondary">
-              {t("MyUnits.Calendar.header.recurringReservation")}
-            </Button>
-          </BasicLink>
-        )}
+        <BasicLink to={recurringReservationUrl ?? ""}>
+          <Button disabled={false} variant="secondary">
+            {t("MyUnits.Calendar.header.recurringReservation")}
+          </Button>
+        </BasicLink>
       </HorisontalFlexWrapper>
       {unitId ? (
         <UnitReservations
