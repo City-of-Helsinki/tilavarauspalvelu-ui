@@ -37,7 +37,6 @@ const UnitReservationsView = (): JSX.Element => {
   const today = formatISO(startOfDay(initialDate));
 
   const [begin, setBegin] = useState(today);
-  // FIXME maybe params (hack below)
   const { unitId } = useParams<Params>();
   const { t } = useTranslation();
   const history = useNavigate();
@@ -66,9 +65,11 @@ const UnitReservationsView = (): JSX.Element => {
     "UnitReservationsView"
   );
 
-  const recurringReservationUrl = `${myUnitUrl(
-    parseInt(unitId ?? "0", 10)
-  )}/recurring-reservation`;
+  // NOTE This should never happen but the code should be restructured so it can't happen
+  const recurringReservationUrl =
+    unitId != null
+      ? `${myUnitUrl(parseInt(unitId, 10))}/recurring-reservation`
+      : null;
 
   return (
     <VerticalFlex>
@@ -95,11 +96,13 @@ const UnitReservationsView = (): JSX.Element => {
           {t("common.today")}
         </Button>
         <DayNavigation date={begin} onDateChange={onDateChange} />
-        <BasicLink to={recurringReservationUrl}>
-          <Button disabled={false} variant="secondary">
-            {t("MyUnits.Calendar.header.recurringReservation")}
-          </Button>
-        </BasicLink>
+        {recurringReservationUrl && (
+          <BasicLink to={recurringReservationUrl}>
+            <Button disabled={false} variant="secondary">
+              {t("MyUnits.Calendar.header.recurringReservation")}
+            </Button>
+          </BasicLink>
+        )}
       </HorisontalFlexWrapper>
       {unitId ? (
         <UnitReservations

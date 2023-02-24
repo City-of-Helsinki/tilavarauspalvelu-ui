@@ -15,8 +15,7 @@ type Props = {
   items: NewReservationListItem[];
 };
 
-// TODO the 22rem for max-height is defined with the label, but scroll doesn't work unless it's defined here
-// check what the real measurement is
+// In the UI spec parent container max height is 22rem, but overflow forces us to define child max-height
 const ListWrapper = styled.div`
   max-height: 18.5rem;
   overflow-y: auto;
@@ -85,12 +84,10 @@ const generateReservations = (
     repeatOnDays,
   } = vals.data;
 
-  // split it based on weekdays, then combine the intervals
-  // that is repeatOnDays, startingDate => firstRightDays
-  // firstRightDays.map(toInterval(endDate, pattern))
-  //    .reduce(val, [...val], [])
-  // TODO check the edge cases (first day / last day inclusion)
-  // TODO write a test for this (biweekly vs. weekly)
+  // TODO write a test for this
+  //  - (biweekly vs. weekly)
+  //  - edge cases (first day / last day inclusion)
+  //  - empty / invalid ranges (start > end; start === end etc.)
   try {
     const sDay = max([startingDate, new Date()]);
     const firstWeek = eachDayOfInterval({
@@ -119,7 +116,7 @@ const generateReservations = (
       }))
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   } catch (e) {
-    // date-fns throws => ignore (could also alert)
+    // date-fns throws => don't crash
     console.warn("date-fns exception:", e);
   }
 
