@@ -31,7 +31,7 @@ import { removeRefParam } from "common/src/reservation-form/util";
 import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
-import { WeekdaysSelector } from "../../../common/WeekdaysSelector";
+import { WeekdaysSelector } from "./WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
 import { generateReservations, ReservationList } from "./ReservationsList";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
