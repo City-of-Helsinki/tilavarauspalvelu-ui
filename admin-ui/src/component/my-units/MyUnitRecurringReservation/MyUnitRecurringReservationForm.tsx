@@ -338,6 +338,9 @@ const MyUnitRecurringReservationForm = ({
     navigate(-1);
   };
 
+  const translateError = (errorMsg?: string) =>
+    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : undefined;
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -349,6 +352,7 @@ const MyUnitRecurringReservationForm = ({
               defaultValue={{ label: "", value: "" }}
               render={({ field }) => (
                 <SortedSelect
+                  {...removeRefParam(field)}
                   sort
                   label={t(`${TRANS_PREFIX}.reservationUnit`)}
                   multiselect={false}
@@ -356,8 +360,7 @@ const MyUnitRecurringReservationForm = ({
                   options={reservationUnitOptions}
                   required
                   invalid={errors.reservationUnit != null}
-                  error={errors.reservationUnit?.label?.message}
-                  {...removeRefParam(field)}
+                  error={translateError(errors.reservationUnit?.message)}
                 />
               )}
             />
@@ -378,7 +381,7 @@ const MyUnitRecurringReservationForm = ({
                   disableConfirmation
                   language="fi"
                   required
-                  errorText={errors.startingDate?.message}
+                  errorText={translateError(errors.startingDate?.message)}
                 />
               )}
             />
@@ -399,7 +402,7 @@ const MyUnitRecurringReservationForm = ({
                   disableConfirmation
                   language="fi"
                   required
-                  errorText={errors.endingDate?.message}
+                  errorText={translateError(errors.endingDate?.message)}
                 />
               )}
             />
@@ -418,8 +421,8 @@ const MyUnitRecurringReservationForm = ({
                   placeholder={t("common.select")}
                   options={repeatPatternOptions}
                   required
-                  invalid={errors.repeatPattern?.label?.message != null}
-                  error={errors.repeatPattern?.label?.message}
+                  invalid={errors.repeatPattern != null}
+                  error={translateError(errors.repeatPattern?.message)}
                 />
               )}
             />
@@ -438,8 +441,9 @@ const MyUnitRecurringReservationForm = ({
                   multiselect={false}
                   placeholder={t("common.select")}
                   options={timeSelectionOptions}
+                  invalid={errors.startingTime != null}
                   required
-                  error={errors.startingTime?.label?.message}
+                  error={translateError(errors.startingTime?.message)}
                 />
               )}
             />
@@ -458,7 +462,8 @@ const MyUnitRecurringReservationForm = ({
                   placeholder={t("common.select")}
                   options={timeSelectionOptions}
                   required
-                  error={errors.endingTime?.message}
+                  invalid={errors.endingTime != null}
+                  error={translateError(errors.endingTime?.message)}
                 />
               )}
             />
@@ -481,13 +486,13 @@ const MyUnitRecurringReservationForm = ({
                   label={t(`${TRANS_PREFIX}.repeatOnDays`)}
                   value={value}
                   onChange={onChange}
-                  errorText={errors.repeatOnDays?.message}
+                  errorText={translateError(errors.repeatOnDays?.message)}
                 />
               )}
             />
           </FullRow>
 
-          {newReservations ? (
+          {newReservations && (
             <FullRow>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
@@ -496,7 +501,8 @@ const MyUnitRecurringReservationForm = ({
               </Label>
               <ReservationList items={newReservations} />
             </FullRow>
-          ) : null}
+          )}
+
           <FullRow>
             <Controller
               name="typeOfReservation"
@@ -505,7 +511,7 @@ const MyUnitRecurringReservationForm = ({
                 <SelectionGroup
                   label={t(`${TRANS_PREFIX}.typeOfReservation`)}
                   required
-                  errorText={errors.typeOfReservation?.message}
+                  errorText={translateError(errors.typeOfReservation?.message)}
                 >
                   {Object.values(ReservationType)
                     .filter((v) => typeof v === "string")
@@ -529,7 +535,7 @@ const MyUnitRecurringReservationForm = ({
               label={t(`${TRANS_PREFIX}.name`)}
               required
               {...register("seriesName")}
-              errorText={errors.seriesName?.message}
+              errorText={translateError(errors.seriesName?.message)}
             />
           </FullRow>
           <FullRow>
@@ -537,7 +543,7 @@ const MyUnitRecurringReservationForm = ({
               id="comments"
               label={t(`${TRANS_PREFIX}.comments`)}
               {...register("comments")}
-              errorText={errors.comments?.message}
+              errorText={translateError(errors.comments?.message)}
               required={false}
             />
           </FullRow>

@@ -306,9 +306,11 @@ const translations: ITranslations = {
         failedTitle: ["Päällekkäiset varaukset"],
         successTitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
-        // TODO pyhapaivat not implemented
         failureInfo: [
-          "{{conflicts}} / {{total}} epäonnistui päällekkäisyyksien takia. (Pyhäpäivällisten varausten määrä) / {{total}} varaus osuu pyhäpäivälle, mutta varaus päivälle on silti tehty.",
+          "{{conflicts}} / {{total}} epäonnistui päällekkäisyyksien takia.",
+        ],
+        holidayInfo: [
+          "{{holidays}} / {{total}} varaus osuu pyhäpäivälle, mutta varaus päivälle on silti tehty.",
         ],
         failureInfoSecondParagraph: [
           "Voit halutessasi etsiä näille toistoille uuden ajan varauksen sivulta.",
@@ -338,6 +340,22 @@ const translations: ITranslations = {
       },
       bufferTimeBefore: ["Ennen vuoroa ({{minutes}} min)"],
       bufferTimeAfter: ["Vuoron jälkeen ({{minutes}} min)"],
+      errors: {
+        "Invalid date": ["Virheellinen päivämäärä"],
+        "Start date can't be in the past": ["Aloitusaika menneisyydessä"],
+        "End time needs to be after start.": [
+          "Lopetusajan pitää olla aloitusajan jälkeen",
+        ],
+        "Start date can't be after end date.": [
+          "Ensimmaisen päivän pitää olla ennen viimeistä päivää.",
+        ],
+        "Array must contain at least 1 element(s)": [
+          "Valitse vähintään yksi päivä",
+        ],
+        "Start and end time needs to be within a decade.": [
+          "Aikaväli pitää olla alle kymmenen vuotta",
+        ],
+      },
     },
   },
   Application: {
