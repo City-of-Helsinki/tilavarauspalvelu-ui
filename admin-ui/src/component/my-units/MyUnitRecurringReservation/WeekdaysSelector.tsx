@@ -39,6 +39,7 @@ const Day = styled.button`
 
 // Custom copy of HDS error field component which isn't exported
 const ErrorText = styled.div`
+  --icon-size: var(--fontsize-body-m);
   position: relative;
   color: var(--helper-color-invalid);
   padding-left: calc(var(--icon-size) + var(--spacing-2-xs));
