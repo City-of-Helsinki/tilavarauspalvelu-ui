@@ -335,6 +335,7 @@ const MyUnitRecurringReservationForm = ({
                 <DateInput
                   name={name}
                   id="startingDate"
+                  disabled={reservationUnit == null}
                   label={t(`${TRANS_PREFIX}.startingDate`)}
                   minDate={new Date()}
                   placeholder={t("common.select")}
@@ -356,6 +357,7 @@ const MyUnitRecurringReservationForm = ({
                 <DateInput
                   id="endingDate"
                   name={name}
+                  disabled={reservationUnit == null}
                   label={t(`${TRANS_PREFIX}.endingDate`)}
                   minDate={new Date()}
                   placeholder={t("common.select")}
@@ -377,6 +379,7 @@ const MyUnitRecurringReservationForm = ({
                 <SortedSelect
                   {...removeRefParam(field)}
                   sort
+                  disabled={reservationUnit == null}
                   label={t(`${TRANS_PREFIX}.repeatPattern`)}
                   multiselect={false}
                   placeholder={t("common.select")}
@@ -445,6 +448,7 @@ const MyUnitRecurringReservationForm = ({
               render={({ field: { value, onChange } }) => (
                 <WeekdaysSelector
                   label={t(`${TRANS_PREFIX}.repeatOnDays`)}
+                  disabled={reservationUnit == null}
                   value={value}
                   onChange={onChange}
                   errorText={translateError(errors.repeatOnDays?.message)}
@@ -471,6 +475,7 @@ const MyUnitRecurringReservationForm = ({
               render={({ field }) => (
                 <SelectionGroup
                   label={t(`${TRANS_PREFIX}.typeOfReservation`)}
+                  disabled={reservationUnit == null}
                   required
                   errorText={translateError(errors.typeOfReservation?.message)}
                 >
@@ -493,6 +498,7 @@ const MyUnitRecurringReservationForm = ({
           <FullRow>
             <TextInput
               id="name"
+              disabled={reservationUnit == null}
               label={t(`${TRANS_PREFIX}.name`)}
               required
               {...register("seriesName")}
@@ -502,6 +508,7 @@ const MyUnitRecurringReservationForm = ({
           <FullRow>
             <CommentsTextArea
               id="comments"
+              disabled={reservationUnit == null}
               label={t(`${TRANS_PREFIX}.comments`)}
               {...register("comments")}
               errorText={translateError(errors.comments?.message)}

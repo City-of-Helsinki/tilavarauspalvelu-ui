@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   gap: var(--spacing-s);
 `;
 
-const Day = styled.div`
+const Day = styled.button`
   background-color: var(--color-black-5);
   border: 2px solid var(--color-black-5);
   color: var(--color-black);
@@ -78,6 +78,7 @@ const weekdays = [0, 1, 2, 3, 4, 5, 6];
 type Props = {
   label: string;
   value?: number[];
+  disabled?: boolean;
   onChange: (value: number[]) => void;
   errorText?: string;
 };
@@ -85,6 +86,7 @@ type Props = {
 const WeekdaysSelector = ({
   label,
   value = [],
+  disabled = false,
   onChange,
   errorText,
 }: Props) => {
@@ -113,6 +115,7 @@ const WeekdaysSelector = ({
         {weekdays.map((weekday) => (
           <Day
             key={`weekday-${weekday}`}
+            disabled={disabled}
             onClick={() => handleDayToggle(weekday)}
             className={value.includes(weekday) ? "active" : ""}
             role="checkbox"
@@ -121,7 +124,7 @@ const WeekdaysSelector = ({
           </Day>
         ))}
       </Wrapper>
-      {errorText && (
+      {!disabled && errorText && (
         <ErrorText>
           <WarningIcon /> {errorText}
         </ErrorText>
