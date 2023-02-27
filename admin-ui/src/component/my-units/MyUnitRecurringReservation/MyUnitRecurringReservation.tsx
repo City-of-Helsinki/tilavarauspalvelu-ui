@@ -1,25 +1,18 @@
-import { useQuery } from "@apollo/client";
 import { H1 } from "common/src/common/typography";
-import {
-  Query,
-  QueryUnitsArgs,
-  ReservationUnitType,
-} from "common/types/gql-types";
 import { Button, IconAngleLeft } from "hds-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { myUnitUrl } from "../../../common/urls";
-import { useNotification } from "../../../context/NotificationContext";
 import { Container } from "../../../styles/layout";
 import { BasicLink } from "../../../styles/util";
 import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
-import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { MyUnitRecurringReservationForm } from "./MyUnitRecurringReservationForm";
 import type { ReservationsMade } from "./RecurringReservationDone";
 import RecurringSuccess from "./RecurringReservationDone";
+import { useRecurringReservationsUnits } from "./hooks";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-xs);
@@ -30,69 +23,52 @@ type Params = {
   reservationUnitId: string;
 };
 
-const MyUnitRecurringReservation = () => {
-  const [sent, setSent] = useState<ReservationsMade | null>(null);
-  const { notifyError } = useNotification();
+const BackLinkHeader = ({ unitId }: { unitId: number }) => {
   const { t } = useTranslation();
-  // FIXME maybe params need better handling
-  const { unitId } = useParams<Params>();
+  const previousUrl = myUnitUrl(unitId);
 
-  const previousUrl = myUnitUrl(parseInt(unitId ?? "0", 10));
-  const { loading, data: unitData } = useQuery<Query, QueryUnitsArgs>(
-    RECURRING_RESERVATION_UNIT_QUERY,
-    {
-      variables: {
-        pk: [unitId ?? "0"],
-        offset: 0,
-      },
-      onError: (err) => {
-        notifyError(err.message);
-      },
-    }
+  return (
+    <PreviousLinkWrapper>
+      <BasicLink to={previousUrl}>
+        <Button
+          aria-label={t("common.prev")}
+          size="small"
+          variant="supplementary"
+          iconLeft={<IconAngleLeft />}
+        >
+          {t("common.prev")}
+        </Button>
+      </BasicLink>
+    </PreviousLinkWrapper>
   );
-  const unit = unitData?.units?.edges[0];
-  const reservationUnits = unit?.node?.reservationUnits?.filter(
-    (item): item is ReservationUnitType => !!item
-  );
+};
 
-  const handleReservation = (res: ReservationsMade) => {
-    setSent(res);
-  };
+const MyUnitRecurringReservation = ({ unitId }: { unitId: number }) => {
+  const [sent, setSent] = useState<ReservationsMade | null>(null);
+  const { t } = useTranslation();
+
+  const { loading, reservationUnits } = useRecurringReservationsUnits(unitId);
 
   if (loading) return <Loader />;
 
   return (
     <>
-      <PreviousLinkWrapper>
-        <BasicLink to={previousUrl}>
-          <Button
-            aria-label={t("common.prev")}
-            size="small"
-            variant="supplementary"
-            iconLeft={<IconAngleLeft />}
-          >
-            {t("common.prev")}
-          </Button>
-        </BasicLink>
-      </PreviousLinkWrapper>
-
+      <BackLinkHeader unitId={unitId} />
       <Container>
         {sent != null ? (
           <RecurringSuccess data={sent} />
         ) : (
           <>
-            {/* TODO translation */}
-            <H1 $legacy>Tee toistuva varaus</H1>
+            <H1 $legacy>{t("MyUnits.RecurringReservation.pageTitle")}</H1>
             {reservationUnits != null && reservationUnits.length > 0 ? (
               <MyUnitRecurringReservationForm
-                onReservation={handleReservation}
+                onReservation={setSent}
                 reservationUnits={reservationUnits}
               />
             ) : (
-              <div>
-                WIP: no reservation units this should block the button on the
-                previous page
-              </div>
+              <p>
+                {t("MyUnits.RecurringReservation.error.notPossibleForThisUnit")}
+              </p>
             )}
           </>
         )}
@@ -101,4 +77,22 @@ const MyUnitRecurringReservation = () => {
   );
 };
 
-export default withMainMenu(MyUnitRecurringReservation);
+// Handle invalid route params
+const MyUnitRecurringReservationRouteWrapper = () => {
+  const { t } = useTranslation();
+  const { unitId } = useParams<Params>();
+
+  if (unitId == null || Number.isNaN(parseInt(unitId, 10))) {
+    return (
+      <>
+        <BackLinkHeader unitId={0} />
+        <Container>
+          <div>{t("MyUnits.RecurringReservation.error.invalidUnitId")}</div>
+        </Container>
+      </>
+    );
+  }
+  return <MyUnitRecurringReservation unitId={parseInt(unitId, 10)} />;
+};
+
+export default withMainMenu(MyUnitRecurringReservationRouteWrapper);

@@ -301,6 +301,13 @@ const translations: ITranslations = {
       },
     },
     RecurringReservation: {
+      error: {
+        invalidUnitId: ["Virheellinen yksikön numero."],
+        notPossibleForThisUnit: [
+          "Tälle yksikölle ei ole mahdollista tehdä toistuvaa varausta.",
+        ],
+      },
+      pageTitle: ["Tee toistuva varaus"],
       Confirmation: {
         title: ["Toistuva varaus tehty"],
         failedTitle: ["Päällekkäiset varaukset"],

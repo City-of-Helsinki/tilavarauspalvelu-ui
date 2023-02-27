@@ -1,7 +1,15 @@
 import { useMemo } from "react";
+import { useQuery } from "@apollo/client";
+import type {
+  Query,
+  QueryUnitsArgs,
+  ReservationUnitType,
+} from "common/types/gql-types";
 import type { UseFormReturn } from "react-hook-form";
 import { generateReservations } from "./ReservationsList";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
+import { useNotification } from "../../../context/NotificationContext";
+import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 
 export const useMultipleReservation = (
   form: UseFormReturn<RecurringReservationForm>
@@ -29,4 +37,29 @@ export const useMultipleReservation = (
       }),
     [selectedReservationParams]
   );
+};
+
+// NOTE pks are integers even though the query uses strings
+export const useRecurringReservationsUnits = (unitId: number) => {
+  const { notifyError } = useNotification();
+
+  const { loading, data } = useQuery<Query, QueryUnitsArgs>(
+    RECURRING_RESERVATION_UNIT_QUERY,
+    {
+      variables: {
+        pk: [String(unitId)],
+        offset: 0,
+      },
+      onError: (err) => {
+        notifyError(err.message);
+      },
+    }
+  );
+
+  const unit = data?.units?.edges[0];
+  const reservationUnits = unit?.node?.reservationUnits?.filter(
+    (item): item is ReservationUnitType => !!item
+  );
+
+  return { loading, reservationUnits };
 };
