@@ -58,19 +58,10 @@ const Grid = styled.div`
   gap: 1rem 2rem;
 `;
 
-const FullRow = styled.div`
-  grid-column: 1 / -1;
+const Element = styled.div<{ $wide?: boolean; $start?: boolean }>`
+  grid-column: ${({ $wide, $start }) =>
+    $wide ? "1 / -1" : $start ? "1 / span 1" : "auto / span 1"};
   max-width: var(--prose-width);
-`;
-
-// TODO parametrize (1 for start / auto for other)
-// TODO if possible remove the extra div from Controller
-const SmallElementRowBegin = styled.div`
-  grid-column: 1 / span 1;
-`;
-
-const SmallElement = styled.div`
-  grid-column: auto / span 1;
 `;
 
 const CommentsTextArea = styled(TextArea)`
@@ -307,7 +298,7 @@ const MyUnitRecurringReservationForm = ({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid>
-          <SmallElementRowBegin>
+          <Element $start>
             <Controller
               name="reservationUnit"
               control={control}
@@ -326,9 +317,9 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallElementRowBegin>
+          </Element>
 
-          <SmallElementRowBegin>
+          <Element $start>
             <Controller
               name="startingDate"
               control={control}
@@ -348,9 +339,9 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallElementRowBegin>
+          </Element>
 
-          <SmallElement>
+          <Element>
             <Controller
               name="endingDate"
               control={control}
@@ -370,8 +361,8 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallElement>
-          <SmallElement>
+          </Element>
+          <Element>
             <Controller
               name="repeatPattern"
               control={control}
@@ -391,9 +382,9 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallElement>
+          </Element>
 
-          <SmallElementRowBegin>
+          <Element $start>
             <Controller
               name="startingTime"
               control={control}
@@ -412,8 +403,8 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallElementRowBegin>
-          <SmallElement>
+          </Element>
+          <Element>
             <Controller
               name="endingTime"
               control={control}
@@ -432,17 +423,17 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </SmallElement>
+          </Element>
 
           {bufferTimeBefore || bufferTimeAfter ? (
-            <FullRow>
+            <Element $wide>
               <BufferToggles
                 before={bufferTimeBefore}
                 after={bufferTimeAfter}
               />
-            </FullRow>
+            </Element>
           ) : null}
-          <FullRow>
+          <Element $start>
             <Controller
               name="repeatOnDays"
               control={control}
@@ -456,20 +447,20 @@ const MyUnitRecurringReservationForm = ({
                 />
               )}
             />
-          </FullRow>
+          </Element>
 
           {newReservations && (
-            <FullRow>
+            <Element $wide>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
                   count: newReservations.length,
                 })}
               </Label>
               <ReservationList items={newReservations} />
-            </FullRow>
+            </Element>
           )}
 
-          <FullRow>
+          <Element $wide>
             <Controller
               name="typeOfReservation"
               control={control}
@@ -494,9 +485,9 @@ const MyUnitRecurringReservationForm = ({
                 </SelectionGroup>
               )}
             />
-          </FullRow>
+          </Element>
 
-          <FullRow>
+          <Element $wide>
             <TextInput
               id="name"
               disabled={reservationUnit == null}
@@ -505,8 +496,8 @@ const MyUnitRecurringReservationForm = ({
               {...register("seriesName")}
               errorText={translateError(errors.seriesName?.message)}
             />
-          </FullRow>
-          <FullRow>
+          </Element>
+          <Element $wide>
             <CommentsTextArea
               id="comments"
               disabled={reservationUnit == null}
@@ -515,14 +506,14 @@ const MyUnitRecurringReservationForm = ({
               errorText={translateError(errors.comments?.message)}
               required={false}
             />
-          </FullRow>
+          </Element>
 
           {unitLoading ? (
             <Loader />
           ) : reservationUnit != null ? (
-            <FullRow>
+            <Element $wide>
               <MetadataSetForm reservationUnit={reservationUnit} />
-            </FullRow>
+            </Element>
           ) : null}
           <ActionsWrapper>
             {/* cancel is disabled while sending because we have no rollback */}
