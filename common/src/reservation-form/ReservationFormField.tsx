@@ -221,7 +221,11 @@ const ReservationFormField = ({
       rules={{ required }}
       render={({ field: formField }) => (
         <StyledSelect
-          label={label}
+          // TODO some (like this) get the * added by the component
+          // others (so far seems all the others) get it from the label text.
+          label={t(
+            `reservationApplication:label.${normalizedReserveeType}.${field}`
+          )}
           id={field}
           options={options[field]}
           defaultValue={options[field].find(
