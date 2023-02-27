@@ -10,10 +10,8 @@ import {
   TimeInput,
 } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery } from "@apollo/client";
-import {
-  Query,
-  QueryReservationUnitsArgs,
+import { useMutation } from "@apollo/client";
+import type {
   ReservationStaffCreateMutationInput,
   ReservationStaffCreateMutationPayload,
   ReservationUnitType,
@@ -28,7 +26,7 @@ import {
 import { formatDate } from "../../../common/util";
 import { VerticalFlex } from "../../../styles/layout";
 import { useModal } from "../../../context/ModalContext";
-import { CREATE_STAFF_RESERVATION, RESERVATION_UNIT_QUERY } from "./queries";
+import { CREATE_STAFF_RESERVATION } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
 import { reservationSchema } from "./validator";
@@ -36,6 +34,7 @@ import { ReservationFormType, ReservationType } from "./types";
 import BlockedReservation from "./BlockedReservation";
 import StaffReservation from "./StaffReservation";
 import { flattenMetadata } from "./utils";
+import { useReservationUnitQuery } from "../hooks";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -257,18 +256,12 @@ const CreateReservationModal = ({
   const { isOpen } = useModal();
   const { t } = useTranslation();
 
-  const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
-    RESERVATION_UNIT_QUERY,
-    {
-      variables: { pk: [`${reservationUnitId}`] },
-    }
-  );
+  const { reservationUnit, loading } =
+    useReservationUnitQuery(reservationUnitId);
 
   if (loading) {
     return <Loader />;
   }
-
-  const reservationUnit = data?.reservationUnits?.edges.find((ru) => ru)?.node;
 
   return (
     <Dialog

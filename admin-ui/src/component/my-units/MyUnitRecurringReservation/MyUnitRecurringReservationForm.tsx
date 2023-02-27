@@ -42,7 +42,8 @@ import { ActionsWrapper } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
 import Loader from "../../Loader";
 import BufferToggles from "../create-reservation/BufferToggles";
-import { useMultipleReservation, useReservationUnitQuery } from "./hooks";
+import { useMultipleReservation } from "./hooks";
+import { useReservationUnitQuery } from "../hooks";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
