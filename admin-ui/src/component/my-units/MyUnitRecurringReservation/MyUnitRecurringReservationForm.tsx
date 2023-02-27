@@ -1,10 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getDayIntervals } from "common/src/calendar/util";
-import {
+import type {
   ErrorType,
-  Query,
-  QueryReservationUnitsArgs,
   RecurringReservationCreateMutationInput,
   RecurringReservationCreateMutationPayload,
   ReservationStaffCreateMutationInput,
@@ -14,7 +12,7 @@ import {
 import { camelCase, get, trimStart } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { format } from "date-fns";
 import {
   Button,
@@ -33,20 +31,18 @@ import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "./WeekdaysSelector";
 import { ReservationType } from "../create-reservation/types";
-import { generateReservations, ReservationList } from "./ReservationsList";
+import { ReservationList } from "./ReservationsList";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
-import {
-  CREATE_STAFF_RESERVATION,
-  RESERVATION_UNIT_QUERY,
-} from "../create-reservation/queries";
+import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 import MetadataSetForm from "../create-reservation/MetadataSetForm";
 import { ReservationsMade } from "./RecurringReservationDone";
 import { ActionsWrapper } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
 import Loader from "../../Loader";
 import BufferToggles from "../create-reservation/BufferToggles";
+import { useMultipleReservation, useReservationUnitQuery } from "./hooks";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -83,21 +79,6 @@ const CommentsTextArea = styled(TextArea)`
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
-// TODO this should be combined with the code in CreateReservationModal (duplicated for now)
-const useReservationUnitQuery = (unitPk?: number) => {
-  const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
-    RESERVATION_UNIT_QUERY,
-    {
-      variables: { pk: [`${unitPk}`] },
-    }
-  );
-
-  const reservationUnit =
-    data?.reservationUnits?.edges.find((ru) => ru)?.node ?? undefined;
-
-  return { reservationUnit, loading };
-};
-
 type Props = {
   reservationUnits: ReservationUnitType[];
   onReservation: (res: ReservationsMade) => void;
@@ -129,27 +110,7 @@ const MyUnitRecurringReservationForm = ({
 
   const selectedReservationUnit = watch("reservationUnit");
 
-  const selectedReservationParams = watch([
-    "startingDate",
-    "endingDate",
-    "startingTime",
-    "endingTime",
-    "repeatPattern",
-    "repeatOnDays",
-  ]);
-
-  const newReservations = useMemo(
-    () =>
-      generateReservations({
-        startingDate: selectedReservationParams[0],
-        endingDate: selectedReservationParams[1],
-        startingTime: selectedReservationParams[2],
-        endingTime: selectedReservationParams[3],
-        repeatPattern: selectedReservationParams[4],
-        repeatOnDays: selectedReservationParams[5],
-      }),
-    [selectedReservationParams]
-  );
+  const newReservations = useMultipleReservation(form);
 
   const reservationUnitOptions =
     reservationUnits.map((unit) => ({
