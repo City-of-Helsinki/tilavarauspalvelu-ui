@@ -203,7 +203,7 @@ const Title = styled(H2).attrs({ as: "h1" })`
   }
 `;
 
-const PinkBox = styled.div<{ $isHiddenOnMobile: boolean }>`
+const PinkBox = styled.div`
   margin-top: var(--spacing-m);
   padding: 1px var(--spacing-m) var(--spacing-m);
   background-color: var(--color-suomenlinna-light);
@@ -219,11 +219,6 @@ const PinkBox = styled.div<{ $isHiddenOnMobile: boolean }>`
 
   ${Subheading} {
     margin-top: var(--spacing-m);
-  }
-
-  @media (max-width: ${breakpoints.m}) {
-    display: ${({ $isHiddenOnMobile }) =>
-      $isHiddenOnMobile ? "none" : "block"};
   }
 `;
 
@@ -575,7 +570,7 @@ const ReservationUnitReservation = ({
                 shouldDisplayReservationUnitPrice
               }
             />
-            <PinkBox $isHiddenOnMobile={step > 0}>
+            <PinkBox>
               <Subheading>
                 {t("reservations:reservationInfoBoxHeading")}
               </Subheading>
