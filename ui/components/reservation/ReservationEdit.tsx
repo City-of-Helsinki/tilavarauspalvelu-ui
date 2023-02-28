@@ -189,7 +189,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
           from: toApiDate(new Date(now)),
           to: toApiDate(addYears(new Date(), 1)),
           state: allowedReservationStates,
-          includeWithSameComponents: true,
+          includeWithSameComponents: false,
         },
       });
     }

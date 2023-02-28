@@ -217,7 +217,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         from: today,
         to: lastOpeningPeriodEndDate,
         state: allowedReservationStates,
-        includeWithSameComponents: true,
+        includeWithSameComponents: false,
       },
     });
 
