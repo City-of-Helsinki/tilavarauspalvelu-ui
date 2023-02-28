@@ -33,7 +33,7 @@ const timeSelectionSchemaBase = z.object({
 const RecurringReservationFormBaseSchema = z
   .object({
     reservationUnit: Option,
-    typeOfReservation: z.string(),
+    type: z.string(),
     seriesName: z.string(),
     comments: z.string().max(500).optional(),
     bufferTimeBefore: z.boolean(),

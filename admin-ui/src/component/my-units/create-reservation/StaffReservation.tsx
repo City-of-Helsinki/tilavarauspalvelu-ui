@@ -1,21 +1,16 @@
 import React from "react";
-import { TextArea } from "hds-react";
-import { useFormContext } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 import { ReservationUnitType } from "common/types/gql-types";
-import { HR } from "../../lists/components";
 import MetadataSetForm from "./MetadataSetForm";
 import BufferToggles from "./BufferToggles";
 
 type Props = {
   reservationUnit: ReservationUnitType;
+  children?: React.ReactNode;
 };
 
-const StaffReservation = ({ reservationUnit }: Props) => {
-  const { t } = useTranslation();
-
-  const { register } = useFormContext();
-
+// TODO move to the parent directory
+// TODO rename this to Reservation Form or something?
+const StaffReservation = ({ reservationUnit, children }: Props) => {
   return (
     <>
       {reservationUnit.bufferTimeBefore ||
@@ -25,12 +20,7 @@ const StaffReservation = ({ reservationUnit }: Props) => {
             after={reservationUnit.bufferTimeAfter ?? undefined}
           />
         ))}
-      <TextArea
-        label={t("ReservationDialog.comment")}
-        id="ReservationDialog.comment"
-        {...register("workingMemo")}
-      />
-      <HR />
+      {children != null && children}
       <MetadataSetForm reservationUnit={reservationUnit} />
     </>
   );

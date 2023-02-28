@@ -14,15 +14,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { format } from "date-fns";
-import {
-  Button,
-  DateInput,
-  RadioButton,
-  Select,
-  SelectionGroup,
-  TextArea,
-  TextInput,
-} from "hds-react";
+import { Button, DateInput, Select, TextArea, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { removeRefParam } from "common/src/reservation-form/util";
@@ -30,20 +22,17 @@ import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "./WeekdaysSelector";
-import { ReservationType } from "../create-reservation/types";
 import { ReservationList } from "./ReservationsList";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
-import MetadataSetForm from "../create-reservation/MetadataSetForm";
 import { ReservationsMade } from "./RecurringReservationDone";
 import { ActionsWrapper } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
-import Loader from "../../Loader";
-import BufferToggles from "../create-reservation/BufferToggles";
 import { useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
+import ReservationTypeForm from "../ReservationTypeForm";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -88,7 +77,7 @@ const MyUnitRecurringReservationForm = ({
     defaultValues: {
       bufferTimeAfter: false,
       bufferTimeBefore: false,
-      typeOfReservation: "STAFF",
+      type: "STAFF",
     },
   });
 
@@ -134,10 +123,12 @@ const MyUnitRecurringReservationForm = ({
 
   const unit = selectedReservationUnit?.value;
 
-  const { reservationUnit, loading: unitLoading } = useReservationUnitQuery(
+  const { reservationUnit } = useReservationUnitQuery(
     unit ? Number(unit) : undefined
   );
 
+  // TODO these are problematic since there is no test case for them
+  // they are the same in the single reservation but the use case and design isn't clear.
   const bufferTimeBefore = reservationUnit?.bufferTimeBefore ?? undefined;
   const bufferTimeAfter = reservationUnit?.bufferTimeAfter ?? undefined;
 
@@ -178,12 +169,12 @@ const MyUnitRecurringReservationForm = ({
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name: data.seriesName,
+        description: data.comments,
 
         // TODO missing fields
         // abilityGroupPk?: InputMaybe<Scalars["Int"]>;
         // ageGroupPk?: InputMaybe<Scalars["Int"]>;
         // clientMutationId?: InputMaybe<Scalars["String"]>;
-        // description?: InputMaybe<Scalars["String"]>;
         // user?: InputMaybe<Scalars["String"]>;
       };
 
@@ -221,13 +212,13 @@ const MyUnitRecurringReservationForm = ({
               reservationUnitPks: [unitPk],
               recurringReservationPk:
                 createResponse.createRecurringReservation.pk,
-              type: data.typeOfReservation,
+              type: data.type,
               begin: myDateTime(x.date, x.startTime),
               end: myDateTime(x.date, x.endTime),
               bufferTimeBefore: bufferTimeBefore
                 ? String(bufferTimeBefore)
                 : undefined,
-              bufferTimeAfter: bufferTimeBefore
+              bufferTimeAfter: bufferTimeAfter
                 ? String(bufferTimeBefore)
                 : undefined,
               workingMemo: data.comments,
@@ -423,14 +414,6 @@ const MyUnitRecurringReservationForm = ({
             />
           </Element>
 
-          {bufferTimeBefore || bufferTimeAfter ? (
-            <Element $wide>
-              <BufferToggles
-                before={bufferTimeBefore}
-                after={bufferTimeAfter}
-              />
-            </Element>
-          ) : null}
           <Element $start>
             <Controller
               name="repeatOnDays"
@@ -459,60 +442,29 @@ const MyUnitRecurringReservationForm = ({
           )}
 
           <Element $wide>
-            <Controller
-              name="typeOfReservation"
-              control={control}
-              render={({ field }) => (
-                <SelectionGroup
-                  label={t(`${TRANS_PREFIX}.typeOfReservation`)}
+            {/* TODO from this point on this is the same as the Single reservation */}
+            {reservationUnit != null && (
+              <ReservationTypeForm reservationUnit={reservationUnit}>
+                <TextInput
+                  id="name"
                   disabled={reservationUnit == null}
+                  label={t(`${TRANS_PREFIX}.name`)}
                   required
-                  errorText={translateError(errors.typeOfReservation?.message)}
-                >
-                  {Object.values(ReservationType)
-                    .filter((v) => typeof v === "string")
-                    .map((v) => (
-                      <RadioButton
-                        key={v}
-                        id={v}
-                        checked={v === field.value}
-                        label={t(`${TRANS_PREFIX}.reservationType.${v}`)}
-                        onChange={() => field.onChange(v)}
-                      />
-                    ))}
-                </SelectionGroup>
-              )}
-            />
+                  {...register("seriesName")}
+                  errorText={translateError(errors.seriesName?.message)}
+                />
+                <CommentsTextArea
+                  id="comments"
+                  disabled={reservationUnit == null}
+                  label={t(`${TRANS_PREFIX}.comments`)}
+                  {...register("comments")}
+                  errorText={translateError(errors.comments?.message)}
+                  required={false}
+                />
+              </ReservationTypeForm>
+            )}
           </Element>
 
-          <Element $wide>
-            <TextInput
-              id="name"
-              disabled={reservationUnit == null}
-              label={t(`${TRANS_PREFIX}.name`)}
-              required
-              {...register("seriesName")}
-              errorText={translateError(errors.seriesName?.message)}
-            />
-          </Element>
-          <Element $wide>
-            <CommentsTextArea
-              id="comments"
-              disabled={reservationUnit == null}
-              label={t(`${TRANS_PREFIX}.comments`)}
-              {...register("comments")}
-              errorText={translateError(errors.comments?.message)}
-              required={false}
-            />
-          </Element>
-
-          {unitLoading ? (
-            <Loader />
-          ) : reservationUnit != null ? (
-            <Element $wide>
-              <MetadataSetForm reservationUnit={reservationUnit} />
-            </Element>
-          ) : null}
           <ActionsWrapper>
             {/* cancel is disabled while sending because we have no rollback */}
             <Button

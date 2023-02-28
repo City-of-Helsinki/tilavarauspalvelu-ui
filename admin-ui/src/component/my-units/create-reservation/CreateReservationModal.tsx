@@ -1,14 +1,7 @@
 import React from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm, Controller, FormProvider } from "react-hook-form";
-import {
-  RadioButton,
-  Button,
-  DateInput,
-  Dialog,
-  SelectionGroup,
-  TimeInput,
-} from "hds-react";
+import { Button, DateInput, Dialog, TextArea, TimeInput } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import type {
@@ -30,11 +23,11 @@ import { CREATE_STAFF_RESERVATION } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
 import { reservationSchema } from "./validator";
-import { ReservationFormType, ReservationType } from "./types";
-import BlockedReservation from "./BlockedReservation";
-import StaffReservation from "./StaffReservation";
+import { ReservationFormType } from "./types";
 import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
+import ReservationTypeForm from "../ReservationTypeForm";
+import { HR } from "../../lists/components";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -70,6 +63,7 @@ const DialogContent = ({
   });
 
   const {
+    register,
     formState: { errors },
   } = form;
 
@@ -77,8 +71,6 @@ const DialogContent = ({
     dateTime(format(date, "dd.MM.yyyy"), time);
 
   const { notifyError, notifySuccess } = useNotification();
-
-  const type = form.watch("type");
 
   const [create] = useMutation<
     { createStaffReservation: ReservationStaffCreateMutationPayload },
@@ -195,34 +187,14 @@ const DialogContent = ({
                   )}
                 />
               </CommonFields>
-              <Controller
-                name="type"
-                control={form.control}
-                render={({ field }) => (
-                  <SelectionGroup
-                    required
-                    label={t("ReservationDialog.type")}
-                    errorText={errors.type?.message}
-                  >
-                    {Object.values(ReservationType)
-                      .filter((v) => typeof v === "string")
-                      .map((v) => (
-                        <RadioButton
-                          key={v}
-                          id={v as string}
-                          checked={v === field.value}
-                          label={t(`ReservationDialog.reservationType.${v}`)}
-                          onChange={() => field.onChange(v)}
-                        />
-                      ))}
-                  </SelectionGroup>
-                )}
-              />
-              {type === ReservationType.BLOCKED && <BlockedReservation />}
-              {type === ReservationType.STAFF ||
-              type === ReservationType.NORMAL ? (
-                <StaffReservation reservationUnit={reservationUnit} />
-              ) : null}
+              <ReservationTypeForm reservationUnit={reservationUnit}>
+                <TextArea
+                  label={t("ReservationDialog.comment")}
+                  id="ReservationDialog.comment"
+                  {...register("workingMemo")}
+                />
+                <HR />
+              </ReservationTypeForm>
             </VerticalFlex>
           </form>
         </FormProvider>
