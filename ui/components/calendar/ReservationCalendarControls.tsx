@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { useTranslation } from "next-i18next";
 import styled, { CSSProperties } from "styled-components";
 import {
@@ -369,9 +369,16 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           begin: startDate.toISOString(),
           end: endDate.toISOString(),
           price: null,
+          reservationUnitPk: reservationUnit.pk,
         });
       } else {
-        setReservation({ pk: null, begin: null, end: null, price: null });
+        setReservation({
+          pk: null,
+          begin: null,
+          end: null,
+          price: null,
+          reservationUnitPk: null,
+        });
         resetReservation();
       }
       if (
@@ -419,10 +426,16 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, startTime, duration?.value]);
+  }, [date, startTime, duration?.value, reservationUnit]);
 
   useEffect(() => {
-    setReservation({ pk: null, begin: null, end: null, price: null });
+    setReservation({
+      pk: null,
+      begin: null,
+      end: null,
+      price: null,
+      reservationUnitPk: null,
+    });
   }, [setReservation]);
 
   const {

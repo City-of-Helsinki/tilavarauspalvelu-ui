@@ -23,6 +23,7 @@ import {
   startOfDay,
 } from "date-fns";
 import { toApiDate, toUIDate } from "common/src/common/util";
+import { useSession } from "next-auth/react";
 import {
   getEventBuffers,
   getMaxReservation,
@@ -256,6 +257,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         ...(await serverSideTranslations(locale)),
+        key: id,
         reservationUnit: {
           ...reservationUnitData?.reservationUnitByPk,
           openingHours: {
@@ -361,6 +363,9 @@ const ReservationUnit = ({
   const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
 
   const router = useRouter();
+  const session = useSession();
+  const dynamicRoute = router.asPath;
+
   const [, setPendingReservation] = useSessionStorage(
     "pendingReservation",
     null
@@ -368,7 +373,13 @@ const ReservationUnit = ({
 
   const now = useMemo(() => new Date().toISOString(), []);
 
-  const { reservation, setReservation } = useContext(DataContext);
+  const { reservation: contextReservation, setReservation } =
+    useContext(DataContext);
+
+  const reservation =
+    contextReservation?.reservationUnitPk === reservationUnit.pk
+      ? contextReservation
+      : null;
 
   const [userReservations, setUserReservations] = useState<
     ReservationType[] | null
@@ -403,6 +414,13 @@ const ReservationUnit = ({
   );
 
   useEffect(() => {
+    setFocusDate(new Date());
+    setInitialReservation(null);
+    setIsDialogOpen(false);
+    setPendingReservation(null);
+  }, [dynamicRoute, setPendingReservation, setReservation]);
+
+  useEffect(() => {
     const scrollToCalendar = () =>
       window.scroll({
         top: calendarRef.current.offsetTop - 20,
@@ -424,6 +442,7 @@ const ReservationUnit = ({
 
   const { data: userData } = useQuery<Query>(CURRENT_USER, {
     fetchPolicy: "no-cache",
+    skip: session?.status !== "authenticated",
   });
 
   const currentUser = useMemo(() => userData?.currentUser, [userData]);
@@ -700,7 +719,13 @@ const ReservationUnit = ({
         reservationUnitPks: [reservationUnit.pk],
       };
 
-      setReservation({ begin, end, pk: reservationUnit.pk, price: null });
+      setReservation({
+        begin,
+        end,
+        pk: reservationUnit.pk,
+        price: null,
+        reservationUnitPk: reservationUnit.pk,
+      });
 
       addReservation({
         variables: {
