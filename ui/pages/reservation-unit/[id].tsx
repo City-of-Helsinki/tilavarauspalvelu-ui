@@ -364,7 +364,6 @@ const ReservationUnit = ({
 
   const router = useRouter();
   const session = useSession();
-  const dynamicRoute = router.asPath;
 
   const [, setPendingReservation] = useSessionStorage(
     "pendingReservation",
@@ -375,6 +374,13 @@ const ReservationUnit = ({
 
   const { reservation: contextReservation, setReservation } =
     useContext(DataContext);
+
+  useEffect(
+    () => () => {
+      setReservation(null);
+    },
+    [setReservation]
+  );
 
   const reservation =
     contextReservation?.reservationUnitPk === reservationUnit.pk
@@ -412,13 +418,6 @@ const ReservationUnit = ({
       ) : null,
     [reservationUnit.canApplyFreeOfCharge]
   );
-
-  useEffect(() => {
-    setFocusDate(new Date());
-    setInitialReservation(null);
-    setIsDialogOpen(false);
-    setPendingReservation(null);
-  }, [dynamicRoute, setPendingReservation, setReservation]);
 
   useEffect(() => {
     const scrollToCalendar = () =>
@@ -722,7 +721,7 @@ const ReservationUnit = ({
       setReservation({
         begin,
         end,
-        pk: reservationUnit.pk,
+        pk: null,
         price: null,
         reservationUnitPk: reservationUnit.pk,
       });

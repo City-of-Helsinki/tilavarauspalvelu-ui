@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation, useQuery } from "@apollo/client";
@@ -63,7 +57,7 @@ import Sanitize from "../../components/common/Sanitize";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import { getReservationApplicationMutationValues } from "../../modules/reservation";
 import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
-import { DataContext, ReservationProps } from "../../context/DataContext";
+import { ReservationProps } from "../../context/DataContext";
 import Container from "../../components/common/Container";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import ReservationConfirmation from "../../components/reservation/ReservationConfirmation";
@@ -252,8 +246,6 @@ const ReservationUnitReservation = ({
     null
   );
 
-  const { setReservation: setDataContext } = useContext(DataContext);
-
   const [storedReservation, , removeStoredReservation] =
     useLocalStorage<ReservationProps>("reservation");
 
@@ -301,8 +293,6 @@ const ReservationUnitReservation = ({
     });
   }, [step, requireHandling, reservationUnit, reservation, t]);
 
-  useEffect(() => () => setDataContext(null), [setDataContext]);
-
   useEffect(() => {
     if (storedReservation) removeStoredReservation();
   }, [storedReservation, removeStoredReservation]);
@@ -323,7 +313,6 @@ const ReservationUnitReservation = ({
   }, [
     fetchedReservationData?.reservationByPk,
     reservationUnit?.pk,
-    setDataContext,
     setPendingReservation,
   ]);
 
@@ -333,12 +322,10 @@ const ReservationUnitReservation = ({
   >(DELETE_RESERVATION, {
     errorPolicy: "all",
     onCompleted: () => {
-      setDataContext(null);
       setPendingReservation(null);
       router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
     },
     onError: () => {
-      setDataContext(null);
       setPendingReservation(null);
       router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
     },
@@ -351,7 +338,6 @@ const ReservationUnitReservation = ({
     errorPolicy: "all",
     onCompleted: (data) => {
       if (data.updateReservation?.reservation?.state === "CANCELLED") {
-        setDataContext(null);
         setPendingReservation(null);
         router.push(`${reservationUnitPrefix}/${reservationUnit.pk}`);
       } else {
