@@ -22,7 +22,6 @@ import {
   startOfDay,
 } from "date-fns";
 import { toApiDate, toUIDate } from "common/src/common/util";
-import { useSession } from "next-auth/react";
 import {
   getEventBuffers,
   getMaxReservation,
@@ -362,7 +361,6 @@ const ReservationUnit = ({
   const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
 
   const router = useRouter();
-  const session = useSession();
 
   const [, setPendingReservation] = useSessionStorage(
     "pendingReservation",
