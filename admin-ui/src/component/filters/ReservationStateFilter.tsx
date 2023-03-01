@@ -10,6 +10,7 @@ type Props = {
   value: OptionType[];
 };
 
+/*
 const ReservationStates = [
   ReservationsReservationStateChoices.Created,
   ReservationsReservationStateChoices.Confirmed,
@@ -18,19 +19,25 @@ const ReservationStates = [
   ReservationsReservationStateChoices.Cancelled,
   ReservationsReservationStateChoices.WaitingForPayment,
 ];
+*/
 
 const ReservationStateFilter = ({ onChange, value }: Props): JSX.Element => {
   const { t } = useTranslation();
+
+  const opts: OptionType[] = Object.keys(
+    ReservationsReservationStateChoices
+  ).map((s) => ({
+    value: s,
+    // FIXME translations since we switched from custom type to enum
+    label: t(`RequestedReservation.state.${s}`),
+  }));
 
   return (
     <SortedSelect
       label={t("ReservationStateFilter.label")}
       multiselect
       placeholder={t("common.filter")}
-      options={ReservationStates.map((s) => ({
-        value: s,
-        label: t(`RequestedReservation.state.${s}`),
-      }))}
+      options={opts}
       value={value || []}
       onChange={onChange}
       id="reservation-state"

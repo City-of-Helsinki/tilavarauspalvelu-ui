@@ -10,12 +10,14 @@ type Props = {
   value: OptionType[];
 };
 
+/*
 const ReservationUnitStates = [
   ReservationUnitState.Draft,
   ReservationUnitState.Published,
   ReservationUnitState.ScheduledPublishing,
   ReservationUnitState.ScheduledReservation,
 ];
+*/
 
 const ReservationUnitStateFilter = ({
   onChange,
@@ -23,16 +25,19 @@ const ReservationUnitStateFilter = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
+  const opts: OptionType[] = Object.keys(ReservationUnitState).map((s) => ({
+    value: s,
+    // FIXME translations since a few of the states changed and we switched from custom type to enum
+    label: t(`ReservationUnits.state.${s}`),
+  }));
+
   return (
     <SortedSelect
       sort
       label={t("ReservationUnitsSearch.stateLabel")}
       multiselect
       placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
-      options={ReservationUnitStates.map((s) => ({
-        value: s,
-        label: t(`ReservationUnits.state.${s}`),
-      }))}
+      options={opts}
       value={value || []}
       onChange={onChange}
       id="reservation-unit-combobox"
