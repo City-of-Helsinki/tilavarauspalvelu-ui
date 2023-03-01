@@ -1208,10 +1208,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
                       id="reservationStartInterval"
                       placeholder={t("common.select")}
                       required
-                      value={
-                        state.reservationUnitEdit
-                          .reservationStartInterval as string
-                      }
+                      value={state.reservationUnitEdit.reservationStartInterval}
                       label={t(
                         "ReservationUnitEditor.label.reservationStartInterval"
                       )}
