@@ -10,17 +10,6 @@ type Props = {
   value: OptionType[];
 };
 
-/*
-const ReservationStates = [
-  ReservationsReservationStateChoices.Created,
-  ReservationsReservationStateChoices.Confirmed,
-  ReservationsReservationStateChoices.RequiresHandling,
-  ReservationsReservationStateChoices.Denied,
-  ReservationsReservationStateChoices.Cancelled,
-  ReservationsReservationStateChoices.WaitingForPayment,
-];
-*/
-
 const ReservationStateFilter = ({ onChange, value }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -28,7 +17,6 @@ const ReservationStateFilter = ({ onChange, value }: Props): JSX.Element => {
     ReservationsReservationStateChoices
   ).map((s) => ({
     value: s,
-    // FIXME translations since we switched from custom type to enum
     label: t(`RequestedReservation.state.${s}`),
   }));
 

@@ -1151,10 +1151,13 @@ const translations: ITranslations = {
       "Valituilla suodattimilla ei löytynyt yhtään varausyksikköä. Valitse suodattimia uudelleen tai tyhjennä kaikki suodattimet.",
     ],
     state: {
+      ARCHIVED: ["Arkistoitu"],
       DRAFT: ["Luonnos"],
-      SCHEDULED_PUBLISHING: ["Julkaisu ajastettu"],
-      SCHEDULED_RESERVATION: ["Julkaistu, varaus ajastettu"],
+      HIDDEN: ["Varaus piilotettu"],
       PUBLISHED: ["Julkaistu"],
+      SCHEDULED_HIDING: ["Piilotus ajastettu"],
+      SCHEDULED_PERIOD: ["Julkaisuväli ajastettu"],
+      SCHEDULED_PUBLISHING: ["Julkaisu ajastettu"],
     },
     headings: {
       name: ["Nimi"],
