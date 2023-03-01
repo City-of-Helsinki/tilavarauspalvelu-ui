@@ -22,6 +22,9 @@ import { MediumButton } from "../../styles/util";
 import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
 import InfoDialog from "../common/InfoDialog";
+import { JustForMobile } from "../../modules/style/layout";
+import { PinkBox } from "../reservation-unit/ReservationUnitStyles";
+import Sanitize from "../common/Sanitize";
 
 type Props = {
   reservation: Reservation;
@@ -256,6 +259,14 @@ const Step0 = ({
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
         />
+        <JustForMobile>
+          <PinkBox>
+            <Subheading>
+              {t("reservations:reservationInfoBoxHeading")}
+            </Subheading>
+            <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
+          </PinkBox>
+        </JustForMobile>
       </TwoColumnContainer>
       <ActionContainer>
         <MediumButton
