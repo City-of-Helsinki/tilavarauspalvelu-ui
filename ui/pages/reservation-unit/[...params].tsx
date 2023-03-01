@@ -528,6 +528,8 @@ const ReservationUnitReservation = ({
     }
   }, [step, generalFields, reservation, reservationUnit]);
 
+  const termsOfUseContent = getTranslation(reservationUnit, "termsOfUse");
+
   if (!isBrowser) {
     return null;
   }
@@ -553,16 +555,16 @@ const ReservationUnitReservation = ({
                 shouldDisplayReservationUnitPrice
               }
             />
-            <JustForDesktop>
-              <PinkBox>
-                <Subheading>
-                  {t("reservations:reservationInfoBoxHeading")}
-                </Subheading>
-                <Sanitize
-                  html={getTranslation(reservationUnit, "termsOfUse")}
-                />
-              </PinkBox>
-            </JustForDesktop>
+            {termsOfUseContent && (
+              <JustForDesktop>
+                <PinkBox>
+                  <Subheading>
+                    {t("reservations:reservationInfoBoxHeading")}
+                  </Subheading>
+                  <Sanitize html={termsOfUseContent} />
+                </PinkBox>
+              </JustForDesktop>
+            )}
           </div>
         )}
         <BodyContainer>

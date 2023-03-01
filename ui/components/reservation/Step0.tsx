@@ -112,6 +112,8 @@ const Step0 = ({
     ];
   }, [t]);
 
+  const termsOfUse = getTranslation(reservationUnit, "termsOfUse");
+
   return (
     <Form
       onSubmit={(e) => {
@@ -259,14 +261,16 @@ const Step0 = ({
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
         />
-        <JustForMobile>
-          <PinkBox>
-            <Subheading>
-              {t("reservations:reservationInfoBoxHeading")}
-            </Subheading>
-            <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
-          </PinkBox>
-        </JustForMobile>
+        {termsOfUse && (
+          <JustForMobile>
+            <PinkBox>
+              <Subheading>
+                {t("reservations:reservationInfoBoxHeading")}
+              </Subheading>
+              <Sanitize html={termsOfUse} />
+            </PinkBox>
+          </JustForMobile>
+        )}
       </TwoColumnContainer>
       <ActionContainer>
         <MediumButton

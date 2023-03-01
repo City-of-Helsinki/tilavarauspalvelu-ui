@@ -75,6 +75,8 @@ const Step1 = ({
   const [areServiceSpecificTermsAccepted, setAreServiceSpecificTermsAccepted] =
     useState(false);
 
+  const termsOfUseContent = getTranslation(reservationUnit, "termsOfUse");
+
   return (
     <form
       onSubmit={(e) => {
@@ -232,12 +234,16 @@ const Step1 = ({
         accepted={areTermsSpaceAccepted}
         setAccepted={setAreTermsSpaceAccepted}
       />
-      <JustForMobile style={{ marginBottom: "var(--spacing-layout-m)" }}>
-        <PinkBox>
-          <Subheading>{t("reservations:reservationInfoBoxHeading")}</Subheading>
-          <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
-        </PinkBox>
-      </JustForMobile>
+      {termsOfUseContent && (
+        <JustForMobile style={{ marginBottom: "var(--spacing-layout-m)" }}>
+          <PinkBox>
+            <Subheading>
+              {t("reservations:reservationInfoBoxHeading")}
+            </Subheading>
+            <Sanitize html={termsOfUseContent} />
+          </PinkBox>
+        </JustForMobile>
+      )}
       <ActionContainer>
         <MediumButton
           variant="primary"
