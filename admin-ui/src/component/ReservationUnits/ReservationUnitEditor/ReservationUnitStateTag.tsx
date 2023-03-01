@@ -9,11 +9,14 @@ interface IProps {
 
 export const statusColor = (state: ReservationUnitState): string => {
   switch (state) {
+    // TODO missing archived colour
     case ReservationUnitState.Draft:
       return "var(--color-silver-light)";
     case ReservationUnitState.Published:
       return "var(--color-success-light)";
-    case ReservationUnitState.ScheduledReservation:
+    // TODO check the tag colours for the Hiding and Period
+    case ReservationUnitState.ScheduledHiding:
+    case ReservationUnitState.ScheduledPeriod:
       return "var(--color-engel-light)";
     case ReservationUnitState.ScheduledPublishing:
       return "var(--color-gold-medium-light)";
