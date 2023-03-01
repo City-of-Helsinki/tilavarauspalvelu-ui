@@ -473,7 +473,7 @@ const EditStep0 = ({
           iconRight={<IconArrowRight aria-hidden />}
           disabled={!initialReservation?.begin || !initialReservation?.end}
           onClick={() => {
-            const newReservation = {
+            const newReservation: PendingReservation = {
               ...initialReservation,
               price: getReservationUnitPrice({
                 reservationUnit,
@@ -483,7 +483,7 @@ const EditStep0 = ({
                 minutes: 0,
                 asInt: true,
               }),
-            } as unknown as ReservationType;
+            };
             const [isNewReservationValid, validationError] =
               canReservationTimeBeChanged({
                 reservation,
