@@ -425,7 +425,6 @@ const ReservationUnit = ({
 
   const { data: userData } = useQuery<Query>(CURRENT_USER, {
     fetchPolicy: "no-cache",
-    skip: session?.status !== "authenticated",
   });
 
   const currentUser = useMemo(() => userData?.currentUser, [userData]);
