@@ -55,7 +55,7 @@ const MyUnitRecurringReservation = ({ unitId }: { unitId: number }) => {
     <>
       <BackLinkHeader unitId={unitId} />
       <Container>
-        {sent != null ? (
+        {sent !== null ? (
           <RecurringSuccess data={sent} />
         ) : (
           <>
@@ -82,7 +82,7 @@ const MyUnitRecurringReservationRouteWrapper = () => {
   const { t } = useTranslation();
   const { unitId } = useParams<Params>();
 
-  if (unitId == null || Number.isNaN(parseInt(unitId, 10))) {
+  if (unitId === undefined || Number.isNaN(parseInt(unitId, 10))) {
     return (
       <>
         <BackLinkHeader unitId={0} />
