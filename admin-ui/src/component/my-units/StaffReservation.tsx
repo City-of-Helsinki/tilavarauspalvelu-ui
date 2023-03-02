@@ -8,8 +8,6 @@ type Props = {
   children?: React.ReactNode;
 };
 
-// TODO move to the parent directory
-// TODO rename this to Reservation Form or something?
 const StaffReservation = ({ reservationUnit, children }: Props) => {
   return (
     <>

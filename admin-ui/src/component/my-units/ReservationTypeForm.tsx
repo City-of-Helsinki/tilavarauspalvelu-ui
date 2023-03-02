@@ -4,17 +4,14 @@ import { RadioButton, SelectionGroup } from "hds-react";
 import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 
-// TODO fix paths
 import {
   ReservationFormType,
   ReservationType,
 } from "./create-reservation/types";
-import BlockedReservation from "./create-reservation/BlockedReservation";
-import StaffReservation from "./create-reservation/StaffReservation";
+import BlockedReservation from "./BlockedReservation";
+import StaffReservation from "./StaffReservation";
 
-/* TODO from this point on this is same as the Recurring unit
- * Except buffers are in different places? Check the UI spec
- */
+// TODO are buffers in different places for Recurring and Single reservations? Check the UI spec
 const ReservationTypeForm = ({
   reservationUnit,
   children,
@@ -29,10 +26,10 @@ const ReservationTypeForm = ({
     control,
     formState: { errors },
     // FIXME use a common interface for this and recurring here
+    // requires moving the ReservationForm to zod schema
   } = useFormContext<ReservationFormType>();
   const type = watch("type");
 
-  // TODO remove the Object.values
   // TODO set default value (in the form to avoid console.log errors)
   return (
     <>
