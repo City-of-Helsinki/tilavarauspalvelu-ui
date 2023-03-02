@@ -198,7 +198,6 @@ const MyUnitRecurringReservationForm = ({
           createResponse?.createRecurringReservation?.errors || []
         ).find(() => true);
 
-        console.error("GraphQL failed: first error:", firstError);
         notifyError(
           t("ReservationDialog.saveFailed", {
             error: get(firstError, "messages[0]"),
@@ -275,7 +274,6 @@ const MyUnitRecurringReservationForm = ({
         onReservation(result);
       }
     } catch (e) {
-      console.log("exception", e);
       notifyError(
         t("ReservationDialog.saveFailed", { error: get(e, "message") })
       );

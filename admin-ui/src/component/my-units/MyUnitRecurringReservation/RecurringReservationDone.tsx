@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { H1, H6 } from "common/src/common/typography";
 import { ActionsWrapper } from "./commonStyling";
 import { ReservationList } from "./ReservationsList";
+import { useNotification } from "../../../context/NotificationContext";
 
 const InfoSection = styled.p`
   margin-bottom: 2rem;
@@ -33,6 +34,7 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
   const successes = props.data.filter(({ error }) => error == null);
 
   const { t } = useTranslation();
+  const { notifyError } = useNotification();
 
   const locPrefix = "MyUnits.RecurringReservation.Confirmation";
 
@@ -76,13 +78,13 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
       <ActionsWrapper>
         <Button
           variant="secondary"
-          onClick={() => console.log("TODO should return to toimipiste")}
+          onClick={() => notifyError("TODO implement return to toimipiste")}
         >
           {t(`${locPrefix}.buttonToUnit`)}
         </Button>
         <Button
           variant="secondary"
-          onClick={() => console.log("TODO should go to reservation?")}
+          onClick={() => notifyError("TODO implement go to reservation made")}
         >
           {t(`${locPrefix}.buttonToReservation`)}
         </Button>

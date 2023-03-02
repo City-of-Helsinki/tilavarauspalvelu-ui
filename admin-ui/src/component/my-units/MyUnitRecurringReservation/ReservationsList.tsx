@@ -117,7 +117,6 @@ const generateReservations = (
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   } catch (e) {
     // date-fns throws => don't crash
-    console.warn("date-fns exception:", e);
   }
 
   return [];
