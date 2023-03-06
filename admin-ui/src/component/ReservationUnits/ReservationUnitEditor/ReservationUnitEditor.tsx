@@ -19,6 +19,7 @@ import i18next from "i18next";
 import React, { useEffect, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import {
   Query,
   QueryReservationUnitByPkArgs,
@@ -94,6 +95,7 @@ import PricingType from "./PricingType";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import { parseAddress } from "../../../common/util";
 import { Accordion } from "../../../common/hds-fork/Accordion";
+import ReservationStateTag from "./ReservationStateTag";
 
 const bufferTimeOptions = [
   { value: 900, label: "15 minuuttia" },
@@ -148,9 +150,34 @@ const getSelectedOptions = (
   );
 };
 
+// NOTE this is not really pretty when scaling to smaller screens
+// but there is no UI spec for it.
+// The use of double flex containers doesn't break reponsive layouts
+// because of wrap and using an inner container keeps the two tags together
+// even when they wrap.
+// The ugliness comes from margins being in H1 instead of the title container.
+const TitleSectionWithTags = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-m);
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const TagContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-m);
+`;
+
 const DisplayUnit = ({
   heading,
   unit,
+  // TODO more descriptive names for these?
+  // they are straight from the backend query variables
   unitState,
   reservationState,
 }: {
@@ -159,19 +186,24 @@ const DisplayUnit = ({
   unitState?: ReservationUnitState;
   reservationState?: ReservationState;
 }) => {
-  // TODO got the state; now just show a tag for it (if it's not RESERVABLE)
-  // that we are supposed to use for showing the second tag in this
-  console.log("reservationState: ", reservationState);
+  if (!unit) {
+    return null;
+  }
 
-  return unit ? (
+  return (
     <DenseVerticalFlex>
       <div>
-        <HorisontalFlex style={{ justifyContent: "space-between" }}>
+        <TitleSectionWithTags>
           <H1 $legacy>{heading}</H1>
-          {unitState !== undefined && (
-            <ReservationUnitStateTag state={unitState} />
-          )}
-        </HorisontalFlex>
+          <TagContainer>
+            {reservationState !== undefined && (
+              <ReservationStateTag state={reservationState} />
+            )}
+            {unitState !== undefined && (
+              <ReservationUnitStateTag state={unitState} />
+            )}
+          </TagContainer>
+        </TitleSectionWithTags>
         <div
           style={{
             lineHeight: "24px",
@@ -186,7 +218,7 @@ const DisplayUnit = ({
         {unit.location ? <span>{parseAddress(unit.location)}</span> : null}
       </div>
     </DenseVerticalFlex>
-  ) : null;
+  );
 };
 
 const ReservationUnitEditor = (): JSX.Element | null => {

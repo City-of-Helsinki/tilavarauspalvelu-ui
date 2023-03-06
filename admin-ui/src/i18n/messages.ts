@@ -1159,6 +1159,13 @@ const translations: ITranslations = {
       SCHEDULED_PERIOD: ["Julkaisuväli ajastettu"],
       SCHEDULED_PUBLISHING: ["Julkaisu ajastettu"],
     },
+    reservationState: {
+      RESERVABLE: ["Varattavissa"],
+      SCHEDULED_RESERVATION: ["Varaus ajastettu"],
+      SCHEDULED_PERIOD: ["Varausväli ajastettu"],
+      SCHEDULED_CLOSING: ["Sulku ajastettu"],
+      RESERVATION_CLOSED: ["Suljettu"],
+    },
     headings: {
       name: ["Nimi"],
       unitName: ["Toimipiste"],

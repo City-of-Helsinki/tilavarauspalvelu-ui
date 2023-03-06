@@ -7,10 +7,10 @@ interface IProps {
   state: ReservationUnitState;
 }
 
-export const statusColor = (state: ReservationUnitState): string => {
+export const statusColor = (state: ReservationUnitState) => {
   switch (state) {
     case ReservationUnitState.Draft:
-      return "var(color-bussi-light)";
+      return "var(--color-bus-light)";
     case ReservationUnitState.Hidden:
       return "var(--color-silver-light)";
     case ReservationUnitState.Published:
