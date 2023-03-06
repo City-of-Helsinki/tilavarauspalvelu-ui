@@ -1,7 +1,6 @@
 import React, {
   Children,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -13,7 +12,15 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { addSeconds, addYears, differenceInMinutes } from "date-fns";
+import styled from "styled-components";
+import {
+  addHours,
+  addSeconds,
+  addYears,
+  differenceInMinutes,
+  roundToNearestMinutes,
+  startOfDay,
+} from "date-fns";
 import { toApiDate, toUIDate } from "common/src/common/util";
 import {
   getEventBuffers,
@@ -76,7 +83,7 @@ import {
   TERMS_OF_USE,
 } from "../../modules/queries/reservationUnit";
 import { getApplicationRounds } from "../../modules/api";
-import { DataContext, ReservationProps } from "../../context/DataContext";
+import { ReservationProps } from "../../context/DataContext";
 import {
   CREATE_RESERVATION,
   LIST_RESERVATIONS,
@@ -248,13 +255,15 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         ...(await serverSideTranslations(locale)),
+        key: id,
         reservationUnit: {
           ...reservationUnitData?.reservationUnitByPk,
           openingHours: {
             openingTimes: allowReservationsWithoutOpeningHours
               ? mockOpeningTimes
-              : additionalData.reservationUnitByPk?.openingHours
-                  ?.openingTimes || [],
+              : additionalData.reservationUnitByPk?.openingHours?.openingTimes.filter(
+                  (n) => n.isReservable
+                ) || [],
             openingTimePeriods: allowReservationsWithoutOpeningHours
               ? mockOpeningTimePeriods
               : reservationUnitData?.reservationUnitByPk?.openingHours
@@ -328,14 +337,17 @@ const eventStyleGetter = (
   };
 };
 
+const EventWrapper = styled.div``;
+
 const EventWrapperComponent = (props) => {
+  const { event } = props;
   let isSmall = false;
-  if (props.event.event.state === "INITIAL") {
+  if (event.event.state === "INITIAL") {
     const { start, end } = props.event;
     const diff = differenceInMinutes(end, start);
     if (diff <= 30) isSmall = true;
   }
-  return <div {...props} className={isSmall ? "isSmall" : ""} />;
+  return <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />;
 };
 
 const ReservationUnit = ({
@@ -349,14 +361,13 @@ const ReservationUnit = ({
   const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
 
   const router = useRouter();
+
   const [, setPendingReservation] = useSessionStorage(
     "pendingReservation",
     null
   );
 
   const now = useMemo(() => new Date().toISOString(), []);
-
-  const { reservation, setReservation } = useContext(DataContext);
 
   const [userReservations, setUserReservations] = useState<
     ReservationType[] | null
@@ -370,7 +381,7 @@ const ReservationUnit = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [storedReservation, , removeStoredReservation] =
-    useLocalStorage<ReservationProps>("reservation");
+    useLocalStorage<PendingReservation>("reservation");
 
   const calendarRef = useRef(null);
   const openPricingTermsRef = useRef(null);
@@ -398,17 +409,17 @@ const ReservationUnit = ({
         behavior: "smooth",
       });
 
-    if (storedReservation?.pk === reservationUnit.pk) {
+    if (storedReservation?.reservationUnitPk === reservationUnit.pk) {
       setFocusDate(new Date(storedReservation.begin));
       scrollToCalendar();
-      setReservation(storedReservation);
+      setInitialReservation(storedReservation);
       removeStoredReservation();
-    } else if (hash === "calendar" && reservation) {
+    } else if (hash === "calendar" && initialReservation) {
       scrollToCalendar();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reservation]);
+  }, [initialReservation]);
 
   const { data: userData } = useQuery<Query>(CURRENT_USER, {
     fetchPolicy: "no-cache",
@@ -498,10 +509,13 @@ const ReservationUnit = ({
       { start, end }: CalendarEvent<Reservation | ReservationType>,
       skipLengthCheck = false
     ): boolean => {
+      const normalizedEnd = roundToNearestMinutes(end);
+
       const newReservation = {
         begin: start?.toISOString(),
-        end: end?.toISOString(),
+        end: normalizedEnd?.toISOString(),
       } as PendingReservation;
+
       if (
         !isReservationShortEnough(
           start,
@@ -525,7 +539,6 @@ const ReservationUnit = ({
       setInitialReservation({
         begin: newReservation.begin,
         end: newReservation.end,
-        state: "INITIAL",
       } as PendingReservation);
 
       if (isClientATouchDevice) {
@@ -547,20 +560,26 @@ const ReservationUnit = ({
       { start: startTime, end: endTime, action },
       skipLengthCheck = false
     ): boolean => {
+      const isTouchClick = action === "select" && isClientATouchDevice;
+
+      if (action === "select" && !isClientATouchDevice) {
+        return false;
+      }
+
       if (isReservationQuotaReached) {
         return false;
       }
 
       const end =
         action === "click" ||
-        (action === "select" &&
-          isClientATouchDevice &&
-          differenceInMinutes(endTime, startTime) <= 30)
+        (isTouchClick && differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
               new Date(startTime),
               reservationUnit.minReservationDuration || 0
             )
           : new Date(endTime);
+
+      const normalizedEnd = roundToNearestMinutes(end);
 
       if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
@@ -569,8 +588,7 @@ const ReservationUnit = ({
       setIsReserving(false);
       setInitialReservation({
         begin: startTime.toISOString(),
-        end: end.toISOString(),
-        state: "INITIAL",
+        end: normalizedEnd.toISOString(),
       } as PendingReservation);
 
       return true;
@@ -597,8 +615,10 @@ const ReservationUnit = ({
   }, [isMobile]);
 
   useEffect(() => {
-    const start = reservation?.begin ? new Date(reservation.begin) : null;
-    const end = reservation?.end ? new Date(reservation.end) : null;
+    const start = storedReservation?.begin
+      ? new Date(storedReservation.begin)
+      : null;
+    const end = storedReservation?.end ? new Date(storedReservation.end) : null;
 
     if (start && end) {
       handleEventChange(
@@ -607,7 +627,7 @@ const ReservationUnit = ({
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reservation?.begin, reservation?.end]);
+  }, [storedReservation?.begin, storedReservation?.end]);
 
   const shouldDisplayBottomWrapper = useMemo(
     () => relatedReservationUnits?.length > 0,
@@ -617,7 +637,10 @@ const ReservationUnit = ({
   const calendarEvents: CalendarEvent<Reservation | ReservationType>[] =
     useMemo(() => {
       return userReservations && reservationUnit?.reservations
-        ? [...reservationUnit.reservations, initialReservation]
+        ? [
+            ...reservationUnit.reservations,
+            { ...initialReservation, state: "INITIAL" },
+          ]
             .filter((n: ReservationType) => n)
             .map((n: ReservationType) => {
               const event = {
@@ -639,7 +662,7 @@ const ReservationUnit = ({
 
   const eventBuffers = useMemo(() => {
     return getEventBuffers([
-      ...(calendarEvents.flatMap((e) => e.event) as ReservationType[]),
+      ...calendarEvents.flatMap((e) => e.event),
       {
         begin: initialReservation?.begin,
         end: initialReservation?.end,
@@ -656,7 +679,7 @@ const ReservationUnit = ({
   >(CREATE_RESERVATION, {
     onCompleted: (data) => {
       setPendingReservation({
-        ...reservation,
+        ...initialReservation,
         pk: data.createReservation.pk,
         price: data.createReservation.price,
       });
@@ -679,7 +702,10 @@ const ReservationUnit = ({
         reservationUnitPks: [reservationUnit.pk],
       };
 
-      setReservation({ begin, end, pk: reservationUnit.pk, price: null });
+      setInitialReservation({
+        begin,
+        end,
+      });
 
       addReservation({
         variables: {
@@ -687,7 +713,7 @@ const ReservationUnit = ({
         },
       });
     },
-    [addReservation, reservationUnit.pk, setReservation]
+    [addReservation, reservationUnit.pk, setInitialReservation]
   );
 
   const isReservable = useMemo(() => {
@@ -785,6 +811,10 @@ const ReservationUnit = ({
     [i18n.language]
   );
 
+  const currentDate = focusDate || new Date();
+
+  const dayStartTime = addHours(startOfDay(currentDate), 6);
+
   return reservationUnit ? (
     <Wrapper>
       <Head
@@ -824,8 +854,13 @@ const ReservationUnit = ({
                 {reservationUnit.maxReservationsPerUser &&
                   userReservations?.length > 0 && (
                     <StyledNotification
-                      type="alert"
-                      label={t("common:fyiLabel")}
+                      $isSticky={isReservationQuotaReached}
+                      type={isReservationQuotaReached ? "alert" : "info"}
+                      label={t(
+                        `reservationCalendar:reservationQuota${
+                          isReservationQuotaReached ? "Full" : ""
+                        }Label`
+                      )}
                     >
                       <span data-testid="reservation-unit--notification__reservation-quota">
                         {t(
@@ -843,7 +878,7 @@ const ReservationUnit = ({
                 <div aria-hidden>
                   <Calendar<Reservation | ReservationType>
                     events={[...calendarEvents, ...eventBuffers]}
-                    begin={focusDate || new Date()}
+                    begin={currentDate}
                     onNavigate={(d: Date) => {
                       setFocusDate(d);
                     }}
@@ -862,6 +897,7 @@ const ReservationUnit = ({
                     onSelecting={(
                       event: CalendarEvent<Reservation | ReservationType>
                     ) => handleEventChange(event, true)}
+                    min={dayStartTime}
                     showToolbar
                     reservable={!isReservationQuotaReached}
                     toolbarComponent={Toolbar}
@@ -900,12 +936,8 @@ const ReservationUnit = ({
                     >
                       <ReservationCalendarControls
                         reservationUnit={reservationUnit}
-                        begin={initialReservation?.begin}
-                        end={initialReservation?.end}
-                        resetReservation={() => {
-                          setInitialReservation(null);
-                          setFocusDate(new Date());
-                        }}
+                        initialReservation={initialReservation}
+                        setInitialReservation={setInitialReservation}
                         isSlotReservable={(startDate, endDate) =>
                           isSlotReservable(startDate, endDate)
                         }
@@ -922,6 +954,7 @@ const ReservationUnit = ({
                         setShouldCalendarControlsBeVisible={
                           setShouldCalendarControlsBeVisible
                         }
+                        minTime={dayStartTime}
                         isAnimated={isMobile}
                       />
                     </CalendarFooter>

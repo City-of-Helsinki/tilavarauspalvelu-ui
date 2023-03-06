@@ -86,14 +86,19 @@ export const MapWrapper = styled.div`
   margin-bottom: var(--spacing-xs);
 `;
 
-export const StyledNotification = styled(Notification)`
+export const StyledNotification = styled(Notification)<{ $isSticky?: boolean }>`
   div > div {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
   }
-  margin-bottom: var(--spacing-xl);
 
+  ${({ $isSticky }) =>
+    $isSticky &&
+    `
+    position: sticky;
+    top: 0;
+    z-index: var(--tilavaraus-stack-order-sticky-container);`};
   svg {
     color: var(--color-info);
     min-width: 24px;
@@ -101,5 +106,24 @@ export const StyledNotification = styled(Notification)`
 
   button > svg {
     color: inherit;
+  }
+`;
+
+export const PinkBox = styled.div`
+  margin-top: var(--spacing-m);
+  padding: 1px var(--spacing-m) var(--spacing-m);
+  background-color: var(--color-suomenlinna-light);
+  line-height: var(--lineheight-l);
+
+  p {
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+
+    margin-bottom: var(--spacing-s);
+  }
+
+  ${Subheading} {
+    margin-top: var(--spacing-m);
   }
 `;

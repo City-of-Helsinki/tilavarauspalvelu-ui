@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "next-i18next";
 import styled, { CSSProperties } from "styled-components";
 import {
@@ -6,8 +6,10 @@ import {
   differenceInSeconds,
   format,
   isValid,
+  max,
+  min,
   parseISO,
-  subMinutes,
+  addMinutes,
 } from "date-fns";
 import {
   Button,
@@ -32,7 +34,12 @@ import {
   doReservationsCollide,
   getDayIntervals,
 } from "common/src/calendar/util";
-import { ApplicationRound, Language, OptionType } from "common/types/common";
+import {
+  ApplicationRound,
+  Language,
+  OptionType,
+  PendingReservation,
+} from "common/types/common";
 import {
   fontBold,
   fontMedium,
@@ -44,7 +51,7 @@ import {
   ReservationUnitByPkType,
 } from "common/types/gql-types";
 import { MediumButton } from "../../styles/util";
-import { DataContext, ReservationProps } from "../../context/DataContext";
+import { ReservationProps } from "../../context/DataContext";
 import { getDurationOptions } from "../../modules/reservation";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import LoginFragment from "../LoginFragment";
@@ -53,9 +60,8 @@ import { capitalize, formatDurationMinutes } from "../../modules/util";
 
 type Props<T> = {
   reservationUnit: ReservationUnitByPkType;
-  begin?: string;
-  end?: string;
-  resetReservation: () => void;
+  initialReservation: PendingReservation;
+  setInitialReservation: (reservation: PendingReservation) => void;
   isSlotReservable: (start: Date, end: Date) => boolean;
   isReserving: boolean;
   setCalendarFocusDate: (date: Date) => void;
@@ -67,6 +73,7 @@ type Props<T> = {
     skipLengthCheck?: boolean
   ) => boolean;
   mode: "create" | "edit";
+  minTime: Date;
   customAvailabilityValidation?: (start: Date) => boolean;
   shouldCalendarControlsBeVisible?: boolean;
   setShouldCalendarControlsBeVisible?: (value: boolean) => void;
@@ -261,9 +268,8 @@ const SubmitButton = styled(MediumButton)`
 
 const ReservationCalendarControls = <T extends Record<string, unknown>>({
   reservationUnit,
-  begin,
-  end,
-  resetReservation,
+  initialReservation,
+  setInitialReservation,
   isSlotReservable,
   isReserving,
   setCalendarFocusDate,
@@ -272,12 +278,15 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   setErrorMsg,
   handleEventChange,
   mode,
+  minTime,
   customAvailabilityValidation,
   shouldCalendarControlsBeVisible,
   setShouldCalendarControlsBeVisible,
   isAnimated = false,
 }: Props<T>): JSX.Element => {
   const { t, i18n } = useTranslation();
+
+  const { begin, end } = initialReservation || {};
 
   const durationOptions = useMemo(() => {
     const options = getDurationOptions(
@@ -290,7 +299,6 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     reservationUnit.maxReservationDuration,
   ]);
 
-  const { reservation, setReservation } = useContext(DataContext);
   const [date, setDate] = useState<Date | null>(new Date());
   const [startTime, setStartTime] = useState<string | null>(null);
   const [duration, setDuration] = useState<OptionType | null>(
@@ -303,10 +311,10 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     useLocalStorage<ReservationProps>("reservation");
 
   useEffect(() => {
-    if (!reservation) {
+    if (!initialReservation) {
       setStartTime(null);
     }
-  }, [reservation]);
+  }, [initialReservation]);
 
   const debouncedStartTime = useDebounce(begin, 200);
   const debouncedEndTime = useDebounce(end, 200);
@@ -360,15 +368,16 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           start: startDate,
           end: endDate,
         });
-        setReservation({
-          pk: null,
+        setInitialReservation({
           begin: startDate.toISOString(),
           end: endDate.toISOString(),
-          price: null,
         });
       } else {
-        setReservation({ pk: null, begin: null, end: null, price: null });
-        resetReservation();
+        setInitialReservation({
+          begin: null,
+          end: null,
+        });
+        setInitialReservation(null);
       }
       if (
         doBuffersCollide(
@@ -396,7 +405,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
         setErrorMsg(t(`reservationCalendar:errors.collision`));
       } else if (
         !areSlotsReservable(
-          [startDate, subMinutes(endDate, 1)],
+          [startDate, addMinutes(endDate, -1)],
           reservationUnit.openingHours?.openingTimes,
           reservationUnit.reservationBegins
             ? new Date(reservationUnit.reservationBegins)
@@ -405,7 +414,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             ? new Date(reservationUnit.reservationEnds)
             : undefined,
           reservationUnit.reservationsMinDaysBefore,
-          activeApplicationRounds
+          activeApplicationRounds,
+          true
         ) ||
         (customAvailabilityValidation &&
           !customAvailabilityValidation(startDate))
@@ -414,48 +424,62 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, startTime, duration?.value]);
+  }, [date, startTime, duration?.value, reservationUnit]);
 
   useEffect(() => {
-    setReservation({ pk: null, begin: null, end: null, price: null });
-  }, [setReservation]);
+    setInitialReservation({
+      begin: null,
+      end: null,
+    });
+  }, [setInitialReservation]);
 
   const {
     startTime: dayStartTime,
     endTime: dayEndTime,
   }: { startTime?: string; endTime?: string } = useMemo(() => {
-    return (
-      reservationUnit.openingHours?.openingTimes?.find(
-        (n) => n.date === toApiDate(date)
-      ) || { startTime: null, endTime: null }
-    );
+    const timeframes = reservationUnit.openingHours?.openingTimes?.filter(
+      (n) => n.date === toApiDate(date)
+    ) || [{ startTime: null, endTime: null }];
+
+    return {
+      startTime: min(
+        timeframes.map((n) => n.startTime && new Date(n.startTime))
+      ).toISOString(),
+      endTime: max(
+        timeframes.map((n) => n.endTime && new Date(n.endTime))
+      ).toISOString(),
+    };
   }, [reservationUnit.openingHours?.openingTimes, date]);
 
   const startingTimesOptions: OptionType[] = useMemo(() => {
     if (!dayStartTime || !dayEndTime) return [];
-    const [startHours, startMinutes] = dayStartTime.split(":").map(Number);
-    const [endHours, endMinutes] = dayEndTime.split(":").map(Number);
-    const startDate = new Date().setUTCHours(startHours, startMinutes);
-    const endDate = new Date().setUTCHours(endHours, endMinutes);
 
     return getDayIntervals(
-      format(startDate, "HH:mm"),
-      format(endDate, "HH:mm"),
+      format(minTime, "HH:mm"),
+      format(new Date(dayEndTime), "HH:mm"),
       reservationUnit.reservationStartInterval
     ).map((n) => ({
       label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
       value: trimStart(n.substring(0, 5), "0"),
     }));
-  }, [dayStartTime, dayEndTime, reservationUnit.reservationStartInterval]);
+  }, [
+    dayStartTime,
+    dayEndTime,
+    reservationUnit.reservationStartInterval,
+    minTime,
+  ]);
 
   const isReservable = useMemo(
     () =>
       !!duration &&
-      !!reservation &&
-      reservation?.begin &&
-      reservation?.end &&
-      isSlotReservable(new Date(reservation.begin), new Date(reservation.end)),
-    [duration, reservation, isSlotReservable]
+      !!initialReservation &&
+      initialReservation?.begin &&
+      initialReservation?.end &&
+      isSlotReservable(
+        new Date(initialReservation.begin),
+        new Date(initialReservation.end)
+      ),
+    [duration, initialReservation, isSlotReservable]
   );
 
   const beginDate = t("common:dateWithWeekday", {
@@ -476,8 +500,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
 
   const togglerLabel = (() => {
     const dateStr = trim(
-      `${beginDate} ${beginTime}-${
-        endDate !== beginDate ? endDate : ""
+      `${capitalize(beginDate)} ${beginTime}${
+        endDate !== beginDate ? ` - ${capitalize(endDate)} ` : "-"
       }${endTime}`,
       "-"
     );
@@ -500,12 +524,21 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       <LoginFragment
         isActionDisabled={!isReservable}
         actionCallback={() =>
-          setStoredReservation({ ...reservation, pk: reservationUnit.pk })
+          setStoredReservation({
+            ...initialReservation,
+            pk: null,
+            price: null,
+            reservationUnitPk: reservationUnit.pk,
+          })
         }
         componentIfAuthenticated={
           <SubmitButton
             onClick={() => {
-              createReservation(reservation);
+              createReservation({
+                ...initialReservation,
+                price: null,
+                reservationUnitPk: reservationUnit.pk,
+              });
             }}
             disabled={!isReservable || isReserving}
             data-test="reservation__button--submit"
@@ -527,7 +560,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
                 <div>&nbsp;</div>
               ) : (
                 <>
-                  <TogglerDate>{capitalize(togglerLabel)}</TogglerDate>
+                  <TogglerDate>{togglerLabel}</TogglerDate>
                   <TogglerPrice>
                     {t("reservationUnit:price")}: {price}
                   </TogglerPrice>
@@ -572,7 +605,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
                   !isValid(valueAsDate) ||
                   toApiDate(valueAsDate) < toApiDate(new Date())
                 ) {
-                  resetReservation();
+                  setInitialReservation(null);
                 } else {
                   setDate(valueAsDate);
                   setCalendarFocusDate(valueAsDate);
@@ -613,8 +646,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             <ResetButton
               onClick={() => {
                 setStartTime(null);
-                resetReservation();
-                setReservation(null);
+                setDuration(null);
+                setInitialReservation(null);
               }}
               disabled={!startTime}
             >

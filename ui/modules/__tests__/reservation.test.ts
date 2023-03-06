@@ -2,6 +2,7 @@ import { get as mockGet } from "lodash";
 import { addDays, addHours, addMinutes, format, startOfToday } from "date-fns";
 import {
   ReservationsReservationReserveeTypeChoices,
+  ReservationsReservationStateChoices,
   ReservationType,
   ReservationUnitByPkType,
 } from "common/types/gql-types";
@@ -16,7 +17,6 @@ import {
   isReservationInThePast,
 } from "../reservation";
 import mockTranslations from "../../public/locales/fi/prices.json";
-import { toApiDate } from "common/src/common/util";
 
 jest.mock("next-i18next", () => ({
   i18n: {
@@ -103,6 +103,7 @@ describe("canUserCancelReservation", () => {
   test("that does not need handling", () => {
     const reservation = {
       begin: addMinutes(new Date(), 10).toISOString(),
+      state: ReservationsReservationStateChoices.Confirmed,
       reservationUnits: [
         {
           cancellationRule: {
@@ -117,6 +118,7 @@ describe("canUserCancelReservation", () => {
   test("that does not need handling", () => {
     const reservation = {
       begin: new Date().toISOString(),
+      state: ReservationsReservationStateChoices.Confirmed,
       reservationUnits: [
         {
           cancellationRule: {
@@ -128,9 +130,25 @@ describe("canUserCancelReservation", () => {
     expect(canUserCancelReservation(reservation)).toBe(true);
   });
 
+  test("with non-confirmed state", () => {
+    const reservation = {
+      begin: new Date().toISOString(),
+      state: ReservationsReservationStateChoices.RequiresHandling,
+      reservationUnits: [
+        {
+          cancellationRule: {
+            needsHandling: false,
+          },
+        },
+      ],
+    } as ReservationType;
+    expect(canUserCancelReservation(reservation)).toBe(false);
+  });
+
   test("with 0 secs of buffer time", () => {
     const reservation = {
       begin: new Date().toISOString(),
+      state: ReservationsReservationStateChoices.Confirmed,
       reservationUnits: [
         {
           cancellationRule: {
@@ -401,14 +419,17 @@ describe("canReservationBeChanged", () => {
     reservationBegins: addDays(new Date(), -1).toISOString(),
     reservationEnds: addDays(new Date(), 100).toISOString(),
     openingHours: {
-      openingTimes: Array.from(Array(100)).map((val, index) => ({
-        date: format(addDays(new Date(), index), "yyyy-MM-dd"),
-        startTime: "07:00:00+00:00",
-        endTime: "20:00:00+00:00",
-        state: "open",
-        periods: null,
-        isReservable: true,
-      })),
+      openingTimes: Array.from(Array(100)).map((val, index) => {
+        const date = format(addDays(new Date(), index), "yyyy-MM-dd");
+        return {
+          date,
+          startTime: `${date}T07:00:00+00:00`,
+          endTime: `${date}T20:00:00+00:00`,
+          state: "open",
+          periods: null,
+          isReservable: true,
+        };
+      }),
     },
     reservations: [],
   } as ReservationUnitByPkType;

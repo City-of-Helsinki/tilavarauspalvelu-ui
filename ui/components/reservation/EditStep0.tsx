@@ -8,13 +8,19 @@ import {
 } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
 import { parseDate } from "common/src/common/util";
-import { PendingReservation } from "common/types/common";
+import { PendingReservation, Reservation } from "common/types/common";
 import {
   ApplicationRoundType,
   ReservationType,
   ReservationUnitByPkType,
 } from "common/types/gql-types";
-import { addSeconds, differenceInMinutes } from "date-fns";
+import {
+  addHours,
+  addSeconds,
+  differenceInMinutes,
+  roundToNearestMinutes,
+  startOfDay,
+} from "date-fns";
 import { IconArrowRight, IconCross } from "hds-react";
 import { useRouter } from "next/router";
 import React, { Children, useCallback, useMemo, useState } from "react";
@@ -82,7 +88,7 @@ const Actions = styled.div`
 `;
 
 const eventStyleGetter = (
-  { event }: CalendarEvent<ReservationType>,
+  { event }: CalendarEvent<Reservation | ReservationType>,
   ownReservations: number[],
   draggable = true
 ): { style: React.CSSProperties; className?: string } => {
@@ -129,14 +135,17 @@ const eventStyleGetter = (
   };
 };
 
+const EventWrapper = styled.div``;
+
 const EventWrapperComponent = (props) => {
+  const { event } = props;
   let isSmall = false;
-  if (props.event.event.state === "INITIAL") {
+  if (event.event.state === "INITIAL") {
     const { start, end } = props.event;
     const diff = differenceInMinutes(end, start);
     if (diff <= 30) isSmall = true;
   }
-  return <div {...props} className={isSmall ? "isSmall" : ""} />;
+  return <EventWrapper {...props} className={isSmall ? "isSmall" : ""} />;
 };
 
 const EditStep0 = ({
@@ -161,39 +170,53 @@ const EditStep0 = ({
   const [shouldCalendarControlsBeVisible, setShouldCalendarControlsBeVisible] =
     useState(false);
 
-  const calendarEvents: CalendarEvent<ReservationType>[] = useMemo(() => {
-    const shownReservation = initialReservation || {
-      begin: reservation.begin,
-      end: reservation.end,
-      state: "OWN",
-    };
-    return userReservations && reservationUnit?.reservations
-      ? [...reservationUnit.reservations, shownReservation]
-          .filter((n: ReservationType) => n)
-          .map((n: ReservationType) => {
-            const event = {
-              title: `${
-                n.state === "CANCELLED"
-                  ? `${t("reservationCalendar:prefixForCancelled")}: `
-                  : ""
-              }`,
-              start: parseDate(n.begin),
-              end: parseDate(n.end),
-              allDay: false,
-              event: n,
-            };
+  const calendarEvents: CalendarEvent<Reservation | ReservationType>[] =
+    useMemo(() => {
+      const shownReservation = { ...initialReservation, state: "INITIAL" } || {
+        begin: reservation.begin,
+        end: reservation.end,
+        state: "OWN",
+      };
+      const reservations = initialReservation?.begin
+        ? reservationUnit?.reservations.filter((n) => n.pk !== reservation.pk)
+        : reservationUnit?.reservations;
+      return userReservations && reservationUnit?.reservations
+        ? [...reservations, shownReservation]
+            .filter((n: ReservationType) => n)
+            .map((n: ReservationType) => {
+              const event = {
+                title: `${
+                  n.state === "CANCELLED"
+                    ? `${t("reservationCalendar:prefixForCancelled")}: `
+                    : ""
+                }`,
+                start: parseDate(n.begin),
+                end: parseDate(n.end),
+                allDay: false,
+                event: n,
+              };
 
-            return event;
-          })
-      : [];
-  }, [
-    reservationUnit,
-    t,
-    initialReservation,
-    userReservations,
-    reservation.begin,
-    reservation.end,
-  ]);
+              return event;
+            })
+        : [];
+    }, [
+      reservationUnit,
+      t,
+      initialReservation,
+      userReservations,
+      reservation.pk,
+      reservation.begin,
+      reservation.end,
+    ]);
+
+  const normalizedReservationUnit = useMemo(() => {
+    return {
+      ...reservationUnit,
+      reservations: reservationUnit.reservations?.filter(
+        (n) => n.pk !== reservation.pk
+      ),
+    };
+  }, [reservation.pk, reservationUnit]);
 
   const eventBuffers = useMemo(() => {
     return getEventBuffers([
@@ -202,7 +225,6 @@ const EditStep0 = ({
       {
         begin: initialReservation?.begin || reservation.begin,
         end: initialReservation?.end || reservation.end,
-        state: "INITIAL",
         bufferTimeBefore: reservationUnit?.bufferTimeBefore?.toString(),
         bufferTimeAfter: reservationUnit?.bufferTimeAfter?.toString(),
       },
@@ -259,7 +281,7 @@ const EditStep0 = ({
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
       return (
         isReservationReservable({
-          reservationUnit,
+          reservationUnit: normalizedReservationUnit,
           activeApplicationRounds,
           start,
           end,
@@ -267,7 +289,7 @@ const EditStep0 = ({
         }) && isSlotFree(start)
       );
     },
-    [activeApplicationRounds, reservationUnit, isSlotFree]
+    [activeApplicationRounds, isSlotFree, normalizedReservationUnit]
   );
 
   const handleEventChange = useCallback(
@@ -275,10 +297,13 @@ const EditStep0 = ({
       { start, end }: CalendarEvent<ReservationType>,
       skipLengthCheck = false
     ): boolean => {
+      const normalizedEnd = roundToNearestMinutes(end);
+
       const newReservation = {
         begin: start?.toISOString(),
-        end: end?.toISOString(),
+        end: normalizedEnd?.toISOString(),
       } as PendingReservation;
+
       if (
         !isReservationShortEnough(
           start,
@@ -295,18 +320,9 @@ const EditStep0 = ({
         return false;
       }
 
-      const price = getReservationUnitPrice({
-        reservationUnit,
-        pricingDate: start,
-        minutes: 0,
-        asInt: true,
-      });
-
       setInitialReservation({
         begin: newReservation.begin,
         end: newReservation.end,
-        state: "INITIAL",
-        price,
       } as PendingReservation);
 
       if (isClientATouchDevice) {
@@ -328,33 +344,30 @@ const EditStep0 = ({
       { start: startTime, end: endTime, action },
       skipLengthCheck = false
     ): boolean => {
+      const isTouchClick = action === "select" && isClientATouchDevice;
+
+      if (action === "select" && !isClientATouchDevice) {
+        return false;
+      }
+
       const end =
         action === "click" ||
-        (action === "select" &&
-          isClientATouchDevice &&
-          differenceInMinutes(endTime, startTime) <= 30)
+        (isTouchClick && differenceInMinutes(endTime, startTime) <= 30)
           ? addSeconds(
               new Date(startTime),
               reservationUnit.minReservationDuration || 0
             )
           : new Date(endTime);
 
+      const normalizedEnd = roundToNearestMinutes(end);
+
       if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
       }
 
-      const price = getReservationUnitPrice({
-        reservationUnit,
-        pricingDate: startTime,
-        minutes: 0,
-        asInt: true,
-      });
-
       setInitialReservation({
         begin: startTime.toISOString(),
-        end: end.toISOString(),
-        state: "INITIAL",
-        price,
+        end: normalizedEnd.toISOString(),
       } as PendingReservation);
       return true;
     },
@@ -366,13 +379,17 @@ const EditStep0 = ({
     ]
   );
 
+  const currentDate = focusDate || new Date();
+
+  const dayStartTime = addHours(startOfDay(currentDate), 6);
+
   return (
     <>
       <CalendarWrapper>
         <div aria-hidden>
-          <Calendar<ReservationType>
+          <Calendar<Reservation | ReservationType>
             events={[...calendarEvents, ...eventBuffers]}
-            begin={focusDate || new Date()}
+            begin={currentDate}
             onNavigate={(d: Date) => {
               setFocusDate(d);
             }}
@@ -391,6 +408,7 @@ const EditStep0 = ({
             onSelecting={(event: CalendarEvent<ReservationType>) =>
               handleEventChange(event, true)
             }
+            min={dayStartTime}
             showToolbar
             reservable
             toolbarComponent={Toolbar}
@@ -416,12 +434,9 @@ const EditStep0 = ({
         </div>
         <CalendarFooter>
           <ReservationCalendarControls
-            reservationUnit={reservationUnit}
-            begin={initialReservation?.begin}
-            end={initialReservation?.end}
-            resetReservation={() => {
-              setInitialReservation(null);
-            }}
+            reservationUnit={normalizedReservationUnit}
+            initialReservation={initialReservation}
+            setInitialReservation={setInitialReservation}
             isSlotReservable={(startDate, endDate) =>
               isSlotReservable(startDate, endDate)
             }
@@ -436,6 +451,7 @@ const EditStep0 = ({
             setShouldCalendarControlsBeVisible={
               setShouldCalendarControlsBeVisible
             }
+            minTime={dayStartTime}
             isAnimated={isMobile}
           />
         </CalendarFooter>
@@ -455,14 +471,24 @@ const EditStep0 = ({
         <MediumButton
           variant="primary"
           iconRight={<IconArrowRight aria-hidden />}
-          disabled={!initialReservation}
+          disabled={!initialReservation?.begin || !initialReservation?.end}
           onClick={() => {
+            const newReservation: PendingReservation = {
+              ...initialReservation,
+              price: getReservationUnitPrice({
+                reservationUnit,
+                pricingDate: initialReservation.begin
+                  ? new Date(initialReservation.begin)
+                  : null,
+                minutes: 0,
+                asInt: true,
+              }),
+            };
             const [isNewReservationValid, validationError] =
               canReservationTimeBeChanged({
                 reservation,
-                newReservation:
-                  initialReservation as unknown as ReservationType,
-                reservationUnit,
+                newReservation,
+                reservationUnit: normalizedReservationUnit,
                 activeApplicationRounds,
               });
 

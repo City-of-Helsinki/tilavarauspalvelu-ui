@@ -1,7 +1,11 @@
-import { isAfter, isValid, subMinutes } from "date-fns";
+import { addMinutes, isAfter, isValid } from "date-fns";
 import camelCase from "lodash/camelCase";
 import { convertHMSToSeconds, secondsToHms } from "common/src/common/util";
-import { ApplicationRound, OptionType } from "common/types/common";
+import {
+  ApplicationRound,
+  OptionType,
+  PendingReservation,
+} from "common/types/common";
 import {
   ApplicationRoundType,
   ReservationsReservationReserveeTypeChoices,
@@ -77,6 +81,8 @@ export const canUserCancelReservation = (
   skipTimeCheck = false
 ): boolean => {
   const reservationUnit = reservation.reservationUnits?.[0];
+  if (reservation.state !== ReservationsReservationStateChoices.Confirmed)
+    return false;
   if (!reservationUnit?.cancellationRule) return false;
   if (reservationUnit?.cancellationRule?.needsHandling) return false;
   if (
@@ -189,6 +195,8 @@ export const isReservationReservable = (
     skipLengthCheck = false,
   } = props;
 
+  const normalizedEnd = addMinutes(end, -1);
+
   const {
     reservations,
     bufferTimeBefore,
@@ -220,12 +228,13 @@ export const isReservationReservable = (
       reservationStartInterval
     ) ||
     !areSlotsReservable(
-      [new Date(start), subMinutes(new Date(end), 1)],
+      [new Date(start), normalizedEnd],
       openingHours?.openingTimes,
       reservationBegins ? new Date(reservationBegins) : undefined,
       reservationEnds ? new Date(reservationEnds) : undefined,
       reservationsMinDaysBefore,
-      activeApplicationRounds
+      activeApplicationRounds,
+      false
     ) ||
     (!skipLengthCheck &&
       !isReservationLongEnough(start, end, minReservationDuration)) ||
@@ -243,12 +252,12 @@ export const isReservationConfirmed = (reservation: ReservationType): boolean =>
   reservation.state === "CONFIRMED";
 
 export const isReservationFreeOfCharge = (
-  reservation: ReservationType
+  reservation: ReservationType | PendingReservation
 ): boolean => parseInt(String(reservation.price), 10) === 0;
 
 export type CanReservationBeChangedProps = {
   reservation: ReservationType;
-  newReservation?: ReservationType;
+  newReservation?: ReservationType | PendingReservation;
   reservationUnit?: ReservationUnitByPkType;
   activeApplicationRounds?: ApplicationRoundType[];
 };

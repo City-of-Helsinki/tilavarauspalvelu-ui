@@ -210,8 +210,9 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
               ?.openingTimePeriods || [],
         openingTimes: allowReservationsWithoutOpeningHours
           ? mockOpeningTimes
-          : additionalData?.reservationUnitByPk?.openingHours?.openingTimes ||
-            [],
+          : additionalData?.reservationUnitByPk?.openingHours?.openingTimes.filter(
+              (n) => n.isReservable
+            ) || [],
       },
       reservations: additionalData?.reservationUnitByPk?.reservations,
     });
@@ -245,7 +246,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
   useEffect(() => {
     if (applicationRoundsData && reservationUnit) {
       setActiveApplicationRounds(
-        applicationRoundsData.applicationRounds.edges
+        applicationRoundsData?.applicationRounds?.edges
           .map(({ node }) => node)
           .filter((applicationRound) =>
             applicationRound.reservationUnits
@@ -296,6 +297,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
       step === 1
         ? { ...reservation, ...pick(initialReservation, ["begin", "end"]) }
         : reservation;
+    const termsOfUse = getTranslation(reservationUnit, "termsOfUse");
 
     return (
       reservation &&
@@ -306,12 +308,12 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
             reservationUnit={reservationUnit}
             type="confirmed"
           />
-          {step === 0 && (
+          {step === 0 && termsOfUse && (
             <PinkBox>
               <Subheading>
                 {t("reservations:reservationInfoBoxHeading")}
               </Subheading>
-              <Sanitize html={getTranslation(reservationUnit, "termsOfUse")} />
+              <Sanitize html={termsOfUse} />
             </PinkBox>
           )}
         </BylineContent>
