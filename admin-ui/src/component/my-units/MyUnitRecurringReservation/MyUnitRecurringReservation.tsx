@@ -44,7 +44,8 @@ const BackLinkHeader = ({ unitId }: { unitId: number }) => {
 };
 
 const MyUnitRecurringReservation = ({ unitId }: { unitId: number }) => {
-  const [sent, setSent] = useState<ReservationsMade | null>(null);
+  const [reservationMade, setReservationMade] =
+    useState<ReservationsMade | null>(null);
   const { t } = useTranslation();
 
   const { loading, reservationUnits } = useRecurringReservationsUnits(unitId);
@@ -55,14 +56,14 @@ const MyUnitRecurringReservation = ({ unitId }: { unitId: number }) => {
     <>
       <BackLinkHeader unitId={unitId} />
       <Container>
-        {sent !== null ? (
-          <RecurringSuccess data={sent} />
+        {reservationMade !== null ? (
+          <RecurringSuccess reservation={reservationMade} />
         ) : (
           <>
             <H1 $legacy>{t("MyUnits.RecurringReservation.pageTitle")}</H1>
             {reservationUnits != null && reservationUnits.length > 0 ? (
               <MyUnitRecurringReservationForm
-                onReservation={setSent}
+                onReservation={setReservationMade}
                 reservationUnits={reservationUnits}
               />
             ) : (

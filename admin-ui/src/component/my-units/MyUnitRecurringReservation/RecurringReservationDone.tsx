@@ -26,12 +26,12 @@ export type ReservationsMade = Array<{
 }>;
 
 type RecurringSuccessProps = {
-  data: ReservationsMade;
+  reservation: ReservationsMade;
 };
 const RecurringReservationDone = (props: RecurringSuccessProps) => {
-  const failed = props.data.filter(({ error }) => error != null);
+  const failed = props.reservation.filter(({ error }) => error != null);
 
-  const successes = props.data.filter(({ error }) => error == null);
+  const successes = props.reservation.filter(({ error }) => error == null);
 
   const { t } = useTranslation();
   const { notifyError } = useNotification();
@@ -48,13 +48,13 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
           {failed.length === 0
             ? t(`${locPrefix}.successInfo`)
             : t(`${locPrefix}.failureInfo`, {
-                total: props.data.length,
+                total: props.reservation.length,
                 conflicts: failed.length,
               })}
         </span>
         <span>
           {t(`${locPrefix}.holidayInfo`, {
-            total: props.data.length,
+            total: props.reservation.length,
             holidays: 0,
           })}
         </span>
