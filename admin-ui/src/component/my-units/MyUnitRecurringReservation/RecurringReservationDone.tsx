@@ -17,21 +17,21 @@ const StyledH6 = styled(H6)`
   margin-bottom: 0;
 `;
 
-export type ReservationsMade = Array<{
+export type ReservationMade = {
   reservationPk?: number;
   startTime: string;
   endTime: string;
   date: Date;
   error?: string | ErrorType[];
-}>;
+};
 
 type RecurringSuccessProps = {
-  reservation: ReservationsMade;
+  reservations: ReservationMade[];
 };
 const RecurringReservationDone = (props: RecurringSuccessProps) => {
-  const failed = props.reservation.filter(({ error }) => error != null);
+  const failed = props.reservations.filter(({ error }) => error != null);
 
-  const successes = props.reservation.filter(({ error }) => error == null);
+  const successes = props.reservations.filter(({ error }) => error == null);
 
   const { t } = useTranslation();
   const { notifyError } = useNotification();
@@ -48,13 +48,13 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
           {failed.length === 0
             ? t(`${locPrefix}.successInfo`)
             : t(`${locPrefix}.failureInfo`, {
-                total: props.reservation.length,
+                total: props.reservations.length,
                 conflicts: failed.length,
               })}
         </span>
         <span>
           {t(`${locPrefix}.holidayInfo`, {
-            total: props.reservation.length,
+            total: props.reservations.length,
             holidays: 0,
           })}
         </span>

@@ -10,7 +10,7 @@ import { BasicLink } from "../../../styles/util";
 import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
 import { MyUnitRecurringReservationForm } from "./MyUnitRecurringReservationForm";
-import type { ReservationsMade } from "./RecurringReservationDone";
+import type { ReservationMade } from "./RecurringReservationDone";
 import RecurringSuccess from "./RecurringReservationDone";
 import { useRecurringReservationsUnits } from "./hooks";
 
@@ -44,8 +44,9 @@ const BackLinkHeader = ({ unitId }: { unitId: number }) => {
 };
 
 const MyUnitRecurringReservation = ({ unitId }: { unitId: number }) => {
-  const [reservationMade, setReservationMade] =
-    useState<ReservationsMade | null>(null);
+  const [reservationsMade, setReservationsMade] = useState<
+    ReservationMade[] | null
+  >(null);
   const { t } = useTranslation();
 
   const { loading, reservationUnits } = useRecurringReservationsUnits(unitId);
@@ -56,14 +57,14 @@ const MyUnitRecurringReservation = ({ unitId }: { unitId: number }) => {
     <>
       <BackLinkHeader unitId={unitId} />
       <Container>
-        {reservationMade !== null ? (
-          <RecurringSuccess reservation={reservationMade} />
+        {reservationsMade !== null ? (
+          <RecurringSuccess reservations={reservationsMade} />
         ) : (
           <>
             <H1 $legacy>{t("MyUnits.RecurringReservation.pageTitle")}</H1>
-            {reservationUnits != null && reservationUnits.length > 0 ? (
+            {reservationUnits !== undefined && reservationUnits?.length > 0 ? (
               <MyUnitRecurringReservationForm
-                onReservation={setReservationMade}
+                onReservation={setReservationsMade}
                 reservationUnits={reservationUnits}
               />
             ) : (

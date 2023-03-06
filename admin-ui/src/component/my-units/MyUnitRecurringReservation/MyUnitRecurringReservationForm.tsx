@@ -27,7 +27,7 @@ import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
-import { ReservationsMade } from "./RecurringReservationDone";
+import { ReservationMade } from "./RecurringReservationDone";
 import { ActionsWrapper } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
 import { useMultipleReservation } from "./hooks";
@@ -62,7 +62,7 @@ const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
 type Props = {
   reservationUnits: ReservationUnitType[];
-  onReservation: (res: ReservationsMade) => void;
+  onReservation: (res: ReservationMade[]) => void;
 };
 
 const MyUnitRecurringReservationForm = ({
