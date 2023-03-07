@@ -35,12 +35,12 @@ const RecurringReservationFormBaseSchema = z
     reservationUnit: Option,
     type: z.string(),
     seriesName: z.string(),
-    comments: z.string().max(500).optional(),
+    comments: z.string().max(500),
     bufferTimeBefore: z.boolean(),
     bufferTimeAfter: z.boolean(),
   })
   .merge(timeSelectionSchemaBase)
-  // TODO is passthrough necessary?
+  // need passthrough otherwise zod will strip the metafields
   .passthrough();
 
 export const timeSelectionSchema = timeSelectionSchemaBase

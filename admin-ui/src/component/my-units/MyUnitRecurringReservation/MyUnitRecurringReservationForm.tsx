@@ -54,8 +54,13 @@ const Element = styled.div<{ $wide?: boolean; $start?: boolean }>`
 `;
 
 const CommentsTextArea = styled(TextArea)`
-  grid-column: 1 / -1;
   max-width: var(--prose-width);
+  margin: 2rem 0;
+`;
+
+const InnerTextInput = styled(TextInput)`
+  max-width: var(--prose-width);
+  margin: 1rem 0;
 `;
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
@@ -169,7 +174,7 @@ const MyUnitRecurringReservationForm = ({
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name: data.seriesName,
-        description: data.comments,
+        description: data.comments ?? "",
 
         // TODO missing fields
         // abilityGroupPk?: InputMaybe<Scalars["Int"]>;
@@ -221,7 +226,7 @@ const MyUnitRecurringReservationForm = ({
               bufferTimeAfter: bufferTimeAfter
                 ? String(bufferTimeBefore)
                 : undefined,
-              workingMemo: data.comments,
+              workingMemo: data.comments ?? "",
               ...flattenedMetadataSetValues,
             };
             const { data: resData } = await createStaffReservation(staffInput);
@@ -442,10 +447,9 @@ const MyUnitRecurringReservationForm = ({
           )}
 
           <Element $wide>
-            {/* TODO from this point on this is the same as the Single reservation */}
             {reservationUnit != null && (
               <ReservationTypeForm reservationUnit={reservationUnit}>
-                <TextInput
+                <InnerTextInput
                   id="name"
                   disabled={reservationUnit == null}
                   label={t(`${TRANS_PREFIX}.name`)}
@@ -459,7 +463,7 @@ const MyUnitRecurringReservationForm = ({
                   label={t(`${TRANS_PREFIX}.comments`)}
                   {...register("comments")}
                   errorText={translateError(errors.comments?.message)}
-                  required={false}
+                  required
                 />
               </ReservationTypeForm>
             )}
