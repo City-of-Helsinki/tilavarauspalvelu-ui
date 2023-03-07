@@ -1,5 +1,10 @@
 import { ReservationState } from "common/types/common";
-import { IconArrowRight, IconCalendar, IconSignout } from "hds-react";
+import {
+  IconArrowRight,
+  IconCalendar,
+  IconLinkExternal,
+  IconSignout,
+} from "hds-react";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
 import { Trans, useTranslation } from "next-i18next";
@@ -7,20 +12,28 @@ import Link from "next/link";
 import styled from "styled-components";
 import { fontMedium, fontRegular, H2 } from "common/src/common/typography";
 import { Reservation } from "common/src/reservation-form/types";
+import { signOut } from "next-auth/react";
 import {
+  PaymentOrderType,
   ReservationsReservationStateChoices,
+  ReservationType,
   ReservationUnitType,
 } from "common/types/gql-types";
 import { Subheading } from "common/src/reservation-form/styles";
+import { breakpoints } from "common/src/common/style";
 import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
 import { getTranslation, reservationsUrl } from "../../modules/util";
 import { BlackButton } from "../../styles/util";
 import { Paragraph } from "./styles";
-import { reservationUnitPath } from "../../modules/const";
+import {
+  authenticationLogoutApiRoute,
+  reservationUnitPath,
+} from "../../modules/const";
 
 type Props = {
-  reservation: Reservation;
+  reservation: Reservation | ReservationType;
   reservationUnit: ReservationUnitType;
+  order?: PaymentOrderType;
 };
 
 const Wrapper = styled.div`
@@ -33,6 +46,15 @@ const ActionContainer1 = styled.div`
   margin: var(--spacing-m) 0 var(--spacing-l);
   display: flex;
   gap: var(--spacing-m);
+  flex-direction: column;
+
+  > button {
+    max-width: 20rem;
+  }
+
+  @media (min-width: ${breakpoints.l}) {
+    flex-direction: row;
+  }
 `;
 
 const ActionContainer2 = styled.div`
@@ -63,6 +85,7 @@ const InlineStyledLink = styled(Link)`
 const ReservationConfirmation = ({
   reservation,
   reservationUnit,
+  order,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const router = useRouter();
@@ -118,6 +141,16 @@ const ReservationConfirmation = ({
             >
               {t("reservations:saveToCalendar")}
             </BlackButton>
+            {order?.receiptUrl && (
+              <BlackButton
+                data-testid="reservation__confirmation--button__receipt-link"
+                onClick={() => window.open(order.receiptUrl, "_blank")}
+                variant="secondary"
+                iconRight={<IconLinkExternal aria-hidden />}
+              >
+                {t("reservations:downloadReceipt")}
+              </BlackButton>
+            )}
           </ActionContainer1>
         )}
         {getTranslation(reservationUnit, instructionsKey) && (
@@ -141,7 +174,15 @@ const ReservationConfirmation = ({
             {t("common:gotoFrontpage")}
             <IconArrowRight aria-hidden size="m" />
           </StyledLink>
-          <StyledLink href={reservationsUrl}>
+          <StyledLink
+            href="#"
+            onClick={() =>
+              signOut({
+                redirect: true,
+                callbackUrl: authenticationLogoutApiRoute,
+              })
+            }
+          >
             {t("common:logout")} <IconSignout size="m" aria-hidden />
           </StyledLink>
         </ActionContainer2>

@@ -64,6 +64,7 @@
   "contactPhone": "",
   "contactEmail": "",
   "saveToCalendar": "",
+  "downloadReceipt": "",
   "steps": {
     "1": "",
     "2": "",
@@ -89,5 +90,13 @@
     "paidManually": ""
   },
   "reservationEditFailed": "",
-  "backToReservationUnit": ""
+  "backToReservationUnit": "",
+  "reservationExpired": "",
+  "reservationExpiredDescription": "",
+  "orderInvalid": "",
+  "backToSearch": "",
+  "confirmationError": {
+    "heading": "",
+    "body": ""
+  }
 }

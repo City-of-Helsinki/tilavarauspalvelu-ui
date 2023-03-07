@@ -350,9 +350,15 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
   const normalizedOrderStatus =
     getNormalizedReservationOrderStatus(reservation);
 
-  return loading || !reservation ? (
-    <Spinner />
-  ) : (
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (!reservation || !reservationUnit) {
+    return null;
+  }
+
+  return (
     <Wrapper>
       <Container>
         <StyledBreadcrumbWrapper

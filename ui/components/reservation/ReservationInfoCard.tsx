@@ -162,7 +162,7 @@ const ReservationInfoCard = ({
       )}
       <Content data-testid="reservation__reservation-info-card__content">
         <Heading>
-          <StyledLink href={reservationUnitPath(reservationUnit.pk)}>
+          <StyledLink href={reservationUnitPath(reservationUnit?.pk)}>
             {getTranslation(reservationUnit, "name")}
           </StyledLink>
         </Heading>
@@ -171,7 +171,7 @@ const ReservationInfoCard = ({
             {t("reservations:reservationNumber")}: {reservation?.pk}
           </Subheading>
         )}
-        <Subheading>{getTranslation(reservationUnit.unit, "name")}</Subheading>
+        <Subheading>{getTranslation(reservationUnit?.unit, "name")}</Subheading>
         <Value>
           <Strong>
             {capitalize(timeString)}, {formatDurationMinutes(duration)}

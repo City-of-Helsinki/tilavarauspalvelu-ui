@@ -120,6 +120,7 @@ const NavigationUserMenu = () => {
       authenticated={session.status === "authenticated"}
       label={t("common:login")}
       onSignIn={handleSignIn}
+      closeOnItemClick
       $active={isActive}
     >
       {user ? (
