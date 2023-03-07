@@ -1174,6 +1174,7 @@ const translations: ITranslations = {
       maxPersons: ["Hlömäärä (max)"],
       surfaceArea: ["Pinta-ala"],
       state: ["Tila"],
+      reservationState: ["Varauskalenteri"],
     },
   },
   ReservationUnitsSearch: {

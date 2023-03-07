@@ -16,7 +16,7 @@ const ReservationUnitStateFilter = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const opts: OptionType[] = Object.keys(ReservationUnitState).map((s) => ({
+  const opts: OptionType[] = Object.values(ReservationUnitState).map((s) => ({
     value: s,
     label: t(`ReservationUnits.state.${s}`),
   }));
