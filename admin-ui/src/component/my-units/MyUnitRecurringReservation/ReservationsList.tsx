@@ -1,6 +1,5 @@
-import { toUIDate } from "common/src/common/util";
-import { addDays, eachDayOfInterval, getDay, max, min } from "date-fns";
 import React from "react";
+import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { z } from "zod";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
@@ -66,6 +65,27 @@ const validator = timeSelectionSchema;
 
 type GenInputType = z.infer<typeof validator>;
 
+// NOTE Custom UTC date code because taking only the date part of Date results
+// in the previous date in UTC+2 timezone
+const MS_IN_DAY = 24 * 60 * 60 * 1000;
+const eachDayOfInterval = (start: number, end: number, stepDays = 1) => {
+  if (end < start || stepDays < 1) {
+    return [];
+  }
+  const daysWithoutCeil = (end - start) / (MS_IN_DAY * stepDays);
+  const days = Math.ceil(daysWithoutCeil);
+  return Array.from(Array(days)).map(
+    (_, i) => i * (MS_IN_DAY * stepDays) + start
+  );
+};
+
+// epoch is Thue (4)
+// TODO this could be combined with monday first
+const dayOfWeek: (t: number) => 0 | 1 | 2 | 3 | 4 | 5 | 6 = (
+  time: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => ((Math.floor(time / MS_IN_DAY) + 4) % 7) as any;
+
 const generateReservations = (
   props: GenInputType
 ): NewReservationListItem[] => {
@@ -84,39 +104,36 @@ const generateReservations = (
     repeatOnDays,
   } = vals.data;
 
-  // TODO write a test for this
-  //  - (biweekly vs. weekly)
-  //  - edge cases (first day / last day inclusion)
-  //  - empty / invalid ranges (start > end; start === end etc.)
+  const utcDate = (d: Date) =>
+    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
   try {
-    const sDay = max([startingDate, new Date()]);
-    const firstWeek = eachDayOfInterval({
-      start: sDay,
-      end: min([addDays(sDay, 6), endingDate]),
-    });
+    const min = (a: number, b: number) => (a < b ? a : b);
+    const max = (a: number, b: number) => (a > b ? a : b);
+    const sDay = max(utcDate(new Date()), utcDate(startingDate));
+
+    const eDay = min(sDay + MS_IN_DAY * 7, utcDate(endingDate));
+    const firstWeek = eachDayOfInterval(sDay, eDay);
 
     return firstWeek
-      .filter((day) => repeatOnDays.includes(toMondayFirst(getDay(day))))
+      .filter((time) => repeatOnDays.includes(toMondayFirst(dayOfWeek(time))))
       .map((x) =>
         eachDayOfInterval(
-          {
-            start: x,
-            end: endingDate,
-          },
-          {
-            step: repeatPattern.value === "weekly" ? 7 : 14,
-          }
+          x,
+          utcDate(endingDate),
+          repeatPattern.value === "weekly" ? 7 : 14
         )
       )
       .reduce((acc, x) => [...acc, ...x], [])
       .map((day) => ({
-        date: day,
+        date: new Date(day),
         startTime: startingTime.value,
         endTime: endingTime.value,
       }))
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   } catch (e) {
-    // date-fns throws => don't crash
+    // eslint-disable-next-line no-console
+    console.warn("exception: ", e);
+    // Date throws => don't crash
   }
 
   return [];
