@@ -10,6 +10,7 @@ import {
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { LoadingSpinner } from "hds-react";
+import { signIn, useSession } from "next-auth/react";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
@@ -22,6 +23,7 @@ import {
   REFRESH_ORDER,
 } from "../modules/queries/reservation";
 import ReservationFail from "../components/reservation/ReservationFail";
+import { authenticationIssuer } from "../modules/const";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
@@ -55,6 +57,7 @@ const ErrorWrapper = ({ error }: { error: Error }) => {
 };
 
 const ReservationSuccess = () => {
+  const session = useSession();
   const router = useRouter();
   const { orderId } = router.query as { orderId: string };
 
@@ -62,6 +65,16 @@ const ReservationSuccess = () => {
   const [order, setOrder] = useState<PaymentOrderType>(null);
   const [reservation, setReservation] = useState<ReservationType>(null);
   const [refreshRetries, setRefreshRetries] = useState<number>(0);
+
+  const isCheckingAuth = session?.status === "loading";
+  const isLoggedOut = session?.status === "unauthenticated";
+  useEffect(() => {
+    if (isLoggedOut) {
+      signIn(authenticationIssuer, {
+        callbackUrl: window.location.href,
+      });
+    }
+  }, [isLoggedOut]);
 
   const [
     refreshOrder,
@@ -108,7 +121,7 @@ const ReservationSuccess = () => {
       processOrder(data.order);
     },
     onError: () => {},
-    skip: !orderId,
+    skip: !orderId || isLoggedOut || isCheckingAuth,
   });
 
   const [getReservation] = useLazyQuery<Query, QueryReservationByPkArgs>(
@@ -184,7 +197,7 @@ const ReservationSuccess = () => {
     }
   }, [orderId, reservation, router, error]);
 
-  if (error) {
+  if (error && !isLoggedOut && !isCheckingAuth) {
     return <ErrorWrapper error={error} />;
   }
 
