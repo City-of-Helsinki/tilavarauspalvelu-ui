@@ -59,7 +59,7 @@ const Buttons = styled.div`
   font-size: var(--fontsize-body-s);
   margin-top: var(--spacing-m);
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: var(--spacing-xs);
 
   @media (min-width: ${breakpoints.s}) {
@@ -68,8 +68,17 @@ const Buttons = styled.div`
   }
 
   @media (min-width: ${breakpoints.m}) {
+    flex-direction: column;
     align-items: flex-end;
     justify-content: flex-end;
+
+    > button {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: ${breakpoints.l}) {
+    flex-direction: row;
   }
 `;
 
@@ -170,7 +179,7 @@ const ApplicationCard = ({
 
   const modal = useRef<ModalRef>();
   return (
-    <Card border key={application.pk}>
+    <Card border key={application.pk} data-testid="applications__card--wrapper">
       <div>
         <C>{t(`applicationCard:status.${reducedApplicationStatus}`)}</C>
         <RoundName>{getApplicationRoundName(applicationRound)}</RoundName>
@@ -188,21 +197,6 @@ const ApplicationCard = ({
         </Modified>
       </div>
       <Buttons>
-        {state === "cancelling" ? (
-          <CenterSpinner />
-        ) : (
-          editable && (
-            <StyledButton
-              aria-label={t("applicationCard:cancel")}
-              onClick={() => {
-                modal?.current?.open();
-              }}
-              variant="secondary"
-            >
-              {t("applicationCard:cancel")}
-            </StyledButton>
-          )
-        )}
         <StyledButton
           aria-label={t("applicationCard:edit")}
           disabled={!editable}
@@ -212,6 +206,29 @@ const ApplicationCard = ({
           variant="primary"
         >
           {t("applicationCard:edit")}
+        </StyledButton>
+        {state === "cancelling" ? (
+          <CenterSpinner />
+        ) : (
+          <StyledButton
+            aria-label={t("applicationCard:cancel")}
+            onClick={() => {
+              modal?.current?.open();
+            }}
+            variant="secondary"
+            disabled={!editable}
+          >
+            {t("applicationCard:cancel")}
+          </StyledButton>
+        )}
+        <StyledButton
+          aria-label={t("applicationCard:view")}
+          onClick={() => {
+            router.push(`${applicationUrl(application.pk)}/view`);
+          }}
+          variant="primary"
+        >
+          {t("applicationCard:view")}
         </StyledButton>
       </Buttons>
       <ConfirmationModal

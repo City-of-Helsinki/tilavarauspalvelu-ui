@@ -5,6 +5,7 @@
   "cancelled": "Your application has been cancelled.",
   "edit": "Edit application",
   "cancel": "Cancel application",
+  "view": "",
   "status": {
     "draft": "Draft",
     "processing": "In process",

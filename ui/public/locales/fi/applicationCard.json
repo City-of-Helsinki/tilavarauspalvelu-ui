@@ -5,6 +5,7 @@
   "cancelled": "Hakemus on peruutettu onnistuneesti.",
   "edit": "Muokkaa hakemusta",
   "cancel": "Peru hakemus",
+  "view": "Näytä hakemus",
   "status": {
     "draft": "Kesken",
     "processing": "Käsittelyssä",
