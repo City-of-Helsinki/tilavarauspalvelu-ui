@@ -95,7 +95,7 @@ const StyledCheckbox = styled(Checkbox)`
 
 const ControlledCheckbox = (props: {
   field: string;
-  control: Control<FieldValues, any>;
+  control: Control<FieldValues, boolean>;
   required: boolean;
   label: string;
   defaultValue?: boolean;
