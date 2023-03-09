@@ -37,12 +37,12 @@ describe("applications", () => {
         .should("have.length", groupData[index].items);
     });
 
-    applicationCard().eq(0).find('button[aria-label="Peru hakemus"]').click();
+    applicationCard().eq(0).find('button[aria-label="Peru"]').click();
     confirmationModal().should("be.visible");
     confirmationModal().find("button").eq(0).click();
     confirmationModal().should("not.exist");
 
-    applicationCard().eq(0).find('button[aria-label="Peru hakemus"]').click();
+    applicationCard().eq(0).find('button[aria-label="Peru"]').click();
     confirmationModal().should("be.visible");
     confirmationModal().find("button").eq(1).click();
 
@@ -52,7 +52,7 @@ describe("applications", () => {
   it("can view an application", () => {
     applicationCard()
       .eq(0)
-      .find('> div > button[aria-label="Näytä hakemus"]')
+      .find('> div > button[aria-label="Näytä"]')
       .eq(0)
       .click();
 
