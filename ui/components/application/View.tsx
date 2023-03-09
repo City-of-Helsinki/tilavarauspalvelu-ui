@@ -8,7 +8,6 @@ import styled from "styled-components";
 import { formatDuration } from "common/src/common/util";
 import {
   Application,
-  ReservationUnit,
   Parameter,
   StringParameter,
   OptionType,
@@ -16,12 +15,7 @@ import {
 import { fontRegular } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { Query, TermsOfUseType } from "common/types/gql-types";
-import {
-  applicationsUrl,
-  getTranslation,
-  localizedValue,
-  mapOptions,
-} from "../../modules/util";
+import { getTranslation, localizedValue, mapOptions } from "../../modules/util";
 import { getParameters, getReservationUnit } from "../../modules/api";
 import LabelValue from "../common/LabelValue";
 import TimePreview from "../common/TimePreview";
@@ -48,7 +42,7 @@ const mapArrayById = (
     // eslint-disable-next-line no-param-reassign
     prev[current.id] = current;
     return prev;
-  }, {} as { [key: number]: Parameter | ReservationUnit });
+  }, {});
 };
 
 const UnitList = styled.ol`
@@ -110,8 +104,8 @@ const Terms = styled.div`
   }
 `;
 
-const Preview = ({ application, tos }: Props): JSX.Element | null => {
-  const { i18n } = useTranslation();
+const ViewApplication = ({ application, tos }: Props): JSX.Element | null => {
+  const { t, i18n } = useTranslation();
 
   const [ready, setReady] = useState(false);
 
@@ -119,7 +113,7 @@ const Preview = ({ application, tos }: Props): JSX.Element | null => {
     [key: number]: Parameter;
   }>({});
   const [reservationUnits, setReservationUnits] = useState<{
-    [key: number]: ReservationUnit;
+    [key: number]: { id: number };
   }>({});
 
   const [purposeOptions, setPurposeOptions] = useState<OptionType[]>([]);
@@ -166,11 +160,7 @@ const Preview = ({ application, tos }: Props): JSX.Element | null => {
       );
 
       if (mounted) {
-        setReservationUnits(
-          mapArrayById(fetchedReservationUnits) as {
-            [key: number]: ReservationUnit;
-          }
-        );
+        setReservationUnits(mapArrayById(fetchedReservationUnits));
       }
 
       const fetchedAgeGroupOptions = await getParameters("age_group");
@@ -185,8 +175,6 @@ const Preview = ({ application, tos }: Props): JSX.Element | null => {
       mounted = false;
     };
   }, [application]);
-
-  const { t } = useTranslation();
 
   const tos1 = tos.find((n) => n.pk === "generic1");
   const tos2 = tos.find((n) => n.pk === "KUVAnupa");
@@ -258,19 +246,19 @@ const Preview = ({ application, tos }: Props): JSX.Element | null => {
               />
               <StyledLabelValue
                 label={t("application:preview.applicationEvent.begin")}
-                value={applicationEvent.begin || ""}
+                value={applicationEvent.begin}
               />
               <StyledLabelValue
                 label={t("application:preview.applicationEvent.end")}
-                value={applicationEvent.end || ""}
+                value={applicationEvent.end}
               />
               <StyledLabelValue
                 label={t("application:preview.applicationEvent.minDuration")}
-                value={formatDuration(applicationEvent.minDuration as string)}
+                value={formatDuration(applicationEvent.minDuration)}
               />
               <StyledLabelValue
                 label={t("application:preview.applicationEvent.maxDuration")}
-                value={formatDuration(applicationEvent.maxDuration as string)}
+                value={formatDuration(applicationEvent.maxDuration)}
               />
               <StyledLabelValue
                 label={t("application:preview.applicationEvent.eventsPerWeek")}
@@ -345,10 +333,7 @@ const Preview = ({ application, tos }: Props): JSX.Element | null => {
         {t("application:preview.notification.body")}
       </StyledNotification>
       <ButtonContainer>
-        <BlackButton
-          variant="secondary"
-          onClick={() => router.push(`${applicationsUrl}`)}
-        >
+        <BlackButton variant="secondary" onClick={() => router.back()}>
           {t("common:prev")}
         </BlackButton>
       </ButtonContainer>
@@ -356,4 +341,4 @@ const Preview = ({ application, tos }: Props): JSX.Element | null => {
   ) : null;
 };
 
-export default Preview;
+export default ViewApplication;

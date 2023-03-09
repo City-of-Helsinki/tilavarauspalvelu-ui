@@ -2,7 +2,13 @@ import React, { useRef, useState } from "react";
 import { useTranslation, TFunction } from "next-i18next";
 import styled from "styled-components";
 import { useRouter } from "next/router";
-import { Card as HdsCard, Tag as HdsTag } from "hds-react";
+import {
+  Card as HdsCard,
+  IconArrowRight,
+  IconCross,
+  IconPen,
+  Tag as HdsTag,
+} from "hds-react";
 import { parseISO } from "date-fns";
 import { breakpoints } from "common/src/common/style";
 import { ApplicationRoundType, ApplicationType } from "common/types/gql-types";
@@ -14,7 +20,7 @@ import {
 import ConfirmationModal, { ModalRef } from "../common/ConfirmationModal";
 import { CenterSpinner } from "../common/common";
 import { cancelApplication } from "../../modules/api";
-import { MediumButton } from "../../styles/util";
+import { BlackButton } from "../../styles/util";
 import { getApplicationRoundName } from "../../modules/applicationRound";
 
 const Card = styled(HdsCard)`
@@ -28,7 +34,7 @@ const Card = styled(HdsCard)`
 
   @media (min-width: ${breakpoints.m}) {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: var(--spacing-m);
   }
 `;
@@ -112,8 +118,15 @@ const Modified = styled.div`
   }
 `;
 
-const StyledButton = styled(MediumButton)`
+const StyledButton = styled(BlackButton).attrs({
+  variant: "secondary",
+  size: "small",
+})`
   white-space: nowrap;
+
+  svg {
+    min-width: 24px;
+  }
 
   @media (max-width: ${breakpoints.s}) {
     width: 100%;
@@ -197,16 +210,6 @@ const ApplicationCard = ({
         </Modified>
       </div>
       <Buttons>
-        <StyledButton
-          aria-label={t("applicationCard:edit")}
-          disabled={!editable}
-          onClick={() => {
-            router.push(`${applicationUrl(application.pk)}/page1`);
-          }}
-          variant="primary"
-        >
-          {t("applicationCard:edit")}
-        </StyledButton>
         {state === "cancelling" ? (
           <CenterSpinner />
         ) : (
@@ -215,18 +218,28 @@ const ApplicationCard = ({
             onClick={() => {
               modal?.current?.open();
             }}
-            variant="secondary"
             disabled={!editable}
+            iconRight={<IconCross aria-hidden />}
           >
             {t("applicationCard:cancel")}
           </StyledButton>
         )}
         <StyledButton
+          aria-label={t("applicationCard:edit")}
+          disabled={!editable}
+          onClick={() => {
+            router.push(`${applicationUrl(application.pk)}/page1`);
+          }}
+          iconRight={<IconPen aria-hidden />}
+        >
+          {t("applicationCard:edit")}
+        </StyledButton>
+        <StyledButton
           aria-label={t("applicationCard:view")}
           onClick={() => {
             router.push(`${applicationUrl(application.pk)}/view`);
           }}
-          variant="primary"
+          iconRight={<IconArrowRight aria-hidden />}
         >
           {t("applicationCard:view")}
         </StyledButton>

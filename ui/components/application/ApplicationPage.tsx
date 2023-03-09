@@ -28,8 +28,6 @@ const InnerContainer = styled.div<{ $hideStepper: boolean }>`
       ? `grid-template-columns: 6em 1fr;`
       : `grid-template-columns: 18em 1fr;`}
 
-  margin-top: var(--spacing-l);
-
   @media (max-width: ${breakpoints.l}) {
     grid-template-columns: 1fr;
     gap: 0;
