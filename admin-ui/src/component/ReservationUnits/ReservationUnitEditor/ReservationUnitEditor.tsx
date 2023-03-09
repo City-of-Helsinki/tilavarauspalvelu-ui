@@ -150,12 +150,6 @@ const getSelectedOptions = (
   );
 };
 
-// NOTE this is not really pretty when scaling to smaller screens
-// but there is no UI spec for it.
-// The use of double flex containers doesn't break reponsive layouts
-// because of wrap and using an inner container keeps the two tags together
-// even when they wrap.
-// The ugliness comes from margins being in H1 instead of the title container.
 const TitleSectionWithTags = styled.div`
   display: flex;
   flex-direction: row;
@@ -163,6 +157,10 @@ const TitleSectionWithTags = styled.div`
   gap: var(--spacing-m);
   justify-content: space-between;
   align-items: center;
+  margin: var(--spacing-s) 0 var(--spacing-m);
+  & > h1 {
+    margin: 0;
+  }
 `;
 
 const TagContainer = styled.div`
@@ -176,8 +174,6 @@ const TagContainer = styled.div`
 const DisplayUnit = ({
   heading,
   unit,
-  // TODO more descriptive names for these?
-  // they are straight from the backend query variables
   unitState,
   reservationState,
 }: {
