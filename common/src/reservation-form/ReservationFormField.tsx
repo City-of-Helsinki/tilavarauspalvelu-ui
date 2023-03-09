@@ -191,7 +191,7 @@ const ReservationFormField = ({
 
   const label = `${t(
     `reservationApplication:label.${normalizedReserveeType}.${field}`
-  )}${required ? " * " : ""}`;
+  )}`;
 
   const error = get(errors, field);
   const errorText = error && t("forms:requiredField");
@@ -268,15 +268,16 @@ const ReservationFormField = ({
   ) : field === "freeOfChargeReason" ? (
     <StyledTextArea
       // TODO this needs to be separated or use required like all the other components
-      label={`${t(
+      label={t(
         `reservationApplication:label.${normalizedReserveeType}.${field}`
-      )}${isFreeOfChargeReasonRequired ? " * " : ""}`}
+      )}
       id={field}
       key={field}
       {...register(field, { required: isFreeOfChargeReasonRequired })}
       defaultValue={defaultValue ?? ""}
       errorText={errorText}
       invalid={!!error}
+      required={isFreeOfChargeReasonRequired}
       $hidden={!watch("applyingForFreeOfCharge")}
       $isWide
       $height="92px"
@@ -295,6 +296,7 @@ const ReservationFormField = ({
       key={field}
       errorText={errorText}
       invalid={!!error}
+      required={required}
       step={1}
       minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
@@ -332,6 +334,7 @@ const ReservationFormField = ({
         )
       }
       invalid={!!error}
+      required={required}
       $isWide={isWideRow}
       $hidden={
         field.includes("billing") && watch("showBillingAddress") !== true
@@ -351,6 +354,7 @@ const ReservationFormField = ({
       defaultValue={typeof defaultValue === "string" ? defaultValue : ""}
       errorText={errorText}
       invalid={!!error}
+      required={required}
       $isWide={isWideRow}
       $hidden={
         watch("reserveeIsUnregisteredAssociation") === undefined
@@ -384,6 +388,7 @@ const ReservationFormField = ({
         )
       }
       invalid={!!error}
+      required={required}
       $isWide={isWideRow}
       $hidden={
         field.includes("billing") && watch("showBillingAddress") !== true

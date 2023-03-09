@@ -9,7 +9,7 @@ import { Container } from "../../../styles/layout";
 import { BasicLink } from "../../../styles/util";
 import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
-import { MyUnitRecurringReservationForm } from "./MyUnitRecurringReservationForm";
+import MyUnitRecurringReservationForm from "./MyUnitRecurringReservationForm";
 import type { ReservationMade } from "./RecurringReservationDone";
 import RecurringSuccess from "./RecurringReservationDone";
 import { useRecurringReservationsUnits } from "./hooks";

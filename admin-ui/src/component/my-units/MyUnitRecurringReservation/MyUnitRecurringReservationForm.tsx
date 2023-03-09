@@ -290,7 +290,7 @@ const MyUnitRecurringReservationForm = ({
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid>
           <Element $start>
             <Controller
@@ -488,4 +488,4 @@ const MyUnitRecurringReservationForm = ({
   );
 };
 
-export { MyUnitRecurringReservationForm };
+export default MyUnitRecurringReservationForm;
