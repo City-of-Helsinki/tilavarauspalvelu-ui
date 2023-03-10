@@ -86,6 +86,7 @@ const Step0 = ({
         e.preventDefault();
         handleSubmit();
       }}
+      noValidate
     >
       <MetaFields
         reservationUnit={reservationUnit}
