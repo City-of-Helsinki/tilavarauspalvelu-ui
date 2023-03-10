@@ -119,6 +119,7 @@ const WeekdaysSelector = ({
             disabled={disabled}
             onClick={() => handleDayToggle(weekday)}
             className={value.includes(weekday) ? "active" : ""}
+            type="button"
             role="checkbox"
           >
             {t(`dayShort.${weekday}`)}
