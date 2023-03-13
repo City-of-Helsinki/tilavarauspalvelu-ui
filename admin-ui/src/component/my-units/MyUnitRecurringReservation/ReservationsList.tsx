@@ -3,6 +3,7 @@ import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { z } from "zod";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
+import { toMondayFirst } from "../../../common/util";
 
 type NewReservationListItem = {
   date: Date;
@@ -58,9 +59,6 @@ const ReservationList = ({ items }: Props) => {
   );
 };
 
-const toMondayFirst = (day: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
-  day === 0 ? 6 : day - 1;
-
 const validator = timeSelectionSchema;
 
 type GenInputType = z.infer<typeof validator>;
@@ -81,10 +79,9 @@ const eachDayOfInterval = (start: number, end: number, stepDays = 1) => {
 
 // epoch is Thue (4)
 // TODO this could be combined with monday first
-const dayOfWeek: (t: number) => 0 | 1 | 2 | 3 | 4 | 5 | 6 = (
-  time: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-) => ((Math.floor(time / MS_IN_DAY) + 4) % 7) as any;
+type WeekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+const dayOfWeek: (t: number) => WeekDay = (time: number) =>
+  ((Math.floor(time / MS_IN_DAY) + 4) % 7) as WeekDay;
 
 const generateReservations = (
   props: GenInputType
