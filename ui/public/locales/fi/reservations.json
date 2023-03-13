@@ -65,7 +65,7 @@
   "contactPhone": "Yhteyshenkilön puhelinnumero",
   "contactEmail": "Yhteyshenkilön sähköposti",
   "saveToCalendar": "Tallenna kalenteriin",
-  "downloadReceipt": "Lataa kuitti",
+  "downloadReceipt": "Näytä kuitti",
   "reservationInfoBoxHeading": "Huomioi varatessa",
   "steps": {
     "1": "Varaustiedot",
