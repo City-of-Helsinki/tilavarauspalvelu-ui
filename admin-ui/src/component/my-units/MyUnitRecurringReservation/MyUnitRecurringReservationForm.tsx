@@ -174,7 +174,7 @@ const MyUnitRecurringReservationForm = ({
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name: data.seriesName,
-        description: data.comments ?? "",
+        description: data.comments || "toistuva varaus",
 
         // TODO missing fields
         // abilityGroupPk?: InputMaybe<Scalars["Int"]>;
@@ -226,7 +226,7 @@ const MyUnitRecurringReservationForm = ({
               bufferTimeAfter: bufferTimeAfter
                 ? String(bufferTimeBefore)
                 : undefined,
-              workingMemo: data.comments ?? "",
+              workingMemo: data.comments,
               ...flattenedMetadataSetValues,
             };
             const { data: resData } = await createStaffReservation(staffInput);
@@ -463,7 +463,6 @@ const MyUnitRecurringReservationForm = ({
                   label={t(`${TRANS_PREFIX}.comments`)}
                   {...register("comments")}
                   errorText={translateError(errors.comments?.message)}
-                  required
                 />
               </ReservationTypeForm>
             )}
