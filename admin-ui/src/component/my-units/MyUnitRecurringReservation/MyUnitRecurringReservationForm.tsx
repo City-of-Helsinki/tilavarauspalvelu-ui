@@ -13,7 +13,7 @@ import { camelCase, get, trimStart } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { format } from "date-fns";
+import { addYears, format } from "date-fns";
 import { Button, DateInput, Select, TextArea, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -107,7 +107,7 @@ const MyUnitRecurringReservationForm = ({
   const repeatPatternOptions = [
     { value: "weekly", label: t("common.weekly") },
     { value: "biweekly", label: t("common.biweekly") },
-  ];
+  ] as const;
 
   const [create] = useMutation<
     { createRecurringReservation: RecurringReservationCreateMutationPayload },
@@ -324,6 +324,7 @@ const MyUnitRecurringReservationForm = ({
                   disabled={reservationUnit == null}
                   label={t(`${TRANS_PREFIX}.startingDate`)}
                   minDate={new Date()}
+                  maxDate={addYears(new Date(), 3)}
                   placeholder={t("common.select")}
                   onChange={(_, date) => onChange(date)}
                   disableConfirmation
@@ -346,6 +347,7 @@ const MyUnitRecurringReservationForm = ({
                   disabled={reservationUnit == null}
                   label={t(`${TRANS_PREFIX}.endingDate`)}
                   minDate={new Date()}
+                  maxDate={addYears(new Date(), 3)}
                   placeholder={t("common.select")}
                   onChange={(_, date) => onChange(date)}
                   disableConfirmation
@@ -360,7 +362,7 @@ const MyUnitRecurringReservationForm = ({
             <Controller
               name="repeatPattern"
               control={control}
-              defaultValue={{ label: "", value: "weekly" }}
+              defaultValue={repeatPatternOptions[0]}
               render={({ field }) => (
                 <SortedSelect
                   {...removeRefParam(field)}
@@ -369,7 +371,7 @@ const MyUnitRecurringReservationForm = ({
                   label={t(`${TRANS_PREFIX}.repeatPattern`)}
                   multiselect={false}
                   placeholder={t("common.select")}
-                  options={repeatPatternOptions}
+                  options={[...repeatPatternOptions]}
                   required
                   invalid={errors.repeatPattern != null}
                   error={translateError(errors.repeatPattern?.message)}

@@ -38,8 +38,9 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
 
   const locPrefix = "MyUnits.RecurringReservation.Confirmation";
 
-  // TODO holidays not implemented (zero holidays should not printed etc.)
-  // TODO do we need special handling for 1 / X
+  // TODO holidays not implemented
+  const holidays = 0;
+  // TODO do we need special handling for no successes
   return (
     <>
       <H1 $legacy>{t(`${locPrefix}.title`)}</H1>
@@ -52,12 +53,14 @@ const RecurringReservationDone = (props: RecurringSuccessProps) => {
                 conflicts: failed.length,
               })}
         </span>
-        <span>
-          {t(`${locPrefix}.holidayInfo`, {
-            total: props.reservations.length,
-            holidays: 0,
-          })}
-        </span>
+        {holidays > 0 && (
+          <span>
+            {t(`${locPrefix}.holidayInfo`, {
+              total: props.reservations.length,
+              holidays: 0,
+            })}
+          </span>
+        )}
       </InfoSection>
       {failed.length > 0 && (
         <InfoSection>

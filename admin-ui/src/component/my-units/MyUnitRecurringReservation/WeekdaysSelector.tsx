@@ -42,11 +42,10 @@ const ErrorText = styled.div`
   --icon-size: var(--fontsize-body-m);
   position: relative;
   color: var(--helper-color-invalid);
-  padding-left: calc(var(--icon-size) + var(--spacing-2-xs));
   display: flex;
   line-height: var(--lineheight-l);
   font-size: var(--fontsize-body-m);
-  margin-top: var(--spacing-3-xs);
+  margin-top: var(--spacing-xs);
   white-space: pre-line;
 
   & svg {
