@@ -56,7 +56,7 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
     $divider &&
     css`
       position: relative;
-      margin-top: var(--spacing-xs) !important;
+      margin-top: var(--spacing-m) !important;
 
       &:after {
         content: "";
@@ -64,8 +64,8 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
         border-top-width: 1px;
         border-top-color: ${(props) => props.theme.colors.black.light};
         position: absolute;
-        width: 100%;
-        top: 0;
+        width: 90%;
+        top: calc(var(--spacing-xs) * -1);
 
         @media (min-width: ${(props) => props.theme.breakpoints.m}) {
           width: 80%;
@@ -138,7 +138,6 @@ const NavigationUserMenu = () => {
           ))}
         </>
       ) : null}
-
       <NavigationUserMenuItem
         href="#"
         onClick={handleSignOut}

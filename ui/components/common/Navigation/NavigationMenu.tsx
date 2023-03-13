@@ -2,14 +2,7 @@ import React from "react";
 import { Navigation as HDSNavigation } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import styled from "styled-components";
 import { NavigationMenuItem } from "./NavigationMenuItem";
-
-const StyledNavigationMenu = styled(HDSNavigation.Row)`
-  align-items: center !important;
-  justify-items: center !important;
-  color: red !important;
-`;
 
 type MenuItem = {
   title: string;
@@ -26,7 +19,7 @@ const NavigationMenu = ({ menuItems }: Props) => {
   const router = useRouter();
 
   return (
-    <StyledNavigationMenu variant="inline">
+    <HDSNavigation.Row variant="inline">
       {menuItems.map((item) => (
         <NavigationMenuItem
           key={item.title}
@@ -39,7 +32,7 @@ const NavigationMenu = ({ menuItems }: Props) => {
           {t(`navigation:Item.${item.title}`)}
         </NavigationMenuItem>
       ))}
-    </StyledNavigationMenu>
+    </HDSNavigation.Row>
   );
 };
 
