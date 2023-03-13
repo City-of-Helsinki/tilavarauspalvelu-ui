@@ -352,7 +352,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
               >
                 {t("reservations:saveToCalendar")}
               </BlackButton>
-              {(true || order?.receiptUrl) && (
+              {order?.receiptUrl && (
                 <BlackButton
                   data-testid="reservation__confirmation--button__receipt-link"
                   onClick={() => window.open(order.receiptUrl, "_blank")}
