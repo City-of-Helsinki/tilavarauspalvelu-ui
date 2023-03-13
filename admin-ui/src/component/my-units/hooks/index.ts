@@ -66,12 +66,13 @@ export const useGeneralFields = (reservationUnit: ReservationUnitType) => {
 export const useOptions = () => {
   const { data: optionsData } = useQuery<Query>(OPTIONS_QUERY);
 
-  const purpose = sortBy(optionsData?.purposes?.edges || [], "node.nameFi").map(
-    (purposeType) => ({
-      label: purposeType?.node?.nameFi ?? "",
-      value: Number(purposeType?.node?.pk),
-    })
-  );
+  const purpose = sortBy(
+    optionsData?.reservationPurposes?.edges || [],
+    "node.nameFi"
+  ).map((purposeType) => ({
+    label: purposeType?.node?.nameFi ?? "",
+    value: Number(purposeType?.node?.pk),
+  }));
 
   const ageGroup = sortBy(
     optionsData?.ageGroups?.edges || [],

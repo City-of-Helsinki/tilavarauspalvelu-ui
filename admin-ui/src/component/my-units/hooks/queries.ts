@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 export const OPTIONS_QUERY = gql`
   query options {
-    purposes {
+    reservationPurposes {
       edges {
         node {
           pk
