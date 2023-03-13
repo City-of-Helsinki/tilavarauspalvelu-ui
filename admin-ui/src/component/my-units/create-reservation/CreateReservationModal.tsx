@@ -1,7 +1,7 @@
 import React from "react";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm, Controller, FormProvider } from "react-hook-form";
-import { Button, DateInput, Dialog, TextArea, TimeInput } from "hds-react";
+import { Button, DateInput, Dialog, TimeInput } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import type {
@@ -27,7 +27,6 @@ import { ReservationFormType } from "./types";
 import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
-import { HR } from "../../lists/components";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -63,7 +62,6 @@ const DialogContent = ({
   });
 
   const {
-    register,
     formState: { errors },
   } = form;
 
@@ -103,7 +101,7 @@ const DialogContent = ({
         bufferTimeAfter: values.bufferTimeAfter
           ? String(reservationUnit.bufferTimeAfter)
           : undefined,
-        workingMemo: values.workingMemo,
+        workingMemo: values.comments,
         ...flattenedMetadataSetValues,
       };
 
@@ -187,14 +185,7 @@ const DialogContent = ({
                   )}
                 />
               </CommonFields>
-              <ReservationTypeForm reservationUnit={reservationUnit}>
-                <TextArea
-                  label={t("ReservationDialog.comment")}
-                  id="ReservationDialog.comment"
-                  {...register("workingMemo")}
-                />
-                <HR />
-              </ReservationTypeForm>
+              <ReservationTypeForm reservationUnit={reservationUnit} />
             </VerticalFlex>
           </form>
         </FormProvider>

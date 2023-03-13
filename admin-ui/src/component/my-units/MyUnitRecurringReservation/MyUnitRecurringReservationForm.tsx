@@ -14,7 +14,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { addYears, format } from "date-fns";
-import { Button, DateInput, Select, TextArea, TextInput } from "hds-react";
+import { Button, DateInput, Select, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { removeRefParam } from "common/src/reservation-form/util";
@@ -51,11 +51,6 @@ const Element = styled.div<{ $wide?: boolean; $start?: boolean }>`
   grid-column: ${({ $wide, $start }) =>
     $wide ? "1 / -1" : $start ? "1 / span 1" : "auto / span 1"};
   max-width: var(--prose-width);
-`;
-
-const CommentsTextArea = styled(TextArea)`
-  max-width: var(--prose-width);
-  margin: 2rem 0;
 `;
 
 const InnerTextInput = styled(TextInput)`
@@ -165,6 +160,8 @@ const MyUnitRecurringReservationForm = ({
         metadataSetFields
       );
 
+      // Allow blocked reservations without a name
+      const name = data.seriesName || data.type === "BLOCKED" ? "BLOCKED" : "";
       const input: RecurringReservationCreateMutationInput = {
         reservationUnitPk: unitPk,
         beginDate: format(data.startingDate, "yyyy-MM-dd"),
@@ -173,7 +170,7 @@ const MyUnitRecurringReservationForm = ({
         endTime: data.endingTime.value,
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
-        name: data.seriesName,
+        name,
         description: data.comments || "toistuva varaus",
 
         // TODO missing fields
@@ -437,7 +434,7 @@ const MyUnitRecurringReservationForm = ({
             />
           </Element>
 
-          {newReservations && (
+          {reservationUnit != null && (
             <Element $wide>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
@@ -458,13 +455,6 @@ const MyUnitRecurringReservationForm = ({
                   required
                   {...register("seriesName")}
                   errorText={translateError(errors.seriesName?.message)}
-                />
-                <CommentsTextArea
-                  id="comments"
-                  disabled={reservationUnit == null}
-                  label={t(`${TRANS_PREFIX}.comments`)}
-                  {...register("comments")}
-                  errorText={translateError(errors.comments?.message)}
                 />
               </ReservationTypeForm>
             )}

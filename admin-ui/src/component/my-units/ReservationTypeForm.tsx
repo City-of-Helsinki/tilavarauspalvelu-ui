@@ -1,15 +1,21 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { RadioButton, SelectionGroup } from "hds-react";
+import { RadioButton, SelectionGroup, TextArea } from "hds-react";
 import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 
 import {
   ReservationFormType,
   ReservationType,
 } from "./create-reservation/types";
-import BlockedReservation from "./BlockedReservation";
 import StaffReservation from "./StaffReservation";
+
+// hasMargin is a hack to deal with inconsistencies in Single and Recurring reservation
+const CommentsTextArea = styled(TextArea)<{ $hasMargin?: boolean }>`
+  max-width: var(--prose-width);
+  ${({ $hasMargin }) => $hasMargin && "margin: 1rem 0;"}
+`;
 
 // TODO are buffers in different places for Recurring and Single reservations? Check the UI spec
 const ReservationTypeForm = ({
@@ -24,6 +30,7 @@ const ReservationTypeForm = ({
   const {
     watch,
     control,
+    register,
     formState: { errors },
     // FIXME use a common interface for this and recurring here
     // requires moving the ReservationForm to zod schema
@@ -57,10 +64,22 @@ const ReservationTypeForm = ({
           </SelectionGroup>
         )}
       />
-      {type === ReservationType.BLOCKED && <BlockedReservation />}
+      {type === ReservationType.BLOCKED && (
+        <CommentsTextArea
+          $hasMargin
+          label={t("ReservationDialog.comment")}
+          id="ReservationDialog.comment"
+          {...register("comments")}
+        />
+      )}
       {type === ReservationType.STAFF || type === ReservationType.NORMAL ? (
         <StaffReservation reservationUnit={reservationUnit}>
           {children}
+          <CommentsTextArea
+            id="ReservationDialog.comment"
+            label={t("ReservationDialog.comment")}
+            {...register("comments")}
+          />
         </StaffReservation>
       ) : null}
     </>
