@@ -326,6 +326,7 @@ const translations: ITranslations = {
         buttonToReservation: ["Siirry varauksen sivulle"],
       },
     },
+    // TODO these are duplicates from ReservationDialog ex. reservationType
     RecurringReservationForm: {
       reservationUnit: ["Varausyksikkö"],
       startingDate: ["Aloituspäivä"],
@@ -342,7 +343,7 @@ const translations: ITranslations = {
       comments: ["Kommentit"],
       reservationType: {
         STAFF: [
-          "Kaupungin oma käytto, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
+          "Kaupungin oma käyttö, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
         ],
         NORMAL: ["Asiakkaan puolesta"],
         BLOCKED: ["Suljettu"],
@@ -356,7 +357,7 @@ const translations: ITranslations = {
           "Lopetusajan pitää olla aloitusajan jälkeen",
         ],
         "Start date can't be after end date.": [
-          "Ensimmaisen päivän pitää olla ennen viimeistä päivää.",
+          "Aloituspäivän tulee olla ennen päättymispäivää.",
         ],
         "Array must contain at least 1 element(s)": [
           "Valitse vähintään yksi päivä",
@@ -1100,7 +1101,7 @@ const translations: ITranslations = {
     typeInfo: ["Lorem ipsum dolor sit amet, consectetur adipisicing elit."],
     reservationType: {
       STAFF: [
-        "Kaupungin oma käytto, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
+        "Kaupungin oma käyttö, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
       ],
       NORMAL: ["Asiakkaan puolesta"],
       BLOCKED: ["Suljettu"],
