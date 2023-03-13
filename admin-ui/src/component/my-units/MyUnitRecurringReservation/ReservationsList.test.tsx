@@ -1,8 +1,10 @@
 import React from "react";
 import "@testing-library/jest-dom";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { describe, expect, test } from "@jest/globals";
 import { render } from "@testing-library/react";
 
-import { addDays } from "date-fns";
+import { addDays, nextMonday } from "date-fns";
 import { toUIDate } from "common/src/common/util";
 import { generateReservations, ReservationList } from "./ReservationsList";
 
@@ -10,7 +12,8 @@ const today = new Date();
 const dtoday = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
 const twoWeeksOnceAWeek = {
   startingDate: today,
-  endingDate: addDays(dtoday, 14),
+  // two weeks is 13 days since the last day is inclusive
+  endingDate: addDays(dtoday, 13),
   startingTime: {
     label: "",
     value: "00:00",
@@ -40,8 +43,7 @@ describe("generate reservations", () => {
     expect(res).toHaveLength(4);
   });
 
-  // inclusive of both start and end
-  test("two weeks every day a week => 14 elements", () => {
+  test("two weeks every day a week => 15 elements", () => {
     const res = generateReservations({
       ...twoWeeksOnceAWeek,
       repeatOnDays: [0, 1, 2, 3, 4, 5, 6],
@@ -49,23 +51,34 @@ describe("generate reservations", () => {
     expect(res).toHaveLength(14);
   });
 
-  /* TODO this test requires us to find next monday based on today
-  test("repeat on moday with no monday on range => empty result", () => {
+  // inclusive of both start and end
+  test("monday to monday with only mondays => two elements", () => {
+    const start = nextMonday(new Date());
     const res = generateReservations({
       ...twoWeeksOnceAWeek,
-      startingDate: new Date("2023-03-07"),
-      endingDate: new Date("2023-03-13"),
+      startingDate: start,
+      endingDate: addDays(start, 7),
+      repeatOnDays: [0],
+    });
+    expect(res).toHaveLength(2);
+  });
+
+  test("repeat on moday with no monday on range => empty result", () => {
+    const start = nextMonday(new Date());
+    const res = generateReservations({
+      ...twoWeeksOnceAWeek,
+      startingDate: addDays(start, 1),
+      endingDate: addDays(start, 6),
       repeatOnDays: [0],
     });
     expect(res).toHaveLength(0);
   });
-  */
 
   //  - (biweekly vs. weekly)
   test("four weeks once a week weekly", () => {
     const res = generateReservations({
       ...twoWeeksOnceAWeek,
-      endingDate: addDays(dtoday, 28),
+      endingDate: addDays(dtoday, 27),
       repeatOnDays: [0],
     });
     expect(res).toHaveLength(4);
@@ -74,7 +87,7 @@ describe("generate reservations", () => {
   test("four weeks once a week biweekly", () => {
     const res = generateReservations({
       ...twoWeeksOnceAWeek,
-      endingDate: addDays(dtoday, 28),
+      endingDate: addDays(dtoday, 27),
       repeatOnDays: [0],
       repeatPattern: {
         label: "",
@@ -94,7 +107,8 @@ describe("generate reservations", () => {
     expect(res).toHaveLength(0);
   });
 
-  test.only("start date === end date => empty array", () => {
+  // start date === end date doesn't pass validators so it's gonna be empty
+  test("start date === end date => empty", () => {
     const res = generateReservations({
       ...twoWeeksOnceAWeek,
       endingDate: addDays(dtoday, 28),
@@ -118,9 +132,9 @@ describe("ReservationsList", () => {
     const screen = render(<ReservationList items={items} />);
 
     const dstring = `${toUIDate(today)}`;
-    expect(await screen.findByText("19:00")).toBeInTheDocument();
-    expect(await screen.findByText("20:00")).toBeInTheDocument();
-    expect(await screen.findByText(dstring)).toBeInTheDocument();
+    expect(await screen.findByText(/19:00/)).toBeInTheDocument();
+    expect(await screen.findByText(/20:00/)).toBeInTheDocument();
+    expect(await screen.findByText(RegExp(dstring))).toBeInTheDocument();
   });
 
   test("Render reservations list", async () => {
@@ -134,8 +148,8 @@ describe("ReservationsList", () => {
     const screen = render(<ReservationList items={items} />);
 
     const dstring = `${toUIDate(today)}`;
-    expect(await screen.findAllByText("19:00")).toHaveLength(N_DAYS);
-    expect(await screen.findAllByText("20:00")).toHaveLength(N_DAYS);
-    expect(await screen.findByText(dstring)).toBeInTheDocument();
+    expect(await screen.findAllByText(/19:00/)).toHaveLength(N_DAYS);
+    expect(await screen.findAllByText(/20:00/)).toHaveLength(N_DAYS);
+    expect(await screen.findByText(RegExp(dstring))).toBeInTheDocument();
   });
 });

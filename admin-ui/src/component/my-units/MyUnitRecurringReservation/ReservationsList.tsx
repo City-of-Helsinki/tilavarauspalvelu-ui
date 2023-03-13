@@ -119,7 +119,8 @@ const generateReservations = (
       .map((x) =>
         eachDayOfInterval(
           x,
-          utcDate(endingDate),
+          // end date with time 23:59:59
+          utcDate(endingDate) + (MS_IN_DAY - 1),
           repeatPattern.value === "weekly" ? 7 : 14
         )
       )
