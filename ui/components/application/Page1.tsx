@@ -220,13 +220,7 @@ const Page1 = ({
     }
   };
 
-  const onAddApplicationEvent = (data: Application) => {
-    if (
-      data.applicationEvents &&
-      data.applicationEvents.some((e) => Boolean(e.id))
-    ) {
-      return;
-    }
+  const onAddApplicationEvent = () => {
     addNewApplicationEvent();
   };
 
