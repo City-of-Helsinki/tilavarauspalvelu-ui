@@ -127,11 +127,11 @@ const Page1 = ({
       ]);
 
       fetchedAgeGroupOptions.sort((a, b) => {
-        const order = ["65-", "1-99"];
+        const order = ["1-99"];
         const strA = `${a.minimum || ""}-${a.maximum || ""}`;
         const strB = `${b.minimum || ""}-${b.maximum || ""}`;
 
-        return order.indexOf(strA) > -1
+        return order.indexOf(strA) > -1 || order.indexOf(strB) > -1
           ? order.indexOf(strA) - order.indexOf(strB)
           : (a.minimum || 0) - (b.minimum || 0);
       });
