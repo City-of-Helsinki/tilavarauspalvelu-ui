@@ -108,18 +108,14 @@ const generateReservations = (
     const max = (a: number, b: number) => (a > b ? a : b);
     const sDay = max(utcDate(new Date()), utcDate(startingDate));
 
-    const eDay = min(sDay + MS_IN_DAY * 7, utcDate(endingDate));
-    const firstWeek = eachDayOfInterval(sDay, eDay);
+    // end date with time 23:59:59
+    const eDay = utcDate(endingDate) + (MS_IN_DAY - 1);
+    const firstWeek = eachDayOfInterval(sDay, min(sDay + MS_IN_DAY * 7, eDay));
 
     return firstWeek
       .filter((time) => repeatOnDays.includes(toMondayFirst(dayOfWeek(time))))
       .map((x) =>
-        eachDayOfInterval(
-          x,
-          // end date with time 23:59:59
-          utcDate(endingDate) + (MS_IN_DAY - 1),
-          repeatPattern.value === "weekly" ? 7 : 14
-        )
+        eachDayOfInterval(x, eDay, repeatPattern.value === "weekly" ? 7 : 14)
       )
       .reduce((acc, x) => [...acc, ...x], [])
       .map((day) => ({

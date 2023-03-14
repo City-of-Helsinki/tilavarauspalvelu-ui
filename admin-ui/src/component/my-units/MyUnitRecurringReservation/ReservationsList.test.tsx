@@ -63,6 +63,17 @@ describe("generate reservations", () => {
     expect(res).toHaveLength(2);
   });
 
+  test("repeat on for less than a week has inclusive range [start, end]", () => {
+    const start = nextMonday(new Date());
+    const res = generateReservations({
+      ...twoWeeksOnceAWeek,
+      startingDate: start,
+      endingDate: addDays(start, 1),
+      repeatOnDays: [0, 1],
+    });
+    expect(res).toHaveLength(2);
+  });
+
   test("repeat on moday with no monday on range => empty result", () => {
     const start = nextMonday(new Date());
     const res = generateReservations({
