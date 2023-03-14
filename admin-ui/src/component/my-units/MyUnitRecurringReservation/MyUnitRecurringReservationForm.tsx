@@ -77,7 +77,6 @@ const MyUnitRecurringReservationForm = ({
     defaultValues: {
       bufferTimeAfter: false,
       bufferTimeBefore: false,
-      type: "STAFF",
     },
   });
 

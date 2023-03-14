@@ -287,6 +287,14 @@ test("Form has meta when reservation unit is selected.", async () => {
 
   await selectUnit();
 
+  // TODO check that the radio buttons are not selected by default
+  // this is because it's better for usability even if it causes acccessiblity issues
+
+  const typeStaff = view.getByLabelText(/STAFF/);
+  expect(typeStaff).toBeInTheDocument();
+  const user = userEvent.setup();
+  await user.click(typeStaff);
+
   // Just checking a single meta field for now
   // TODO use camelCase to convert all the metafields from unit[] and run an array check
   const emailInput = view.getByLabelText(/reserveeEmail/);
@@ -297,11 +305,14 @@ test("Form doesn't have meta without a reservation unit.", async () => {
   const cb = jest.fn();
   customRender(cb);
 
+  // TODO check that there is no type of reservation
+
   // Reverse of meta field exists check
   const emailInput = screen.queryByLabelText(/reserveeEmail/);
   expect(emailInput).not.toBeInTheDocument();
 });
 
+test.todo("Form has reservation type selection.");
 test.todo("Form submission can bypass required meta field");
 test.todo("Cancel button returns to previous page");
 test.todo("Succesful form submission calls makes a GQL request");
