@@ -127,7 +127,8 @@ const Page1 = ({
       ]);
 
       fetchedAgeGroupOptions.sort((a, b) => {
-        return (a.minimum || 0) - (b.minimum || 0);
+        const aMin = a.minimum === 1 && a.maximum === 99 ? 9999 : a.minimum;
+        return (aMin || 0) - (b.minimum || 0);
       });
 
       setOptions({
