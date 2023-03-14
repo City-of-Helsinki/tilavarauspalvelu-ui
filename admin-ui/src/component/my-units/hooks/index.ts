@@ -98,6 +98,7 @@ export const useReservationUnitQuery = (unitPk?: number) => {
     RESERVATION_UNIT_QUERY,
     {
       variables: { pk: [`${unitPk}`] },
+      skip: unitPk === undefined,
     }
   );
 
