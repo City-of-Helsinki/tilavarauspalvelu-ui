@@ -4,12 +4,12 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
-import { MenuItem } from "../NavigationMenu";
 import { NavigationUserMenuUserCard } from "./NavigationUserMenuUserCard";
 import {
   authenticationIssuer,
   authenticationLogoutApiRoute,
 } from "../../../../modules/const";
+import { MenuItem } from "../types";
 
 const StyledUserMenu = styled(HDSNavigation.User)<{
   $active?: boolean;

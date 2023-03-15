@@ -3,13 +3,9 @@ import styled from "styled-components";
 import { Navigation as HDSNavigation } from "hds-react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { MenuItem, NavigationMenu } from "./NavigationMenu";
 import { NavigationUserMenu } from "./NavigationUserMenu/NavigationUserMenu";
-
-type LanguageOption = {
-  label: string;
-  value: string;
-};
+import { NavigationMenuItem } from "./NavigationMenuItem";
+import { LanguageOption, MenuItem } from "./types";
 
 const languageOptions: LanguageOption[] = [
   { label: "Suomeksi", value: "fi" },
@@ -72,7 +68,20 @@ const Navigation = () => {
       skipTo="main"
       skipToContentLabel={t("navigation:skipToMainContent")}
     >
-      <NavigationMenu menuItems={menuItems} />
+      <HDSNavigation.Row variant="inline">
+        {menuItems.map((item) => (
+          <NavigationMenuItem
+            key={item.title}
+            href="#"
+            onClick={() =>
+              router.push(item.path, item.path, { locale: router.locale })
+            }
+            className={router.pathname === item.path ? "active" : ""}
+          >
+            {t(`navigation:Item.${item.title}`)}
+          </NavigationMenuItem>
+        ))}
+      </HDSNavigation.Row>
       <HDSNavigation.Actions>
         <LanguageSelector
           label={i18n?.language?.toUpperCase()}
