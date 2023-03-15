@@ -69,10 +69,43 @@ const Columns = styled.div`
   }
 `;
 
+const useOrder = (
+  orderUuid: string
+): { order: PaymentOrderType | null; error: boolean; loading: boolean } => {
+  const [error, setError] = useState<boolean>(false);
+  const [order, setOrder] = useState<PaymentOrderType>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [getOrder] = useLazyQuery<Query, QueryOrderArgs>(GET_ORDER, {
+    fetchPolicy: "no-cache",
+    onCompleted: (data) => {
+      if (!data.order) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
+      setOrder(data.order);
+      setLoading(false);
+    },
+    onError: () => {
+      setError(true);
+      setLoading(false);
+    },
+  });
+
+  useEffect(() => {
+    if (orderUuid) {
+      setLoading(true);
+      getOrder({ variables: { orderUuid } });
+    }
+  }, [getOrder, orderUuid]);
+
+  return { order, error, loading };
+};
+
 const ReservationSuccess = ({ reservationPk }: Props) => {
   const { t } = useTranslation();
   const [reservation, setReservation] = useState<ReservationType>(null);
-  const [order, setOrder] = useState<PaymentOrderType>(null);
   const [error, setError] = useState<boolean>(false);
 
   useQuery<Query, QueryReservationByPkArgs>(GET_RESERVATION, {
@@ -87,24 +120,15 @@ const ReservationSuccess = ({ reservationPk }: Props) => {
     },
   });
 
-  const [getOrder] = useLazyQuery<Query, QueryOrderArgs>(GET_ORDER, {
-    fetchPolicy: "no-cache",
-    onCompleted: (data) => {
-      if (!data.order) {
-        return;
-      }
-      setOrder(data.order);
-    },
-    onError: () => {},
-  });
+  const {
+    order,
+    error: orderError,
+    loading: orderLoading,
+  } = useOrder(reservation?.orderUuid);
 
-  useEffect(() => {
-    if (reservation?.orderUuid) {
-      getOrder({ variables: { orderUuid: reservation.orderUuid } });
-    }
-  }, [getOrder, reservation?.orderUuid]);
+  const isOrderUuidMissing = reservation && !reservation.orderUuid;
 
-  if (error) {
+  if (error || orderError || isOrderUuidMissing) {
     return (
       <StyledContainer>
         <Columns>
@@ -117,7 +141,7 @@ const ReservationSuccess = ({ reservationPk }: Props) => {
     );
   }
 
-  if (!reservation) {
+  if (!reservation || orderLoading) {
     return (
       <StyledContainer>
         <Columns style={{ justifyItems: "center" }}>
