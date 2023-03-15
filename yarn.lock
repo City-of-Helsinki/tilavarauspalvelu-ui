@@ -8877,20 +8877,15 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hds-core@2.10.0:
+hds-core@2.10.0, hds-core@^2.9.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/hds-core/-/hds-core-2.10.0.tgz#bbead215341313cc15591387c0a8d3f013caff4a"
   integrity sha512-bWVMtSC9PrsiCFDR2myMgXH9vh0iAP+UsuiW/jEo538WCQmAsQPqEAWsRps4GFtRZEAb+OWX+LTNNLwjAHvo1A==
 
-hds-core@^2.9.0:
-  version "2.12.1"
-  resolved "https://registry.yarnpkg.com/hds-core/-/hds-core-2.12.1.tgz#e9ff8839d618d76b611dd4cf86488fd37509b64f"
-  integrity sha512-TH8eReiNv2lk9XGaBaCya9J2nIHIBMjnpkp0Awevw1mDiSirG9yWvbWQG/n8YKEP1cMNpxwrJabdVAoMKPAAOg==
-
 hds-design-tokens@^2.9.0:
-  version "2.12.1"
-  resolved "https://registry.yarnpkg.com/hds-design-tokens/-/hds-design-tokens-2.12.1.tgz#60759bb37d3b7e527d10e0d316cd288d60b53484"
-  integrity sha512-0NicGyyeEKOr58I/hziiXhjkT2oJs347/86SQjcV5bwR1SZ1E5NHRX8xTlWYluWvO6y7KNYpATJ3Zm0x5ytp/w==
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/hds-design-tokens/-/hds-design-tokens-2.10.0.tgz#a4c88a54d1366584d9291a43cbe161d63eb5bd6b"
+  integrity sha512-h4YdTiE3nBa8BbnHqoujZSmfcW3SIZ/o75NrFDr/Y4/AahPuaX8HFR5jqaGmn+VsBZvV2gV89lT188AvO28Law==
 
 hds-react@^2.9.0:
   version "2.10.0"
