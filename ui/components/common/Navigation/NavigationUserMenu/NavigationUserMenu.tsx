@@ -35,13 +35,11 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
   cursor: pointer;
   display: flex;
   padding-block: ${(props) => props.theme.spacing.xs};
-  padding-inline: ${(props) => props.theme.spacing.s};
   color: ${(props) => props.theme.colors.black.dark};
   text-decoration: none;
 
-  &:hover {
-    background: ${(props) => props.theme.colors.blue.medium};
-    color: ${(props) => props.theme.colors.white.dark};
+  @media (min-width: ${(props) => props.theme.breakpoints.m}) {
+    padding-left: ${(props) => props.theme.spacing.s};
   }
 
   & > span {
@@ -64,7 +62,7 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
         border-top-width: 1px;
         border-top-color: ${(props) => props.theme.colors.black.light};
         position: absolute;
-        width: 90%;
+        width: 100%;
         top: calc(var(--spacing-xs) * -1);
 
         @media (min-width: ${(props) => props.theme.breakpoints.m}) {
