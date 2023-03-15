@@ -2,6 +2,7 @@ import React, { MouseEvent } from "react";
 import styled from "styled-components";
 import { Navigation as HDSNavigation } from "hds-react";
 import { useRouter } from "next/router";
+import { breakpoints } from "common/src/common/style";
 import { useTranslation } from "next-i18next";
 import { NavigationUserMenu } from "./NavigationUserMenu/NavigationUserMenu";
 import { NavigationMenuItem } from "./NavigationMenuItem";
@@ -30,7 +31,14 @@ const StyledNavigation = styled(HDSNavigation)`
 
 const LanguageSelector = styled(HDSNavigation.LanguageSelector)`
   white-space: nowrap;
-  margin-right: var(--spacing-s);
+  position: absolute;
+  right: var(--spacing-2-xl);
+  margin-right: var(--spacing-xs);
+
+  @media (min-width: ${breakpoints.m}) {
+    position: relative !important;
+    right: unset !important;
+  }
 `;
 
 const menuItems: MenuItem[] = [
