@@ -32,6 +32,10 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
   $divider?: boolean;
   icon?: JSX.Element;
 }>`
+  &:last-of-type {
+    padding-bottom: 0;
+  }
+
   cursor: pointer;
   display: flex;
   padding-block: ${(props) => props.theme.spacing.xs};
@@ -39,6 +43,9 @@ const NavigationUserMenuItem = styled(HDSNavigation.Item)<{
   text-decoration: none;
 
   @media (min-width: ${(props) => props.theme.breakpoints.m}) {
+    &:last-of-type {
+      padding-bottom: ${(props) => props.theme.spacing.xs};
+    }
     padding-left: ${(props) => props.theme.spacing.s};
   }
 
