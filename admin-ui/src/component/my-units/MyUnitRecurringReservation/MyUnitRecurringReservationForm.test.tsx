@@ -189,7 +189,7 @@ test("Render recurring reservation form with all but unit field disabled", async
   expect(within(listbox).getByText(units[0].nameFi!)).toBeInTheDocument();
   expect(within(listbox).getByText(units[1].nameFi!)).toBeInTheDocument();
 
-  const selectorFields = ["startingTime", "endingTime", "repeatPattern"];
+  const selectorFields = ["repeatPattern"];
   selectorFields.forEach((f) => {
     const labelElem = view.getByRole("button", { name: RegExp(f) });
     expect(labelElem).toBeInTheDocument();
@@ -243,7 +243,9 @@ test("selecting unit field allows input to other mandatory fields", async () => 
   await selectUnit();
 
   // TODO select some values from them
-  const selectorFields = ["startingTime", "endingTime", "repeatPattern"];
+  // TODO test start and end time text inputs
+  // const = ["startingTime", "endingTime"];
+  const selectorFields = ["repeatPattern"];
   selectorFields.forEach((f) => {
     const labelElem = view.getByRole("button", { name: RegExp(f) });
     expect(labelElem).toBeInTheDocument();

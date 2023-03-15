@@ -83,13 +83,15 @@ type WeekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 const dayOfWeek: (t: number) => WeekDay = (time: number) =>
   ((Math.floor(time / MS_IN_DAY) + 4) % 7) as WeekDay;
 
-const generateReservations = (
-  props: GenInputType
-): NewReservationListItem[] => {
+// Returning the zod validation result also for error handling
+const generateReservations = (props: GenInputType) => {
   const vals = validator.safeParse(props);
 
   if (!vals.success) {
-    return [];
+    return {
+      ...vals,
+      reservations: [],
+    };
   }
 
   const {
@@ -112,25 +114,31 @@ const generateReservations = (
     const eDay = utcDate(endingDate) + (MS_IN_DAY - 1);
     const firstWeek = eachDayOfInterval(sDay, min(sDay + MS_IN_DAY * 7, eDay));
 
-    return firstWeek
-      .filter((time) => repeatOnDays.includes(toMondayFirst(dayOfWeek(time))))
-      .map((x) =>
-        eachDayOfInterval(x, eDay, repeatPattern.value === "weekly" ? 7 : 14)
-      )
-      .reduce((acc, x) => [...acc, ...x], [])
-      .map((day) => ({
-        date: new Date(day),
-        startTime: startingTime.value,
-        endTime: endingTime.value,
-      }))
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    return {
+      ...vals,
+      reservations: firstWeek
+        .filter((time) => repeatOnDays.includes(toMondayFirst(dayOfWeek(time))))
+        .map((x) =>
+          eachDayOfInterval(x, eDay, repeatPattern.value === "weekly" ? 7 : 14)
+        )
+        .reduce((acc, x) => [...acc, ...x], [])
+        .map((day) => ({
+          date: new Date(day),
+          startTime: startingTime,
+          endTime: endingTime,
+        }))
+        .sort((a, b) => a.date.getTime() - b.date.getTime()),
+    };
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn("exception: ", e);
     // Date throws => don't crash
   }
 
-  return [];
+  return {
+    ...vals,
+    reservations: [],
+  };
 };
 
 export { ReservationList, generateReservations };

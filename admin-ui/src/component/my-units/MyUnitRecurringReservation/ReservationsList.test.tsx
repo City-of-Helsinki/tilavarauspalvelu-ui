@@ -14,14 +14,8 @@ const twoWeeksOnceAWeek = {
   startingDate: today,
   // two weeks is 13 days since the last day is inclusive
   endingDate: addDays(dtoday, 13),
-  startingTime: {
-    label: "",
-    value: "00:00",
-  },
-  endingTime: {
-    label: "",
-    value: "01:00",
-  },
+  startingTime: "00:00",
+  endingTime: "01:00",
   repeatOnDays: [1],
   repeatPattern: {
     label: "",
@@ -32,7 +26,7 @@ const twoWeeksOnceAWeek = {
 describe("generate reservations", () => {
   test("can generate reservations with valid data", () => {
     const res = generateReservations(twoWeeksOnceAWeek);
-    expect(res).toHaveLength(2);
+    expect(res.reservations).toHaveLength(2);
   });
 
   test("two weeks twice a week", () => {
@@ -40,7 +34,7 @@ describe("generate reservations", () => {
       ...twoWeeksOnceAWeek,
       repeatOnDays: [1, 3],
     });
-    expect(res).toHaveLength(4);
+    expect(res.reservations).toHaveLength(4);
   });
 
   test("two weeks every day a week => 15 elements", () => {
@@ -48,7 +42,7 @@ describe("generate reservations", () => {
       ...twoWeeksOnceAWeek,
       repeatOnDays: [0, 1, 2, 3, 4, 5, 6],
     });
-    expect(res).toHaveLength(14);
+    expect(res.reservations).toHaveLength(14);
   });
 
   // inclusive of both start and end
@@ -60,7 +54,7 @@ describe("generate reservations", () => {
       endingDate: addDays(start, 7),
       repeatOnDays: [0],
     });
-    expect(res).toHaveLength(2);
+    expect(res.reservations).toHaveLength(2);
   });
 
   test("repeat on for less than a week has inclusive range [start, end]", () => {
@@ -71,7 +65,7 @@ describe("generate reservations", () => {
       endingDate: addDays(start, 1),
       repeatOnDays: [0, 1],
     });
-    expect(res).toHaveLength(2);
+    expect(res.reservations).toHaveLength(2);
   });
 
   test("repeat on moday with no monday on range => empty result", () => {
@@ -82,7 +76,7 @@ describe("generate reservations", () => {
       endingDate: addDays(start, 6),
       repeatOnDays: [0],
     });
-    expect(res).toHaveLength(0);
+    expect(res.reservations).toHaveLength(0);
   });
 
   //  - (biweekly vs. weekly)
@@ -92,7 +86,7 @@ describe("generate reservations", () => {
       endingDate: addDays(dtoday, 27),
       repeatOnDays: [0],
     });
-    expect(res).toHaveLength(4);
+    expect(res.reservations).toHaveLength(4);
   });
 
   test("four weeks once a week biweekly", () => {
@@ -105,7 +99,7 @@ describe("generate reservations", () => {
         value: "biweekly",
       },
     });
-    expect(res).toHaveLength(2);
+    expect(res.reservations).toHaveLength(2);
   });
 
   test("start date > end date => empty array", () => {
@@ -115,7 +109,7 @@ describe("generate reservations", () => {
       endingDate: addDays(dtoday, 20),
       repeatOnDays: [0],
     });
-    expect(res).toHaveLength(0);
+    expect(res.reservations).toHaveLength(0);
   });
 
   // start date === end date doesn't pass validators so it's gonna be empty
@@ -126,7 +120,7 @@ describe("generate reservations", () => {
       startingDate: addDays(dtoday, 28),
       repeatOnDays: [0, 1, 2, 3, 4, 5, 6],
     });
-    expect(res).toHaveLength(0);
+    expect(res.reservations).toHaveLength(0);
   });
 });
 

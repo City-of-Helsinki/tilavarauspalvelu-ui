@@ -1,6 +1,5 @@
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getDayIntervals } from "common/src/calendar/util";
 import type {
   ErrorType,
   RecurringReservationCreateMutationInput,
@@ -9,12 +8,12 @@ import type {
   ReservationStaffCreateMutationPayload,
   ReservationUnitType,
 } from "common/types/gql-types";
-import { camelCase, get, trimStart } from "lodash";
+import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { addYears, format } from "date-fns";
-import { Button, DateInput, Select, TextInput } from "hds-react";
+import { Button, DateInput, TextInput, TimeInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { removeRefParam } from "common/src/reservation-form/util";
@@ -131,15 +130,6 @@ const MyUnitRecurringReservationForm = ({
   const bufferTimeBefore = reservationUnit?.bufferTimeBefore ?? undefined;
   const bufferTimeAfter = reservationUnit?.bufferTimeAfter ?? undefined;
 
-  const startInterval = reservationUnit?.reservationStartInterval;
-
-  const timeSelectionOptions = startInterval
-    ? getDayIntervals("01:00", "23:00", startInterval).map((n) => ({
-        label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
-        value: trimStart(n.substring(0, 5), "0"),
-      }))
-    : [];
-
   const { notifyError } = useNotification();
 
   const onSubmit = async (data: RecurringReservationForm) => {
@@ -164,9 +154,9 @@ const MyUnitRecurringReservationForm = ({
       const input: RecurringReservationCreateMutationInput = {
         reservationUnitPk: unitPk,
         beginDate: format(data.startingDate, "yyyy-MM-dd"),
-        beginTime: data.startingTime.value,
+        beginTime: data.startingTime,
         endDate: format(data.endingDate, "yyyy-MM-dd"),
-        endTime: data.endingTime.value,
+        endTime: data.endingTime,
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name,
@@ -201,7 +191,7 @@ const MyUnitRecurringReservationForm = ({
           dateTime(format(date, "dd.MM.yyyy"), time);
 
         // TODO see if this can be combined with ReservationDialog (it's very similar)
-        const rets = newReservations.map(async (x) => {
+        const rets = newReservations.reservations.map(async (x) => {
           const common = {
             startTime: x.startTime,
             endTime: x.endTime,
@@ -284,6 +274,9 @@ const MyUnitRecurringReservationForm = ({
   const translateError = (errorMsg?: string) =>
     errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : undefined;
 
+  // FIXME seriesName is a required field even for closed reservations... it shouldn't be
+  // FIXME allows submitting zero reservatios (should block at onSubmit at least)
+  // TODO remove the debug prints from DOM (trying to figure out how to do validation for this case)
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -380,18 +373,17 @@ const MyUnitRecurringReservationForm = ({
             <Controller
               name="startingTime"
               control={control}
-              defaultValue={{ label: "", value: "" }}
               render={({ field }) => (
-                <Select
+                <TimeInput
                   {...removeRefParam(field)}
-                  disabled={!timeSelectionOptions.length}
-                  label={t(`${TRANS_PREFIX}.startingTime`)}
-                  multiselect={false}
-                  placeholder={t("common.select")}
-                  options={timeSelectionOptions}
-                  invalid={errors.startingTime != null}
+                  id="ReservationDialog.startTime"
+                  label={t("ReservationDialog.startTime")}
+                  hoursLabel={t("common.hoursLabel")}
+                  minutesLabel={t("common.minutesLabel")}
+                  disabled={reservationUnit == null}
                   required
-                  error={translateError(errors.startingTime?.message)}
+                  invalid={errors.startingTime != null}
+                  errorText={translateError(errors.startingTime?.message)}
                 />
               )}
             />
@@ -400,18 +392,17 @@ const MyUnitRecurringReservationForm = ({
             <Controller
               name="endingTime"
               control={control}
-              defaultValue={{ label: "", value: "" }}
               render={({ field }) => (
-                <Select
+                <TimeInput
                   {...removeRefParam(field)}
-                  disabled={!timeSelectionOptions.length}
-                  label={t(`${TRANS_PREFIX}.endingTime`)}
-                  multiselect={false}
-                  placeholder={t("common.select")}
-                  options={timeSelectionOptions}
+                  id="ReservationDialog.endtime"
+                  label={t("ReservationDialog.endTime")}
+                  hoursLabel={t("common.hoursLabel")}
+                  minutesLabel={t("common.minutesLabel")}
+                  disabled={reservationUnit == null}
                   required
+                  errorText={translateError(errors.endingTime?.message)}
                   invalid={errors.endingTime != null}
-                  error={translateError(errors.endingTime?.message)}
                 />
               )}
             />
@@ -437,12 +428,21 @@ const MyUnitRecurringReservationForm = ({
             <Element $wide>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
-                  count: newReservations.length,
+                  count: newReservations.reservations.length,
                 })}
               </Label>
-              <ReservationList items={newReservations} />
+              <ReservationList items={newReservations.reservations} />
             </Element>
           )}
+          {/* TODO DEBUG stuff */}
+          {reservationUnit != null && !newReservations.success && (
+            <Element $wide>
+              <Label $bold>ERROR: {String(newReservations.error)}</Label>
+            </Element>
+          )}
+          <Element $wide>
+            <Label $bold>Form errors: {String(JSON.stringify(errors))}</Label>
+          </Element>
 
           <Element $wide>
             {reservationUnit != null && (

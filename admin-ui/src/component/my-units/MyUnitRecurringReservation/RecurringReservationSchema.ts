@@ -21,8 +21,8 @@ const Option = z.object({
 const timeSelectionSchemaBase = z.object({
   startingDate: z.coerce.date(),
   endingDate: z.coerce.date(),
-  startingTime: Option,
-  endingTime: Option,
+  startingTime: z.string(),
+  endingTime: z.string(),
   repeatOnDays: z.array(z.number()).min(1).max(7),
   repeatPattern: z.object({
     label: z.string(),
@@ -35,13 +35,15 @@ const RecurringReservationFormBaseSchema = z
     reservationUnit: Option,
     type: z.string(),
     seriesName: z.string(),
-    comments: z.string().max(500),
-    bufferTimeBefore: z.boolean(),
-    bufferTimeAfter: z.boolean(),
+    comments: z.string().max(500).optional(),
+    bufferTimeBefore: z.boolean().optional(),
+    bufferTimeAfter: z.boolean().optional(),
   })
   .merge(timeSelectionSchemaBase)
   // need passthrough otherwise zod will strip the metafields
   .passthrough();
+
+const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
 
 export const timeSelectionSchema = timeSelectionSchemaBase
   .refine((s) => s.startingDate > subDays(new Date(), 1), {
@@ -64,11 +66,27 @@ export const timeSelectionSchema = timeSelectionSchemaBase
       message: "Start and end time needs to be within a decade.",
     }
   )
+  .refine((s) => s.startingTime.match(TIME_PATTERN), {
+    path: ["startingTime"],
+    message: "Start time is not in time format.",
+  })
+  .refine((s) => s.endingTime.match(TIME_PATTERN), {
+    path: ["endingTime"],
+    message: "End time is not in time format.",
+  })
+  .refine((s) => Number(s.startingTime.replace(":", ".")) < 24, {
+    path: ["startingTime"],
+    message: "Start time can't be more than 24 hours.",
+  })
+  .refine((s) => Number(s.endingTime.replace(":", ".")) < 24, {
+    path: ["endingTime"],
+    message: "End time can't be more than 24 hours.",
+  })
   // start time < end time (weird time format)
   .refine(
     (s) =>
-      Number(s.startingTime.value.replace(":", ".")) <
-      Number(s.endingTime.value.replace(":", ".")),
+      Number(s.startingTime.replace(":", ".")) <
+      Number(s.endingTime.replace(":", ".")),
     {
       path: ["endingTime"],
       message: "Start time can't be after end time.",
@@ -77,6 +95,12 @@ export const timeSelectionSchema = timeSelectionSchemaBase
 
 // NOTE dupe of timeSelection refinement
 // limitation of zod: you can't merge refinements (breaks type inferance)
+// FIXME this code dupe is really bad
+// can we refactor this so that we only use the refinement in the time portion
+// and display those erros differently
+// as in run the validation from a watch function instead of using form.state.errors
+// Do a manual validation step and show the errors if the first part fails
+// then show any remaining errors using the resolver? or forgo the resolver completely
 export const RecurringReservationFormSchema =
   RecurringReservationFormBaseSchema.refine(
     (s) => s.startingDate > subDays(new Date(), 1),
@@ -98,10 +122,26 @@ export const RecurringReservationFormSchema =
         message: "Start and end time needs to be within a decade.",
       }
     )
+    .refine((s) => s.startingTime.match(TIME_PATTERN), {
+      path: ["startingTime"],
+      message: "Start time is not in time format.",
+    })
+    .refine((s) => s.endingTime.match(TIME_PATTERN), {
+      path: ["endingTime"],
+      message: "End time is not in time format.",
+    })
+    .refine((s) => Number(s.startingTime.replace(":", ".")) < 24, {
+      path: ["startingTime"],
+      message: "Start time can't be more than 24 hours.",
+    })
+    .refine((s) => Number(s.endingTime.replace(":", ".")) < 24, {
+      path: ["endingTime"],
+      message: "End time can't be more than 24 hours.",
+    })
     .refine(
       (s) =>
-        Number(s.startingTime.value.replace(":", ".")) <
-        Number(s.endingTime.value.replace(":", ".")),
+        Number(s.startingTime.replace(":", ".")) <
+        Number(s.endingTime.replace(":", ".")),
       {
         path: ["endingTime"],
         message: "End time needs to be after start.",
