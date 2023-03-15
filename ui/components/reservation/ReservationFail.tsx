@@ -9,6 +9,7 @@ import Container from "../common/Container";
 import { Paragraph } from "./styles";
 import { singleSearchUrl } from "../../modules/util";
 import { useLogout } from "../../hooks/useLogout";
+import { LinkButton } from "../../styles/util";
 
 type Props = {
   type: "reservation" | "order";
@@ -79,9 +80,9 @@ const ReservationFail = ({ type }: Props) => {
               {t("common:gotoFrontpage")}
               <IconArrowRight aria-hidden size="m" />
             </StyledLink>
-            <StyledLink href="#" onClick={() => logout()}>
+            <LinkButton onClick={() => logout()}>
               {t("common:logout")} <IconSignout size="m" aria-hidden />
-            </StyledLink>
+            </LinkButton>
           </ActionContainer>
         </div>
       </Wrapper>

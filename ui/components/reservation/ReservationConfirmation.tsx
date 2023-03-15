@@ -22,7 +22,7 @@ import { Subheading } from "common/src/reservation-form/styles";
 import { breakpoints } from "common/src/common/style";
 import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
 import { getTranslation, reservationsUrl } from "../../modules/util";
-import { BlackButton } from "../../styles/util";
+import { BlackButton, LinkButton } from "../../styles/util";
 import { Paragraph } from "./styles";
 import { reservationUnitPath } from "../../modules/const";
 import { useLogout } from "../../hooks/useLogout";
@@ -115,7 +115,7 @@ const ReservationConfirmation = ({
               requiresHandling ? "Handling" : ""
             }`}
             t={t}
-            values={{ user: reservation?.user.email }}
+            values={{ user: reservation?.user?.email }}
             components={{
               br: <br />,
               lnk: (
@@ -172,9 +172,9 @@ const ReservationConfirmation = ({
             {t("common:gotoFrontpage")}
             <IconArrowRight aria-hidden size="m" />
           </StyledLink>
-          <StyledLink href="#" onClick={() => logout()}>
+          <LinkButton onClick={() => logout()}>
             {t("common:logout")} <IconSignout size="m" aria-hidden />
-          </StyledLink>
+          </LinkButton>
         </ActionContainer2>
       </div>
     </Wrapper>
