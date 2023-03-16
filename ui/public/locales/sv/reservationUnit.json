@@ -34,6 +34,7 @@
   "reservationInfo1-1": "Du kan boka <bold>tidigast {{reservationsMaxDaysBefore}} {{unit}}</bold> och <bold>senast {{reservationsMinDaysBefore}} dagar på förhand</bold>.",
   "reservationInfo1-2": "Du kan boka <bold>tidigast {{reservationsMaxDaysBefore}} {{unit}} på förhand</bold>.",
   "reservationInfo1-3": "Du kan boka <bold>senast {{reservationsMinDaysBefore}} dagar på förhand</bold>.",
+  "reservationInfo2": "<bold>Detta objekt kan bokas fram till {{reservationEnds}}</bold>.",
   "reservationInfo2-1": "<bold>Detta objekt kan bokas fram {{date}} kl. {{time}}</bold>.",
   "reservationInfo2-2": "<bold>Detta objekt kan bokas fram till {{date}} kl. {{time}}</bold>.",
   "reservationInfo2-3": "<bold>Bokningen av detta objekt har slutat {{date}} kl. {{time}}</bold>.",
