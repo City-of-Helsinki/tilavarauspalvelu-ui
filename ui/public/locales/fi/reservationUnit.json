@@ -35,6 +35,7 @@
   "reservationInfo1-1": "Voit tehdä varauksen <bold>aikaisintaan {{reservationsMaxDaysBefore}} {{unit}}</bold> ja <bold>viimeistään {{reservationsMinDaysBefore}} päivää etukäteen</bold>.",
   "reservationInfo1-2": "Voit tehdä varauksen <bold>aikaisintaan {{reservationsMaxDaysBefore}} {{unit}} etukäteen</bold>.",
   "reservationInfo1-3": "Voit tehdä varauksen <bold>viimeistään {{reservationsMinDaysBefore}} päivää etukäteen</bold>.",
+  "reservationInfo2": "<bold>Tämä kohde on varattavissa {{reservationEnds}}</bold> asti.",
   "reservationInfo2-1": "<bold>Tämä kohde on varattavissa {{date}} klo {{time}}</bold>.",
   "reservationInfo2-2": "<bold>Tämä kohde on varattavissa {{date}} klo {{time}}</bold> asti.",
   "reservationInfo2-3": "<bold>Tämän kohteen varaaminen on sulkeutunut {{date}} klo {{time}}</bold>.",
