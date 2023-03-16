@@ -351,8 +351,22 @@ const translations: ITranslations = {
       bufferTimeBefore: ["Ennen vuoroa ({{minutes}} min)"],
       bufferTimeAfter: ["Vuoron jälkeen ({{minutes}} min)"],
       errors: {
+        "RecurringReservationForm.error.formNotValid": [
+          "Lomakkeen arvoissa vikaa.",
+        ],
+        "RecurringReservationForm.error.noReservations": [
+          "Mahdotonta tehdä toistuvaa varausta ilman yhtään varauspäivää",
+        ],
         "Invalid date": ["Virheellinen päivämäärä"],
-        "Start date can't be in the past": ["Aloitusaika menneisyydessä"],
+        "End time can't be more than 24 hours.": [
+          "Loppumisaika ei voi olla yli 24 tuntia",
+        ],
+        "Start time can't be more than 24 hours.": [
+          "Aloitusaika ei voi olla yli 24 tuntia",
+        ],
+        "Start time is not in time format.": ["Aloitusaika ei ole aika"],
+        "End time is not in time format.": ["Loppumisaika ei ole aika"],
+        "Start date can't be in the past": ["Aloituspäivä menneisyydessä"],
         "End time needs to be after start.": [
           "Lopetusajan pitää olla aloitusajan jälkeen",
         ],
@@ -1211,6 +1225,7 @@ const translations: ITranslations = {
       noPastDate: ["Aloitusaika menneisyydessä"],
       endAfterBegin: ["Lopetusaika liian aikainen"],
       interval: ["Virheellinen aloitusaika, intervallit: {{interval}}"],
+      Required: ["Pakollinen"],
     },
   },
   ReservationUnits: {

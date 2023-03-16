@@ -7,11 +7,13 @@ const TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 // It should be it's own schema object that is included in both forms
 // and it should be constructed based on the backend data.
 
-// TODO schema refinement maps into the later variable (path)
-// so form errors are only displayed when the latter variable has been changed e.g.
-// change startTime to be after endTime doesn't cause an error, but
-// changing endTime displayes the error.
-// Can't be fixed by adding multiple paths (this hides the error completely).
+// NOTE schema refinement is quirky since zod objects can't be merged after it
+// always use the exact refined scheme for validation and displaying errors to the user
+// the merged schemes are for type inferance.
+
+// NOTE don't use zod refined schemes in react-hook-form resolvers
+// it doesn't handle complex cases that depend on multiple values
+// use a custom isDirty + getError instead using the full error map zod returns.
 
 const Option = z.object({
   label: z.string(),
@@ -30,11 +32,11 @@ const timeSelectionSchemaBase = z.object({
   }),
 });
 
-const RecurringReservationFormBaseSchema = z
+export const RecurringReservationFormSchema = z
   .object({
     reservationUnit: Option,
     type: z.string(),
-    seriesName: z.string(),
+    seriesName: z.string().optional(),
     comments: z.string().max(500).optional(),
     bufferTimeBefore: z.boolean().optional(),
     bufferTimeAfter: z.boolean().optional(),
@@ -93,61 +95,6 @@ export const timeSelectionSchema = timeSelectionSchemaBase
     }
   );
 
-// NOTE dupe of timeSelection refinement
-// limitation of zod: you can't merge refinements (breaks type inferance)
-// FIXME this code dupe is really bad
-// can we refactor this so that we only use the refinement in the time portion
-// and display those erros differently
-// as in run the validation from a watch function instead of using form.state.errors
-// Do a manual validation step and show the errors if the first part fails
-// then show any remaining errors using the resolver? or forgo the resolver completely
-export const RecurringReservationFormSchema =
-  RecurringReservationFormBaseSchema.refine(
-    (s) => s.startingDate > subDays(new Date(), 1),
-    {
-      path: ["startingDate"],
-      message: "Start date can't be in the past",
-    }
-  )
-    .refine((s) => s.startingDate < s.endingDate, {
-      path: ["endingDate"],
-      message: "Start date can't be after end date.",
-    })
-    .refine(
-      (s) =>
-        Math.abs(s.endingDate.getTime() - s.startingDate.getTime()) <
-        TEN_YEARS_MS,
-      {
-        path: ["endingDate"],
-        message: "Start and end time needs to be within a decade.",
-      }
-    )
-    .refine((s) => s.startingTime.match(TIME_PATTERN), {
-      path: ["startingTime"],
-      message: "Start time is not in time format.",
-    })
-    .refine((s) => s.endingTime.match(TIME_PATTERN), {
-      path: ["endingTime"],
-      message: "End time is not in time format.",
-    })
-    .refine((s) => Number(s.startingTime.replace(":", ".")) < 24, {
-      path: ["startingTime"],
-      message: "Start time can't be more than 24 hours.",
-    })
-    .refine((s) => Number(s.endingTime.replace(":", ".")) < 24, {
-      path: ["endingTime"],
-      message: "End time can't be more than 24 hours.",
-    })
-    .refine(
-      (s) =>
-        Number(s.startingTime.replace(":", ".")) <
-        Number(s.endingTime.replace(":", ".")),
-      {
-        path: ["endingTime"],
-        message: "End time needs to be after start.",
-      }
-    );
-
 export type RecurringReservationForm = z.infer<
-  typeof RecurringReservationFormBaseSchema
+  typeof RecurringReservationFormSchema
 >;

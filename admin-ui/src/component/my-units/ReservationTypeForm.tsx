@@ -37,7 +37,6 @@ const ReservationTypeForm = ({
   } = useFormContext<ReservationFormType>();
   const type = watch("type");
 
-  // TODO set default value (in the form to avoid console.log errors)
   return (
     <>
       <Controller
@@ -48,7 +47,11 @@ const ReservationTypeForm = ({
             required
             disabled={reservationUnit == null}
             label={t("ReservationDialog.type")}
-            errorText={errors.type?.message}
+            errorText={
+              errors.type?.message != null
+                ? t(`ReservationDialog.validation.${errors.type?.message}`)
+                : ""
+            }
           >
             {Object.values(ReservationType)
               .filter((v) => typeof v === "string")

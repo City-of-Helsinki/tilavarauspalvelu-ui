@@ -84,7 +84,7 @@ const MyUnitRecurringReservationForm = ({
     control,
     register,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields },
   } = form;
 
   const selectedReservationUnit = watch("reservationUnit");
@@ -133,6 +133,12 @@ const MyUnitRecurringReservationForm = ({
   const { notifyError } = useNotification();
 
   const onSubmit = async (data: RecurringReservationForm) => {
+    if (!newReservations.success) {
+      notifyError(t("RecurringReservationForm.error.formNotValid"));
+    }
+    if (newReservations.reservations.length === 0) {
+      notifyError(t("RecurringReservationForm.error.noReservations"));
+    }
     try {
       const unitPk = reservationUnit?.pk;
       if (unitPk == null) {
@@ -160,6 +166,7 @@ const MyUnitRecurringReservationForm = ({
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name,
+        // TODO this should not be required based on the API spec but empty fails the mutation
         description: data.comments || "toistuva varaus",
 
         // TODO missing fields
@@ -272,11 +279,28 @@ const MyUnitRecurringReservationForm = ({
   };
 
   const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : undefined;
+    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
 
-  // FIXME seriesName is a required field even for closed reservations... it shouldn't be
-  // FIXME allows submitting zero reservatios (should block at onSubmit at least)
-  // TODO remove the debug prints from DOM (trying to figure out how to do validation for this case)
+  // TODO (futher work) validators shouldn't be run if the field is focused
+  //    because when we input partial values like time: 20:-- but are still editing
+  //    the field is dirty and invalid so the error jumps to the UI
+
+  // Do custom error checking for fields since resolver only checks the current field
+  // Takes the first error only since this updates live while the user types
+  const getZodError = (
+    field: "startingDate" | "endingDate" | "startingTime" | "endingTime"
+  ) =>
+    dirtyFields[field] && !newReservations?.success
+      ? String(
+          translateError(
+            newReservations.error.issues
+              .filter((x) => x.path.includes(field))
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              .find((_) => true)?.message
+          )
+        )
+      : "";
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -319,7 +343,7 @@ const MyUnitRecurringReservationForm = ({
                   disableConfirmation
                   language="fi"
                   required
-                  errorText={translateError(errors.startingDate?.message)}
+                  errorText={getZodError("startingDate")}
                 />
               )}
             />
@@ -342,7 +366,7 @@ const MyUnitRecurringReservationForm = ({
                   disableConfirmation
                   language="fi"
                   required
-                  errorText={translateError(errors.endingDate?.message)}
+                  errorText={getZodError("endingDate")}
                 />
               )}
             />
@@ -383,7 +407,7 @@ const MyUnitRecurringReservationForm = ({
                   disabled={reservationUnit == null}
                   required
                   invalid={errors.startingTime != null}
-                  errorText={translateError(errors.startingTime?.message)}
+                  errorText={getZodError("startingTime")}
                 />
               )}
             />
@@ -401,7 +425,7 @@ const MyUnitRecurringReservationForm = ({
                   minutesLabel={t("common.minutesLabel")}
                   disabled={reservationUnit == null}
                   required
-                  errorText={translateError(errors.endingTime?.message)}
+                  errorText={getZodError("endingTime")}
                   invalid={errors.endingTime != null}
                 />
               )}
@@ -434,15 +458,6 @@ const MyUnitRecurringReservationForm = ({
               <ReservationList items={newReservations.reservations} />
             </Element>
           )}
-          {/* TODO DEBUG stuff */}
-          {reservationUnit != null && !newReservations.success && (
-            <Element $wide>
-              <Label $bold>ERROR: {String(newReservations.error)}</Label>
-            </Element>
-          )}
-          <Element $wide>
-            <Label $bold>Form errors: {String(JSON.stringify(errors))}</Label>
-          </Element>
 
           <Element $wide>
             {reservationUnit != null && (
