@@ -132,12 +132,17 @@ const MyUnitRecurringReservationForm = ({
 
   const { notifyError } = useNotification();
 
+  const translateError = (errorMsg?: string) =>
+    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+
   const onSubmit = async (data: RecurringReservationForm) => {
     if (!newReservations.success) {
-      notifyError(t("RecurringReservationForm.error.formNotValid"));
+      notifyError(t(translateError("formNotValid")));
+      return;
     }
     if (newReservations.reservations.length === 0) {
-      notifyError(t("RecurringReservationForm.error.noReservations"));
+      notifyError(t(translateError("noReservations")));
+      return;
     }
     try {
       const unitPk = reservationUnit?.pk;
@@ -277,9 +282,6 @@ const MyUnitRecurringReservationForm = ({
   const handleCancel = () => {
     navigate(-1);
   };
-
-  const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
 
   // TODO (futher work) validators shouldn't be run if the field is focused
   //    because when we input partial values like time: 20:-- but are still editing
@@ -468,6 +470,7 @@ const MyUnitRecurringReservationForm = ({
                   label={t(`${TRANS_PREFIX}.name`)}
                   required
                   {...register("seriesName")}
+                  invalid={errors.seriesName != null}
                   errorText={translateError(errors.seriesName?.message)}
                 />
               </ReservationTypeForm>

@@ -11,9 +11,9 @@ const TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 // always use the exact refined scheme for validation and displaying errors to the user
 // the merged schemes are for type inferance.
 
-// NOTE don't use zod refined schemes in react-hook-form resolvers
+// NOTE be careful if using zod refined schemes in react-hook-form resolvers
 // it doesn't handle complex cases that depend on multiple values
-// use a custom isDirty + getError instead using the full error map zod returns.
+// often needs a custom isDirty + getError with the full zod error map.
 
 const Option = z.object({
   label: z.string(),
@@ -43,7 +43,17 @@ export const RecurringReservationFormSchema = z
   })
   .merge(timeSelectionSchemaBase)
   // need passthrough otherwise zod will strip the metafields
-  .passthrough();
+  .passthrough()
+  // this refine works in this case since it's the last required value (unlike datetimes)
+  .refine(
+    (s) =>
+      s.type === "BLOCKED" ||
+      (s.seriesName !== undefined && s.seriesName.length > 0),
+    {
+      path: ["seriesName"],
+      message: "Required",
+    }
+  );
 
 const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
 
@@ -84,14 +94,22 @@ export const timeSelectionSchema = timeSelectionSchemaBase
     path: ["endingTime"],
     message: "End time can't be more than 24 hours.",
   })
-  // start time < end time (weird time format)
+  // TODO these should depend on the Unit interval configuration (15, 30, 60, 90)
+  .refine((s) => Number(s.startingTime.substring(3)) % 15 === 0, {
+    path: ["startingTime"],
+    message: "Start time has to be increment of 15 minutes.",
+  })
+  .refine((s) => Number(s.endingTime.substring(3)) % 15 === 0, {
+    path: ["endingTime"],
+    message: "End time has to be increment of 15 minutes.",
+  })
   .refine(
     (s) =>
       Number(s.startingTime.replace(":", ".")) <
       Number(s.endingTime.replace(":", ".")),
     {
       path: ["endingTime"],
-      message: "Start time can't be after end time.",
+      message: "End time needs to be after start time.",
     }
   );
 
