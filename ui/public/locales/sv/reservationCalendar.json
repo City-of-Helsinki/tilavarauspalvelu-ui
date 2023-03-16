@@ -82,9 +82,9 @@
   "reservationQuotaLabel": "",
   "reservationQuota_one": "Du har {{count}}/{{total}} bokning för det här objektet.",
   "reservationQuota_other": "Du har {{count}}/{{total}} bokningar för det här objektet.",
-  "reservationQuotaFullLabel": "Det maximala antalet bokningar har fyllts. Du kan inte göra nya bokningar.",
-  "reservationQuotaFull_one": "Det maximala antalet bokningar har fyllts. Du kan inte göra nya bokningar.",
-  "reservationQuotaFull_other": "Det maximala antalet bokningar har fyllts. Du kan inte göra nya bokningar.",
+  "reservationQuotaFullLabel": "Det maximala antalet bokningar har fyllts.",
+  "reservationQuotaFull_one": "Du kan inte göra nya bokningar.",
+  "reservationQuotaFull_other": "Du kan inte göra nya bokningar.",
   "quickReservation": {
     "heading": "Se lediga tider och boka",
     "date": "Dag",

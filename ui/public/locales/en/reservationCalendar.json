@@ -82,9 +82,9 @@
   "reservationQuotaLabel": "Existing reservations",
   "reservationQuota_one": "You have {{count}}/{{total}} reservation for this item.",
   "reservationQuota_other": "You have {{count}}/{{total}} reservations for this item.",
-  "reservationQuotaFullLabel": "",
-  "reservationQuotaFull_one": "You have reached the maximum number of reservations. You cannot make new reservations.",
-  "reservationQuotaFull_other": "You have reached the maximum number of reservations. You cannot make new reservations.",
+  "reservationQuotaFullLabel": "You have reached the maximum number of reservations.",
+  "reservationQuotaFull_one": "You cannot make new reservations.",
+  "reservationQuotaFull_other": "You cannot make new reservations.",
   "quickReservation": {
     "heading": "See the available times and make a booking",
     "date": "Date",

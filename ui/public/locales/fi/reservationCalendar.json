@@ -80,9 +80,9 @@
   "reservationQuotaLabel": "Olemassaolevia varauksia",
   "reservationQuota_one": "Sinulla on jo {{count}}/{{total}} varaus tähän kohteeseen.",
   "reservationQuota_other": "Sinulla on {{count}}/{{total}} varausta tähän kohteeseen.",
-  "reservationQuotaFullLabel": "Varausten enimmäismäärä on täynnä. Et voi tehdä uusia varauksia.",
-  "reservationQuotaFull_one": "Varausten enimmäismäärä on täynnä. Et voi tehdä uusia varauksia.",
-  "reservationQuotaFull_other": "Varausten enimmäismäärä on täynnä. Et voi tehdä uusia varauksia.",
+  "reservationQuotaFullLabel": "Varausten enimmäismäärä on täynnä.",
+  "reservationQuotaFull_one": "Et voi tehdä uusia varauksia.",
+  "reservationQuotaFull_other": "Et voi tehdä uusia varauksia.",
   "quickReservation": {
     "heading": "Katso vapaat ajat ja varaa",
     "date": "Päivä",
