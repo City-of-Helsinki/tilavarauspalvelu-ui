@@ -79,8 +79,10 @@ const matchEvent = (): void => {
     });
 };
 
-const reservationEnds = (date: Date) =>
-  format(addDays(date, 10), "d.M.yyyy 'klo' H.mm");
+const reservationEnds = (date: Date, justDate = false) => {
+  const fmt = justDate ? "d.M.yyyy" : "d.M.yyyy 'klo' H.mm";
+  return format(addDays(date, 10), fmt);
+};
 
 const drawReservation = (): void => {
   hzNavigationFwd().click();
@@ -353,7 +355,7 @@ describe("renders with basic data", () => {
       "Voit tehdä varauksen aikaisintaan 12 kuukautta ja viimeistään 2 päivää etukäteen."
     );
     reservationInfo().contains(
-      `Tämä kohde on varattavissa ${reservationEnds(new Date())} asti.`
+      `Tämä kohde on varattavissa ${reservationEnds(new Date(), true)}`
     );
     reservationInfo().contains(
       "Varauksen keston tulee olla välillä 1 tunti - 1 tunti 30 minuuttia."
