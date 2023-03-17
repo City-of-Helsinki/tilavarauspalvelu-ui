@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { subDays } from "date-fns";
 
+// TODO replace with three years
 const TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 
 // TODO handle metadata (variable form fields) instead of using .passthrough
@@ -35,6 +36,7 @@ const timeSelectionSchemaBase = z.object({
 export const RecurringReservationFormSchema = z
   .object({
     reservationUnit: Option,
+    // TODO this should be an enum
     type: z.string(),
     seriesName: z.string().optional(),
     comments: z.string().max(500).optional(),

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
 import { toMondayFirst } from "../../../common/util";
+import { intervalToNumber } from "../create-reservation/utils";
 
 type NewReservationListItem = {
   date: Date;
@@ -83,23 +84,6 @@ const eachDayOfInterval = (start: number, end: number, stepDays = 1) => {
 type WeekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 const dayOfWeek: (t: number) => WeekDay = (time: number) =>
   ((Math.floor(time / MS_IN_DAY) + 4) % 7) as WeekDay;
-
-const intervalToNumber = (
-  i: ReservationUnitsReservationUnitReservationStartIntervalChoices
-) => {
-  switch (i) {
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins:
-      return 15;
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_30Mins:
-      return 30;
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_60Mins:
-      return 60;
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins:
-      return 90;
-    default:
-      return 0;
-  }
-};
 
 // Returning the zod validation result also for error handling
 const generateReservations = (
