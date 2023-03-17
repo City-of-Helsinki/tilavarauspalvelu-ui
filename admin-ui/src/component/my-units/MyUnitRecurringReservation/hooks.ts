@@ -5,6 +5,7 @@ import type {
   QueryUnitsArgs,
   ReservationUnitType,
 } from "common/types/gql-types";
+import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import type { UseFormReturn } from "react-hook-form";
 import { generateReservations } from "./ReservationsList";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
@@ -12,7 +13,8 @@ import { useNotification } from "../../../context/NotificationContext";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 
 export const useMultipleReservation = (
-  form: UseFormReturn<RecurringReservationForm>
+  form: UseFormReturn<RecurringReservationForm>,
+  interval: ReservationUnitsReservationUnitReservationStartIntervalChoices = ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
 ) => {
   const { watch } = form;
 
@@ -27,15 +29,18 @@ export const useMultipleReservation = (
 
   return useMemo(
     () =>
-      generateReservations({
-        startingDate: selectedReservationParams[0],
-        endingDate: selectedReservationParams[1],
-        startingTime: selectedReservationParams[2],
-        endingTime: selectedReservationParams[3],
-        repeatPattern: selectedReservationParams[4],
-        repeatOnDays: selectedReservationParams[5],
-      }),
-    [selectedReservationParams]
+      generateReservations(
+        {
+          startingDate: selectedReservationParams[0],
+          endingDate: selectedReservationParams[1],
+          startingTime: selectedReservationParams[2],
+          endingTime: selectedReservationParams[3],
+          repeatPattern: selectedReservationParams[4],
+          repeatOnDays: selectedReservationParams[5],
+        },
+        interval
+      ),
+    [selectedReservationParams, interval]
   );
 };
 

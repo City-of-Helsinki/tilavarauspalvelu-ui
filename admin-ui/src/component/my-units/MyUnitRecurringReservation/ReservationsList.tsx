@@ -2,6 +2,7 @@ import React from "react";
 import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { z } from "zod";
+import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
 import { toMondayFirst } from "../../../common/util";
 
@@ -83,9 +84,46 @@ type WeekDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 const dayOfWeek: (t: number) => WeekDay = (time: number) =>
   ((Math.floor(time / MS_IN_DAY) + 4) % 7) as WeekDay;
 
+const intervalToNumber = (
+  i: ReservationUnitsReservationUnitReservationStartIntervalChoices
+) => {
+  switch (i) {
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins:
+      return 15;
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_30Mins:
+      return 30;
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_60Mins:
+      return 60;
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins:
+      return 90;
+    default:
+      return 0;
+  }
+};
+
 // Returning the zod validation result also for error handling
-const generateReservations = (props: GenInputType) => {
-  const vals = validator.safeParse(props);
+const generateReservations = (
+  props: GenInputType,
+  interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
+) => {
+  // Refine the schema to check intervals
+  // NOTE A starting interval that doesn't match the ReservationUnit configuration will be rejected by the backend.
+  const vals = timeSelectionSchema
+    .refine(
+      (s) =>
+        Number(s.startingTime.substring(3)) % intervalToNumber(interval) === 0,
+      {
+        path: ["startingTime"],
+        message: `Starting time has to be in ${intervalToNumber(
+          interval
+        )} minutes increments.`,
+      }
+    )
+    .refine((s) => Number(s.endingTime.substring(3)) % 15 === 0, {
+      path: ["endingTime"],
+      message: "End time has to be increment of 15 minutes.",
+    })
+    .safeParse(props);
 
   if (!vals.success) {
     return {

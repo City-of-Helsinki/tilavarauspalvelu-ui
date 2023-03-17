@@ -89,8 +89,6 @@ const MyUnitRecurringReservationForm = ({
 
   const selectedReservationUnit = watch("reservationUnit");
 
-  const newReservations = useMultipleReservation(form);
-
   const reservationUnitOptions =
     reservationUnits.map((unit) => ({
       label: unit?.nameFi ?? "",
@@ -134,6 +132,11 @@ const MyUnitRecurringReservationForm = ({
 
   const translateError = (errorMsg?: string) =>
     errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+
+  const newReservations = useMultipleReservation(
+    form,
+    reservationUnit?.reservationStartInterval
+  );
 
   const onSubmit = async (data: RecurringReservationForm) => {
     if (!newReservations.success) {

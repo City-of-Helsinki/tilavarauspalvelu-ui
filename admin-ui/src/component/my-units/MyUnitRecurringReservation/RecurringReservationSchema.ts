@@ -94,15 +94,6 @@ export const timeSelectionSchema = timeSelectionSchemaBase
     path: ["endingTime"],
     message: "End time can't be more than 24 hours.",
   })
-  // TODO these should depend on the Unit interval configuration (15, 30, 60, 90)
-  .refine((s) => Number(s.startingTime.substring(3)) % 15 === 0, {
-    path: ["startingTime"],
-    message: "Start time has to be increment of 15 minutes.",
-  })
-  .refine((s) => Number(s.endingTime.substring(3)) % 15 === 0, {
-    path: ["endingTime"],
-    message: "End time has to be increment of 15 minutes.",
-  })
   .refine(
     (s) =>
       Number(s.startingTime.replace(":", ".")) <

@@ -353,35 +353,44 @@ const translations: ITranslations = {
       errors: {
         formNotValid: ["Lomakkeessa vikaa."],
         noReservations: [
-          "Mahdotonta tehdä toistuvaa varausta ilman yhtään varauspäivää",
+          "Mahdotonta tehdä toistuvaa varausta ilman yhtään varauspäivää.",
         ],
-        "Invalid date": ["Virheellinen päivämäärä"],
+        "Invalid date": ["Virheellinen päivämäärä."],
         "End time can't be more than 24 hours.": [
-          "Loppumisaika ei voi olla yli 24 tuntia",
+          "Loppumisaika ei voi olla yli 24 tuntia.",
         ],
         "Start time can't be more than 24 hours.": [
-          "Aloitusaika ei voi olla yli 24 tuntia",
+          "Aloitusaika ei voi olla yli 24 tuntia.",
         ],
-        "Start time has to be increment of 15 minutes.": [
-          "Aloitusajan pitää olla 15 minuutin välein",
+        "Starting time has to be in 15 minutes increments.": [
+          "Aloitusajan pitää olla 15 minuutin välein.",
+        ],
+        "Starting time has to be in 30 minutes increments.": [
+          "Aloitusajan pitää olla 30 minuutin välein.",
+        ],
+        "Starting time has to be in 60 minutes increments.": [
+          "Aloitusajan pitää olla 60 minuutin välein.",
+        ],
+        "Starting time has to be in 90 minutes increments.": [
+          "Aloitusajan pitää olla 90 minuutin välein.",
         ],
         "End time has to be increment of 15 minutes.": [
-          "Loppumisajan pitää olla 15 minuutin välein",
+          "Loppumisajan pitää olla 15 minuutin välein.",
         ],
-        "Start time is not in time format.": ["Aloitusaika ei ole aika"],
-        "End time is not in time format.": ["Loppumisaika ei ole aika"],
-        "Start date can't be in the past": ["Aloituspäivä menneisyydessä"],
+        "Start time is not in time format.": ["Aloitusaika ei ole aika."],
+        "End time is not in time format.": ["Loppumisaika ei ole aika."],
+        "Start date can't be in the past": ["Aloituspäivä menneisyydessä."],
         "End time needs to be after start time.": [
-          "Loppumisajan pitää olla aloitusajan jälkeen",
+          "Loppumisajan pitää olla aloitusajan jälkeen.",
         ],
         "Start date can't be after end date.": [
-          "Aloituspäivän tulee olla ennen päättymispäivää.",
+          "Aloituspäivän tulee olla ennen päättymispäivää",
         ],
         "Array must contain at least 1 element(s)": [
-          "Valitse vähintään yksi päivä",
+          "Valitse vähintään yksi päivä.",
         ],
         "Start and end time needs to be within a decade.": [
-          "Aikaväli pitää olla alle kymmenen vuotta",
+          "Aikaväli pitää olla alle kymmenen vuotta.",
         ],
         Required: ["Pakollinen"],
       },
