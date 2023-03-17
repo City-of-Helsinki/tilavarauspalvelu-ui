@@ -13,6 +13,7 @@ import {
   OptionType,
   StringParameter,
 } from "common/types/common";
+import { sortAgeGroups } from "common/src/common/util";
 import {
   Query,
   ApplicationRoundType,
@@ -126,13 +127,9 @@ const Page1 = ({
         getParameters("reservation_unit_type"),
       ]);
 
-      fetchedAgeGroupOptions.sort((a, b) => {
-        return (a.minimum || 0) - (b.minimum || 0);
-      });
-
       setOptions({
         ageGroupOptions: mapOptions(
-          fetchedAgeGroupOptions,
+          sortAgeGroups(fetchedAgeGroupOptions),
           undefined,
           i18n.language
         ),
@@ -220,16 +217,6 @@ const Page1 = ({
     }
   };
 
-  const onAddApplicationEvent = (data: Application) => {
-    if (
-      data.applicationEvents &&
-      data.applicationEvents.some((e) => Boolean(e.id))
-    ) {
-      return;
-    }
-    addNewApplicationEvent();
-  };
-
   if (!ready) {
     return <CenterSpinner />;
   }
@@ -272,7 +259,7 @@ const Page1 = ({
           id="addApplicationEvent"
           variant="supplementary"
           iconLeft={<IconPlusCircle />}
-          onClick={() => form.handleSubmit(onAddApplicationEvent)()}
+          onClick={() => form.handleSubmit(addNewApplicationEvent)()}
           size="small"
           style={{ gap: "var(--spacing-s)" }}
         >
