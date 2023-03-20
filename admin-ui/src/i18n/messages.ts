@@ -1253,7 +1253,7 @@ const translations: ITranslations = {
     state: {
       ARCHIVED: ["Arkistoitu"],
       DRAFT: ["Luonnos"],
-      HIDDEN: ["Varaus piilotettu"],
+      HIDDEN: ["Piilotettu"],
       PUBLISHED: ["Julkaistu"],
       SCHEDULED_HIDING: ["Piilotus ajastettu"],
       SCHEDULED_PERIOD: ["Julkaisuväli ajastettu"],
@@ -1939,6 +1939,7 @@ const translations: ITranslations = {
     },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],
+      titleWithoutSubvention: ["Hyväksy varaus"],
       subventionReason: ["Varaajan antamat subvention perusteet"],
       accept: ["Hyväksy varaus"],
       errorSaving: ["Hyväksyminen ei onnistunut. {{error}}"],

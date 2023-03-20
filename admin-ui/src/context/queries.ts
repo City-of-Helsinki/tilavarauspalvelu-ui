@@ -7,31 +7,40 @@ export const CURRENT_USER = gql`
       firstName
       lastName
       isSuperuser
+      username
       unitRoles {
         pk
-
         role {
           code
+          verboseNameFi
         }
         units {
           pk
+          nameFi
+        }
+        permissions {
+          permission
         }
       }
       serviceSectorRoles {
         pk
-        role {
-          code
-        }
         serviceSector {
           pk
+          nameFi
+        }
+        permissions {
+          permission
         }
       }
       generalRoles {
         pk
         role {
           code
+          verboseNameFi
         }
-        pk
+        permissions {
+          permission
+        }
       }
     }
   }

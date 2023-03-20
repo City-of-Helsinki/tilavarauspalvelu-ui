@@ -152,9 +152,7 @@ describe("Tilavaraus user reservations", () => {
     cy.contains("div", "Payment terms FI").should("be.visible");
     cy.contains("div", "Cancellation terms FI").should("be.visible");
 
-    cy.contains("div", "Pricing terms FI").should("not.be.visible");
-    accordionToggler("reservation__pricing-terms").click();
-    cy.contains("div", "Pricing terms FI").should("be.visible");
+    cy.contains("div", "Pricing terms FI").should("not.exist");
 
     cy.contains("div", "Sopparijuttuja").should("not.be.visible");
     cy.contains("div", "Toinen rivi").should("not.be.visible");
@@ -267,7 +265,7 @@ describe("Tilavaraus user reservations", () => {
     cancelCancelButton().should("not.be.disabled");
 
     cancelCancelButton().click();
-    cancelTitle().should("have.text", "Varaus peruttu!");
+    cancelTitle().should("have.text", "Varauksesi on peruttu!");
 
     reservationInfoCard()
       .should("contain.text", ", 2 t")
@@ -325,7 +323,10 @@ describe("Tilavaraus user reservations", () => {
       "have.text",
       "Varauksen muokkaaminen epäonnistui"
     );
-    errorNotificationBody().should("have.text", "Hyväksy ehdot jatkaaksesi.");
+    errorNotificationBody().should(
+      "have.text",
+      "Hyväksy sopimusehdot jatkaaksesi varausta."
+    );
     errorNotificationCloseButton().click();
 
     cy.get("#cancellation-and-payment-terms-terms-accepted").click();

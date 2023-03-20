@@ -1,12 +1,12 @@
 {
-  "title": "Uusi varausanomus",
-  "titleSent": "Varausanomus jätetty",
-  "applicationInfo": "Anomuksen tiedot",
-  "summaryIngress": "Anomuksesi on nyt käsiteltävänä. Tästä löydät yhteenvedon anomuksestasi.",
+  "title": "Uusi varaus",
+  "titleSent": "Varauksesi on nyt käsiteltävänä",
+  "applicationInfo": "Varauksen tiedot",
+  "summaryIngress": "Varaksesi on käsiteltävänä. Tutustu varauksen yhteenvetoon.",
   "reserveeTypePrefix": "Varaan",
   "reserveeTypes": {
     "labels": {
-      "nonprofit": "järjestön, ryhmän tai yhteisön puolesta",
+      "nonprofit": "Järjestön tai muun yhteisön puolesta",
       "business": "yrityksen puolesta",
       "individual": "yksityishenkilönä"
     }
@@ -32,7 +32,7 @@
       "reserveePhone": "Yhteyshenkilön puhelinnumero",
       "reserveeOrganisationName": "Virallinen nimi",
       "reserveeId": "Y-tunnus",
-      "reserveeIsUnregisteredAssociation": "Yhdistystä ei ole rekisteröity",
+      "reserveeIsUnregisteredAssociation": "Yhteisöä ei ole rekisteröity",
       "homeCity": "Kotipaikka",
       "showBillingAddress": "Erillinen laskutusosoite",
       "billingFirstName": "Varaajan etunimi",
