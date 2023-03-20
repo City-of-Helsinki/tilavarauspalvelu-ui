@@ -31,26 +31,24 @@ const ReservationFormSchema = z
 const ReservationFormSchemaPartial = ReservationFormSchema.partial();
 
 // TODO use these with RecurringReservation validators
-const checkDate = (
-  data: z.infer<typeof ReservationFormSchemaPartial>,
+export const checkDate = (
+  date: Date | undefined, // z.infer<typeof ReservationFormSchemaPartial>,
   ctx: z.RefinementCtx,
   path: string
 ) => {
-  if (!data.date) {
+  if (!date) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
       message: "Date can't be null",
     });
-  } else if (data.date < subDays(new Date(), 1)) {
+  } else if (date < subDays(new Date(), 1)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
       message: "Date can't be in the past",
     });
-  } else if (
-    Math.abs(new Date().getTime() - data.date.getTime()) > THREE_YEARS_MS
-  ) {
+  } else if (Math.abs(new Date().getTime() - date.getTime()) > THREE_YEARS_MS) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
@@ -59,7 +57,7 @@ const checkDate = (
   }
 };
 
-const checkTimeString = (
+export const checkTimeString = (
   data: string | undefined,
   ctx: z.RefinementCtx,
   path: string
@@ -85,8 +83,11 @@ const checkTimeString = (
   }
 };
 
-const checkTimes = (
-  data: z.infer<typeof ReservationFormSchemaPartial>,
+export const checkTimes = (
+  data: Pick<
+    z.infer<typeof ReservationFormSchemaPartial>,
+    "startTime" | "endTime"
+  >,
   ctx: z.RefinementCtx
 ) => {
   if (
@@ -122,7 +123,7 @@ const ReservationFormSchemaRefined = (
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) =>
   ReservationFormSchema.partial()
-    .superRefine((val, ctx) => checkDate(val, ctx, "date"))
+    .superRefine((val, ctx) => checkDate(val.date, ctx, "date"))
     .superRefine((val, ctx) => checkTimeString(val.startTime, ctx, "startTime"))
     .superRefine((val, ctx) => checkTimeString(val.endTime, ctx, "endTime"))
     .superRefine((val, ctx) => checkTimes(val, ctx))

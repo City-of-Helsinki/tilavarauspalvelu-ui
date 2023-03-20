@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { subDays } from "date-fns";
-import { ReservationTypeSchema } from "../create-reservation/validator";
-
-// TODO replace with three years
-const TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+import {
+  ReservationTypeSchema,
+  checkTimeString,
+  checkTimes,
+} from "../create-reservation/validator";
 
 // TODO handle metadata (variable form fields) instead of using .passthrough
 // It should be it's own schema object that is included in both forms
@@ -13,10 +14,9 @@ const TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 // always use the exact refined scheme for validation and displaying errors to the user
 // the merged schemes are for type inferance.
 
-// NOTE be careful if using zod refined schemes in react-hook-form resolvers
-// it doesn't handle complex cases that depend on multiple values
-// often needs a custom isDirty + getError with the full zod error map.
-
+// NOTE zod doesn't run refinements if part of the required data is missing
+// i.e. the core zod schema is run first if it passes then refinements are run
+// solutions to that are either use partial schemas or split schemas and check the parts.
 const Option = z.object({
   label: z.string(),
   value: z.string(),
@@ -25,8 +25,8 @@ const Option = z.object({
 const timeSelectionSchemaBase = z.object({
   startingDate: z.coerce.date(),
   endingDate: z.coerce.date(),
-  startingTime: z.string(),
-  endingTime: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
   repeatOnDays: z.array(z.number()).min(1).max(7),
   repeatPattern: z.object({
     label: z.string(),
@@ -57,10 +57,14 @@ export const RecurringReservationFormSchema = z
     }
   );
 
-const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
+// TODO use Partials instead (so we can migrate check logic to form validation)
 
 // TODO more complex approach using superRefine (like in validator.ts) allows us to split this into different functions
 // and reuse some of that code.
+// FIXME interval checks are missing (and they fail currently)
+// They are in in MyUnitRecurring... needs to be moved here with the refine
+// so we can try combining and testing them.
+//  (they also should also have tests)
 export const timeSelectionSchema = timeSelectionSchemaBase
   .refine((s) => s.startingDate > subDays(new Date(), 1), {
     path: ["startingDate"],
@@ -70,43 +74,10 @@ export const timeSelectionSchema = timeSelectionSchemaBase
     path: ["endingDate"],
     message: "Start date can't be after end date.",
   })
-  // Need to have a year limit otherwise a single backspace can crash the application (due to computing).
-  // 1.1.2023 -> press backspace => 1.1.203 calculates the interval of 1820 years.
-  // Similarly mis typing 20234 as a year results in 18200 year interval.
-  .refine(
-    (s) =>
-      Math.abs(s.endingDate.getTime() - s.startingDate.getTime()) <
-      TEN_YEARS_MS,
-    {
-      path: ["endingDate"],
-      message: "Start and end time needs to be within a decade.",
-    }
-  )
-  .refine((s) => s.startingTime.match(TIME_PATTERN), {
-    path: ["startingTime"],
-    message: "Start time is not in time format.",
-  })
-  .refine((s) => s.endingTime.match(TIME_PATTERN), {
-    path: ["endingTime"],
-    message: "End time is not in time format.",
-  })
-  .refine((s) => Number(s.startingTime.replace(":", ".")) < 24, {
-    path: ["startingTime"],
-    message: "Start time can't be more than 24 hours.",
-  })
-  .refine((s) => Number(s.endingTime.replace(":", ".")) < 24, {
-    path: ["endingTime"],
-    message: "End time can't be more than 24 hours.",
-  })
-  .refine(
-    (s) =>
-      Number(s.startingTime.replace(":", ".")) <
-      Number(s.endingTime.replace(":", ".")),
-    {
-      path: ["endingTime"],
-      message: "End time needs to be after start time.",
-    }
-  );
+  // TODO descriptiove names...
+  .superRefine((val, ctx) => checkTimeString(val.startTime, ctx, "startTime"))
+  .superRefine((val, ctx) => checkTimeString(val.endTime, ctx, "endTime"))
+  .superRefine((val, ctx) => checkTimes(val, ctx));
 
 export type RecurringReservationForm = z.infer<
   typeof RecurringReservationFormSchema

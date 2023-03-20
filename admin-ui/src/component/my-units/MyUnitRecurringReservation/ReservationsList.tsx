@@ -95,7 +95,7 @@ const generateReservations = (
   const vals = timeSelectionSchema
     .refine(
       (s) =>
-        Number(s.startingTime.substring(3)) % intervalToNumber(interval) === 0,
+        Number(s.startTime.substring(3)) % intervalToNumber(interval) === 0,
       {
         path: ["startingTime"],
         message: `Starting time has to be in ${intervalToNumber(
@@ -103,7 +103,7 @@ const generateReservations = (
         )} minutes increments.`,
       }
     )
-    .refine((s) => Number(s.endingTime.substring(3)) % 15 === 0, {
+    .refine((s) => Number(s.endTime.substring(3)) % 15 === 0, {
       path: ["endingTime"],
       message: "End time has to be increment of 15 minutes.",
     })
@@ -118,9 +118,9 @@ const generateReservations = (
 
   const {
     startingDate,
-    startingTime,
+    startTime,
     endingDate,
-    endingTime,
+    endTime,
     repeatPattern,
     repeatOnDays,
   } = vals.data;
@@ -146,8 +146,8 @@ const generateReservations = (
         .reduce((acc, x) => [...acc, ...x], [])
         .map((day) => ({
           date: new Date(day),
-          startTime: startingTime,
-          endTime: endingTime,
+          startTime,
+          endTime,
         }))
         .sort((a, b) => a.date.getTime() - b.date.getTime()),
     };

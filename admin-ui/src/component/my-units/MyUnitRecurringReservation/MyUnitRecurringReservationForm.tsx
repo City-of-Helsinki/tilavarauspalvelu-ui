@@ -168,9 +168,9 @@ const MyUnitRecurringReservationForm = ({
       const input: RecurringReservationCreateMutationInput = {
         reservationUnitPk: unitPk,
         beginDate: format(data.startingDate, "yyyy-MM-dd"),
-        beginTime: data.startingTime,
+        beginTime: data.startTime,
         endDate: format(data.endingDate, "yyyy-MM-dd"),
-        endTime: data.endingTime,
+        endTime: data.endTime,
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name,
@@ -293,7 +293,7 @@ const MyUnitRecurringReservationForm = ({
   // Do custom error checking for fields since resolver only checks the current field
   // Takes the first error only since this updates live while the user types
   const getZodError = (
-    field: "startingDate" | "endingDate" | "startingTime" | "endingTime"
+    field: "startingDate" | "endingDate" | "startTime" | "endTime"
   ) =>
     (isSubmitted || dirtyFields[field]) && !newReservations?.success
       ? String(
@@ -399,7 +399,7 @@ const MyUnitRecurringReservationForm = ({
 
           <Element $start>
             <Controller
-              name="startingTime"
+              name="startTime"
               control={control}
               render={({ field }) => (
                 <TimeInput
@@ -410,15 +410,15 @@ const MyUnitRecurringReservationForm = ({
                   minutesLabel={t("common.minutesLabel")}
                   disabled={reservationUnit == null}
                   required
-                  invalid={errors.startingTime != null}
-                  errorText={getZodError("startingTime")}
+                  invalid={errors.startTime != null}
+                  errorText={getZodError("startTime")}
                 />
               )}
             />
           </Element>
           <Element>
             <Controller
-              name="endingTime"
+              name="endTime"
               control={control}
               render={({ field }) => (
                 <TimeInput
@@ -429,8 +429,8 @@ const MyUnitRecurringReservationForm = ({
                   minutesLabel={t("common.minutesLabel")}
                   disabled={reservationUnit == null}
                   required
-                  errorText={getZodError("endingTime")}
-                  invalid={errors.endingTime != null}
+                  errorText={getZodError("endTime")}
+                  invalid={errors.endTime != null}
                 />
               )}
             />

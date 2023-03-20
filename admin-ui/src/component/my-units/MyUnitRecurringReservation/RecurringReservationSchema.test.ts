@@ -18,8 +18,8 @@ const reservation = {
     label: "weekly",
     value: "weekly",
   },
-  startingTime: "09:00",
-  endingTime: "10:15",
+  startTime: "09:00",
+  endTime: "10:15",
   seriesName: "name",
 };
 
@@ -40,8 +40,8 @@ test(`one week blocked reservation on a single day is valid`, () => {
 test("over 24h time should fail", () => {
   const res = timeSelectionSchema.safeParse({
     ...reservation,
-    startingTime: "32:00",
-    endingTime: "33:15",
+    startTime: "32:00",
+    endTime: "33:15",
   });
 
   expect(res.success).toBeFalsy();
@@ -50,7 +50,7 @@ test("over 24h time should fail", () => {
 test(`invalid time string should fail`, () => {
   const res = timeSelectionSchema.safeParse({
     ...reservation,
-    startingTime: "fo:ba",
+    startTime: "fo:ba",
   });
 
   expect(res.success).toBeFalsy();
@@ -59,8 +59,8 @@ test(`invalid time string should fail`, () => {
 test(`time start after time end should fail`, () => {
   const res = timeSelectionSchema.safeParse({
     ...reservation,
-    startingTime: "10:30",
-    endingTime: "10:00",
+    startTime: "10:30",
+    endTime: "10:00",
   });
 
   expect(res.success).toBeFalsy();
