@@ -67,17 +67,10 @@ const DialogContent = ({
     ),
     // TODO onBlur or onChange? onChange is anoying because it highlights even untouched fields
     // onBlur on the other hand does no validation on the focused field till it's blurred
-    // sigh I want show errors for touched fields onBlur + clear errors onChange
+
+    // I want show errors for touched fields onBlur + clear errors onChange
     // I guess I just have to write logic for it using isTouched + onChange
-    // Also both do a full form validation showing all the required fields as errors on the first edit
-    // while not actually showing refined errors.
-    // For example input 1.1.2020 as a date (past date error)
-    // this will highlight all the empty unTouched fields while not highlighting date field you just edited.
-    // even with onChange I have to submit the form to get refined errors if there is a single Required field
-    // not filled in the form.
-    // So first part of the problem is that isRequired is blocking all other errors.
-    // next part of the problem is that required validation is not done onChange while refinements are (requires a submit)
-    // last part is that unTouched fields get error checking.
+
     mode: "onChange",
     defaultValues: {
       date: start,
@@ -165,6 +158,7 @@ const DialogContent = ({
   };
 
   // TODO refactor the form part of this outside the dialog
+  // TODO do we need trigger???
   return (
     <>
       <Dialog.Content>
@@ -192,7 +186,7 @@ const DialogContent = ({
                     }
                     required
                     onChange={(_, date) => onChange(date)}
-                    onBlur={() => trigger()}
+                    onBlur={() => trigger("date")}
                   />
                 )}
               />
@@ -209,7 +203,7 @@ const DialogContent = ({
                     errorText={errors.startTime?.message}
                     onChange={onChange}
                     value={value}
-                    onBlur={() => trigger()}
+                    onBlur={() => trigger("startTime")}
                   />
                 )}
               />
@@ -226,7 +220,7 @@ const DialogContent = ({
                     errorText={errors.endTime?.message}
                     onChange={onChange}
                     value={value}
-                    onBlur={() => trigger()}
+                    onBlur={() => trigger("endTime")}
                   />
                 )}
               />

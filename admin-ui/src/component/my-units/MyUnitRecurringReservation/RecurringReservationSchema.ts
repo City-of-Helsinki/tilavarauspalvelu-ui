@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { subDays } from "date-fns";
+import { ReservationTypeSchema } from "../create-reservation/validator";
 
 // TODO replace with three years
 const TEN_YEARS_MS = 10 * 365 * 24 * 60 * 60 * 1000;
@@ -36,8 +37,7 @@ const timeSelectionSchemaBase = z.object({
 export const RecurringReservationFormSchema = z
   .object({
     reservationUnit: Option,
-    // TODO this should be an enum
-    type: z.string(),
+    type: ReservationTypeSchema,
     seriesName: z.string().optional(),
     comments: z.string().max(500).optional(),
     bufferTimeBefore: z.boolean().optional(),
@@ -59,6 +59,8 @@ export const RecurringReservationFormSchema = z
 
 const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
 
+// TODO more complex approach using superRefine (like in validator.ts) allows us to split this into different functions
+// and reuse some of that code.
 export const timeSelectionSchema = timeSelectionSchemaBase
   .refine((s) => s.startingDate > subDays(new Date(), 1), {
     path: ["startingDate"],

@@ -5,14 +5,10 @@ import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
-import {
-  ReservationFormType,
-  ReservationTypes,
-} from "./create-reservation/validator";
+import { ReservationTypes } from "./create-reservation/validator";
 import MetadataSetForm from "./MetadataSetForm";
 import BufferToggles from "./BufferToggles";
 
-// hasMargin is a hack to deal with inconsistencies in Single and Recurring reservation
 const CommentsTextArea = styled(TextArea)`
   max-width: var(--prose-width);
   margin: 1rem 0;
@@ -33,9 +29,8 @@ const ReservationTypeForm = ({
     control,
     register,
     formState: { errors },
-    // FIXME use a common interface for this and recurring here
-    // requires moving the ReservationForm to zod schema
-  } = useFormContext<ReservationFormType>();
+  } = useFormContext();
+
   const type = watch("type");
 
   return (
