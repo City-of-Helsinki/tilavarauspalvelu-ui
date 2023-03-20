@@ -9,13 +9,36 @@ import {
   ReservationFormType,
   ReservationTypes,
 } from "./create-reservation/validator";
-import StaffReservation from "./StaffReservation";
+import MetadataSetForm from "./MetadataSetForm";
+import BufferToggles from "./BufferToggles";
 
 // hasMargin is a hack to deal with inconsistencies in Single and Recurring reservation
-const CommentsTextArea = styled(TextArea)<{ $hasMargin?: boolean }>`
+const CommentsTextArea = styled(TextArea)`
   max-width: var(--prose-width);
-  ${({ $hasMargin }) => $hasMargin && "margin: 1rem 0;"}
+  margin: 1rem 0;
 `;
+
+const StaffReservation = ({
+  reservationUnit,
+  children,
+}: {
+  reservationUnit: ReservationUnitType;
+  children?: React.ReactNode;
+}) => {
+  return (
+    <>
+      {reservationUnit.bufferTimeBefore ||
+        (reservationUnit.bufferTimeAfter && (
+          <BufferToggles
+            before={reservationUnit.bufferTimeBefore ?? undefined}
+            after={reservationUnit.bufferTimeAfter ?? undefined}
+          />
+        ))}
+      {children != null && children}
+      <MetadataSetForm reservationUnit={reservationUnit} />
+    </>
+  );
+};
 
 // TODO are buffers in different places for Recurring and Single reservations? Check the UI spec
 const ReservationTypeForm = ({
@@ -67,7 +90,6 @@ const ReservationTypeForm = ({
       />
       {type === "BLOCKED" && (
         <CommentsTextArea
-          $hasMargin
           label={t("ReservationDialog.comment")}
           id="ReservationDialog.comment"
           {...register("comments")}
