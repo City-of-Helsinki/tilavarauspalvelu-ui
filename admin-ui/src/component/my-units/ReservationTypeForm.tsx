@@ -18,28 +18,6 @@ const CommentsTextArea = styled(TextArea)`
   margin: 1rem 0;
 `;
 
-const StaffReservation = ({
-  reservationUnit,
-  children,
-}: {
-  reservationUnit: ReservationUnitType;
-  children?: React.ReactNode;
-}) => {
-  return (
-    <>
-      {reservationUnit.bufferTimeBefore ||
-        (reservationUnit.bufferTimeAfter && (
-          <BufferToggles
-            before={reservationUnit.bufferTimeBefore ?? undefined}
-            after={reservationUnit.bufferTimeAfter ?? undefined}
-          />
-        ))}
-      {children != null && children}
-      <MetadataSetForm reservationUnit={reservationUnit} />
-    </>
-  );
-};
-
 // TODO are buffers in different places for Recurring and Single reservations? Check the UI spec
 const ReservationTypeForm = ({
   reservationUnit,
@@ -95,16 +73,24 @@ const ReservationTypeForm = ({
           {...register("comments")}
         />
       )}
-      {type === "STAFF" || type === "NORMAL" ? (
-        <StaffReservation reservationUnit={reservationUnit}>
+      {(type === "STAFF" || type === "NORMAL") && (
+        <>
+          {reservationUnit.bufferTimeBefore ||
+            (reservationUnit.bufferTimeAfter && (
+              <BufferToggles
+                before={reservationUnit.bufferTimeBefore ?? undefined}
+                after={reservationUnit.bufferTimeAfter ?? undefined}
+              />
+            ))}
           {children}
           <CommentsTextArea
             id="ReservationDialog.comment"
             label={t("ReservationDialog.comment")}
             {...register("comments")}
           />
-        </StaffReservation>
-      ) : null}
+          <MetadataSetForm reservationUnit={reservationUnit} />
+        </>
+      )}
     </>
   );
 };
