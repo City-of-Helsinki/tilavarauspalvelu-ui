@@ -6,6 +6,7 @@ import {
   reservationInfoCard,
   calendarLinkButton,
   modifyButton,
+  receiptLinkButton,
 } from "../model/reservation-detail";
 import {
   startTimeSelectorToggle,
@@ -178,6 +179,8 @@ describe("Tilavaraus user reservations", () => {
       .should("be.enabled")
       .should("contain.text", "Tallenna kalenteriin");
 
+    receiptLinkButton().should("not.exist");
+
     cy.checkA11y(undefined, undefined, undefined, true);
   });
 
@@ -232,6 +235,10 @@ describe("Tilavaraus user reservations", () => {
     calendarLinkButton()
       .should("be.enabled")
       .should("contain.text", "Tallenna kalenteriin");
+
+    receiptLinkButton()
+      .should("be.enabled")
+      .should("contain.text", "Näytä kuitti");
 
     cy.checkA11y(undefined, undefined, undefined, true);
   });
@@ -337,5 +344,43 @@ describe("Tilavaraus user reservations", () => {
     errorNotification().should("not.exist");
 
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+  });
+});
+
+describe("Returning reservation", () => {
+  it("should return error for invalid order data", () => {
+    cy.visit("/success?orderId=1111-1111-1111-1111");
+
+    cy.get("h1").should("have.text", "Virheellinen tilausnumero");
+  });
+
+  it("should return error for invalid order id", () => {
+    cy.visit("/success?orderId=2222-2222-2222-2222");
+
+    cy.get("h1").should("have.text", "Varauksesi on vanhentunut");
+  });
+
+  it("should return error for invalid order status", () => {
+    cy.visit("/success?orderId=3333-3333-3333-3333");
+
+    cy.get("h1").should("have.text", "Varauksesi on vanhentunut");
+  });
+
+  it("should return error for invalid order status", () => {
+    cy.visit("/success?orderId=4444-4444-4444-4444");
+
+    cy.url({ timeout: 20000 }).should("match", /\/reservations\?error=order1$/);
+  });
+
+  it("should return error for mission reservation uuid", () => {
+    cy.visit("/success?orderId=5555-5555-5555-5555");
+
+    cy.get("h1").should("have.text", "Virhe");
+  });
+
+  it("should return success report", () => {
+    cy.visit("/success?orderId=6666-6666-6666-6666");
+
+    cy.get("h1").should("have.text", "Varaus tehty!");
   });
 });

@@ -23,7 +23,7 @@ import {
   REFRESH_ORDER,
 } from "../modules/queries/reservation";
 import ReservationFail from "../components/reservation/ReservationFail";
-import { authenticationIssuer } from "../modules/const";
+import { authEnabled, authenticationIssuer } from "../modules/const";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
@@ -67,7 +67,10 @@ const ReservationSuccess = () => {
   const [refreshRetries, setRefreshRetries] = useState<number>(0);
 
   const isCheckingAuth = session?.status === "loading";
-  const isLoggedOut = session?.status === "unauthenticated";
+  const isLoggedOut = authEnabled
+    ? session?.status === "unauthenticated"
+    : false;
+
   useEffect(() => {
     if (isLoggedOut) {
       signIn(authenticationIssuer, {

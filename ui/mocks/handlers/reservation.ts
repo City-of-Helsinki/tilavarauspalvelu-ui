@@ -34,6 +34,10 @@ import {
   ReservationUnitsReservationUnitPricingPriceUnitChoices,
   ReservationAdjustTimeMutationPayload,
   ReservationAdjustTimeMutationInput,
+  QueryOrderArgs,
+  PaymentOrderType,
+  RefreshOrderMutationPayload,
+  RefreshOrderMutationInput,
 } from "common/types/gql-types";
 import { toUIDate } from "common/src/common/util";
 
@@ -465,6 +469,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         canBeCancelledTimeBefore: 0,
         needsHandling: false,
       };
+      data.orderUuid = "6666-6666-6666-6666";
       data.reservationUnits[0].pricings = [
         {
           begins: addDays(new Date(), -10).toISOString(),
@@ -534,6 +539,19 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
 
     if (pk === 99) {
       data.description = "";
+    }
+
+    if (pk === 4444) {
+      data.state = ReservationsReservationStateChoices.WaitingForPayment;
+    }
+
+    if (pk === 5555) {
+      data.state = ReservationsReservationStateChoices.Confirmed;
+    }
+
+    if (pk === 6666) {
+      data.state = ReservationsReservationStateChoices.Confirmed;
+      data.orderUuid = "6666-6666-6666-6666";
     }
 
     return res(
@@ -1363,6 +1381,87 @@ const listReservations = graphql.query<Query, QueryReservationsArgs>(
   }
 );
 
+const getOrder = graphql.query<Query, QueryOrderArgs>(
+  "order",
+  (req, res, ctx) => {
+    const { orderUuid } = req.variables ?? {};
+
+    const baseOrder = {
+      id: "1",
+      pk: 1,
+      orderUuid,
+    };
+    let order: PaymentOrderType | null = null;
+
+    switch (orderUuid) {
+      case "2222-2222-2222-2222":
+        order = baseOrder;
+        break;
+      case "3333-3333-3333-3333":
+        order = {
+          ...baseOrder,
+          reservationPk: "3333",
+          status: ReservationsReservationStateChoices.WaitingForPayment,
+        };
+        break;
+      case "4444-4444-4444-4444":
+        order = {
+          ...baseOrder,
+          reservationPk: "4444",
+          status: "PAID",
+        };
+        break;
+      case "5555-5555-5555-5555":
+        order = {
+          ...baseOrder,
+          reservationPk: "5555",
+          status: "PAID",
+        };
+        break;
+      case "6666-6666-6666-6666":
+        order = {
+          ...baseOrder,
+          reservationPk: "6666",
+          status: "PAID",
+          receiptUrl: "https://example.com/receipt.pdf",
+        };
+        break;
+      default:
+        break;
+    }
+
+    return res(ctx.data({ order }));
+  }
+);
+
+const refreshOrder = graphql.mutation<
+  { refreshOrder: RefreshOrderMutationPayload },
+  { input: RefreshOrderMutationInput }
+>("refreshOrder", (req, res, ctx) => {
+  const { orderUuid } = req.variables.input ?? {};
+
+  if (orderUuid === "3333-3333-3333-3333") {
+    return res(
+      ctx.errors([
+        {
+          message: "External service error",
+          extensions: {
+            error_code: "EXTERNAL_SERVICE_ERROR",
+          },
+        },
+      ])
+    );
+  }
+
+  return res(
+    ctx.data({
+      refreshOrder: {
+        orderUuid,
+      },
+    })
+  );
+});
+
 export const reservationHandlers = [
   createReservation,
   updateReservation,
@@ -1376,4 +1475,6 @@ export const reservationHandlers = [
   reservationPurposes,
   ageGroups,
   cities,
+  getOrder,
+  refreshOrder,
 ];
