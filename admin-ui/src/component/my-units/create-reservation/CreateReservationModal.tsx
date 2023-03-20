@@ -80,7 +80,7 @@ const DialogContent = ({
     // last part is that unTouched fields get error checking.
     mode: "onChange",
     defaultValues: {
-      date: new Date(),
+      date: start,
       startTime: format(start, "HH:mm"),
       bufferTimeBefore: false,
       bufferTimeAfter: false,
@@ -90,6 +90,7 @@ const DialogContent = ({
   const {
     trigger,
     formState: { errors },
+    getFieldState,
   } = form;
 
   const myDateTime = (date: Date, time: string) =>
@@ -173,7 +174,7 @@ const DialogContent = ({
               <Controller
                 name="date"
                 control={form.control}
-                render={({ field: { onChange } }) => (
+                render={({ field: { value, onChange } }) => (
                   <DateInput
                     id="reservationDialog.date"
                     label={t("ReservationDialog.date")}
@@ -183,8 +184,12 @@ const DialogContent = ({
                     language="fi"
                     errorText={errors.date?.message}
                     invalid={errors.date != null}
-                    // TODO need value if we want to control it the otherway
-                    // defaultValue={format(value, "dd.MM.yyyy")}
+                    // hack to deal with defaultValue without breaking keyboard input
+                    value={
+                      !getFieldState("date").isDirty
+                        ? format(value, "dd.MM.yyyy")
+                        : undefined
+                    }
                     required
                     onChange={(_, date) => onChange(date)}
                     onBlur={() => trigger()}
