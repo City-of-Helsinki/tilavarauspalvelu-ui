@@ -7,8 +7,8 @@ import styled from "styled-components";
 
 import {
   ReservationFormType,
-  ReservationType,
-} from "./create-reservation/types";
+  ReservationTypes,
+} from "./create-reservation/validator";
 import StaffReservation from "./StaffReservation";
 
 // hasMargin is a hack to deal with inconsistencies in Single and Recurring reservation
@@ -53,21 +53,19 @@ const ReservationTypeForm = ({
                 : ""
             }
           >
-            {Object.values(ReservationType)
-              .filter((v) => typeof v === "string")
-              .map((v) => (
-                <RadioButton
-                  key={v}
-                  id={v}
-                  checked={v === field.value}
-                  label={t(`ReservationDialog.reservationType.${v}`)}
-                  onChange={() => field.onChange(v)}
-                />
-              ))}
+            {ReservationTypes.map((v) => (
+              <RadioButton
+                key={v}
+                id={v}
+                checked={v === field.value}
+                label={t(`ReservationDialog.reservationType.${v}`)}
+                onChange={() => field.onChange(v)}
+              />
+            ))}
           </SelectionGroup>
         )}
       />
-      {type === ReservationType.BLOCKED && (
+      {type === "BLOCKED" && (
         <CommentsTextArea
           $hasMargin
           label={t("ReservationDialog.comment")}
@@ -75,7 +73,7 @@ const ReservationTypeForm = ({
           {...register("comments")}
         />
       )}
-      {type === ReservationType.STAFF || type === ReservationType.NORMAL ? (
+      {type === "STAFF" || type === "NORMAL" ? (
         <StaffReservation reservationUnit={reservationUnit}>
           {children}
           <CommentsTextArea
