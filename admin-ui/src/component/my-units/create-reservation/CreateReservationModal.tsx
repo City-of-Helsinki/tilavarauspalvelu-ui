@@ -33,19 +33,15 @@ const GridInsideTheModal = styled(Grid)`
   margin-bottom: var(--spacing-m);
 `;
 
-// container-l for the max-width doesn't make it 944px ever (880px instead)
 // TODO height? as in we don't want the dialog ever to resize but we also don't need massive margins on mobile
 // TODO change name to LargeDialog or smth
 const StyledDialog = styled(Dialog)`
-  height: 80%;
-  display: flex;
-  flex-grow: 0;
-  min-width: auto;
-  width: auto !important;
-  max-width: var(--container-width-l);
+  /* Hack to deal with modal trying to fit content. So an error message -> layout shift */
+  width: min(calc(100vw - 2rem), var(--container-width-l)) !important;
   & > div:nth-child(2) {
     height: 100%;
-    flex-grow: 1;
+    /* min height so the date selectors are fully visible */
+    min-height: 38rem;
   }
 `;
 
