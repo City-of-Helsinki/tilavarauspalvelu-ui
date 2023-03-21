@@ -49,7 +49,7 @@ export const RecurringReservationFormSchema = z
   .merge(timeSelectionSchemaBase)
   // need passthrough otherwise zod will strip the metafields
   .passthrough()
-  // this refine works in this case since it's the last required value (unlike datetimes)
+  // this refine works without partial since it's the last required value
   .refine(
     (s) =>
       s.type === "BLOCKED" ||
@@ -60,14 +60,11 @@ export const RecurringReservationFormSchema = z
     }
   );
 
-// TODO use Partials instead (so we can migrate check logic to form validation)
-
-// TODO more complex approach using superRefine (like in validator.ts) allows us to split this into different functions
-// and reuse some of that code.
 export const timeSelectionSchema = (
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) =>
   timeSelectionSchemaBase
+    .partial()
     .superRefine((val, ctx) => checkDate(val.startingDate, ctx, "startingDate"))
     .superRefine((val, ctx) => checkDate(val.endingDate, ctx, "endingDate"))
     .refine(

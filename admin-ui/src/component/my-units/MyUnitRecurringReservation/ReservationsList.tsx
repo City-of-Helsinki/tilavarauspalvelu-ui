@@ -84,11 +84,23 @@ const generateReservations = (
   props: unknown,
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) => {
-  // Refine the schema to check intervals
-  // NOTE A starting interval that doesn't match the ReservationUnit configuration will be rejected by the backend.
   const vals = timeSelectionSchema(interval).safeParse(props);
 
   if (!vals.success) {
+    return {
+      ...vals,
+      reservations: [],
+    };
+  }
+
+  if (
+    !vals.data.endTime ||
+    !vals.data.startTime ||
+    !vals.data.startingDate ||
+    !vals.data.endingDate ||
+    !vals.data.repeatOnDays ||
+    !vals.data.repeatPattern
+  ) {
     return {
       ...vals,
       reservations: [],
