@@ -1,12 +1,15 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { RadioButton, SelectionGroup, TextArea } from "hds-react";
+import { Accordion, RadioButton, SelectionGroup, TextArea } from "hds-react";
 import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 import { ReservationTypes } from "./create-reservation/validator";
-import MetadataSetForm from "./MetadataSetForm";
+import {
+  ReservationMetadataSetForm,
+  ReserverMetadataSetForm,
+} from "./MetadataSetForm";
 import BufferToggles from "./BufferToggles";
 import { Element } from "./MyUnitRecurringReservation/commonStyling";
 import ShowTOS from "./ShowTOS";
@@ -92,11 +95,21 @@ const ReservationTypeForm = ({
           />
           <HR style={{ gridColumn: "1 / -1" }} />
           <Element $wide>
-            <MetadataSetForm reservationUnit={reservationUnit} />
-          </Element>
-          <HR style={{ gridColumn: "1 / -1" }} />
-          <Element $wide>
-            <ShowTOS reservationUnit={reservationUnit} />
+            <ReservationMetadataSetForm reservationUnit={reservationUnit} />
+            {/* TODO styling for this (and don't use heading) */}
+            {type === "STAFF" ? (
+              <Accordion heading="Näytä varaajan tiedot ja ehdot">
+                <ReserverMetadataSetForm reservationUnit={reservationUnit} />
+                <HR style={{ gridColumn: "1 / -1" }} />
+                <ShowTOS reservationUnit={reservationUnit} />
+              </Accordion>
+            ) : (
+              <>
+                <ReserverMetadataSetForm reservationUnit={reservationUnit} />
+                <HR style={{ gridColumn: "1 / -1" }} />
+                <ShowTOS reservationUnit={reservationUnit} />
+              </>
+            )}
           </Element>
         </>
       )}
