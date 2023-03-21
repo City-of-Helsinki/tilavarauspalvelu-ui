@@ -32,6 +32,7 @@ import { flattenMetadata } from "../create-reservation/utils";
 import { useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
+import ShowTOS from "../ShowTOS";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -465,6 +466,11 @@ const MyUnitRecurringReservationForm = ({
               </ReservationTypeForm>
             )}
           </Element>
+          {reservationUnit && (
+            <Element $wide>
+              <ShowTOS reservationUnit={reservationUnit} />
+            </Element>
+          )}
 
           <ActionsWrapper>
             {/* cancel is disabled while sending because we have no rollback */}

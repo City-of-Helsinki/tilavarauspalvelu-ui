@@ -23,6 +23,7 @@ import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
+import ShowTOS from "../ShowTOS";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -225,6 +226,9 @@ const DialogContent = ({
               </Element>
               <Element $wide>
                 <ReservationTypeForm reservationUnit={reservationUnit} />
+              </Element>
+              <Element $wide>
+                <ShowTOS reservationUnit={reservationUnit} />
               </Element>
             </GridInsideTheModal>
           </form>
