@@ -32,7 +32,6 @@ import { flattenMetadata } from "../create-reservation/utils";
 import { useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
-import ShowTOS from "../ShowTOS";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -40,8 +39,8 @@ const Label = styled.p<{ $bold?: boolean }>`
 `;
 
 const InnerTextInput = styled(TextInput)`
+  grid-column: 1 / -1;
   max-width: var(--prose-width);
-  margin: 1rem 0;
 `;
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
@@ -451,25 +450,18 @@ const MyUnitRecurringReservationForm = ({
             </Element>
           )}
 
-          <Element $wide>
-            {reservationUnit != null && (
-              <ReservationTypeForm reservationUnit={reservationUnit}>
-                <InnerTextInput
-                  id="name"
-                  disabled={reservationUnit == null}
-                  label={t(`${TRANS_PREFIX}.name`)}
-                  required
-                  {...register("seriesName")}
-                  invalid={errors.seriesName != null}
-                  errorText={translateError(errors.seriesName?.message)}
-                />
-              </ReservationTypeForm>
-            )}
-          </Element>
-          {reservationUnit && (
-            <Element $wide>
-              <ShowTOS reservationUnit={reservationUnit} />
-            </Element>
+          {reservationUnit != null && (
+            <ReservationTypeForm reservationUnit={reservationUnit}>
+              <InnerTextInput
+                id="name"
+                disabled={reservationUnit == null}
+                label={t(`${TRANS_PREFIX}.name`)}
+                required
+                {...register("seriesName")}
+                invalid={errors.seriesName != null}
+                errorText={translateError(errors.seriesName?.message)}
+              />
+            </ReservationTypeForm>
           )}
 
           <ActionsWrapper>

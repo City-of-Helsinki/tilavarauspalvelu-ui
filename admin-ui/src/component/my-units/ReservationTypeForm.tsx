@@ -8,10 +8,13 @@ import styled from "styled-components";
 import { ReservationTypes } from "./create-reservation/validator";
 import MetadataSetForm from "./MetadataSetForm";
 import BufferToggles from "./BufferToggles";
+import { Element } from "./MyUnitRecurringReservation/commonStyling";
+import ShowTOS from "./ShowTOS";
+import { HR } from "../lists/components";
 
 const CommentsTextArea = styled(TextArea)`
+  grid-column: 1 / -1;
   max-width: var(--prose-width);
-  margin: 1rem 0;
 `;
 
 // TODO are buffers in different places for Recurring and Single reservations? Check the UI spec
@@ -35,34 +38,36 @@ const ReservationTypeForm = ({
 
   return (
     <>
-      <Controller
-        name="type"
-        control={control}
-        render={({ field }) => (
-          <SelectionGroup
-            required
-            disabled={reservationUnit == null}
-            label={t("ReservationDialog.type")}
-            errorText={
-              errors.type?.message != null
-                ? t(
-                    `MyUnits.RecurringReservationForm.errors.${errors.type?.message}`
-                  )
-                : ""
-            }
-          >
-            {ReservationTypes.map((v) => (
-              <RadioButton
-                key={v}
-                id={v}
-                checked={v === field.value}
-                label={t(`ReservationDialog.reservationType.${v}`)}
-                onChange={() => field.onChange(v)}
-              />
-            ))}
-          </SelectionGroup>
-        )}
-      />
+      <Element $wide>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <SelectionGroup
+              required
+              disabled={reservationUnit == null}
+              label={t("ReservationDialog.type")}
+              errorText={
+                errors.type?.message != null
+                  ? t(
+                      `MyUnits.RecurringReservationForm.errors.${errors.type?.message}`
+                    )
+                  : ""
+              }
+            >
+              {ReservationTypes.map((v) => (
+                <RadioButton
+                  key={v}
+                  id={v}
+                  checked={v === field.value}
+                  label={t(`ReservationDialog.reservationType.${v}`)}
+                  onChange={() => field.onChange(v)}
+                />
+              ))}
+            </SelectionGroup>
+          )}
+        />
+      </Element>
       {type === "BLOCKED" && (
         <CommentsTextArea
           label={t("ReservationDialog.comment")}
@@ -85,7 +90,14 @@ const ReservationTypeForm = ({
             label={t("ReservationDialog.comment")}
             {...register("comments")}
           />
-          <MetadataSetForm reservationUnit={reservationUnit} />
+          <HR style={{ gridColumn: "1 / -1" }} />
+          <Element $wide>
+            <MetadataSetForm reservationUnit={reservationUnit} />
+          </Element>
+          <HR style={{ gridColumn: "1 / -1" }} />
+          <Element $wide>
+            <ShowTOS reservationUnit={reservationUnit} />
+          </Element>
         </>
       )}
     </>

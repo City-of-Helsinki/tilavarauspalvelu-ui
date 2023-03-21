@@ -23,7 +23,6 @@ import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
-import ShowTOS from "../ShowTOS";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -34,9 +33,9 @@ const GridInsideTheModal = styled(Grid)`
   margin-bottom: var(--spacing-m);
 `;
 
-// TODO height? as in we don't want the dialog ever to resize but we also don't need massive margins on mobile
 // TODO change name to LargeDialog or smth
 const StyledDialog = styled(Dialog)`
+  height: min(95vh, 1024px);
   /* Hack to deal with modal trying to fit content. So an error message -> layout shift */
   width: min(calc(100vw - 2rem), var(--container-width-l)) !important;
   & > div:nth-child(2) {
@@ -224,12 +223,7 @@ const DialogContent = ({
                   )}
                 />
               </Element>
-              <Element $wide>
-                <ReservationTypeForm reservationUnit={reservationUnit} />
-              </Element>
-              <Element $wide>
-                <ShowTOS reservationUnit={reservationUnit} />
-              </Element>
+              <ReservationTypeForm reservationUnit={reservationUnit} />
             </GridInsideTheModal>
           </form>
         </FormProvider>
