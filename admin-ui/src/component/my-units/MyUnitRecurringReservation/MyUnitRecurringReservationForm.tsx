@@ -27,7 +27,7 @@ import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 import { ReservationMade } from "./RecurringReservationDone";
-import { ActionsWrapper } from "./commonStyling";
+import { ActionsWrapper, Grid, Element } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
 import { useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
@@ -36,20 +36,6 @@ import ReservationTypeForm from "../ReservationTypeForm";
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
   font-weight: ${({ $bold }) => ($bold ? "700" : "500")};
-`;
-
-// Three column grid on desktop and one on small screens.
-const Grid = styled.div`
-  max-width: var(--container-width-small);
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1rem 2rem;
-`;
-
-const Element = styled.div<{ $wide?: boolean; $start?: boolean }>`
-  grid-column: ${({ $wide, $start }) =>
-    $wide ? "1 / -1" : $start ? "1 / span 1" : "auto / span 1"};
-  max-width: var(--prose-width);
 `;
 
 const InnerTextInput = styled(TextInput)`
@@ -139,6 +125,7 @@ const MyUnitRecurringReservationForm = ({
   );
 
   const onSubmit = async (data: RecurringReservationForm) => {
+    // TODO notifyError does a double translation somewhere
     if (!newReservations.success) {
       notifyError(t(translateError("formNotValid")));
       return;

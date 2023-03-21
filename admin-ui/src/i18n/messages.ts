@@ -349,34 +349,37 @@ const translations: ITranslations = {
           "Mahdotonta tehdä toistuvaa varausta ilman yhtään varauspäivää.",
         ],
         "Invalid date": ["Virheellinen päivämäärä."],
-        "End time can't be more than 24 hours.": [
+        "endTime can't be more than 24 hours.": [
           "Loppumisaika ei voi olla yli 24 tuntia.",
         ],
-        "Start time can't be more than 24 hours.": [
+        "startTime can't be more than 24 hours.": [
           "Aloitusaika ei voi olla yli 24 tuntia.",
         ],
-        "Starting time has to be in 15 minutes increments.": [
+        "startTime has to be in 15 minutes increments.": [
           "Aloitusajan pitää olla 15 minuutin välein.",
         ],
-        "Starting time has to be in 30 minutes increments.": [
+        "startTime has to be in 30 minutes increments.": [
           "Aloitusajan pitää olla 30 minuutin välein.",
         ],
-        "Starting time has to be in 60 minutes increments.": [
+        "startTime has to be in 60 minutes increments.": [
           "Aloitusajan pitää olla 60 minuutin välein.",
         ],
-        "Starting time has to be in 90 minutes increments.": [
+        "startTime has to be in 90 minutes increments.": [
           "Aloitusajan pitää olla 90 minuutin välein.",
         ],
-        "End time has to be increment of 15 minutes.": [
+        "endTime has to be in 15 minutes increments.": [
           "Loppumisajan pitää olla 15 minuutin välein.",
         ],
-        "Start time is not in time format.": [
+        "startTime is not in time format.": [
           "Aloitusaika tulee olla muodossa tt:mm",
         ],
-        "End time is not in time format.": [
+        "endTime is not in time format.": [
           "Loppumisaika tulee olla muodossa tt:mm",
         ],
-        "Start date can't be in the past": ["Aloituspäivä menneisyydessä."],
+        "Date can't be in the past": ["Päivä ei voi olla menneisyydessä."],
+        "Date needs to be within three years.": [
+          "Päivän pitää olla kolmen vuoden sisällä.",
+        ],
         "End time needs to be after start time.": [
           "Loppumisajan pitää olla aloitusajan jälkeen.",
         ],
@@ -1231,13 +1234,6 @@ const translations: ITranslations = {
     accept: ["Varaa"],
     saveFailed: ["Tallennus ei onnistunut: {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
-    validation: {
-      typeRequired: ["Valitse varauksen tyyppi"],
-      noPastDate: ["Aloitusaika menneisyydessä"],
-      endAfterBegin: ["Lopetusaika liian aikainen"],
-      interval: ["Virheellinen aloitusaika, intervallit: {{interval}}"],
-      Required: ["Pakollinen"],
-    },
   },
   ReservationUnits: {
     reservationUnitListHeading: ["Varausyksiköt"],

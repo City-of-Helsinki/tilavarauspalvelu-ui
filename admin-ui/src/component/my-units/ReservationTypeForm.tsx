@@ -45,7 +45,9 @@ const ReservationTypeForm = ({
             label={t("ReservationDialog.type")}
             errorText={
               errors.type?.message != null
-                ? t(`ReservationDialog.validation.${errors.type?.message}`)
+                ? t(
+                    `MyUnits.RecurringReservationForm.errors.${errors.type?.message}`
+                  )
                 : ""
             }
           >

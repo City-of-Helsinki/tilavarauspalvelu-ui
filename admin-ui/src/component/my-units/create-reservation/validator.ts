@@ -30,9 +30,8 @@ const ReservationFormSchema = z
 // pass or add custom Required refinements
 const ReservationFormSchemaPartial = ReservationFormSchema.partial();
 
-// TODO use these with RecurringReservation validators
 export const checkDate = (
-  date: Date | undefined, // z.infer<typeof ReservationFormSchemaPartial>,
+  date: Date | undefined,
   ctx: z.RefinementCtx,
   path: string
 ) => {
@@ -40,7 +39,7 @@ export const checkDate = (
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
-      message: "Date can't be null",
+      message: "Required",
     });
   } else if (date < subDays(new Date(), 1)) {
     ctx.addIssue({
@@ -57,7 +56,8 @@ export const checkDate = (
   }
 };
 
-export const checkTimeString = (
+// TODO check that the latter half is not over 59 (since 11:60 is valid input in the field but shouldn't be)
+export const checkTimeStringFormat = (
   data: string | undefined,
   ctx: z.RefinementCtx,
   path: string
@@ -66,13 +66,13 @@ export const checkTimeString = (
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
-      message: `${path} can't be empty.`,
+      message: `Required`,
     });
   } else if (!data.match(TIME_PATTERN)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
-      message: `${data} is not in time format.`,
+      message: `${path} is not in time format.`,
     });
   } else if (Number(data.replace(":", ".")) > 23) {
     ctx.addIssue({
@@ -83,7 +83,7 @@ export const checkTimeString = (
   }
 };
 
-export const checkTimes = (
+export const checkStartEndTime = (
   data: Pick<
     z.infer<typeof ReservationFormSchemaPartial>,
     "startTime" | "endTime"
@@ -104,7 +104,7 @@ export const checkTimes = (
   }
 };
 
-const checkInterval = (
+export const checkReservationInterval = (
   time: string | undefined,
   ctx: z.RefinementCtx,
   path: string,
@@ -124,13 +124,24 @@ const ReservationFormSchemaRefined = (
 ) =>
   ReservationFormSchema.partial()
     .superRefine((val, ctx) => checkDate(val.date, ctx, "date"))
-    .superRefine((val, ctx) => checkTimeString(val.startTime, ctx, "startTime"))
-    .superRefine((val, ctx) => checkTimeString(val.endTime, ctx, "endTime"))
-    .superRefine((val, ctx) => checkTimes(val, ctx))
     .superRefine((val, ctx) =>
-      checkInterval(val.startTime, ctx, "startTime", intervalToNumber(interval))
+      checkTimeStringFormat(val.startTime, ctx, "startTime")
     )
-    .superRefine((val, ctx) => checkInterval(val.endTime, ctx, "endTime", 15))
+    .superRefine((val, ctx) =>
+      checkTimeStringFormat(val.endTime, ctx, "endTime")
+    )
+    .superRefine((val, ctx) => checkStartEndTime(val, ctx))
+    .superRefine((val, ctx) =>
+      checkReservationInterval(
+        val.startTime,
+        ctx,
+        "startTime",
+        intervalToNumber(interval)
+      )
+    )
+    .superRefine((val, ctx) =>
+      checkReservationInterval(val.endTime, ctx, "endTime", 15)
+    )
     .refine((s) => s.type, {
       path: ["type"],
       message: "Required",

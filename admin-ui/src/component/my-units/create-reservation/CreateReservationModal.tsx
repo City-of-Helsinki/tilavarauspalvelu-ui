@@ -22,15 +22,13 @@ import type { ReservationFormType } from "./validator";
 import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
+import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
 `;
 
-const CommonFields = styled.div`
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1fr 1fr 1fr;
+const GridInsideTheModal = styled(Grid)`
   margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-m);
 `;
@@ -81,7 +79,6 @@ const DialogContent = ({
   });
 
   const {
-    trigger,
     formState: { errors },
     getFieldState,
   } = form;
@@ -157,75 +154,83 @@ const DialogContent = ({
     }
   };
 
+  const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
+  const translateError = (errorMsg?: string) =>
+    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+
   // TODO refactor the form part of this outside the dialog
-  // TODO do we need trigger???
   return (
     <>
       <Dialog.Content>
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CommonFields>
-              <Controller
-                name="date"
-                control={form.control}
-                render={({ field: { value, onChange } }) => (
-                  <DateInput
-                    id="reservationDialog.date"
-                    label={t("ReservationDialog.date")}
-                    minDate={new Date()}
-                    maxDate={addYears(new Date(), 3)}
-                    disableConfirmation
-                    language="fi"
-                    errorText={errors.date?.message}
-                    invalid={errors.date != null}
-                    // hack to deal with defaultValue without breaking keyboard input
-                    value={
-                      !getFieldState("date").isDirty
-                        ? format(value, "dd.MM.yyyy")
-                        : undefined
-                    }
-                    required
-                    onChange={(_, date) => onChange(date)}
-                    onBlur={() => trigger("date")}
-                  />
-                )}
-              />
-              <Controller
-                name="startTime"
-                control={form.control}
-                render={({ field: { value, onChange } }) => (
-                  <TimeInput
-                    id="ReservationDialog.startTime"
-                    label={t("ReservationDialog.startTime")}
-                    hoursLabel={t("common.hoursLabel")}
-                    minutesLabel={t("common.minutesLabel")}
-                    required
-                    errorText={errors.startTime?.message}
-                    onChange={onChange}
-                    value={value}
-                    onBlur={() => trigger("startTime")}
-                  />
-                )}
-              />
-              <Controller
-                name="endTime"
-                control={form.control}
-                render={({ field: { value, onChange } }) => (
-                  <TimeInput
-                    id="ReservationDialog.endtime"
-                    label={t("ReservationDialog.endTime")}
-                    hoursLabel={t("common.hoursLabel")}
-                    minutesLabel={t("common.minutesLabel")}
-                    required
-                    errorText={errors.endTime?.message}
-                    onChange={onChange}
-                    value={value}
-                    onBlur={() => trigger("endTime")}
-                  />
-                )}
-              />
-            </CommonFields>
-            <ReservationTypeForm reservationUnit={reservationUnit} />
+            <GridInsideTheModal>
+              <Element>
+                <Controller
+                  name="date"
+                  control={form.control}
+                  render={({ field: { value, onChange } }) => (
+                    <DateInput
+                      id="reservationDialog.date"
+                      label={t("ReservationDialog.date")}
+                      minDate={new Date()}
+                      maxDate={addYears(new Date(), 3)}
+                      disableConfirmation
+                      language="fi"
+                      errorText={translateError(errors.date?.message)}
+                      invalid={errors.date != null}
+                      // hack to deal with defaultValue without breaking keyboard input
+                      value={
+                        !getFieldState("date").isDirty
+                          ? format(value, "dd.MM.yyyy")
+                          : undefined
+                      }
+                      required
+                      onChange={(_, date) => onChange(date)}
+                    />
+                  )}
+                />
+              </Element>
+              <Element>
+                <Controller
+                  name="startTime"
+                  control={form.control}
+                  render={({ field: { value, onChange } }) => (
+                    <TimeInput
+                      id="ReservationDialog.startTime"
+                      label={t("ReservationDialog.startTime")}
+                      hoursLabel={t("common.hoursLabel")}
+                      minutesLabel={t("common.minutesLabel")}
+                      required
+                      errorText={translateError(errors.startTime?.message)}
+                      onChange={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+              </Element>
+              <Element>
+                <Controller
+                  name="endTime"
+                  control={form.control}
+                  render={({ field: { value, onChange } }) => (
+                    <TimeInput
+                      id="ReservationDialog.endtime"
+                      label={t("ReservationDialog.endTime")}
+                      hoursLabel={t("common.hoursLabel")}
+                      minutesLabel={t("common.minutesLabel")}
+                      required
+                      errorText={translateError(errors.endTime?.message)}
+                      onChange={onChange}
+                      value={value}
+                    />
+                  )}
+                />
+              </Element>
+              <Element $wide>
+                <ReservationTypeForm reservationUnit={reservationUnit} />
+              </Element>
+            </GridInsideTheModal>
           </form>
         </FormProvider>
       </Dialog.Content>

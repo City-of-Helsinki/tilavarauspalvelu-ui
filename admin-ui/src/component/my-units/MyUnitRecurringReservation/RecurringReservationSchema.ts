@@ -1,10 +1,13 @@
 import { z } from "zod";
-import { subDays } from "date-fns";
+import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import {
   ReservationTypeSchema,
-  checkTimeString,
-  checkTimes,
+  checkDate,
+  checkReservationInterval,
+  checkStartEndTime,
+  checkTimeStringFormat,
 } from "../create-reservation/validator";
+import { intervalToNumber } from "../create-reservation/utils";
 
 // TODO handle metadata (variable form fields) instead of using .passthrough
 // It should be it's own schema object that is included in both forms
@@ -61,23 +64,42 @@ export const RecurringReservationFormSchema = z
 
 // TODO more complex approach using superRefine (like in validator.ts) allows us to split this into different functions
 // and reuse some of that code.
-// FIXME interval checks are missing (and they fail currently)
-// They are in in MyUnitRecurring... needs to be moved here with the refine
-// so we can try combining and testing them.
-//  (they also should also have tests)
-export const timeSelectionSchema = timeSelectionSchemaBase
-  .refine((s) => s.startingDate > subDays(new Date(), 1), {
-    path: ["startingDate"],
-    message: "Start date can't be in the past",
-  })
-  .refine((s) => s.startingDate < s.endingDate, {
-    path: ["endingDate"],
-    message: "Start date can't be after end date.",
-  })
-  // TODO descriptiove names...
-  .superRefine((val, ctx) => checkTimeString(val.startTime, ctx, "startTime"))
-  .superRefine((val, ctx) => checkTimeString(val.endTime, ctx, "endTime"))
-  .superRefine((val, ctx) => checkTimes(val, ctx));
+export const timeSelectionSchema = (
+  interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
+) =>
+  timeSelectionSchemaBase
+    .superRefine((val, ctx) => checkDate(val.startingDate, ctx, "startingDate"))
+    .superRefine((val, ctx) => checkDate(val.endingDate, ctx, "endingDate"))
+    .refine(
+      (s) =>
+        s.startingDate &&
+        s.endingDate &&
+        s.startingDate.getTime() < s.endingDate.getTime(),
+      {
+        path: ["endingDate"],
+        message: "Start date can't be after end date.",
+      }
+    )
+    .superRefine((val, ctx) =>
+      checkTimeStringFormat(val.startTime, ctx, "startTime")
+    )
+    .superRefine((val, ctx) =>
+      checkTimeStringFormat(val.endTime, ctx, "endTime")
+    )
+    .superRefine((val, ctx) => checkStartEndTime(val, ctx))
+    .superRefine((val, ctx) =>
+      checkReservationInterval(
+        val.startTime,
+        ctx,
+        "startTime",
+        intervalToNumber(interval)
+      )
+    )
+    .superRefine((val, ctx) =>
+      checkReservationInterval(val.endTime, ctx, "endTime", 15)
+    );
+
+export type TimeSelectorType = z.infer<typeof timeSelectionSchemaBase>;
 
 export type RecurringReservationForm = z.infer<
   typeof RecurringReservationFormSchema

@@ -2,6 +2,7 @@
 import { expect, test } from "@jest/globals";
 import { addDays } from "date-fns";
 
+import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
 
 const tomorrow = addDays(new Date(), 1);
@@ -23,6 +24,9 @@ const reservation = {
   seriesName: "name",
 };
 
+const interval =
+  ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins;
+
 // Tests timeSelectionSchema instead of the form schema because of refinements
 
 // TODO need to make more complex
@@ -31,14 +35,14 @@ const reservation = {
 // with reservation unit
 // no metadata
 // type? BLOCKED or STAFF
-test(`one week blocked reservation on a single day is valid`, () => {
-  const res = timeSelectionSchema.safeParse(reservation);
+test("one week blocked reservation on a single day is valid", () => {
+  const res = timeSelectionSchema(interval).safeParse(reservation);
 
   expect(res.success).toBeTruthy();
 });
 
 test("over 24h time should fail", () => {
-  const res = timeSelectionSchema.safeParse({
+  const res = timeSelectionSchema(interval).safeParse({
     ...reservation,
     startTime: "32:00",
     endTime: "33:15",
@@ -48,7 +52,7 @@ test("over 24h time should fail", () => {
 });
 
 test(`invalid time string should fail`, () => {
-  const res = timeSelectionSchema.safeParse({
+  const res = timeSelectionSchema(interval).safeParse({
     ...reservation,
     startTime: "fo:ba",
   });
@@ -57,7 +61,7 @@ test(`invalid time string should fail`, () => {
 });
 
 test(`time start after time end should fail`, () => {
-  const res = timeSelectionSchema.safeParse({
+  const res = timeSelectionSchema(interval).safeParse({
     ...reservation,
     startTime: "10:30",
     endTime: "10:00",
