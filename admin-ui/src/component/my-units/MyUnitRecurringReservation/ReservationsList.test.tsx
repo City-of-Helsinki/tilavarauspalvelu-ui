@@ -3,11 +3,10 @@ import "@testing-library/jest-dom";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, expect, test } from "@jest/globals";
 import { render } from "@testing-library/react";
-
 import { addDays, nextMonday } from "date-fns";
+import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { toUIDate } from "common/src/common/util";
 import { generateReservations, ReservationList } from "./ReservationsList";
-import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 
 const today = new Date();
 const dtoday = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
