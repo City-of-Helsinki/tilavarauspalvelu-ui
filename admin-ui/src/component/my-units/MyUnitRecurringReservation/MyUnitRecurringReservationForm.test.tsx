@@ -54,6 +54,11 @@ const units: ReservationUnitType[] = [
   },
 ];
 
+const emptyTerms = {
+  textFi: "",
+  nameFi: "",
+};
+
 const unitResponse = [
   {
     node: {
@@ -63,6 +68,11 @@ const unitResponse = [
       bufferTimeBefore: null,
       bufferTimeAfter: null,
       reservationStartInterval: "INTERVAL_15_MINS",
+      pricingTerms: emptyTerms,
+      paymentTerms: emptyTerms,
+      cancellationTerms: emptyTerms,
+      serviceSpecificTerms: emptyTerms,
+      termsOfUseFi: "",
       metadataSet: {
         name: "full_meta",
         supportedFields: [
