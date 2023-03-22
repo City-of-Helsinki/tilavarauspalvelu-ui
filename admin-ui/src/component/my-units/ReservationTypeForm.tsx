@@ -20,6 +20,25 @@ const CommentsTextArea = styled(TextArea)`
   max-width: var(--prose-width);
 `;
 
+const ButtonLikeAccordion = styled(Accordion)`
+  && {
+    border: none;
+  }
+  & > div:first-of-type {
+    margin: 0;
+    padding: 0;
+  }
+  & > div:first-of-type > div > div {
+    justify-content: left;
+    gap: 1rem;
+    color: var(--color-bus);
+    font-weight: 500;
+    & span {
+      font-size: 1rem;
+    }
+  }
+`;
+
 // TODO are buffers in different places for Recurring and Single reservations? Check the UI spec
 const ReservationTypeForm = ({
   reservationUnit,
@@ -95,14 +114,18 @@ const ReservationTypeForm = ({
           />
           <HR style={{ gridColumn: "1 / -1" }} />
           <Element $wide>
-            <ReservationMetadataSetForm reservationUnit={reservationUnit} />
-            {/* TODO styling for this (and don't use heading) */}
+            <div style={{ marginBottom: 48 }}>
+              <ReservationMetadataSetForm reservationUnit={reservationUnit} />
+            </div>
             {type === "STAFF" ? (
-              <Accordion heading="Näytä varaajan tiedot ja ehdot">
+              <ButtonLikeAccordion
+                size="s"
+                heading={t("MyUnits.ReservationForm.showReserver")}
+              >
                 <ReserverMetadataSetForm reservationUnit={reservationUnit} />
                 <HR style={{ gridColumn: "1 / -1" }} />
                 <ShowTOS reservationUnit={reservationUnit} />
-              </Accordion>
+              </ButtonLikeAccordion>
             ) : (
               <>
                 <ReserverMetadataSetForm reservationUnit={reservationUnit} />

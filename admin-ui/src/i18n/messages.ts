@@ -326,6 +326,9 @@ const translations: ITranslations = {
         buttonToReservation: ["Siirry varauksen sivulle"],
       },
     },
+    ReservationForm: {
+      showReserver: ["Näytä varaajan tiedot ja ehdot"],
+    },
     // TODO these are duplicates from ReservationDialog ex. reservationType
     RecurringReservationForm: {
       reservationUnit: ["Varausyksikkö"],
