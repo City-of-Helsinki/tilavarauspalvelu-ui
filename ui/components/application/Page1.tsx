@@ -1,5 +1,5 @@
 import { IconArrowRight, IconPlusCircle } from "hds-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@apollo/client";
@@ -54,6 +54,66 @@ type OptionTypes = {
   participantCountOptions: OptionType[];
 };
 
+const useOptions = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [options, setOptions] = useState<OptionTypes | null>(null);
+
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    async function fetchData() {
+      console.log("doing a REST api call");
+
+      const [
+        fetchedAbilityGroupOptions,
+        fetchedAgeGroupOptions,
+        fetchedReservationUnitType,
+      ] = await Promise.all([
+        getParameters("ability_group"),
+        getParameters("age_group"),
+        getParameters("reservation_unit_type"),
+      ]);
+
+      console.log(
+        "reponse data: ",
+        fetchedAbilityGroupOptions,
+        fetchedAgeGroupOptions,
+        fetchedReservationUnitType
+      );
+      setOptions({
+        ageGroupOptions: mapOptions(
+          sortAgeGroups(fetchedAgeGroupOptions),
+          undefined,
+          i18n.language
+        ),
+        abilityGroupOptions: mapOptions(
+          fetchedAbilityGroupOptions,
+          undefined,
+          i18n.language
+        ),
+        reservationUnitTypeOptions: mapOptions(
+          fetchedReservationUnitType,
+          undefined,
+          i18n.language
+        ),
+        participantCountOptions,
+      });
+      setIsLoading(false);
+    }
+
+    if (!isLoading && !options) {
+      setIsLoading(true);
+      fetchData();
+    }
+  }, [isLoading, i18n.language, options]);
+
+  return {
+    isLoading: !options && isLoading,
+    options,
+    refetch: () => setIsLoading(false),
+  };
+};
+
 const Page1 = ({
   save,
   addNewApplicationEvent,
@@ -63,15 +123,12 @@ const Page1 = ({
   selectedReservationUnits,
   setError,
 }: Props): JSX.Element | null => {
-  const [ready, setReady] = useState(false);
-  const [options, setOptions] = useState<OptionTypes>();
-
   const [purposeOptions, setPurposeOptions] = useState<OptionType[]>([]);
   const [unitOptions, setUnitOptions] = useState<OptionType[]>([]);
 
   const history = useRouter();
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const { application } = editorState;
 
@@ -116,42 +173,7 @@ const Page1 = ({
   } = form;
 
   // console.log("Application: page1: RENDER");
-
-  useEffect(() => {
-    // console.log("doing a REST api call");
-    async function fetchData() {
-      const [
-        fetchedAbilityGroupOptions,
-        fetchedAgeGroupOptions,
-        fetchedReservationUnitType,
-      ] = await Promise.all([
-        getParameters("ability_group"),
-        getParameters("age_group"),
-        getParameters("reservation_unit_type"),
-      ]);
-
-      setOptions({
-        ageGroupOptions: mapOptions(
-          sortAgeGroups(fetchedAgeGroupOptions),
-          undefined,
-          i18n.language
-        ),
-        abilityGroupOptions: mapOptions(
-          fetchedAbilityGroupOptions,
-          undefined,
-          i18n.language
-        ),
-        reservationUnitTypeOptions: mapOptions(
-          fetchedReservationUnitType,
-          undefined,
-          i18n.language
-        ),
-        participantCountOptions,
-      });
-      setReady(true);
-    }
-    fetchData();
-  }, [i18n.language]);
+  const { isLoading, options } = useOptions();
 
   const prepareData = (data: Application): Application => {
     const applicationCopy = {
@@ -220,9 +242,10 @@ const Page1 = ({
     }
   };
 
-  if (!ready) {
+  if (isLoading || !options) {
     return <CenterSpinner />;
   }
+  console.log("options:", options);
 
   const addNewEventButtonDisabled =
     application.applicationEvents.filter((ae) => !ae.id).length > 0;
