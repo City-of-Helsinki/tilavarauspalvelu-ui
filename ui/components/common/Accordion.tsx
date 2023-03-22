@@ -108,6 +108,8 @@ const Accordion = ({
   ) : (
     <IconAngleDown aria-hidden />
   );
+  // console.log("Render Accordian: ", heading);
+
   return (
     <AccordionElement id={id} {...rest}>
       <HeadingButton
@@ -118,7 +120,7 @@ const Accordion = ({
       >
         <Heading>{heading}</Heading>
       </HeadingButton>
-      <Content $open={isOpen}>{children}</Content>
+      {isOpen && <Content $open={isOpen}>{children}</Content>}
     </AccordionElement>
   );
 };

@@ -179,6 +179,8 @@ const ViewApplication = ({ application, tos }: Props): JSX.Element | null => {
   const tos1 = tos.find((n) => n.pk === "generic1");
   const tos2 = tos.find((n) => n.pk === "KUVAnupa");
 
+  console.log("Application: view RENDER");
+
   return ready ? (
     <>
       <Accordion

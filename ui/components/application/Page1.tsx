@@ -108,14 +108,17 @@ const Page1 = ({
     defaultValues: {
       applicationEvents: application.applicationEvents,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as Record<string, any>,
+    }, // as Record<string, any>,
   });
 
   const {
     formState: { errors },
   } = form;
 
+  // console.log("Application: page1: RENDER");
+
   useEffect(() => {
+    // console.log("doing a REST api call");
     async function fetchData() {
       const [
         fetchedAbilityGroupOptions,
