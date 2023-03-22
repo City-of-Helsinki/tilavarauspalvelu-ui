@@ -33,15 +33,12 @@ const GridInsideTheModal = styled(Grid)`
   margin-bottom: var(--spacing-m);
 `;
 
-// TODO change name to LargeDialog or smth
-const StyledDialog = styled(Dialog)`
-  height: min(95vh, 1024px);
+const FixedDialog = styled(Dialog)`
   /* Hack to deal with modal trying to fit content. So an error message -> layout shift */
   width: min(calc(100vw - 2rem), var(--container-width-l)) !important;
   & > div:nth-child(2) {
-    height: 100%;
-    /* min height so the date selectors are fully visible */
-    min-height: 38rem;
+    /* don't layout shift when the modal content changes */
+    height: min(95vh, 1024px);
   }
 `;
 
@@ -265,7 +262,7 @@ const CreateReservationModal = ({
   }
 
   return (
-    <StyledDialog
+    <FixedDialog
       variant="primary"
       id="info-dialog"
       aria-labelledby="modal-header"
@@ -287,7 +284,7 @@ const CreateReservationModal = ({
           start={start}
         />
       )}
-    </StyledDialog>
+    </FixedDialog>
   );
 };
 export default CreateReservationModal;
