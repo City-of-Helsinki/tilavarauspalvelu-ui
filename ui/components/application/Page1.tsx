@@ -1,5 +1,5 @@
 import { IconArrowRight, IconPlusCircle } from "hds-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@apollo/client";
