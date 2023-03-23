@@ -139,7 +139,6 @@ const ApplicationRootPage = ({ tos }: Props): JSX.Element | null => {
     postSave?: (string?: number) => void,
     eventId?: number
   ) => {
-    console.log("saveWithEffect CALLED");
     let loadedApplication: ApplicationType;
 
     try {
@@ -216,8 +215,6 @@ const ApplicationRootPage = ({ tos }: Props): JSX.Element | null => {
   }
 
   const rerender = state.application.applicationEvents.length; // rerender every time event count is changed so that form state stays in sync
-
-  console.log("ApplicationRootPage: RENDER");
 
   return (
     <>

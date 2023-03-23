@@ -62,8 +62,6 @@ const useOptions = () => {
 
   useEffect(() => {
     async function fetchData() {
-      console.log("doing a REST api call");
-
       const [
         fetchedAbilityGroupOptions,
         fetchedAgeGroupOptions,
@@ -74,12 +72,6 @@ const useOptions = () => {
         getParameters("reservation_unit_type"),
       ]);
 
-      console.log(
-        "reponse data: ",
-        fetchedAbilityGroupOptions,
-        fetchedAgeGroupOptions,
-        fetchedReservationUnitType
-      );
       setOptions({
         ageGroupOptions: mapOptions(
           sortAgeGroups(fetchedAgeGroupOptions),
@@ -164,15 +156,13 @@ const Page1 = ({
     mode: "onChange",
     defaultValues: {
       applicationEvents: application.applicationEvents,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }, // as Record<string, any>,
+    },
   });
 
   const {
     formState: { errors },
   } = form;
 
-  // console.log("Application: page1: RENDER");
   const { isLoading, options } = useOptions();
 
   const prepareData = (data: Application): Application => {
@@ -192,7 +182,7 @@ const Page1 = ({
     const appToSave = {
       ...prepareData(data),
       // override status in order to validate correctly when modifying existing application
-      status: "draft" as ApplicationStatus,
+      status: "draft" as const,
     };
     if (appToSave.applicationEvents.length === 0) {
       setError(t("application:error.noEvents"));
@@ -208,6 +198,8 @@ const Page1 = ({
       return;
     }
 
+    // TODO this breaks the form submission state i.e. form.isSubmitting returns false
+    // even though the form is being saved. Too scared to change though.
     form.reset({ applicationEvents: appToSave.applicationEvents });
     save({ application: appToSave, eventId });
   };
@@ -245,8 +237,6 @@ const Page1 = ({
   if (isLoading || !options) {
     return <CenterSpinner />;
   }
-  console.log("options:", options);
-
   const addNewEventButtonDisabled =
     application.applicationEvents.filter((ae) => !ae.id).length > 0;
 

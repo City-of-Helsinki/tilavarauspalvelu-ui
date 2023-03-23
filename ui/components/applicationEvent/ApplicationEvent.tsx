@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useRef } from "react";
 import {
   Checkbox,
@@ -159,11 +158,11 @@ const ApplicationEventInner = ({
   form,
   selectedReservationUnits,
   optionTypes,
-  editorState,
-  dispatch,
+  del,
   onSave,
-  onDeleteEvent,
-}: Props): JSX.Element => {
+}: Omit<Props, "dispatch" | "onDeleteEvent"> & {
+  del: () => void;
+}): JSX.Element => {
   const { t, i18n } = useTranslation();
   const fieldName = (nameField: string) =>
     `applicationEvents[${index}].${nameField}`;
@@ -195,18 +194,6 @@ const ApplicationEventInner = ({
     form.setValue(fieldName("end"), apiDateToUIDate(periodEndDate));
   };
 
-  const del = () => {
-    // console.log("doing a DEL operation");
-    if (!applicationEvent.id) {
-      // freshly created event can just be deleted
-      // console.log("calling dispatch");
-      dispatch({ type: "removeApplicationEvent", eventId: undefined });
-    } else {
-      // console.log("calling API");
-      onDeleteEvent();
-    }
-  };
-
   const selectionIsDefaultPeriod =
     applicationPeriodEnd &&
     applicationPeriodBegin &&
@@ -214,8 +201,6 @@ const ApplicationEventInner = ({
     uiDateToApiDate(applicationPeriodEnd) === periodEndDate;
 
   const eventName = form.watch(fieldName("name"));
-
-  // console.log(`ApplicationEventInner: RENDER: ${index}`);
 
   return (
     <>
@@ -525,10 +510,7 @@ const ApplicationEventInner = ({
         <Button
           type="submit"
           id={`applicationEvents[${index}].save`}
-          onClick={() => {
-            // console.log("save");
-            onSave();
-          }}
+          onClick={onSave}
         >
           {t("application:Page1.saveEvent")}
         </Button>
@@ -551,25 +533,18 @@ const ApplicationEvent = (props: Props): JSX.Element => {
   const {
     applicationEvent,
     index,
-    applicationRound,
     form,
-    selectedReservationUnits,
-    optionTypes,
     editorState,
     dispatch,
-    onSave,
     onDeleteEvent,
   } = props;
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const fieldName = (nameField: string) =>
     `applicationEvents[${index}].${nameField}`;
 
-  const {
-    register,
-    formState: { errors },
-  } = form;
+  const { register } = form;
 
   register(fieldName("eventReservationUnits"));
   register(fieldName("begin"));
@@ -584,24 +559,30 @@ const ApplicationEvent = (props: Props): JSX.Element => {
   form.watch(fieldName("eventsPerWeek"));
   form.watch(fieldName("biweekly"));
 
-  // console.log(`ApplicationEvent: RENDER: ${index}`);
+  const del = () => {
+    if (!applicationEvent.id) {
+      dispatch({ type: "removeApplicationEvent", eventId: undefined });
+    } else {
+      onDeleteEvent();
+    }
+  };
 
+  const isVisible = isOpen(applicationEvent.id, editorState.accordionStates);
   return (
     <Wrapper>
       <Accordion
         onToggle={() => {
-          // console.log("calling dispatch: IGNORED");
-          // console.log("calling dispatch");
           dispatch({
             type: "toggleAccordionState",
             eventId: applicationEvent.id,
           });
         }}
-        open={isOpen(applicationEvent.id, editorState.accordionStates)}
+        open={isVisible}
         heading={`${eventName}` || t("application:Page1.applicationEventName")}
         theme="thin"
       >
-        <ApplicationEventInner {...props} />
+        {/* Accordion doesn't remove from DOM on hide, but this is too slow if it's visible */}
+        {isVisible && <ApplicationEventInner {...props} del={del} />}
       </Accordion>
       {editorState.savedEventId &&
       editorState.savedEventId === applicationEvent.id ? (

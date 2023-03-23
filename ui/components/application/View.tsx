@@ -104,7 +104,7 @@ const Terms = styled.div`
   }
 `;
 
-// Custom hook for this page
+// Page specific hook so we don't make extra REST calls
 const useViewHook = (application: Application) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
@@ -169,7 +169,7 @@ const ViewApplication = ({ application, tos }: Props): JSX.Element | null => {
 
   const { isLoading, ageGroupOptions } = useViewHook(application);
 
-  if (isLoading || !ageGroupOptions) {
+  if (isLoading) {
     return null;
   }
 
