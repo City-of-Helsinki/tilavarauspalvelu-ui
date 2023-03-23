@@ -34,9 +34,6 @@ const ControlledSelect = ({
         return (
           <Select
             id={name}
-            onFocus={() => {
-              document.getElementById(`${name}-toggle-button`)?.focus();
-            }}
             value={currentValue}
             placeholder={t("common:select")}
             options={options}
