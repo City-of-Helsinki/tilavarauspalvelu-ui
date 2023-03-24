@@ -1130,6 +1130,8 @@ const translations: ITranslations = {
     endTime: ["Lopetusaika"],
     type: ["Varauksen tyyppi"],
     typeInfo: ["Lorem ipsum dolor sit amet, consectetur adipisicing elit."],
+    increase: ["lisää"],
+    decrease: ["vähennä"],
     reservationType: {
       STAFF: [
         "Kaupungin oma käyttö, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
