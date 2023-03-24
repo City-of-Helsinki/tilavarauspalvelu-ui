@@ -13,7 +13,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { addYears, format } from "date-fns";
-import { Button, DateInput, TextInput, TimeInput } from "hds-react";
+import { Button, DateInput, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { removeRefParam } from "common/src/reservation-form/util";
@@ -32,6 +32,7 @@ import { flattenMetadata } from "../create-reservation/utils";
 import { useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
+import ControlledTimeInput from "../components/ControlledTimeInput";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -385,41 +386,21 @@ const MyUnitRecurringReservationForm = ({
           </Element>
 
           <Element $start>
-            <Controller
+            <ControlledTimeInput
               name="startTime"
-              control={control}
-              render={({ field }) => (
-                <TimeInput
-                  {...removeRefParam(field)}
-                  id="ReservationDialog.startTime"
-                  label={t("ReservationDialog.startTime")}
-                  hoursLabel={t("common.hoursLabel")}
-                  minutesLabel={t("common.minutesLabel")}
-                  disabled={reservationUnit == null}
-                  required
-                  invalid={errors.startTime != null}
-                  errorText={getZodError("startTime")}
-                />
-              )}
+              control={form.control}
+              error={getZodError("startTime")}
+              disabled={reservationUnit == null}
+              required
             />
           </Element>
           <Element>
-            <Controller
+            <ControlledTimeInput
               name="endTime"
-              control={control}
-              render={({ field }) => (
-                <TimeInput
-                  {...removeRefParam(field)}
-                  id="ReservationDialog.endtime"
-                  label={t("ReservationDialog.endTime")}
-                  hoursLabel={t("common.hoursLabel")}
-                  minutesLabel={t("common.minutesLabel")}
-                  disabled={reservationUnit == null}
-                  required
-                  errorText={getZodError("endTime")}
-                  invalid={errors.endTime != null}
-                />
-              )}
+              control={form.control}
+              error={getZodError("endTime")}
+              disabled={reservationUnit == null}
+              required
             />
           </Element>
 

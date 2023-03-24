@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, Controller, FormProvider } from "react-hook-form";
-import { Button, DateInput, Dialog, TimeInput } from "hds-react";
+import { Button, DateInput, Dialog } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import type {
@@ -23,6 +23,7 @@ import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
+import ControlledTimeInput from "../components/ControlledTimeInput";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -185,39 +186,19 @@ const DialogContent = ({
                 />
               </Element>
               <Element>
-                <Controller
+                <ControlledTimeInput
                   name="startTime"
                   control={form.control}
-                  render={({ field: { value, onChange } }) => (
-                    <TimeInput
-                      id="ReservationDialog.startTime"
-                      label={t("ReservationDialog.startTime")}
-                      hoursLabel={t("common.hoursLabel")}
-                      minutesLabel={t("common.minutesLabel")}
-                      required
-                      errorText={translateError(errors.startTime?.message)}
-                      onChange={onChange}
-                      value={value}
-                    />
-                  )}
+                  error={translateError(errors.startTime?.message)}
+                  required
                 />
               </Element>
               <Element>
-                <Controller
+                <ControlledTimeInput
                   name="endTime"
                   control={form.control}
-                  render={({ field: { value, onChange } }) => (
-                    <TimeInput
-                      id="ReservationDialog.endtime"
-                      label={t("ReservationDialog.endTime")}
-                      hoursLabel={t("common.hoursLabel")}
-                      minutesLabel={t("common.minutesLabel")}
-                      required
-                      errorText={translateError(errors.endTime?.message)}
-                      onChange={onChange}
-                      value={value}
-                    />
-                  )}
+                  error={translateError(errors.endTime?.message)}
+                  required
                 />
               </Element>
               <ReservationTypeForm reservationUnit={reservationUnit} />
