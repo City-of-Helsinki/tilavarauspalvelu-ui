@@ -1,6 +1,6 @@
 import React from "react";
-import { useForm, Controller, FormProvider } from "react-hook-form";
-import { Button, DateInput, Dialog } from "hds-react";
+import { useForm, FormProvider } from "react-hook-form";
+import { Button, Dialog } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import type {
@@ -10,7 +10,7 @@ import type {
 } from "common/types/gql-types";
 import styled from "styled-components";
 import { camelCase, get } from "lodash";
-import { addYears, format } from "date-fns";
+import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { useModal } from "../../../context/ModalContext";
@@ -24,6 +24,7 @@ import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 import ControlledTimeInput from "../components/ControlledTimeInput";
+import ControlledDateInput from "../components/ControlledDateInput";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -74,7 +75,6 @@ const DialogContent = ({
 
   const {
     formState: { errors },
-    getFieldState,
   } = form;
 
   const myDateTime = (date: Date, time: string) =>
@@ -160,29 +160,11 @@ const DialogContent = ({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <GridInsideTheModal>
               <Element>
-                <Controller
+                <ControlledDateInput
                   name="date"
                   control={form.control}
-                  render={({ field: { value, onChange } }) => (
-                    <DateInput
-                      id="reservationDialog.date"
-                      label={t("ReservationDialog.date")}
-                      minDate={new Date()}
-                      maxDate={addYears(new Date(), 3)}
-                      disableConfirmation
-                      language="fi"
-                      errorText={translateError(errors.date?.message)}
-                      invalid={errors.date != null}
-                      // hack to deal with defaultValue without breaking keyboard input
-                      value={
-                        !getFieldState("date").isDirty
-                          ? format(value, "dd.MM.yyyy")
-                          : undefined
-                      }
-                      required
-                      onChange={(_, date) => onChange(date)}
-                    />
-                  )}
+                  error={translateError(errors.date?.message)}
+                  required
                 />
               </Element>
               <Element>

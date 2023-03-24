@@ -332,8 +332,6 @@ const translations: ITranslations = {
     // TODO these are duplicates from ReservationDialog ex. reservationType
     RecurringReservationForm: {
       reservationUnit: ["Varausyksikkö"],
-      startingDate: ["Aloituspäivä"],
-      endingDate: ["Päättymispäivä"],
       repeatPattern: ["Varauksen toisto"],
       startingTime: ["Aloitusaika"],
       endingTime: ["Lopetusaika"],
@@ -1126,6 +1124,8 @@ const translations: ITranslations = {
   ReservationDialog: {
     title: ["Varaa {{reservationUnit}}"],
     date: ["Päivämäärä"],
+    startingDate: ["Aloituspäivä"],
+    endingDate: ["Päättymispäivä"],
     startTime: ["Aloitusaika"],
     endTime: ["Lopetusaika"],
     type: ["Varauksen tyyppi"],

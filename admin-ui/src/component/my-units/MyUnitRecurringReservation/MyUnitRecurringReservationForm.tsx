@@ -33,6 +33,7 @@ import { useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
+import ControlledDateInput from "../components/ControlledDateInput";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -319,48 +320,22 @@ const MyUnitRecurringReservationForm = ({
           </Element>
 
           <Element $start>
-            <Controller
+            <ControlledDateInput
               name="startingDate"
-              control={control}
-              render={({ field: { name, onChange } }) => (
-                <DateInput
-                  name={name}
-                  id="startingDate"
-                  disabled={reservationUnit == null}
-                  label={t(`${TRANS_PREFIX}.startingDate`)}
-                  minDate={new Date()}
-                  maxDate={addYears(new Date(), 3)}
-                  placeholder={t("common.select")}
-                  onChange={(_, date) => onChange(date)}
-                  disableConfirmation
-                  language="fi"
-                  required
-                  errorText={getZodError("startingDate")}
-                />
-              )}
+              control={form.control}
+              error={getZodError("startingDate")}
+              disabled={reservationUnit == null}
+              required
             />
           </Element>
 
           <Element>
-            <Controller
+            <ControlledDateInput
               name="endingDate"
-              control={control}
-              render={({ field: { name, onChange } }) => (
-                <DateInput
-                  id="endingDate"
-                  name={name}
-                  disabled={reservationUnit == null}
-                  label={t(`${TRANS_PREFIX}.endingDate`)}
-                  minDate={new Date()}
-                  maxDate={addYears(new Date(), 3)}
-                  placeholder={t("common.select")}
-                  onChange={(_, date) => onChange(date)}
-                  disableConfirmation
-                  language="fi"
-                  required
-                  errorText={getZodError("endingDate")}
-                />
-              )}
+              control={form.control}
+              error={getZodError("endingDate")}
+              disabled={reservationUnit == null}
+              required
             />
           </Element>
           <Element>
