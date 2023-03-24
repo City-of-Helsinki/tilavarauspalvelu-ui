@@ -93,7 +93,7 @@ export const checkStartEndTime = (
   if (
     data.startTime &&
     data.endTime &&
-    Number(data.startTime.replace(":", ".")) >
+    Number(data.startTime.replace(":", ".")) >=
       Number(data.endTime.replace(":", "."))
   ) {
     ctx.addIssue({
