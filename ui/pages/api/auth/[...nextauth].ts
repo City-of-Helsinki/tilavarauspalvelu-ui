@@ -160,25 +160,25 @@ const refreshAccessToken = async (token: ExtendedJWT) => {
       unknown
     >;
 
-    if (!access_token && typeof access_token === "string") {
+    if (!access_token || typeof access_token !== "string") {
       throw new Error("RefreshToken req.data contains NO access_token");
     }
-    if (!expires_in && typeof "expires_in" === "string") {
+    if (!expires_in || typeof expires_in !== "number") {
       throw new Error("RefreshToken req.data contains contains NO expires_in");
     }
-    if (!refresh_token && typeof "refresh_token" === "string") {
+    if (!refresh_token || typeof refresh_token !== "string") {
       throw new Error("RefreshToken req.data contains NO refresh_token");
     }
     const [tilavarausAPIToken, profileAPIToken] = await getApiAccessTokens(
-      access_token as string
+      access_token
     );
 
     return {
       ...token,
-      accessToken: access_token as string,
+      accessToken: access_token,
       // HACK to deal with incorrect exp value
       accessTokenExpires: Date.now() + EXP_MS, // account.expires_at * 1000,
-      refreshToken: (refresh_token as string) ?? token.refreshToken, // Fall back to old refresh token
+      refreshToken: refresh_token ?? token.refreshToken, // Fall back to old refresh token
       apiTokens: {
         tilavaraus: tilavarausAPIToken,
         profile: profileAPIToken,
