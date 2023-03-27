@@ -15,7 +15,6 @@ import {
   QueryReservationByPkArgs,
   ReservationType,
   ReservationWorkingMemoMutationInput,
-  ReservationsReservationStateChoices,
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
 } from "common/types/gql-types";
@@ -33,9 +32,6 @@ import {
   reservationUnitName,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
-import DenyDialog from "./DenyDialog";
-import ApproveDialog from "./ApproveDialog";
-import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
 import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import {
@@ -51,6 +47,7 @@ import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
 import { Accordion } from "../../../common/hds-fork/Accordion";
+import ApprovalButtons from "./ApprovalButtons";
 
 const Dot = styled.div`
   display: inline-block;
@@ -231,80 +228,6 @@ const RequestedReservation = (): JSX.Element | null => {
       ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
     pricing.highestPrice >= 0;
 
-  const buttons =
-    reservation.state ===
-    ReservationsReservationStateChoices.RequiresHandling ? (
-      <VisibleIfPermission
-        permissionName="can_manage_reservations"
-        unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
-      >
-        <Button
-          theme="black"
-          size="small"
-          variant="secondary"
-          disabled={false}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <ApproveDialog
-                isFree={!isNonFree}
-                reservation={reservation}
-                onAccept={closeDialogAndRefetch}
-                onClose={closeDialog}
-              />,
-              true
-            );
-          }}
-        >
-          {t("RequestedReservation.approve")}
-        </Button>
-        <Button
-          size="small"
-          theme="black"
-          variant="secondary"
-          disabled={false}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <DenyDialog
-                reservation={reservation}
-                onReject={closeDialogAndRefetch}
-                onClose={closeDialog}
-              />,
-              true
-            );
-          }}
-        >
-          {t("RequestedReservation.reject")}
-        </Button>
-      </VisibleIfPermission>
-    ) : (
-      <VisibleIfPermission
-        permissionName="can_manage_reservations"
-        unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
-      >
-        <Button
-          size="small"
-          variant="secondary"
-          theme="black"
-          disabled={false}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <ReturnToRequiredHandlingDialog
-                reservation={reservation}
-                onAccept={closeDialogAndRefetch}
-                onClose={closeDialog}
-              />,
-              true
-            );
-          }}
-        >
-          {t("RequestedReservation.returnToHandling")}
-        </Button>
-      </VisibleIfPermission>
-    );
-
   const reservationTagline = `${reservationDateTime(
     reservation.begin,
     reservation.end,
@@ -334,7 +257,15 @@ const RequestedReservation = (): JSX.Element | null => {
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}
-          buttons={buttons}
+          buttons={
+            <ApprovalButtons
+              state={reservation.state}
+              isFree={!isNonFree}
+              reservation={reservation}
+              handleClose={closeDialog}
+              handleAccept={closeDialogAndRefetch}
+            />
+          }
         />
       </ShowWhenTargetInvisible>
       <Container>
@@ -367,7 +298,13 @@ const RequestedReservation = (): JSX.Element | null => {
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
-          {buttons}
+          <ApprovalButtons
+            state={reservation.state}
+            isFree={!isNonFree}
+            reservation={reservation}
+            handleClose={closeDialog}
+            handleAccept={closeDialogAndRefetch}
+          />
         </HorisontalFlex>
         <Summary>
           {[
