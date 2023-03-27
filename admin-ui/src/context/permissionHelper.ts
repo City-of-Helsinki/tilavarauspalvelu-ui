@@ -8,8 +8,8 @@ const hasUnitPermission = (
   const unitPermissions = (user.unitRoles || []).flatMap((ur) =>
     (ur?.units || []).flatMap((unit) =>
       (ur?.permissions || []).map((permission) => ({
-        permission: permission?.permission as string,
-        unit: unit?.pk as number,
+        permission: permission?.permission,
+        unit: unit?.pk,
       }))
     )
   );
@@ -29,8 +29,8 @@ const hasServiceSectorPermission = (
   const serviceSectorPermissions = (user.serviceSectorRoles || []).flatMap(
     (sr) =>
       (sr?.permissions || []).map((permission) => ({
-        permission: permission?.permission as string,
-        serviceSector: sr?.serviceSector?.pk as number,
+        permission: permission?.permission,
+        serviceSector: sr?.serviceSector?.pk,
       }))
   );
 
