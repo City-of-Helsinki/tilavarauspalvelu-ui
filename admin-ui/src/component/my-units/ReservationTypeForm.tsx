@@ -5,7 +5,10 @@ import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
-import { ReservationTypes } from "./create-reservation/validator";
+import {
+  type ReservationFormType,
+  ReservationTypes,
+} from "./create-reservation/validator";
 import {
   ReservationMetadataSetForm,
   ReserverMetadataSetForm,
@@ -54,7 +57,7 @@ const ReservationTypeForm = ({
     control,
     register,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext<ReservationFormType>();
 
   const type = watch("type");
 
@@ -97,7 +100,7 @@ const ReservationTypeForm = ({
           {...register("comments")}
         />
       )}
-      {(type === "STAFF" || type === "NORMAL") && (
+      {(type === "STAFF" || type === "BEHALF") && (
         <>
           {reservationUnit.bufferTimeBefore ||
             (reservationUnit.bufferTimeAfter && (

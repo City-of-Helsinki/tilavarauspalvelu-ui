@@ -6,7 +6,7 @@ import { intervalToNumber } from "./utils";
 const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
 const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
 
-export const ReservationTypes = ["STAFF", "NORMAL", "BLOCKED"] as const;
+export const ReservationTypes = ["STAFF", "BEHALF", "BLOCKED"] as const;
 export const ReservationTypeSchema = z.enum(ReservationTypes);
 
 export type ReservationType = z.infer<typeof ReservationTypeSchema>;
