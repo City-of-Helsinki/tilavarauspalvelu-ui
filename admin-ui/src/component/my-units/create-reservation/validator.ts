@@ -4,7 +4,7 @@ import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "
 import { intervalToNumber } from "./utils";
 
 const THREE_YEARS_MS = 3 * 365 * 24 * 60 * 60 * 1000;
-const TIME_PATTERN = /^[0-9+]{2}:[0-9+]{2}$/;
+const TIME_PATTERN = /^[0-2][0-9]:[0-5][0-9]$/;
 
 export const ReservationTypes = ["STAFF", "BEHALF", "BLOCKED"] as const;
 export const ReservationTypeSchema = z.enum(ReservationTypes);
@@ -74,7 +74,7 @@ export const checkTimeStringFormat = (
       path: [path],
       message: `${path} is not in time format.`,
     });
-  } else if (Number(data.replace(":", ".")) > 23) {
+  } else if (Number(data.replace(":", ".")) >= 24) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [path],
