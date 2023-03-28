@@ -43,6 +43,15 @@ const ApprovalButtons = ({
     return <div>Already started: cant change STATUS</div>;
   }
 
+  // TODO allow deny without returning to RequiresHandling
+
+  const btnCommon = {
+    theme: "black",
+    size: "small",
+    variant: "secondary",
+    disabled: false,
+  } as const;
+
   if (state === ReservationsReservationStateChoices.RequiresHandling) {
     return (
       <VisibleIfPermission
@@ -51,10 +60,7 @@ const ApprovalButtons = ({
         serviceSectorPks={serviceSectorPks}
       >
         <Button
-          theme="black"
-          size="small"
-          variant="secondary"
-          disabled={false}
+          {...btnCommon}
           onClick={(e) => {
             e.preventDefault();
             setModalContent(
@@ -71,10 +77,7 @@ const ApprovalButtons = ({
           {t("RequestedReservation.approve")}
         </Button>
         <Button
-          size="small"
-          theme="black"
-          variant="secondary"
-          disabled={false}
+          {...btnCommon}
           onClick={(e) => {
             e.preventDefault();
             setModalContent(
@@ -100,10 +103,7 @@ const ApprovalButtons = ({
       serviceSectorPks={serviceSectorPks}
     >
       <Button
-        size="small"
-        variant="secondary"
-        theme="black"
-        disabled={false}
+        {...btnCommon}
         onClick={(e) => {
           e.preventDefault();
           setModalContent(
@@ -117,6 +117,22 @@ const ApprovalButtons = ({
         }}
       >
         {t("RequestedReservation.returnToHandling")}
+      </Button>
+      <Button
+        {...btnCommon}
+        onClick={(e) => {
+          e.preventDefault();
+          setModalContent(
+            <DenyDialog
+              reservation={reservation}
+              onReject={handleAccept}
+              onClose={handleClose}
+            />,
+            true
+          );
+        }}
+      >
+        {t("RequestedReservation.reject")}
       </Button>
     </VisibleIfPermission>
   );

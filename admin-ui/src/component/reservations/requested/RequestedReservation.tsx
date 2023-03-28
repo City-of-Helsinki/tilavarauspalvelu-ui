@@ -49,6 +49,8 @@ import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
 import { Accordion } from "../../../common/hds-fork/Accordion";
 import ApprovalButtons from "./ApprovalButtons";
+import { CURRENT_USER } from "../../../context/queries";
+import CancelButtons from "./CancelButtons";
 
 const Dot = styled.div`
   display: inline-block;
@@ -209,6 +211,10 @@ const RequestedReservation = (): JSX.Element | null => {
     refetch();
   };
 
+  const { data: user } = useQuery<Query>(CURRENT_USER);
+
+  const isUsersOwnReservation = reservation?.user?.pk === user?.currentUser?.pk;
+
   if (loading) {
     return <Loader />;
   }
@@ -238,6 +244,22 @@ const RequestedReservation = (): JSX.Element | null => {
     reservation.end
   )}t | ${reservation?.reservationUnits?.map(reservationUnitName).join(", ")}`;
 
+  const buttons = isUsersOwnReservation ? (
+    <CancelButtons
+      reservation={reservation}
+      handleClose={closeDialog}
+      handleAccept={closeDialogAndRefetch}
+    />
+  ) : (
+    <ApprovalButtons
+      state={reservation.state}
+      isFree={!isNonFree}
+      reservation={reservation}
+      handleClose={closeDialog}
+      handleAccept={closeDialogAndRefetch}
+    />
+  );
+
   return (
     <>
       <BreadcrumbWrapper
@@ -258,15 +280,7 @@ const RequestedReservation = (): JSX.Element | null => {
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}
-          buttons={
-            <ApprovalButtons
-              state={reservation.state}
-              isFree={!isNonFree}
-              reservation={reservation}
-              handleClose={closeDialog}
-              handleAccept={closeDialogAndRefetch}
-            />
-          }
+          buttons={buttons}
         />
       </ShowWhenTargetInvisible>
       <Container>
@@ -299,13 +313,7 @@ const RequestedReservation = (): JSX.Element | null => {
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
-          <ApprovalButtons
-            state={reservation.state}
-            isFree={!isNonFree}
-            reservation={reservation}
-            handleClose={closeDialog}
-            handleAccept={closeDialogAndRefetch}
-          />
+          {buttons}
         </HorisontalFlex>
         <Summary>
           {[

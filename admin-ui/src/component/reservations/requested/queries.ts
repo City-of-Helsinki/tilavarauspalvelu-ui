@@ -123,6 +123,35 @@ export const DENY_RESERVATION = gql`
   }
 `;
 
+export const CANCEL_RESERVATION = gql`
+  mutation cancelReservation($input: ReservationCancellationMutationInput!) {
+    cancelReservation(input: $input) {
+      pk
+      cancelReasonPk
+      cancelDetails
+      state
+      clientMutationId
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;
+
+export const RESERVATION_CANCEL_REASONS = gql`
+  query reservationCancelReasons {
+    reservationCancelReasons {
+      edges {
+        node {
+          pk
+          reasonFi
+        }
+      }
+    }
+  }
+`;
+
 export const REQUIRE_HANDLING_RESERVATION = gql`
   mutation requireHandling($input: ReservationRequiresHandlingMutationInput!) {
     requireHandlingForReservation(input: $input) {
