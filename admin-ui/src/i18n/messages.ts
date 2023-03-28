@@ -347,7 +347,7 @@ const translations: ITranslations = {
       errors: {
         formNotValid: ["Lomakkeessa vikaa."],
         noReservations: [
-          "Mahdotonta tehdä toistuvaa varausta ilman yhtään varauspäivää.",
+          "Valittujen viikonpäivien tulee vastata valittuja päivämääriä.",
         ],
         "Invalid date": ["Virheellinen päivämäärä."],
         "endTime can't be more than 24 hours.": [
