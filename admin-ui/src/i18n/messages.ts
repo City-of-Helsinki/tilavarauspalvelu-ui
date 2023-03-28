@@ -351,7 +351,7 @@ const translations: ITranslations = {
         ],
         "Invalid date": ["Virheellinen päivämäärä."],
         "endTime can't be more than 24 hours.": [
-          "Loppumisaika ei voi olla yli 24 tuntia.",
+          "Lopetusaika ei voi olla yli 24 tuntia.",
         ],
         "startTime can't be more than 24 hours.": [
           "Aloitusaika ei voi olla yli 24 tuntia.",
@@ -369,20 +369,20 @@ const translations: ITranslations = {
           "Aloitusajan pitää olla 90 minuutin välein.",
         ],
         "endTime has to be in 15 minutes increments.": [
-          "Loppumisajan pitää olla 15 minuutin välein.",
+          "Lopetusaika pitää olla 15 minuutin välein.",
         ],
         "startTime is not in time format.": [
           "Aloitusaika tulee olla muodossa tt:mm",
         ],
         "endTime is not in time format.": [
-          "Loppumisaika tulee olla muodossa tt:mm",
+          "Lopetusaika tulee olla muodossa tt:mm",
         ],
         "Date can't be in the past": ["Päivä ei voi olla menneisyydessä."],
         "Date needs to be within three years.": [
           "Päivän pitää olla kolmen vuoden sisällä.",
         ],
         "End time needs to be after start time.": [
-          "Loppumisajan pitää olla aloitusajan jälkeen.",
+          "Lopetusaika pitää olla aloitusajan jälkeen.",
         ],
         "Start date can't be after end date.": [
           "Aloituspäivän tulee olla ennen päättymispäivää",
