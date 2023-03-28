@@ -27,11 +27,28 @@ const ApprovalButtons = ({
   const { setModalContent } = useModal();
   const { t } = useTranslation();
 
+  const serviceSectorPks =
+    reservation?.reservationUnits?.[0]?.unit?.serviceSectors
+      ?.map((x) => x?.pk)
+      ?.filter((x): x is number => x != null) ?? [];
+
+  const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
+
+  const startTime = new Date(reservation.begin);
+  const endTime = new Date(reservation.end);
+  if (endTime < new Date()) {
+    return <div>Already ended: cant change STATUS</div>;
+  }
+  if (startTime < new Date()) {
+    return <div>Already started: cant change STATUS</div>;
+  }
+
   if (state === ReservationsReservationStateChoices.RequiresHandling) {
     return (
       <VisibleIfPermission
         permissionName="can_manage_reservations"
-        unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
+        unitPk={unitPk}
+        serviceSectorPks={serviceSectorPks}
       >
         <Button
           theme="black"
@@ -79,7 +96,8 @@ const ApprovalButtons = ({
   return (
     <VisibleIfPermission
       permissionName="can_manage_reservations"
-      unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
+      unitPk={unitPk}
+      serviceSectorPks={serviceSectorPks}
     >
       <Button
         size="small"

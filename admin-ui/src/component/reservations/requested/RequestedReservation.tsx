@@ -17,6 +17,7 @@ import {
   ReservationWorkingMemoMutationInput,
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  ServiceSectorType,
 } from "common/types/gql-types";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
@@ -361,7 +362,15 @@ const RequestedReservation = (): JSX.Element | null => {
             <VerticalFlex>
               <VisibleIfPermission
                 permissionName="can_comment_reservations"
-                unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
+                unitPk={
+                  reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined
+                }
+                serviceSectorPks={
+                  reservation?.reservationUnits?.[0]?.unit?.serviceSectors
+                    ?.filter((x): x is ServiceSectorType => x != null)
+                    ?.map((x) => x.pk)
+                    ?.filter((x): x is number => x != null) ?? []
+                }
                 otherwise={<span>{workingMemo || ""}</span>}
               >
                 <TextArea
