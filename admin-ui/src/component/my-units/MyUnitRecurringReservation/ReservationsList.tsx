@@ -1,7 +1,11 @@
 import React from "react";
 import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
-import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
+import { useTranslation } from "react-i18next";
+import {
+  ErrorType,
+  ReservationUnitsReservationUnitReservationStartIntervalChoices,
+} from "common/types/gql-types";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
 import { toMondayFirst } from "../../../common/util";
 
@@ -9,6 +13,8 @@ type NewReservationListItem = {
   date: Date;
   startTime: string;
   endTime: string;
+  error?: string | ErrorType[];
+  reservationPk?: number;
 };
 
 type Props = {
@@ -31,15 +37,32 @@ const StyledList = styled.ul`
 const StyledListItem = styled.li`
   padding: var(--spacing-s) 0;
   border-bottom: 1px solid var(--color-black-20);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  align-items: center;
+  gap: 0.5rem 2rem;
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
+const TextWrapper = styled.span<{ $failed: boolean }>`
   text-transform: capitalize;
+  color: ${($failed) =>
+    $failed ? "var(--color-black-60)" : "var(--color-black)"};
 `;
+
+const ErrorLabel = styled.div`
+  & > span {
+    color: var(--color-black);
+    background: var(--color-metro-medium-light);
+    padding: 0.5rem 0.5rem;
+  }
+`;
+
+const stripTimeZeros = (time: string) =>
+  time.substring(0, 1) === "0" ? time.substring(1) : time;
 
 const ReservationList = ({ items }: Props) => {
+  const { t } = useTranslation();
+
   if (!items.length) return null;
 
   return (
@@ -49,9 +72,22 @@ const ReservationList = ({ items }: Props) => {
           <StyledListItem
             key={`${item.date}-${item.startTime}-${item.endTime}`}
           >
-            <Wrapper>{`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${
-              item.startTime
-            }-${item.endTime}`}</Wrapper>
+            <TextWrapper $failed={item.error != null}>
+              {`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${stripTimeZeros(
+                item.startTime
+              )}-${stripTimeZeros(item.endTime)}`}
+            </TextWrapper>
+            {item.error && (
+              <ErrorLabel>
+                <span>
+                  {t(
+                    `MyUnits.RecurringReservation.Confirmation.failureMessages.${String(
+                      item.error
+                    )}`
+                  )}
+                </span>
+              </ErrorLabel>
+            )}
           </StyledListItem>
         ))}
       </StyledList>

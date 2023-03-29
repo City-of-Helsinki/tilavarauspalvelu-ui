@@ -2,8 +2,9 @@ import React from "react";
 import type { ErrorType } from "common/types/gql-types";
 import { Button } from "hds-react/components/Button";
 import { useTranslation } from "react-i18next";
-import { redirect, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { Container } from "hds-react";
 import { H1, H6 } from "common/src/common/typography";
 import { ActionsWrapper } from "./commonStyling";
 import { ReservationList } from "./ReservationsList";
@@ -16,6 +17,14 @@ const InfoSection = styled.p`
 
 const StyledH6 = styled(H6)`
   margin-bottom: 0;
+`;
+
+const StyledContainer = styled(Container)`
+  margin-top: var(--spacing-2-xl);
+  @media (min-width: 768px) {
+    padding-left: var(--spacing-2-xl) !important;
+    padding-right: var(--spacing-2-xl) !important;
+  }
 `;
 
 export type ReservationMade = {
@@ -41,21 +50,23 @@ const RecurringReservationDone = () => {
 
   const locPrefix = "MyUnits.RecurringReservation.Confirmation";
 
-  const id = successes
-    .map((x) => x.reservationPk)
-    // ?.filter((x): x is number => x != null)
-    .find(() => true);
+  const reservationId = successes.map((x) => x.reservationPk).find(() => true);
 
   // TODO holidays not implemented
   const holidays = 0;
-  // TODO do we need special handling for no successes
+
+  const handleGoToReservation = (id: number) => {
+    const url = `/reservations/${id}`;
+    navigate(url);
+  };
 
   if (!props) {
     return <div>No data in completed reservation: Should not be here</div>;
   }
 
+  // TODO do we need special handling for no successes
   return (
-    <>
+    <StyledContainer>
       <H1 $legacy>{t(`${locPrefix}.title`)}</H1>
       <InfoSection>
         <span>
@@ -85,28 +96,29 @@ const RecurringReservationDone = () => {
           {t(`${locPrefix}.failedTitle`)} ({failed.length})
         </StyledH6>
       )}
-      {/* TODO add error type e.g. "Aika ei saataville" */}
       <ReservationList items={failed} />
       <StyledH6 as="h2">
         {t(`${locPrefix}.successTitle`)} ({successes.length})
       </StyledH6>
       <ReservationList items={successes} />
       <ActionsWrapper>
-        {/* FIXME figure out how to navigate one step backwards to units/:id, not to units/ */}
-        <Button variant="secondary" onClick={() => navigate("..")}>
+        {/* TODO The back functionality is overly complex because the route hierarchy is weird */}
+        <Button
+          variant="secondary"
+          onClick={() => navigate("../..", { relative: "path" })}
+        >
           {t(`${locPrefix}.buttonToUnit`)}
         </Button>
-        {/* FIXME this button doesn't work at all to get the single reservation of the chain */}
-        {id != null && (
+        {reservationId != null && (
           <Button
             variant="secondary"
-            onClick={() => redirect(`/reservations/${id}`)}
+            onClick={() => handleGoToReservation(reservationId)}
           >
             {t(`${locPrefix}.buttonToReservation`)}
           </Button>
         )}
       </ActionsWrapper>
-    </>
+    </StyledContainer>
   );
 };
 

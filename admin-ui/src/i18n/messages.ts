@@ -319,7 +319,7 @@ const translations: ITranslations = {
       pageTitle: ["Tee toistuva varaus"],
       Confirmation: {
         title: ["Toistuva varaus tehty"],
-        failedTitle: ["Päällekkäiset varaukset"],
+        failedTitle: ["Epäonnistuneet varaukset"],
         successTitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
         failureInfo: [
@@ -331,6 +331,14 @@ const translations: ITranslations = {
         failureInfoSecondParagraph: [
           "Voit halutessasi etsiä näille toistoille uuden ajan varauksen sivulta.",
         ],
+        failureMessages: {
+          "ApolloError: Reservation new begin cannot be in the past": [
+            "Aika menneisyydessä",
+          ],
+          "ApolloError: Overlapping reservations are not allowed.": [
+            "Aika ei saatavilla",
+          ],
+        },
         buttonToUnit: ["Palaa toimipisteen sivulle"],
         buttonToReservation: ["Siirry varauksen sivulle"],
       },
