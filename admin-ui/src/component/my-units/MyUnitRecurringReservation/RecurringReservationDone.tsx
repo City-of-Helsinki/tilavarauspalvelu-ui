@@ -35,14 +35,34 @@ export type ReservationMade = {
   error?: string | ErrorType[];
 };
 
+// TODO test buttons (convert to real ones inside the success / failure data)
+const btn = [
+  {
+    callback: () => {
+      console.log("remove pressed");
+    },
+    type: "remove",
+  },
+  {
+    callback: () => {
+      console.log("restore pressed");
+    },
+    type: "restore",
+  },
+] as const;
+
 const RecurringReservationDone = () => {
   const location = useLocation();
   // FIXME don't cast; validate
   const props: ReservationMade[] = location.state;
 
-  const failed = props.filter(({ error }) => error != null);
+  const failed = props
+    .filter(({ error }) => error != null)
+    .map((x, i) => ({ ...x, button: btn[i % 2] }));
 
-  const successes = props.filter(({ error }) => error == null);
+  const successes = props
+    .filter(({ error }) => error == null)
+    .map((x, i) => ({ ...x, button: btn[i % 2] }));
 
   const { t } = useTranslation();
 
