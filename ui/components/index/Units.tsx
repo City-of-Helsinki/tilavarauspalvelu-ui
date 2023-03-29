@@ -27,7 +27,6 @@ const Content = styled(Container)`
 `;
 
 const UnitContainer = styled.div`
-  gap: var(--spacing-l) 0;
   margin-bottom: var(--spacing-xl);
 
   display: grid;
