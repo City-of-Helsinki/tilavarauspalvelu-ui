@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Container } from "hds-react";
+import { z } from "zod";
 import { H1, H6 } from "common/src/common/typography";
 import { ActionsWrapper } from "./commonStyling";
 import ReservationList from "./ReservationsList";
@@ -25,6 +26,14 @@ const StyledContainer = styled(Container)`
     padding-right: var(--spacing-2-xl) !important;
   }
 `;
+
+const ReservationMadeSchema = z.object({
+  reservationPk: z.number().optional(),
+  startTime: z.string(),
+  endTime: z.string(),
+  date: z.date(),
+  error: z.string().or(z.array(z.unknown())).optional(), // string | ErrorType[];
+});
 
 export type ReservationMade = {
   reservationPk?: number;
@@ -52,13 +61,16 @@ const btn = [
 
 const RecurringReservationDone = () => {
   const location = useLocation();
-  // FIXME don't cast; validate
-  const props: ReservationMade[] = location.state;
+  const props = z.array(ReservationMadeSchema).parse(location.state);
 
-  const failed = props.filter(({ error }) => error != null);
+  const failed = props
+    .filter(({ error }) => error != null)
+    .map(({ error, ...x }) => ({ ...x, error: String(error) }));
 
   const successes = props
-    .filter(({ error }) => error == null)
+    .filter((x) => x.error == null)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .map(({ error, ...x }) => x)
     .map((x, i) => ({ ...x, button: btn[i % 2] }));
 
   const { t } = useTranslation();
@@ -119,7 +131,6 @@ const RecurringReservationDone = () => {
       </StyledH6>
       <ReservationList items={successes} />
       <ActionsWrapper>
-        {/* TODO The back functionality is overly complex because the route hierarchy is weird */}
         <Button
           variant="secondary"
           onClick={() => navigate("../..", { relative: "path" })}

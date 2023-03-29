@@ -2,7 +2,6 @@ import React from "react";
 import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { ErrorType } from "common/types/gql-types";
 import { Button, IconArrowUndo, IconCrossCircle } from "hds-react";
 
 type CallbackButton = {
@@ -13,8 +12,7 @@ type NewReservationListItem = {
   date: Date;
   startTime: string;
   endTime: string;
-  // TODO remove the ErrorType[] from the item (convert to string before calling this)
-  error?: string | ErrorType[];
+  error?: string;
   reservationPk?: number;
   button?: CallbackButton;
 };
@@ -92,9 +90,7 @@ const ReservationList = ({ items }: Props) => {
                 <ErrorLabel>
                   <span>
                     {t(
-                      `MyUnits.RecurringReservation.Confirmation.failureMessages.${String(
-                        item.error
-                      )}`
+                      `MyUnits.RecurringReservation.Confirmation.failureMessages.${item.error}`
                     )}
                   </span>
                 </ErrorLabel>
