@@ -1934,6 +1934,15 @@ const translations: ITranslations = {
       handlingDetails: ["Kommentti"],
       handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
     },
+    CancelDialog: {
+      cancel: ["Peruuta varaus"],
+      cancelReason: ["Peruutuksen syy"],
+      cancelReasonHelper: ["Ilmoitus peruutuksesta ja syy"],
+      cancelled: ["Varaus peruttu"],
+      title: ["Vahvista varauksen peruutus"],
+      handlingDetails: ["Kommentti"],
+      handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
+    },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],
       titleWithoutSubvention: ["Hyväksy varaus"],

@@ -8,7 +8,6 @@ import {
   Mutation,
   Query,
   QueryReservationCancelReasonsArgs,
-  QueryReservationDenyReasonsArgs,
   ReservationCancelReasonType,
   ReservationCancellationMutationInput,
   ReservationType,
@@ -99,7 +98,7 @@ const DialogContent = ({
           }
         }
       } else {
-        notifySuccess(t("RequestedReservation.DenyDialog.denied"));
+        notifySuccess(t("RequestedReservation.CancelDialog.cancelled"));
         onReject();
       }
     } catch (e) {
@@ -132,13 +131,13 @@ const DialogContent = ({
         <VerticalFlex>
           <Select
             required
-            id="denyReason"
+            id="cancelReason"
             options={reasons}
             placeholder={t("common.select")}
-            label={t("RequestedReservation.DenyDialog.denyReason")}
+            label={t("RequestedReservation.CancelDialog.cancelReason")}
             onChange={(v) => setCancelReason(Number(v))}
             value={cancelReasonPk}
-            helper={t("RequestedReservation.DenyDialog.denyReasonHelper")}
+            helper={t("RequestedReservation.CancelDialog.cancelReasonHelper")}
           />
           {/* TODO comment field?
           <TextArea
@@ -157,7 +156,7 @@ const DialogContent = ({
         <Button variant="secondary" onClick={onClose} theme="black">
           {t("common.prev")}
         </Button>
-        <Button onClick={handleCancel}>
+        <Button disabled={cancelReasonPk === 0} onClick={handleCancel}>
           {t("RequestedReservation.CancelDialog.cancel")}
         </Button>
       </ActionButtons>
@@ -188,7 +187,7 @@ const CancelDialog = ({
       <VerticalFlex>
         <CustomDialogHeader
           id="modal-header"
-          title={t("RequestedReservation.DenyDialog.title")}
+          title={t("RequestedReservation.CancelDialog.title")}
           close={onClose}
         />
         <DialogContent

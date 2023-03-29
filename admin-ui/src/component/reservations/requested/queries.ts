@@ -152,6 +152,18 @@ export const RESERVATION_CANCEL_REASONS = gql`
   }
 `;
 
+export const RESERVATION_CANCEL_RULES = gql`
+  query reservationUnitCancellationRules($pk: Int) {
+    reservationUnitByPk(pk: $pk) {
+      cancellationRule {
+        id
+        nameFi
+        canBeCancelledTimeBefore
+      }
+    }
+  }
+`;
+
 export const REQUIRE_HANDLING_RESERVATION = gql`
   mutation requireHandling($input: ReservationRequiresHandlingMutationInput!) {
     requireHandlingForReservation(input: $input) {
