@@ -11,8 +11,7 @@ import ReservationList from "./ReservationsList";
 import withMainMenu from "../../withMainMenu";
 
 const InfoSection = styled.p`
-  margin-bottom: 2rem;
-  margin-top: 0;
+  margin: var(--spacing-l) 0;
 `;
 
 const StyledH6 = styled(H6)`
@@ -39,13 +38,13 @@ export type ReservationMade = {
 const btn = [
   {
     callback: () => {
-      console.log("remove pressed");
+      console.log("TODO: NOT IMEPLENETED remove pressed");
     },
     type: "remove",
   },
   {
     callback: () => {
-      console.log("restore pressed");
+      console.log("TODO: NOT IMEPLENETED restore pressed");
     },
     type: "restore",
   },
@@ -56,9 +55,7 @@ const RecurringReservationDone = () => {
   // FIXME don't cast; validate
   const props: ReservationMade[] = location.state;
 
-  const failed = props
-    .filter(({ error }) => error != null)
-    .map((x, i) => ({ ...x, button: btn[i % 2] }));
+  const failed = props.filter(({ error }) => error != null);
 
   const successes = props
     .filter(({ error }) => error == null)
@@ -126,6 +123,7 @@ const RecurringReservationDone = () => {
         <Button
           variant="secondary"
           onClick={() => navigate("../..", { relative: "path" })}
+          theme="black"
         >
           {t(`${locPrefix}.buttonToUnit`)}
         </Button>
@@ -133,6 +131,7 @@ const RecurringReservationDone = () => {
           <Button
             variant="secondary"
             onClick={() => handleGoToReservation(reservationId)}
+            theme="black"
           >
             {t(`${locPrefix}.buttonToReservation`)}
           </Button>

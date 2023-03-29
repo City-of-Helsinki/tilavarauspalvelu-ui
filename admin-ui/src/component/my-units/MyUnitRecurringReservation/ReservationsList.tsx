@@ -37,7 +37,7 @@ const StyledList = styled.ul`
 `;
 
 const StyledListItem = styled.li`
-  padding: var(--spacing-s) 0;
+  padding: var(--spacing-xs) 0;
   border-bottom: 1px solid var(--color-black-20);
   display: flex;
   flex-wrap: wrap;
@@ -48,13 +48,15 @@ const StyledListItem = styled.li`
 `;
 
 const TextWrapper = styled.span<{ $failed: boolean }>`
-  text-transform: capitalize;
   flex-grow: 1;
   gap: 0.5rem 2rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  color: ${($failed) =>
-    $failed ? "var(--color-black-60)" : "var(--color-black)"};
+  ${({ $failed }) => ($failed ? "color: var(--color-black-60)" : "")};
+`;
+
+const Capitalize = styled.span`
+  text-transform: capitalize;
 `;
 
 const ErrorLabel = styled.div`
@@ -64,8 +66,6 @@ const ErrorLabel = styled.div`
     padding: 0.5rem 0.5rem;
   }
 `;
-
-const Btn = styled(Button)``;
 
 const stripTimeZeros = (time: string) =>
   time.substring(0, 1) === "0" ? time.substring(1) : time;
@@ -82,10 +82,12 @@ const ReservationList = ({ items }: Props) => {
           <StyledListItem
             key={`${item.date}-${item.startTime}-${item.endTime}`}
           >
-            <TextWrapper $failed={item.error != null}>
-              {`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${stripTimeZeros(
-                item.startTime
-              )}-${stripTimeZeros(item.endTime)}`}
+            <TextWrapper $failed={!!item.error}>
+              <Capitalize>
+                {`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${stripTimeZeros(
+                  item.startTime
+                )}-${stripTimeZeros(item.endTime)}`}
+              </Capitalize>
               {item.error && (
                 <ErrorLabel>
                   <span>
@@ -100,13 +102,23 @@ const ReservationList = ({ items }: Props) => {
             </TextWrapper>
             {item.button != null &&
               (item.button.type === "remove" ? (
-                <Btn variant="supplementary" iconRight={<IconCrossCircle />}>
+                <Button
+                  variant="supplementary"
+                  onClick={item.button.callback}
+                  iconRight={<IconCrossCircle />}
+                  size="small"
+                >
                   {t("common.remove")}
-                </Btn>
+                </Button>
               ) : (
-                <Btn variant="supplementary" iconRight={<IconArrowUndo />}>
+                <Button
+                  variant="supplementary"
+                  onClick={item.button.callback}
+                  iconRight={<IconArrowUndo />}
+                  size="small"
+                >
                   {t("common.restore")}
-                </Btn>
+                </Button>
               ))}
           </StyledListItem>
         ))}
