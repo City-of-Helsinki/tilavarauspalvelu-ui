@@ -8,7 +8,6 @@ import { Button } from "hds-react";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
 import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
-import VisibleIfPermission from "./VisibleIfPermission";
 import { useModal } from "../../../context/ModalContext";
 
 const ApprovalButtons = ({
@@ -27,23 +26,49 @@ const ApprovalButtons = ({
   const { setModalContent } = useModal();
   const { t } = useTranslation();
 
-  const serviceSectorPks =
-    reservation?.reservationUnits?.[0]?.unit?.serviceSectors
-      ?.map((x) => x?.pk)
-      ?.filter((x): x is number => x != null) ?? [];
+  const handleDenyClick = () => {
+    setModalContent(
+      <DenyDialog
+        reservation={reservation}
+        onReject={handleAccept}
+        onClose={handleClose}
+      />,
+      true
+    );
+  };
 
-  const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
+  const handleReturnToHandlingClick = () => {
+    setModalContent(
+      <ReturnToRequiredHandlingDialog
+        reservation={reservation}
+        onAccept={handleAccept}
+        onClose={handleClose}
+      />,
+      true
+    );
+  };
+
+  const handleApproveClick = () => {
+    setModalContent(
+      <ApproveDialog
+        isFree={isFree}
+        reservation={reservation}
+        onAccept={handleAccept}
+        onClose={handleClose}
+      />,
+      true
+    );
+  };
 
   const startTime = new Date(reservation.begin);
   const endTime = new Date(reservation.end);
+  // FXIME translate
   if (endTime < new Date()) {
     return <div>Already ended: cant change STATUS</div>;
   }
   if (startTime < new Date()) {
     return <div>Already started: cant change STATUS</div>;
   }
-
-  // TODO allow deny without returning to RequiresHandling
 
   const btnCommon = {
     theme: "black",
@@ -52,89 +77,25 @@ const ApprovalButtons = ({
     disabled: false,
   } as const;
 
-  if (state === ReservationsReservationStateChoices.RequiresHandling) {
-    return (
-      <VisibleIfPermission
-        permissionName="can_manage_reservations"
-        unitPk={unitPk}
-        serviceSectorPks={serviceSectorPks}
-      >
-        <Button
-          {...btnCommon}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <ApproveDialog
-                isFree={isFree}
-                reservation={reservation}
-                onAccept={handleAccept}
-                onClose={handleClose}
-              />,
-              true
-            );
-          }}
-        >
+  return (
+    <>
+      {/* Backend doesn't allow approving anything that isn't in RequiresHandling state */}
+      {state === ReservationsReservationStateChoices.RequiresHandling && (
+        <Button {...btnCommon} onClick={handleApproveClick}>
           {t("RequestedReservation.approve")}
         </Button>
-        <Button
-          {...btnCommon}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <DenyDialog
-                reservation={reservation}
-                onReject={handleAccept}
-                onClose={handleClose}
-              />,
-              true
-            );
-          }}
-        >
+      )}
+      {state !== ReservationsReservationStateChoices.Denied && (
+        <Button {...btnCommon} onClick={handleDenyClick}>
           {t("RequestedReservation.reject")}
         </Button>
-      </VisibleIfPermission>
-    );
-  }
-
-  return (
-    <VisibleIfPermission
-      permissionName="can_manage_reservations"
-      unitPk={unitPk}
-      serviceSectorPks={serviceSectorPks}
-    >
-      <Button
-        {...btnCommon}
-        onClick={(e) => {
-          e.preventDefault();
-          setModalContent(
-            <ReturnToRequiredHandlingDialog
-              reservation={reservation}
-              onAccept={handleAccept}
-              onClose={handleClose}
-            />,
-            true
-          );
-        }}
-      >
-        {t("RequestedReservation.returnToHandling")}
-      </Button>
-      <Button
-        {...btnCommon}
-        onClick={(e) => {
-          e.preventDefault();
-          setModalContent(
-            <DenyDialog
-              reservation={reservation}
-              onReject={handleAccept}
-              onClose={handleClose}
-            />,
-            true
-          );
-        }}
-      >
-        {t("RequestedReservation.reject")}
-      </Button>
-    </VisibleIfPermission>
+      )}
+      {state !== ReservationsReservationStateChoices.RequiresHandling && (
+        <Button {...btnCommon} onClick={handleReturnToHandlingClick}>
+          {t("RequestedReservation.returnToHandling")}
+        </Button>
+      )}
+    </>
   );
 };
 

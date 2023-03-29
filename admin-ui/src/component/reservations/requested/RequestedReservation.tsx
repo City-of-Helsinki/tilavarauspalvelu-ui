@@ -51,6 +51,7 @@ import { Accordion } from "../../../common/hds-fork/Accordion";
 import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import CancelButtons from "./CancelButtons";
+import { useAuthState } from "../../../context/AuthStateContext";
 
 const Dot = styled.div`
   display: inline-block;
@@ -168,13 +169,74 @@ const ApplicationData = ({
     </div>
   ) : null;
 
+const ButtonsWithPermChecks = ({
+  reservation,
+  refetch,
+  isFree,
+}: {
+  reservation: ReservationType;
+  refetch: () => void;
+  isFree: boolean;
+}) => {
+  const { setModalContent } = useModal();
+
+  const serviceSectorPks =
+    reservation?.reservationUnits?.[0]?.unit?.serviceSectors
+      ?.map((x) => x?.pk)
+      ?.filter((x): x is number => x != null) ?? [];
+
+  const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
+
+  const { data: user } = useQuery<Query>(CURRENT_USER);
+
+  const isUsersOwnReservation = reservation?.user?.pk === user?.currentUser?.pk;
+
+  const closeDialog = () => {
+    setModalContent(null);
+  };
+
+  const closeDialogAndRefetch = () => {
+    closeDialog();
+    refetch();
+  };
+
+  const { hasPermission } = useAuthState().authState;
+  const permission =
+    unitPk != null
+      ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
+      : false;
+
+  if (permission) {
+    return (
+      <ApprovalButtons
+        state={reservation.state}
+        isFree={isFree}
+        reservation={reservation}
+        handleClose={closeDialog}
+        handleAccept={closeDialogAndRefetch}
+      />
+    );
+  }
+
+  if (isUsersOwnReservation) {
+    return (
+      <CancelButtons
+        reservation={reservation}
+        handleClose={closeDialog}
+        handleAccept={closeDialogAndRefetch}
+      />
+    );
+  }
+
+  return null;
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType>();
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
-  const { setModalContent } = useModal();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     RESERVATION_QUERY,
@@ -200,20 +262,7 @@ const RequestedReservation = (): JSX.Element | null => {
   const updateMemo = (input: ReservationWorkingMemoMutationInput) =>
     updateWorkingMemo({ variables: { input } });
 
-  const closeDialog = () => {
-    setModalContent(null);
-  };
-
   const ref = useRef<HTMLHeadingElement>(null);
-
-  const closeDialogAndRefetch = () => {
-    closeDialog();
-    refetch();
-  };
-
-  const { data: user } = useQuery<Query>(CURRENT_USER);
-
-  const isUsersOwnReservation = reservation?.user?.pk === user?.currentUser?.pk;
 
   if (loading) {
     return <Loader />;
@@ -244,22 +293,6 @@ const RequestedReservation = (): JSX.Element | null => {
     reservation.end
   )}t | ${reservation?.reservationUnits?.map(reservationUnitName).join(", ")}`;
 
-  const buttons = isUsersOwnReservation ? (
-    <CancelButtons
-      reservation={reservation}
-      handleClose={closeDialog}
-      handleAccept={closeDialogAndRefetch}
-    />
-  ) : (
-    <ApprovalButtons
-      state={reservation.state}
-      isFree={!isNonFree}
-      reservation={reservation}
-      handleClose={closeDialog}
-      handleAccept={closeDialogAndRefetch}
-    />
-  );
-
   return (
     <>
       <BreadcrumbWrapper
@@ -280,7 +313,13 @@ const RequestedReservation = (): JSX.Element | null => {
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}
-          buttons={buttons}
+          buttons={
+            <ButtonsWithPermChecks
+              reservation={reservation}
+              refetch={refetch}
+              isFree={!isNonFree}
+            />
+          }
         />
       </ShowWhenTargetInvisible>
       <Container>
@@ -313,7 +352,11 @@ const RequestedReservation = (): JSX.Element | null => {
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
-          {buttons}
+          <ButtonsWithPermChecks
+            reservation={reservation}
+            refetch={refetch}
+            isFree={!isNonFree}
+          />
         </HorisontalFlex>
         <Summary>
           {[
