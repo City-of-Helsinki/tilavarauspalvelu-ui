@@ -33,7 +33,8 @@ const canCancelReservation = (state: ReservationsReservationStateChoices) => {
   }
 };
 
-// TODO translations? what is supposed to be left in the UI?
+const TNAMESPACE = "RequestedReservation.CancelButtons";
+
 const CancelButtons = ({ reservation, handleClose, handleAccept }: Props) => {
   const { setModalContent } = useModal();
   const { t } = useTranslation();
@@ -64,18 +65,30 @@ const CancelButtons = ({ reservation, handleClose, handleAccept }: Props) => {
   }
 
   if (!cancellationRule) {
-    return <div>The reservation unit doesn&apos;t allow cancellations</div>;
+    return (
+      <div>
+        {t(`${TNAMESPACE}.The reservation unit doesn't allow cancellations`)}
+      </div>
+    );
   }
 
   if (!canCancelReservation(reservation.state)) {
-    return <div>This reservation is already cancelled or rejected</div>;
+    return (
+      <div>
+        {t(`${TNAMESPACE}.This reservation is already cancelled or rejected`)}
+      </div>
+    );
   }
 
   if (new Date() > new Date(reservation.end)) {
-    return <div>Can&apos;t cancel already ended reservation.</div>;
+    return (
+      <div>{t(`${TNAMESPACE}.Can't cancel already ended reservation`)}</div>
+    );
   }
   if (new Date() > new Date(reservation.begin)) {
-    return <div>Can&apos;t cancel already ongoing reservation.</div>;
+    return (
+      <div>{t(`${TNAMESPACE}.Can't cancel already ongoing reservation`)} </div>
+    );
   }
   if (
     add(new Date(), { seconds: cancelAllowedBeforeSecs ?? 0 }) >
@@ -83,8 +96,10 @@ const CancelButtons = ({ reservation, handleClose, handleAccept }: Props) => {
   ) {
     return (
       <div>
-        Cancellation only allowed {cancelAllowedBeforeSecs} seconds before
-        starting.
+        {t(
+          `${TNAMESPACE}.Cancellation only allowed time seconds before starting`,
+          { seconds: cancelAllowedBeforeSecs }
+        )}{" "}
       </div>
     );
   }

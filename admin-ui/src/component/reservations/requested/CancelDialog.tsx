@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
-import { Button, Dialog, TextArea } from "hds-react";
+import { Button, Dialog } from "hds-react";
 import {
   Mutation,
   Query,
@@ -43,16 +42,6 @@ const DialogContent = ({
   const cancelReservation = (input: ReservationCancellationMutationInput) =>
     cancelReservationMutation({ variables: { input } });
 
-  /*
-  const [handlingDetails, setHandlingDetails] = useState<string>(
-    reservation.workingMemo || ""
-  );
-  const [denyReasonPk, setDenyReason] = useState<number | null>(null);
-  const [denyReasonOptions, setDenyReasonOptions] = useState<OptionType[]>([]);
-  const { notifyError, notifySuccess } = useNotification();
-  const { t } = useTranslation();
-  */
-
   const { loading, data: reasonsData } = useQuery<
     Query,
     QueryReservationCancelReasonsArgs
@@ -83,39 +72,18 @@ const DialogContent = ({
         cancelReasonPk,
       });
 
-      // TODO what are these errors ever? it seems that graphql throws errors always
+      // TODO what are these errors? it seems that graphql throws errors always.
       if (res.errors) {
-        if (
-          res.errors.filter(
-            (x) => x.extensions.error_code === "CANCELLATION_NOT_ALLOWED"
-          ).length > 0
-        ) {
-          notifyError(t("CANCELLATION_NOT_ALLOWED"));
-        } else {
-          const first = res.errors.find(() => true);
-          if (first != null) {
-            notifyError(t(first.message));
-          }
+        const first = res.errors.find(() => true);
+        if (first != null) {
+          notifyError(t(first.message));
         }
       } else {
         notifySuccess(t("RequestedReservation.CancelDialog.cancelled"));
         onReject();
       }
     } catch (e) {
-      /* TODO the error we receive if CANCELING is not allowed for this unit (might also be if the cancellation period is already gone)
-       */
-      /* TODO this is the error we receive if trying to double Cancel so we need to check the reservation.state and disable the button based on that
-      [
-        {"message":"Only reservations in confirmed state can be cancelled through this.",
-        "locations":[{"line":2,"column":3}],
-        "path":["cancelReservation"],
-        "extensions":{"error_code":"CANCELLATION_NOT_ALLOWED","field":"nonFieldError"}}
-      ],
-        "clientErrors":[],
-        "networkError":null,
-        "message":"Only reservations in confirmed state can be cancelled through this."
-      }
-       */
+      // eslint-disable-next-line no-console
       console.error("Apollo threw: ", JSON.stringify(e));
       notifyError(t(String(e)));
     }
@@ -139,17 +107,6 @@ const DialogContent = ({
             value={cancelReasonPk}
             helper={t("RequestedReservation.CancelDialog.cancelReasonHelper")}
           />
-          {/* TODO comment field?
-          <TextArea
-            value={handlingDetails}
-            onChange={(e) => setHandlingDetails(e.target.value)}
-            label={t("RequestedReservation.DenyDialog.handlingDetails")}
-            id="handlingDetails"
-            helperText={t(
-              "RequestedReservation.DenyDialog.handlingDetailsHelper"
-            )}
-          />
-            */}
         </VerticalFlex>
       </Dialog.Content>
       <ActionButtons>
