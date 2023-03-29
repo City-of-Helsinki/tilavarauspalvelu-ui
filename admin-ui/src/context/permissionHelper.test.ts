@@ -76,7 +76,7 @@ test("permissionHelper returns true when named serviceSector permission is set",
 
   const ph = permissionHelper(user);
 
-  expect(ph("fooPermission", -1, 1)).toBeTruthy();
+  expect(ph("fooPermission", -1, [1])).toBeTruthy();
 });
 
 test("permissionHelper returns false when named serviceSector permission is set", () => {
@@ -87,7 +87,7 @@ test("permissionHelper returns false when named serviceSector permission is set"
 
   const ph = permissionHelper(user);
 
-  expect(ph("otherPermission", -1, 1)).toBeFalsy();
+  expect(ph("otherPermission", -1, [1])).toBeFalsy();
 });
 
 test("permissionHelper returns true for superuser", () => {
@@ -98,7 +98,7 @@ test("permissionHelper returns true for superuser", () => {
 
   const ph = permissionHelper(user);
 
-  expect(ph("fooPermission", -1, 1)).toBeTruthy();
+  expect(ph("fooPermission", -1, [1])).toBeTruthy();
 
-  expect(ph("otherPermission", -1, 1)).toBeTruthy();
+  expect(ph("otherPermission", -1, [1])).toBeTruthy();
 });
