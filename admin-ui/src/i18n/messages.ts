@@ -210,6 +210,15 @@ const translations: ITranslations = {
     units: ["Toimipisteet"],
     "my-units": ["Omat toimipisteet"],
   },
+  tos: {
+    paymentTermsTitle: ["Maksuehdot"],
+    priceTermsTitle: ["Hinnoitteluehdot"],
+    cancelTermsTitle: ["Peruutusehdot"],
+    serviceTermsTitle: ["Täydentävät ehdot"],
+    generalTermsTitle: [
+      "Helsingin kaupungin tilojen ja laitteiden varaamisen sopimusehdot",
+    ],
+  },
 
   ArchiveReservationUnitDialog: {
     title: ["Oletko varma että haluat arkistoida varausyksikön {{name}}?"],

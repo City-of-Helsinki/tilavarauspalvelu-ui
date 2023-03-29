@@ -8,6 +8,7 @@ import {
   ReservationUnitType,
 } from "common/types/gql-types";
 import { gql, useQuery } from "@apollo/client";
+import { useTranslation } from "react-i18next";
 
 // NOTE This is partial duplicate from ui/application/Preview.tsx
 // see if we can combine them (and other Terms later with parameters)
@@ -75,6 +76,8 @@ const ShowTOS = ({
 }: {
   reservationUnit: ReservationUnitType;
 }) => {
+  const { t } = useTranslation();
+
   const serviceTerms = reservationUnit.serviceSpecificTerms;
   const payTerms = reservationUnit.paymentTerms;
   const priceTerms = reservationUnit.pricingTerms;
@@ -84,32 +87,32 @@ const ShowTOS = ({
 
   return (
     <div>
-      {(payTerms?.nameFi || payTerms?.textFi) && (
+      {payTerms?.textFi && (
         <TOSElement
-          title={payTerms?.nameFi ?? ""}
+          title={t("tos.paymentTermsTitle")}
           text={payTerms?.textFi ?? ""}
         />
       )}
-      {(priceTerms?.nameFi || priceTerms?.textFi) && (
+      {priceTerms?.textFi && (
         <TOSElement
-          title={priceTerms?.nameFi ?? ""}
+          title={t("tos.priceTermsTitle")}
           text={priceTerms?.textFi ?? ""}
         />
       )}
-      {(cancelTerms?.nameFi || cancelTerms?.textFi) && (
+      {cancelTerms?.textFi && (
         <TOSElement
-          title={cancelTerms?.nameFi ?? ""}
+          title={t("tos.cancelTermsTitle")}
           text={cancelTerms?.textFi ?? ""}
         />
       )}
-      {(serviceTerms?.nameFi || serviceTerms?.textFi) && (
+      {serviceTerms?.textFi && (
         <TOSElement
-          title={serviceTerms?.nameFi ?? ""}
+          title={t("tos.serviceTermsTitle")}
           text={serviceTerms?.textFi ?? ""}
         />
       )}
       <TOSElement
-        title={genericTerms?.nameFi ?? ""}
+        title={t("tos.generalTermsTitle")}
         text={genericTerms?.textFi ?? ""}
       />
     </div>
