@@ -38,8 +38,8 @@ const UnitContainer = styled.div`
     svg {
       transform: scale(0.5);
     }
-    /* reset the gap because svg icon forces elements to be 48px min-height */
-    gap: 0rem 3rem;
+    /* lower the gap because svg icon forces elements to be 48px min-height */
+    gap: 0.5rem 3rem;
   }
 `;
 
