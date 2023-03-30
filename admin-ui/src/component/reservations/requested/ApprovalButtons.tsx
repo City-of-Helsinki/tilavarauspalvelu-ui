@@ -60,14 +60,10 @@ const ApprovalButtons = ({
     );
   };
 
-  const startTime = new Date(reservation.begin);
+  // Backend doesn't allow changing the status if the reservation has ended
   const endTime = new Date(reservation.end);
-  // FXIME translate
   if (endTime < new Date()) {
-    return <div>Already ended: cant change STATUS</div>;
-  }
-  if (startTime < new Date()) {
-    return <div>Already started: cant change STATUS</div>;
+    return <div>{t("RequestedReservation.alreadyEnded")}</div>;
   }
 
   const btnCommon = {

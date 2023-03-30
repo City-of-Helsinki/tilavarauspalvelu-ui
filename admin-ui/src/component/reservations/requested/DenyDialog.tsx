@@ -139,7 +139,6 @@ const DenyDialog = ({
   onReject,
 }: {
   reservation: ReservationType;
-
   onClose: () => void;
   onReject: () => void;
 }): JSX.Element => {

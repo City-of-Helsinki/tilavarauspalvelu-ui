@@ -1923,6 +1923,8 @@ const translations: ITranslations = {
     birthDate: ["Syntymäaika"],
     hideBirthDate: ["Piilota"],
     showBirthDate: ["Näytä"],
+    alreadyEnded: ["Päättynyt"],
+    alreadyStarted: ["Alkanut"],
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],
