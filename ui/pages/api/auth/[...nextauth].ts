@@ -101,16 +101,20 @@ const getApiAccessTokens = async (accessToken: string | undefined) => {
   if (!oidcProfileApiUrl || !oidcTilavarausApiUrl) {
     throw new Error("Application configuration error, missing api urls.");
   }
-  const response = await axios.request({
-    responseType: "json",
-    method: "POST",
-    url: oidcAccessTokenUrl,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
+  const response = await axios
+    .request({
+      responseType: "json",
+      method: "POST",
+      url: oidcAccessTokenUrl,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
+    .catch(() => {
+      throw new Error("Failed to refetch the SessionToken for valid user");
+    });
 
   const { data } = response;
 
@@ -131,21 +135,28 @@ const EXP_MS = (10 / 2) * 60 * 1000;
 
 const refreshAccessToken = async (token: ExtendedJWT) => {
   try {
-    const response = await axios.request({
-      url: oidcTokenUrl,
-      method: "POST",
-      data: {
-        client_id: oidcClientId,
-        grant_type: "refresh_token",
-        refresh_token: token.refreshToken,
-      },
-      headers: {
-        /* eslint-disable @typescript-eslint/naming-convention */
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${token.accessToken}`,
-      },
-    });
+    if (!token.accessToken) {
+      throw new Error("Can't refresh a token for user that isn't logged in.");
+    }
 
+    const response = await axios
+      .request({
+        url: oidcTokenUrl,
+        method: "POST",
+        data: {
+          client_id: oidcClientId,
+          grant_type: "refresh_token",
+          refresh_token: token.refreshToken,
+        },
+        headers: {
+          /* eslint-disable @typescript-eslint/naming-convention */
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token.accessToken}`,
+        },
+      })
+      .catch(() => {
+        throw new Error("Failed to refresh session token for a valid user. ");
+      });
     const { data }: { data: unknown } = response;
 
     if (!data) {
