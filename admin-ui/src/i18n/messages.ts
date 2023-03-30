@@ -1924,7 +1924,6 @@ const translations: ITranslations = {
     hideBirthDate: ["Piilota"],
     showBirthDate: ["Näytä"],
     alreadyEnded: ["Päättynyt"],
-    alreadyStarted: ["Alkanut"],
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],
@@ -1935,30 +1934,6 @@ const translations: ITranslations = {
       title: ["Vahvista varauksen hylkäys"],
       handlingDetails: ["Kommentti"],
       handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
-    },
-    CancelButtons: {
-      "The reservation unit doesn't allow cancellations": [
-        "Tämä varausyksikkö ei hyväksy peruutuksia.",
-      ],
-      "This reservation is already cancelled or rejected": [
-        "Tämä varaus on jo peruttu.",
-      ],
-      "Can't cancel already ended reservation": [
-        "Ei voi peruuttaa loppunutta varausta.",
-      ],
-      "Can't cancel already ongoing reservation": [
-        "Ei voi peruuttaa käynnissä olevaa varausta.",
-      ],
-      "Cancellation only allowed time seconds before starting": [
-        "Varauksen peuutus on sallittua vain {{ seconds }} sekunttia ennen varauksen alkua.",
-      ],
-    },
-    CancelDialog: {
-      cancel: ["Peruuta varaus"],
-      cancelReason: ["Peruutuksen syy"],
-      cancelReasonHelper: ["Ilmoitus peruutuksesta ja syy"],
-      cancelled: ["Varaus peruttu"],
-      title: ["Vahvista varauksen peruutus"],
     },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],

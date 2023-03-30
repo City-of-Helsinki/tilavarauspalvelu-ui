@@ -50,7 +50,6 @@ import VisibleIfPermission from "./VisibleIfPermission";
 import { Accordion } from "../../../common/hds-fork/Accordion";
 import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
-import CancelButtons from "./CancelButtons";
 import { useAuthState } from "../../../context/AuthStateContext";
 
 const Dot = styled.div`
@@ -206,21 +205,11 @@ const ButtonsWithPermChecks = ({
       ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
       : false;
 
-  if (permission) {
+  if (permission || isUsersOwnReservation) {
     return (
       <ApprovalButtons
         state={reservation.state}
         isFree={isFree}
-        reservation={reservation}
-        handleClose={closeDialog}
-        handleAccept={closeDialogAndRefetch}
-      />
-    );
-  }
-
-  if (isUsersOwnReservation) {
-    return (
-      <CancelButtons
         reservation={reservation}
         handleClose={closeDialog}
         handleAccept={closeDialogAndRefetch}
