@@ -43,16 +43,18 @@ export type ReservationMade = {
   error?: string | ErrorType[];
 };
 
-// TODO test buttons (convert to real ones inside the success / failure data)
+// TODO just for testing the UI; requires another feature to be implemented.
 const btn = [
   {
     callback: () => {
+      // eslint-disable-next-line no-console
       console.log("TODO: NOT IMEPLENETED remove pressed");
     },
     type: "remove",
   },
   {
     callback: () => {
+      // eslint-disable-next-line no-console
       console.log("TODO: NOT IMEPLENETED restore pressed");
     },
     type: "restore",
@@ -71,6 +73,7 @@ const RecurringReservationDone = () => {
     .filter((x) => x.error == null)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .map(({ error, ...x }) => x)
+    // TODO button is temp code till another feature is implemented
     .map((x, i) => ({ ...x, button: btn[i % 2] }));
 
   const { t } = useTranslation();
@@ -93,7 +96,6 @@ const RecurringReservationDone = () => {
     return <div>No data in completed reservation: Should not be here</div>;
   }
 
-  // TODO do we need special handling for no successes
   return (
     <StyledContainer>
       <H1 $legacy>{t(`${locPrefix}.title`)}</H1>
