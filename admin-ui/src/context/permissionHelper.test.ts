@@ -38,6 +38,17 @@ const unitRole: UnitRoleType = {
   ],
 };
 
+const serviceSectorRoles: ServiceSectorRoleType[] = [
+  {
+    id: "5",
+    permissions: [{ permission: "fooPermission" }],
+    serviceSector: {
+      pk: 1,
+      id: "",
+    },
+  },
+];
+
 test("permissionHelper returns true when named unit permission is set", () => {
   const user = {
     ...userCommon,
@@ -63,15 +74,7 @@ test("permissionHelper returns flase when named unit permission is not set", () 
 test("permissionHelper returns true when named serviceSector permission is set", () => {
   const user = {
     ...userCommon,
-    serviceSectorRoles: [
-      {
-        id: "5",
-        permissions: [{ permission: "fooPermission" }],
-        serviceSector: {
-          pk: 1,
-        },
-      } as ServiceSectorRoleType,
-    ],
+    serviceSectorRoles,
   };
 
   const ph = permissionHelper(user);

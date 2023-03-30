@@ -35,13 +35,12 @@ const VisibleIfPermissionWrapper = (props: {
   otherwise?: React.ReactNode;
 }) => {
   const { unitPk } = props;
-  // FIXME translations
-  // FIXME should we display these as errors or log them somewhere or what?
+
   if (!unitPk) {
-    return <div>No unit pk defined</div>;
+    return null;
   }
   if (props.serviceSectorPks.length === 0) {
-    return <div>No service sectors defined</div>;
+    return null;
   }
 
   return <VisibleIfPermission {...props} unitPk={unitPk} />;

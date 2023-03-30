@@ -1938,13 +1938,13 @@ const translations: ITranslations = {
     },
     CancelButtons: {
       "The reservation unit doesn't allow cancellations": [
-        "Tämä varausyksikk ei hyväksy peruutuksia.",
+        "Tämä varausyksikkö ei hyväksy peruutuksia.",
       ],
       "This reservation is already cancelled or rejected": [
         "Tämä varaus on jo peruttu.",
       ],
       "Can't cancel already ended reservation": [
-        "Ei voi peruuttaa jo loppunutta varausta.",
+        "Ei voi peruuttaa loppunutta varausta.",
       ],
       "Can't cancel already ongoing reservation": [
         "Ei voi peruuttaa käynnissä olevaa varausta.",
@@ -1959,8 +1959,6 @@ const translations: ITranslations = {
       cancelReasonHelper: ["Ilmoitus peruutuksesta ja syy"],
       cancelled: ["Varaus peruttu"],
       title: ["Vahvista varauksen peruutus"],
-      handlingDetails: ["Kommentti"],
-      handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
     },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],
