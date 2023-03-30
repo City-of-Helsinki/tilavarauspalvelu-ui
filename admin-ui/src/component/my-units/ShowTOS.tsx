@@ -28,8 +28,6 @@ const Terms = styled.div`
   }
 `;
 
-// TODO I'm assuming this doesn't use html or markdown (only plain text) is this correct?
-// use <Sanitize> component if we need it
 const TOSElement = ({ title, text }: { title: string; text: string }) => (
   <Terms>
     <h3>{title}</h3>

@@ -212,7 +212,7 @@ const translations: ITranslations = {
   },
   tos: {
     paymentTermsTitle: ["Maksuehdot"],
-    priceTermsTitle: ["Hinnoitteluehdot"],
+    priceTermsTitle: ["Alennusryhmä"],
     cancelTermsTitle: ["Peruutusehdot"],
     serviceTermsTitle: ["Täydentävät ehdot"],
     generalTermsTitle: [
