@@ -51,6 +51,7 @@ import { Accordion } from "../../../common/hds-fork/Accordion";
 import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
+import RecurringReservationsView from "./RecurringReservationsView";
 
 const Dot = styled.div`
   display: inline-block;
@@ -299,6 +300,7 @@ const RequestedReservation = (): JSX.Element | null => {
         ]}
       />
       <ShowWhenTargetInvisible target={ref}>
+        {/* TODO update the reservationTagLine if the reservation is a recurring one based on the UI spec */}
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}
@@ -463,6 +465,11 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
+          {reservation.recurringReservation && (
+            <Accordion heading={t("RequestedReservation.recurring")}>
+              <RecurringReservationsView reservation={reservation} />
+            </Accordion>
+          )}
           <Accordion heading={t("RequestedReservation.calendar")}>
             <Calendar
               key={reservation.state}

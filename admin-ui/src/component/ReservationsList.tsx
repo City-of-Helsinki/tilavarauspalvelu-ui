@@ -15,6 +15,7 @@ type NewReservationListItem = {
   error?: string;
   reservationPk?: number;
   button?: CallbackButton;
+  isRemoved?: boolean;
 };
 
 type Props = {
@@ -73,6 +74,7 @@ const ReservationList = ({ items }: Props) => {
 
   if (!items.length) return null;
 
+  // TODO if isRemoved show a different style
   return (
     <ListWrapper>
       <StyledList>

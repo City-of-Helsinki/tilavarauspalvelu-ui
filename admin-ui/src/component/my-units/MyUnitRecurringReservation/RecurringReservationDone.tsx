@@ -9,7 +9,7 @@ import { z } from "zod";
 import { H1, H6 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ActionsWrapper } from "./commonStyling";
-import ReservationList from "./ReservationsList";
+import ReservationList from "../../ReservationsList";
 import withMainMenu from "../../withMainMenu";
 
 const InfoSection = styled.p`

@@ -21,7 +21,7 @@ import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "./WeekdaysSelector";
-import ReservationList from "./ReservationsList";
+import ReservationList from "../../ReservationsList";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
