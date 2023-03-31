@@ -315,9 +315,7 @@ const Events = ({
               position={["right center", "left center"]}
               trigger={EventTriggerButton}
             >
-              <ReservationPopupContent
-                reservation={e.event as ReservationType}
-              />
+              {e.event && <ReservationPopupContent reservation={e.event} />}
             </Popup>
           </EventContent>
         </div>,
@@ -378,6 +376,7 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
           ))}
         </CellContent>
       </HeadingRow>
+
       {orderedResources.map((row) => (
         <Fragment key={row.url}>
           <Row>
