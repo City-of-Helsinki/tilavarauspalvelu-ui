@@ -1,13 +1,7 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
 import { addMinutes, differenceInMinutes, startOfDay } from "date-fns";
-import React, {
-  CSSProperties,
-  Fragment,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import React, { CSSProperties, useCallback, useEffect, useRef } from "react";
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
@@ -344,13 +338,15 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
   const { setModalContent } = useModal();
   const startDate = startOfDay(date);
 
+  // scroll to around 9 - 17 at load
+  // this is scetchy since it uses the hard endpoint (the calendar size changes)
   const scrollCalendar = useCallback(() => {
     const ref = calendarRef.current;
 
     if (!ref) return;
 
     const lastElementOfHeader = ref.querySelector(
-      ".calendar-header > div:last-of-type"
+      ".calendar-header > div:nth-of-type(17)"
     );
 
     if (lastElementOfHeader) {
@@ -378,39 +374,37 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
       </HeadingRow>
 
       {orderedResources.map((row) => (
-        <Fragment key={row.url}>
-          <Row>
-            <ResourceNameContainer title={row.title} $isDraft={row.isDraft}>
-              <div
-                style={{
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  textOverflow: "ellipsis",
-                  padding: "var(--spacing-xs)",
-                }}
-              >
-                {row.title}
-              </div>
-            </ResourceNameContainer>
-            <RowCalendarArea>
-              <Cells
-                cols={numHours * 2}
-                date={startDate}
-                reservationUnitPk={row.pk}
-                setModalContent={setModalContent}
-                onComplete={refetch}
-              />
-              <Events
-                currentReservationUnit={row.pk}
-                firstHour={beginHour}
-                numHours={numHours}
-                events={row.events}
-                eventStyleGetter={resourceEventStyleGetter(row.pk)}
-                t={t}
-              />
-            </RowCalendarArea>
-          </Row>
-        </Fragment>
+        <Row key={row.url}>
+          <ResourceNameContainer title={row.title} $isDraft={row.isDraft}>
+            <div
+              style={{
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                padding: "var(--spacing-xs)",
+              }}
+            >
+              {row.title}
+            </div>
+          </ResourceNameContainer>
+          <RowCalendarArea>
+            <Cells
+              cols={numHours * 2}
+              date={startDate}
+              reservationUnitPk={row.pk}
+              setModalContent={setModalContent}
+              onComplete={refetch}
+            />
+            <Events
+              currentReservationUnit={row.pk}
+              firstHour={beginHour}
+              numHours={numHours}
+              events={row.events}
+              eventStyleGetter={resourceEventStyleGetter(row.pk)}
+              t={t}
+            />
+          </RowCalendarArea>
+        </Row>
       ))}
     </FlexContainer>
   );

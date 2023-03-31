@@ -58,7 +58,7 @@ const UnitReservations = ({
           <Loader />
         ) : (
           <UnitCalendar
-            date={new Date(begin)}
+            date={currentDate}
             resources={resources}
             refetch={refetch}
           />
