@@ -6,7 +6,6 @@ import Popup from "reactjs-popup";
 import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
 import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
 import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter, {
@@ -166,13 +165,19 @@ const Cells = ({
     </CellContent>
   );
 };
-const getPreBuffer = (
-  event: CalendarEvent<ReservationType>,
-  hourPercent: number,
-  left: string,
-  t: TFunction
-): JSX.Element | null => {
+const PreBuffer = ({
+  event,
+  hourPercent,
+  left,
+  style,
+}: {
+  event: CalendarEvent<ReservationType>;
+  hourPercent: number;
+  left: string;
+  style?: CSSProperties;
+}): JSX.Element | null => {
   const buffer = event.event?.reservationUnits?.[0]?.bufferTimeBefore;
+  const { t } = useTranslation();
 
   if (buffer) {
     const width = `${(hourPercent * buffer) / 3600}%`;
@@ -180,7 +185,7 @@ const getPreBuffer = (
       <div
         style={{
           ...PRE_PAUSE.style,
-          ...TemplateProps,
+          ...style,
           left: `calc(${left} - ${width})`,
           width,
         }}
@@ -192,13 +197,19 @@ const getPreBuffer = (
   return null;
 };
 
-const getPostBuffer = (
-  event: CalendarEvent<ReservationType>,
-  hourPercent: number,
-  right: string,
-  t: TFunction
-): JSX.Element | null => {
+const PostBuffer = ({
+  event,
+  hourPercent,
+  right,
+  style,
+}: {
+  event: CalendarEvent<ReservationType>;
+  hourPercent: number;
+  right: string;
+  style?: CSSProperties;
+}): JSX.Element | null => {
   const buffer = event.event?.reservationUnits?.[0]?.bufferTimeAfter;
+  const { t } = useTranslation();
 
   if (buffer) {
     const width = `calc(${(hourPercent * buffer) / 3600}% - 1px)`;
@@ -206,7 +217,7 @@ const getPostBuffer = (
       <div
         style={{
           ...POST_PAUSE.style,
-          ...TemplateProps,
+          ...style,
           left: right,
           width,
         }}
@@ -247,14 +258,12 @@ const Events = ({
   events,
   eventStyleGetter,
   numHours,
-  t,
 }: {
   currentReservationUnit: number;
   firstHour: number;
   events: CalendarEvent<ReservationType>[];
   eventStyleGetter: EventStyleGetter;
   numHours: number;
-  t: TFunction;
 }) => (
   <div
     style={{
@@ -284,12 +293,26 @@ const Events = ({
       let preBuffer = null;
       let postBuffer = null;
       if (currentReservationUnit === e.event?.reservationUnits?.[0]?.pk) {
-        preBuffer = getPreBuffer(e, hourPercent, left, t);
+        preBuffer = (
+          <PreBuffer
+            event={e}
+            hourPercent={hourPercent}
+            left={left}
+            style={TemplateProps}
+          />
+        );
 
         const right = `calc(${left} + ${durationMinutes / 60} * ${
           100 / numHours
         }% + 1px)`;
-        postBuffer = getPostBuffer(e, hourPercent, right, t);
+        postBuffer = (
+          <PostBuffer
+            event={e}
+            hourPercent={hourPercent}
+            right={right}
+            style={TemplateProps}
+          />
+        );
       }
 
       return [
@@ -329,7 +352,6 @@ const sortByDraftStatusAndTitle = (resources: Resource[]) => {
 };
 
 const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
-  const { t } = useTranslation();
   const calendarRef = useRef<HTMLDivElement>(null);
   // todo find out min and max opening hour of every reservationunit
   const [beginHour, endHour] = [0, 24];
@@ -401,7 +423,6 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
               numHours={numHours}
               events={row.events}
               eventStyleGetter={resourceEventStyleGetter(row.pk)}
-              t={t}
             />
           </RowCalendarArea>
         </Row>
