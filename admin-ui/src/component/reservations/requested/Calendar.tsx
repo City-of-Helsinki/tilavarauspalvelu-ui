@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import CommonCalendar, { CalendarEvent } from "common/src/calendar/Calendar";
+import React, { useState } from "react";
+import CommonCalendar from "common/src/calendar/Calendar";
 import { Toolbar } from "common/src/calendar/Toolbar";
 import { useQuery } from "@apollo/client";
-import { startOfISOWeek } from "date-fns";
+import { add, startOfISOWeek } from "date-fns";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,8 +15,6 @@ import eventStyleGetter, { legend } from "./eventStyleGetter";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import Legend from "./Legend";
-import { reservationUrl } from "../../../common/urls";
-import { combineResults } from "../../../common/util";
 
 type Props = {
   begin: string;
@@ -37,74 +35,23 @@ const Container = styled.div`
   }
 `;
 
-const updateQuery = (
-  previousResult: Query,
-  { fetchMoreResult }: { fetchMoreResult: Query }
-): Query => {
-  if (!fetchMoreResult) {
-    return previousResult;
-  }
-
-  return combineResults(previousResult, fetchMoreResult, "reservations");
-};
-
-// TODO this hook is really scetchy
-// reduce complexity by dropping the states, just make sure it't not called that much
-// the query is sus
-// why are we filtering on the frontend instead of doing double request inside a single query (two gql tables in one fetch)?
-// we are we using fetchMore on a loop; why not fetch a full day / week / month in a single query
 // TODO this should be combined to the other version of it used when making a reservation
+// TODO there might be an improved performance if we query minimum of 7 days always
 const useReservationData = (
-  begin: string,
+  begin: Date,
+  end: Date,
   reservationUnitPk: string,
   reservationPk: number
 ) => {
-  const [events, setEvents] = useState<CalendarEvent<ReservationType>[]>([]);
-  const [hasMore, setHasMore] = useState(false);
-
   const { notifyError } = useNotification();
 
-  const { fetchMore } = useQuery<Query, QueryReservationsArgs>(
+  const { data } = useQuery<Query, QueryReservationsArgs>(
     RESERVATIONS_BY_RESERVATIONUNIT,
     {
-      fetchPolicy: "network-only",
       variables: {
-        offset: 0,
-        first: 100,
         reservationUnit: [reservationUnitPk],
-        begin,
-        end: begin,
-      },
-      onCompleted: ({ reservations }) => {
-        if (reservations) {
-          const formattedReservations: CalendarEvent<ReservationType>[] =
-            reservations?.edges
-              .map((e) => e?.node)
-              .filter((r): r is ReservationType => r != null)
-              .filter(
-                (r) =>
-                  [
-                    ReservationsReservationStateChoices.Confirmed,
-                    ReservationsReservationStateChoices.RequiresHandling,
-                  ].includes(r.state) || r.pk === reservationPk
-              )
-              .map((r) => ({
-                title: `${
-                  r.reserveeOrganisationName ||
-                  `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
-                }`,
-                event: r,
-                // TODO use zod for datetime conversions
-                start: new Date(r.begin),
-                end: new Date(r.end),
-              }));
-
-          setEvents(formattedReservations);
-
-          if (reservations.pageInfo.hasNextPage) {
-            setHasMore(true);
-          }
-        }
+        begin: begin.toISOString(),
+        end: end.toISOString(),
       },
       onError: () => {
         notifyError("Varauksia ei voitu hakea");
@@ -112,26 +59,47 @@ const useReservationData = (
     }
   );
 
-  useEffect(() => {
-    if (hasMore) {
-      setHasMore(false);
-      fetchMore({
-        variables: {
-          offset: events.length,
-        },
-        updateQuery,
-      });
-    }
-  }, [events.length, fetchMore, hasMore, setHasMore]);
+  const events =
+    data?.reservations?.edges
+      .map((e) => e?.node)
+      .filter((r): r is ReservationType => r != null)
+      .filter(
+        (r) =>
+          [
+            ReservationsReservationStateChoices.Confirmed,
+            ReservationsReservationStateChoices.RequiresHandling,
+          ].includes(r.state) || r.pk === reservationPk
+      )
+      .map((r) => ({
+        title: `${
+          r.reserveeOrganisationName ||
+          `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
+        }`,
+        event: r,
+        // TODO use zod for datetime conversions
+        start: new Date(r.begin),
+        end: new Date(r.end),
+      })) ?? [];
 
-  return { fetchMore, events, hasMore };
+  return { events };
 };
 
+type WeekOptions = "day" | "week" | "month";
+
+const viewToDays = (view: string) => {
+  if (view === "day") {
+    return 1;
+  }
+  if (view === "month") {
+    return 31;
+  }
+  if (view === "week") {
+    return 7;
+  }
+  return 7;
+};
 // TODO this is a dupe of ReservationUnitCalendar
-// TODO there is a common version in common/Calendar
 // TODO there is an use example for CommonCalendar in ui/.../reservation-unit/[id]
-// type WeekOptions = "day" | "week" | "month";
-// TODO this also does a full rerender on day swtiches unlike NextJs version
 const Calendar = ({
   begin,
   reservationUnitPk,
@@ -140,14 +108,18 @@ const Calendar = ({
   const { t } = useTranslation();
   const [focusDate, setFocusDate] = useState(startOfISOWeek(new Date(begin)));
   // TODO narrow the type to WeekOptions
-  const [calendarViewType, setCalendarViewType] = useState<string>("week");
+  const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   const { events } = useReservationData(
-    begin,
+    focusDate,
+    add(focusDate, { days: viewToDays(calendarViewType) }),
     reservationUnitPk,
     reservation.pk ?? 0
   );
 
+  // TODO today button in the reservation calendar? should it instead be this reservation?
+  // TODO check that the reservation / series is displayed properly (based on UI spect)
+  //  currently seems that it's using default display rules
   return (
     <Container>
       <CommonCalendar
@@ -156,18 +128,22 @@ const Calendar = ({
         showToolbar
         begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation)}
+        /* TODO if we want to onSelect use router or use a Popup / Modal to show it
         onSelectEvent={(e) => {
           // TODO this is bad, use react-router for links
           if (e.event?.pk != null && e.event.pk !== reservation.pk) {
             window.open(reservationUrl(e.event.pk), "_blank");
           }
         }}
+        */
         onNavigate={(d: Date) => {
           setFocusDate(d);
         }}
         viewType={calendarViewType}
         onView={(n: string) => {
-          setCalendarViewType(n);
+          if (["day", "week", "month"].includes(n)) {
+            setCalendarViewType(n as "day" | "week" | "month");
+          }
         }}
       />
       <Legends>
