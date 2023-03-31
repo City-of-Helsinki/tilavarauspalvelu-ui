@@ -35,6 +35,7 @@ import { formatters as getFormatters } from "common";
 import { useLocalStorage, useMedia, useSessionStorage } from "react-use";
 import { breakpoints } from "common/src/common/style";
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
+import { Toolbar } from "common/src/calendar/Toolbar";
 import {
   ApplicationRound,
   PendingReservation,
@@ -75,7 +76,6 @@ import {
   parseDate,
   printErrorMessages,
 } from "../../modules/util";
-import { Toolbar } from "../../components/calendar/Toolbar";
 import {
   OPENING_HOURS,
   RELATED_RESERVATION_UNITS,

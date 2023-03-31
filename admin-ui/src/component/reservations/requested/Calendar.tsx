@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CommonCalendar, { CalendarEvent } from "common/src/calendar/Calendar";
+import { Toolbar } from "common/src/calendar/Toolbar";
 import { useQuery } from "@apollo/client";
 import { startOfISOWeek } from "date-fns";
 import styled from "styled-components";
@@ -47,20 +48,24 @@ const updateQuery = (
   return combineResults(previousResult, fetchMoreResult, "reservations");
 };
 
-const Calendar = ({
-  begin,
-  reservationUnitPk,
-  reservation,
-}: Props): JSX.Element => {
-  const [events, setEvents] = useState([] as CalendarEvent<ReservationType>[]);
+// TODO this hook is really scetchy
+// reduce complexity by dropping the states, just make sure it't not called that much
+// the query is sus
+// why are we filtering on the frontend instead of doing double request inside a single query (two gql tables in one fetch)?
+// we are we using fetchMore on a loop; why not fetch a full day / week / month in a single query
+// TODO this should be combined to the other version of it used when making a reservation
+const useReservationData = (
+  begin: string,
+  reservationUnitPk: string,
+  reservationPk: number
+) => {
+  const [events, setEvents] = useState<CalendarEvent<ReservationType>[]>([]);
   const [hasMore, setHasMore] = useState(false);
-  const { notifyError } = useNotification();
 
-  const { t } = useTranslation();
+  const { notifyError } = useNotification();
 
   const { fetchMore } = useQuery<Query, QueryReservationsArgs>(
     RESERVATIONS_BY_RESERVATIONUNIT,
-
     {
       fetchPolicy: "network-only",
       variables: {
@@ -81,7 +86,7 @@ const Calendar = ({
                   [
                     ReservationsReservationStateChoices.Confirmed,
                     ReservationsReservationStateChoices.RequiresHandling,
-                  ].includes(r.state) || r.pk === reservation.pk
+                  ].includes(r.state) || r.pk === reservationPk
               )
               .map((r) => ({
                 title: `${
@@ -106,6 +111,7 @@ const Calendar = ({
       },
     }
   );
+
   useEffect(() => {
     if (hasMore) {
       setHasMore(false);
@@ -116,19 +122,52 @@ const Calendar = ({
         updateQuery,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, setHasMore]);
+  }, [events.length, fetchMore, hasMore, setHasMore]);
+
+  return { fetchMore, events, hasMore };
+};
+
+// TODO this is a dupe of ReservationUnitCalendar
+// TODO there is a common version in common/Calendar
+// TODO there is an use example for CommonCalendar in ui/.../reservation-unit/[id]
+// type WeekOptions = "day" | "week" | "month";
+// TODO this also does a full rerender on day swtiches unlike NextJs version
+const Calendar = ({
+  begin,
+  reservationUnitPk,
+  reservation,
+}: Props): JSX.Element => {
+  const { t } = useTranslation();
+  const [focusDate, setFocusDate] = useState(startOfISOWeek(new Date(begin)));
+  // TODO narrow the type to WeekOptions
+  const [calendarViewType, setCalendarViewType] = useState<string>("week");
+
+  const { events } = useReservationData(
+    begin,
+    reservationUnitPk,
+    reservation.pk ?? 0
+  );
 
   return (
     <Container>
       <CommonCalendar
         events={events}
-        begin={startOfISOWeek(new Date(begin))}
+        toolbarComponent={Toolbar}
+        showToolbar
+        begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation)}
         onSelectEvent={(e) => {
+          // TODO this is bad, use react-router for links
           if (e.event?.pk != null && e.event.pk !== reservation.pk) {
             window.open(reservationUrl(e.event.pk), "_blank");
           }
+        }}
+        onNavigate={(d: Date) => {
+          setFocusDate(d);
+        }}
+        viewType={calendarViewType}
+        onView={(n: string) => {
+          setCalendarViewType(n);
         }}
       />
       <Legends>

@@ -1,20 +1,17 @@
 import React from "react";
 import { IconAngleLeft, IconAngleRight } from "hds-react";
-import { i18n } from "next-i18next";
 import classNames from "classnames";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import fi from "date-fns/locale/fi";
 import styled from "styled-components";
+import type { NavigateAction, View } from "react-big-calendar";
+import { useTranslationHack } from "./hooks";
 
 export type ToolbarProps = {
-  onNavigate: (n: string) => void;
-  onView: (n: string) => void;
+  onNavigate: (n: NavigateAction) => void;
+  onView: (n: View) => void;
   view: string;
   date: Date;
-};
-
-const locales = {
-  fi,
 };
 
 const Wrapper = styled.div`
@@ -145,7 +142,8 @@ const ButtonWrapper = styled.div`
 `;
 
 const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
-  const culture = { locale: locales[i18n.language] };
+  const culture = { locale: fi };
+  const { t } = useTranslationHack();
 
   let title = "";
   switch (view) {
@@ -193,9 +191,9 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
             }
             onNavigate("TODAY");
           }}
-          aria-label={i18n.t("reservationCalendar:showCurrentDay")}
+          aria-label={String(t("reservationCalendar:showCurrentDay"))}
         >
-          {i18n.t("common:today")}
+          {t("common:today")}
         </button>
       </ButtonWrapper>
       <div className="rbc-toolbar-navigation-hz">
@@ -203,9 +201,11 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           className="rbc-toolbar-button--borderless"
           type="button"
           onClick={() => onNavigate("PREV")}
-          aria-label={i18n.t("reservationCalendar:showPrevious", {
-            view: String(i18n.t(`common:${view}`)).toLowerCase(),
-          })}
+          aria-label={String(
+            t("reservationCalendar:showPrevious", {
+              view: String(t(`common:${view}`)).toLowerCase(),
+            })
+          )}
         >
           <IconAngleLeft />
         </button>
@@ -214,9 +214,11 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           className="rbc-toolbar-button--borderless"
           type="button"
           onClick={() => onNavigate("NEXT")}
-          aria-label={i18n.t("reservationCalendar:showNext", {
-            view: String(i18n.t(`common:${view}`)).toLowerCase(),
-          })}
+          aria-label={String(
+            t("reservationCalendar:showNext", {
+              view: String(t(`common:${view}`)).toLowerCase(),
+            })
+          )}
         >
           <IconAngleRight />
         </button>
@@ -229,11 +231,13 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           })}
           type="button"
           onClick={() => onView("day")}
-          aria-label={i18n.t("reservationCalendar:showView", {
-            view: String(i18n.t("common:day")).toLowerCase(),
-          })}
+          aria-label={String(
+            t("reservationCalendar:showView", {
+              view: String(t("common:day")).toLowerCase(),
+            })
+          )}
         >
-          {i18n.t("common:day")}
+          {t("common:day")}
         </button>
         <button
           className={classNames("", {
@@ -242,11 +246,13 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           })}
           type="button"
           onClick={() => onView("week")}
-          aria-label={i18n.t("reservationCalendar:showView", {
-            view: String(i18n.t("common:week")).toLowerCase(),
-          })}
+          aria-label={String(
+            t("reservationCalendar:showView", {
+              view: String(t("common:week")).toLowerCase(),
+            })
+          )}
         >
-          {i18n.t("common:week")}
+          {t("common:week")}
         </button>
         <button
           className={classNames("", {
@@ -255,11 +261,13 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           })}
           type="button"
           onClick={() => onView("month")}
-          aria-label={i18n.t("reservationCalendar:showView", {
-            view: String(i18n.t("common:month")).toLowerCase(),
-          })}
+          aria-label={String(
+            t("reservationCalendar:showView", {
+              view: String(t("common:month")).toLowerCase(),
+            })
+          )}
         >
-          {i18n.t("common:month")}
+          {t(`common:month`)}
         </button>
       </div>
     </Wrapper>
