@@ -138,7 +138,9 @@ const refreshAccessToken = async (token: JWT): Promise<JWT> => {
         Authorization: `Bearer ${token.accessToken}`,
       },
     })
-    .catch(() => {
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log("error: ", err?.response?.data?.error);
       throw new Error("Failed to refresh session token for a valid user.");
     });
 
@@ -264,11 +266,12 @@ const options = (): NextAuthOptions => {
         }
       },
       async session({ session, token }: SessionParams): Promise<Session> {
-        if (!token) return undefined;
-
-        const { accessToken, accessTokenExpires, user, apiTokens } = token;
-
-        return { ...session, accessToken, accessTokenExpires, user, apiTokens };
+        return {
+          ...session,
+          error: token.error,
+          apiTokens: token.apiTokens,
+          user: token.user,
+        };
       },
       async redirect({ url, baseUrl }) {
         return url.startsWith(baseUrl)
@@ -307,8 +310,8 @@ export default function nextAuthApiHandler(
 
 declare module "next-auth/core/types" {
   interface Session {
-    accessToken: string;
-    accessTokenExpires: number;
+    // accessToken: string;
+    // accessTokenExpires: number;
     user: TilavarauspalveluUser;
     apiTokens: APITokens;
     error?: "RefreshAccessTokenError";
