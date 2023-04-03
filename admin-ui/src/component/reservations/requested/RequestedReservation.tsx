@@ -6,8 +6,10 @@ import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { format } from "date-fns";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
+import { parseDate } from "common/src/common/util";
 import {
   Maybe,
   Mutation,
@@ -274,6 +276,23 @@ const RequestedReservation = (): JSX.Element | null => {
       ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
     pricing.highestPrice >= 0;
 
+  const recurringTag =
+    reservation.recurringReservation?.beginDate &&
+    reservation.recurringReservation?.endDate
+      ? `
+    ${format(
+      parseDate(reservation.recurringReservation.beginDate),
+      "dd.MM.yyyy"
+    )} - ${format(
+          parseDate(reservation.recurringReservation.endDate),
+          "dd.MM.yyyy"
+        )}
+  `
+      : "";
+  const unitTag = reservation?.reservationUnits
+    ?.map(reservationUnitName)
+    .join(", ");
+
   const reservationTagline = `${reservationDateTime(
     reservation.begin,
     reservation.end,
@@ -281,7 +300,7 @@ const RequestedReservation = (): JSX.Element | null => {
   )} ${reservationDuration(
     reservation.begin,
     reservation.end
-  )}t | ${reservation?.reservationUnits?.map(reservationUnitName).join(", ")}`;
+  )}t | ${recurringTag} | ${unitTag}`;
 
   return (
     <>
@@ -301,6 +320,7 @@ const RequestedReservation = (): JSX.Element | null => {
       />
       <ShowWhenTargetInvisible target={ref}>
         {/* TODO update the reservationTagLine if the reservation is a recurring one based on the UI spec */}
+        {/* TODO need different buttons when the Reservation is recurring */}
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}

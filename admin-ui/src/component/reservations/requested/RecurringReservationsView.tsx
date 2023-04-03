@@ -85,7 +85,16 @@ const RecurringReservationsView = ({
     isRemoved: x.state !== "CONFIRMED",
   }));
 
-  return <ReservationList items={forDisplay} />;
+  return (
+    <>
+      <div>
+        TODO this needs to push a few action buttons into the Reservation list
+        They arent in the other use cases of this list component but here they
+        need to be
+      </div>
+      <ReservationList items={forDisplay} />
+    </>
+  );
 };
 
 export default RecurringReservationsView;

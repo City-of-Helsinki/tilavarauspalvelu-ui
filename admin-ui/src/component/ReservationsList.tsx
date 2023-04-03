@@ -54,8 +54,9 @@ const TextWrapper = styled.span<{ $failed: boolean }>`
   ${({ $failed }) => ($failed ? "color: var(--color-black-60)" : "")};
 `;
 
-const Capitalize = styled.span`
+const Capitalize = styled.span<{ $isRemoved: boolean }>`
   text-transform: capitalize;
+  ${({ $isRemoved }) => ($isRemoved ? "color: var(--color-black-50)" : "")};
 `;
 
 const ErrorLabel = styled.div`
@@ -83,11 +84,18 @@ const ReservationList = ({ items }: Props) => {
             key={`${item.date}-${item.startTime}-${item.endTime}`}
           >
             <TextWrapper $failed={!!item.error}>
-              <Capitalize>
+              <Capitalize $isRemoved={item.isRemoved ?? false}>
                 {`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${stripTimeZeros(
                   item.startTime
                 )}-${stripTimeZeros(item.endTime)}`}
               </Capitalize>
+              {item.isRemoved && (
+                <ErrorLabel>
+                  <span>
+                    {t("MyUnits.RecurringReservation.Confirmation.removed")}
+                  </span>
+                </ErrorLabel>
+              )}
               {item.error && (
                 <ErrorLabel>
                   <span>
