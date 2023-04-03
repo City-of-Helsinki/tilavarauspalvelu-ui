@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { Container } from "hds-react";
 import { z } from "zod";
 import { H1, H6 } from "common/src/common/typography";
+import { breakpoints } from "common/src/common/style";
 import { ActionsWrapper } from "./commonStyling";
 import ReservationList from "./ReservationsList";
 import withMainMenu from "../../withMainMenu";
@@ -21,7 +22,7 @@ const StyledH6 = styled(H6)`
 
 const StyledContainer = styled(Container)`
   margin-top: var(--spacing-2-xl);
-  @media (min-width: 768px) {
+  @media (min-width: ${breakpoints.m}) {
     padding-left: var(--spacing-2-xl) !important;
     padding-right: var(--spacing-2-xl) !important;
   }
