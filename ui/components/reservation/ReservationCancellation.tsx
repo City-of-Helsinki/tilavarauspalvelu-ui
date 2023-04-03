@@ -9,6 +9,7 @@ import {
   IconArrowRight,
   IconCross,
   IconSignout,
+  Notification,
   Select,
 } from "hds-react";
 import Link from "next/link";
@@ -37,7 +38,7 @@ import {
 } from "../../modules/style/layout";
 import { getSelectedOption, getTranslation } from "../../modules/util";
 import { CenterSpinner } from "../common/common";
-import { BlackButton, MediumButton, Toast } from "../../styles/util";
+import { BlackButton, MediumButton } from "../../styles/util";
 import { emptyOption } from "../../modules/const";
 import ReservationInfoCard from "./ReservationInfoCard";
 import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
@@ -389,7 +390,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
         </Columns>
       </Container>
       {errorMsg && (
-        <Toast
+        <Notification
           type="error"
           label={t("common:error.error")}
           position="top-center"
@@ -400,7 +401,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
           closeButtonLabelText={t("common:error.closeErrorMsg")}
         >
           {errorMsg}
-        </Toast>
+        </Notification>
       )}
     </Wrapper>
   );

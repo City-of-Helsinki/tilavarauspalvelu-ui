@@ -4,7 +4,12 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
 import { get, isFinite } from "lodash";
-import { IconCalendar, IconCross, IconLinkExternal } from "hds-react";
+import {
+  IconCalendar,
+  IconCross,
+  IconLinkExternal,
+  Notification,
+} from "hds-react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useTranslation } from "next-i18next";
 import { H2, H4 } from "common/src/common/typography";
@@ -30,7 +35,7 @@ import {
 } from "../../modules/style/layout";
 import { getTranslation, reservationsUrl } from "../../modules/util";
 import { CenterSpinner } from "../../components/common/common";
-import { BlackButton, Toast } from "../../styles/util";
+import { BlackButton } from "../../styles/util";
 import Sanitize from "../../components/common/Sanitize";
 import { AccordionWithState as Accordion } from "../../components/common/Accordion";
 import {
@@ -384,7 +389,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
 
   if (error) {
     return (
-      <Toast
+      <Notification
         type="error"
         label={t("common:error")}
         position="top-center"
@@ -392,7 +397,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
         displayAutoCloseProgress={false}
       >
         {t("common:dataError")}
-      </Toast>
+      </Notification>
     );
   }
 
