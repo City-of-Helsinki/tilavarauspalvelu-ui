@@ -2,7 +2,7 @@ import React from "react";
 import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { Button, IconArrowUndo, IconCrossCircle } from "hds-react";
+import { Button, IconArrowUndo, IconCross } from "hds-react";
 
 type CallbackButton = {
   callback: () => void;
@@ -111,7 +111,7 @@ const ReservationList = ({ items }: Props) => {
                 <Button
                   variant="supplementary"
                   onClick={item.button.callback}
-                  iconRight={<IconCrossCircle />}
+                  iconLeft={<IconCross />}
                   size="small"
                 >
                   {t("common.remove")}
@@ -120,7 +120,7 @@ const ReservationList = ({ items }: Props) => {
                 <Button
                   variant="supplementary"
                   onClick={item.button.callback}
-                  iconRight={<IconArrowUndo />}
+                  iconLeft={<IconArrowUndo />}
                   size="small"
                 >
                   {t("common.restore")}

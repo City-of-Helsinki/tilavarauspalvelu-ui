@@ -107,8 +107,8 @@ export const RESERVATION_QUERY = gql`
 `;
 
 export const RECURRING_RESERVATION_QUERY = gql`
-  query recurringReservation($recurringPk: ID!) {
-    reservations(recurringReservation: $recurringPk) {
+  query recurringReservation($pk: ID!) {
+    reservations(recurringReservation: $pk) {
       edges {
         node {
           pk

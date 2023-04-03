@@ -491,6 +491,7 @@ const RequestedReservation = (): JSX.Element | null => {
             </Accordion>
           )}
           <Accordion heading={t("RequestedReservation.calendar")}>
+            {/* TODO there should be the first reservation time here: is it the first requested or the first CONFIRMED time though? */}
             <Calendar
               key={reservation.state}
               begin={reservation.begin}
