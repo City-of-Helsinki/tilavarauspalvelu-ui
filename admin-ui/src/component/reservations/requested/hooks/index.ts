@@ -8,8 +8,6 @@ import { useQuery } from "@apollo/client";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
 import { useNotification } from "../../../../context/NotificationContext";
 
-// TODO this should be combined to the other version of it used when making a reservation
-// TODO there might be an improved performance if we query minimum of 7 days always
 export const useReservationData = (
   begin: Date,
   end: Date,

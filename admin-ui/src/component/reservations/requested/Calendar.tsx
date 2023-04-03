@@ -42,8 +42,7 @@ const viewToDays = (view: string) => {
   }
   return 7;
 };
-// TODO this is a dupe of ReservationUnitCalendar
-// TODO there is an use example for CommonCalendar in ui/.../reservation-unit/[id]
+
 const Calendar = ({
   begin,
   reservationUnitPk,
@@ -51,7 +50,6 @@ const Calendar = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [focusDate, setFocusDate] = useState(startOfISOWeek(new Date(begin)));
-  // TODO narrow the type to WeekOptions
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   const { events } = useReservationData(
@@ -73,12 +71,7 @@ const Calendar = ({
         begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation)}
         /* TODO if we want to onSelect use router or use a Popup / Modal to show it
-        onSelectEvent={(e) => {
-          // TODO this is bad, use react-router for links
-          if (e.event?.pk != null && e.event.pk !== reservation.pk) {
-            window.open(reservationUrl(e.event.pk), "_blank");
-          }
-        }}
+        onSelectEvent={(e) => {}}}
         */
         onNavigate={(d: Date) => {
           setFocusDate(d);
