@@ -249,7 +249,6 @@ const ReservationUnitReservation = ({
     QueryReservationByPkArgs
   >(GET_RESERVATION, {
     variables: { pk: reservationData?.pk },
-    fetchPolicy: "no-cache",
     skip: !reservationData?.pk,
   });
 
