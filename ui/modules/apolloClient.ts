@@ -11,11 +11,10 @@ import {
   PROFILE_TOKEN_HEADER,
   SESSION_EXPIRED_ERROR,
 } from "./const";
-import { ExtendedSession } from "../pages/api/auth/[...nextauth]";
 
 const authLink = setContext(
   async (notUsed, { headers }: { headers: Headers }) => {
-    const session = (await getSession()) as ExtendedSession;
+    const session = await getSession();
 
     const modifiedHeader = {
       headers: {
@@ -45,11 +44,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     }
 
     graphQLErrors.forEach(async (error: GraphQLError) => {
+      // eslint-disable-next-line no-console
       console.error(`GQL_ERROR: ${error.message}`);
     });
   }
 
   if (networkError) {
+    // eslint-disable-next-line no-console
     console.error(`NETWORK_ERROR: ${networkError.message}`);
   }
 });

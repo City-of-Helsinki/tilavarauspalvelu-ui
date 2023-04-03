@@ -51,32 +51,16 @@ type APITokens = {
   profile: string;
 };
 
-type ExtendedJWT = JWT & {
-  accessToken: string;
-  accessTokenExpires: number;
-  refreshToken: string;
-  user: TilavarauspalveluUser;
-  apiTokens: APITokens;
-  error?: string;
-};
-
 type JwtParams = {
-  token: ExtendedJWT;
+  token: JWT;
   user: TilavarauspalveluUser;
   account: TunnistamoAccount;
 };
 
-type ExtendedSession = Session & {
-  accessToken: string;
-  accessTokenExpires: number;
-  user: TilavarauspalveluUser;
-  apiTokens: APITokens;
-};
-
 type SessionParams = {
-  token: ExtendedJWT;
+  token: JWT;
   user: TilavarauspalveluUser;
-  session: ExtendedSession;
+  session: Session;
 };
 
 const {
@@ -133,77 +117,69 @@ const getApiAccessTokens = async (accessToken: string | undefined) => {
 // doesn't cut the session.
 const EXP_MS = (10 / 2) * 60 * 1000;
 
-const refreshAccessToken = async (token: ExtendedJWT) => {
-  try {
-    if (!token.accessToken) {
-      throw new Error("Can't refresh a token for user that isn't logged in.");
-    }
-
-    const response = await axios
-      .request({
-        url: oidcTokenUrl,
-        method: "POST",
-        data: {
-          client_id: oidcClientId,
-          grant_type: "refresh_token",
-          refresh_token: token.refreshToken,
-        },
-        headers: {
-          /* eslint-disable @typescript-eslint/naming-convention */
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${token.accessToken}`,
-        },
-      })
-      .catch(() => {
-        throw new Error("Failed to refresh session token for a valid user. ");
-      });
-    const { data }: { data: unknown } = response;
-
-    if (!data) {
-      throw new Error("Unable to refresh tokens");
-    }
-
-    if (typeof data !== "object") {
-      throw new Error("RefreshToken req.data is NOT an object");
-    }
-    const { access_token, expires_in, refresh_token } = data as Record<
-      string,
-      unknown
-    >;
-
-    if (!access_token || typeof access_token !== "string") {
-      throw new Error("RefreshToken req.data contains NO access_token");
-    }
-    if (!expires_in || typeof expires_in !== "number") {
-      throw new Error("RefreshToken req.data contains contains NO expires_in");
-    }
-    if (!refresh_token || typeof refresh_token !== "string") {
-      throw new Error("RefreshToken req.data contains NO refresh_token");
-    }
-    const [tilavarausAPIToken, profileAPIToken] = await getApiAccessTokens(
-      access_token
-    );
-
-    return {
-      ...token,
-      accessToken: access_token,
-      // HACK to deal with incorrect exp value
-      accessTokenExpires: Date.now() + EXP_MS, // account.expires_at * 1000,
-      refreshToken: refresh_token ?? token.refreshToken, // Fall back to old refresh token
-      apiTokens: {
-        tilavaraus: tilavarausAPIToken,
-        profile: profileAPIToken,
-      },
-    };
-  } catch (error) {
-    // eslint-disable-next-line
-    console.error(error);
-
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
+const refreshAccessToken = async (token: JWT): Promise<JWT> => {
+  // console.log("refresh access token");
+  if (!token.accessToken) {
+    throw new Error("Can't refresh a token for user that isn't logged in.");
   }
+
+  const response = await axios
+    .request({
+      url: oidcTokenUrl,
+      method: "POST",
+      data: {
+        client_id: oidcClientId,
+        grant_type: "refresh_token",
+        refresh_token: token.refreshToken,
+      },
+      headers: {
+        /* eslint-disable @typescript-eslint/naming-convention */
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${token.accessToken}`,
+      },
+    })
+    .catch(() => {
+      throw new Error("Failed to refresh session token for a valid user.");
+    });
+
+  const { data }: { data: unknown } = response;
+
+  if (!data) {
+    throw new Error("Unable to refresh tokens");
+  }
+
+  if (typeof data !== "object") {
+    throw new Error("RefreshToken req.data is NOT an object");
+  }
+  const { access_token, expires_in, refresh_token } = data as Record<
+    string,
+    unknown
+  >;
+
+  if (!access_token || typeof access_token !== "string") {
+    throw new Error("RefreshToken req.data contains NO access_token");
+  }
+  if (!expires_in || typeof expires_in !== "number") {
+    throw new Error("RefreshToken req.data contains contains NO expires_in");
+  }
+  if (!refresh_token || typeof refresh_token !== "string") {
+    throw new Error("RefreshToken req.data contains NO refresh_token");
+  }
+  const [tilavarausAPIToken, profileAPIToken] = await getApiAccessTokens(
+    access_token
+  );
+
+  return {
+    ...token,
+    accessToken: access_token,
+    // HACK to deal with incorrect exp value
+    accessTokenExpires: Date.now() + EXP_MS, // account.expires_at * 1000,
+    refreshToken: refresh_token ?? token.refreshToken, // Fall back to old refresh token
+    apiTokens: {
+      tilavaraus: tilavarausAPIToken,
+      profile: profileAPIToken,
+    },
+  };
 };
 
 const options = (): NextAuthOptions => {
@@ -243,7 +219,13 @@ const options = (): NextAuthOptions => {
       strategy: "jwt",
     },
     callbacks: {
-      async jwt({ token, user, account }: JwtParams): Promise<ExtendedJWT> {
+      async jwt({ token, user, account }: JwtParams): Promise<JWT> {
+        // FIXME this call is always made for non logged in user with a token when navigating to /search/single
+        // also it's made if doing a full refresh (ctrl + r)
+        // the token that is saved to the session is
+        // { iat: number; exp: number; jti: uuid }
+        // this does not hover match the required { accessToken: string } that is used in refreshAccessToken
+
         // Initial sign in
         if (account && user) {
           const [tilavarausAPIToken, profileAPIToken] =
@@ -260,23 +242,28 @@ const options = (): NextAuthOptions => {
             },
           };
         }
-
         if (Date.now() < token.accessTokenExpires) {
           return token;
         }
 
-        const refreshedToken = await refreshAccessToken(token);
+        try {
+          const refreshedToken = await refreshAccessToken(token);
 
-        if (refreshedToken?.error) {
-          return undefined;
+          // eslint-disable-next-line no-console
+          console.log("refresh token success: ");
+
+          return refreshedToken;
+        } catch (error) {
+          // eslint-disable-next-line
+          console.error(error);
+
+          return {
+            ...token,
+            error: "RefreshAccessTokenError",
+          };
         }
-
-        return refreshedToken;
       },
-      async session({
-        session,
-        token,
-      }: SessionParams): Promise<ExtendedSession> {
+      async session({ session, token }: SessionParams): Promise<Session> {
         if (!token) return undefined;
 
         const { accessToken, accessTokenExpires, user, apiTokens } = token;
@@ -318,4 +305,23 @@ export default function nextAuthApiHandler(
   return NextAuth(req, res, options());
 }
 
-export type { ExtendedSession, ExtendedJWT };
+declare module "next-auth/core/types" {
+  interface Session {
+    accessToken: string;
+    accessTokenExpires: number;
+    user: TilavarauspalveluUser;
+    apiTokens: APITokens;
+    error?: "RefreshAccessTokenError";
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken: string;
+    accessTokenExpires: number;
+    refreshToken: string;
+    user: TilavarauspalveluUser;
+    apiTokens: APITokens;
+    error?: "RefreshAccessTokenError";
+  }
+}

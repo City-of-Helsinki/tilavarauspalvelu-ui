@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -10,6 +10,7 @@ import {
   QueryUnitsArgs,
   UnitType,
 } from "common/types/gql-types";
+import { signIn, useSession } from "next-auth/react";
 import Header from "../components/index/Header";
 import SearchGuides from "../components/index/SearchGuides";
 import Purposes from "../components/index/Purposes";
@@ -31,6 +32,16 @@ const Wrapper = styled.div`
 
 const Home = ({ purposes, units }: Props): JSX.Element => {
   const { t } = useTranslation(["home", "common"]);
+
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.error === "RefreshAccessTokenError") {
+      // eslint-disable-next-line no-console
+      console.log("TRYING to sign in");
+      signIn(); // Force sign in to hopefully resolve error
+    }
+  }, [session]);
 
   return (
     <Wrapper>
