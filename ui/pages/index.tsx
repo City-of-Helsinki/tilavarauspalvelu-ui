@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -10,7 +10,6 @@ import {
   QueryUnitsArgs,
   UnitType,
 } from "common/types/gql-types";
-import { signIn, useSession } from "next-auth/react";
 import Header from "../components/index/Header";
 import SearchGuides from "../components/index/SearchGuides";
 import Purposes from "../components/index/Purposes";
@@ -32,24 +31,6 @@ const Wrapper = styled.div`
 
 const Home = ({ purposes, units }: Props): JSX.Element => {
   const { t } = useTranslation(["home", "common"]);
-
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log("index: useEffect: session ", session);
-    // TODO this needs testing; if the getToken can fail without reseting the session to null
-    // we end up in a infinite relogin loop because the error is set but there is an accessToken
-    // in the session so we try to refetch which fails, setting the error.
-    if (session?.error === "RefreshAccessTokenError") {
-      // eslint-disable-next-line no-console
-      console.log("TRYING to sign in");
-      // This works (it logs in and the user works when you navigate to the home page)
-      // but doesn't FIX the token that is set on signIn so it causes constant errors
-      // because refetchToken fails (old refetch token)
-      signIn(); // Force sign in to hopefully resolve error
-    }
-  }, [session]);
 
   return (
     <Wrapper>
