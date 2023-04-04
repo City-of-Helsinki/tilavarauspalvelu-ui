@@ -25,16 +25,27 @@ if (mockRequests) {
   initMocks();
 }
 
+const ContextWrapped = ({ pageProps, children }) => (
+  <SessionProvider
+    session={pageProps.session}
+    basePath={authenticationApiRoute}
+  >
+    <ApolloProvider client={apolloClient}>
+      <ThemeProvider theme={theme}>
+        <PageWrapper {...pageProps}>{children}</PageWrapper>
+      </ThemeProvider>
+    </ApolloProvider>
+  </SessionProvider>
+);
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const MyApp = ({ Component, pageProps }: AppProps) => {
   if (!isBrowser) {
     return (
       <DataContextProvider>
-        <ApolloProvider client={apolloClient}>
-          <PageWrapper>
-            <Component {...pageProps} />
-          </PageWrapper>
-        </ApolloProvider>
+        <ContextWrapped pageProps={pageProps}>
+          <Component {...pageProps} />
+        </ContextWrapped>
       </DataContextProvider>
     );
   }
@@ -43,18 +54,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     <>
       <DataContextProvider>
         <TrackingWrapper>
-          <SessionProvider
-            session={pageProps.session}
-            basePath={authenticationApiRoute}
-          >
-            <ApolloProvider client={apolloClient}>
-              <ThemeProvider theme={theme}>
-                <PageWrapper {...pageProps}>
-                  <Component {...pageProps} />
-                </PageWrapper>
-              </ThemeProvider>
-            </ApolloProvider>
-          </SessionProvider>
+          <ContextWrapped pageProps={pageProps}>
+            <Component {...pageProps} />
+          </ContextWrapped>
         </TrackingWrapper>
       </DataContextProvider>
       <ExternalScripts />
