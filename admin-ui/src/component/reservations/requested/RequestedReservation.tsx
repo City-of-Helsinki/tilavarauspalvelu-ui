@@ -6,10 +6,8 @@ import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { format } from "date-fns";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
-import { parseDate } from "common/src/common/util";
 import {
   Maybe,
   Mutation,
@@ -45,7 +43,7 @@ import {
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
-import { formatDateTime } from "../../../common/util";
+import { formatDate, formatDateTime } from "../../../common/util";
 import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
@@ -279,15 +277,9 @@ const RequestedReservation = (): JSX.Element | null => {
   const recurringTag =
     reservation.recurringReservation?.beginDate &&
     reservation.recurringReservation?.endDate
-      ? `
-    ${format(
-      parseDate(reservation.recurringReservation.beginDate),
-      "dd.MM.yyyy"
-    )} - ${format(
-          parseDate(reservation.recurringReservation.endDate),
-          "dd.MM.yyyy"
-        )}
-  `
+      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
+          reservation.recurringReservation.endDate
+        )}`
       : "";
   const unitTag = reservation?.reservationUnits
     ?.map(reservationUnitName)
@@ -297,7 +289,7 @@ const RequestedReservation = (): JSX.Element | null => {
     reservation.begin,
     reservation.end,
     t
-  )} ${reservationDuration(
+  )}, ${reservationDuration(
     reservation.begin,
     reservation.end
   )}t | ${recurringTag} | ${unitTag}`;
@@ -319,8 +311,7 @@ const RequestedReservation = (): JSX.Element | null => {
         ]}
       />
       <ShowWhenTargetInvisible target={ref}>
-        {/* TODO update the reservationTagLine if the reservation is a recurring one based on the UI spec */}
-        {/* TODO need different buttons when the Reservation is recurring */}
+        {/* TODO need Remove All button when the Reservation is recurring */}
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}
@@ -491,7 +482,6 @@ const RequestedReservation = (): JSX.Element | null => {
             </Accordion>
           )}
           <Accordion heading={t("RequestedReservation.calendar")}>
-            {/* TODO there should be the first reservation time here: is it the first requested or the first CONFIRMED time though? */}
             <Calendar
               key={reservation.state}
               begin={reservation.begin}
