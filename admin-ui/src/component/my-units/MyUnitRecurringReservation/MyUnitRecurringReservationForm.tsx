@@ -400,7 +400,10 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                   count: newReservations.reservations.length,
                 })}
               </Label>
-              <ReservationList items={newReservations.reservations} />
+              <ReservationList
+                items={newReservations.reservations}
+                hasPadding
+              />
             </Element>
           )}
 

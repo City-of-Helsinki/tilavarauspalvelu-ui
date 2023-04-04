@@ -128,11 +128,11 @@ const RecurringReservationDone = () => {
           {t(`${locPrefix}.failedTitle`)} ({failed.length})
         </StyledH6>
       )}
-      <ReservationList items={failed} />
+      <ReservationList items={failed} hasPadding />
       <StyledH6 as="h2">
         {t(`${locPrefix}.successTitle`)} ({successes.length})
       </StyledH6>
-      <ReservationList items={successes} />
+      <ReservationList items={successes} hasPadding />
       <ActionsWrapper>
         <Button
           variant="secondary"

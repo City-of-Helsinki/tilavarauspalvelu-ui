@@ -20,6 +20,7 @@ type NewReservationListItem = {
 
 type Props = {
   items: NewReservationListItem[];
+  hasPadding?: boolean;
 };
 
 // In the UI spec parent container max height is 22rem, but overflow forces us to define child max-height
@@ -29,14 +30,13 @@ const ListWrapper = styled.div`
   overflow-x: hidden;
 `;
 
-const StyledList = styled.ul`
+const StyledList = styled.ul<{ $hasPadding: boolean }>`
   list-style-type: none;
   border: none;
-  padding: 0 var(--spacing-s);
+  padding: ${({ $hasPadding }) => ($hasPadding ? "0 var(--spacing-s)" : "0")};
 `;
 
 const StyledListItem = styled.li`
-  padding: var(--spacing-xs) 0;
   border-bottom: 1px solid var(--color-black-20);
   display: flex;
   flex-wrap: wrap;
@@ -47,6 +47,7 @@ const StyledListItem = styled.li`
 `;
 
 const TextWrapper = styled.span<{ $failed: boolean }>`
+  padding: var(--spacing-xs) 0;
   flex-grow: 1;
   gap: 0.5rem 2rem;
   display: grid;
@@ -70,7 +71,7 @@ const ErrorLabel = styled.div`
 const stripTimeZeros = (time: string) =>
   time.substring(0, 1) === "0" ? time.substring(1) : time;
 
-const ReservationList = ({ items }: Props) => {
+const ReservationList = ({ items, hasPadding }: Props) => {
   const { t } = useTranslation();
 
   if (!items.length) return null;
@@ -78,7 +79,7 @@ const ReservationList = ({ items }: Props) => {
   // TODO if isRemoved show a different style
   return (
     <ListWrapper>
-      <StyledList>
+      <StyledList $hasPadding={hasPadding ?? false}>
         {items.map((item) => (
           <StyledListItem
             key={`${item.date}-${item.startTime}-${item.endTime}`}

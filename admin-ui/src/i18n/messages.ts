@@ -1810,6 +1810,9 @@ const translations: ITranslations = {
     removeFailed: ["Resurssin poistaminen ei onnistunut."],
     removeSuccess: ["Resurssi poistettu."],
   },
+  RecurringReservationsView: {
+    Heading: ["Ajankohta"],
+  },
   RequestedReservations: {
     heading: {
       unit: ["Toimipiste"],
