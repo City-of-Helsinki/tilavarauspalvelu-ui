@@ -1,13 +1,15 @@
 import React from "react";
 import { IconSignout, Navigation as HDSNavigation } from "hds-react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
 import { NavigationUserMenuUserCard } from "./NavigationUserMenuUserCard";
-import { authenticationIssuer } from "../../../../modules/const";
+import {
+  authenticationIssuer,
+  authenticationLogoutApiRoute,
+} from "../../../../modules/const";
 import { MenuItem } from "../types";
-import { useLogout } from "../../../../hooks/useLogout";
 
 const StyledUserMenu = styled(HDSNavigation.User)<{
   $active?: boolean;
@@ -101,7 +103,6 @@ const NavigationUserMenu = () => {
   const router = useRouter();
   const session = useSession();
   const { t } = useTranslation();
-  const { logout } = useLogout();
 
   const user = session.data?.user;
   const isActive = userMenuItems
@@ -115,7 +116,7 @@ const NavigationUserMenu = () => {
   };
 
   const handleSignOut = () => {
-    logout();
+    signOut({ redirect: false, callbackUrl: authenticationLogoutApiRoute });
   };
 
   return (

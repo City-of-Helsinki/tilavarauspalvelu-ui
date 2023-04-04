@@ -22,6 +22,7 @@ import Head from "../../components/reservations/Head";
 import { CenterSpinner } from "../../components/common/common";
 import { CURRENT_USER } from "../../modules/queries/user";
 import { Toast } from "../../styles/util";
+import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
@@ -80,6 +81,8 @@ const Reservations = (): JSX.Element => {
 
   const [error, setError] = useState(false);
   const { t } = useTranslation();
+
+  useRedirectUnauthorized();
 
   const [upcomingReservations, setUpcomingReservations] = useState<
     ReservationType[]

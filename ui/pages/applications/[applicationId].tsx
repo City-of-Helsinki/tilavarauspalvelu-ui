@@ -25,6 +25,7 @@ import Loader from "../../components/common/Loader";
 import { TwoColumnContainer } from "../../components/common/common";
 import { isBrowser } from "../../modules/const";
 import { MediumButton } from "../../styles/util";
+import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
@@ -138,6 +139,8 @@ const ReservationsPage = (): JSX.Element | null => {
     getRecurringReservations,
     Number(applicationId)
   );
+
+  useRedirectUnauthorized();
 
   if (!isBrowser) return null;
 

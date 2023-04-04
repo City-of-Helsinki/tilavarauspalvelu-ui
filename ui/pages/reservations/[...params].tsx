@@ -4,6 +4,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { isFinite } from "lodash";
 import ReservationCancellation from "../../components/reservation/ReservationCancellation";
 import ReservationEdit from "../../components/reservation/ReservationEdit";
+import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
 type Props = {
   id: number;
@@ -37,6 +38,8 @@ const ReservationParams = (props: Props): JSX.Element => {
 
   const Component =
     mode === "cancel" ? ReservationCancellation : ReservationEdit;
+
+  useRedirectUnauthorized();
 
   return <Component {...props} />;
 };

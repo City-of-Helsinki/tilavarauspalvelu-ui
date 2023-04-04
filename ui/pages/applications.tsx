@@ -22,6 +22,7 @@ import { APPLICATIONS } from "../modules/queries/application";
 import { APPLICATION_ROUNDS } from "../modules/queries/applicationRound";
 import { getReducedApplicationStatus } from "../modules/util";
 import { CURRENT_USER } from "../modules/queries/user";
+import { useRedirectUnauthorized } from "../hooks/useRedirectUnauthorized";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
@@ -82,6 +83,8 @@ const ApplicationsPage = (): JSX.Element => {
   const [state, setState] = useState<"loading" | "error" | "done">("loading");
   const [cancelled, setCancelled] = useState(false);
   const [cancelError, setCancelError] = useState(false);
+
+  useRedirectUnauthorized();
 
   const { data: userData } = useQuery<Query>(CURRENT_USER, {
     fetchPolicy: "no-cache",

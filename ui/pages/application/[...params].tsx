@@ -38,6 +38,7 @@ import {
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
 import apolloClient from "../../modules/apolloClient";
 import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";
+import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   const { data: tosData } = await apolloClient.query<
@@ -78,6 +79,8 @@ const ApplicationRootPage = ({ tos }: Props): JSX.Element | null => {
   const {
     query: { params },
   } = router;
+
+  useRedirectUnauthorized();
 
   const [applicationId, pageId] = params as string[];
 

@@ -50,6 +50,7 @@ import ReservationStatus from "../../components/reservation/ReservationStatus";
 import Address from "../../components/reservation-unit/Address";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import ReservationOrderStatus from "../../components/reservation/ReservationOrderStatus";
+import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
 type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
@@ -241,6 +242,8 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
 
   const [reservation, setReservation] = useState<ReservationType>(null);
   const [order, setOrder] = useState<PaymentOrderType>(null);
+
+  useRedirectUnauthorized();
 
   const {
     data: reservationData,
