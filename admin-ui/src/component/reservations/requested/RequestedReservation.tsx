@@ -43,7 +43,7 @@ import {
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
-import { formatDate, formatDateTime } from "../../../common/util";
+import { formatDate, formatDateTime, formatTime } from "../../../common/util";
 import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
@@ -221,6 +221,52 @@ const ButtonsWithPermChecks = ({
   return null;
 };
 
+// recurring format: {weekday(s)} {time}, {duration} | {startDate}-{endDate} | {unit}
+// single format   : {weekday} {date} {time}, {duration} | {unit}
+const createTagString = (reservation: ReservationType, t: TFunction) => {
+  const recurringTag =
+    reservation.recurringReservation?.beginDate &&
+    reservation.recurringReservation?.endDate
+      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
+          reservation.recurringReservation.endDate
+        )}`
+      : "";
+  const unitTag = reservation?.reservationUnits
+    ?.map(reservationUnitName)
+    .join(", ");
+
+  const singleDateTimeTag = `${reservationDateTime(
+    reservation.begin,
+    reservation.end,
+    t
+  )}`;
+
+  const weekDayTag = reservation.recurringReservation?.weekdays
+    ?.map((x) => t(`dayShort.${x}`))
+    ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
+
+  const recurringDateTag =
+    reservation.begin && reservation.end
+      ? `${weekDayTag} ${formatTime(reservation.begin, "HH:mm")}-${formatTime(
+          reservation.end,
+          "HH:mm"
+        )}`
+      : "";
+
+  const durationTag = `${reservationDuration(
+    reservation.begin,
+    reservation.end
+  )}`;
+
+  const reservationTagline = `${
+    reservation.recurringReservation ? recurringDateTag : singleDateTimeTag
+  }, ${durationTag}t ${
+    recurringTag.length > 0 ? " | " : ""
+  } ${recurringTag} | ${unitTag}`;
+
+  return reservationTagline;
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType>();
@@ -274,25 +320,7 @@ const RequestedReservation = (): JSX.Element | null => {
       ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
     pricing.highestPrice >= 0;
 
-  const recurringTag =
-    reservation.recurringReservation?.beginDate &&
-    reservation.recurringReservation?.endDate
-      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
-          reservation.recurringReservation.endDate
-        )}`
-      : "";
-  const unitTag = reservation?.reservationUnits
-    ?.map(reservationUnitName)
-    .join(", ");
-
-  const reservationTagline = `${reservationDateTime(
-    reservation.begin,
-    reservation.end,
-    t
-  )}, ${reservationDuration(
-    reservation.begin,
-    reservation.end
-  )}t | ${recurringTag} | ${unitTag}`;
+  const reservationTagline = createTagString(reservation, t);
 
   return (
     <>
@@ -311,7 +339,6 @@ const RequestedReservation = (): JSX.Element | null => {
         ]}
       />
       <ShowWhenTargetInvisible target={ref}>
-        {/* TODO need Remove All button when the Reservation is recurring */}
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}

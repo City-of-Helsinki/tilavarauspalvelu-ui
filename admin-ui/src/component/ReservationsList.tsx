@@ -55,7 +55,7 @@ const TextWrapper = styled.span<{ $failed: boolean }>`
   ${({ $failed }) => ($failed ? "color: var(--color-black-60)" : "")};
 `;
 
-const Capitalize = styled.span<{ $isRemoved: boolean }>`
+const DateElement = styled.div<{ $isRemoved: boolean }>`
   text-transform: capitalize;
   ${({ $isRemoved }) => ($isRemoved ? "color: var(--color-black-50)" : "")};
 `;
@@ -76,7 +76,6 @@ const ReservationList = ({ items, hasPadding }: Props) => {
 
   if (!items.length) return null;
 
-  // TODO if isRemoved show a different style
   return (
     <ListWrapper>
       <StyledList $hasPadding={hasPadding ?? false}>
@@ -85,11 +84,11 @@ const ReservationList = ({ items, hasPadding }: Props) => {
             key={`${item.date}-${item.startTime}-${item.endTime}`}
           >
             <TextWrapper $failed={!!item.error}>
-              <Capitalize $isRemoved={item.isRemoved ?? false}>
+              <DateElement $isRemoved={item.isRemoved ?? false}>
                 {`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${stripTimeZeros(
                   item.startTime
                 )}-${stripTimeZeros(item.endTime)}`}
-              </Capitalize>
+              </DateElement>
               {item.isRemoved && (
                 <ErrorLabel>
                   <span>

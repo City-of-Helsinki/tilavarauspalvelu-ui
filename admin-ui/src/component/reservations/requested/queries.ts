@@ -54,6 +54,7 @@ export const RESERVATION_QUERY = gql`
         pk
         beginDate
         endDate
+        weekdays
       }
       orderStatus
       ageGroup {
