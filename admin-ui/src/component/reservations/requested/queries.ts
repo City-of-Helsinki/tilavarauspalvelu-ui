@@ -108,28 +108,13 @@ export const RESERVATION_QUERY = gql`
 
 export const RECURRING_RESERVATION_QUERY = gql`
   query recurringReservation($pk: ID!) {
-    reservations(recurringReservation: $pk) {
+    reservations(recurringReservation: $pk, state: ["CONFIRMED", "DENIED"]) {
       edges {
         node {
           pk
           begin
           end
           state
-        }
-      }
-    }
-    recurringReservations {
-      edges {
-        node {
-          pk
-          weekdays
-          beginTime
-          endTime
-          beginDate
-          endDate
-          name
-          description
-          user
         }
       }
     }
