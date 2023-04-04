@@ -5,7 +5,7 @@ import { format, startOfWeek, endOfWeek } from "date-fns";
 import fi from "date-fns/locale/fi";
 import styled from "styled-components";
 import type { NavigateAction, View } from "react-big-calendar";
-import { useTranslationHack } from "./hooks";
+import { useTranslation } from "react-i18next";
 
 export type ToolbarProps = {
   onNavigate: (n: NavigateAction) => void;
@@ -143,7 +143,7 @@ const ButtonWrapper = styled.div`
 
 const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
   const culture = { locale: fi };
-  const { t } = useTranslationHack();
+  const { t } = useTranslation();
 
   let title = "";
   switch (view) {
