@@ -18,7 +18,7 @@ import {
   IconAngleUp,
   Select,
 } from "hds-react";
-import { trim, trimStart } from "lodash";
+import { maxBy, trim, trimStart } from "lodash";
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   convertHMSToSeconds,
@@ -439,15 +439,18 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   }: { startTime?: string; endTime?: string } = useMemo(() => {
     const timeframes = reservationUnit.openingHours?.openingTimes?.filter(
       (n) => n.date === toApiDate(date)
-    ) || [{ startTime: null, endTime: null }];
+    );
+
+    if (timeframes.length === 0) return {};
+
+    const first = min(
+      timeframes.map((n) => n.startTime && new Date(n.startTime))
+    );
+    const last = max(timeframes.map((n) => n.endTime && new Date(n.endTime)));
 
     return {
-      startTime: min(
-        timeframes.map((n) => n.startTime && new Date(n.startTime))
-      ).toISOString(),
-      endTime: max(
-        timeframes.map((n) => n.endTime && new Date(n.endTime))
-      ).toISOString(),
+      startTime: first ? first.toISOString() : null,
+      endTime: last ? last.toISOString() : null,
     };
   }, [reservationUnit.openingHours?.openingTimes, date]);
 
@@ -518,6 +521,11 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     minutes: convertHMSToSeconds(`0${duration?.value}:00`) / 60,
     trailingZeros: true,
   });
+
+  const lastOpeningDate = maxBy(
+    reservationUnit.openingHours?.openingTimes,
+    (n) => n.date
+  );
 
   const submitButton = createReservation ? (
     <SubmitButtonWrapper>
@@ -617,6 +625,11 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
               label={t("reservationCalendar:startDate")}
               language={i18n.language as Language}
               minDate={new Date()}
+              maxDate={
+                lastOpeningDate?.date
+                  ? new Date(lastOpeningDate.date)
+                  : new Date()
+              }
             />
             <StyledSelect
               key={`startTime-${startTime}`}

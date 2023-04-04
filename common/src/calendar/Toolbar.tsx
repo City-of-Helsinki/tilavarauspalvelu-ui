@@ -155,12 +155,6 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
       title = format(date, dateStr, culture);
       break;
     }
-    case "month": {
-      const month = format(date, "LLLL", culture);
-      const year = format(date, "yyyy", culture);
-      title = `${month} ${year}`;
-      break;
-    }
     case "week":
     default: {
       const start = startOfWeek(date, culture);
@@ -186,9 +180,6 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
         <button
           type="button"
           onClick={() => {
-            if (view === "month") {
-              onView("week");
-            }
             onNavigate("TODAY");
           }}
           aria-label={String(t("reservationCalendar:showCurrentDay"))}
@@ -253,21 +244,6 @@ const Toolbar = ({ onNavigate, onView, view, date }: ToolbarProps) => {
           )}
         >
           {t("common:week")}
-        </button>
-        <button
-          className={classNames("", {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            "rbc-active": view === "month",
-          })}
-          type="button"
-          onClick={() => onView("month")}
-          aria-label={String(
-            t("reservationCalendar:showView", {
-              view: String(t("common:month")).toLowerCase(),
-            })
-          )}
-        >
-          {t(`common:month`)}
         </button>
       </div>
     </Wrapper>

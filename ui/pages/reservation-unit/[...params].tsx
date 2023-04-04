@@ -4,7 +4,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation, useQuery } from "@apollo/client";
 import router from "next/router";
 import { useLocalStorage, useSessionStorage } from "react-use";
-import { Notification, Stepper } from "hds-react";
+import { Stepper } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import { isFinite, omit } from "lodash";
@@ -66,6 +66,7 @@ import Step1 from "../../components/reservation/Step1";
 import { ReservationStep } from "../../modules/types";
 import { JustForDesktop } from "../../modules/style/layout";
 import { PinkBox } from "../../components/reservation-unit/ReservationUnitStyles";
+import { Toast } from "../../styles/util";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -367,11 +368,13 @@ const ReservationUnitReservation = ({
       } else if (steps?.length > 2) {
         const order = data.confirmReservation?.order;
         const { checkoutUrl, receiptUrl } = order ?? {};
-        const userId = new URL(receiptUrl)?.searchParams?.get("user");
+        const { origin, pathname, searchParams } = new URL(checkoutUrl) || {};
+        const userId = searchParams?.get("user");
 
-        if (checkoutUrl && receiptUrl && userId) {
+        if (checkoutUrl && receiptUrl && userId && origin && pathname) {
+          const baseUrl = `${origin}${pathname}`;
           router.push(
-            `${data.confirmReservation?.order?.checkoutUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
+            `${baseUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
           );
         } else {
           setErrorMsg(t("errors:general_error"));
@@ -619,7 +622,7 @@ const ReservationUnitReservation = ({
         </BodyContainer>
       </Columns>
       {errorMsg && (
-        <Notification
+        <Toast
           type="error"
           label={t("reservationUnit:reservationUpdateFailed")}
           position="top-center"
@@ -631,7 +634,7 @@ const ReservationUnitReservation = ({
           closeButtonLabelText={t("common:error.closeErrorMsg")}
         >
           {errorMsg}
-        </Notification>
+        </Toast>
       )}
     </StyledContainer>
   );
