@@ -4,12 +4,13 @@ import { IconArrowRight, IconSignout } from "hds-react";
 import Link from "next/link";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { signOut } from "next-auth/react";
 import styled from "styled-components";
 import Container from "../common/Container";
 import { Paragraph } from "./styles";
 import { singleSearchUrl } from "../../modules/util";
-import { useLogout } from "../../hooks/useLogout";
 import { LinkButton } from "../../styles/util";
+import { authenticationLogoutApiRoute } from "../../modules/const";
 
 type Props = {
   type: "reservation" | "order";
@@ -48,7 +49,6 @@ const StyledLink = styled(Link)`
 
 const ReservationFail = ({ type }: Props) => {
   const { t } = useTranslation();
-  const { logout } = useLogout();
 
   const headingKey =
     type === "reservation"
@@ -80,7 +80,14 @@ const ReservationFail = ({ type }: Props) => {
               {t("common:gotoFrontpage")}
               <IconArrowRight aria-hidden size="m" />
             </StyledLink>
-            <LinkButton onClick={() => logout()}>
+            <LinkButton
+              onClick={() =>
+                signOut({
+                  redirect: false,
+                  callbackUrl: authenticationLogoutApiRoute,
+                })
+              }
+            >
               {t("common:logout")} <IconSignout size="m" aria-hidden />
             </LinkButton>
           </ActionContainer>

@@ -10,6 +10,7 @@ import React, { useMemo } from "react";
 import { Trans, useTranslation } from "next-i18next";
 import Link from "next/link";
 import styled from "styled-components";
+import { signOut } from "next-auth/react";
 import { fontMedium, fontRegular, H2 } from "common/src/common/typography";
 import { Reservation } from "common/src/reservation-form/types";
 import {
@@ -24,8 +25,10 @@ import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit
 import { getTranslation, reservationsUrl } from "../../modules/util";
 import { BlackButton, LinkButton } from "../../styles/util";
 import { Paragraph } from "./styles";
-import { reservationUnitPath } from "../../modules/const";
-import { useLogout } from "../../hooks/useLogout";
+import {
+  authenticationLogoutApiRoute,
+  reservationUnitPath,
+} from "../../modules/const";
 
 type Props = {
   reservation: Reservation | ReservationType;
@@ -86,7 +89,6 @@ const ReservationConfirmation = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { logout } = useLogout();
 
   const instructionsKey = useMemo(
     () =>
@@ -172,7 +174,14 @@ const ReservationConfirmation = ({
             {t("common:gotoFrontpage")}
             <IconArrowRight aria-hidden size="m" />
           </StyledLink>
-          <LinkButton onClick={() => logout()}>
+          <LinkButton
+            onClick={() =>
+              signOut({
+                redirect: false,
+                callbackUrl: authenticationLogoutApiRoute,
+              })
+            }
+          >
             {t("common:logout")} <IconSignout size="m" aria-hidden />
           </LinkButton>
         </ActionContainer2>
