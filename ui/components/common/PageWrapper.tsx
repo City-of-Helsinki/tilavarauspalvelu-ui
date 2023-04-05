@@ -1,9 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+import dynamic from "next/dynamic";
 import Footer from "./Footer";
-import { Navigation } from "./Navigation/Navigation";
 import ServiceNotification from "./ServiceNotification";
 import Title from "./Title";
+
+const Navigation = dynamic(() => import("./Navigation/Navigation"), {
+  ssr: false,
+});
 
 interface Props {
   children: React.ReactNode;

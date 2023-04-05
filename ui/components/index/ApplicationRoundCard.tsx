@@ -82,6 +82,7 @@ const StyledLink = styled(Link)`
   }
 `;
 
+// TODO translations in this component cause Hydration errors
 const ApplicationRoundCard = ({ applicationRound }: Props): JSX.Element => {
   const { t } = useTranslation();
 

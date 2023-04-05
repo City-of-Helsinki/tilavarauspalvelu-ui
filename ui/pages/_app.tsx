@@ -11,11 +11,7 @@ import PageWrapper from "../components/common/PageWrapper";
 import ExternalScripts from "../components/ExternalScripts";
 import { DataContextProvider } from "../context/DataContext";
 import apolloClient from "../modules/apolloClient";
-import {
-  authenticationApiRoute,
-  isBrowser,
-  mockRequests,
-} from "../modules/const";
+import { authenticationApiRoute, mockRequests } from "../modules/const";
 import { TrackingWrapper } from "../modules/tracking";
 import nextI18NextConfig from "../next-i18next.config";
 import "../styles/global.scss";
@@ -40,6 +36,7 @@ const ContextWrapped = ({ pageProps, children }) => (
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const MyApp = ({ Component, pageProps }: AppProps) => {
+  /*
   if (!isBrowser) {
     return (
       <DataContextProvider>
@@ -49,6 +46,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       </DataContextProvider>
     );
   }
+  */
 
   return (
     <>

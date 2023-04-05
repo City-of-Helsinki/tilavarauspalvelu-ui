@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { GetServerSideProps } from "next";
 import { sortBy } from "lodash";
 import { useTranslation } from "next-i18next";
+import dynamic from "next/dynamic";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { H2, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
@@ -12,12 +13,19 @@ import {
   QueryApplicationRoundsArgs,
 } from "common/types/gql-types";
 import { HeroSubheading } from "../../modules/style/typography";
-import ApplicationRoundCard from "../../components/index/ApplicationRoundCard";
 import { applicationRoundState } from "../../modules/util";
 import KorosDefault from "../../components/common/KorosDefault";
 import apolloClient from "../../modules/apolloClient";
 import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";
 import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
+
+// hack to deal with Hydration errors
+const ApplicationRoundCard = dynamic(
+  () => import("../../components/index/ApplicationRoundCard"),
+  {
+    ssr: false,
+  }
+);
 
 type Props = {
   applicationRounds: ApplicationRoundType[];

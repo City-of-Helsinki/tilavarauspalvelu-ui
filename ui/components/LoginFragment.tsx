@@ -3,7 +3,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { signIn, useSession } from "next-auth/react";
-import { authEnabled, authenticationIssuer, isBrowser } from "../modules/const";
+import { authEnabled, authenticationIssuer } from "../modules/const";
 import { MediumButton } from "../styles/util";
 
 type Props = {
@@ -58,10 +58,6 @@ const LoginFragment = ({
   const isAuthenticated = session?.status === "authenticated";
 
   const [shouldLogin, setShouldLogin] = React.useState(false);
-
-  if (!isBrowser) {
-    return null;
-  }
 
   if (shouldLogin) {
     signIn(authenticationIssuer, {

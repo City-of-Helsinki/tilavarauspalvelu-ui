@@ -22,7 +22,6 @@ import { CenterSpinner, HorisontalRule } from "../../components/common/common";
 import IconWithText from "../../components/common/IconWithText";
 import { localizedValue } from "../../modules/util";
 import ReservationList from "../../components/applications/ReservationList";
-import { isBrowser } from "../../modules/const";
 import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
@@ -114,8 +113,6 @@ const EventReservationUnitDetails = (): JSX.Element | null => {
   }, [applicationId]);
 
   if (!params) return <CenterSpinner />;
-
-  if (!isBrowser) return null;
 
   if (isLoading) return <CenterSpinner />;
 

@@ -110,4 +110,4 @@ const Navigation = () => {
     </StyledNavigation>
   );
 };
-export { Navigation };
+export default Navigation;

@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { GetServerSideProps } from "next";
+import dynamic from "next/dynamic";
 import { Trans, useTranslation } from "next-i18next";
 import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
@@ -116,8 +117,13 @@ import {
   TwoColumnLayout,
   Wrapper,
 } from "../../components/reservation-unit/ReservationUnitStyles";
-import ReservationInfoContainer from "../../components/reservation-unit/ReservationInfoContainer";
 import { Toast } from "../../styles/util";
+
+// hack to deal with Hydration errors
+const ReservationInfoContainer = dynamic(
+  () => import("../../components/reservation-unit/ReservationInfoContainer"),
+  { ssr: false }
+);
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;

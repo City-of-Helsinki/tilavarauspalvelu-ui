@@ -23,7 +23,6 @@ import { parseDate } from "../../modules/util";
 import Back from "../../components/common/Back";
 import Loader from "../../components/common/Loader";
 import { TwoColumnContainer } from "../../components/common/common";
-import { isBrowser } from "../../modules/const";
 import { MediumButton } from "../../styles/util";
 import { useRedirectUnauthorized } from "../../hooks/useRedirectUnauthorized";
 
@@ -141,8 +140,6 @@ const ReservationsPage = (): JSX.Element | null => {
   );
 
   useRedirectUnauthorized();
-
-  if (!isBrowser) return null;
 
   const hasReservations = reservations.data?.length;
 

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation, useQuery } from "@apollo/client";
 import router from "next/router";
+import dynamic from "next/dynamic";
 import { useLocalStorage, useSessionStorage } from "react-use";
 import { Stepper } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -40,7 +41,7 @@ import { Inputs, Reservation } from "common/src/reservation-form/types";
 import { Subheading } from "common/src/reservation-form/styles";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import apolloClient from "../../modules/apolloClient";
-import { isBrowser, reservationUnitPrefix } from "../../modules/const";
+import { reservationUnitPrefix } from "../../modules/const";
 import { getTranslation } from "../../modules/util";
 import {
   RESERVATION_UNIT,
@@ -59,7 +60,6 @@ import { getReservationApplicationMutationValues } from "../../modules/reservati
 import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
 import { ReservationProps } from "../../context/DataContext";
 import Container from "../../components/common/Container";
-import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import ReservationConfirmation from "../../components/reservation/ReservationConfirmation";
 import Step0 from "../../components/reservation/Step0";
 import Step1 from "../../components/reservation/Step1";
@@ -67,6 +67,14 @@ import { ReservationStep } from "../../modules/types";
 import { JustForDesktop } from "../../modules/style/layout";
 import { PinkBox } from "../../components/reservation-unit/ReservationUnitStyles";
 import { Toast } from "../../styles/util";
+
+// hack to deal with Hydration errors
+const ReservationInfoCard = dynamic(
+  () => import("../../components/reservation/ReservationInfoCard"),
+  {
+    ssr: false,
+  }
+);
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -527,10 +535,6 @@ const ReservationUnitReservation = ({
   }, [step, generalFields, reservation, reservationUnit]);
 
   const termsOfUseContent = getTranslation(reservationUnit, "termsOfUse");
-
-  if (!isBrowser) {
-    return null;
-  }
 
   return (
     <StyledContainer>
