@@ -63,7 +63,7 @@ const IntroPage = (): JSX.Element => {
         callbackUrl: window.location.href,
       });
     }
-  }, [session.status]);
+  }, [session?.status]);
 
   useQuery<Query, QueryApplicationRoundsArgs>(APPLICATION_ROUNDS, {
     fetchPolicy: "no-cache",
