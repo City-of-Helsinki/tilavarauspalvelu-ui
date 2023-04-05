@@ -18,7 +18,7 @@ import Head from "../components/application/Head";
 import { APPLICATION_ROUNDS } from "../modules/queries/applicationRound";
 import { CenterSpinner } from "../components/common/common";
 import { getApplicationRoundName } from "../modules/applicationRound";
-import { authenticationIssuer } from "../modules/const";
+import { authEnabled, authenticationIssuer } from "../modules/const";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
@@ -58,7 +58,7 @@ const IntroPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (session.status === "unauthenticated") {
+    if (authEnabled && session.status === "unauthenticated") {
       signIn(authenticationIssuer, {
         callbackUrl: window.location.href,
       });
