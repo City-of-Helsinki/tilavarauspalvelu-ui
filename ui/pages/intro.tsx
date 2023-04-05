@@ -57,13 +57,16 @@ const IntroPage = (): JSX.Element => {
   const history = useRouter();
   const { t } = useTranslation();
 
+  const isUserUnauthenticated =
+    authEnabled && session?.status === "unauthenticated";
+
   useEffect(() => {
-    if (authEnabled && session.status === "unauthenticated") {
+    if (isUserUnauthenticated) {
       signIn(authenticationIssuer, {
         callbackUrl: window.location.href,
       });
     }
-  }, [session?.status]);
+  }, [isUserUnauthenticated]);
 
   useQuery<Query, QueryApplicationRoundsArgs>(APPLICATION_ROUNDS, {
     fetchPolicy: "no-cache",
@@ -127,7 +130,7 @@ const IntroPage = (): JSX.Element => {
               />
               <MediumButton
                 id="start-application"
-                disabled={!applicationRound || saving}
+                disabled={isUserUnauthenticated || !applicationRound || saving}
                 onClick={() => {
                   createNewApplication(applicationRound);
                 }}
