@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CommonCalendar from "common/src/calendar/Calendar";
 import { Toolbar } from "common/src/calendar/Toolbar";
 import { add, startOfISOWeek } from "date-fns";
@@ -10,7 +10,6 @@ import Legend from "./Legend";
 import { useReservationData } from "./hooks";
 
 type Props = {
-  begin: string;
   reservationUnitPk: string;
   reservation: ReservationType;
 };
@@ -43,13 +42,13 @@ const viewToDays = (view: string) => {
   return 7;
 };
 
-const Calendar = ({
-  begin,
-  reservationUnitPk,
-  reservation,
-}: Props): JSX.Element => {
+const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
   const { t } = useTranslation();
-  const [focusDate, setFocusDate] = useState(startOfISOWeek(new Date(begin)));
+  const [focusDate, setFocusDate] = useState(
+    startOfISOWeek(
+      reservation?.begin ? new Date(reservation?.begin) : new Date()
+    )
+  );
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   const { events } = useReservationData(
@@ -59,9 +58,15 @@ const Calendar = ({
     reservation.pk ?? undefined
   );
 
-  // TODO today button in the reservation calendar? should it instead be this reservation?
-  // TODO check that the reservation / series is displayed properly (based on UI spect)
-  //  currently seems that it's using default display rules
+  // switch date when the selected reservation changes
+  useEffect(() => {
+    if (reservation) {
+      setFocusDate(new Date(reservation.begin));
+    }
+  }, [reservation]);
+
+  // TODO the calendar is from 6am - 11pm (so anything outside that gets rendered at the edges)
+  // either do something to the event data (filter) or allow for a larger calendar
   return (
     <Container>
       <CommonCalendar

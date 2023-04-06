@@ -332,6 +332,9 @@ const RequestedReservation = (): JSX.Element | null => {
   );
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
+  const [selectedReservation, setSelectedReservation] = useState<
+    ReservationType | undefined
+  >(undefined);
   const { t } = useTranslation();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
@@ -344,6 +347,7 @@ const RequestedReservation = (): JSX.Element | null => {
       onCompleted: ({ reservationByPk }) => {
         if (reservationByPk) {
           setReservation(reservationByPk);
+          setSelectedReservation(reservationByPk);
           setWorkingMemo(reservationByPk.workingMemo || "");
         }
       },
@@ -519,15 +523,16 @@ const RequestedReservation = (): JSX.Element | null => {
           </Accordion>
           {reservation.recurringReservation && (
             <Accordion heading={t("RequestedReservation.recurring")}>
-              <RecurringReservationsView reservation={reservation} />
+              <RecurringReservationsView
+                reservation={reservation}
+                onSelect={setSelectedReservation}
+              />
             </Accordion>
           )}
           <Accordion heading={t("RequestedReservation.calendar")}>
             <Calendar
-              key={reservation.state}
-              begin={reservation.begin}
               reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
-              reservation={reservation}
+              reservation={selectedReservation ?? reservation}
             />
           </Accordion>
           <Accordion heading={t("RequestedReservation.reservationDetails")}>

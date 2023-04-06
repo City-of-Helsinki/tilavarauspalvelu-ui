@@ -2,19 +2,14 @@ import React from "react";
 import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { Button, IconArrowUndo, IconCross } from "hds-react";
 
-type CallbackButton = {
-  callback: () => void;
-  type: "remove" | "restore";
-};
 type NewReservationListItem = {
   date: Date;
   startTime: string;
   endTime: string;
   error?: string;
   reservationPk?: number;
-  button?: CallbackButton;
+  buttons?: React.ReactNode;
   isRemoved?: boolean;
 };
 
@@ -106,26 +101,7 @@ const ReservationList = ({ items, hasPadding }: Props) => {
                 </ErrorLabel>
               )}
             </TextWrapper>
-            {item.button != null &&
-              (item.button.type === "remove" ? (
-                <Button
-                  variant="supplementary"
-                  onClick={item.button.callback}
-                  iconLeft={<IconCross />}
-                  size="small"
-                >
-                  {t("common.remove")}
-                </Button>
-              ) : (
-                <Button
-                  variant="supplementary"
-                  onClick={item.button.callback}
-                  iconLeft={<IconArrowUndo />}
-                  size="small"
-                >
-                  {t("common.restore")}
-                </Button>
-              ))}
+            {item.buttons}
           </StyledListItem>
         ))}
       </StyledList>
