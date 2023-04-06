@@ -1,10 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 import {
   Query,
   QueryReservationByPkArgs,
   type ReservationType,
 } from "common/types/gql-types";
+import { H6 } from "common/src/common/typography";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
 import { format } from "date-fns";
@@ -12,14 +12,6 @@ import { RECURRING_RESERVATION_QUERY } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import ReservationList from "../../ReservationsList";
 import ReservationListButton from "../../ReservationListButton";
-
-const StyledHeading = styled.h3`
-  background: var(--color-black-10);
-  font-size: var(--fontsize-body-m);
-  font-weight: 500;
-  padding: var(--spacing-xs) var(--spacing-2-xs);
-  margin: 0;
-`;
 
 const RecurringReservationsView = ({
   reservation,
@@ -91,10 +83,10 @@ const RecurringReservationsView = ({
   }));
 
   return (
-    <>
-      <StyledHeading>{t("RecurringReservationsView.Heading")}</StyledHeading>
-      <ReservationList items={forDisplay} />
-    </>
+    <ReservationList
+      header={<H6 as="h3">{t("RecurringReservationsView.Heading")}</H6>}
+      items={forDisplay}
+    />
   );
 };
 

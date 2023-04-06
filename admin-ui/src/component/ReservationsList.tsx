@@ -14,6 +14,7 @@ type NewReservationListItem = {
 };
 
 type Props = {
+  header?: React.ReactNode;
   items: NewReservationListItem[];
   hasPadding?: boolean;
 };
@@ -66,13 +67,14 @@ const ErrorLabel = styled.div`
 const stripTimeZeros = (time: string) =>
   time.substring(0, 1) === "0" ? time.substring(1) : time;
 
-const ReservationList = ({ items, hasPadding }: Props) => {
+const ReservationList = ({ header, items, hasPadding }: Props) => {
   const { t } = useTranslation();
 
   if (!items.length) return null;
 
   return (
     <ListWrapper>
+      {header}
       <StyledList $hasPadding={hasPadding ?? false}>
         {items.map((item) => (
           <StyledListItem
