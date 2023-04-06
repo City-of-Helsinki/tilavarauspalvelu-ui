@@ -29,19 +29,6 @@ const Container = styled.div`
 
 type WeekOptions = "day" | "week" | "month";
 
-const viewToDays = (view: string) => {
-  if (view === "day") {
-    return 1;
-  }
-  if (view === "month") {
-    return 31;
-  }
-  if (view === "week") {
-    return 7;
-  }
-  return 7;
-};
-
 const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [focusDate, setFocusDate] = useState(
@@ -51,9 +38,12 @@ const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
   );
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
+  // No month view so always query the whole week even if a single day is selected
+  // to avoid spamming queries and having to deal with start of day - end of day.
+  // focus day can be in the middle of the week.
   const { events } = useReservationData(
-    focusDate,
-    add(focusDate, { days: viewToDays(calendarViewType) }),
+    startOfISOWeek(focusDate),
+    add(startOfISOWeek(focusDate), { days: 7 }),
     reservationUnitPk,
     reservation.pk ?? undefined
   );
