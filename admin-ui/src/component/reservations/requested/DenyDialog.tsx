@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useMutation } from "@apollo/client";
-import { Button, Dialog, TextArea } from "hds-react";
 import { GraphQLError } from "graphql";
 import { z } from "zod";
+import {
+  Button,
+  Dialog,
+  RadioButton,
+  SelectionGroup,
+  TextArea,
+} from "hds-react";
 import {
   Mutation,
   ReservationDenyMutationInput,
@@ -98,7 +104,23 @@ const DialogContent = ({
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
 
+  const pricesList = reservations.map(({ price, orderStatus, orderUuid }) => ({
+    price,
+    orderStatus,
+    orderUuid,
+  }));
+  const [returnState, setReturnState] = React.useState<
+    "return" | "no-return" | "" | "free"
+  >(pricesList.find((x) => x.price !== 0) ? "" : "free");
+
   const { options, loading } = useDenyReasonOptions();
+
+  // TODO this gets us the free ones, but does it get the subvention also?
+  // TODO get the order status / uuid from GQL and check against those on top of the price
+  console.log("reservation order: ", pricesList);
+
+  // Refund id === null for the refund to work
+  // TODO should block if refundUuid is set but it's not in the backend yet
 
   const handleDeny = async () => {
     try {
@@ -143,7 +165,7 @@ const DialogContent = ({
       </Dialog.Content>
     );
   }
-
+  // TODO return state should be only if it's paid (requirement / state / visibility)
   return (
     <>
       <Dialog.Content>
@@ -167,13 +189,33 @@ const DialogContent = ({
               "RequestedReservation.DenyDialog.handlingDetailsHelper"
             )}
           />
+          {returnState !== "free" && (
+            <SelectionGroup required label="Varausmaksun palautus">
+              <RadioButton
+                id="return-money"
+                name="return-money"
+                label="Palauta maksu (SUMMA)"
+                checked={returnState === "return"}
+                onChange={() => setReturnState("return")}
+              />
+              <RadioButton
+                id="no-return-money"
+                checked={returnState === "no-return"}
+                label="Ei palautusta"
+                onChange={() => setReturnState("no-return")}
+              />
+            </SelectionGroup>
+          )}
         </VerticalFlex>
       </Dialog.Content>
       <ActionButtons>
         <Button variant="secondary" onClick={onClose} theme="black">
           {t("common.prev")}
         </Button>
-        <Button disabled={!denyReasonPk} onClick={handleDeny}>
+        <Button
+          disabled={!denyReasonPk || returnState === ""}
+          onClick={handleDeny}
+        >
           {t("RequestedReservation.DenyDialog.reject")}
         </Button>
       </ActionButtons>
