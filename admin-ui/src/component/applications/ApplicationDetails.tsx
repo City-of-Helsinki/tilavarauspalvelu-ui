@@ -257,7 +257,7 @@ function ApplicationDetails(): JSX.Element | null {
           <ShowWhenTargetInvisible target={ref}>
             <StickyHeader
               name={customerName}
-              tagline={`${t("Application.id")}:${application.id}`}
+              tagline={`${t("Application.id")}: ${application.id}`}
             />
           </ShowWhenTargetInvisible>
 
