@@ -35,7 +35,7 @@
           {% if price > 0 %}
         </mj-raw>
         <mj-text>
-          ${reservationPrice} <b>{{price | currency}} €</b> (${vatIncluded} {{tax_percentage}} %)
+          ${reservationPrice}: <b>{{price | currency}} €</b> (${vatIncluded} {{tax_percentage}} %)
         </mj-text>
         <mj-raw>
           {% else %}
