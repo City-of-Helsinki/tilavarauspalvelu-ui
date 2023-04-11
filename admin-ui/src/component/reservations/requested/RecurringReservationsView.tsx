@@ -66,7 +66,7 @@ const RecurringReservationsView = ({
   const forDisplay = reservations.map((x) => ({
     date: new Date(x.begin),
     startTime: format(new Date(x.begin), "hh:mm"),
-    endTime: format(new Date(x.begin), "hh:mm"),
+    endTime: format(new Date(x.end), "hh:mm"),
     isRemoved: x.state !== "CONFIRMED",
     buttons: [
       <ReservationListButton callback={() => handleChange(x)} type="change" />,
