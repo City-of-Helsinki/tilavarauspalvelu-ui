@@ -2,6 +2,7 @@
   <mj-head>
     <mj-include path="partials/base.css" type="css" />
     <mj-include path="partials/attributes.mjml" />
+    <mj-title>${subjectPreliminary}</mj-title>
   </mj-head>
   <mj-body>
     <mj-include path="partials/header.mjml" />
@@ -50,6 +51,8 @@
     </mj-section>
     <mj-section padding-bottom="0">
       <mj-column>
+        <mj-text font-size="16px">${pendingNotification}</mj-text>
+        <mj-spacer />
         <mj-text>
           <h2>${reservationInstruction}</h2>
         </mj-text>
