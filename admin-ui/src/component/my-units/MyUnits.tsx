@@ -39,6 +39,7 @@ const MyUnits = () => {
           filters={search}
           sort={sort}
           sortChanged={onSortChanged}
+          isMyUnits
         />
       </Container>
     </>
