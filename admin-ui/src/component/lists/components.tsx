@@ -68,7 +68,7 @@ export const CustomTable = (
 );
 
 const NoDataMessage = styled.span`
-  line-height: 4;
+  line-height: 1.5;
 `;
 
 const A = styled(Link)`
