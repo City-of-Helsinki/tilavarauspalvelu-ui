@@ -108,8 +108,13 @@ export const RESERVATION_QUERY = gql`
 `;
 
 export const RECURRING_RESERVATION_QUERY = gql`
-  query recurringReservation($pk: ID!) {
-    reservations(recurringReservation: $pk, state: ["CONFIRMED", "DENIED"]) {
+  query recurringReservation($pk: ID!, $offset: Int, $count: Int) {
+    reservations(
+      offset: $offset
+      recurringReservation: $pk
+      state: ["CONFIRMED", "DENIED"]
+      first: $count
+    ) {
       edges {
         node {
           pk
@@ -121,6 +126,7 @@ export const RECURRING_RESERVATION_QUERY = gql`
           }
         }
       }
+      totalCount
     }
   }
 `;
