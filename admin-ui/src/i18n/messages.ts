@@ -175,6 +175,8 @@ const translations: ITranslations = {
     decreaseByOneAriaLabel: ["Vähennä yhdellä"],
     openToNewTab: ["Avaa uuteen välilehteen"],
     reservationUnit: ["Varausyksikkö"],
+    remove: ["Poista"],
+    restore: ["Palauta"],
   },
   errors: {
     applicationRoundNotFound: ["Haettua hakukierrosta ei löydy"],
@@ -318,8 +320,9 @@ const translations: ITranslations = {
       },
       pageTitle: ["Tee toistuva varaus"],
       Confirmation: {
+        removed: ["Poistettu"],
         title: ["Toistuva varaus tehty"],
-        failedTitle: ["Päällekkäiset varaukset"],
+        failedTitle: ["Epäonnistuneet varaukset"],
         successTitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
         failureInfo: [
@@ -331,6 +334,14 @@ const translations: ITranslations = {
         failureInfoSecondParagraph: [
           "Voit halutessasi etsiä näille toistoille uuden ajan varauksen sivulta.",
         ],
+        failureMessages: {
+          "ApolloError: Reservation new begin cannot be in the past": [
+            "Aika menneisyydessä",
+          ],
+          "ApolloError: Overlapping reservations are not allowed.": [
+            "Aika ei saatavilla",
+          ],
+        },
         buttonToUnit: ["Palaa toimipisteen sivulle"],
         buttonToReservation: ["Siirry varauksen sivulle"],
       },
@@ -1799,6 +1810,9 @@ const translations: ITranslations = {
     removeFailed: ["Resurssin poistaminen ei onnistunut."],
     removeSuccess: ["Resurssi poistettu."],
   },
+  RecurringReservationsView: {
+    Heading: ["Ajankohta"],
+  },
   RequestedReservations: {
     heading: {
       unit: ["Toimipiste"],
@@ -1873,6 +1887,7 @@ const translations: ITranslations = {
     heading: ["Varauksen tarkastelu"],
     calendar: ["Varauskalenteri"],
     summary: ["Varauksen yhteenveto"],
+    recurring: ["Toistokerrat"],
     state: {
       REQUIRES_HANDLING: ["Käsittelemättä"],
       CONFIRMED: ["Hyväksytty"],
@@ -1933,6 +1948,7 @@ const translations: ITranslations = {
     birthDate: ["Syntymäaika"],
     hideBirthDate: ["Piilota"],
     showBirthDate: ["Näytä"],
+    alreadyEnded: ["Päättynyt"],
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],

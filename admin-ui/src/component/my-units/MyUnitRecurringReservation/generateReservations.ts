@@ -1,63 +1,6 @@
-import React from "react";
-import { toUIDate } from "common/src/common/util";
-import styled from "styled-components";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { timeSelectionSchema } from "./RecurringReservationSchema";
 import { toMondayFirst } from "../../../common/util";
-
-type NewReservationListItem = {
-  date: Date;
-  startTime: string;
-  endTime: string;
-};
-
-type Props = {
-  items: NewReservationListItem[];
-};
-
-// In the UI spec parent container max height is 22rem, but overflow forces us to define child max-height
-const ListWrapper = styled.div`
-  max-height: 18.5rem;
-  overflow-y: auto;
-  overflow-x: hidden;
-`;
-
-const StyledList = styled.ul`
-  list-style-type: none;
-  border: none;
-  padding: 0 var(--spacing-s);
-`;
-
-const StyledListItem = styled.li`
-  padding: var(--spacing-s) 0;
-  border-bottom: 1px solid var(--color-black-20);
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  text-transform: capitalize;
-`;
-
-const ReservationList = ({ items }: Props) => {
-  if (!items.length) return null;
-
-  return (
-    <ListWrapper>
-      <StyledList>
-        {items.map((item) => (
-          <StyledListItem
-            key={`${item.date}-${item.startTime}-${item.endTime}`}
-          >
-            <Wrapper>{`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${
-              item.startTime
-            }-${item.endTime}`}</Wrapper>
-          </StyledListItem>
-        ))}
-      </StyledList>
-    </ListWrapper>
-  );
-};
 
 // NOTE Custom UTC date code because taking only the date part of Date results
 // in the previous date in UTC+2 timezone
@@ -154,5 +97,4 @@ const generateReservations = (
   };
 };
 
-export { ReservationList, generateReservations };
-export type { NewReservationListItem };
+export { generateReservations };

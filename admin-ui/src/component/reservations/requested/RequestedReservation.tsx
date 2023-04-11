@@ -15,9 +15,9 @@ import {
   QueryReservationByPkArgs,
   ReservationType,
   ReservationWorkingMemoMutationInput,
-  ReservationsReservationStateChoices,
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
+  ServiceSectorType,
 } from "common/types/gql-types";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
@@ -33,9 +33,6 @@ import {
   reservationUnitName,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
-import DenyDialog from "./DenyDialog";
-import ApproveDialog from "./ApproveDialog";
-import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
 import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import {
@@ -46,11 +43,15 @@ import {
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
-import { formatDateTime } from "../../../common/util";
+import { formatDate, formatDateTime, formatTime } from "../../../common/util";
 import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
 import { Accordion } from "../../../common/hds-fork/Accordion";
+import ApprovalButtons from "./ApprovalButtons";
+import { CURRENT_USER } from "../../../context/queries";
+import { useAuthState } from "../../../context/AuthStateContext";
+import RecurringReservationsView from "./RecurringReservationsView";
 
 const Dot = styled.div`
   display: inline-block;
@@ -168,13 +169,110 @@ const ApplicationData = ({
     </div>
   ) : null;
 
+const ButtonsWithPermChecks = ({
+  reservation,
+  refetch,
+  isFree,
+}: {
+  reservation: ReservationType;
+  refetch: () => void;
+  isFree: boolean;
+}) => {
+  const { setModalContent } = useModal();
+
+  const serviceSectorPks =
+    reservation?.reservationUnits?.[0]?.unit?.serviceSectors
+      ?.map((x) => x?.pk)
+      ?.filter((x): x is number => x != null) ?? [];
+
+  const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
+
+  const { data: user } = useQuery<Query>(CURRENT_USER);
+
+  const isUsersOwnReservation = reservation?.user?.pk === user?.currentUser?.pk;
+
+  const closeDialog = () => {
+    setModalContent(null);
+  };
+
+  const closeDialogAndRefetch = () => {
+    closeDialog();
+    refetch();
+  };
+
+  const { hasPermission } = useAuthState().authState;
+  const permission =
+    unitPk != null
+      ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
+      : false;
+
+  if (permission || isUsersOwnReservation) {
+    return (
+      <ApprovalButtons
+        state={reservation.state}
+        isFree={isFree}
+        reservation={reservation}
+        handleClose={closeDialog}
+        handleAccept={closeDialogAndRefetch}
+      />
+    );
+  }
+
+  return null;
+};
+
+// recurring format: {weekday(s)} {time}, {duration} | {startDate}-{endDate} | {unit}
+// single format   : {weekday} {date} {time}, {duration} | {unit}
+const createTagString = (reservation: ReservationType, t: TFunction) => {
+  const recurringTag =
+    reservation.recurringReservation?.beginDate &&
+    reservation.recurringReservation?.endDate
+      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
+          reservation.recurringReservation.endDate
+        )}`
+      : "";
+  const unitTag = reservation?.reservationUnits
+    ?.map(reservationUnitName)
+    .join(", ");
+
+  const singleDateTimeTag = `${reservationDateTime(
+    reservation.begin,
+    reservation.end,
+    t
+  )}`;
+
+  const weekDayTag = reservation.recurringReservation?.weekdays
+    ?.map((x) => t(`dayShort.${x}`))
+    ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
+
+  const recurringDateTag =
+    reservation.begin && reservation.end
+      ? `${weekDayTag} ${formatTime(reservation.begin, "HH:mm")}-${formatTime(
+          reservation.end,
+          "HH:mm"
+        )}`
+      : "";
+
+  const durationTag = `${reservationDuration(
+    reservation.begin,
+    reservation.end
+  )}`;
+
+  const reservationTagline = `${
+    reservation.recurringReservation ? recurringDateTag : singleDateTimeTag
+  }, ${durationTag}t ${
+    recurringTag.length > 0 ? " | " : ""
+  } ${recurringTag} | ${unitTag}`;
+
+  return reservationTagline;
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType>();
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
-  const { setModalContent } = useModal();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     RESERVATION_QUERY,
@@ -200,16 +298,7 @@ const RequestedReservation = (): JSX.Element | null => {
   const updateMemo = (input: ReservationWorkingMemoMutationInput) =>
     updateWorkingMemo({ variables: { input } });
 
-  const closeDialog = () => {
-    setModalContent(null);
-  };
-
   const ref = useRef<HTMLHeadingElement>(null);
-
-  const closeDialogAndRefetch = () => {
-    closeDialog();
-    refetch();
-  };
 
   if (loading) {
     return <Loader />;
@@ -231,88 +320,7 @@ const RequestedReservation = (): JSX.Element | null => {
       ReservationUnitsReservationUnitPricingPricingTypeChoices.Paid &&
     pricing.highestPrice >= 0;
 
-  const buttons =
-    reservation.state ===
-    ReservationsReservationStateChoices.RequiresHandling ? (
-      <VisibleIfPermission
-        permissionName="can_manage_reservations"
-        unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
-      >
-        <Button
-          theme="black"
-          size="small"
-          variant="secondary"
-          disabled={false}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <ApproveDialog
-                isFree={!isNonFree}
-                reservation={reservation}
-                onAccept={closeDialogAndRefetch}
-                onClose={closeDialog}
-              />,
-              true
-            );
-          }}
-        >
-          {t("RequestedReservation.approve")}
-        </Button>
-        <Button
-          size="small"
-          theme="black"
-          variant="secondary"
-          disabled={false}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <DenyDialog
-                reservation={reservation}
-                onReject={closeDialogAndRefetch}
-                onClose={closeDialog}
-              />,
-              true
-            );
-          }}
-        >
-          {t("RequestedReservation.reject")}
-        </Button>
-      </VisibleIfPermission>
-    ) : (
-      <VisibleIfPermission
-        permissionName="can_manage_reservations"
-        unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
-      >
-        <Button
-          size="small"
-          variant="secondary"
-          theme="black"
-          disabled={false}
-          onClick={(e) => {
-            e.preventDefault();
-            setModalContent(
-              <ReturnToRequiredHandlingDialog
-                reservation={reservation}
-                onAccept={closeDialogAndRefetch}
-                onClose={closeDialog}
-              />,
-              true
-            );
-          }}
-        >
-          {t("RequestedReservation.returnToHandling")}
-        </Button>
-      </VisibleIfPermission>
-    );
-
-  const reservationTagline = `${reservationDateTime(
-    reservation.begin,
-    reservation.end,
-    t
-  )} ${reservationDuration(
-    reservation.begin,
-    reservation.end
-  )}t | ${reservation?.reservationUnits?.map(reservationUnitName).join(", ")}`;
+  const reservationTagline = createTagString(reservation, t);
 
   return (
     <>
@@ -334,7 +342,13 @@ const RequestedReservation = (): JSX.Element | null => {
         <StickyHeader
           name={getName(reservation, t)}
           tagline={reservationTagline}
-          buttons={buttons}
+          buttons={
+            <ButtonsWithPermChecks
+              reservation={reservation}
+              refetch={refetch}
+              isFree={!isNonFree}
+            />
+          }
         />
       </ShowWhenTargetInvisible>
       <Container>
@@ -367,7 +381,11 @@ const RequestedReservation = (): JSX.Element | null => {
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
-          {buttons}
+          <ButtonsWithPermChecks
+            reservation={reservation}
+            refetch={refetch}
+            isFree={!isNonFree}
+          />
         </HorisontalFlex>
         <Summary>
           {[
@@ -424,7 +442,15 @@ const RequestedReservation = (): JSX.Element | null => {
             <VerticalFlex>
               <VisibleIfPermission
                 permissionName="can_comment_reservations"
-                unitPk={reservation?.reservationUnits?.[0]?.unit?.pk as number}
+                unitPk={
+                  reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined
+                }
+                serviceSectorPks={
+                  reservation?.reservationUnits?.[0]?.unit?.serviceSectors
+                    ?.filter((x): x is ServiceSectorType => x != null)
+                    ?.map((x) => x.pk)
+                    ?.filter((x): x is number => x != null) ?? []
+                }
                 otherwise={<span>{workingMemo || ""}</span>}
               >
                 <TextArea
@@ -477,6 +503,11 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
+          {reservation.recurringReservation && (
+            <Accordion heading={t("RequestedReservation.recurring")}>
+              <RecurringReservationsView reservation={reservation} />
+            </Accordion>
+          )}
           <Accordion heading={t("RequestedReservation.calendar")}>
             <Calendar
               key={reservation.state}

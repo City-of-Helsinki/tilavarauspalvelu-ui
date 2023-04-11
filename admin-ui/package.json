@@ -41,6 +41,11 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "moduleNameMapper": {
+      "axios": "axios/dist/node/axios.cjs"
+    }
+  },
   "dependencies": {
     "@apollo/client": "^3.7.3",
     "@axa-fr/react-oidc-context": "3.1.6",
@@ -52,7 +57,7 @@
     "@types/react-big-calendar": "^0.38.3",
     "apollo-link-token-refresh": "^0.4.0",
     "apollo-upload-client": "17.0.0",
-    "axios": "^1.2.1",
+    "axios": "^1.3.4",
     "axios-auth-refresh": "^3.3.4",
     "axios-case-converter": "^0.11.1",
     "classnames": "^2.3.2",
@@ -62,7 +67,7 @@
     "graphql": "^16.6.0",
     "hds-react": "^2.9.0",
     "http-proxy-middleware": "^2.0.6",
-    "i18next": "^22.4.6",
+    "i18next": "^22.4.14",
     "joi": "^17.7.0",
     "lodash": "^4.17.21",
     "mapbox-gl": "2.12.0",
@@ -74,7 +79,7 @@
     "react-error-boundary": "^3.1.4",
     "react-helmet": "^6.1.0",
     "react-hook-form": "7.41",
-    "react-i18next": "^12.1.1",
+    "react-i18next": "^12.2.0",
     "react-map-gl": "7.0.20",
     "react-quill": "2.0.0",
     "react-router-dom": "^6.6.1",
