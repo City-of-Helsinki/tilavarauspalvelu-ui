@@ -1,9 +1,9 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionType } from "../../../common/types";
-import { Grid, Span3 } from "../../../styles/layout";
 import UnitFilter from "../../filters/UnitFilter";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
+import { AutoGrid, FullRow } from "../../../styles/layout";
 
 export type FilterArguments = {
   unit: OptionType[];
@@ -32,17 +32,17 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
   const tags = toTags(state, t, multivaledFields, []);
 
   return (
-    <>
-      <Grid>
-        <Span3>
-          <UnitFilter
-            onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
-            value={state.unit}
-          />
-        </Span3>
-      </Grid>
-      <Tags tags={tags} t={t} dispatch={dispatch} />
-    </>
+    <AutoGrid>
+      <div>
+        <UnitFilter
+          onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
+          value={state.unit}
+        />
+      </div>
+      <FullRow>
+        <Tags tags={tags} t={t} dispatch={dispatch} />
+      </FullRow>
+    </AutoGrid>
   );
 };
 
