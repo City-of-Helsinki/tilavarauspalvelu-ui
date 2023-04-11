@@ -104,14 +104,21 @@ const DialogContent = ({
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
 
+  const isPriceReturnable = (x: {
+    price?: number;
+    orderStatus?: string;
+    orderUuid?: string;
+  }) =>
+    x.price && x.price > 0 && x.orderStatus === "PAID" && x.orderUuid != null;
+
   const pricesList = reservations.map(({ price, orderStatus, orderUuid }) => ({
-    price,
-    orderStatus,
-    orderUuid,
+    price: price ?? undefined,
+    orderStatus: orderStatus ?? undefined,
+    orderUuid: orderUuid ?? undefined,
   }));
   const [returnState, setReturnState] = React.useState<
     "return" | "no-return" | "" | "free"
-  >(pricesList.find((x) => x.price !== 0) ? "" : "free");
+  >(pricesList.find((x) => isPriceReturnable(x)) ? "" : "free");
 
   const { options, loading } = useDenyReasonOptions();
 
@@ -119,8 +126,8 @@ const DialogContent = ({
   // TODO get the order status / uuid from GQL and check against those on top of the price
   console.log("reservation order: ", pricesList);
 
-  // Refund id === null for the refund to work
   // TODO should block if refundUuid is set but it's not in the backend yet
+  // Refund id === null otherwise we try to do a double refund
 
   const handleDeny = async () => {
     try {
@@ -165,7 +172,8 @@ const DialogContent = ({
       </Dialog.Content>
     );
   }
-  // TODO return state should be only if it's paid (requirement / state / visibility)
+  // FIXME translations
+  // FIXME remove the debug true value after all other changes
   return (
     <>
       <Dialog.Content>
@@ -189,12 +197,16 @@ const DialogContent = ({
               "RequestedReservation.DenyDialog.handlingDetailsHelper"
             )}
           />
-          {returnState !== "free" && (
-            <SelectionGroup required label="Varausmaksun palautus">
+          {(true || returnState !== "free") && (
+            <SelectionGroup
+              required
+              direction="horizontal"
+              label="Varausmaksun palautus"
+            >
               <RadioButton
                 id="return-money"
                 name="return-money"
-                label="Palauta maksu (SUMMA)"
+                label={`Palauta maksu (${reservation?.price} €)`}
                 checked={returnState === "return"}
                 onChange={() => setReturnState("return")}
               />
