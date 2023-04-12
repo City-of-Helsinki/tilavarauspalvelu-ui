@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { ReservationsReservationStateChoices } from "common/types/gql-types";
 
 export const UPDATE_WORKING_MEMO = gql`
   mutation updateWorkingMemo($input: ReservationWorkingMemoMutationInput!) {
@@ -112,7 +113,7 @@ export const RECURRING_RESERVATION_QUERY = gql`
     reservations(
       offset: $offset
       recurringReservation: $pk
-      state: ["CONFIRMED", "DENIED"]
+      state: ["${ReservationsReservationStateChoices.Confirmed}", "${ReservationsReservationStateChoices.Denied}"]
       first: $count
     ) {
       edges {
