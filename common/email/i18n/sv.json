@@ -1,7 +1,7 @@
 {
     "subjectConfirmed": "Tack för din bokning på Varaamo",
     "subjectPreliminary": "Din bokning väntar på att behandlas",
-    "subjectCompleted": "Din bokning är bekräftad",
+    "subjectHandledConfirmed": "Din bokning är bekräftad",
     "subjectCancelled": "Din bokning är avbokad har avbokats",
     "subjectRejected": "Tyvärr kan vi inte bekräfta din bokning",
     "subjectUpdated": "Din bokning har uppdaterats",
@@ -24,10 +24,10 @@
     "feedbackOnService": "feedback om Varaamo",
     "reserveCityResourcesAt": "Boka enkelt stadens lokaler och utrustning för eget bruk på",
 
-    "reservationPending": "Du har gjort en ny bokningsförfrågan:",
-    "reservationCompleted": "Du har gjort en ny bokning:",
-    "reservationConfirmed": "Din bokning har bekräftats.",
-    "reservationSubsidized": "Din bokning har bekräftats med följande rabatt:",
+    "reservationMadeConfirmed": "Du har gjort en ny bokning:",
+    "reservationMadePreliminary": "Du har gjort en ny bokningsförfrågan:",
+    "reservationHandledConfirmed": "Din bokning har bekräftats.",
+    "reservationHandledSubsidized": "Din bokning har bekräftats med följande rabatt:",
     "reservationNeedsPayment": "Din bokning har bekräftats och kan betalas.",
     "reservationRejected": "Tyvärr kan vi inte bekräfta din bokning.",
     "reservationUpdated": "Din bokning har uppdaterats:",

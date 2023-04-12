@@ -1,7 +1,7 @@
 {
     "subjectConfirmed": "Kiitos varauksestasi Varaamossa",
     "subjectPreliminary": "Varauksesi odottaa käsittelyä",
-    "subjectCompleted": "Varauksesi on vahvistettu",
+    "subjectHandledConfirmed": "Varauksesi on vahvistettu",
     "subjectCancelled": "Varauksesi on peruttu",
     "subjectRejected": "Valitettavasti varaustasi ei voida vahvistaa",
     "subjectUpdated": "Varaustasi on muutettu",
@@ -24,10 +24,10 @@
     "feedbackOnService": "palautetta Varaamosta",
     "reserveCityResourcesAt": "Varaa kaupungin tiloja ja laitteita käyttöösi helposti osoitteessa",
 
-    "reservationPending": "Olet tehnyt alustavan varauksen:",
-    "reservationCompleted": "Olet tehnyt uuden varauksen:",
-    "reservationConfirmed": "Varauksesi on nyt vahvistettu.",
-    "reservationSubsidized": "Varauksesi on hyväksytty, ja varaukseen on myönnetty seuraava alennus:",
+    "reservationMadeConfirmed": "Olet tehnyt uuden varauksen:",
+    "reservationMadePreliminary": "Olet tehnyt alustavan varauksen:",
+    "reservationHandledConfirmed": "Varauksesi on nyt vahvistettu.",
+    "reservationHandledSubsidized": "Varauksesi on hyväksytty, ja varaukseen on myönnetty seuraava alennus:",
     "reservationNeedsPayment": "Varauksesi on hyväksytty, ja sen voi maksaa pankkitunnuksilla.",
     "reservationRejected": "Valitettavasti alla olevaa varaustasi ei voida vahvistaa.",
     "reservationUpdated": "Varaustasi on muutettu:",

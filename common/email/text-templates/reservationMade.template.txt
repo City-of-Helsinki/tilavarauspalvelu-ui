@@ -1,6 +1,6 @@
 ${salutation} {{reservee_name}},
 
-${reservationCompleted}
+${reservationMadeConfirmed}
 
 {{reservation_unit}}
 {{unit_name}}

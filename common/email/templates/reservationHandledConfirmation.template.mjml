@@ -2,7 +2,7 @@
   <mj-head>
     <mj-include path="partials/base.css" type="css" />
     <mj-include path="partials/attributes.mjml" />
-    <mj-title>${subjectCompleted}</mj-title>
+    <mj-title>${subjectHandledConfirmed}</mj-title>
   </mj-head>
   <mj-body>
     <mj-include path="partials/header.mjml" />
@@ -11,11 +11,11 @@
         <mj-raw>
           {% if price < non_subsidised_price %}
         </mj-raw>
-        <mj-text>${reservationSubsidized}</mj-text>
+        <mj-text>${reservationHandledSubsidized}</mj-text>
         <mj-raw>
           {% else %}
         </mj-raw>
-        <mj-text>${reservationConfirmed}</mj-text>
+        <mj-text>${reservationHandledConfirmed}</mj-text>
         <mj-raw>
           {% endif %}
         </mj-raw>

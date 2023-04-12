@@ -1,7 +1,7 @@
 {
     "subjectConfirmed": "Thank you for your booking at Varaamo",
     "subjectPreliminary": "Your booking is waiting for processing",
-    "subjectCompleted": "Your booking is confirmed",
+    "subjectHandledConfirmed": "Your booking is confirmed",
     "subjectCancelled": "Your booking has been cancelled",
     "subjectRejected": "Unfortunately your booking cannot be confirmed",
     "subjectUpdated": "Your booking has been updated",
@@ -24,10 +24,10 @@
     "feedbackOnService": "feedback on Varaamo",
     "reserveCityResourcesAt": "Book the city’s premises and equipment for your use at",
 
-    "reservationPending": "You have made a new booking request:",
-    "reservationCompleted": "You have made a new booking:",
-    "reservationConfirmed": "Your booking is now confirmed.",
-    "reservationSubsidized": "Your booking has been confirmed with the following discount:",
+    "reservationMadeConfirmed": "You have made a new booking:",
+    "reservationMadePreliminary": "You have made a new booking request:",
+    "reservationHandledConfirmed": "Your booking is now confirmed.",
+    "reservationHandledSubsidized": "Your booking has been confirmed with the following discount:",
     "reservationNeedsPayment": "Your booking has been confirmed, and can be paid.",
     "reservationRejected": "Unfortunately your booking cannot be confirmed.",
     "reservationUpdated": "Your booking has been updated:",
