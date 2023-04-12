@@ -2,7 +2,7 @@
     "subjectConfirmed": "Tack för din bokning på Varaamo",
     "subjectPreliminary": "Din bokning väntar på att behandlas",
     "subjectHandledConfirmed": "Din bokning är bekräftad",
-    "subjectCancelled": "Din bokning är avbokad har avbokats",
+    "subjectCancelled": "Din bokning har avbokats",
     "subjectRejected": "Tyvärr kan vi inte bekräfta din bokning",
     "subjectUpdated": "Din bokning har uppdaterats",
     "subjectStaffReservationMade": "Ny bokning {{reservation_number}} har gjorts för {{unit_name}}",
