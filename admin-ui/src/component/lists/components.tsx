@@ -18,6 +18,7 @@ export const HR = styled.hr`
 
 const StyledTable = styled(Table)<TableWrapperProps>`
   & {
+    white-space: nowrap;
     th {
       font-family: var(--font-bold);
       padding: var(--spacing-xs);
@@ -31,7 +32,6 @@ const StyledTable = styled(Table)<TableWrapperProps>`
       }
     }
     td {
-      white-space: nowrap;
       padding: var(--spacing-xs);
       background: ${({ $tableBackground = "transparent" }) => $tableBackground};
     }
