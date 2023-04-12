@@ -107,8 +107,6 @@ function RecommendedSlot({
 }: IProps): JSX.Element {
   const { t } = useTranslation();
 
-  console.log("RecomendationsDyApplications");
-
   return (
     <Wrapper data-test-id={`recommendation__slot--${id}`}>
       <Heading>

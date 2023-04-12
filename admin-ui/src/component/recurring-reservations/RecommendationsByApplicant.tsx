@@ -373,7 +373,6 @@ function RecommendationsByApplicant(): JSX.Element {
   const isApplicationRoundApproved =
     applicationRound && ["approved"].includes(applicationRound.status);
 
-  console.log("RecomendationsDyApplications");
   return (
     <Wrapper>
       {applicationRoundId ? (

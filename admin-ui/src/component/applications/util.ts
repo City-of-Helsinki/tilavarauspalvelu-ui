@@ -1,14 +1,11 @@
 import { differenceInWeeks } from "date-fns";
-import { isEqual, sum, trim } from "lodash";
-import { TFunction } from "i18next";
+import { sum } from "lodash";
 import { ApplicationType } from "common/types/gql-types";
 import {
   Application,
-  ApplicationEvent,
   ApplicationRoundStatus,
   ApplicationStatus,
 } from "../../common/types";
-import { formatDuration } from "../../common/util";
 
 export const applicantName = (app: Application | ApplicationType): string => {
   return app.applicantType === "individual" ||
