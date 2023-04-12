@@ -28,7 +28,8 @@ import {
   formatDate,
   parseApplicationEventSchedules,
   parseAgeGroups,
-  formatDuration,
+  parseDurationString,
+  formatDurationShort,
 } from "../../common/util";
 import ValueBox from "./ValueBox";
 import { publicUrl, weekdays } from "../../common/const";
@@ -167,25 +168,21 @@ const KV = ({
   </div>
 );
 
-// FIXME this pair of utility functions fails (adding double translations)
-// might be fixed now? TODO test it
-// TODO this is bad (we got similar conversion function already, and this code is messy)
-const parseDuration = (
+// TODO there is a missing space between the hours and minutes => TEST
+const formatDuration = (
   duration: string | null,
   t: TFunction,
   type?: "min" | "max"
 ): string => {
-  if (!duration) return "";
-  const dur = formatDuration(duration);
-  const translationKey = `common.${type}Amount`;
-  let result = "";
-  result += `${type ? t(translationKey) : ""} ${
-    dur.hours && t("common.hoursUnit", { count: dur.hours })
-  }`;
-  if (dur.minutes) {
-    result += t("common.minutesUnit", { count: dur.minutes });
+  if (!duration) {
+    return "";
   }
-  return result;
+  const dur = parseDurationString(duration);
+  const translationKey = `common.${type}Amount`;
+  if (!dur) {
+    return "";
+  }
+  return `${type ? t(translationKey) : ""} ${formatDurationShort(dur)}`;
 };
 
 const appEventDuration = (
@@ -195,10 +192,10 @@ const appEventDuration = (
 ): string => {
   let duration = "";
   if (isEqual(min, max)) {
-    duration += parseDuration(min, t);
+    duration += formatDuration(min, t);
   } else {
-    duration += parseDuration(min, t, "min");
-    duration += `, ${parseDuration(max, t, "max")}`;
+    duration += formatDuration(min, t, "min");
+    duration += `, ${formatDuration(max, t, "max")}`;
   }
   return trim(duration, ", ");
 };

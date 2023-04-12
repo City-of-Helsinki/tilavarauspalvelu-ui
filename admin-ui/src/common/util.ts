@@ -73,20 +73,7 @@ export const formatDecimal = ({
   return parseFloat(value.toFixed(decimals));
 };
 
-interface IFormatDurationOutput {
-  hours: number;
-  minutes: number;
-}
-
 export type ApplicationRoundStatusView = "listing";
-
-export const formatDuration = (time: string): IFormatDurationOutput => {
-  const [hours, minutes] = time.split(":");
-  return {
-    hours: Number(hours),
-    minutes: Number(minutes),
-  };
-};
 
 export const getNormalizedApplicationEventStatus = (
   status: ApplicationEventStatus,
@@ -184,16 +171,38 @@ export const secondsToHms = (duration?: number | null): HMS => {
   return { h, m, s };
 };
 
-const parseDurationShort = (hms: HMS): string =>
+// TODO remove the String when the parses are renamed
+export const parseDurationString = (time: string): HMS | undefined => {
+  const [hours, minutes] = time.split(":");
+  if (!hours && !minutes) {
+    return undefined;
+  }
+  const h = Number(hours);
+  const m = Number(minutes);
+  if (
+    Number.isNaN(h) ||
+    Number.isNaN(m) ||
+    h >= 24 ||
+    h < 0 ||
+    m < 0 ||
+    m >= 60
+  ) {
+    return undefined;
+  }
+  return { h, m };
+};
+
+export const formatDurationShort = (hms: HMS): string =>
   `${hms.h ? i18next.t("common.hoursUnit", { count: hms.h }) : ""} ${
     hms.m ? i18next.t("common.minutesUnit", { count: hms.m }) : ""
   }`;
 
-const parseDurationLong = (hms: HMS): string =>
+export const formatDurationLong = (hms: HMS): string =>
   `${hms.h ? i18next.t("common.hoursUnitLong", { count: hms.h }) : ""} ${
     hms.m ? i18next.t("common.minutesUnitLong", { count: hms.m }) : ""
   }`;
 
+// TODO parseDuration is not a parse. parse: string => object (this is a print / format)
 export const parseDuration = (
   duration: number | null | undefined,
   unitFormat?: "long"
@@ -202,9 +211,9 @@ export const parseDuration = (
 
   switch (unitFormat) {
     case "long":
-      return parseDurationLong(hms).trim();
+      return formatDurationLong(hms).trim();
     default:
-      return parseDurationShort(hms).trim();
+      return formatDurationShort(hms).trim();
   }
 };
 
