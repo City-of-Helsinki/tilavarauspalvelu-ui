@@ -89,6 +89,11 @@ function Label({ type, children }: IDateLabelProps): JSX.Element {
   );
 }
 
+const formatTime = (input: string) => {
+  const hm = input.split(":").slice(0, -1);
+  return hm.join(":");
+};
+
 function RecommendedSlot({
   id,
   start,
@@ -102,10 +107,7 @@ function RecommendedSlot({
 }: IProps): JSX.Element {
   const { t } = useTranslation();
 
-  const formatTime = (input: string) => {
-    const hm = input.split(":").slice(0, -1);
-    return hm.join(":");
-  };
+  console.log("RecomendationsDyApplications");
 
   return (
     <Wrapper data-test-id={`recommendation__slot--${id}`}>

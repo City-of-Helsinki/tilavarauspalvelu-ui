@@ -1,3 +1,4 @@
+import { jest, test, expect } from "@jest/globals";
 import {
   convertHMSToSeconds,
   formatTimeDistance,
@@ -7,6 +8,11 @@ import {
   formatDecimal,
 } from "./util";
 
+jest.mock("i18next", () => ({
+  // t: (str: string, { count }) => `${count} ${str}`,
+  t: (str: string) => str,
+}));
+
 test("secondToHms", () => {
   expect(secondsToHms(9832475)).toEqual({ h: 2731, m: 14, s: 35 });
   expect(secondsToHms(0)).toEqual({});
@@ -15,8 +21,16 @@ test("secondToHms", () => {
   expect(secondsToHms(undefined)).toEqual({});
 });
 
+// can't test actual values since mock doesn't pass them through
 test("parseDuration", () => {
-  expect(parseDuration(7834)).toBe("undefined undefined");
+  expect(parseDuration(3600)).toBe("common.hoursUnit");
+  expect(parseDuration(3600 * 10)).toContain("common.hoursUnit");
+  expect(parseDuration(7834)).toContain("common.hoursUnit");
+  expect(parseDuration(3600 - 10)).not.toContain("common.hoursUnit");
+  expect(parseDuration(3600 - 10)).toContain("common.minutesUnit");
+  // TODO test long format (proper minutes / hours label)
+
+  // invalid values
   expect(parseDuration(0)).toBe("");
   expect(parseDuration(-30)).toBe("");
   expect(parseDuration(undefined)).toBe("");

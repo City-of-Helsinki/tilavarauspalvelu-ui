@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { orderBy, set } from "lodash";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Card, Table } from "hds-react";
-import isEqual from "lodash/isEqual";
+import { isEqual, set, orderBy, trim } from "lodash";
 import omit from "lodash/omit";
+import { TFunction } from "i18next";
 import { H2, H4, H5, Strong } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import Accordion from "../Accordion";
@@ -28,10 +28,11 @@ import {
   formatDate,
   parseApplicationEventSchedules,
   parseAgeGroups,
+  formatDuration,
 } from "../../common/util";
 import ValueBox from "./ValueBox";
 import { publicUrl, weekdays } from "../../common/const";
-import { appEventDuration, applicantName } from "./util";
+import { applicantName } from "./util";
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
 import { useNotification } from "../../context/NotificationContext";
 import TimeSelector from "./time-selector/TimeSelector";
@@ -165,6 +166,42 @@ const KV = ({
     </Value>
   </div>
 );
+
+// FIXME this pair of utility functions fails (adding double translations)
+// might be fixed now? TODO test it
+// TODO this is bad (we got similar conversion function already, and this code is messy)
+const parseDuration = (
+  duration: string | null,
+  t: TFunction,
+  type?: "min" | "max"
+): string => {
+  if (!duration) return "";
+  const dur = formatDuration(duration);
+  const translationKey = `common.${type}Amount`;
+  let result = "";
+  result += `${type ? t(translationKey) : ""} ${
+    dur.hours && t("common.hoursUnit", { count: dur.hours })
+  }`;
+  if (dur.minutes) {
+    result += t("common.minutesUnit", { count: dur.minutes });
+  }
+  return result;
+};
+
+const appEventDuration = (
+  min: string | null,
+  max: string | null,
+  t: TFunction
+): string => {
+  let duration = "";
+  if (isEqual(min, max)) {
+    duration += parseDuration(min, t);
+  } else {
+    duration += parseDuration(min, t, "min");
+    duration += `, ${parseDuration(max, t, "max")}`;
+  }
+  return trim(duration, ", ");
+};
 
 function ApplicationDetails(): JSX.Element | null {
   const { notifyError } = useNotification();
@@ -304,8 +341,8 @@ function ApplicationDetails(): JSX.Element | null {
                     k={t("Application.numHours")}
                     v={`${t("common.hoursUnitLong", {
                       count:
-                        (application.aggregatedData
-                          .appliedMinDurationTotal as number) / 3600,
+                        (application.aggregatedData.appliedMinDurationTotal ??
+                          0) / 3600,
                     })}`}
                   />
                   <KV
@@ -322,7 +359,13 @@ function ApplicationDetails(): JSX.Element | null {
           <IngressContainer>
             {application.applicationEvents.map(
               (applicationEvent: ApplicationEvent) => {
-                const duration = appEventDuration(applicationEvent, t);
+                const duration = appEventDuration(
+                  applicationEvent.minDuration,
+                  applicationEvent.maxDuration,
+                  t
+                );
+                // const duration = appEventDuration(applicationEvent, t);
+                console.log("application event duration: ", duration);
 
                 return (
                   <ScrollIntoView

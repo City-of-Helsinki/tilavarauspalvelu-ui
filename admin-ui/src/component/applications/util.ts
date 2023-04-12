@@ -126,35 +126,3 @@ export const applicationTurns = (application: Application): number =>
       )
     )
   );
-
-const parseDuration = (
-  duration: string | null,
-  t: TFunction,
-  type?: "min" | "max"
-): string => {
-  if (!duration) return "";
-  const durationObj = formatDuration(duration);
-  const translationKey = `common.${type}Amount`;
-  let result = "";
-  result += `${type ? t(translationKey) : ""} ${
-    durationObj.hours && durationObj.hours + t("common.hoursUnit")
-  }`;
-  if (durationObj.minutes) {
-    result += ` ${durationObj.minutes + t("common.minutesUnit")}`;
-  }
-  return result;
-};
-
-export const appEventDuration = (
-  applicationEvent: ApplicationEvent,
-  t: TFunction
-): string => {
-  let duration = "";
-  if (isEqual(applicationEvent.minDuration, applicationEvent.maxDuration)) {
-    duration += parseDuration(applicationEvent.minDuration, t);
-  } else {
-    duration += parseDuration(applicationEvent?.minDuration, t, "min");
-    duration += `, ${parseDuration(applicationEvent?.maxDuration, t, "max")}`;
-  }
-  return trim(duration, ", ");
-};

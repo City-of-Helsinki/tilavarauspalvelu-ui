@@ -184,28 +184,28 @@ export const secondsToHms = (duration?: number | null): HMS => {
   return { h, m, s };
 };
 
+const parseDurationShort = (hms: HMS): string =>
+  `${hms.h ? i18next.t("common.hoursUnit", { count: hms.h }) : ""} ${
+    hms.m ? i18next.t("common.minutesUnit", { count: hms.m }) : ""
+  }`;
+
+const parseDurationLong = (hms: HMS): string =>
+  `${hms.h ? i18next.t("common.hoursUnitLong", { count: hms.h }) : ""} ${
+    hms.m ? i18next.t("common.minutesUnitLong", { count: hms.m }) : ""
+  }`;
+
 export const parseDuration = (
   duration: number | null | undefined,
   unitFormat?: "long"
 ): string => {
   const hms = secondsToHms(duration);
-  let hoursUnit: string;
-  let minutesUnit: string;
-  let output = "";
 
   switch (unitFormat) {
     case "long":
-      hoursUnit = "common.hoursUnitLong";
-      minutesUnit = "common.minutesUnitLong";
-      break;
+      return parseDurationLong(hms).trim();
     default:
-      hoursUnit = "common.hoursUnit";
-      minutesUnit = "common.minutesUnit";
+      return parseDurationShort(hms).trim();
   }
-  if (hms.h) output += `${i18next.t(hoursUnit, { count: hms.h })} `;
-  if (hms.m) output += `${i18next.t(minutesUnit, { count: hms.m })}`;
-
-  return output.trim();
 };
 
 export const convertHMSToSeconds = (input: string): number | null => {
