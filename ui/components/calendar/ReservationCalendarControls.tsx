@@ -172,6 +172,7 @@ const Content = styled.div<{ $isAnimated: boolean }>`
     grid-template-columns: repeat(4, 24%);
     gap: var(--spacing-xs);
     justify-content: space-between;
+    padding-bottom: var(--spacing-s);
   }
 
   @media (min-width: ${breakpoints.xl}) {
