@@ -300,8 +300,9 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   )}`;
 
   const weekDayTag = reservation.recurringReservation?.weekdays
+    ?.sort()
     ?.map((x) => t(`dayShort.${x}`))
-    ?.reduce((agv, x) => `${x}${agv.length > 0 ? "," : ""} ${agv}`, "");
+    ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
 
   const recurringDateTag =
     reservation.begin && reservation.end
