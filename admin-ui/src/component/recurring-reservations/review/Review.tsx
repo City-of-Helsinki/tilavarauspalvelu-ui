@@ -3,8 +3,9 @@ import { debounce } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { gql, useQuery } from "@apollo/client";
 import { H2 } from "common/src/common/typography";
-import { ApplicationRoundType } from "common/types/gql-types";
+import { ApplicationRoundType, Query } from "common/types/gql-types";
 import { ApplicationRound as RestApplicationRoundType } from "../../../common/types";
 import { applicationRoundUrl } from "../../../common/urls";
 import { Container, VerticalFlex } from "../../../styles/layout";
@@ -48,6 +49,25 @@ const TabContent = styled.div`
   line-height: 1;
 `;
 
+// TODO this and the Filter query can be simplified into a single query here
+// (pass the nameFi + pk to Filter)
+// we need to use this query here because we know the reservationUnit not the unit
+// but the filter is for unit selector
+const APPLICATION_RESERVATION_UNITS_QUERY = gql`
+  query reservationUnits($pks: [ID]) {
+    reservationUnits(onlyWithPermission: true, pk: $pks) {
+      edges {
+        node {
+          unit {
+            nameFi
+            pk
+          }
+        }
+      }
+    }
+  }
+`;
+
 function Review({ applicationRound }: IProps): JSX.Element | null {
   const [search, setSearch] = useState<FilterArguments>(emptyFilterState);
   const [sort, setSort] = useState<Sort>();
@@ -61,6 +81,17 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
   };
 
   const { t } = useTranslation();
+
+  const { data } = useQuery<Query>(APPLICATION_RESERVATION_UNITS_QUERY, {
+    variables: {
+      pks: applicationRound.reservationUnitIds,
+    },
+  });
+
+  const unitPks =
+    data?.reservationUnits?.edges
+      ?.map((x) => x?.node?.unit?.pk)
+      ?.filter((x): x is number => x != null) ?? [];
 
   return (
     <>
@@ -129,7 +160,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           <Tabs.TabPanel>
             <TabContent>
               <VerticalFlex>
-                <Filters onSearch={debouncedSearch} />
+                <Filters onSearch={debouncedSearch} unitPks={unitPks} />
                 <ApplicationDataLoader
                   applicationRound={applicationRound}
                   key={JSON.stringify({ ...search, ...sort })}
@@ -143,7 +174,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           <Tabs.TabPanel>
             <TabContent>
               <VerticalFlex>
-                <Filters onSearch={debouncedSearch} />
+                <Filters onSearch={debouncedSearch} unitPks={unitPks} />
                 <ApplicationEventDataLoader
                   applicationRound={applicationRound}
                   key={JSON.stringify({ ...search, ...sort })}
