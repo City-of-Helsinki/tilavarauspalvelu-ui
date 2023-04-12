@@ -7,7 +7,7 @@ import type {
 } from "common/types/gql-types";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import type { UseFormReturn } from "react-hook-form";
-import { generateReservations } from "./ReservationsList";
+import { generateReservations } from "./generateReservations";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import { useNotification } from "../../../context/NotificationContext";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
@@ -21,8 +21,8 @@ export const useMultipleReservation = (
   const selectedReservationParams = watch([
     "startingDate",
     "endingDate",
-    "startingTime",
-    "endingTime",
+    "startTime",
+    "endTime",
     "repeatPattern",
     "repeatOnDays",
   ]);
@@ -33,8 +33,8 @@ export const useMultipleReservation = (
         {
           startingDate: selectedReservationParams[0],
           endingDate: selectedReservationParams[1],
-          startingTime: selectedReservationParams[2],
-          endingTime: selectedReservationParams[3],
+          startTime: selectedReservationParams[2],
+          endTime: selectedReservationParams[3],
           repeatPattern: selectedReservationParams[4],
           repeatOnDays: selectedReservationParams[5],
         },

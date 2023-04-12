@@ -175,6 +175,8 @@ const translations: ITranslations = {
     decreaseByOneAriaLabel: ["Vähennä yhdellä"],
     openToNewTab: ["Avaa uuteen välilehteen"],
     reservationUnit: ["Varausyksikkö"],
+    remove: ["Poista"],
+    restore: ["Palauta"],
   },
   errors: {
     applicationRoundNotFound: ["Haettua hakukierrosta ei löydy"],
@@ -209,6 +211,15 @@ const translations: ITranslations = {
     "all-reservations": ["Kaikki varaukset"],
     units: ["Toimipisteet"],
     "my-units": ["Omat toimipisteet"],
+  },
+  tos: {
+    paymentTermsTitle: ["Maksuehdot"],
+    priceTermsTitle: ["Alennusryhmä"],
+    cancelTermsTitle: ["Peruutusehdot"],
+    serviceTermsTitle: ["Täydentävät ehdot"],
+    generalTermsTitle: [
+      "Helsingin kaupungin tilojen ja laitteiden varaamisen sopimusehdot",
+    ],
   },
 
   ArchiveReservationUnitDialog: {
@@ -309,8 +320,9 @@ const translations: ITranslations = {
       },
       pageTitle: ["Tee toistuva varaus"],
       Confirmation: {
+        removed: ["Poistettu"],
         title: ["Toistuva varaus tehty"],
-        failedTitle: ["Päällekkäiset varaukset"],
+        failedTitle: ["Epäonnistuneet varaukset"],
         successTitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
         failureInfo: [
@@ -322,15 +334,24 @@ const translations: ITranslations = {
         failureInfoSecondParagraph: [
           "Voit halutessasi etsiä näille toistoille uuden ajan varauksen sivulta.",
         ],
+        failureMessages: {
+          "ApolloError: Reservation new begin cannot be in the past": [
+            "Aika menneisyydessä",
+          ],
+          "ApolloError: Overlapping reservations are not allowed.": [
+            "Aika ei saatavilla",
+          ],
+        },
         buttonToUnit: ["Palaa toimipisteen sivulle"],
         buttonToReservation: ["Siirry varauksen sivulle"],
       },
     },
+    ReservationForm: {
+      showReserver: ["Näytä varaajan tiedot ja ehdot"],
+    },
     // TODO these are duplicates from ReservationDialog ex. reservationType
     RecurringReservationForm: {
       reservationUnit: ["Varausyksikkö"],
-      startingDate: ["Aloituspäivä"],
-      endingDate: ["Päättymispäivä"],
       repeatPattern: ["Varauksen toisto"],
       startingTime: ["Aloitusaika"],
       endingTime: ["Lopetusaika"],
@@ -346,39 +367,42 @@ const translations: ITranslations = {
       errors: {
         formNotValid: ["Lomakkeessa vikaa."],
         noReservations: [
-          "Mahdotonta tehdä toistuvaa varausta ilman yhtään varauspäivää.",
+          "Valittujen viikonpäivien tulee vastata valittuja päivämääriä.",
         ],
         "Invalid date": ["Virheellinen päivämäärä."],
-        "End time can't be more than 24 hours.": [
-          "Loppumisaika ei voi olla yli 24 tuntia.",
+        "endTime can't be more than 24 hours.": [
+          "Lopetusaika ei voi olla yli 24 tuntia.",
         ],
-        "Start time can't be more than 24 hours.": [
+        "startTime can't be more than 24 hours.": [
           "Aloitusaika ei voi olla yli 24 tuntia.",
         ],
-        "Starting time has to be in 15 minutes increments.": [
+        "startTime has to be in 15 minutes increments.": [
           "Aloitusajan pitää olla 15 minuutin välein.",
         ],
-        "Starting time has to be in 30 minutes increments.": [
+        "startTime has to be in 30 minutes increments.": [
           "Aloitusajan pitää olla 30 minuutin välein.",
         ],
-        "Starting time has to be in 60 minutes increments.": [
+        "startTime has to be in 60 minutes increments.": [
           "Aloitusajan pitää olla 60 minuutin välein.",
         ],
-        "Starting time has to be in 90 minutes increments.": [
+        "startTime has to be in 90 minutes increments.": [
           "Aloitusajan pitää olla 90 minuutin välein.",
         ],
-        "End time has to be increment of 15 minutes.": [
-          "Loppumisajan pitää olla 15 minuutin välein.",
+        "endTime has to be in 15 minutes increments.": [
+          "Lopetusaika pitää olla 15 minuutin välein.",
         ],
-        "Start time is not in time format.": [
+        "startTime is not in time format.": [
           "Aloitusaika tulee olla muodossa tt:mm",
         ],
-        "End time is not in time format.": [
-          "Loppumisaika tulee olla muodossa tt:mm",
+        "endTime is not in time format.": [
+          "Lopetusaika tulee olla muodossa tt:mm",
         ],
-        "Start date can't be in the past": ["Aloituspäivä menneisyydessä."],
+        "Date can't be in the past": ["Päivä ei voi olla menneisyydessä."],
+        "Date needs to be within three years.": [
+          "Päivän pitää olla kolmen vuoden sisällä.",
+        ],
         "End time needs to be after start time.": [
-          "Loppumisajan pitää olla aloitusajan jälkeen.",
+          "Lopetusaika pitää olla aloitusajan jälkeen.",
         ],
         "Start date can't be after end date.": [
           "Aloituspäivän tulee olla ennen päättymispäivää",
@@ -1120,10 +1144,14 @@ const translations: ITranslations = {
   ReservationDialog: {
     title: ["Varaa {{reservationUnit}}"],
     date: ["Päivämäärä"],
+    startingDate: ["Aloituspäivä"],
+    endingDate: ["Päättymispäivä"],
     startTime: ["Aloitusaika"],
     endTime: ["Lopetusaika"],
     type: ["Varauksen tyyppi"],
     typeInfo: ["Lorem ipsum dolor sit amet, consectetur adipisicing elit."],
+    increase: ["lisää"],
+    decrease: ["vähennä"],
     reservationType: {
       STAFF: [
         "Kaupungin oma käyttö, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
@@ -1231,13 +1259,6 @@ const translations: ITranslations = {
     accept: ["Varaa"],
     saveFailed: ["Tallennus ei onnistunut: {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
-    validation: {
-      typeRequired: ["Valitse varauksen tyyppi"],
-      noPastDate: ["Aloitusaika menneisyydessä"],
-      endAfterBegin: ["Lopetusaika liian aikainen"],
-      interval: ["Virheellinen aloitusaika, intervallit: {{interval}}"],
-      Required: ["Pakollinen"],
-    },
   },
   ReservationUnits: {
     reservationUnitListHeading: ["Varausyksiköt"],
@@ -1789,6 +1810,9 @@ const translations: ITranslations = {
     removeFailed: ["Resurssin poistaminen ei onnistunut."],
     removeSuccess: ["Resurssi poistettu."],
   },
+  RecurringReservationsView: {
+    Heading: ["Ajankohta"],
+  },
   RequestedReservations: {
     heading: {
       unit: ["Toimipiste"],
@@ -1841,6 +1865,10 @@ const translations: ITranslations = {
       state: ["Käsittelytila"],
     },
   },
+  ReservationsListButton: {
+    changeTime: ["Muuta aikaa"],
+    showInCalendar: ["Näytä kalenterissa"],
+  },
 
   ReservationsSearch: {
     textSearch: ["Hae varausta"],
@@ -1863,6 +1891,7 @@ const translations: ITranslations = {
     heading: ["Varauksen tarkastelu"],
     calendar: ["Varauskalenteri"],
     summary: ["Varauksen yhteenveto"],
+    recurring: ["Toistokerrat"],
     state: {
       REQUIRES_HANDLING: ["Käsittelemättä"],
       CONFIRMED: ["Hyväksytty"],
@@ -1923,6 +1952,7 @@ const translations: ITranslations = {
     birthDate: ["Syntymäaika"],
     hideBirthDate: ["Piilota"],
     showBirthDate: ["Näytä"],
+    alreadyEnded: ["Päättynyt"],
     DenyDialog: {
       reject: ["Hylkää varaus"],
       denyReason: ["Hylkäyksen syy"],

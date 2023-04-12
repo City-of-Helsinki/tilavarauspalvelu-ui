@@ -34,6 +34,9 @@ export const RESERVATION_QUERY = gql`
         unit {
           pk
           nameFi
+          serviceSectors {
+            pk
+          }
         }
         pricings {
           begins
@@ -46,6 +49,12 @@ export const RESERVATION_QUERY = gql`
           }
           status
         }
+      }
+      recurringReservation {
+        pk
+        beginDate
+        endDate
+        weekdays
       }
       orderStatus
       ageGroup {
@@ -98,6 +107,24 @@ export const RESERVATION_QUERY = gql`
   }
 `;
 
+export const RECURRING_RESERVATION_QUERY = gql`
+  query recurringReservation($pk: ID!) {
+    reservations(recurringReservation: $pk, state: ["CONFIRMED", "DENIED"]) {
+      edges {
+        node {
+          pk
+          begin
+          end
+          state
+          recurringReservation {
+            pk
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const APPROVE_RESERVATION = gql`
   mutation approveReservation($input: ReservationApproveMutationInput!) {
     approveReservation(input: $input) {
@@ -139,44 +166,6 @@ export const RESERVATION_DENY_REASONS = gql`
           pk
           reasonFi
         }
-      }
-    }
-  }
-`;
-
-export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
-  query reservationsByReservationUnit(
-    $reservationUnit: [ID]
-    $offset: Int
-    $first: Int
-    $begin: DateTime
-    $end: DateTime
-  ) {
-    reservations(
-      begin: $begin
-      end: $end
-      first: $first
-      offset: $offset
-      reservationUnit: $reservationUnit
-      state: ["DENIED", "CONFIRMED", "REQUIRES_HANDLING"]
-    ) {
-      edges {
-        node {
-          user {
-            email
-          }
-          name
-          reserveeFirstName
-          reserveeLastName
-          reserveeOrganisationName
-          pk
-          begin
-          end
-          state
-        }
-      }
-      pageInfo {
-        hasNextPage
       }
     }
   }

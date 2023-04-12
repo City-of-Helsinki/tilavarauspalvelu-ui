@@ -6,7 +6,8 @@ import { render } from "@testing-library/react";
 import { addDays, nextMonday } from "date-fns";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { toUIDate } from "common/src/common/util";
-import { generateReservations, ReservationList } from "./ReservationsList";
+import { generateReservations } from "./generateReservations";
+import ReservationList from "../../ReservationsList";
 
 const today = new Date();
 const dtoday = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
@@ -14,8 +15,8 @@ const twoWeeksOnceAWeek = {
   startingDate: today,
   // two weeks is 13 days since the last day is inclusive
   endingDate: addDays(dtoday, 13),
-  startingTime: "00:00",
-  endingTime: "01:00",
+  startTime: "00:00",
+  endTime: "01:00",
   repeatOnDays: [1],
   repeatPattern: {
     label: "",
