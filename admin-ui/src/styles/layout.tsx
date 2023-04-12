@@ -142,9 +142,9 @@ export const VerticalFlexNoGap = styled.div`
 
 VerticalFlexNoGap.displayName = "VerticalFlexNoGap";
 
+// grid because flex causes overflow problems in children
 export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--spacing-layout-2-xs);
 
   max-width: var(--container-width-xl);

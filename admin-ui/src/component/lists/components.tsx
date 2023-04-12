@@ -2,7 +2,6 @@ import { get } from "lodash";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { breakpoints } from "common/src/common/style";
 import { Table, TableProps } from "../../common/hds-fork/table/Table";
 
 type TableWrapperProps = {
@@ -17,17 +16,9 @@ export const HR = styled.hr`
   width: 100%;
 `;
 
-const TableWrapper = styled.div<TableWrapperProps>`
-  div {
-    overflow-x: auto;
-    @media (min-width: ${breakpoints.xl}) {
-      overflow-x: unset !important;
-    }
-  }
-  table {
-    width: 100%;
+const StyledTable = styled(Table)<TableWrapperProps>`
+  & {
     th {
-      color: black !important;
       font-family: var(--font-bold);
       padding: var(--spacing-xs);
       background: ${({ $headingBackground = "var(--color-black-10)" }) =>
@@ -56,15 +47,14 @@ const TableWrapper = styled.div<TableWrapperProps>`
 export const CustomTable = (
   props: TableProps & { setSort: (col: string) => void }
 ): JSX.Element => (
-  <TableWrapper
+  <StyledTable
     $headingBackground="var(--color-black-10)"
     $tableBackground="var(--color-white)"
     $colWidths={
       props?.cols ? props.cols.map((col) => get(col, "width", "auto")) : []
     }
-  >
-    <Table {...props} />
-  </TableWrapper>
+    {...props}
+  />
 );
 
 const NoDataMessage = styled.span`
