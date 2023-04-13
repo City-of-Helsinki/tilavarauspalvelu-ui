@@ -64,11 +64,11 @@ describe("Tilavaraus user reservations", () => {
     statusTag("desktop")
       .should("have.length", 6)
       .each(($el, $i) => {
-        if ([0, 2, 4].includes($i)) {
+        if ([1, 3, 5].includes($i)) {
           expect($el).to.contain("Hyväksytty");
-        } else if ($i === 1) {
+        } else if ($i === 4) {
           expect($el).to.contain("Odottaa maksua");
-        } else if ($i === 5) {
+        } else if ($i === 0) {
           expect($el).to.contain("Hylätty");
         } else {
           expect($el).to.contain("Käsiteltävänä");
@@ -78,9 +78,9 @@ describe("Tilavaraus user reservations", () => {
     orderStatusTag("desktop")
       .should("have.length", 3)
       .each(($el, $i) => {
-        if ($i === 0) {
+        if ($i === 2) {
           expect($el).to.contain("Maksettu");
-        } else if ([1, 2].includes($i)) {
+        } else if ([0, 1].includes($i)) {
           expect($el).to.contain("Paikan päällä");
         }
       });
@@ -99,22 +99,22 @@ describe("Tilavaraus user reservations", () => {
     cancelButton().should("exist");
 
     reservationCards()
-      .eq(0)
+      .eq(5)
       .find('[data-testid="reservation__card--price"]')
       .should("contain.text", "42\u00a0€");
 
     reservationCards()
-      .eq(1)
+      .eq(4)
       .find('[data-testid="reservation__card--price"]')
       .should("contain.text", "Maksuton");
 
     reservationCards()
-      .eq(3)
+      .eq(2)
       .find('[data-testid="reservation__card--status-desktop"]')
       .should("contain.text", "Käsiteltävänä");
 
     reservationCards()
-      .eq(3)
+      .eq(2)
       .find('[data-testid="reservation__card--price"]')
       .should("contain.text", "80,00 - 240,00\u00a0€");
 
@@ -133,7 +133,7 @@ describe("Tilavaraus user reservations", () => {
   });
 
   it("should display reservation detail view with company reservee", () => {
-    detailButton().eq(1).click();
+    detailButton().eq(4).click();
 
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/11$/);
 
@@ -188,7 +188,7 @@ describe("Tilavaraus user reservations", () => {
   });
 
   it("should display reservation detail view with individual reservee", () => {
-    detailButton().eq(0).click();
+    detailButton().eq(5).click();
 
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
 
@@ -243,7 +243,7 @@ describe("Tilavaraus user reservations", () => {
   });
 
   it("should do cancellation", () => {
-    detailButton().eq(4).click();
+    detailButton().eq(1).click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
     detailCancelButton().click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
@@ -258,7 +258,7 @@ describe("Tilavaraus user reservations", () => {
 
     cy.visit("/reservations");
 
-    detailButton().eq(4).click();
+    detailButton().eq(1).click();
     detailCancelButton().click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
 
@@ -284,7 +284,7 @@ describe("Tilavaraus user reservations", () => {
   it("should do time modification", () => {
     const titles = ["Muuta varauksen aikaa", "Tarkista varauksen tiedot"];
 
-    detailButton().eq(0).click();
+    detailButton().eq(5).click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
     modifyButton().click();
     cy.url({ timeout: 20000 }).should("match", /\/reservations\/4\/edit$/);
