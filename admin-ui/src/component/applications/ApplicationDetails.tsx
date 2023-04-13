@@ -361,8 +361,6 @@ function ApplicationDetails(): JSX.Element | null {
                   applicationEvent.maxDuration,
                   t
                 );
-                // const duration = appEventDuration(applicationEvent, t);
-                console.log("application event duration: ", duration);
 
                 return (
                   <ScrollIntoView
@@ -472,7 +470,7 @@ function ApplicationDetails(): JSX.Element | null {
                                 return (
                                   <EventSchedule key={day}>
                                     <Strong>{t(`calendar.${day}`)}</Strong>
-                                    {schedulesTxt ? `,${schedulesTxt}` : ""}
+                                    {schedulesTxt ? `: ${schedulesTxt}` : ""}
                                   </EventSchedule>
                                 );
                               })}
