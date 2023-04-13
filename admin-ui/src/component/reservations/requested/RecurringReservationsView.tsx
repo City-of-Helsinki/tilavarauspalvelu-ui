@@ -12,6 +12,8 @@ import { RECURRING_RESERVATION_QUERY } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import ReservationList from "../../ReservationsList";
 import ReservationListButton from "../../ReservationListButton";
+import DenyDialog from "./DenyDialog";
+import { useModal } from "../../../context/ModalContext";
 
 const RecurringReservationsView = ({
   reservation,
@@ -23,7 +25,7 @@ const RecurringReservationsView = ({
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  const { loading, data } = useQuery<Query, QueryReservationByPkArgs>(
+  const { loading, data, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     RECURRING_RESERVATION_QUERY,
     {
       skip: !reservation.recurringReservation?.pk,
@@ -35,6 +37,8 @@ const RecurringReservationsView = ({
       },
     }
   );
+
+  const { setModalContent } = useModal();
 
   if (loading || data == null) {
     return <div>Loading</div>;
@@ -51,10 +55,22 @@ const RecurringReservationsView = ({
     console.warn("Change NOT Implemented.");
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemove = (_x: ReservationType) => {
-    // eslint-disable-next-line no-console
-    console.warn("Remove NOT Implemented.");
+  const handleCloseRemoveDialog = (shouldRefetch?: boolean) => {
+    if (shouldRefetch) {
+      refetch();
+    }
+    setModalContent(null);
+  };
+
+  const handleRemove = (res: ReservationType) => {
+    setModalContent(
+      <DenyDialog
+        reservation={res}
+        onReject={() => handleCloseRemoveDialog(true)}
+        onClose={() => handleCloseRemoveDialog(false)}
+      />,
+      true
+    );
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,24 +79,39 @@ const RecurringReservationsView = ({
     console.warn("Restore NOT Implemented.");
   };
 
-  const forDisplay = reservations.map((x) => ({
-    date: new Date(x.begin),
-    startTime: format(new Date(x.begin), "hh:mm"),
-    endTime: format(new Date(x.begin), "hh:mm"),
-    isRemoved: x.state !== "CONFIRMED",
-    buttons: [
-      <ReservationListButton callback={() => handleChange(x)} type="change" />,
-      <ReservationListButton callback={() => onSelect(x)} type="show" />,
-      x.state === "CONFIRMED" ? (
+  const forDisplay = reservations.map((x) => {
+    const buttons = [];
+    const startDate = new Date(x.begin);
+    const now = new Date();
+    if (startDate > now) {
+      buttons.push(
+        <ReservationListButton callback={() => handleChange(x)} type="change" />
+      );
+    }
+
+    buttons.push(
+      <ReservationListButton callback={() => onSelect(x)} type="show" />
+    );
+    if (startDate > now && x.state === "CONFIRMED") {
+      buttons.push(
         <ReservationListButton callback={() => handleRemove(x)} type="remove" />
-      ) : (
+      );
+    } else if (startDate > now && x.state === "DENIED") {
+      buttons.push(
         <ReservationListButton
           callback={() => handleRestore(x)}
           type="restore"
         />
-      ),
-    ],
-  }));
+      );
+    }
+    return {
+      date: startDate,
+      startTime: format(startDate, "hh:mm"),
+      endTime: format(new Date(x.end), "hh:mm"),
+      isRemoved: x.state !== "CONFIRMED",
+      buttons,
+    };
+  });
 
   return (
     <ReservationList
