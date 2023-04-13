@@ -49,17 +49,12 @@ const TabContent = styled.div`
   line-height: 1;
 `;
 
-// TODO this and the Filter query can be simplified into a single query here
-// (pass the nameFi + pk to Filter)
-// we need to use this query here because we know the reservationUnit not the unit
-// but the filter is for unit selector
 const APPLICATION_RESERVATION_UNITS_QUERY = gql`
   query reservationUnits($pks: [ID]) {
     reservationUnits(onlyWithPermission: true, pk: $pks) {
       edges {
         node {
           unit {
-            nameFi
             pk
           }
         }

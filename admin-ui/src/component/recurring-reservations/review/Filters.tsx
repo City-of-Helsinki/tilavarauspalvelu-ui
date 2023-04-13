@@ -17,7 +17,7 @@ const multivaledFields = ["unit"];
 
 const APPLICATION_UNITS_QUERY = gql`
   query units($pks: [ID]) {
-    units(onlyWithPermission: true, pk: $pks) {
+    units(onlyWithPermission: true, pk: $pks, orderBy: "nameFI") {
       edges {
         node {
           nameFi
