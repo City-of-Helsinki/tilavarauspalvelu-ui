@@ -59,26 +59,28 @@ describe("Tilavaraus user reservations", () => {
   });
 
   it("should list proper items with correct button states and link to reservation unit", () => {
-    reservationCards().should("have.length", 5);
+    reservationCards().should("have.length", 6);
 
     statusTag("desktop")
-      .should("have.length", 5)
+      .should("have.length", 6)
       .each(($el, $i) => {
         if ([0, 2, 4].includes($i)) {
           expect($el).to.contain("Hyväksytty");
         } else if ($i === 1) {
           expect($el).to.contain("Odottaa maksua");
+        } else if ($i === 5) {
+          expect($el).to.contain("Hylätty");
         } else {
           expect($el).to.contain("Käsiteltävänä");
         }
       });
 
     orderStatusTag("desktop")
-      .should("have.length", 2)
+      .should("have.length", 3)
       .each(($el, $i) => {
         if ($i === 0) {
           expect($el).to.contain("Maksettu");
-        } else if ($i === 2) {
+        } else if ([1, 2].includes($i)) {
           expect($el).to.contain("Paikan päällä");
         }
       });
@@ -118,11 +120,15 @@ describe("Tilavaraus user reservations", () => {
 
     tab(2).click();
 
-    reservationCards().should("have.length", 2);
+    reservationCards().should("have.length", 3);
     statusTag("desktop")
-      .should("have.length", 2)
-      .each(($el) => {
-        expect($el).to.contain("Hyväksytty");
+      .should("have.length", 3)
+      .each(($el, $i) => {
+        if ($i === 2) {
+          expect($el).to.contain("Hylätty");
+        } else {
+          expect($el).to.contain("Hyväksytty");
+        }
       });
   });
 
