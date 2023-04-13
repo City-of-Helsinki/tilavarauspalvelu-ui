@@ -17,8 +17,9 @@ export const HR = styled.hr`
 `;
 
 const StyledTable = styled(Table)<TableWrapperProps>`
-  & {
+  &&& {
     white-space: nowrap;
+    border-collapse: collapse;
     th {
       font-family: var(--font-bold);
       padding: var(--spacing-xs);
