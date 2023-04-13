@@ -6,7 +6,7 @@ import { weekdays } from "../../common/const";
 import {
   convertHMSToSeconds,
   formatDate,
-  parseDuration,
+  formatDuration,
 } from "../../common/util";
 import { ReactComponent as IconCalendar } from "../../images/icon_calendar.svg";
 
@@ -150,7 +150,7 @@ function RecommendedSlot({
                     duration:
                       durationStr ||
                       (duration &&
-                        parseDuration(convertHMSToSeconds(duration))),
+                        formatDuration(convertHMSToSeconds(duration))),
                   })}
                 </Duration>
               </Col>

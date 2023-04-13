@@ -171,7 +171,6 @@ export const secondsToHms = (duration?: number | null): HMS => {
   return { h, m, s };
 };
 
-// TODO remove the String when the parses are renamed
 export const parseDurationString = (time: string): HMS | undefined => {
   const [hours, minutes] = time.split(":");
   if (!hours && !minutes) {
@@ -202,8 +201,7 @@ export const formatDurationLong = (hms: HMS): string =>
     hms.m ? i18next.t("common.minutesUnitLong", { count: hms.m }) : ""
   }`;
 
-// TODO parseDuration is not a parse. parse: string => object (this is a print / format)
-export const parseDuration = (
+export const formatDuration = (
   duration: number | null | undefined,
   unitFormat?: "long"
 ): string => {

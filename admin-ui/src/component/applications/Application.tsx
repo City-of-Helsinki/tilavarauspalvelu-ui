@@ -48,7 +48,7 @@ import {
   formatDate,
   formatNumber,
   localizedValue,
-  parseDuration,
+  formatDuration,
 } from "../../common/util";
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
 import Accordion from "../Accordion";
@@ -322,7 +322,7 @@ const AccordionContent = ({
                   end={endDate}
                   weekday={weekday}
                   biweekly={applicationEvent.biweekly || false}
-                  durationStr={parseDuration(duration)}
+                  durationStr={formatDuration(duration)}
                   timeStart={formatDate(beginDate || "", "H:mm:ss")}
                   timeEnd={formatDate(endDate || "", "H:mm:ss")}
                 />
@@ -619,7 +619,7 @@ const Application = () => {
                     </tr>
                     <tr>
                       <th>{t("ApplicationRound.totalReservationTime")}</th>
-                      <td data-testid="application__data--applied-min-duration-total">{`${parseDuration(
+                      <td data-testid="application__data--applied-min-duration-total">{`${formatDuration(
                         application.aggregatedData.appliedMinDurationTotal
                       )}`}</td>
                     </tr>
@@ -668,7 +668,7 @@ const Application = () => {
                                     {t("ApplicationRound.totalReservationTime")}
                                   </th>
                                   <td>
-                                    {parseDuration(
+                                    {formatDuration(
                                       application.aggregatedData
                                         .reservationsDurationTotal
                                     )}

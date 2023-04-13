@@ -168,7 +168,6 @@ const KV = ({
   </div>
 );
 
-// TODO there is a missing space between the hours and minutes => TEST
 const formatDuration = (
   duration: string | null,
   t: TFunction,

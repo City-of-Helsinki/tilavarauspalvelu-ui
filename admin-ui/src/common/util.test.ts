@@ -3,7 +3,7 @@ import { jest, test, expect } from "@jest/globals";
 import {
   convertHMSToSeconds,
   formatTimeDistance,
-  parseDuration,
+  formatDuration,
   secondsToHms,
   filterData,
   formatDecimal,
@@ -24,28 +24,29 @@ test("secondToHms", () => {
 
 // can't test actual values since i18next mock doesn't pass them through
 test("parseDuration short", () => {
-  expect(parseDuration(3600)).toBe("common.hoursUnit");
-  expect(parseDuration(3600 * 10)).toContain("common.hoursUnit");
-  expect(parseDuration(7834)).toContain("common.hoursUnit");
-  expect(parseDuration(3600 - 10)).not.toContain("common.hoursUnit");
-  expect(parseDuration(3600 - 10)).toBe("common.minutesUnit");
-  expect(parseDuration(3600 + 2 * 60)).toBe(
+  expect(formatDuration(3600)).toBe("common.hoursUnit");
+  expect(formatDuration(3600 * 10)).toContain("common.hoursUnit");
+  expect(formatDuration(7834)).toContain("common.hoursUnit");
+  expect(formatDuration(3600 - 10)).not.toContain("common.hoursUnit");
+  expect(formatDuration(3600 - 10)).toBe("common.minutesUnit");
+  // we have both hours and minutes
+  expect(formatDuration(3600 + 2 * 60)).toBe(
     "common.hoursUnit common.minutesUnit"
   );
 });
 
 test("parseDuration long", () => {
-  expect(parseDuration(3600, "long")).toBe("common.hoursUnitLong");
-  expect(parseDuration(3600 - 10, "long")).toBe("common.minutesUnitLong");
-  expect(parseDuration(3600 + 2 * 60, "long")).toBe(
+  expect(formatDuration(3600, "long")).toBe("common.hoursUnitLong");
+  expect(formatDuration(3600 - 10, "long")).toBe("common.minutesUnitLong");
+  expect(formatDuration(3600 + 2 * 60, "long")).toBe(
     "common.hoursUnitLong common.minutesUnitLong"
   );
 });
 
 test("parseDuration invalid", () => {
-  expect(parseDuration(0)).toBe("");
-  expect(parseDuration(-30)).toBe("");
-  expect(parseDuration(undefined)).toBe("");
+  expect(formatDuration(0)).toBe("");
+  expect(formatDuration(-30)).toBe("");
+  expect(formatDuration(undefined)).toBe("");
 });
 
 test("parseDurationString", () => {
