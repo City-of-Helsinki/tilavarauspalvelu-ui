@@ -1,35 +1,33 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { Button, Dialog, TextArea } from "hds-react";
+import { GraphQLError } from "graphql";
 import {
   Mutation,
-  Query,
-  QueryReservationDenyReasonsArgs,
   ReservationDenyMutationInput,
-  ReservationDenyReasonType,
   ReservationType,
 } from "common/types/gql-types";
 import { useModal } from "../../../context/ModalContext";
-import { DENY_RESERVATION, RESERVATION_DENY_REASONS } from "./queries";
+import { DENY_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import Select from "../../ReservationUnits/ReservationUnitEditor/Select";
-import { OptionType } from "../../../common/types";
 import { VerticalFlex } from "../../../styles/layout";
 import { CustomDialogHeader } from "../../CustomDialogHeader";
+import { useDenyReasonOptions } from "./hooks";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
 `;
 
 const DialogContent = ({
-  reservation,
+  reservations,
   onClose,
   onReject,
 }: {
-  reservation: ReservationType;
+  reservations: ReservationType[];
   onClose: () => void;
   onReject: () => void;
 }) => {
@@ -39,49 +37,36 @@ const DialogContent = ({
     denyReservationMutation({ variables: { input } });
 
   const [handlingDetails, setHandlingDetails] = useState<string>(
-    reservation.workingMemo || ""
+    reservations.length === 1 ? reservations[0].workingMemo ?? "" : ""
   );
   const [denyReasonPk, setDenyReason] = useState<number | null>(null);
-  const [denyReasonOptions, setDenyReasonOptions] = useState<OptionType[]>([]);
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
 
-  const { loading } = useQuery<Query, QueryReservationDenyReasonsArgs>(
-    RESERVATION_DENY_REASONS,
-    {
-      onCompleted: ({ reservationDenyReasons }) => {
-        if (reservationDenyReasons) {
-          setDenyReasonOptions(
-            reservationDenyReasons.edges
-              .map((x) => x?.node)
-              .filter((x): x is ReservationDenyReasonType => x != null)
-              .map(
-                (dr): OptionType => ({
-                  value: dr?.pk ?? 0,
-                  label: dr?.reasonFi ?? "",
-                })
-              )
-          );
-        }
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
-  );
+  const { options, loading } = useDenyReasonOptions();
 
   const handleDeny = async () => {
     try {
       if (denyReasonPk == null) {
         throw new Error("Deny PK undefined");
       }
-      const res = await denyReservation({
-        pk: reservation.pk,
-        denyReasonPk,
-        handlingDetails,
-      });
+      const denyPromises = reservations.map((x) =>
+        denyReservation({
+          pk: x.pk,
+          denyReasonPk,
+          handlingDetails,
+        })
+      );
 
-      if (res.errors) {
+      const res = await Promise.all(denyPromises);
+
+      const errors = res
+        .map((x) => x.errors)
+        .filter((x): x is GraphQLError[] => x != null);
+
+      if (errors.length !== 0) {
+        // eslint-disable-next-line no-console
+        console.error("Deny failed with: ", errors);
         notifyError(t("RequestedReservation.DenyDialog.errorSaving"));
       } else {
         notifySuccess(t("RequestedReservation.DenyDialog.denied"));
@@ -103,7 +88,7 @@ const DialogContent = ({
           <Select
             required
             id="denyReason"
-            options={denyReasonOptions}
+            options={options}
             placeholder={t("common.select")}
             label={t("RequestedReservation.DenyDialog.denyReason")}
             onChange={(v) => setDenyReason(Number(v))}
@@ -133,12 +118,14 @@ const DialogContent = ({
   );
 };
 
+// TODO add a different translation space if the user is deleting more than one reservation
+// so we can do `RequestedReservation.DenyDialog.${single | multi}.title
 const DenyDialog = ({
-  reservation,
+  reservations,
   onClose,
   onReject,
 }: {
-  reservation: ReservationType;
+  reservations: ReservationType[];
   onClose: () => void;
   onReject: () => void;
 }): JSX.Element => {
@@ -159,7 +146,7 @@ const DenyDialog = ({
           close={onClose}
         />
         <DialogContent
-          reservation={reservation}
+          reservations={reservations}
           onReject={onReject}
           onClose={onClose}
         />

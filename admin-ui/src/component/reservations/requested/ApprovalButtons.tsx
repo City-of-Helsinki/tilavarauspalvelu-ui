@@ -29,7 +29,7 @@ const ApprovalButtons = ({
   const handleDenyClick = () => {
     setModalContent(
       <DenyDialog
-        reservation={reservation}
+        reservations={[reservation]}
         onReject={handleAccept}
         onClose={handleClose}
       />,
@@ -60,7 +60,6 @@ const ApprovalButtons = ({
     );
   };
 
-  // Backend doesn't allow changing the status if the reservation has ended
   const endTime = new Date(reservation.end);
   if (endTime < new Date()) {
     return <div>{t("RequestedReservation.alreadyEnded")}</div>;

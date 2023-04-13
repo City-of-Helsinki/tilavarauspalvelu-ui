@@ -41,3 +41,21 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
     }
   }
 `;
+
+export const RECURRING_RESERVATION_QUERY = gql`
+  query recurringReservation($pk: ID!) {
+    reservations(recurringReservation: $pk, state: ["CONFIRMED", "DENIED"]) {
+      edges {
+        node {
+          pk
+          begin
+          end
+          state
+          recurringReservation {
+            pk
+          }
+        }
+      }
+    }
+  }
+`;

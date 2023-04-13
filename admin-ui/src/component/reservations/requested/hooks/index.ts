@@ -1,12 +1,22 @@
 import {
   Query,
+  QueryReservationByPkArgs,
+  QueryReservationDenyReasonsArgs,
   QueryReservationsArgs,
+  ReservationDenyReasonType,
   ReservationsReservationStateChoices,
   ReservationType,
 } from "common/types/gql-types";
 import { useQuery } from "@apollo/client";
-import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import {
+  RESERVATIONS_BY_RESERVATIONUNIT,
+  RECURRING_RESERVATION_QUERY,
+} from "./queries";
 import { useNotification } from "../../../../context/NotificationContext";
+import { RESERVATION_DENY_REASONS } from "../queries";
+import { OptionType } from "../../../../common/types";
 
 export const useReservationData = (
   begin: Date,
@@ -66,4 +76,61 @@ export const useReservationData = (
       })) ?? [];
 
   return { ...rest, events };
+};
+
+export const useRecurringReservations = (recurringPk?: number) => {
+  const { notifyError } = useNotification();
+  const { t } = useTranslation();
+
+  const { loading, data, refetch } = useQuery<Query, QueryReservationByPkArgs>(
+    RECURRING_RESERVATION_QUERY,
+    {
+      skip: !recurringPk,
+      variables: {
+        pk: Number(recurringPk),
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
+  );
+
+  const reservations =
+    data?.reservations?.edges
+      ?.map((x) => x?.node)
+      .filter((x): x is ReservationType => x != null) ?? [];
+
+  return { loading, reservations, refetch };
+};
+
+export const useDenyReasonOptions = () => {
+  const [denyReasonOptions, setDenyReasonOptions] = useState<OptionType[]>([]);
+  const { notifyError } = useNotification();
+  const { t } = useTranslation();
+
+  const { loading } = useQuery<Query, QueryReservationDenyReasonsArgs>(
+    RESERVATION_DENY_REASONS,
+    {
+      onCompleted: ({ reservationDenyReasons }) => {
+        if (reservationDenyReasons) {
+          setDenyReasonOptions(
+            reservationDenyReasons.edges
+              .map((x) => x?.node)
+              .filter((x): x is ReservationDenyReasonType => x != null)
+              .map(
+                (dr): OptionType => ({
+                  value: dr?.pk ?? 0,
+                  label: dr?.reasonFi ?? "",
+                })
+              )
+          );
+        }
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
+  );
+
+  return { options: denyReasonOptions, loading };
 };

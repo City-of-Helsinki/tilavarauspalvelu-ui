@@ -52,6 +52,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
+import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 
 const Dot = styled.div`
   display: inline-block;
@@ -206,19 +207,31 @@ const ButtonsWithPermChecks = ({
       ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
       : false;
 
-  if (permission || isUsersOwnReservation) {
+  const userIsAllowToModify = permission || isUsersOwnReservation;
+
+  if (!userIsAllowToModify) {
+    return null;
+  }
+
+  if (reservation.recurringReservation != null) {
     return (
-      <ApprovalButtons
-        state={reservation.state}
-        isFree={isFree}
-        reservation={reservation}
+      <ApprovalButtonsRecurring
+        recurringReservation={reservation.recurringReservation}
         handleClose={closeDialog}
         handleAccept={closeDialogAndRefetch}
       />
     );
   }
 
-  return null;
+  return (
+    <ApprovalButtons
+      state={reservation.state}
+      isFree={isFree}
+      reservation={reservation}
+      handleClose={closeDialog}
+      handleAccept={closeDialogAndRefetch}
+    />
+  );
 };
 
 const ReservationSummary = ({
@@ -524,6 +537,8 @@ const RequestedReservation = (): JSX.Element | null => {
           {reservation.recurringReservation && (
             <Accordion heading={t("RequestedReservation.recurring")}>
               <RecurringReservationsView
+                // reservation change causes a refetch
+                // selected !== reservation so a selection doesn't
                 reservation={reservation}
                 onSelect={setSelectedReservation}
               />
