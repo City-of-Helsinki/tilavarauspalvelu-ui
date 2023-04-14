@@ -97,10 +97,7 @@ const RecurringReservationsView = ({
       );
       if (startDate > now) {
         buttons.push(
-          <ReservationListButton
-            callback={() => handleRemove(x)}
-            type="remove"
-          />
+          <ReservationListButton callback={() => handleRemove(x)} type="deny" />
         );
       }
     }
