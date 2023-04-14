@@ -1889,8 +1889,6 @@ const translations: ITranslations = {
   ApprovalButtons: {
     recurring: {
       rejectAllButton: ["Hylkää kaikki"],
-      allEventsInThePast: ["Kaikki varaukset ovat menneisyydessä."],
-      allAlreadyDenied: ["Kaikki varaukset ovat jo hylätty."],
       DenyDialog: {
         title: ["Hylkää kaikki"],
       },

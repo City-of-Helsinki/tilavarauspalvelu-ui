@@ -454,7 +454,7 @@ const RequestedReservation = (): JSX.Element | null => {
           <Tagline>{reservationTagline}</Tagline>
           <DateTime>
             {t("RequestedReservation.createdAt")}{" "}
-            {formatDateTime(reservation.createdAt as string)}
+            {formatDateTime(reservation.createdAt ?? "")}
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>

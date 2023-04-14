@@ -8,7 +8,6 @@ import { useRecurringReservations } from "./hooks";
 import Loader from "../../Loader";
 
 // NOTE some copy paste from ApprovalButtons
-// TODO different (Finnish) reasons for user if the reservation can't be removed
 const ApprovalButtonsRecurring = ({
   recurringReservation,
   handleClose,
@@ -31,21 +30,11 @@ const ApprovalButtonsRecurring = ({
   };
 
   const now = new Date();
-  const reservationsToCome = reservations.filter(
-    (x) => new Date(x.begin) > now
-  );
-  const reservationsPossibleToDelete = reservationsToCome.filter(
-    (x) => x.state !== "DENIED"
-  );
+  const reservationsPossibleToDelete = reservations
+    .filter((x) => new Date(x.begin) > now)
+    .filter((x) => x.state !== "DENIED");
 
   const handleDenyClick = () => {
-    // eslint-disable-next-line no-console
-    console.log(
-      `Delete recurring reservation: ${reservationsPossibleToDelete.length} / ${reservations.length}`
-    );
-
-    // TODO need a callback to delete the recurring or not?
-    // it's iffy since some of the recurrance might have already happened
     setModalContent(
       <DenyDialog
         reservations={reservationsPossibleToDelete}
@@ -68,15 +57,8 @@ const ApprovalButtonsRecurring = ({
     disabled: false,
   } as const;
 
-  if (reservationsToCome.length === 0) {
-    return <p>{t("ApprovalButtons.recurring.allEventsInThePast")}</p>;
-  }
-
-  // TODO can't delete if all deleted => tell the user
-  // TODO can't delete if all in the past => tell the user
-  const isNotDeleted = reservationsPossibleToDelete.length > 0;
-  if (!isNotDeleted) {
-    return <p>{t("ApprovalButtons.recurring.allAlreadyDenied")}</p>;
+  if (reservationsPossibleToDelete.length === 0) {
+    return null;
   }
 
   return (
