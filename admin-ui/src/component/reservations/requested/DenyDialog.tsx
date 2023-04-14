@@ -118,8 +118,6 @@ const DialogContent = ({
   );
 };
 
-// TODO add a different translation space if the user is deleting more than one reservation
-// so we can do `RequestedReservation.DenyDialog.${single | multi}.title
 const DenyDialog = ({
   reservations,
   onClose,

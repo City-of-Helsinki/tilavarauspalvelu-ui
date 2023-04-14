@@ -213,7 +213,7 @@ const ButtonsWithPermChecks = ({
     return null;
   }
 
-  if (reservation.recurringReservation != null) {
+  if (reservation.recurringReservation) {
     return (
       <ApprovalButtonsRecurring
         recurringReservation={reservation.recurringReservation}
