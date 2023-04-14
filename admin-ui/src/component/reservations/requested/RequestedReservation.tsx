@@ -51,6 +51,7 @@ import RecurringReservationsView from "./RecurringReservationsView";
 import { useRecurringReservations } from "./hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
+import { ButtonLikeLink } from "../../../styles/util";
 
 const ApplicationDatas = styled.div`
   display: grid;
