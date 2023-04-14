@@ -52,7 +52,6 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
-import { ButtonLikeLink } from "../../../styles/util";
 
 const Dot = styled.div`
   display: inline-block;
@@ -214,17 +213,13 @@ const ButtonsWithPermChecks = ({
 
   if (permission || ownPermissions) {
     return (
-      <>
-        <ApprovalButtons
-          state={reservation.state}
-          isFree={isFree}
-          reservation={reservation}
-          handleClose={closeDialog}
-          handleAccept={closeDialogAndRefetch}
-        />
-        <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
-        <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
-      </>
+      <ApprovalButtons
+        state={reservation.state}
+        isFree={isFree}
+        reservation={reservation}
+        handleClose={closeDialog}
+        handleAccept={closeDialogAndRefetch}
+      />
     );
   }
 

@@ -9,6 +9,7 @@ import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
 import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
 import { useModal } from "../../../context/ModalContext";
+import { ButtonLikeLink } from "../../../styles/util";
 
 /* Rules
  * Approve only if REQUIRES_HANDLING
@@ -115,6 +116,8 @@ const ApprovalButtons = ({
           {t("RequestedReservation.returnToHandling")}
         </Button>
       )}
+      <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
+      <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
     </>
   );
 };
