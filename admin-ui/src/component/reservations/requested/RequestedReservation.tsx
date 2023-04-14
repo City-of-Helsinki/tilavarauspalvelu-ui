@@ -532,6 +532,7 @@ const RequestedReservation = (): JSX.Element | null => {
           <Accordion
             heading={t("RequestedReservation.calendar")}
             initiallyOpen={reservation.recurringReservation != null}
+            id="reservation-calendar"
           >
             <Calendar
               reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
