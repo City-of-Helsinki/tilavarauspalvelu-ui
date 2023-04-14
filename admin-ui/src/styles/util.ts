@@ -131,10 +131,10 @@ export const ButtonLikeLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   min-width: 80px;
-  height: 44px;
-  padding: 0 20px;
   line-height: 1;
   text-align: center;
+  height: 44px;
+  padding: 0 24px;
   &:hover,
   &:focus-visible {
     transition-property: background-color, border-color, color;

@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLocation } from "react-use";
 import styled from "styled-components";
-import { ButtonLikeLink } from "app/styles/util";
 import { AutoGrid, VerticalFlex } from "app/styles/layout";
 import { useQueryParams } from "../../common/hooks";
 import { OptionType } from "../../common/types";
