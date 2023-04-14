@@ -140,6 +140,11 @@ const EditStep1 = ({
         const { minimum, maximum } = reservation[key];
         return `${minimum} - ${maximum}`;
       }
+
+      if (key === "purpose") {
+        return getTranslation(reservation[key], "name");
+      }
+
       const rawValue = get(reservation, key);
       return get(rawValue, "pk")
         ? getTranslation(rawValue, "name")
