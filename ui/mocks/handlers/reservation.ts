@@ -581,6 +581,8 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         canBeCancelledTimeBefore: 10,
         needsHandling: false,
       };
+      data.reservationUnits[0].reservationCancelledInstructionsFi =
+        "Ohjeet perutulle varaukselle";
       data.orderStatus = "foobar";
       data.reservationUnits[0].metadataSet = {
         pk: 4,
