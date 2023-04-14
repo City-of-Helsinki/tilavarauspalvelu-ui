@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
 import { Button, Tag, TextArea } from "hds-react";
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { useParams } from "react-router-dom";
-import styled from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
 import {
@@ -52,6 +52,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
+import { ButtonLikeLink } from "../../../styles/util";
 
 const Dot = styled.div`
   display: inline-block;
@@ -213,13 +214,17 @@ const ButtonsWithPermChecks = ({
 
   if (permission || ownPermissions) {
     return (
-      <ApprovalButtons
-        state={reservation.state}
-        isFree={isFree}
-        reservation={reservation}
-        handleClose={closeDialog}
-        handleAccept={closeDialogAndRefetch}
-      />
+      <>
+        <ApprovalButtons
+          state={reservation.state}
+          isFree={isFree}
+          reservation={reservation}
+          handleClose={closeDialog}
+          handleAccept={closeDialogAndRefetch}
+        />
+        <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
+        <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
+      </>
     );
   }
 
