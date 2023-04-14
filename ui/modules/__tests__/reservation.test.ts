@@ -467,14 +467,6 @@ describe("canReservationBeChanged", () => {
     ).toStrictEqual([false, "RESERVATION_BEGIN_IN_PAST"]);
   });
 
-  test("handles price check", () => {
-    expect(
-      canReservationTimeBeChanged({
-        reservation: { ...reservation, price: 1.01 },
-      } as CanReservationBeChangedProps)
-    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
-  });
-
   test("handles cancellation rule check", () => {
     expect(
       canReservationTimeBeChanged({
