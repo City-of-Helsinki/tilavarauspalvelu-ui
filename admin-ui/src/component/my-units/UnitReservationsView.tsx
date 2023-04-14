@@ -10,7 +10,7 @@ import { useQueryParams } from "../../common/hooks";
 import { OptionType } from "../../common/types";
 import { myUnitUrl } from "../../common/urls";
 import { Grid, Span4, VerticalFlex } from "../../styles/layout";
-import { BasicLink } from "../../styles/util";
+import { ButtonLikeLink } from "../../styles/util";
 import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
 import Tags, { getReducer, toTags } from "../lists/Tags";
 import DayNavigation from "./DayNavigation";
@@ -88,8 +88,8 @@ const UnitReservationsView = (): JSX.Element => {
       <Tags tags={tags} dispatch={dispatch} t={t} />
       <HorisontalFlexWrapper>
         <Button
-          disabled={false}
           variant="secondary"
+          size="small"
           onClick={() => {
             onDateChange({ date: new Date() });
           }}
@@ -97,15 +97,12 @@ const UnitReservationsView = (): JSX.Element => {
           {t("common.today")}
         </Button>
         <DayNavigation date={begin} onDateChange={onDateChange} />
-        <BasicLink to={recurringReservationUrl ?? ""}>
-          <Button
-            disabled={false}
-            variant="secondary"
-            style={{ width: "100%" }}
-          >
-            {t("MyUnits.Calendar.header.recurringReservation")}
-          </Button>
-        </BasicLink>
+        <ButtonLikeLink
+          theme={{ fg: "var(--color-bus)" }}
+          to={recurringReservationUrl ?? ""}
+        >
+          {t("MyUnits.Calendar.header.recurringReservation")}
+        </ButtonLikeLink>
       </HorisontalFlexWrapper>
       {unitId ? (
         <UnitReservations
