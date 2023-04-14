@@ -1886,6 +1886,16 @@ const translations: ITranslations = {
     },
   },
 
+  ApprovalButtons: {
+    recurring: {
+      rejectAllButton: ["Hylkää kaikki"],
+      allEventsInThePast: ["Kaikki varaukset ovat menneisyydessä."],
+      allAlreadyDenied: ["Kaikki varaukset ovat jo hylätty."],
+      DenyDialog: {
+        title: ["Hylkää kaikki"],
+      },
+    },
+  },
   RequestedReservation: {
     errorFetchingData: ["Tietoja ei saatu haettua"],
     heading: ["Varauksen tarkastelu"],
@@ -1959,10 +1969,11 @@ const translations: ITranslations = {
       denyReasonHelper: [
         "Ilmoitus hylkäyksestä ja syy lähetetään tiedoksi varaajalle",
       ],
-      denied: ["Varaus hylätty"],
+      successNotify: ["Varaus hylätty"],
       title: ["Vahvista varauksen hylkäys"],
       handlingDetails: ["Kommentti"],
       handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
+      errorSaving: ["Hylkäys epäonnistui"],
     },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],

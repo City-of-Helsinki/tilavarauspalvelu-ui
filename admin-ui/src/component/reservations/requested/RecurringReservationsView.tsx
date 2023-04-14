@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { type ReservationType } from "common/types/gql-types";
 import { H6 } from "common/src/common/typography";
 import { useTranslation } from "react-i18next";
@@ -19,15 +19,6 @@ const RecurringReservationsView = ({
   const { loading, reservations } = useRecurringReservations(
     reservation.recurringReservation?.pk ?? undefined
   );
-
-  /* TODO is this necesary since reservation change should force an update in useRecurringReservations
-  useEffect(() => {
-    if (reservation && !loading) {
-      refetch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reservation]);
-  */
 
   if (loading || reservations == null) {
     return <div>Loading</div>;

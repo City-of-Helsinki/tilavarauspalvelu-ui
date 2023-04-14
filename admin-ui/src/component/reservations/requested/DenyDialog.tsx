@@ -69,7 +69,7 @@ const DialogContent = ({
         console.error("Deny failed with: ", errors);
         notifyError(t("RequestedReservation.DenyDialog.errorSaving"));
       } else {
-        notifySuccess(t("RequestedReservation.DenyDialog.denied"));
+        notifySuccess(t("RequestedReservation.DenyDialog.successNotify"));
         onReject();
       }
     } catch (e) {
@@ -124,10 +124,12 @@ const DenyDialog = ({
   reservations,
   onClose,
   onReject,
+  title,
 }: {
   reservations: ReservationType[];
   onClose: () => void;
   onReject: () => void;
+  title?: string;
 }): JSX.Element => {
   const { isOpen } = useModal();
   const { t } = useTranslation();
@@ -142,7 +144,7 @@ const DenyDialog = ({
       <VerticalFlex>
         <CustomDialogHeader
           id="modal-header"
-          title={t("RequestedReservation.DenyDialog.title")}
+          title={title ?? t("RequestedReservation.DenyDialog.title")}
           close={onClose}
         />
         <DialogContent

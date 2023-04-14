@@ -8,9 +8,6 @@ import { useRecurringReservations } from "./hooks";
 import Loader from "../../Loader";
 
 // NOTE some copy paste from ApprovalButtons
-// NOTE refresh seems to work, but confirm it and simplify if possible
-//  the ReservationList isn't updated (requires refetching all linked reservations)
-//  the deny button here should be disabled after running this once
 // TODO different (Finnish) reasons for user if the reservation can't be removed
 const ApprovalButtonsRecurring = ({
   recurringReservation,
@@ -29,17 +26,20 @@ const ApprovalButtonsRecurring = ({
   );
 
   const handleDeleteSuccess = () => {
-    console.log("Deleted succesfully");
     refetch();
     handleAccept();
   };
 
   const now = new Date();
-  const reservationsPossibleToDelete = reservations
-    .filter((x) => new Date(x.begin) > now)
-    .filter((x) => x.state !== "DENIED");
+  const reservationsToCome = reservations.filter(
+    (x) => new Date(x.begin) > now
+  );
+  const reservationsPossibleToDelete = reservationsToCome.filter(
+    (x) => x.state !== "DENIED"
+  );
 
   const handleDenyClick = () => {
+    // eslint-disable-next-line no-console
     console.log(
       `Delete recurring reservation: ${reservationsPossibleToDelete.length} / ${reservations.length}`
     );
@@ -51,6 +51,7 @@ const ApprovalButtonsRecurring = ({
         reservations={reservationsPossibleToDelete}
         onReject={handleDeleteSuccess}
         onClose={handleClose}
+        title={t("ApprovalButtons.recurring.DenyDialog.title")}
       />,
       true
     );
@@ -67,16 +68,20 @@ const ApprovalButtonsRecurring = ({
     disabled: false,
   } as const;
 
+  if (reservationsToCome.length === 0) {
+    return <p>{t("ApprovalButtons.recurring.allEventsInThePast")}</p>;
+  }
+
   // TODO can't delete if all deleted => tell the user
   // TODO can't delete if all in the past => tell the user
   const isNotDeleted = reservationsPossibleToDelete.length > 0;
   if (!isNotDeleted) {
-    return <div>Cant delete already deleted set</div>;
+    return <p>{t("ApprovalButtons.recurring.allAlreadyDenied")}</p>;
   }
 
   return (
     <Button {...btnCommon} onClick={handleDenyClick}>
-      {t("RequestedReservation.rejectAll")}
+      {t("ApprovalButtons.recurring.rejectAllButton")}
     </Button>
   );
 };
