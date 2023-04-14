@@ -2,6 +2,7 @@ import React from "react";
 import {
   Query,
   QueryReservationByPkArgs,
+  ReservationsReservationStateChoices,
   type ReservationType,
 } from "common/types/gql-types";
 import { H6 } from "common/src/common/typography";
@@ -73,36 +74,32 @@ const RecurringReservationsView = ({
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRestore = (_x: ReservationType) => {
-    // eslint-disable-next-line no-console
-    console.warn("Restore NOT Implemented.");
-  };
-
   const forDisplay = reservations.map((x) => {
     const buttons = [];
     const startDate = new Date(x.begin);
     const now = new Date();
-    if (startDate > now) {
-      buttons.push(
-        <ReservationListButton callback={() => handleChange(x)} type="change" />
-      );
-    }
 
-    buttons.push(
-      <ReservationListButton callback={() => onSelect(x)} type="show" />
-    );
-    if (startDate > now && x.state === "CONFIRMED") {
+    if (x.state !== ReservationsReservationStateChoices.Denied) {
+      if (startDate > now) {
+        buttons.push(
+          <ReservationListButton
+            callback={() => handleChange(x)}
+            type="change"
+          />
+        );
+      }
+
       buttons.push(
-        <ReservationListButton callback={() => handleRemove(x)} type="remove" />
+        <ReservationListButton callback={() => onSelect(x)} type="show" />
       );
-    } else if (startDate > now && x.state === "DENIED") {
-      buttons.push(
-        <ReservationListButton
-          callback={() => handleRestore(x)}
-          type="restore"
-        />
-      );
+      if (startDate > now) {
+        buttons.push(
+          <ReservationListButton
+            callback={() => handleRemove(x)}
+            type="remove"
+          />
+        );
+      }
     }
     return {
       date: startDate,
