@@ -19,9 +19,11 @@ import { useModal } from "../../../context/ModalContext";
 const RecurringReservationsView = ({
   reservation,
   onSelect,
+  onChange,
 }: {
   reservation: ReservationType;
   onSelect: (selected: ReservationType) => void;
+  onChange: () => void;
 }) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
@@ -59,6 +61,7 @@ const RecurringReservationsView = ({
   const handleCloseRemoveDialog = (shouldRefetch?: boolean) => {
     if (shouldRefetch) {
       refetch();
+      onChange();
     }
     setModalContent(null);
   };
@@ -105,7 +108,7 @@ const RecurringReservationsView = ({
       date: startDate,
       startTime: format(startDate, "hh:mm"),
       endTime: format(new Date(x.end), "hh:mm"),
-      isRemoved: x.state !== "CONFIRMED",
+      isRemoved: x.state === "DENIED",
       buttons,
     };
   });

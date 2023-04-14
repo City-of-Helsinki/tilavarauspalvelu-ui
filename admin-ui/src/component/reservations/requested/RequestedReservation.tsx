@@ -526,6 +526,7 @@ const RequestedReservation = (): JSX.Element | null => {
               <RecurringReservationsView
                 reservation={reservation}
                 onSelect={setSelectedReservation}
+                onChange={refetch}
               />
             </Accordion>
           )}
