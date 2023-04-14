@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
 import { Button, Tag, TextArea } from "hds-react";
-import React, { useContext, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { useParams } from "react-router-dom";
-import styled, { ThemeContext } from "styled-components";
+import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
 import {

@@ -97,10 +97,7 @@ const UnitReservationsView = (): JSX.Element => {
           {t("common.today")}
         </Button>
         <DayNavigation date={begin} onDateChange={onDateChange} />
-        <ButtonLikeLink
-          theme={{ fg: "var(--color-bus)" }}
-          to={recurringReservationUrl ?? ""}
-        >
+        <ButtonLikeLink to={recurringReservationUrl ?? ""}>
           {t("MyUnits.Calendar.header.recurringReservation")}
         </ButtonLikeLink>
       </HorisontalFlexWrapper>
