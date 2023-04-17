@@ -607,12 +607,12 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                 )}
             </Actions>
             <Reasons>
-              {modifyTimeReason && !cancellationReason && (
+              {modifyTimeReason && (
                 <ReasonText>
                   {t(`reservations:modifyTimeReasons:${modifyTimeReason}`)}
                 </ReasonText>
               )}
-              {cancellationReason && !canUserCancelReservation && (
+              {cancellationReason && !modifyTimeReason && (
                 <ReasonText>
                   {t(`reservations:cancellationReasons:${cancellationReason}`)}
                 </ReasonText>

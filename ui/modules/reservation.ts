@@ -285,9 +285,14 @@ export const canReservationTimeBeChanged = (
     return [false, "RESERVATION_BEGIN_IN_PAST"];
   }
 
+  // existing reservation is free
+  if (!isReservationFreeOfCharge(reservation)) {
+    return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
+  }
+
   // existing reservation has valid cancellation rule that does not require handling
   if (!canUserCancelReservation(reservation, true)) {
-    return [false, "CANCELLATION_NOT_ALLOWED"];
+    return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
   }
 
   // existing reservation cancellation buffer is not exceeded
