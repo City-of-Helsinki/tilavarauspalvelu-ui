@@ -38,3 +38,37 @@ export const RESERVATION_META_FRAGMENT = gql`
     applyingForFreeOfCharge
   }
 `;
+
+// TODO this can be futher divided (for example form data, tos, base)
+export const RESERVATION_UNIT_FRAGMENT = gql`
+  fragment ReservationUnit on ReservationUnitType {
+    nameFi
+    maxPersons
+    pk
+    bufferTimeBefore
+    bufferTimeAfter
+    reservationStartInterval
+    metadataSet {
+      name
+      supportedFields
+      requiredFields
+    }
+    cancellationTerms {
+      textFi
+      nameFi
+    }
+    paymentTerms {
+      textFi
+      nameFi
+    }
+    pricingTerms {
+      textFi
+      nameFi
+    }
+    termsOfUseFi
+    serviceSpecificTerms {
+      textFi
+      nameFi
+    }
+  }
+`;

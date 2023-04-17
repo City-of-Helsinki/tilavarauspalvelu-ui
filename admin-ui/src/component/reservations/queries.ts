@@ -1,7 +1,22 @@
 import { gql } from "@apollo/client";
-import { RESERVATION_META_FRAGMENT } from "./fragments";
+import {
+  RESERVATION_META_FRAGMENT,
+  RESERVATION_UNIT_FRAGMENT,
+} from "./fragments";
+
+export const RESERVATION_COMMON_FRAGMENT = gql`
+  fragment ReservationCommon on ReservationType {
+    pk
+    createdAt
+    state
+    begin
+    end
+    orderStatus
+  }
+`;
 
 export const RESERVATIONS_QUERY = gql`
+  ${RESERVATION_COMMON_FRAGMENT}
   query reservations(
     $after: String
     $unit: [ID]
@@ -37,21 +52,16 @@ export const RESERVATIONS_QUERY = gql`
     ) {
       edges {
         node {
-          pk
-          state
+          ...ReservationCommon
           reservationUnits {
             nameFi
             unit {
               nameFi
             }
           }
-          begin
-          end
           reserveeFirstName
           reserveeLastName
           name
-          orderStatus
-          createdAt
         }
       }
       pageInfo {
@@ -64,29 +74,21 @@ export const RESERVATIONS_QUERY = gql`
   }
 `;
 
-// TODO this is copy from requested/queries
-// we want to simplify it to only needed attributes
-// but it should be fragmented so we can reuse parts
-// TODO add the same fragment as in create-reservation/queries.ts: RESERVATION_UNIT_QUERY
-// to reservationUnits to remove the extra hook
+// this partial copy from requested/queries with reservationUnits and less data
 // TODO fragment this: primary data, form data (metadata), reservationUnit data
-// TODO what is name? name of the reservation or something else?
+// TODO do we need user / orderStatus?
 export const SINGLE_RESERVATION_QUERY = gql`
   ${RESERVATION_META_FRAGMENT}
+  ${RESERVATION_UNIT_FRAGMENT}
+  ${RESERVATION_COMMON_FRAGMENT}
   query reservationByPk($pk: Int!) {
     reservationByPk(pk: $pk) {
-      pk
-      createdAt
+      ...ReservationCommon
       type
-      state
       workingMemo
-      orderStatus
       reservationUnits {
-        pk
+        ...ReservationUnit
       }
-      begin
-      end
-      calendarUrl
       user {
         firstName
         lastName

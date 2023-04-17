@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { RESERVATION_UNIT_FRAGMENT } from "../../reservations/fragments";
 
 export const OPTIONS_QUERY = gql`
   query options {
@@ -113,48 +114,13 @@ export const RESERVATION_UNITS_BY_UNIT = gql`
   }
 `;
 
-// TODO bump the fragment up so we can reuse it
-// TODO this can be futher divided (for example form data, tos, base)
-const RESERVATION_UNIT_FRAGMENT = gql`
-  fragment ReservationUnitTos on ReservationUnitType {
-    nameFi
-    maxPersons
-    pk
-    bufferTimeBefore
-    bufferTimeAfter
-    reservationStartInterval
-    metadataSet {
-      name
-      supportedFields
-      requiredFields
-    }
-    cancellationTerms {
-      textFi
-      nameFi
-    }
-    paymentTerms {
-      textFi
-      nameFi
-    }
-    pricingTerms {
-      textFi
-      nameFi
-    }
-    termsOfUseFi
-    serviceSpecificTerms {
-      textFi
-      nameFi
-    }
-  }
-`;
-
 export const RESERVATION_UNIT_QUERY = gql`
   ${RESERVATION_UNIT_FRAGMENT}
   query reservationUnits($pk: [ID]) {
     reservationUnits(onlyWithPermission: true, pk: $pk) {
       edges {
         node {
-          ...ReservationUnitTos
+          ...ReservationUnit
         }
       }
     }
