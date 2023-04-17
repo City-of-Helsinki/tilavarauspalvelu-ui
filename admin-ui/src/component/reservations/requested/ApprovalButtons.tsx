@@ -116,8 +116,14 @@ const ApprovalButtons = ({
           {t("RequestedReservation.returnToHandling")}
         </Button>
       )}
-      <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
-      <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
+      {/* For now editing recurring is disabled (not implemented) */}
+      {/* FIXME the link buttons don't work nicely on the blue background in the sticky header */}
+      {!reservation.recurringReservation && (
+        <>
+          <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
+          <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
+        </>
+      )}
     </>
   );
 };
