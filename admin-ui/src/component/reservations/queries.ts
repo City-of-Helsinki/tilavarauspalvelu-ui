@@ -120,3 +120,67 @@ export const RESERVATIONS_QUERY = gql`
     }
   }
 `;
+
+// TODO this is copy from requested/queries
+// we want to simplify it to only needed attributes
+// but it should be fragmented so we can reuse parts
+// TODO add the same fragment as in create-reservation/queries.ts: RESERVATION_UNIT_QUERY
+// to reservationUnits to remove the extra hook
+// TODO fragment this: primary data, form data (metadata), reservationUnit data
+export const SINGLE_RESERVATION_QUERY = gql`
+  query reservationByPk($pk: Int!) {
+    reservationByPk(pk: $pk) {
+      pk
+      createdAt
+      type
+      workingMemo
+      orderStatus
+      ageGroup {
+        minimum
+        maximum
+      }
+      purpose {
+        nameFi
+      }
+      homeCity {
+        nameFi
+      }
+      price
+      taxPercentageValue
+      numPersons
+      reserveeType
+      reserveeIsUnregisteredAssociation
+      name
+      description
+      reserveeFirstName
+      reserveeLastName
+      reserveePhone
+      begin
+      end
+      calendarUrl
+      user {
+        firstName
+        lastName
+        email
+        pk
+      }
+      state
+      reserveeOrganisationName
+      reserveeEmail
+      reserveeId
+      reserveeIsUnregisteredAssociation
+      reserveeAddressStreet
+      reserveeAddressCity
+      reserveeAddressZip
+      billingFirstName
+      billingLastName
+      billingPhone
+      billingEmail
+      billingAddressStreet
+      billingAddressCity
+      billingAddressZip
+      freeOfChargeReason
+      applyingForFreeOfCharge
+    }
+  }
+`;
