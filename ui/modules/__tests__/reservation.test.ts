@@ -480,7 +480,7 @@ describe("canReservationBeChanged", () => {
           ],
         },
       } as CanReservationBeChangedProps)
-    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
 
     expect(
       canReservationTimeBeChanged({
@@ -496,7 +496,7 @@ describe("canReservationBeChanged", () => {
           ],
         },
       } as CanReservationBeChangedProps)
-    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
   });
 
   test("handles cancellation rule buffer check", () => {
