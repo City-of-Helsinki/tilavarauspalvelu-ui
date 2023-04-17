@@ -48,7 +48,6 @@ import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
-import { ButtonLikeLink } from "../../../styles/util";
 import ReservationTitleSection from "./ReservationTitleSection";
 
 const ApplicationDatas = styled.div`
