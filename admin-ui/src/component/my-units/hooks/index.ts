@@ -15,11 +15,11 @@ import type {
 import { ReservationsReservationReserveeTypeChoices } from "common/types/gql-types";
 import { toApiDate } from "common/src/common/util";
 import { useNotification } from "../../../context/NotificationContext";
-import { RESERVATION_UNIT_QUERY } from "../create-reservation/queries";
 import {
   OPTIONS_QUERY,
   UNIT_QUERY,
   RESERVATION_UNITS_BY_UNIT,
+  RESERVATION_UNIT_QUERY,
 } from "./queries";
 
 // Custom hook to fix admin-ui lacking translation namespaces

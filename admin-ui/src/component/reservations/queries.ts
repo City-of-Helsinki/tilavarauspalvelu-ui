@@ -1,62 +1,5 @@
 import { gql } from "@apollo/client";
-
-export const UPDATE_WORKING_MEMO = gql`
-  mutation updateWorkingMemo($input: ReservationWorkingMemoMutationInput!) {
-    updateReservationWorkingMemo(input: $input) {
-      workingMemo
-      errors {
-        field
-        messages
-      }
-    }
-  }
-`;
-
-export const APPROVE_RESERVATION = gql`
-  mutation approveReservation($input: ReservationApproveMutationInput!) {
-    approveReservation(input: $input) {
-      errors {
-        field
-        messages
-      }
-    }
-  }
-`;
-
-export const DENY_RESERVATION = gql`
-  mutation denyReservation($input: ReservationDenyMutationInput!) {
-    denyReservation(input: $input) {
-      errors {
-        field
-        messages
-      }
-    }
-  }
-`;
-
-export const REQUIRE_HANDLING_RESERVATION = gql`
-  mutation requireHandling($input: ReservationRequiresHandlingMutationInput!) {
-    requireHandlingForReservation(input: $input) {
-      errors {
-        field
-        messages
-      }
-    }
-  }
-`;
-
-export const RESERVATION_DENY_REASONS = gql`
-  query reservationDenyReasons {
-    reservationDenyReasons {
-      edges {
-        node {
-          pk
-          reasonFi
-        }
-      }
-    }
-  }
-`;
+import { RESERVATION_META_FRAGMENT } from "./fragments";
 
 export const RESERVATIONS_QUERY = gql`
   query reservations(
@@ -127,34 +70,20 @@ export const RESERVATIONS_QUERY = gql`
 // TODO add the same fragment as in create-reservation/queries.ts: RESERVATION_UNIT_QUERY
 // to reservationUnits to remove the extra hook
 // TODO fragment this: primary data, form data (metadata), reservationUnit data
+// TODO what is name? name of the reservation or something else?
 export const SINGLE_RESERVATION_QUERY = gql`
+  ${RESERVATION_META_FRAGMENT}
   query reservationByPk($pk: Int!) {
     reservationByPk(pk: $pk) {
       pk
       createdAt
       type
+      state
       workingMemo
       orderStatus
-      ageGroup {
-        minimum
-        maximum
+      reservationUnits {
+        pk
       }
-      purpose {
-        nameFi
-      }
-      homeCity {
-        nameFi
-      }
-      price
-      taxPercentageValue
-      numPersons
-      reserveeType
-      reserveeIsUnregisteredAssociation
-      name
-      description
-      reserveeFirstName
-      reserveeLastName
-      reserveePhone
       begin
       end
       calendarUrl
@@ -164,23 +93,7 @@ export const SINGLE_RESERVATION_QUERY = gql`
         email
         pk
       }
-      state
-      reserveeOrganisationName
-      reserveeEmail
-      reserveeId
-      reserveeIsUnregisteredAssociation
-      reserveeAddressStreet
-      reserveeAddressCity
-      reserveeAddressZip
-      billingFirstName
-      billingLastName
-      billingPhone
-      billingEmail
-      billingAddressStreet
-      billingAddressCity
-      billingAddressZip
-      freeOfChargeReason
-      applyingForFreeOfCharge
+      ...ReservationMetaFields
     }
   }
 `;
