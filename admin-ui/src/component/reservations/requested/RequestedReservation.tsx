@@ -208,7 +208,7 @@ const ButtonsWithPermChecks = ({
   );
 
   const ownPermissions = isUsersOwnReservation
-    ? hasPermission("can_create_reservations", unitPk, serviceSectorPks)
+    ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
     : false;
 
   if (permission || ownPermissions) {
