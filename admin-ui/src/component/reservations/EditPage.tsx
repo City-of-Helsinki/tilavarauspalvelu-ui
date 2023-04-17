@@ -37,7 +37,6 @@ import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import ReservationTypeForm from "../my-units/ReservationTypeForm";
 import Loader from "../Loader";
 import { SINGLE_RESERVATION_QUERY } from "./queries";
-import { useReservationUnitQuery } from "../my-units/hooks";
 import { HR } from "../lists/components";
 import ReservationTitleSection from "./requested/ReservationTitleSection";
 import { createTagString } from "./requested/util";
@@ -245,13 +244,6 @@ const EditPage = () => {
     }
   );
 
-  // TODO this can be replaced with reservation.reservationUnits but requires us to refactor
-  // that query to use the same Fragment as the hook (return buffers / tos)
-  const { reservationUnit } = useReservationUnitQuery(
-    data?.reservationByPk?.reservationUnits?.find((x) => x != null)?.pk ??
-      undefined
-  );
-
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -260,6 +252,9 @@ const EditPage = () => {
   };
 
   const reservation = data?.reservationByPk ?? undefined;
+  const reservationUnit =
+    data?.reservationByPk?.reservationUnits?.find((x) => x != null) ??
+    undefined;
   const tagline = reservation ? createTagString(reservation, t) : "";
 
   return (
