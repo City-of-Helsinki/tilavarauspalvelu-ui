@@ -90,11 +90,14 @@ const DialogContent = ({
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
+  // FIXME this doesn't save reserveeType that is selected (might also be a problem on the ui side => test it)
   const onSubmit = async (values: ReservationFormType) => {
     try {
       if (!reservationUnit.pk) {
         throw new Error("Missing reservation unit");
       }
+
+      console.log("values: ", values);
 
       const metadataSetFields =
         reservationUnit.metadataSet?.supportedFields
@@ -119,6 +122,12 @@ const DialogContent = ({
           : undefined,
         workingMemo: values.comments,
         ...flattenedMetadataSetValues,
+        // required because inputs don't allow null values, but backend doesn't allow empty strings
+        // FIXME types (or use a function proxy)
+        reserveeType:
+          (values as any).reserveeType === ""
+            ? undefined
+            : (values as any).reserveeType,
       };
 
       const { data: createResponse } = await createStaffReservation(input);

@@ -62,6 +62,10 @@ const HiddenInput = styled.input`
   height: 0;
 `;
 
+// TODO this should use forwardRef so we can use register instead of Controller
+// TODO why is there preventDefault it's not needed for buttons (form submits need it)
+// TODO why is the input with visiblity hidden instead or type="hidden"? oh because it's radio type which it shouldn't be
+// because radio assumes that it has default value
 const RadioButtonWithImage = ({
   id,
   icon,

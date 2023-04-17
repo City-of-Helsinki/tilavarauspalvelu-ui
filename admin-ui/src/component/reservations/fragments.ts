@@ -5,12 +5,15 @@ export const RESERVATION_META_FRAGMENT = gql`
     ageGroup {
       minimum
       maximum
+      pk
     }
     purpose {
       nameFi
+      pk
     }
     homeCity {
       nameFi
+      pk
     }
     numPersons
     reserveeType
