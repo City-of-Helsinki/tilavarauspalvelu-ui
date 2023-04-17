@@ -40,6 +40,8 @@ import { SINGLE_RESERVATION_QUERY } from "./queries";
 import { HR } from "../lists/components";
 import ReservationTitleSection from "./requested/ReservationTitleSection";
 import { createTagString } from "./requested/util";
+import { ReservationFormMeta } from "./metaValidators";
+import { useOptions } from "../my-units/hooks";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-s);
@@ -60,20 +62,30 @@ const reservationTypeFromString = (
 // TODO this is a copy from CreateReservationModal.tsx combine if possible
 // differences: useEditMutation, No dialog wrappers, form default values
 // TODO narrow the reservationUnit to only include what is needed (not the whole unit) so we can use single query
+// NOTE need to pass all query results as values (not undefined) otherwise form default values wont work
 const EditReservation = ({
   onClose,
   reservation,
   reservationUnit,
+  options,
 }: {
   onClose: () => void;
   reservation: ReservationType;
   reservationUnit: ReservationUnitType;
+  // TODO type should be defined not inlined
+  options: {
+    ageGroup: Array<{ label: string; value: number }>;
+    purpose: Array<{ label: string; value: number }>;
+    homeCity: Array<{ label: string; value: number }>;
+  };
 }) => {
   const { t } = useTranslation();
   const start = new Date(reservation.begin);
   const end = new Date(reservation.end);
-  const form = useForm<ReservationFormType>({
+
+  const form = useForm<ReservationFormType & ReservationFormMeta>({
     resolver: zodResolver(
+      // TODO validator should contain the MetaValidator also (inherit and combine)
       ReservationFormSchema(reservationUnit.reservationStartInterval)
     ),
     // TODO onBlur or onChange? onChange is anoying because it highlights even untouched fields
@@ -91,13 +103,50 @@ const EditReservation = ({
       bufferTimeAfter: false,
       comments: reservation.workingMemo ?? undefined,
       type: reservationTypeFromString(reservation.type ?? undefined),
-      // TODO values for metadata
+      name: reservation.name ?? "",
+      description: reservation.description ?? "",
+      ageGroup: options.ageGroup.find(
+        (x) => x.value === reservation.ageGroup?.pk
+      ),
+      applyingForFreeOfCharge: reservation.applyingForFreeOfCharge ?? undefined,
+      billingAddressCity: reservation.billingAddressCity ?? "",
+      billingAddressStreet: reservation.billingAddressStreet ?? "",
+      billingAddressZip: reservation.billingAddressZip ?? "",
+      billingEmail: reservation.billingEmail ?? "",
+      billingFirstName: reservation.billingFirstName ?? "",
+      billingLastName: reservation.billingLastName ?? "",
+      billingPhone: reservation.billingPhone ?? "",
+      freeOfChargeReason: reservation.freeOfChargeReason ?? undefined,
+      homeCity: options.homeCity.find(
+        (x) => x.value === reservation.homeCity?.pk
+      ),
+      numPersons: reservation.numPersons ?? undefined,
+      purpose: options.purpose.find((x) => x.value === reservation.purpose?.pk),
+      reserveeAddressCity: reservation.reserveeAddressCity ?? "",
+      reserveeAddressStreet: reservation.reserveeAddressStreet ?? "",
+      reserveeAddressZip: reservation.reserveeAddressZip ?? "",
+      reserveeEmail: reservation.reserveeEmail ?? "",
+      reserveeFirstName: reservation.reserveeFirstName ?? "",
+      reserveeId: reservation.reserveeId ?? "",
+      reserveeIsUnregisteredAssociation:
+        reservation.reserveeIsUnregisteredAssociation ?? undefined,
+      reserveeLastName: reservation.reserveeLastName ?? "",
+      reserveeOrganisationName: reservation.reserveeOrganisationName ?? "",
+      reserveePhone: reservation.reserveePhone ?? "",
+      reserveeType: reservation.reserveeType ?? undefined,
     },
   });
 
   const {
     formState: { errors },
+    // getValues,
   } = form;
+
+  /*
+  console.log("options: ", options);
+  console.log("form values: ", getValues());
+  */
+  console.log("reservation: ", reservation);
 
   const myDateTime = (date: Date, time: string) =>
     dateTime(format(date, "dd.MM.yyyy"), time);
@@ -257,6 +306,8 @@ const EditPage = () => {
     undefined;
   const tagline = reservation ? createTagString(reservation, t) : "";
 
+  const options = useOptions();
+
   return (
     <>
       <PreviousLinkWrapper>
@@ -279,6 +330,7 @@ const EditPage = () => {
             reservation={reservation}
             reservationUnit={reservationUnit}
             onClose={handleClose}
+            options={options}
           />
         )}
       </Container>

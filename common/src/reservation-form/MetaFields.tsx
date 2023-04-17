@@ -12,7 +12,7 @@ import { IconGroup, IconUser } from "hds-react";
 import React, { Fragment } from "react";
 import styled from "styled-components";
 import camelCase from "lodash/camelCase";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 import {
   ReservationMetadataSetType,
@@ -284,6 +284,8 @@ export const ReserverMetaFields = ({
   };
   defaultValues?: Record<string, string | number>;
 }) => {
+  const { getValues } = useFormContext<Reservation>();
+
   const isTypeSelectable =
     reservationUnit?.metadataSet?.supportedFields?.includes("reservee_type") ??
     false;
@@ -291,6 +293,8 @@ export const ReserverMetaFields = ({
   if (!reservationUnit.metadataSet) {
     return null;
   }
+
+  console.log("reservee form values: ", getValues());
 
   return (
     <>
@@ -300,21 +304,34 @@ export const ReserverMetaFields = ({
       {isTypeSelectable && (
         <>
           <p>{t("reservationApplication:reserveeTypePrefix")}</p>
+          {/* The controller works for saving the value (Edit doesn't even though it's saved in it)
+              TODO test the UI version with this change 
+              TODO refator this into a separate component
+              TODO can we remove the state management from the parent component (maybe use a form watch)
+          */}
           <ReserveeTypeContainer data-testid="reservation__checkbox--reservee-type">
-            {reserveeOptions.map(({ id, icon }) => (
-              <RadioButtonWithImage
-                key={id}
-                id={id}
-                label={t(
-                  `reservationApplication:reserveeTypes.labels.${id.toLocaleLowerCase()}`
-                )}
-                onClick={() => {
-                  setReserveeType(id);
-                }}
-                icon={icon}
-                checked={reserveeType === id}
-              />
-            ))}
+            <Controller
+              name="reserveeType"
+              render={({ field: { onChange } }) => (
+                <>
+                  {reserveeOptions.map(({ id, icon }) => (
+                    <RadioButtonWithImage
+                      key={id}
+                      id={id}
+                      label={t(
+                        `reservationApplication:reserveeTypes.labels.${id.toLocaleLowerCase()}`
+                      )}
+                      onClick={() => {
+                        setReserveeType(id);
+                        onChange(id);
+                      }}
+                      icon={icon}
+                      checked={reserveeType === id}
+                    />
+                  ))}
+                </>
+              )}
+            />
           </ReserveeTypeContainer>
         </>
       )}

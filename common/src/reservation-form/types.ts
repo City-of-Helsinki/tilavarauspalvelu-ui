@@ -1,5 +1,3 @@
-/// FIXME Test this before applying
-
 type Billing = {
   billingFirstName: string;
   billingLastName: string;
@@ -31,6 +29,7 @@ type CommonInputs = {
   purpose: number;
   numPersons: number;
   ageGroup: number;
+  reserveeType: string;
   freeOfChargeReason: string;
   applyingForFreeOfCharge: boolean;
 };
