@@ -108,6 +108,8 @@ const DialogContent = ({
         throw new Error("Missing reservation unit");
       }
 
+      console.log("values: ", values);
+
       const metadataSetFields =
         reservationUnit.metadataSet?.supportedFields
           ?.filter((x): x is string => x != null)
