@@ -1,13 +1,11 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
-import { Button, Tag, TextArea } from "hds-react";
+import { Button, TextArea } from "hds-react";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
-import { H1 } from "common/src/common/typography";
 import {
   Maybe,
   Mutation,
@@ -24,13 +22,11 @@ import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
 import {
   ageGroup,
+  createTagString,
+  getName,
   getReservatinUnitPricing,
-  getReserveeName,
   getTranslationKeyForType,
-  reservationDateTime,
-  reservationDuration,
   reservationPrice,
-  reservationUnitName,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
 import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
@@ -43,7 +39,6 @@ import {
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
-import { formatDate, formatDateTime, formatTime } from "../../../common/util";
 import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
@@ -52,29 +47,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
-
-const Dot = styled.div`
-  display: inline-block;
-  border-radius: 50%;
-  background: var(--tilavaraus-admin-status-not-handled);
-  height: 1.6em;
-  text-align: center;
-  line-height: 1.6;
-  aspect-ratio: 1;
-  font-size: 0.6em;
-  color: white;
-  font-weight: 600;
-  @media (min-width: ${breakpoints.m}) {
-    flex-direction: row;
-  }
-`;
-
-const AlignVertically = styled.div`
-  display: flex;
-  gap: var(--spacing-m);
-  flex-direction: row;
-  align-items: center;
-`;
+import ReservationTitleSection from "./ReservationTitleSection";
 
 const ApplicationDatas = styled.div`
   display: grid;
@@ -96,40 +69,6 @@ const Summary = styled(ApplicationDatas)`
     grid-template-columns: 1fr 1fr;
   }
 `;
-
-const NameState = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-xs);
-
-  @media (min-width: ${breakpoints.m}) {
-    flex-direction: row;
-    margin-bottom: 0;
-  }
-`;
-
-const Tagline = styled.div`
-  font-size: var(--fontsize-body-xl);
-  margin-bottom: var(--spacing-xs);
-`;
-
-const DateTime = styled.div`
-  margin-bottom: var(--spacing-s);
-  font-size: var(--fontsize-body-s);
-`;
-
-const getName = (reservation: ReservationType, t: TFunction) => {
-  if (reservation.name) {
-    return trim(`${reservation.pk}, ${reservation.name}`);
-  }
-
-  return trim(
-    `${reservation.pk}, ${
-      getReserveeName(reservation) || t("RequestedReservation.noName")
-    }`.trim()
-  );
-};
 
 const ApplicationProp = ({
   label,
@@ -284,53 +223,6 @@ const ReservationSummary = ({
   );
 };
 
-// recurring format: {weekday(s)} {time}, {duration} | {startDate}-{endDate} | {unit}
-// single format   : {weekday} {date} {time}, {duration} | {unit}
-const createTagString = (reservation: ReservationType, t: TFunction) => {
-  const recurringTag =
-    reservation.recurringReservation?.beginDate &&
-    reservation.recurringReservation?.endDate
-      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
-          reservation.recurringReservation.endDate
-        )}`
-      : "";
-  const unitTag = reservation?.reservationUnits
-    ?.map(reservationUnitName)
-    .join(", ");
-
-  const singleDateTimeTag = `${reservationDateTime(
-    reservation.begin,
-    reservation.end,
-    t
-  )}`;
-
-  const weekDayTag = reservation.recurringReservation?.weekdays
-    ?.sort()
-    ?.map((x) => t(`dayShort.${x}`))
-    ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
-
-  const recurringDateTag =
-    reservation.begin && reservation.end
-      ? `${weekDayTag} ${formatTime(reservation.begin, "HH:mm")}-${formatTime(
-          reservation.end,
-          "HH:mm"
-        )}`
-      : "";
-
-  const durationTag = `${reservationDuration(
-    reservation.begin,
-    reservation.end
-  )}`;
-
-  const reservationTagline = `${
-    reservation.recurringReservation ? recurringDateTag : singleDateTimeTag
-  }, ${durationTag}t ${
-    recurringTag.length > 0 ? " | " : ""
-  } ${recurringTag} | ${unitTag}`;
-
-  return reservationTagline;
-};
-
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType | undefined>(
@@ -368,7 +260,7 @@ const RequestedReservation = (): JSX.Element | null => {
   const updateMemo = (input: ReservationWorkingMemoMutationInput) =>
     updateWorkingMemo({ variables: { input } });
 
-  const ref = useRef<HTMLHeadingElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   if (loading) {
     return <Loader />;
@@ -421,35 +313,14 @@ const RequestedReservation = (): JSX.Element | null => {
           }
         />
       </ShowWhenTargetInvisible>
-      <Container>
-        <div>
-          <NameState ref={ref}>
-            <H1 $legacy>{getName(reservation, t)}</H1>
 
-            <HorisontalFlex>
-              <AlignVertically>
-                {reservation.orderStatus && (
-                  <Tag
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    theme={{ "--tag-background": "var(--color-engel-light)" }}
-                    id="orderStatus"
-                  >
-                    {t(`Payment.status.${reservation.orderStatus}`)}
-                  </Tag>
-                )}
-              </AlignVertically>
-              <AlignVertically style={{ gap: "var(--spacing-xs)" }}>
-                <Dot />
-                {t(`RequestedReservation.state.${reservation.state}`)}
-              </AlignVertically>
-            </HorisontalFlex>
-          </NameState>
-          <Tagline>{reservationTagline}</Tagline>
-          <DateTime>
-            {t("RequestedReservation.createdAt")}{" "}
-            {formatDateTime(reservation.createdAt as string)}
-          </DateTime>
-        </div>
+      {/* TODO this needs a refactor since we need it on the other pages also, might use a common container for all pages under this route? */}
+      <Container>
+        <ReservationTitleSection
+          ref={ref}
+          reservation={reservation}
+          tagline={reservationTagline}
+        />
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
           <ButtonsWithPermChecks
             reservation={reservation}
