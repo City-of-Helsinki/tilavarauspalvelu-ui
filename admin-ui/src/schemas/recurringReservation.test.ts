@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { expect, test } from "@jest/globals";
 import { addDays } from "date-fns";
 
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
