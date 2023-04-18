@@ -61,6 +61,7 @@ const ReservationTypeForm = ({
 
   const type = watch("type");
 
+  // TODO change translation to use namespaces (the new verison with bundles)
   return (
     <>
       <Element $wide>
@@ -71,12 +72,10 @@ const ReservationTypeForm = ({
             <SelectionGroup
               required
               disabled={reservationUnit == null}
-              label={t("ReservationDialog.type")}
+              label={t("reservationApplication:type")}
               errorText={
                 errors.type?.message != null
-                  ? t(
-                      `MyUnits.RecurringReservationForm.errors.${errors.type?.message}`
-                    )
+                  ? t(`reservationForm:errors.${errors.type?.message}`)
                   : ""
               }
             >
@@ -85,7 +84,7 @@ const ReservationTypeForm = ({
                   key={v}
                   id={v}
                   checked={v === field.value}
-                  label={t(`ReservationDialog.reservationType.${v}`)}
+                  label={t(`reservationApplication:reservationType.${v}`)}
                   onChange={() => field.onChange(v)}
                 />
               ))}
@@ -95,8 +94,8 @@ const ReservationTypeForm = ({
       </Element>
       {type === "BLOCKED" && (
         <CommentsTextArea
-          label={t("ReservationDialog.comment")}
-          id="ReservationDialog.comment"
+          label={t("reservationApplication:comment")}
+          id="reservationApplication:comment"
           {...register("comments")}
         />
       )}
@@ -111,8 +110,8 @@ const ReservationTypeForm = ({
             ))}
           {children}
           <CommentsTextArea
-            id="ReservationDialog.comment"
-            label={t("ReservationDialog.comment")}
+            id="reservationApplication:comment"
+            label={t("reservationApplication:comment")}
             {...register("comments")}
           />
           <HR style={{ gridColumn: "1 / -1" }} />

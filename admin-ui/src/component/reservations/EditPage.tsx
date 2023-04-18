@@ -139,14 +139,7 @@ const EditReservation = ({
 
   const {
     formState: { errors },
-    // getValues,
   } = form;
-
-  /*
-  console.log("options: ", options);
-  console.log("form values: ", getValues());
-  */
-  console.log("reservation: ", reservation);
 
   const myDateTime = (date: Date, time: string) =>
     dateTime(format(date, "dd.MM.yyyy"), time);
@@ -221,9 +214,8 @@ const EditReservation = ({
     }
   };
 
-  const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
   const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+    errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
   return (
     <FormProvider {...form}>

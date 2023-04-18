@@ -115,7 +115,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const { notifyError } = useNotification();
 
   const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+    errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
   const newReservations = useMultipleReservation(
     form,
