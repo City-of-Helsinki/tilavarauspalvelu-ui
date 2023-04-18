@@ -12,20 +12,22 @@ import styled from "styled-components";
 import { camelCase, get } from "lodash";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ReservationFormSchema,
+  type ReservationFormType,
+  type ReservationFormMeta,
+} from "app/schemas";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { useModal } from "../../../context/ModalContext";
 import { CREATE_STAFF_RESERVATION } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { ReservationFormSchema } from "./validator";
-import type { ReservationFormType } from "./validator";
 import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 import ControlledTimeInput from "../components/ControlledTimeInput";
 import ControlledDateInput from "../components/ControlledDateInput";
-import { ReservationFormMeta } from "../../reservations/metaValidators";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;

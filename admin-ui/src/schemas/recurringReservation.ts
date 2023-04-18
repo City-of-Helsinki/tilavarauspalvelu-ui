@@ -6,8 +6,8 @@ import {
   checkReservationInterval,
   checkStartEndTime,
   checkTimeStringFormat,
-} from "../create-reservation/validator";
-import { intervalToNumber } from "../create-reservation/utils";
+} from "./reservation";
+import { intervalToNumber } from "./utils";
 
 // TODO handle metadata (variable form fields) instead of using .passthrough
 // It should be it's own schema object that is included in both forms

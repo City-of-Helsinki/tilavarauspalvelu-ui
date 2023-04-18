@@ -6,6 +6,11 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: "module",
   },
+  settings: {
+    "import/resolver": {
+      typescript: {},
+    },
+  },
   overrides: [
     {
       files: ["*.js"],

@@ -14,7 +14,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "app/*": ["./src/*"]
+    }
   },
   "include": ["src", "i18next.d.ts"],
   "exclude": ["**/*.test.*", "node_modules"]

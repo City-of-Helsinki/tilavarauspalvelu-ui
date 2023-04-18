@@ -17,8 +17,10 @@ import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { removeRefParam } from "common/src/reservation-form/util";
-import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
-import type { RecurringReservationForm } from "./RecurringReservationSchema";
+import {
+  RecurringReservationFormSchema,
+  type RecurringReservationForm,
+} from "app/schemas";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "./WeekdaysSelector";
 import ReservationList from "../../ReservationsList";
