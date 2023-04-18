@@ -59,6 +59,8 @@ const reservationTypeFromString = (
   return undefined;
 };
 
+type FormValueType = ReservationFormType & ReservationFormMeta;
+
 // TODO this is a copy from CreateReservationModal.tsx combine if possible
 // differences: useEditMutation, No dialog wrappers, form default values
 // TODO narrow the reservationUnit to only include what is needed (not the whole unit) so we can use single query
@@ -83,7 +85,7 @@ const EditReservation = ({
   const start = new Date(reservation.begin);
   const end = new Date(reservation.end);
 
-  const form = useForm<ReservationFormType & ReservationFormMeta>({
+  const form = useForm<FormValueType>({
     resolver: zodResolver(
       // TODO validator should contain the MetaValidator also (inherit and combine)
       ReservationFormSchema(reservationUnit.reservationStartInterval)
@@ -156,7 +158,7 @@ const EditReservation = ({
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
-  const onSubmit = async (values: ReservationFormType) => {
+  const onSubmit = async (values: FormValueType) => {
     try {
       if (!reservationUnit.pk) {
         throw new Error("Missing reservation unit");
