@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
+import { useFormContext } from "react-hook-form";
+import { Reservation } from "common/src/reservation-form/types";
 import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitType,
@@ -37,17 +39,13 @@ export const ReservationMetadataSetForm = ({
   );
 };
 
+// TODO this component can be wholly deprecated maybe? translations / options?
 export const ReserverMetadataSetForm = ({
   reservationUnit,
 }: Props): JSX.Element => {
-  // TODO can this be moved to the form data? since that's where it's needed
-  // use watcher and context instead of state
-  // we need the value here because we need to switc the fields
-  // well maybe we can drop this component completely by moving the ApplicationFields into ReserverMetaFields
-  // if we need we can prop drill options (loading issues maybe)
-  const [reserveeType, setReserveeType] = useState<
-    ReservationsReservationReserveeTypeChoices | undefined
-  >(undefined);
+  // FIXME this breaks UI
+  const { watch } = useFormContext<Reservation>();
+
   const { t } = useReservationTranslation();
 
   const options = useOptions();
@@ -55,13 +53,12 @@ export const ReserverMetadataSetForm = ({
   // TODO naming: applicationFields = reserverFields (Varaajan tiedot)
   const reservationApplicationFields = useApplicatioonFields(
     reservationUnit,
-    reserveeType
+    // FIXME typesafe conversion
+    watch("reserveeType") as ReservationsReservationReserveeTypeChoices
   );
 
   return (
     <ReserverMetaFields
-      reserveeType={reserveeType}
-      setReserveeType={setReserveeType}
       fields={reservationApplicationFields}
       reservationUnit={reservationUnit}
       options={options}
