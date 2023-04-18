@@ -25,6 +25,7 @@ import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 import ControlledTimeInput from "../components/ControlledTimeInput";
 import ControlledDateInput from "../components/ControlledDateInput";
+import { ReservationFormMeta } from "../../reservations/metaValidators";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -44,6 +45,8 @@ const FixedDialog = styled(Dialog)`
   }
 `;
 
+type FormValueType = ReservationFormType & ReservationFormMeta;
+
 const DialogContent = ({
   onClose,
   reservationUnit,
@@ -54,7 +57,7 @@ const DialogContent = ({
   start: Date;
 }) => {
   const { t } = useTranslation();
-  const form = useForm<ReservationFormType>({
+  const form = useForm<FormValueType>({
     resolver: zodResolver(
       ReservationFormSchema(reservationUnit.reservationStartInterval)
     ),
@@ -90,14 +93,11 @@ const DialogContent = ({
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
-  // FIXME this doesn't save reserveeType that is selected (might also be a problem on the ui side => test it)
-  const onSubmit = async (values: ReservationFormType) => {
+  const onSubmit = async (values: FormValueType) => {
     try {
       if (!reservationUnit.pk) {
         throw new Error("Missing reservation unit");
       }
-
-      console.log("values: ", values);
 
       const metadataSetFields =
         reservationUnit.metadataSet?.supportedFields
@@ -122,12 +122,7 @@ const DialogContent = ({
           : undefined,
         workingMemo: values.comments,
         ...flattenedMetadataSetValues,
-        // required because inputs don't allow null values, but backend doesn't allow empty strings
-        // FIXME types (or use a function proxy)
-        reserveeType:
-          (values as any).reserveeType === ""
-            ? undefined
-            : (values as any).reserveeType,
+        reserveeType: values.reserveeType,
       };
 
       const { data: createResponse } = await createStaffReservation(input);

@@ -6,16 +6,15 @@
 import { ReservationsReservationReserveeTypeChoices } from "common/types/gql-types";
 import { z } from "zod";
 
-// so form fields are { value: number; label: string }
-// the value maps into backend pk (for the respective db table)
+// Common select prop type
+// normally a backend provided list that is transformed into
+// { value, label } pair for input the value maps to a backend id (pk).
 const OptionSchema = z.object({
   value: z.number(),
   label: z.string(),
 });
 
 export const ReservationFormMetaSchema = z.object({
-  // TODO this is select based on backend options
-  // ageGroup : {minimum: 12, maximum: 16, __typename: 'AgeGroupType'}
   name: z.string().optional(),
   description: z.string().optional(),
   ageGroup: OptionSchema.optional(),
@@ -28,12 +27,8 @@ export const ReservationFormMetaSchema = z.object({
   billingLastName: z.string().optional(),
   billingPhone: z.string().optional(),
   freeOfChargeReason: z.string().optional(),
-  // TODO this is select based on backend options
-  // homeCity : {nameFi: 'Helsinki', __typename: 'CityType'}
   homeCity: OptionSchema.optional(),
   numPersons: z.number().optional(),
-  // TODO this is select based on backend options
-  // purpose : {nameFi: 'Liikkua tai pelata', __typename: 'ReservationPurposeType'}
   purpose: OptionSchema.optional(),
   reserveeAddressCity: z.string().optional(),
   reserveeAddressStreet: z.string().optional(),
@@ -45,7 +40,9 @@ export const ReservationFormMetaSchema = z.object({
   reserveeLastName: z.string().optional(),
   reserveeOrganisationName: z.string().optional(),
   reserveePhone: z.string().optional(),
-  // TODO what are these?
+  // TODO the reserveeType is problematic
+  // radio buttons should have a default value and form inputs don't like null (uncontrolled input)
+  // TODO test what happens if the user submits a form with a null value?
   reserveeType: z
     .enum([
       ReservationsReservationReserveeTypeChoices.Individual,
@@ -53,7 +50,6 @@ export const ReservationFormMetaSchema = z.object({
       ReservationsReservationReserveeTypeChoices.Business,
     ])
     .nullable(),
-  // reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
 });
 
 export type ReservationFormMeta = z.infer<typeof ReservationFormMetaSchema>;

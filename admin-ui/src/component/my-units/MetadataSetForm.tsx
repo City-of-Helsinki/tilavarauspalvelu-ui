@@ -1,10 +1,7 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { Reservation } from "common/src/reservation-form/types";
-import {
-  ReservationsReservationReserveeTypeChoices,
-  ReservationUnitType,
-} from "common/types/gql-types";
+import { ReservationUnitType } from "common/types/gql-types";
 import {
   ReserverMetaFields,
   ReservationMetaFields,
@@ -36,7 +33,6 @@ export const ReservationMetadataSetForm = ({
 export const ReserverMetadataSetForm = ({
   reservationUnit,
 }: Props): JSX.Element => {
-  // FIXME this breaks UI
   const { watch } = useFormContext<Reservation>();
 
   const options = useOptions();
@@ -44,8 +40,7 @@ export const ReserverMetadataSetForm = ({
   // TODO naming: applicationFields = reserverFields (Varaajan tiedot)
   const reservationApplicationFields = useApplicatioonFields(
     reservationUnit,
-    // FIXME typesafe conversion
-    watch("reserveeType") as ReservationsReservationReserveeTypeChoices
+    watch("reserveeType")
   );
 
   return (
