@@ -5,10 +5,7 @@ import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
-import {
-  type ReservationFormType,
-  ReservationTypes,
-} from "./create-reservation/validator";
+import { type ReservationFormType, ReservationTypes } from "app/schemas";
 import {
   ReservationMetadataSetForm,
   ReserverMetadataSetForm,

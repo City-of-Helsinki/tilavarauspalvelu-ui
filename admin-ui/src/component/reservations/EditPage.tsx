@@ -18,9 +18,10 @@ import { Button } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  type ReservationFormMeta,
   ReservationFormSchema,
-  ReservationFormType,
-} from "../my-units/create-reservation/validator";
+  type ReservationFormType,
+} from "app/schemas";
 import LinkPrev from "../LinkPrev";
 import { Container } from "../../styles/layout";
 import withMainMenu from "../withMainMenu";
@@ -40,7 +41,6 @@ import { SINGLE_RESERVATION_QUERY } from "./queries";
 import { HR } from "../lists/components";
 import ReservationTitleSection from "./requested/ReservationTitleSection";
 import { createTagString } from "./requested/util";
-import { ReservationFormMeta } from "./metaValidators";
 import { useOptions } from "../my-units/hooks";
 
 const PreviousLinkWrapper = styled.div`
