@@ -1,49 +1,47 @@
 import React from "react";
-import { joiResolver } from "@hookform/resolvers/joi";
-import { useForm, Controller } from "react-hook-form";
-import {
-  RadioButton,
-  Button,
-  DateInput,
-  Dialog,
-  SelectionGroup,
-  TimeInput,
-} from "hds-react";
+import { useForm, FormProvider } from "react-hook-form";
+import { Button, Dialog } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQuery } from "@apollo/client";
-import {
-  Query,
-  QueryReservationUnitsArgs,
+import { useMutation } from "@apollo/client";
+import type {
   ReservationStaffCreateMutationInput,
   ReservationStaffCreateMutationPayload,
   ReservationUnitType,
 } from "common/types/gql-types";
 import styled from "styled-components";
-import { camelCase, get, pick, zipObject } from "lodash";
+import { camelCase, get } from "lodash";
 import { format } from "date-fns";
-import {
-  valueForDateInput,
-  dateTime,
-} from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
-import { formatDate } from "../../../common/util";
-import { VerticalFlex } from "../../../styles/layout";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { useModal } from "../../../context/ModalContext";
-import { CREATE_STAFF_RESERVATION, RESERVATION_UNIT_QUERY } from "./queries";
+import { CREATE_STAFF_RESERVATION } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { reservationSchema } from "./validator";
-import { ReservationFormType, ReservationType } from "./types";
-import BlockedReservation from "./BlockedReservation";
-import StaffReservation from "./StaffReservation";
+import { ReservationFormSchema } from "./validator";
+import type { ReservationFormType } from "./validator";
+import { flattenMetadata } from "./utils";
+import { useReservationUnitQuery } from "../hooks";
+import ReservationTypeForm from "../ReservationTypeForm";
+import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
+import ControlledTimeInput from "../components/ControlledTimeInput";
+import ControlledDateInput from "../components/ControlledDateInput";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
 `;
 
-const CommonFields = styled.div`
-  display: grid;
-  gap: 1em;
-  grid-template-columns: 1fr 1fr 1fr;
+const GridInsideTheModal = styled(Grid)`
+  margin-top: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+`;
+
+const FixedDialog = styled(Dialog)`
+  /* Hack to deal with modal trying to fit content. So an error message -> layout shift */
+  width: min(calc(100vw - 2rem), var(--container-width-l)) !important;
+  & > div:nth-child(2) {
+    /* don't layout shift when the modal content changes */
+    height: min(95vh, 1024px);
+  }
 `;
 
 const DialogContent = ({
@@ -57,13 +55,19 @@ const DialogContent = ({
 }) => {
   const { t } = useTranslation();
   const form = useForm<ReservationFormType>({
-    resolver: joiResolver(
-      reservationSchema(reservationUnit.reservationStartInterval)
+    resolver: zodResolver(
+      ReservationFormSchema(reservationUnit.reservationStartInterval)
     ),
-    shouldFocusError: true,
+    // TODO onBlur or onChange? onChange is anoying because it highlights even untouched fields
+    // onBlur on the other hand does no validation on the focused field till it's blurred
+
+    // I want show errors for touched fields onBlur + clear errors onChange
+    // I guess I just have to write logic for it using isTouched + onChange
+
+    mode: "onChange",
     defaultValues: {
-      date: valueForDateInput(start.toISOString()),
-      startTime: formatDate(start.toISOString(), "HH:mm") as string,
+      date: start,
+      startTime: format(start, "HH:mm"),
       bufferTimeBefore: false,
       bufferTimeAfter: false,
     },
@@ -78,8 +82,6 @@ const DialogContent = ({
 
   const { notifyError, notifySuccess } = useNotification();
 
-  const type = form.watch("type");
-
   const [create] = useMutation<
     { createStaffReservation: ReservationStaffCreateMutationPayload },
     { input: ReservationStaffCreateMutationInput }
@@ -88,37 +90,36 @@ const DialogContent = ({
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
-  const renamePkFields = ["ageGroup", "homeCity", "purpose"];
-
   const onSubmit = async (values: ReservationFormType) => {
     try {
-      const metadataSetFields = (
-        (reservationUnit.metadataSet?.supportedFields || []) as string[]
-      ).map(camelCase);
+      if (!reservationUnit.pk) {
+        throw new Error("Missing reservation unit");
+      }
 
-      const metadataSetValues = pick(values, metadataSetFields);
+      const metadataSetFields =
+        reservationUnit.metadataSet?.supportedFields
+          ?.filter((x): x is string => x != null)
+          .map(camelCase) ?? [];
 
-      const flattenedMetadataSetValues = zipObject(
-        Object.keys(metadataSetValues).map((k) =>
-          renamePkFields.includes(k) ? `${k}Pk` : k
-        ),
-        Object.values(metadataSetValues).map((v) => get(v, "value") || v)
+      const flattenedMetadataSetValues = flattenMetadata(
+        values,
+        metadataSetFields
       );
 
-      const input = {
-        reservationUnitPks: [reservationUnit.pk as number],
-        type: values.type,
+      const input: ReservationStaffCreateMutationInput = {
+        reservationUnitPks: [reservationUnit.pk],
+        type: values.type ?? "",
         begin: myDateTime(new Date(values.date), values.startTime),
-        end: myDateTime(new Date(values.date), values.endTime as string),
+        end: myDateTime(new Date(values.date), values.endTime),
         bufferTimeBefore: values.bufferTimeBefore
           ? String(reservationUnit.bufferTimeBefore)
           : undefined,
         bufferTimeAfter: values.bufferTimeAfter
           ? String(reservationUnit.bufferTimeAfter)
           : undefined,
-        workingMemo: values.workingMemo,
+        workingMemo: values.comments,
         ...flattenedMetadataSetValues,
-      } as ReservationStaffCreateMutationInput;
+      };
 
       const { data: createResponse } = await createStaffReservation(input);
 
@@ -147,90 +148,45 @@ const DialogContent = ({
     }
   };
 
+  const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
+  const translateError = (errorMsg?: string) =>
+    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+
+  // TODO refactor the form part of this outside the dialog
   return (
     <>
       <Dialog.Content>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <VerticalFlex style={{ marginTop: "var(--spacing-m)" }}>
-            <CommonFields>
-              <Controller
-                name="date"
-                control={form.control}
-                render={({ field }) => (
-                  <DateInput
-                    id="reservationDialog.date"
-                    label={t("ReservationDialog.date")}
-                    minDate={new Date()}
-                    disableConfirmation
-                    language="fi"
-                    errorText={errors.date?.message}
-                    {...field}
-                  />
-                )}
-              />
-              <Controller
-                name="startTime"
-                control={form.control}
-                render={({ field }) => (
-                  <TimeInput
-                    id="ReservationDialog.startTime"
-                    label={t("ReservationDialog.startTime")}
-                    hoursLabel={t("common.hoursLabel")}
-                    minutesLabel={t("common.minutesLabel")}
-                    required
-                    errorText={errors.startTime?.message}
-                    {...field}
-                  />
-                )}
-              />
-              <Controller
-                name="endTime"
-                control={form.control}
-                render={({ field }) => (
-                  <TimeInput
-                    id="ReservationDialog.endtime"
-                    label={t("ReservationDialog.endTime")}
-                    hoursLabel={t("common.hoursLabel")}
-                    minutesLabel={t("common.minutesLabel")}
-                    required
-                    errorText={errors.endTime?.message}
-                    {...field}
-                  />
-                )}
-              />
-            </CommonFields>
-            <Controller
-              name="type"
-              control={form.control}
-              render={({ field }) => (
-                <SelectionGroup
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <GridInsideTheModal>
+              <Element>
+                <ControlledDateInput
+                  name="date"
+                  control={form.control}
+                  error={translateError(errors.date?.message)}
                   required
-                  label={t("ReservationDialog.type")}
-                  errorText={errors.type?.message}
-                >
-                  {Object.values(ReservationType)
-                    .filter((v) => typeof v === "string")
-                    .map((v) => (
-                      <RadioButton
-                        key={v}
-                        id={v as string}
-                        checked={v === field.value}
-                        label={t(`ReservationDialog.reservationType.${v}`)}
-                        onChange={() => field.onChange(v)}
-                      />
-                    ))}
-                </SelectionGroup>
-              )}
-            />
-            {type === ReservationType.BLOCKED && (
-              <BlockedReservation form={form} />
-            )}
-            {type === ReservationType.STAFF ||
-            type === ReservationType.NORMAL ? (
-              <StaffReservation form={form} reservationUnit={reservationUnit} />
-            ) : null}
-          </VerticalFlex>
-        </form>
+                />
+              </Element>
+              <Element>
+                <ControlledTimeInput
+                  name="startTime"
+                  control={form.control}
+                  error={translateError(errors.startTime?.message)}
+                  required
+                />
+              </Element>
+              <Element>
+                <ControlledTimeInput
+                  name="endTime"
+                  control={form.control}
+                  error={translateError(errors.endTime?.message)}
+                  required
+                />
+              </Element>
+              <ReservationTypeForm reservationUnit={reservationUnit} />
+            </GridInsideTheModal>
+          </form>
+        </FormProvider>
       </Dialog.Content>
       <ActionButtons>
         <Button variant="secondary" onClick={onClose} theme="black">
@@ -261,21 +217,15 @@ const CreateReservationModal = ({
   const { isOpen } = useModal();
   const { t } = useTranslation();
 
-  const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
-    RESERVATION_UNIT_QUERY,
-    {
-      variables: { pk: [`${reservationUnitId}`] },
-    }
-  );
+  const { reservationUnit, loading } =
+    useReservationUnitQuery(reservationUnitId);
 
   if (loading) {
     return <Loader />;
   }
 
-  const reservationUnit = data?.reservationUnits?.edges.find((ru) => ru)?.node;
-
   return (
-    <Dialog
+    <FixedDialog
       variant="primary"
       id="info-dialog"
       aria-labelledby="modal-header"
@@ -290,12 +240,14 @@ const CreateReservationModal = ({
           reservationUnit: reservationUnit?.nameFi,
         })}
       />
-      <DialogContent
-        onClose={onClose}
-        reservationUnit={reservationUnit as ReservationUnitType}
-        start={start}
-      />
-    </Dialog>
+      {reservationUnit != null && (
+        <DialogContent
+          onClose={onClose}
+          reservationUnit={reservationUnit}
+          start={start}
+        />
+      )}
+    </FixedDialog>
   );
 };
 export default CreateReservationModal;

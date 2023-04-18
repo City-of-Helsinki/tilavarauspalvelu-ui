@@ -11,7 +11,7 @@
     "test": "TZ=Europe/Helsinki react-scripts test",
     "generate-gql-types": "graphql-codegen",
     "format": "prettier --ignore-path \"../.prettierignore\" --write \"**/*.{js,jsx,ts,tsx,json}\"",
-    "update-schema": "npx get-graphql-schema http://localhost:8000/graphql/ > ../tilavaraus.graphql",
+    "update-schema": "npx --yes get-graphql-schema http://localhost:8000/graphql/ > ../tilavaraus.graphql",
     "generate-email-templates": "node ./email/convertToHTML.mjs"
   },
   "browserslist": {
@@ -27,8 +27,10 @@
     ]
   },
   "dependencies": {
+    "classnames": "^2.3.2",
     "date-fns": "^2.29.3",
     "hds-react": "^2.9.0",
+    "i18next": "^22.4.14",
     "lodash": "^4.17.21",
     "mjml": "^4.13.0",
     "next-i18next": "^13.0.2",
@@ -36,7 +38,7 @@
     "react-big-calendar": "^1.5.2",
     "react-dom": "^18.2.0",
     "react-hook-form": "7.41",
-    "react-i18next": "12.1.1",
+    "react-i18next": "^12.2.0",
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.6"
   },
@@ -45,6 +47,7 @@
     "@graphql-codegen/typescript": "^2.8.5",
     "@graphql-codegen/typescript-operations": "^2.5.10",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
+    "@jest/globals": "^29.5.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",

@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
-import CommonCalendar, { CalendarEvent } from "common/src/calendar/Calendar";
-import { useQuery } from "@apollo/client";
-import { startOfISOWeek } from "date-fns";
+import CommonCalendar from "common/src/calendar/Calendar";
+import { Toolbar } from "common/src/calendar/Toolbar";
+import { add, startOfISOWeek } from "date-fns";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import {
-  Query,
-  QueryReservationsArgs,
-  ReservationsReservationStateChoices,
-  ReservationType,
-} from "common/types/gql-types";
+import { type ReservationType } from "common/types/gql-types";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
-import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
-import { useNotification } from "../../../context/NotificationContext";
 import Legend from "./Legend";
-import { reservationUrl } from "../../../common/urls";
-import { combineResults } from "../../../common/util";
+import { useReservationData } from "./hooks";
 
 type Props = {
-  begin: string;
   reservationUnitPk: string;
   reservation: ReservationType;
 };
@@ -36,98 +27,54 @@ const Container = styled.div`
   }
 `;
 
-const updateQuery = (
-  previousResult: Query,
-  { fetchMoreResult }: { fetchMoreResult: Query }
-): Query => {
-  if (!fetchMoreResult) {
-    return previousResult;
-  }
+type WeekOptions = "day" | "week" | "month";
 
-  return combineResults(previousResult, fetchMoreResult, "reservations");
-};
-
-const Calendar = ({
-  begin,
-  reservationUnitPk,
-  reservation,
-}: Props): JSX.Element => {
-  const [events, setEvents] = useState([] as CalendarEvent<ReservationType>[]);
-  const [hasMore, setHasMore] = useState(false);
-  const { notifyError } = useNotification();
-
+const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
   const { t } = useTranslation();
-
-  const { fetchMore } = useQuery<Query, QueryReservationsArgs>(
-    RESERVATIONS_BY_RESERVATIONUNIT,
-
-    {
-      fetchPolicy: "network-only",
-      variables: {
-        offset: 0,
-        first: 100,
-        reservationUnit: [reservationUnitPk],
-        begin,
-        end: begin,
-      },
-      onCompleted: ({ reservations }) => {
-        if (reservations) {
-          const formattedReservations: CalendarEvent<ReservationType>[] =
-            reservations?.edges
-              .map((e) => e?.node)
-              .filter((r): r is ReservationType => r != null)
-              .filter(
-                (r) =>
-                  [
-                    ReservationsReservationStateChoices.Confirmed,
-                    ReservationsReservationStateChoices.RequiresHandling,
-                  ].includes(r.state) || r.pk === reservation.pk
-              )
-              .map((r) => ({
-                title: `${
-                  r.reserveeOrganisationName ||
-                  `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
-                }`,
-                event: r,
-                // TODO use zod for datetime conversions
-                start: new Date(r.begin),
-                end: new Date(r.end),
-              }));
-
-          setEvents(formattedReservations);
-
-          if (reservations.pageInfo.hasNextPage) {
-            setHasMore(true);
-          }
-        }
-      },
-      onError: () => {
-        notifyError("Varauksia ei voitu hakea");
-      },
-    }
+  const [focusDate, setFocusDate] = useState(
+    startOfISOWeek(
+      reservation?.begin ? new Date(reservation?.begin) : new Date()
+    )
   );
-  useEffect(() => {
-    if (hasMore) {
-      setHasMore(false);
-      fetchMore({
-        variables: {
-          offset: events.length,
-        },
-        updateQuery,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, setHasMore]);
+  const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
+  // No month view so always query the whole week even if a single day is selected
+  // to avoid spamming queries and having to deal with start of day - end of day.
+  // focus day can be in the middle of the week.
+  const { events } = useReservationData(
+    startOfISOWeek(focusDate),
+    add(startOfISOWeek(focusDate), { days: 7 }),
+    reservationUnitPk,
+    reservation.pk ?? undefined
+  );
+
+  // switch date when the selected reservation changes
+  useEffect(() => {
+    if (reservation) {
+      setFocusDate(new Date(reservation.begin));
+    }
+  }, [reservation]);
+
+  // TODO the calendar is from 6am - 11pm (so anything outside that gets rendered at the edges)
+  // either do something to the event data (filter) or allow for a larger calendar
   return (
     <Container>
       <CommonCalendar
         events={events}
-        begin={startOfISOWeek(new Date(begin))}
+        toolbarComponent={Toolbar}
+        showToolbar
+        begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation)}
-        onSelectEvent={(e) => {
-          if (e.event?.pk != null && e.event.pk !== reservation.pk) {
-            window.open(reservationUrl(e.event.pk), "_blank");
+        /* TODO if we want to onSelect use router or use a Popup / Modal to show it
+        onSelectEvent={(e) => {}}}
+        */
+        onNavigate={(d: Date) => {
+          setFocusDate(d);
+        }}
+        viewType={calendarViewType}
+        onView={(n: string) => {
+          if (["day", "week", "month"].includes(n)) {
+            setCalendarViewType(n as "day" | "week" | "month");
           }
         }}
       />

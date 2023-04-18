@@ -4,10 +4,10 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation, useQuery } from "@apollo/client";
 import router from "next/router";
 import { useLocalStorage, useSessionStorage } from "react-use";
-import { Notification, Stepper } from "hds-react";
-import { useForm } from "react-hook-form";
+import { Stepper } from "hds-react";
+import { FormProvider, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
-import { isFinite, omit } from "lodash";
+import { isFinite, omit, pick } from "lodash";
 import { useTranslation } from "next-i18next";
 import { breakpoints } from "common/src/common/style";
 import { fontRegular, H2 } from "common/src/common/typography";
@@ -55,7 +55,10 @@ import {
 } from "../../modules/queries/reservation";
 import Sanitize from "../../components/common/Sanitize";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
-import { getReservationApplicationMutationValues } from "../../modules/reservation";
+import {
+  getReservationApplicationMutationValues,
+  profileUserFields,
+} from "../../modules/reservation";
 import { AGE_GROUPS, RESERVATION_PURPOSES } from "../../modules/queries/params";
 import { ReservationProps } from "../../context/DataContext";
 import Container from "../../components/common/Container";
@@ -66,6 +69,7 @@ import Step1 from "../../components/reservation/Step1";
 import { ReservationStep } from "../../modules/types";
 import { JustForDesktop } from "../../modules/style/layout";
 import { PinkBox } from "../../components/reservation-unit/ReservationUnitStyles";
+import { Toast } from "../../styles/util";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -101,6 +105,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       QueryTermsOfUseArgs
     >({
       query: TERMS_OF_USE,
+      fetchPolicy: "no-cache",
       variables: {
         termsType: TermsOfUseTermsOfUseTermsTypeChoices.GenericTerms,
       },
@@ -117,6 +122,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           QueryReservationPurposesArgs
         >({
           query: RESERVATION_PURPOSES,
+          fetchPolicy: "no-cache",
         });
         reservationPurposes =
           reservationPurposesData.reservationPurposes.edges?.map(
@@ -128,6 +134,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           QueryAgeGroupsArgs
         >({
           query: AGE_GROUPS,
+          fetchPolicy: "no-cache",
         });
         ageGroups = ageGroupsData.ageGroups.edges?.map((edge) => edge.node);
 
@@ -136,6 +143,7 @@ export const getServerSideProps: GetServerSideProps = async ({
           QueryCitiesArgs
         >({
           query: GET_CITIES,
+          fetchPolicy: "no-cache",
         });
         cities = citiesData.cities.edges?.map((edge) => edge.node);
       }
@@ -294,6 +302,10 @@ const ReservationUnitReservation = ({
     setPendingReservation,
   ]);
 
+  const defaultValues = useMemo(() => {
+    return reservation !== null ? pick(reservation, profileUserFields) : {};
+  }, [reservation]);
+
   const [deleteReservation] = useMutation<
     { deleteReservation: ReservationDeleteMutationPayload },
     { input: ReservationDeleteMutationInput }
@@ -367,11 +379,13 @@ const ReservationUnitReservation = ({
       } else if (steps?.length > 2) {
         const order = data.confirmReservation?.order;
         const { checkoutUrl, receiptUrl } = order ?? {};
-        const userId = new URL(receiptUrl)?.searchParams?.get("user");
+        const { origin, pathname, searchParams } = new URL(checkoutUrl) || {};
+        const userId = searchParams?.get("user");
 
-        if (checkoutUrl && receiptUrl && userId) {
+        if (checkoutUrl && receiptUrl && userId && origin && pathname) {
+          const baseUrl = `${origin}${pathname}`;
           router.push(
-            `${data.confirmReservation?.order?.checkoutUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
+            `${baseUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
           );
         } else {
           setErrorMsg(t("errors:general_error"));
@@ -564,7 +578,7 @@ const ReservationUnitReservation = ({
         )}
         <BodyContainer>
           {formStatus === "pending" && (
-            <>
+            <FormProvider {...form}>
               <div>
                 <Title>{pageTitle}</Title>
                 <StyledStepper
@@ -583,7 +597,6 @@ const ReservationUnitReservation = ({
               </div>
               {step === 0 && (
                 <Step0
-                  reservation={reservation}
                   reservationUnit={reservationUnit}
                   handleSubmit={handleSubmit(onSubmitStep0)}
                   generalFields={generalFields}
@@ -592,7 +605,7 @@ const ReservationUnitReservation = ({
                   setReserveeType={setReserveeType}
                   cancelReservation={cancelReservation}
                   options={options}
-                  form={form}
+                  defaultValues={defaultValues}
                 />
               )}
               {step === 1 && (
@@ -610,7 +623,7 @@ const ReservationUnitReservation = ({
                   setErrorMsg={setErrorMsg}
                 />
               )}
-            </>
+            </FormProvider>
           )}
           {formStatus === "sent" && (
             <ReservationConfirmation
@@ -621,7 +634,7 @@ const ReservationUnitReservation = ({
         </BodyContainer>
       </Columns>
       {errorMsg && (
-        <Notification
+        <Toast
           type="error"
           label={t("reservationUnit:reservationUpdateFailed")}
           position="top-center"
@@ -633,7 +646,7 @@ const ReservationUnitReservation = ({
           closeButtonLabelText={t("common:error.closeErrorMsg")}
         >
           {errorMsg}
-        </Notification>
+        </Toast>
       )}
     </StyledContainer>
   );

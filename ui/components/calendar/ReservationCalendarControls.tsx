@@ -16,9 +16,10 @@ import {
   DateInput,
   IconAngleDown,
   IconAngleUp,
+  IconCross,
   Select,
 } from "hds-react";
-import { trim, trimStart } from "lodash";
+import { maxBy, trim, trimStart } from "lodash";
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   convertHMSToSeconds,
@@ -50,7 +51,7 @@ import {
   ApplicationRoundType,
   ReservationUnitByPkType,
 } from "common/types/gql-types";
-import { MediumButton } from "../../styles/util";
+import { MediumButton, truncatedText } from "../../styles/util";
 import { ReservationProps } from "../../context/DataContext";
 import { getDurationOptions } from "../../modules/reservation";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
@@ -168,21 +169,14 @@ const Content = styled.div<{ $isAnimated: boolean }>`
   }
 
   @media (min-width: ${breakpoints.m}) {
-    > *:nth-child(5) {
-      grid-column: 3/3;
-    }
-
     grid-template-columns: repeat(4, 24%);
     gap: var(--spacing-xs);
     justify-content: space-between;
+    padding-bottom: var(--spacing-s);
   }
 
   @media (min-width: ${breakpoints.xl}) {
-    > *:nth-child(5) {
-      grid-column: unset;
-    }
-
-    grid-template-columns: 154px 120px 100px minmax(100px, 1fr) 100px 140px;
+    grid-template-columns: 154px 120px 100px minmax(100px, 1fr) 100px auto;
   }
 `;
 
@@ -226,25 +220,45 @@ const Price = styled.div`
 `;
 
 const ResetButton = styled(Button).attrs({
-  variant: "secondary",
+  variant: "supplementary",
+  iconLeft: <IconCross aria-hidden />,
   style: {
-    /* eslint-disable @typescript-eslint/naming-convention */
-    "--border-color": "var(--color-black)",
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     "--color": "var(--color-black)",
-    /* eslint-enable */
   } as CSSProperties,
-})`
+})<{ $isLast: boolean }>`
   white-space: nowrap;
   order: 1;
 
-  > span {
-    margin: 0 !important;
-    padding-right: var(--spacing-3-xs);
-    padding-left: var(--spacing-3-xs);
+  svg {
+    min-width: 24px;
   }
 
   @media (min-width: ${breakpoints.m}) {
     order: unset;
+    grid-column: ${({ $isLast }) => ($isLast ? "4" : "3")} / 4;
+  }
+
+  @media (min-width: ${breakpoints.xl}) {
+    grid-column: unset;
+
+    svg {
+      display: none;
+    }
+  }
+`;
+
+const SelectButton = styled(Button)`
+  order: 7;
+  ${truncatedText}
+
+  @media (min-width: ${breakpoints.m}) {
+    display: none;
+    grid-column: 4/4;
+  }
+
+  @media (min-width: ${breakpoints.xl}) {
+    grid-column: unset;
   }
 `;
 
@@ -439,15 +453,18 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   }: { startTime?: string; endTime?: string } = useMemo(() => {
     const timeframes = reservationUnit.openingHours?.openingTimes?.filter(
       (n) => n.date === toApiDate(date)
-    ) || [{ startTime: null, endTime: null }];
+    );
+
+    if (timeframes.length === 0) return {};
+
+    const first = min(
+      timeframes.map((n) => n.startTime && new Date(n.startTime))
+    );
+    const last = max(timeframes.map((n) => n.endTime && new Date(n.endTime)));
 
     return {
-      startTime: min(
-        timeframes.map((n) => n.startTime && new Date(n.startTime))
-      ).toISOString(),
-      endTime: max(
-        timeframes.map((n) => n.endTime && new Date(n.endTime))
-      ).toISOString(),
+      startTime: first ? first.toISOString() : null,
+      endTime: last ? last.toISOString() : null,
     };
   }, [reservationUnit.openingHours?.openingTimes, date]);
 
@@ -518,6 +535,11 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     minutes: convertHMSToSeconds(`0${duration?.value}:00`) / 60,
     trailingZeros: true,
   });
+
+  const lastOpeningDate = maxBy(
+    reservationUnit.openingHours?.openingTimes,
+    (n) => n.date
+  );
 
   const submitButton = createReservation ? (
     <SubmitButtonWrapper>
@@ -617,6 +639,11 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
               label={t("reservationCalendar:startDate")}
               language={i18n.language as Language}
               minDate={new Date()}
+              maxDate={
+                lastOpeningDate?.date
+                  ? new Date(lastOpeningDate.date)
+                  : new Date()
+              }
             />
             <StyledSelect
               key={`startTime-${startTime}`}
@@ -650,9 +677,18 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
                 setInitialReservation(null);
               }}
               disabled={!startTime}
+              $isLast={mode === "edit"}
             >
               {t("searchForm:resetForm")}
             </ResetButton>
+            {mode === "edit" && (
+              <SelectButton
+                onClick={() => setAreControlsVisible(false)}
+                disabled={!startTime}
+              >
+                {t("reservationCalendar:selectTime")}
+              </SelectButton>
+            )}
             {mode === "create" && submitButton}
           </Content>
         )}

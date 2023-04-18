@@ -8,7 +8,7 @@
     "lint": "eslint --ext ts,tsx src",
     "lint:css": "stylelint './src/**/*.tsx'",
     "format": "prettier --ignore-path \"../.prettierignore\" --write \"**/*.{js,jsx,ts,tsx,json}\"",
-    "start": "HOST=local-tilavaraus.hel.fi HTTPS=true SSL_CRT_FILE=../common/certificates/local-tilavaraus.crt SSL_KEY_FILE=../common/certificates/local-tilavaraus.key react-app-rewired start",
+    "start": "DISABLE_ESLINT_PLUGIN=true HOST=local-tilavaraus.hel.fi HTTPS=true SSL_CRT_FILE=../common/certificates/local-tilavaraus.crt SSL_KEY_FILE=../common/certificates/local-tilavaraus.key react-app-rewired start",
     "test": "TZ=Europe/Helsinki react-app-rewired test",
     "test:e2e-local": "testcafe --skip-js-errors \"chrome --window-size='1920,1080'\" e2e/tests",
     "ts-check": "tsc --noEmit --project tsconfig.json"
@@ -41,6 +41,11 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "moduleNameMapper": {
+      "axios": "axios/dist/node/axios.cjs"
+    }
+  },
   "dependencies": {
     "@apollo/client": "^3.7.3",
     "@axa-fr/react-oidc-context": "3.1.6",
@@ -52,7 +57,7 @@
     "@types/react-big-calendar": "^0.38.3",
     "apollo-link-token-refresh": "^0.4.0",
     "apollo-upload-client": "17.0.0",
-    "axios": "^1.2.1",
+    "axios": "^1.3.4",
     "axios-auth-refresh": "^3.3.4",
     "axios-case-converter": "^0.11.1",
     "classnames": "^2.3.2",
@@ -62,7 +67,7 @@
     "graphql": "^16.6.0",
     "hds-react": "^2.9.0",
     "http-proxy-middleware": "^2.0.6",
-    "i18next": "^22.4.6",
+    "i18next": "^22.4.14",
     "joi": "^17.7.0",
     "lodash": "^4.17.21",
     "mapbox-gl": "2.12.0",
@@ -74,7 +79,7 @@
     "react-error-boundary": "^3.1.4",
     "react-helmet": "^6.1.0",
     "react-hook-form": "7.41",
-    "react-i18next": "^12.1.1",
+    "react-i18next": "^12.2.0",
     "react-map-gl": "7.0.20",
     "react-quill": "2.0.0",
     "react-router-dom": "^6.6.1",
@@ -84,7 +89,8 @@
     "readline": "^1.3.0",
     "styled-components": "^5.3.6",
     "viewport-mercator-project": "^7.0.4",
-    "web-vitals": "^3.1.0"
+    "web-vitals": "^3.1.0",
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.16.1",
@@ -110,8 +116,8 @@
     "husky": "^8.0.3",
     "jest-axe": "^7.0.0",
     "lint-staged": "^13.1.0",
-    "prettier": "^2.8.1",
     "postcss-scss": "^4.0.2",
+    "prettier": "^2.8.1",
     "react-app-rewired": "^2.2.1",
     "stylelint": "^14.16.0",
     "stylelint-config-recommended": "^9.0.0",

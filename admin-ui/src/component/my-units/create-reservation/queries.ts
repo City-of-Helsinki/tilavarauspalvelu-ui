@@ -16,6 +16,23 @@ export const RESERVATION_UNIT_QUERY = gql`
             supportedFields
             requiredFields
           }
+          cancellationTerms {
+            textFi
+            nameFi
+          }
+          paymentTerms {
+            textFi
+            nameFi
+          }
+          pricingTerms {
+            textFi
+            nameFi
+          }
+          termsOfUseFi
+          serviceSpecificTerms {
+            textFi
+            nameFi
+          }
         }
       }
     }
@@ -31,36 +48,6 @@ export const CREATE_STAFF_RESERVATION = gql`
       errors {
         field
         messages
-      }
-    }
-  }
-`;
-
-export const OPTIONS_QUERY = gql`
-  query options {
-    purposes {
-      edges {
-        node {
-          pk
-          nameFi
-        }
-      }
-    }
-    ageGroups {
-      edges {
-        node {
-          pk
-          minimum
-          maximum
-        }
-      }
-    }
-    cities {
-      edges {
-        node {
-          nameFi
-          pk
-        }
       }
     }
   }

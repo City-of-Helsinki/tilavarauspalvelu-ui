@@ -9,7 +9,6 @@ import {
   IconArrowRight,
   IconCross,
   IconSignout,
-  Notification,
   Select,
 } from "hds-react";
 import Link from "next/link";
@@ -38,10 +37,9 @@ import {
 } from "../../modules/style/layout";
 import { getSelectedOption, getTranslation } from "../../modules/util";
 import { CenterSpinner } from "../common/common";
-import { BlackButton, MediumButton } from "../../styles/util";
+import { BlackButton, MediumButton, Toast } from "../../styles/util";
 import { emptyOption } from "../../modules/const";
 import ReservationInfoCard from "./ReservationInfoCard";
-import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
 import { Paragraph } from "./styles";
 
 type Props = {
@@ -225,16 +223,15 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
     );
   }, [reservation]);
 
-  const instructionsKey = useMemo(
-    () => getReservationUnitInstructionsKey(reservation?.state),
-    [reservation?.state]
-  );
-
   if (!reservation) {
     return <Spinner />;
   }
 
   const reservationUnit = reservation.reservationUnits[0];
+  const instructions = getTranslation(
+    reservationUnit,
+    "reservationCancelledInstructions"
+  );
 
   const onSubmit = (formData: { reason: number; description?: string }) => {
     const { reason, description } = formData;
@@ -268,11 +265,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
                 <>
                   <Title>{t("reservations:reservationCancelledTitle")}</Title>
                   <JustForMobile>{bylineContent}</JustForMobile>
-                  <p>
-                    {t("reservations:reservationCancelledBody", {
-                      user: reservation?.user?.email,
-                    })}
-                  </p>
+                  <p>{t("reservations:reservationCancelledBody")}</p>
                 </>
               )}
             </Heading>
@@ -358,9 +351,9 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
                   </>
                 ) : (
                   <>
-                    {getTranslation(reservationUnit, instructionsKey) && (
+                    {formState === "sent" && instructions && (
                       <Paragraph style={{ margin: "var(--spacing-xl) 0" }}>
-                        {getTranslation(reservationUnit, instructionsKey)}
+                        {instructions}
                       </Paragraph>
                     )}
                     <ButtonContainer>
@@ -390,7 +383,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
         </Columns>
       </Container>
       {errorMsg && (
-        <Notification
+        <Toast
           type="error"
           label={t("common:error.error")}
           position="top-center"
@@ -401,7 +394,7 @@ const ReservationCancellation = ({ id, logout }: Props): JSX.Element => {
           closeButtonLabelText={t("common:error.closeErrorMsg")}
         >
           {errorMsg}
-        </Notification>
+        </Toast>
       )}
     </Wrapper>
   );
