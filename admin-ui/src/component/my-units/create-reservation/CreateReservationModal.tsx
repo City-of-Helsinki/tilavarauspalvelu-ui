@@ -157,9 +157,8 @@ const DialogContent = ({
     }
   };
 
-  const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
   const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+    errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
   // TODO refactor the form part of this outside the dialog
   return (

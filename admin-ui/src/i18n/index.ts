@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import messages from "./messages";
 
 import * as reservationApplicationFi from "./locales/fi/reservationApplication.json";
+import * as reservationFormFi from "./locales/fi/reservationForm.json";
 
 i18n.use(initReactI18next).init({
   resources: messages,
@@ -46,5 +47,6 @@ i18n.addResourceBundle(
   "reservationApplication",
   reservationApplicationFi
 );
+i18n.addResourceBundle("fi", "reservationForm", reservationFormFi);
 
 export default i18n;

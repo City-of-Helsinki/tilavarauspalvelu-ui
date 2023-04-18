@@ -20,7 +20,7 @@ const BufferController = ({ name, seconds }: BufferControllerProps) => {
         <Checkbox
           id={name}
           checked={String(field.value) === "true"}
-          label={t(`ReservationDialog.${name}`, {
+          label={t(`reservationApplication:${name}`, {
             minutes: seconds / 60,
           })}
           {...field}
@@ -44,7 +44,7 @@ const BufferToggles = ({
   const { t } = useTranslation();
 
   return (
-    <SelectionGroup label={t("ReservationDialog.buffers")}>
+    <SelectionGroup label={t("reservationApplication:buffers")}>
       {before && <BufferController name="bufferTimeBefore" seconds={before} />}
       {after && <BufferController name="bufferTimeAfter" seconds={after} />}
     </SelectionGroup>
