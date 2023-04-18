@@ -19,6 +19,5 @@
       "app/*": ["./src/*"]
     }
   },
-  "include": ["src", "i18next.d.ts"],
-  "exclude": ["**/*.test.*", "node_modules"]
+  "include": ["src", "i18next.d.ts"]
 }

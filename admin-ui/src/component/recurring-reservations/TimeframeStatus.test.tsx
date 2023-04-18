@@ -1,7 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import endOfYesterday from "date-fns/endOfYesterday";
-import endOfTomorrow from "date-fns/endOfTomorrow";
+import { endOfTomorrow, endOfYesterday } from "date-fns";
 import { axe } from "jest-axe";
 import TimeframeStatus from "./TimeframeStatus";
 
