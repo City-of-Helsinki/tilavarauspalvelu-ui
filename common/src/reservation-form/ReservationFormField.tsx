@@ -18,7 +18,7 @@ import { removeRefParam } from "./util";
 type Props = {
   field: keyof Inputs;
   options: Record<string, OptionType[]>;
-  reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
+  translationKey?: ReservationsReservationReserveeTypeChoices | "COMMON";
   reservation: Reservation;
   required: boolean;
   // Not good to pass the translation function here but this is because this is shared between ui and admin
@@ -124,7 +124,7 @@ const ControlledCheckbox = (props: {
 const ReservationFormField = ({
   field,
   options,
-  reserveeType,
+  translationKey,
   required,
   reservation,
   t,
@@ -132,8 +132,8 @@ const ReservationFormField = ({
   data = {},
   defaultValues = {},
 }: Props) => {
-  const normalizedReserveeType =
-    reserveeType?.toLocaleLowerCase() || "individual";
+  const lowerCaseTranslationKey =
+    translationKey?.toLocaleLowerCase() || "individual";
 
   const isWideRow = useMemo(
     (): boolean =>
@@ -192,7 +192,7 @@ const ReservationFormField = ({
     field === "freeOfChargeReason" && watch("applyingForFreeOfCharge") === true;
 
   const label = `${t(
-    `reservationApplication:label.${normalizedReserveeType}.${field}`
+    `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
   )}`;
 
   const error = get(errors, field);
@@ -225,7 +225,7 @@ const ReservationFormField = ({
           // TODO some (like this) get the * added by the component
           // others (so far seems all the others) get it from the label text.
           label={t(
-            `reservationApplication:label.${normalizedReserveeType}.${field}`
+            `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
           )}
           id={field}
           options={options[field]}
@@ -271,7 +271,7 @@ const ReservationFormField = ({
     <StyledTextArea
       // TODO this needs to be separated or use required like all the other components
       label={t(
-        `reservationApplication:label.${normalizedReserveeType}.${field}`
+        `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
       )}
       id={field}
       key={field}
