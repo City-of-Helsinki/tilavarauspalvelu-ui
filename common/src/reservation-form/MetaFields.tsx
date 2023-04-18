@@ -253,9 +253,6 @@ export const ReservationMetaFields = ({
   );
 };
 
-/* The controller works for saving the value
-TODO test the UI version with this change
-*/
 const ReserveeTypeSelector = () => {
   const { t } = useTranslation();
 
@@ -311,9 +308,7 @@ export const ReserverMetaFields = ({
     return null;
   }
 
-  const reserveeType = watch(
-    "reserveeType"
-  ) as ReservationsReservationReserveeTypeChoices;
+  const reserveeType = watch("reserveeType");
 
   return (
     <>

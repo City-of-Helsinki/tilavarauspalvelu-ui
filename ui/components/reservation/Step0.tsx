@@ -9,10 +9,7 @@ import { Trans, useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular } from "common/src/common/typography";
 import MetaFields from "common/src/reservation-form/MetaFields";
-import {
-  ReservationsReservationReserveeTypeChoices,
-  ReservationUnitType,
-} from "common/types/gql-types";
+import { ReservationUnitType } from "common/types/gql-types";
 import { MediumButton } from "../../styles/util";
 import { ActionContainer } from "./styles";
 import { getTranslation } from "../../modules/util";
@@ -23,10 +20,6 @@ import Sanitize from "../common/Sanitize";
 
 type Props = {
   reservationUnit: ReservationUnitType;
-  reserveeType: ReservationsReservationReserveeTypeChoices;
-  setReserveeType: React.Dispatch<
-    React.SetStateAction<ReservationsReservationReserveeTypeChoices>
-  >;
   handleSubmit: () => void;
   generalFields: string[];
   reservationApplicationFields: string[];
@@ -67,8 +60,6 @@ const LinkLikeButton = styled.button`
 
 const Step0 = ({
   reservationUnit,
-  reserveeType,
-  setReserveeType,
   handleSubmit,
   generalFields,
   reservationApplicationFields,
@@ -93,8 +84,6 @@ const Step0 = ({
       <MetaFields
         reservationUnit={reservationUnit}
         options={options}
-        reserveeType={reserveeType}
-        setReserveeType={setReserveeType}
         generalFields={generalFields}
         reservationApplicationFields={reservationApplicationFields}
         data={{
@@ -114,7 +103,6 @@ const Step0 = ({
           ),
         }}
         defaultValues={defaultValues}
-        t={t}
       />
       <InfoDialog
         id="pricing-terms"
