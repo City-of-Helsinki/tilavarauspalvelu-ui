@@ -9,12 +9,7 @@ import {
   ReserverMetaFields,
   ReservationMetaFields,
 } from "common/src/reservation-form/MetaFields";
-import {
-  useApplicatioonFields,
-  useGeneralFields,
-  useOptions,
-  useReservationTranslation,
-} from "./hooks";
+import { useApplicatioonFields, useGeneralFields, useOptions } from "./hooks";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -24,7 +19,6 @@ export const ReservationMetadataSetForm = ({
   reservationUnit,
 }: Props): JSX.Element => {
   const options = useOptions();
-  const { t } = useReservationTranslation();
   // TODO naming: generalFields = reservationFields (Varauksen tiedot)
   // or maybe metadataReservationFields?
   const generalFields = useGeneralFields(reservationUnit);
@@ -34,7 +28,6 @@ export const ReservationMetadataSetForm = ({
       fields={generalFields}
       reservationUnit={reservationUnit}
       options={options}
-      t={t}
     />
   );
 };
@@ -45,8 +38,6 @@ export const ReserverMetadataSetForm = ({
 }: Props): JSX.Element => {
   // FIXME this breaks UI
   const { watch } = useFormContext<Reservation>();
-
-  const { t } = useReservationTranslation();
 
   const options = useOptions();
 
@@ -62,7 +53,6 @@ export const ReserverMetadataSetForm = ({
       fields={reservationApplicationFields}
       reservationUnit={reservationUnit}
       options={options}
-      t={t}
     />
   );
 };
