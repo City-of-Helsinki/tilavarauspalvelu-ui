@@ -7,6 +7,7 @@ import {
   FieldValues,
   useFormContext,
 } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
@@ -21,9 +22,6 @@ type Props = {
   translationKey?: ReservationsReservationReserveeTypeChoices | "COMMON";
   reservation: Reservation;
   required: boolean;
-  // Not good to pass the translation function here but this is because this is shared between ui and admin
-  // and admin is lacking translation namespaces
-  t: (key: string) => string;
   params?: Record<string, Record<string, string | number>>;
   data?: {
     termsForDiscount?: JSX.Element | string;
@@ -127,11 +125,12 @@ const ReservationFormField = ({
   translationKey,
   required,
   reservation,
-  t,
   params = {},
   data = {},
   defaultValues = {},
 }: Props) => {
+  const { t } = useTranslation();
+
   const lowerCaseTranslationKey =
     translationKey?.toLocaleLowerCase() || "individual";
 

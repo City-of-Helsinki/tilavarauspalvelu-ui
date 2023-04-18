@@ -13,6 +13,7 @@ import React, { Fragment } from "react";
 import styled from "styled-components";
 import camelCase from "lodash/camelCase";
 import { Controller, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import {
   ReservationMetadataSetType,
@@ -30,7 +31,6 @@ import IconPremises from "../icons/IconPremises";
 
 type CommonProps = {
   options: Record<string, OptionType[]>;
-  t: (key: string) => string;
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
@@ -101,13 +101,13 @@ const SubheadingByType = ({
   reserveeType,
   index,
   field,
-  t,
 }: {
   reserveeType: ReservationsReservationReserveeTypeChoices;
   index: number;
   field: string;
-  t: (key: string) => string;
 }) => {
+  const { t } = useTranslation();
+
   const headingForNonProfit =
     reserveeType === ReservationsReservationReserveeTypeChoices.Nonprofit &&
     index === 0;
@@ -146,7 +146,6 @@ const SubheadingByType = ({
 const ReservationFormFields = ({
   fields,
   options,
-  t,
   // subheading is needed because application form uses it and requires index / field data to render it
   headingKey,
   hasSubheading,
@@ -172,6 +171,9 @@ const ReservationFormFields = ({
       .includes(field),
   }));
 
+  // TODO the subheading logic is weird / inefficient
+  // instead of adding it to sections (or dividing the fields array into sections with headings)
+  // we check for index === 0 inside a loop invariant
   return (
     <>
       {fieldsExtended.map(({ field, required }, index) => (
@@ -181,7 +183,6 @@ const ReservationFormFields = ({
               reserveeType={headingKey}
               index={index}
               field={field}
-              t={t}
               key={`key-${field}-subheading`}
             />
           )}
@@ -193,7 +194,6 @@ const ReservationFormFields = ({
             translationKey={headingKey}
             reservation={getValues()}
             params={params}
-            t={t}
             data={data}
             defaultValues={defaultValues}
           />
@@ -208,17 +208,17 @@ export const ReservationMetaFields = ({
   fields,
   reservationUnit,
   options,
-  t,
   data,
 }: {
   fields: string[];
   reservationUnit: ReservationUnitType;
   options: Record<string, OptionType[]>;
-  t: (key: string) => string;
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
 }) => {
+  const { t } = useTranslation();
+
   if (fields.length === 0) {
     return null;
   }
@@ -247,7 +247,6 @@ export const ReservationMetaFields = ({
             },
           }}
           data={data}
-          t={t}
         />
       </TwoColumnContainer>
     </>
@@ -257,7 +256,9 @@ export const ReservationMetaFields = ({
 /* The controller works for saving the value
 TODO test the UI version with this change
 */
-const ReserveeTypeSelector = ({ t }: { t: (key: string) => string }) => {
+const ReserveeTypeSelector = () => {
+  const { t } = useTranslation();
+
   return (
     <ReserveeTypeContainer data-testid="reservation__checkbox--reservee-type">
       <Controller
@@ -288,20 +289,19 @@ export const ReserverMetaFields = ({
   fields,
   reservationUnit,
   options,
-  t,
   data,
   defaultValues,
 }: {
   fields: string[];
   reservationUnit: ReservationUnitType;
   options: Record<string, OptionType[]>;
-  t: (key: string) => string;
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
   defaultValues?: Record<string, string | number>;
 }) => {
   const { watch } = useFormContext<Reservation>();
+  const { t } = useTranslation();
 
   const isTypeSelectable =
     reservationUnit?.metadataSet?.supportedFields?.includes("reservee_type") ??
@@ -311,9 +311,9 @@ export const ReserverMetaFields = ({
     return null;
   }
 
-  const reserveeType =
-    (watch("reserveeType") as ReservationsReservationReserveeTypeChoices) ??
-    "COMMON";
+  const reserveeType = watch(
+    "reserveeType"
+  ) as ReservationsReservationReserveeTypeChoices;
 
   return (
     <>
@@ -323,7 +323,7 @@ export const ReserverMetaFields = ({
       {isTypeSelectable && (
         <>
           <p>{t("reservationApplication:reserveeTypePrefix")}</p>
-          <ReserveeTypeSelector t={t} />
+          <ReserveeTypeSelector />
         </>
       )}
       <ReservationApplicationFieldsContainer>
@@ -333,7 +333,6 @@ export const ReserverMetaFields = ({
           options={options}
           hasSubheading
           headingKey={reserveeType}
-          t={t}
           data={data}
           defaultValues={defaultValues}
         />
@@ -351,7 +350,6 @@ const MetaFields = ({
   generalFields,
   reservationApplicationFields,
   options,
-  t,
   data,
   defaultValues,
 }: Props) => {
@@ -365,14 +363,12 @@ const MetaFields = ({
         fields={generalFields}
         options={options}
         reservationUnit={reservationUnit}
-        t={t}
         data={data}
       />
       <ReserverMetaFields
         fields={reservationApplicationFields}
         options={options}
         reservationUnit={reservationUnit}
-        t={t}
         data={data}
         defaultValues={defaultValues}
       />
