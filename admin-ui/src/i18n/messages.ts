@@ -1098,7 +1098,6 @@ const translations: ITranslations = {
     removeConfirmationCancel: ["Kumoa"],
     removeFailed: ["Tilan poistaminen ei onnistunut."],
   },
-  // TODO remove the duplicates here (migrated to reservationApplication.json)
   ReservationDialog: {
     // field names (for input controls) => should be moved (not dialog specific)
     date: ["Päivämäärä"],
