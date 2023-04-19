@@ -39,18 +39,17 @@ const WrappedComponent = (props: {
   field: keyof Inputs;
   required?: boolean;
   params?: Record<string, Record<string, string | number>>;
+  translationKey?: "COMMON";
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
 }) => (
   <Wrapper>
     <ReservationFormField
-      field={props.field}
       options={options}
-      required={props.required ?? false}
       reservation={reservationData}
-      params={props.params}
-      data={props.data}
+      {...props}
+      required={props.required ?? false}
     />
   </Wrapper>
 );
@@ -105,7 +104,9 @@ test.todo("billingEmail only allows emails or it's an error");
 
 test("ReserveeType changes translation namespaces", async () => {
   const fname = "name";
-  const view = render(<WrappedComponent field={fname} required />);
+  const view = render(
+    <WrappedComponent field={fname} required translationKey="COMMON" />
+  );
 
   const input = await view.findByLabelText(
     `reservationApplication:label.common.${fname} *`
