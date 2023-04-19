@@ -1,15 +1,10 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { render, within } from "@testing-library/react";
-import { expect, test } from "@jest/globals";
 import React from "react";
 import user from "@testing-library/user-event";
 import { FormProvider, useForm } from "react-hook-form";
 import ReservationFormField from "./ReservationFormField";
 import { Inputs, Reservation } from "./types";
 import { OptionType } from "../../types/common";
-import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
-
-const t = (s: string) => s;
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => {
   const formMethods = useForm<Reservation>();
@@ -43,7 +38,6 @@ const options: Record<string, OptionType[]> = {
 const WrappedComponent = (props: {
   field: keyof Inputs;
   required?: boolean;
-  reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   params?: Record<string, Record<string, string | number>>;
   data?: {
     termsForDiscount?: JSX.Element | string;
@@ -51,14 +45,11 @@ const WrappedComponent = (props: {
 }) => (
   <Wrapper>
     <ReservationFormField
-      // key={`key-${field}`}
       field={props.field}
       options={options}
       required={props.required ?? false}
-      reserveeType={props.reserveeType}
       reservation={reservationData}
       params={props.params}
-      t={t}
       data={props.data}
     />
   </Wrapper>
@@ -114,9 +105,7 @@ test.todo("billingEmail only allows emails or it's an error");
 
 test("ReserveeType changes translation namespaces", async () => {
   const fname = "name";
-  const view = render(
-    <WrappedComponent field={fname} required reserveeType="COMMON" />
-  );
+  const view = render(<WrappedComponent field={fname} required />);
 
   const input = await view.findByLabelText(
     `reservationApplication:label.common.${fname} *`
