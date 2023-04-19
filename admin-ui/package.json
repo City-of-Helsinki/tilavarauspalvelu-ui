@@ -43,7 +43,8 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "axios": "axios/dist/node/axios.cjs"
+      "axios": "axios/dist/node/axios.cjs",
+      "^app(.*)$": "<rootDir>/src/$1"
     }
   },
   "dependencies": {
