@@ -1,4 +1,5 @@
 import { get } from "lodash";
+import { TFunction } from "i18next";
 import {
   ReservationType,
   ReservationUnitPricingType,
@@ -40,7 +41,8 @@ describe("pricingDetails", () => {
       ],
     } as ReservationType;
 
-    expect(getReservationPriceDetails(r, (t) => t)).toEqual("120 €");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(getReservationPriceDetails(r, (s: any) => s)).toEqual("120 €");
   });
 
   test("renders price in hours", () => {
@@ -73,12 +75,16 @@ describe("pricingDetails", () => {
       ],
     } as ReservationType;
 
-    expect(
-      getReservationPriceDetails(reservation, (t, a) => get(a, "price"))
-    ).toEqual("180 €");
-    expect(
-      getReservationPriceDetails(reservation, (t, a) => get(a, "volume"))
-    ).toEqual("1,5");
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const t1: TFunction = (s: any, a: any) => get(a, "price");
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const t2: TFunction = (s: any, a: any) => get(a, "volume");
+
+    expect(getReservationPriceDetails(reservation, t1)).toEqual("180 €");
+
+    expect(getReservationPriceDetails(reservation, t2)).toEqual("1,5");
   });
 });
 

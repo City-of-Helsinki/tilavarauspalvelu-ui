@@ -12,12 +12,9 @@ import {
 } from "common/types/gql-types";
 import { BrowserRouter } from "react-router-dom";
 import MyUnitRecurringReservationForm from "./MyUnitRecurringReservationForm";
-import {
-  CREATE_STAFF_RESERVATION,
-  RESERVATION_UNIT_QUERY,
-} from "../create-reservation/queries";
+import { RESERVATION_UNIT_QUERY } from "../hooks/queries";
+import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
-import { ReservationMade } from "./RecurringReservationDone";
 
 const unitCommon = {
   reservationStartInterval:
@@ -151,14 +148,11 @@ const mocks = [
   },
 ];
 
-const customRender = (cb: (res: ReservationMade[]) => void) =>
+const customRender = () =>
   render(
     <BrowserRouter>
       <MockedProvider mocks={mocks} addTypename={false}>
-        <MyUnitRecurringReservationForm
-          reservationUnits={units}
-          onReservation={cb}
-        />
+        <MyUnitRecurringReservationForm reservationUnits={units} />
       </MockedProvider>
     </BrowserRouter>
   );
@@ -174,8 +168,7 @@ const getReservationUnitBtn = () => {
 };
 
 test("Render recurring reservation form with all but unit field disabled", async () => {
-  const cb = jest.fn();
-  const view = customRender(cb);
+  const view = customRender();
 
   const user = userEvent.setup();
 
@@ -246,8 +239,7 @@ const selectUnit = async () => {
 };
 
 test("selecting unit field allows input to other mandatory fields", async () => {
-  const cb = jest.fn();
-  const view = customRender(cb);
+  const view = customRender();
 
   await selectUnit();
 
@@ -273,8 +265,7 @@ test("selecting unit field allows input to other mandatory fields", async () => 
 
 // FIXME this fails on CI but not locally
 test.skip("Submit is blocked if all mandatory fields are not set", async () => {
-  const cb = jest.fn();
-  const view = customRender(cb);
+  const view = customRender();
 
   await selectUnit();
 
@@ -294,8 +285,7 @@ test.skip("Submit is blocked if all mandatory fields are not set", async () => {
 });
 
 test("Form has meta when reservation unit is selected.", async () => {
-  const cb = jest.fn();
-  const view = customRender(cb);
+  const view = customRender();
 
   await selectUnit();
 
@@ -314,8 +304,7 @@ test("Form has meta when reservation unit is selected.", async () => {
 });
 
 test("Form doesn't have meta without a reservation unit.", async () => {
-  const cb = jest.fn();
-  customRender(cb);
+  customRender();
 
   // TODO check that there is no type of reservation
 
