@@ -26,7 +26,7 @@ const ReservationListButton = ({
   switch (type) {
     case "show":
       return (
-        <a href="#reservation-calendar">
+        <a href="#reservation-calendar" style={{ textDecoration: "none" }}>
           <Button {...btnCommon} iconLeft={<IconClock />}>
             {t("ReservationsListButton.showInCalendar")}
           </Button>
