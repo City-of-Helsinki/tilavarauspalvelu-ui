@@ -10,7 +10,6 @@ const EditTime = () => {
   return <div>TODO add a widget to edit the time of the reservation</div>;
 };
 
-// TODO h1 to wrapper -> header section ? <H1 $legacy>Muokkaa varauksen aikaa</H1>
 const EditTimePage = () => {
   const params = useParams();
   const id = params.id ?? undefined;
