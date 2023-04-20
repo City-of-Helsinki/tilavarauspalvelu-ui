@@ -1,7 +1,6 @@
 // Rewriting the metafields using zod validators
 // TODO move to common after they are tested in use with
 // CreateReservationModal / RecurringReservation / EditReservation
-// TODO move validators into a single logical place (even if it's not in the common)
 
 import { ReservationsReservationReserveeTypeChoices } from "common/types/gql-types";
 import { z } from "zod";
@@ -13,6 +12,8 @@ const OptionSchema = z.object({
   value: z.number(),
   label: z.string(),
 });
+
+export const reservationTypeSchema = z.enum(["STAFF", "BEHALF", "BLOCKED"]);
 
 export const ReservationFormMetaSchema = z.object({
   name: z.string().optional(),
