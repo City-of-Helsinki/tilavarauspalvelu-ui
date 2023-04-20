@@ -57,16 +57,17 @@ const DateTime = styled.div`
 type Props = {
   reservation: ReservationType;
   tagline: string;
+  overrideTitle?: string;
 };
 
 const ReservationTitleSection = forwardRef<HTMLDivElement, Props>(
-  ({ reservation, tagline }: Props, ref) => {
+  ({ reservation, tagline, overrideTitle }: Props, ref) => {
     const { t } = useTranslation();
 
     return (
       <div>
         <NameState ref={ref}>
-          <H1 $legacy>{getName(reservation, t)}</H1>
+          <H1 $legacy>{overrideTitle ?? getName(reservation, t)}</H1>
           <HorisontalFlex>
             <AlignVertically>
               {reservation.orderStatus && (
