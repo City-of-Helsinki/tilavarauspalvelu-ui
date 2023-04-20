@@ -1,29 +1,25 @@
 import React from "react";
-import styled from "styled-components";
-import { H1 } from "common/src/common/typography";
+import { useParams } from "react-router-dom";
 import withMainMenu from "../withMainMenu";
-import { Container } from "../../styles/layout";
-import LinkPrev from "../LinkPrev";
+import EditPageWrapper from "./EditPageWrapper";
+import { useReservationEditData } from "./requested/hooks";
+import Loader from "../Loader";
 
-const PreviousLinkWrapper = styled.div`
-  padding: var(--spacing-s);
-`;
+const EditTime = () => {
+  return <div>TODO add a widget to edit the time of the reservation</div>;
+};
 
+// TODO h1 to wrapper -> header section ? <H1 $legacy>Muokkaa varauksen aikaa</H1>
 const EditTimePage = () => {
+  const params = useParams();
+  const id = params.id ?? undefined;
+
+  const { reservation, loading } = useReservationEditData(id);
+
   return (
-    <>
-      <PreviousLinkWrapper>
-        <LinkPrev />
-      </PreviousLinkWrapper>
-      <Container>
-        <H1 $legacy>Muokkaa varauksen aikaa</H1>
-        <div>
-          TODO copy the header section (with Title) from RequestedReservation
-          refactor it into a component first though
-        </div>
-        <div>TODO render ReservationForm</div>
-      </Container>
-    </>
+    <EditPageWrapper reservation={reservation}>
+      {loading ? <Loader /> : <EditTime />}
+    </EditPageWrapper>
   );
 };
 
