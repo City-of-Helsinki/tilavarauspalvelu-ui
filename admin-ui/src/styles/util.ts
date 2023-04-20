@@ -134,7 +134,9 @@ export const ButtonLikeLink = styled(Link)`
   line-height: 1;
   text-align: center;
   height: 44px;
-  padding: 0 24px;
+  padding: 0 20px;
+  line-height: 1;
+  text-align: center;
   &:hover,
   &:focus-visible {
     transition-property: background-color, border-color, color;
