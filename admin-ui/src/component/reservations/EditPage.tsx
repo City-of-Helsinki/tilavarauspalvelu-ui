@@ -3,14 +3,12 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Query,
-  QueryReservationByPkArgs,
   ReservationStaffCreateMutationInput,
   ReservationStaffCreateMutationPayload,
   ReservationType,
   ReservationUnitType,
 } from "common/types/gql-types";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { format } from "date-fns";
 import get from "lodash/get";
 import camelCase from "lodash/camelCase";
@@ -23,8 +21,6 @@ import {
   type ReservationFormType,
   reservationTypeSchema,
 } from "app/schemas";
-import LinkPrev from "../LinkPrev";
-import { Container } from "../../styles/layout";
 import withMainMenu from "../withMainMenu";
 import { useNotification } from "../../context/NotificationContext";
 import { CREATE_STAFF_RESERVATION } from "../my-units/create-reservation/queries";
@@ -36,15 +32,10 @@ import {
 } from "../my-units/MyUnitRecurringReservation/commonStyling";
 import ReservationTypeForm from "../my-units/ReservationTypeForm";
 import Loader from "../Loader";
-import { SINGLE_RESERVATION_QUERY } from "./queries";
 import { HR } from "../lists/components";
-import ReservationTitleSection from "./requested/ReservationTitleSection";
-import { createTagString } from "./requested/util";
 import { useOptions } from "../my-units/hooks";
-
-const PreviousLinkWrapper = styled.div`
-  padding: var(--spacing-s);
-`;
+import EditPageWrapper from "./EditPageWrapper";
+import { useReservationEditData } from "./requested/hooks";
 
 type FormValueType = ReservationFormType & ReservationFormMeta;
 
@@ -53,6 +44,17 @@ type PossibleOptions = {
   purpose: Array<{ label: string; value: number }>;
   homeCity: Array<{ label: string; value: number }>;
 };
+
+const ButtonContainer = styled(Element)`
+  grid-column-end: -1;
+  gap: 1rem;
+  display: flex;
+  border-top-width: 2px;
+`;
+
+const GridHR = styled(HR)`
+  grid-column: 1 / -1;
+`;
 
 // TODO this is a copy from CreateReservationModal.tsx combine if possible
 // differences: useEditMutation, No dialog wrappers, form default values, no date / time input section
@@ -199,24 +201,13 @@ const EditReservation = ({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Grid>
           <ReservationTypeForm reservationUnit={reservationUnit} />
-          <HR
-            style={{
-              gridColumn: "1 / -1",
-            }}
-          />
-          <Element
-            style={{
-              gridColumnEnd: "-1",
-              gap: "1rem",
-              display: "flex",
-              borderTopWidth: "2px",
-            }}
-          >
+          <GridHR />
+          <ButtonContainer>
             <Button variant="secondary" onClick={onClose} theme="black">
               {t("common.cancel")}
             </Button>
             <Button type="submit">{t("Reservation.EditPage.save")}</Button>
-          </Element>
+          </ButtonContainer>
         </Grid>
       </form>
     </FormProvider>
@@ -227,61 +218,34 @@ const EditPage = () => {
   const params = useParams();
   const id = params.id ?? undefined;
 
-  const { data, loading } = useQuery<Query, QueryReservationByPkArgs>(
-    SINGLE_RESERVATION_QUERY,
-    {
-      skip: !id,
-      fetchPolicy: "no-cache",
-      variables: {
-        pk: Number(id),
-      },
-    }
-  );
-
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const { reservation, reservationUnit, loading } = useReservationEditData(id);
 
   const handleClose = () => {
     navigate(-1);
   };
 
-  const reservation = data?.reservationByPk ?? undefined;
-  const reservationUnit =
-    data?.reservationByPk?.reservationUnits?.find((x) => x != null) ??
-    undefined;
-  const tagline = reservation ? createTagString(reservation, t) : "";
-
   const options = useOptions();
 
   return (
-    <>
-      <PreviousLinkWrapper>
-        <LinkPrev />
-      </PreviousLinkWrapper>
-      {/* TODO the container and title section is common with RequestedReservation and EditTime */}
-      <Container>
-        {reservation && (
-          <ReservationTitleSection
-            reservation={reservation}
-            tagline={tagline}
-          />
-        )}
-        {loading ? (
-          <Loader />
-        ) : !reservation ? (
-          t("Reservation.EditPage.Reservation failed to load", { pk: id })
-        ) : !reservationUnit ? (
-          t("No reservation unit failed to load")
-        ) : (
-          <EditReservation
-            reservation={reservation}
-            reservationUnit={reservationUnit}
-            onClose={handleClose}
-            options={options}
-          />
-        )}
-      </Container>
-    </>
+    <EditPageWrapper reservation={reservation}>
+      {loading ? (
+        <Loader />
+      ) : !reservation ? (
+        t("Reservation.EditPage.Reservation failed to load", { pk: id })
+      ) : !reservationUnit ? (
+        t("No reservation unit failed to load")
+      ) : (
+        <EditReservation
+          reservation={reservation}
+          reservationUnit={reservationUnit}
+          onClose={handleClose}
+          options={options}
+        />
+      )}
+    </EditPageWrapper>
   );
 };
 

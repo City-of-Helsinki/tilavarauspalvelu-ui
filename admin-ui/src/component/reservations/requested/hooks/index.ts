@@ -1,5 +1,6 @@
 import {
   Query,
+  QueryReservationByPkArgs,
   QueryReservationDenyReasonsArgs,
   QueryReservationsArgs,
   ReservationDenyReasonType,
@@ -7,11 +8,12 @@ import {
   ReservationType,
 } from "common/types/gql-types";
 import { useQuery } from "@apollo/client";
-import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  RESERVATIONS_BY_RESERVATIONUNIT,
   RECURRING_RESERVATION_QUERY,
+  RESERVATIONS_BY_RESERVATIONUNIT,
+  SINGLE_RESERVATION_QUERY,
 } from "./queries";
 import { useNotification } from "../../../../context/NotificationContext";
 import { RESERVATION_DENY_REASONS } from "../queries";
@@ -76,6 +78,26 @@ export const useReservationData = (
       })) ?? [];
 
   return { ...rest, events };
+};
+
+export const useReservationEditData = (id?: string) => {
+  const { data, loading } = useQuery<Query, QueryReservationByPkArgs>(
+    SINGLE_RESERVATION_QUERY,
+    {
+      skip: !id,
+      fetchPolicy: "no-cache",
+      variables: {
+        pk: Number(id),
+      },
+    }
+  );
+
+  const reservation = data?.reservationByPk ?? undefined;
+  const reservationUnit =
+    data?.reservationByPk?.reservationUnits?.find((x) => x != null) ??
+    undefined;
+
+  return { reservation, reservationUnit, loading };
 };
 
 type OptionsType = {

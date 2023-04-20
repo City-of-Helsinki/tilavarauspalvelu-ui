@@ -74,3 +74,14 @@ export const RESERVATION_UNIT_FRAGMENT = gql`
     }
   }
 `;
+
+export const RESERVATION_COMMON_FRAGMENT = gql`
+  fragment ReservationCommon on ReservationType {
+    pk
+    createdAt
+    state
+    begin
+    end
+    orderStatus
+  }
+`;

@@ -41,11 +41,13 @@ const units: ReservationUnitType[] = [
     ...unitCommon,
     pk: 1,
     nameFi: "Unit",
+    images: [],
   },
   {
     ...unitCommon,
     pk: 2,
     nameFi: "Absolute",
+    images: [],
   },
 ];
 
