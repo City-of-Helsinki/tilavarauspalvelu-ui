@@ -34,8 +34,6 @@ import {
   Grid,
   Element,
 } from "../my-units/MyUnitRecurringReservation/commonStyling";
-import ControlledDateInput from "../my-units/components/ControlledDateInput";
-import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import ReservationTypeForm from "../my-units/ReservationTypeForm";
 import Loader from "../Loader";
 import { SINGLE_RESERVATION_QUERY } from "./queries";
@@ -57,8 +55,7 @@ type PossibleOptions = {
 };
 
 // TODO this is a copy from CreateReservationModal.tsx combine if possible
-// differences: useEditMutation, No dialog wrappers, form default values
-// NOTE need to pass all query results as values (not undefined) otherwise form default values wont work
+// differences: useEditMutation, No dialog wrappers, form default values, no date / time input section
 const EditReservation = ({
   onClose,
   reservation,
@@ -68,7 +65,6 @@ const EditReservation = ({
   onClose: () => void;
   reservation: ReservationType;
   reservationUnit: ReservationUnitType;
-  // TODO type should be defined not inlined
   options: PossibleOptions;
 }) => {
   const { t } = useTranslation();
@@ -124,10 +120,6 @@ const EditReservation = ({
       reserveeType: reservation.reserveeType ?? undefined,
     },
   });
-
-  const {
-    formState: { errors },
-  } = form;
 
   const myDateTime = (date: Date, time: string) =>
     dateTime(format(date, "dd.MM.yyyy"), time);
@@ -202,37 +194,10 @@ const EditReservation = ({
     }
   };
 
-  const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
-
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Grid>
-          <Element>
-            <ControlledDateInput
-              name="date"
-              control={form.control}
-              error={translateError(errors.date?.message)}
-              required
-            />
-          </Element>
-          <Element>
-            <ControlledTimeInput
-              name="startTime"
-              control={form.control}
-              error={translateError(errors.startTime?.message)}
-              required
-            />
-          </Element>
-          <Element>
-            <ControlledTimeInput
-              name="endTime"
-              control={form.control}
-              error={translateError(errors.endTime?.message)}
-              required
-            />
-          </Element>
           <ReservationTypeForm reservationUnit={reservationUnit} />
           <HR
             style={{
@@ -250,7 +215,7 @@ const EditReservation = ({
             <Button variant="secondary" onClick={onClose} theme="black">
               {t("common.cancel")}
             </Button>
-            <Button type="submit">{t("EditPage.save")}</Button>
+            <Button type="submit">{t("Reservation.EditPage.save")}</Button>
           </Element>
         </Grid>
       </form>
@@ -303,8 +268,10 @@ const EditPage = () => {
         )}
         {loading ? (
           <Loader />
-        ) : !reservation || !reservationUnit ? (
-          "No data"
+        ) : !reservation ? (
+          t("Reservation.EditPage.Reservation failed to load", { pk: id })
+        ) : !reservationUnit ? (
+          t("No reservation unit failed to load")
         ) : (
           <EditReservation
             reservation={reservation}
