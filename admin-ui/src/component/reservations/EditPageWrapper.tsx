@@ -15,14 +15,15 @@ const PreviousLinkWrapper = styled.div`
 const EditPageWrapper = ({
   children,
   reservation,
+  title,
 }: {
   children: React.ReactNode;
+  title: string;
   reservation?: ReservationType;
 }) => {
   const { t } = useTranslation();
   const tagline = reservation ? createTagString(reservation, t) : "";
 
-  console.log("tag string: ", tagline);
   return (
     <>
       <PreviousLinkWrapper>
@@ -33,6 +34,7 @@ const EditPageWrapper = ({
           <ReservationTitleSection
             reservation={reservation}
             tagline={tagline}
+            overrideTitle={title}
           />
         )}
         {children}

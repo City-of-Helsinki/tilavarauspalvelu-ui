@@ -218,7 +218,9 @@ const EditPage = () => {
   const params = useParams();
   const id = params.id ?? undefined;
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("translation", {
+    keyPrefix: "Reservation.EditPage",
+  });
   const navigate = useNavigate();
 
   const { reservation, reservationUnit, loading } = useReservationEditData(id);
@@ -230,13 +232,13 @@ const EditPage = () => {
   const options = useOptions();
 
   return (
-    <EditPageWrapper reservation={reservation}>
+    <EditPageWrapper reservation={reservation} title={t("title")}>
       {loading ? (
         <Loader />
       ) : !reservation ? (
-        t("Reservation.EditPage.Reservation failed to load", { pk: id })
+        t("Reservation failed to load", { pk: id })
       ) : !reservationUnit ? (
-        t("No reservation unit failed to load")
+        t("Reservation unit failed to load")
       ) : (
         <EditReservation
           reservation={reservation}
