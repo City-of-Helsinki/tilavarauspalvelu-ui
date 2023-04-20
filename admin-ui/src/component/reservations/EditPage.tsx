@@ -21,6 +21,7 @@ import {
   type ReservationFormMeta,
   ReservationFormSchema,
   type ReservationFormType,
+  reservationTypeSchema,
 } from "app/schemas";
 import LinkPrev from "../LinkPrev";
 import { Container } from "../../styles/layout";
@@ -47,23 +48,16 @@ const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-s);
 `;
 
-// TODO use zod or at least return the enum types
-// data is lower case but the enums are uppercase
-const reservationTypeFromString = (
-  t: string | undefined
-): "STAFF" | "BEHALF" | "BLOCKED" | undefined => {
-  const t1 = t?.toUpperCase();
-  if (t1 === "STAFF" || t1 === "BEHALF" || t1 === "BLOCKED") {
-    return t1;
-  }
-  return undefined;
-};
-
 type FormValueType = ReservationFormType & ReservationFormMeta;
+
+type PossibleOptions = {
+  ageGroup: Array<{ label: string; value: number }>;
+  purpose: Array<{ label: string; value: number }>;
+  homeCity: Array<{ label: string; value: number }>;
+};
 
 // TODO this is a copy from CreateReservationModal.tsx combine if possible
 // differences: useEditMutation, No dialog wrappers, form default values
-// TODO narrow the reservationUnit to only include what is needed (not the whole unit) so we can use single query
 // NOTE need to pass all query results as values (not undefined) otherwise form default values wont work
 const EditReservation = ({
   onClose,
@@ -75,11 +69,7 @@ const EditReservation = ({
   reservation: ReservationType;
   reservationUnit: ReservationUnitType;
   // TODO type should be defined not inlined
-  options: {
-    ageGroup: Array<{ label: string; value: number }>;
-    purpose: Array<{ label: string; value: number }>;
-    homeCity: Array<{ label: string; value: number }>;
-  };
+  options: PossibleOptions;
 }) => {
   const { t } = useTranslation();
   const start = new Date(reservation.begin);
@@ -90,12 +80,6 @@ const EditReservation = ({
       // TODO validator should contain the MetaValidator also (inherit and combine)
       ReservationFormSchema(reservationUnit.reservationStartInterval)
     ),
-    // TODO onBlur or onChange? onChange is anoying because it highlights even untouched fields
-    // onBlur on the other hand does no validation on the focused field till it's blurred
-
-    // I want show errors for touched fields onBlur + clear errors onChange
-    // I guess I just have to write logic for it using isTouched + onChange
-
     mode: "onChange",
     defaultValues: {
       date: start,
@@ -104,7 +88,9 @@ const EditReservation = ({
       bufferTimeBefore: false,
       bufferTimeAfter: false,
       comments: reservation.workingMemo ?? undefined,
-      type: reservationTypeFromString(reservation.type ?? undefined),
+      type: reservationTypeSchema
+        .optional()
+        .parse(reservation.type?.toUpperCase()),
       name: reservation.name ?? "",
       description: reservation.description ?? "",
       ageGroup: options.ageGroup.find(

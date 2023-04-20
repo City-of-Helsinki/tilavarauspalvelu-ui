@@ -74,8 +74,6 @@ export const RESERVATIONS_QUERY = gql`
   }
 `;
 
-// this partial copy from requested/queries with reservationUnits and less data
-// TODO fragment this: primary data, form data (metadata), reservationUnit data
 // TODO do we need user / orderStatus?
 export const SINGLE_RESERVATION_QUERY = gql`
   ${RESERVATION_META_FRAGMENT}
