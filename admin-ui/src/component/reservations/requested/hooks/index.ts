@@ -9,7 +9,6 @@ import {
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
-import { useState } from "react";
 import {
   RECURRING_RESERVATION_QUERY,
   RESERVATIONS_BY_RESERVATIONUNIT,
