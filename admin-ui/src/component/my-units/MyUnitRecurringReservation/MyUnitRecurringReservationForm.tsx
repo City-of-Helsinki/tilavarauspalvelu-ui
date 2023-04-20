@@ -78,7 +78,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const reservationUnitOptions =
     reservationUnits.map((unit) => ({
       label: unit?.nameFi ?? "",
-      value: String(unit?.pk),
+      value: unit?.pk ?? 0,
     })) || [];
 
   const repeatPatternOptions = [
@@ -302,9 +302,9 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             <Controller
               name="reservationUnit"
               control={control}
-              defaultValue={{ label: "", value: "" }}
+              defaultValue={{ label: "", value: 0 }}
               render={({ field }) => (
-                <SortedSelect
+                <SortedSelect<number>
                   {...removeRefParam(field)}
                   sort
                   label={t(`${TRANS_PREFIX}.reservationUnit`)}
