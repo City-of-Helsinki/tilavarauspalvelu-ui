@@ -130,8 +130,11 @@ export const ButtonLikeLink = styled(Link)`
   color: ${(props) => props.theme.fg ?? "var(--color-black)"};
   display: inline-flex;
   align-items: center;
+  min-width: 80px;
   height: 44px;
-  padding: 0 24px;
+  padding: 0 20px;
+  line-height: 1;
+  text-align: center;
   &:hover,
   &:focus-visible {
     transition-property: background-color, border-color, color;
