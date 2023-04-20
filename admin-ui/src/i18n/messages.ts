@@ -806,6 +806,10 @@ const translations: ITranslations = {
     noReservations: ["Ei varauksia"],
     generatingDocument: ["Dokumenttia luodaan"],
     errorGeneratingDocument: ["Dokumenttia ei pystytty luomaan"],
+    EditPage: {
+      "Reservation failed to load": ["Varausta {{ pk }} ei pystytty latamaan"],
+      save: ["Tallenna"],
+    },
   },
   ReservationUnit: {
     reservationStatus: ["Varaustilanne"],
