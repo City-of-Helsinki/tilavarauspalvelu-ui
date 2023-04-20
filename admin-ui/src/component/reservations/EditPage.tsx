@@ -2,15 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ReservationStaffCreateMutationInput,
-  ReservationStaffCreateMutationPayload,
-  ReservationType,
-  ReservationUnitType,
-} from "common/types/gql-types";
-import { useMutation } from "@apollo/client";
+import { ReservationType, ReservationUnitType } from "common/types/gql-types";
 import { format } from "date-fns";
-import get from "lodash/get";
 import camelCase from "lodash/camelCase";
 import { Button } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -23,7 +16,6 @@ import {
 } from "app/schemas";
 import withMainMenu from "../withMainMenu";
 import { useNotification } from "../../context/NotificationContext";
-import { CREATE_STAFF_RESERVATION } from "../my-units/create-reservation/queries";
 import { flattenMetadata } from "../my-units/create-reservation/utils";
 import { dateTime } from "../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import {
@@ -75,7 +67,7 @@ const EditReservation = ({
 
   const form = useForm<FormValueType>({
     resolver: zodResolver(
-      // TODO validator should contain the MetaValidator also (inherit and combine)
+      // Don't validate metadata on the admin side (only date / time)
       ReservationFormSchema(reservationUnit.reservationStartInterval)
     ),
     mode: "onChange",
@@ -128,77 +120,47 @@ const EditReservation = ({
 
   const { notifyError, notifySuccess } = useNotification();
 
-  // FIXME replace this with ReservationUpdateMutationInput
-  // but is it the staff version or not?
-  const [create] = useMutation<
-    { createStaffReservation: ReservationStaffCreateMutationPayload },
-    { input: ReservationStaffCreateMutationInput }
-  >(CREATE_STAFF_RESERVATION);
-
-  const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
-    create({ variables: { input } });
-
+  // FIXME StaffReservationUpdateMutation is missing from the backend replace this then
   const onSubmit = async (values: FormValueType) => {
-    try {
-      if (!reservationUnit.pk) {
-        throw new Error("Missing reservation unit");
-      }
-
-      const metadataSetFields =
-        reservationUnit.metadataSet?.supportedFields
-          ?.filter((x): x is string => x != null)
-          .map(camelCase) ?? [];
-
-      const flattenedMetadataSetValues = flattenMetadata(
-        values,
-        metadataSetFields
-      );
-
-      const input: ReservationStaffCreateMutationInput = {
-        reservationUnitPks: [reservationUnit.pk],
-        type: values.type ?? "",
-        begin: myDateTime(new Date(values.date), values.startTime),
-        end: myDateTime(new Date(values.date), values.endTime),
-        bufferTimeBefore: values.bufferTimeBefore
-          ? String(reservationUnit.bufferTimeBefore)
-          : undefined,
-        bufferTimeAfter: values.bufferTimeAfter
-          ? String(reservationUnit.bufferTimeAfter)
-          : undefined,
-        workingMemo: values.comments,
-        ...flattenedMetadataSetValues,
-      };
-
-      const { data: createResponse } = await createStaffReservation(input);
-
-      const firstError = (
-        createResponse?.createStaffReservation?.errors || []
-      ).find(() => true);
-
-      if (firstError) {
-        notifyError(
-          t("ReservationDialog.saveFailed", {
-            error: get(firstError, "messages[0]"),
-          })
-        );
-      } else {
-        notifySuccess(
-          t("ReservationDialog.saveSuccess", {
-            reservationUnit: reservationUnit.nameFi,
-          })
-        );
-        onClose();
-      }
-    } catch (e) {
-      notifyError(
-        t("ReservationDialog.saveFailed", { error: get(e, "message") })
-      );
+    if (!reservationUnit.pk) {
+      notifyError("ERROR: Can't update without reservation unit");
+      return;
     }
+
+    const metadataSetFields =
+      reservationUnit.metadataSet?.supportedFields
+        ?.filter((x): x is string => x != null)
+        .map(camelCase) ?? [];
+
+    const flattenedMetadataSetValues = flattenMetadata(
+      values,
+      metadataSetFields
+    );
+
+    const toSubmit = {
+      reservationUnitPks: [reservationUnit.pk],
+      type: values.type ?? "",
+      begin: myDateTime(new Date(values.date), values.startTime),
+      end: myDateTime(new Date(values.date), values.endTime),
+      bufferTimeBefore: values.bufferTimeBefore
+        ? String(reservationUnit.bufferTimeBefore)
+        : undefined,
+      bufferTimeAfter: values.bufferTimeAfter
+        ? String(reservationUnit.bufferTimeAfter)
+        : undefined,
+      workingMemo: values.comments,
+      ...flattenedMetadataSetValues,
+    };
+
+    // eslint-disable-next-line no-console
+    console.warn("Mutate Staff reservation missing: should input: ", toSubmit);
+
+    notifySuccess("TODO: mutation is not implemented");
   };
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <Grid>
           <ReservationTypeForm reservationUnit={reservationUnit} />
           <GridHR />
