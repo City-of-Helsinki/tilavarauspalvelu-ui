@@ -11,7 +11,6 @@ const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-s);
 `;
 
-// TODO the container and title section is common with RequestedReservation and EditTime
 const EditPageWrapper = ({
   children,
   reservation,
