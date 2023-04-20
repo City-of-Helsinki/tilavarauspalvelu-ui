@@ -58,7 +58,6 @@ const ReservationTypeForm = ({
 
   const type = watch("type");
 
-  // TODO change translation to use namespaces (the new verison with bundles)
   return (
     <>
       <Element $wide>

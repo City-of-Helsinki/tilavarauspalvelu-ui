@@ -326,7 +326,6 @@ const RequestedReservation = (): JSX.Element | null => {
         />
       </ShowWhenTargetInvisible>
 
-      {/* TODO this needs a refactor since we need it on the other pages also, might use a common container for all pages under this route? */}
       <Container>
         <ReservationTitleSection
           ref={ref}
