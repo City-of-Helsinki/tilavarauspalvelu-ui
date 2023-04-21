@@ -9,6 +9,11 @@ import Loader from "../Loader";
 import Calendar from "./requested/Calendar";
 
 const EditTime = ({ reservation }: { reservation: ReservationType }) => {
+  // TODO add CalendarFooter from ui/EditStep0
+  // necesary because we need to move the date to next week (calendar drag-n-drop doesn't work for that)
+  // it's a massive component with too much stuff for our needs;
+  // so either refactor parts and move to common
+  // or copy paste (for example saveReservationToLocalStorage should not be in admin side)
   return (
     <Calendar
       reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
