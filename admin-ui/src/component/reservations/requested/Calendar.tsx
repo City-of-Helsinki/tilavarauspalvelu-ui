@@ -70,15 +70,24 @@ const Calendar = ({
   // No month view so always query the whole week even if a single day is selected
   // to avoid spamming queries and having to deal with start of day - end of day.
   // focus day can be in the middle of the week.
-  const { events } = useReservationData(
+  const { events: eventsAll } = useReservationData(
     startOfISOWeek(focusDate),
     add(startOfISOWeek(focusDate), { days: 7 }),
     reservationUnitPk,
     reservation?.pk ?? undefined
   );
-  // TODO filter events that are outside the Calendar range because they are rendered incorrectly
-  // e.g. 0 - 2 am and make a console warning for them
-  // because they cause graphical artefacts and confusion when testing
+
+  // Because the calendar is fixed to 6 - 24 interval anything outside it causes rendering
+  // artefacts and is not usable. Filter them and note it in console for now.
+  // TODO this is common problem in the UI
+  const isInsideCalendarRange = (x: { start: Date; end: Date }) =>
+    x.start.getHours() >= 6 && x.end.getHours() >= 6;
+  const events = eventsAll.filter(isInsideCalendarRange);
+  const notIncludedEvents = eventsAll.filter((x) => !isInsideCalendarRange(x));
+  if (notIncludedEvents.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log("Events not shown in the calendar: ", notIncludedEvents);
+  }
 
   // FIXME onChange mutation (requires backend changes)
 
@@ -125,8 +134,6 @@ const Calendar = ({
       }
     : {};
 
-  // TODO the calendar is from 6am - 11pm (so anything outside that gets rendered at the edges)
-  // either do something to the event data (filter) or allow for a larger calendar
   return (
     <Container>
       <CommonCalendar<ReservationType>
