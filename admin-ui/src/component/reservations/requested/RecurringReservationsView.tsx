@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Query,
-  QueryReservationByPkArgs,
   ReservationsReservationStateChoices,
   type ReservationType,
 } from "common/types/gql-types";
