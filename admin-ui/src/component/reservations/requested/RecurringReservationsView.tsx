@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Query,
   QueryReservationByPkArgs,
@@ -16,6 +16,8 @@ import ReservationListButton from "../../ReservationListButton";
 import DenyDialog from "./DenyDialog";
 import { useModal } from "../../../context/ModalContext";
 
+const LIMIT = 100;
+
 const RecurringReservationsView = ({
   reservation,
   onSelect,
@@ -27,30 +29,39 @@ const RecurringReservationsView = ({
 }) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
+  const [reservations, setReservations] = useState<ReservationType[]>([]);
 
-  const { loading, data, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    RECURRING_RESERVATION_QUERY,
-    {
-      skip: !reservation.recurringReservation?.pk,
-      variables: {
-        pk: Number(reservation.recurringReservation?.pk),
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
-  );
+  const { loading, refetch } = useQuery<
+    Query,
+    { pk: number; offset: number; count: number }
+  >(RECURRING_RESERVATION_QUERY, {
+    skip: !reservation.recurringReservation?.pk,
+    variables: {
+      pk: Number(reservation.recurringReservation?.pk),
+      offset: reservations.length,
+      count: LIMIT,
+    },
+    onCompleted: (data) => {
+      const qd = data?.reservations;
+      if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
+        const ds =
+          qd?.edges
+            ?.map((x) => x?.node)
+            .filter((x): x is ReservationType => x != null) ?? [];
+
+        setReservations([...reservations, ...ds]);
+      }
+    },
+    onError: () => {
+      notifyError(t("RequestedReservation.errorFetchingData"));
+    },
+  });
 
   const { setModalContent } = useModal();
 
-  if (loading || data == null) {
+  if (loading) {
     return <div>Loading</div>;
   }
-
-  const reservations =
-    data?.reservations?.edges
-      ?.map((x) => x?.node)
-      .filter((x): x is ReservationType => x != null) ?? [];
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (_x: ReservationType) => {
