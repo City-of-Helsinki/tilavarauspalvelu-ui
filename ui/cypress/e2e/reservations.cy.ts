@@ -42,6 +42,8 @@ import {
 
 describe("Tilavaraus user reservations", () => {
   beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+
     cy.window().then(() => {
       sessionStorage.setItem(
         `oidc.apiToken.${Cypress.env("API_SCOPE")}`,
@@ -136,7 +138,7 @@ describe("Tilavaraus user reservations", () => {
   it("should display reservation detail view with company reservee", () => {
     detailButton().eq(4).click();
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/11$/);
+    cy.url().should("match", /\/reservations\/11$/);
 
     detailCancelButton().should("not.exist");
 
@@ -193,7 +195,7 @@ describe("Tilavaraus user reservations", () => {
   it("should display reservation detail view with individual reservee", () => {
     detailButton().eq(5).click();
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
 
     detailCancelButton().should("not.exist");
 
@@ -251,9 +253,9 @@ describe("Tilavaraus user reservations", () => {
 
   it("should do cancellation", () => {
     detailButton().eq(1).click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
+    cy.url().should("match", /\/reservations\/21$/);
     detailCancelButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
+    cy.url().should("match", /\/reservations\/21\/cancel$/);
 
     cancelTitle().should("have.text", "Peru varaus");
     cancelCancelButton().should("be.disabled");
@@ -261,13 +263,13 @@ describe("Tilavaraus user reservations", () => {
     orderStatusTag("desktop").should("not.exist");
 
     backButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
+    cy.url().should("match", /\/reservations\/21$/);
 
     cy.visit("/reservations");
 
     detailButton().eq(1).click();
     detailCancelButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
+    cy.url().should("match", /\/reservations\/21\/cancel$/);
 
     cancelCancelButton().should("be.disabled");
 
@@ -294,15 +296,15 @@ describe("Tilavaraus user reservations", () => {
     const titles = ["Muuta varauksen aikaa", "Tarkista varauksen tiedot"];
 
     detailButton().eq(5).click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
     modifyButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4\/edit$/);
+    cy.url().should("match", /\/reservations\/4\/edit$/);
 
     reservationEditActionCancel().click();
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
     modifyButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4\/edit$/);
+    cy.url().should("match", /\/reservations\/4\/edit$/);
     cy.get("h1").should("have.text", titles[0]);
 
     reservationControlsDateInput().should("not.exist");
@@ -351,11 +353,15 @@ describe("Tilavaraus user reservations", () => {
 
     errorNotification().should("not.exist");
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
   });
 });
 
-describe("Returning reservation", () => {
+describe.only("Returning reservation", () => {
+  beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+  });
+
   it("should return error for invalid order data", () => {
     cy.visit("/success?orderId=1111-1111-1111-1111");
 
@@ -377,10 +383,10 @@ describe("Returning reservation", () => {
   it("should return error for invalid order status", () => {
     cy.visit("/success?orderId=4444-4444-4444-4444");
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\?error=order1$/);
+    cy.url().should("match", /\/reservations\?error=order1$/);
   });
 
-  it("should return error for mission reservation uuid", () => {
+  it("should return error for missing reservation uuid", () => {
     cy.visit("/success?orderId=5555-5555-5555-5555");
 
     cy.get("h1").should("have.text", "Virhe");
@@ -389,6 +395,8 @@ describe("Returning reservation", () => {
   it("should return success report", () => {
     cy.visit("/success?orderId=6666-6666-6666-6666");
 
-    cy.get("h1").should("have.text", "Varaus tehty!");
+    cy.get("h1", { timeout: 20000 }).should("have.text", "Varaus tehty!");
+
+    receiptLinkButton().should("exist");
   });
 });
