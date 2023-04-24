@@ -11,7 +11,9 @@ import { useReservationData } from "./hooks";
 
 type Props = {
   reservationUnitPk: string;
-  reservation: ReservationType;
+  reservation?: ReservationType;
+  selected?: ReservationType;
+  forceNavigation?: unknown;
 };
 
 const Legends = styled.div`
@@ -29,12 +31,25 @@ const Container = styled.div`
 
 type WeekOptions = "day" | "week" | "month";
 
-const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
+/// @param reservation the current reservation to show in calendar
+/// @param selected (for recurring only) focus day change and different styling
+/// @param forceNavigation can be used to force a focus day change
+/// without using forceUpdate the calendar will not navigate to a selection unless it's value differs
+/// from the previous value.
+const Calendar = ({
+  reservationUnitPk,
+  reservation,
+  selected,
+  forceNavigation,
+}: Props): JSX.Element => {
   const { t } = useTranslation();
+  // TODO focus day rules (check Jira)
+  // if selected => show that
+  // else if reservation is in the future => show that
+  // else if reservation.recurrance has an event in the future => show that
+  // else show today
   const [focusDate, setFocusDate] = useState(
-    startOfISOWeek(
-      reservation?.begin ? new Date(reservation?.begin) : new Date()
-    )
+    selected?.begin ? new Date(selected.begin) : new Date()
   );
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
@@ -45,15 +60,15 @@ const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
     startOfISOWeek(focusDate),
     add(startOfISOWeek(focusDate), { days: 7 }),
     reservationUnitPk,
-    reservation.pk ?? undefined
+    reservation?.pk ?? undefined
   );
 
-  // switch date when the selected reservation changes
+  // switch date when the selected reservation changes or forced to reset navigation
   useEffect(() => {
-    if (reservation) {
-      setFocusDate(new Date(reservation.begin));
+    if (selected) {
+      setFocusDate(new Date(selected.begin));
     }
-  }, [reservation]);
+  }, [selected, forceNavigation]);
 
   // TODO the calendar is from 6am - 11pm (so anything outside that gets rendered at the edges)
   // either do something to the event data (filter) or allow for a larger calendar
@@ -64,7 +79,7 @@ const Calendar = ({ reservationUnitPk, reservation }: Props): JSX.Element => {
         toolbarComponent={Toolbar}
         showToolbar
         begin={focusDate}
-        eventStyleGetter={eventStyleGetter(reservation)}
+        eventStyleGetter={eventStyleGetter(reservation, selected)}
         /* TODO if we want to onSelect use router or use a Popup / Modal to show it
         onSelectEvent={(e) => {}}}
         */

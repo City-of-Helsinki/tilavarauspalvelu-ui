@@ -325,6 +325,44 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   return reservationTagline;
 };
 
+const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
+  const [selected, setSelected] = useState<ReservationType | undefined>(
+    undefined
+  );
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  const { t } = useTranslation();
+
+  const handleSelect = (sel: ReservationType) => {
+    setForceUpdate(forceUpdate + 1);
+    setSelected(sel);
+  };
+  return (
+    <>
+      {reservation.recurringReservation && (
+        <Accordion heading={t("RequestedReservation.recurring")}>
+          <RecurringReservationsView
+            reservation={reservation}
+            onSelect={handleSelect}
+          />
+        </Accordion>
+      )}
+      <Accordion
+        heading={t("RequestedReservation.calendar")}
+        initiallyOpen={reservation.recurringReservation != null}
+        id="reservation-calendar"
+      >
+        <Calendar
+          reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
+          reservation={selected ?? reservation}
+          selected={selected}
+          forceNavigation={forceUpdate}
+        />
+      </Accordion>
+    </>
+  );
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType | undefined>(
@@ -332,9 +370,7 @@ const RequestedReservation = (): JSX.Element | null => {
   );
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
-  const [selectedReservation, setSelectedReservation] = useState<
-    ReservationType | undefined
-  >(undefined);
+
   const { t } = useTranslation();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
@@ -347,7 +383,6 @@ const RequestedReservation = (): JSX.Element | null => {
       onCompleted: ({ reservationByPk }) => {
         if (reservationByPk) {
           setReservation(reservationByPk);
-          setSelectedReservation(reservationByPk);
           setWorkingMemo(reservationByPk.workingMemo || "");
         }
       },
@@ -521,24 +556,7 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
-          {reservation.recurringReservation && (
-            <Accordion heading={t("RequestedReservation.recurring")}>
-              <RecurringReservationsView
-                reservation={reservation}
-                onSelect={setSelectedReservation}
-              />
-            </Accordion>
-          )}
-          <Accordion
-            heading={t("RequestedReservation.calendar")}
-            initiallyOpen={reservation.recurringReservation != null}
-            id="reservation-calendar"
-          >
-            <Calendar
-              reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
-              reservation={selectedReservation ?? reservation}
-            />
-          </Accordion>
+          <TimeBlock reservation={reservation} />
           <Accordion heading={t("RequestedReservation.reservationDetails")}>
             <ApplicationDatas>
               <ApplicationData
