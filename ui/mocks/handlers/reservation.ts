@@ -530,6 +530,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         id: "fawoifhj",
         name: "Company metadata",
         supportedFields: [
+          "reservee_organisation_name",
           "reservee_first_name",
           "reservee_last_name",
           "reservee_phone",
@@ -543,7 +544,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
     }
 
     if (pk === 11) {
-      data.type = ReservationsReservationReserveeTypeChoices.Business;
+      data.reserveeType = ReservationsReservationReserveeTypeChoices.Business;
       data.reserveeOrganisationName = "Acme Oyj";
       data.orderStatus = "PAID";
       data.reservationUnits[0].metadataSet = {

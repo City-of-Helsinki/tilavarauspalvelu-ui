@@ -481,7 +481,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
   const reserveeInfo = [
     ReservationsReservationReserveeTypeChoices.Business.toString(),
     ReservationsReservationReserveeTypeChoices.Nonprofit.toString(),
-  ].includes(reservation.type) ? (
+  ].includes(reservation.reserveeType) ? (
     <>
       {supportedFields.includes("reserveeOrganisationName") && (
         <ParagraphAlt>
