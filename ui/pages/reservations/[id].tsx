@@ -348,7 +348,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                 {t("reservations:saveToCalendar")}
               </BlackButton>
               {order?.receiptUrl &&
-                ["PAID", "REFUNDED"].includes(order.status) && (
+                ["PAID", "REFUNDED"].includes(order?.status) && (
                   <BlackButton
                     data-testid="reservation__confirmation--button__receipt-link"
                     onClick={() => window.open(order.receiptUrl, "_blank")}
@@ -363,7 +363,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
         </>
       )
     );
-  }, [reservation, reservationUnit, order?.receiptUrl, order.status, t]);
+  }, [reservation, reservationUnit, order?.receiptUrl, order?.status, t]);
 
   const [canTimeBeModified, modifyTimeReason] = useMemo(
     () => canReservationTimeBeChanged({ reservation }),
