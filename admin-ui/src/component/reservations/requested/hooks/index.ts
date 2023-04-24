@@ -1,6 +1,5 @@
 import {
   Query,
-  QueryReservationByPkArgs,
   QueryReservationDenyReasonsArgs,
   QueryReservationsArgs,
   ReservationDenyReasonType,
@@ -78,27 +77,46 @@ export const useReservationData = (
   return { ...rest, events };
 };
 
+const LIMIT = 100;
+
 export const useRecurringReservations = (recurringPk?: number) => {
+  const [reservations, setReservations] = useState<ReservationType[]>([]);
+
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  const { loading, data, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    RECURRING_RESERVATION_QUERY,
-    {
-      skip: !recurringPk,
-      variables: {
-        pk: Number(recurringPk),
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
-  );
+  const { loading, refetch: baseRefetch } = useQuery<
+    Query,
+    { pk: number; offset: number; count: number }
+  >(RECURRING_RESERVATION_QUERY, {
+    skip: !recurringPk,
+    variables: {
+      pk: recurringPk ?? 0,
+      offset: reservations.length,
+      count: LIMIT,
+    },
+    onCompleted: (data) => {
+      const qd = data?.reservations;
+      if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
+        const ds =
+          qd?.edges
+            ?.map((x) => x?.node)
+            .filter((x): x is ReservationType => x != null) ?? [];
 
-  const reservations =
-    data?.reservations?.edges
-      ?.map((x) => x?.node)
-      .filter((x): x is ReservationType => x != null) ?? [];
+        setReservations([...reservations, ...ds]);
+      }
+    },
+    onError: () => {
+      notifyError(t("RequestedReservation.errorFetchingData"));
+    },
+  });
+
+  // TODO there should be a version to invalidate a single part or a range
+  // full cache reset is slow
+  const refetch = () => {
+    setReservations([]);
+    baseRefetch();
+  };
 
   return { loading, reservations, refetch };
 };

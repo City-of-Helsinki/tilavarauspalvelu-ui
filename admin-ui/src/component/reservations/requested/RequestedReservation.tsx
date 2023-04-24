@@ -202,13 +202,17 @@ const ButtonsWithPermChecks = ({
   };
 
   const { hasPermission } = useAuthState().authState;
-  const permission =
-    unitPk != null
-      ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
-      : false;
+  const permission = hasPermission(
+    "can_manage_reservations",
+    unitPk,
+    serviceSectorPks
+  );
 
-  const userIsAllowToModify = permission || isUsersOwnReservation;
+  const ownPermissions = isUsersOwnReservation
+    ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
+    : false;
 
+  const userIsAllowToModify = permission || ownPermissions;
   if (!userIsAllowToModify) {
     return null;
   }
@@ -313,6 +317,7 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   )}`;
 
   const weekDayTag = reservation.recurringReservation?.weekdays
+    ?.sort()
     ?.map((x) => t(`dayShort.${x}`))
     ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
 

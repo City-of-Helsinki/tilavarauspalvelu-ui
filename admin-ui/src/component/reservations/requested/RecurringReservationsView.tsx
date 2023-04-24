@@ -20,7 +20,7 @@ const RecurringReservationsView = ({
     reservation.recurringReservation?.pk ?? undefined
   );
 
-  if (loading || reservations == null) {
+  if (loading) {
     return <div>Loading</div>;
   }
 
@@ -44,8 +44,8 @@ const RecurringReservationsView = ({
 
   const forDisplay = reservations.map((x) => ({
     date: new Date(x.begin),
-    startTime: format(new Date(x.begin), "hh:mm"),
-    endTime: format(new Date(x.begin), "hh:mm"),
+    startTime: format(new Date(x.begin), "HH:mm"),
+    endTime: format(new Date(x.end), "HH:mm"),
     isRemoved: x.state !== "CONFIRMED",
     buttons: [
       <ReservationListButton callback={() => handleChange(x)} type="change" />,
