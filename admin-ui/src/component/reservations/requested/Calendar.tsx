@@ -11,9 +11,9 @@ import { useReservationData } from "./hooks";
 
 type Props = {
   reservationUnitPk: string;
-  reservation?: ReservationType;
+  reservation: ReservationType;
   selected?: ReservationType;
-  forceNavigation?: unknown;
+  focusDate: Date;
 };
 
 const Legends = styled.div`
@@ -32,25 +32,16 @@ const Container = styled.div`
 type WeekOptions = "day" | "week" | "month";
 
 /// @param reservation the current reservation to show in calendar
-/// @param selected (for recurring only) focus day change and different styling
-/// @param forceNavigation can be used to force a focus day change
-/// without using forceUpdate the calendar will not navigate to a selection unless it's value differs
-/// from the previous value.
+/// @param selected (for recurring only) different styling
+/// @param focusDate date to show in the calendar
 const Calendar = ({
   reservationUnitPk,
   reservation,
   selected,
-  forceNavigation,
+  focusDate: initialFocusDate,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
-  // TODO focus day rules (check Jira)
-  // if selected => show that
-  // else if reservation is in the future => show that
-  // else if reservation.recurrance has an event in the future => show that
-  // else show today
-  const [focusDate, setFocusDate] = useState(
-    selected?.begin ? new Date(selected.begin) : new Date()
-  );
+  const [focusDate, setFocusDate] = useState(initialFocusDate);
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   // No month view so always query the whole week even if a single day is selected
@@ -63,12 +54,12 @@ const Calendar = ({
     reservation?.pk ?? undefined
   );
 
-  // switch date when the selected reservation changes or forced to reset navigation
+  // outside control of the calendar navigation
   useEffect(() => {
-    if (selected) {
-      setFocusDate(new Date(selected.begin));
+    if (initialFocusDate) {
+      setFocusDate(initialFocusDate);
     }
-  }, [selected, forceNavigation]);
+  }, [initialFocusDate]);
 
   // TODO the calendar is from 6am - 11pm (so anything outside that gets rendered at the edges)
   // either do something to the event data (filter) or allow for a larger calendar

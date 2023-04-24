@@ -1,11 +1,16 @@
 import {
-  Query,
-  QueryReservationsArgs,
+  type Query,
+  type QueryReservationByPkArgs,
+  type ReservationType,
+  type QueryReservationsArgs,
   ReservationsReservationStateChoices,
-  ReservationType,
 } from "common/types/gql-types";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
-import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
+import {
+  RESERVATIONS_BY_RESERVATIONUNIT,
+  RECURRING_RESERVATION_QUERY,
+} from "./queries";
 import { useNotification } from "../../../../context/NotificationContext";
 
 export const useReservationData = (
@@ -66,4 +71,24 @@ export const useReservationData = (
       })) ?? [];
 
   return { ...rest, events };
+};
+
+export const useRecurringReservations = (recurringPk?: number) => {
+  const { notifyError } = useNotification();
+  const { t } = useTranslation();
+
+  const res = useQuery<Query, QueryReservationByPkArgs>(
+    RECURRING_RESERVATION_QUERY,
+    {
+      skip: !recurringPk,
+      variables: {
+        pk: recurringPk,
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
+  );
+
+  return res;
 };

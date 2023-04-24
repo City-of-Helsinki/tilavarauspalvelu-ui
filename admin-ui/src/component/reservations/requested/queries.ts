@@ -107,24 +107,6 @@ export const RESERVATION_QUERY = gql`
   }
 `;
 
-export const RECURRING_RESERVATION_QUERY = gql`
-  query recurringReservation($pk: ID!) {
-    reservations(recurringReservation: $pk, state: ["CONFIRMED", "DENIED"]) {
-      edges {
-        node {
-          pk
-          begin
-          end
-          state
-          recurringReservation {
-            pk
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const APPROVE_RESERVATION = gql`
   mutation approveReservation($input: ReservationApproveMutationInput!) {
     approveReservation(input: $input) {

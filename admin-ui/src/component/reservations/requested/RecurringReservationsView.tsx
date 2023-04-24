@@ -1,17 +1,11 @@
 import React from "react";
-import {
-  Query,
-  QueryReservationByPkArgs,
-  type ReservationType,
-} from "common/types/gql-types";
+import { type ReservationType } from "common/types/gql-types";
 import { H6 } from "common/src/common/typography";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@apollo/client";
 import { format } from "date-fns";
-import { RECURRING_RESERVATION_QUERY } from "./queries";
-import { useNotification } from "../../../context/NotificationContext";
 import ReservationList from "../../ReservationsList";
 import ReservationListButton from "../../ReservationListButton";
+import { useRecurringReservations } from "./hooks";
 
 const RecurringReservationsView = ({
   reservation,
@@ -20,20 +14,10 @@ const RecurringReservationsView = ({
   reservation: ReservationType;
   onSelect: (selected: ReservationType) => void;
 }) => {
-  const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  const { loading, data } = useQuery<Query, QueryReservationByPkArgs>(
-    RECURRING_RESERVATION_QUERY,
-    {
-      skip: !reservation.recurringReservation?.pk,
-      variables: {
-        pk: Number(reservation.recurringReservation?.pk),
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
+  const { loading, data } = useRecurringReservations(
+    reservation.recurringReservation?.pk ?? undefined
   );
 
   if (loading || data == null) {

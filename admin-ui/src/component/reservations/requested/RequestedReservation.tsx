@@ -18,6 +18,7 @@ import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ServiceSectorType,
+  ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
@@ -52,6 +53,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
+import { useRecurringReservations } from "./hooks";
 
 const Dot = styled.div`
   display: inline-block;
@@ -325,25 +327,53 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   return reservationTagline;
 };
 
+const maybeStringToDate: (s?: string) => Date | undefined = (str) =>
+  str ? new Date(str) : undefined;
+
+const onlyFutureDates: (d?: Date) => Date | undefined = (d) =>
+  d && d > new Date() ? d : undefined;
+
 const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
   const [selected, setSelected] = useState<ReservationType | undefined>(
     undefined
   );
-  const [forceUpdate, setForceUpdate] = useState(0);
 
   const { t } = useTranslation();
 
-  const handleSelect = (sel: ReservationType) => {
-    setForceUpdate(forceUpdate + 1);
-    setSelected(sel);
-  };
+  // date focus rules for Calendar
+  // (1) if selected => show that
+  // (2) else if reservation is in the future => show that
+  // (3) else if reservation.recurrance has an event in the future => show that
+  // (4) else show today
+  const { data: recurringData } = useRecurringReservations(
+    reservation.recurringReservation?.pk ?? undefined
+  );
+  const events =
+    recurringData?.reservations?.edges
+      ?.map((x) => x?.node)
+      .filter((x): x is ReservationType => x != null) ?? [];
+
+  const nextReservation = events.find(
+    (x) =>
+      x.state === ReservationsReservationStateChoices.Confirmed &&
+      new Date(x.begin) > new Date()
+  );
+
+  const shownReservation =
+    new Date(reservation.begin) > new Date() ? reservation : nextReservation;
+
+  const focusDate =
+    maybeStringToDate(selected?.begin) ??
+    onlyFutureDates(maybeStringToDate(shownReservation?.begin)) ??
+    new Date();
+
   return (
     <>
       {reservation.recurringReservation && (
         <Accordion heading={t("RequestedReservation.recurring")}>
           <RecurringReservationsView
             reservation={reservation}
-            onSelect={handleSelect}
+            onSelect={setSelected}
           />
         </Accordion>
       )}
@@ -354,9 +384,9 @@ const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
       >
         <Calendar
           reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
-          reservation={selected ?? reservation}
+          reservation={reservation}
           selected={selected}
-          forceNavigation={forceUpdate}
+          focusDate={focusDate}
         />
       </Accordion>
     </>
