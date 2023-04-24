@@ -347,22 +347,23 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
               >
                 {t("reservations:saveToCalendar")}
               </BlackButton>
-              {order?.receiptUrl && (
-                <BlackButton
-                  data-testid="reservation__confirmation--button__receipt-link"
-                  onClick={() => window.open(order.receiptUrl, "_blank")}
-                  variant="secondary"
-                  iconRight={<IconLinkExternal aria-hidden />}
-                >
-                  {t("reservations:downloadReceipt")}
-                </BlackButton>
-              )}
+              {order?.receiptUrl &&
+                ["PAID", "REFUNDED"].includes(order.status) && (
+                  <BlackButton
+                    data-testid="reservation__confirmation--button__receipt-link"
+                    onClick={() => window.open(order.receiptUrl, "_blank")}
+                    variant="secondary"
+                    iconRight={<IconLinkExternal aria-hidden />}
+                  >
+                    {t("reservations:downloadReceipt")}
+                  </BlackButton>
+                )}
             </SecondaryActions>
           )}
         </>
       )
     );
-  }, [reservation, reservationUnit, order?.receiptUrl, t]);
+  }, [reservation, reservationUnit, order?.receiptUrl, order.status, t]);
 
   const [canTimeBeModified, modifyTimeReason] = useMemo(
     () => canReservationTimeBeChanged({ reservation }),
