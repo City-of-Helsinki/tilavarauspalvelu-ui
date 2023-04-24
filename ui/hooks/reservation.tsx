@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ApolloError, useMutation, useQuery } from "@apollo/client";
 import {
   PaymentOrderType,
@@ -25,45 +25,40 @@ export const useOrder = (
   refresh: () => void;
   called: boolean;
 } => {
+  const [data, setData] = useState<PaymentOrderType | null>(null);
   const [called, setCalled] = useState(false);
 
-  const {
-    data,
-    error,
-    loading: orderLoading,
-    refetch,
-  } = useQuery<Query, QueryOrderArgs>(GET_ORDER, {
-    fetchPolicy: "no-cache",
-    skip: !orderUuid,
-    variables: { orderUuid },
-    onCompleted: () => {
-      setCalled(true);
-    },
-    onError: () => {
-      setCalled(true);
-    },
-  });
-
-  const [
-    refresh,
-    { data: refreshData, error: refreshError, loading: refreshLoading },
-  ] = useMutation<
-    { refreshOrder: RefreshOrderMutationPayload },
-    { input: RefreshOrderMutationInput }
-  >(REFRESH_ORDER, {
-    fetchPolicy: "no-cache",
-    variables: { input: { orderUuid } },
-    onError: () => {},
-  });
-
-  useEffect(() => {
-    if (refreshData?.refreshOrder && !refreshLoading) {
-      refetch();
+  const { error, loading: orderLoading } = useQuery<Query, QueryOrderArgs>(
+    GET_ORDER,
+    {
+      fetchPolicy: "no-cache",
+      skip: !orderUuid,
+      variables: { orderUuid },
+      onCompleted: (res) => {
+        setCalled(true);
+        setData(res.order);
+      },
+      onError: () => {
+        setCalled(true);
+      },
     }
-  }, [refetch, refreshData, refreshLoading]);
+  );
+
+  const [refresh, { error: refreshError, loading: refreshLoading }] =
+    useMutation<
+      { refreshOrder: RefreshOrderMutationPayload },
+      { input: RefreshOrderMutationInput }
+    >(REFRESH_ORDER, {
+      fetchPolicy: "no-cache",
+      variables: { input: { orderUuid } },
+      onCompleted: (res) => {
+        setData({ ...data, status: res.refreshOrder.status });
+      },
+      onError: () => {},
+    });
 
   return {
-    order: data?.order,
+    order: data,
     error: error != null,
     refreshError,
     loading: orderLoading || refreshLoading,

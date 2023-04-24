@@ -380,6 +380,12 @@ describe("Returning reservation", () => {
     cy.get("h1").should("have.text", "Varauksesi on vanhentunut");
   });
 
+  it("should return success report for refreshed order status", () => {
+    cy.visit("/success?orderId=3333-3333-3333-3333-2");
+
+    cy.get("h1").should("have.text", "Varaus tehty!");
+  });
+
   it("should return error for invalid order status", () => {
     cy.visit("/success?orderId=4444-4444-4444-4444");
 

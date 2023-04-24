@@ -71,20 +71,23 @@ const ReservationSuccess = () => {
   } = useReservation(parseInt(order?.reservationPk, 10));
 
   useEffect(() => {
-    if (order) {
+    if (order && !orderLoading) {
       const { reservationPk, status } = order;
-
       if (!reservationPk) {
         setIsReservationInvalid(true);
         return;
       }
 
-      if (status !== "PAID" && refreshRetries < howManyTimeShouldWeRetryOrder) {
-        setRefreshRetries(refreshRetries + 1);
-        refresh();
+      if (status !== "PAID") {
+        if (refreshRetries < howManyTimeShouldWeRetryOrder) {
+          setRefreshRetries(refreshRetries + 1);
+          refresh();
+        } else {
+          setIsReservationInvalid(true);
+        }
       }
     }
-  }, [order, refresh, refreshRetries]);
+  }, [order, refresh, refreshRetries, orderLoading]);
 
   useEffect(() => {
     if (refreshError && !orderLoading) {

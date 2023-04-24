@@ -1517,6 +1517,13 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
           status: ReservationsReservationStateChoices.WaitingForPayment,
         };
         break;
+      case "3333-3333-3333-3333-2":
+        order = {
+          ...baseOrder,
+          reservationPk: "6666",
+          status: ReservationsReservationStateChoices.WaitingForPayment,
+        };
+        break;
       case "4444-4444-4444-4444":
         order = {
           ...baseOrder,
@@ -1563,6 +1570,17 @@ const refreshOrder = graphql.mutation<
           },
         },
       ])
+    );
+  }
+
+  if (orderUuid === "3333-3333-3333-3333-2") {
+    return res(
+      ctx.data({
+        refreshOrder: {
+          orderUuid,
+          status: "PAID",
+        },
+      })
     );
   }
 
