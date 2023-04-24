@@ -357,7 +357,7 @@ describe("Tilavaraus user reservations", () => {
   });
 });
 
-describe.only("Returning reservation", () => {
+describe("Returning reservation", () => {
   beforeEach(() => {
     Cypress.config("defaultCommandTimeout", 20000);
   });
