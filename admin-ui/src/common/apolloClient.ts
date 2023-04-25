@@ -7,7 +7,7 @@ import {
 import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import { set } from "lodash";
+import { set, uniqBy } from "lodash";
 import { ReservationTypeConnection } from "common/types/gql-types";
 
 import { getApiAccessToken, updateApiAccessToken } from "./auth/util";
@@ -79,14 +79,30 @@ const client = new ApolloClient({
         fields: {
           reservations: {
             // key to create separate caches for all reservations (no key) and recurring (with recurring pk as key)
-            keyArgs: ["recurringReservation"],
+            keyArgs: [
+              "recurringReservation",
+              "state",
+              "unit",
+              "reservationUnitType",
+              "reservationUnit",
+              "textSearch",
+              "begin",
+              "end",
+              "priceGte",
+              "priceLte",
+              "orderStatus",
+            ],
             merge(
               existing: ReservationTypeConnection,
               incoming: ReservationTypeConnection
             ) {
+              // TODO this should be optimized using both spread and uniqBy creates a lot of copies
               return {
                 ...incoming,
-                edges: [...(existing?.edges ?? []), ...incoming.edges],
+                edges: uniqBy(
+                  [...(existing?.edges ?? []), ...incoming.edges],
+                  (x) => x?.node?.pk
+                ),
               };
             },
           },
