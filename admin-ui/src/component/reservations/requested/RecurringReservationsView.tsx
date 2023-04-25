@@ -61,11 +61,7 @@ const RecurringReservationsView = ({
   }));
 
   const handleLoadMore = () => {
-    fetchMore({
-      variables: {
-        offset: reservations.length,
-      },
-    });
+    fetchMore({ variables: { offset: reservations.length } });
   };
 
   const hasMore = reservations.length < (totalCount ?? 0);

@@ -24,10 +24,9 @@ const ApprovalButtonsRecurring = ({
   const { t } = useTranslation();
 
   const { loading, reservations, refetch, fetchMore, totalCount } =
-    useRecurringReservations(
-      recurringReservation.pk ?? undefined,
-      ReservationsReservationStateChoices.Confirmed
-    );
+    useRecurringReservations(recurringReservation.pk ?? undefined, [
+      ReservationsReservationStateChoices.Confirmed,
+    ]);
 
   const handleDeleteSuccess = () => {
     refetch();

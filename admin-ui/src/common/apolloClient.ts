@@ -81,9 +81,9 @@ const client = new ApolloClient({
             // key to create separate caches
             // recurring (with recurring pk as key)
             // other options are filter arguments given to the GQL request
+            // TODO search options should not use separate caches
             keyArgs: [
               "recurringReservation",
-              "state",
               "unit",
               "reservationUnitType",
               "reservationUnit",
@@ -94,6 +94,25 @@ const client = new ApolloClient({
               "priceLte",
               "orderStatus",
             ],
+            read(
+              existing: ReservationTypeConnection,
+              options: {
+                args: {
+                  state?: string[] | null;
+                } | null;
+              }
+            ) {
+              const { args } = options;
+
+              const state = args?.state;
+              return {
+                ...existing,
+                edges: existing?.edges.filter(
+                  (x) =>
+                    !state || (x?.node?.state && state.includes(x.node.state))
+                ),
+              };
+            },
             merge(
               existing: ReservationTypeConnection,
               incoming: ReservationTypeConnection
