@@ -67,6 +67,12 @@ const ErrorLabel = styled.div`
   }
 `;
 
+const CenterContent = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+`;
+
 const stripTimeZeros = (time: string) =>
   time.substring(0, 1) === "0" ? time.substring(1) : time;
 
@@ -116,9 +122,16 @@ const ReservationList = ({
           </StyledListItem>
         ))}
         {hasMore && onLoadMore && (
-          <Button variant="secondary" type="button" onClick={onLoadMore}>
-            More
-          </Button>
+          <CenterContent>
+            <Button
+              variant="secondary"
+              size="small"
+              type="button"
+              onClick={onLoadMore}
+            >
+              {t("common.showMore")}
+            </Button>
+          </CenterContent>
         )}
       </StyledList>
     </ListWrapper>

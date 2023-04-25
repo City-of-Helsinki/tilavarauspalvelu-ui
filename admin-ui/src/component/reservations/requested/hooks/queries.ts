@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-import { ReservationsReservationStateChoices } from "common/types/gql-types";
 
 export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
   query reservationsByReservationUnit(
@@ -44,11 +43,16 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
 `;
 
 export const RECURRING_RESERVATION_QUERY = gql`
-  query recurringReservation($pk: ID!, $offset: Int, $count: Int) {
+  query recurringReservation(
+    $pk: ID!
+    $offset: Int
+    $count: Int
+    $state: [String]
+  ) {
     reservations(
       offset: $offset
       recurringReservation: $pk
-      state: ["${ReservationsReservationStateChoices.Confirmed}", "${ReservationsReservationStateChoices.Denied}"]
+      state: $state
       first: $count
     ) {
       edges {

@@ -40,6 +40,7 @@ const DialogContent = ({
     reservations.length === 1 ? reservations[0].workingMemo ?? "" : ""
   );
   const [denyReasonPk, setDenyReason] = useState<number | null>(null);
+  const [inProgress, setInProgress] = useState(false);
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
 
@@ -50,6 +51,8 @@ const DialogContent = ({
       if (denyReasonPk == null) {
         throw new Error("Deny PK undefined");
       }
+
+      setInProgress(true);
       const denyPromises = reservations.map((x) =>
         denyReservation({
           pk: x.pk,
@@ -74,11 +77,17 @@ const DialogContent = ({
       }
     } catch (e) {
       notifyError(t("RequestedReservation.DenyDialog.errorSaving"));
+    } finally {
+      setInProgress(false);
     }
   };
 
-  if (loading) {
-    return <Loader />;
+  if (loading || inProgress) {
+    return (
+      <Dialog.Content>
+        <Loader />
+      </Dialog.Content>
+    );
   }
 
   return (

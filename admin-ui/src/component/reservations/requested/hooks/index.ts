@@ -79,7 +79,10 @@ export const useReservationData = (
 
 const LIMIT = 100;
 
-export const useRecurringReservations = (recurringPk?: number) => {
+export const useRecurringReservations = (
+  recurringPk?: number,
+  state?: ReservationsReservationStateChoices
+) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
@@ -88,23 +91,29 @@ export const useRecurringReservations = (recurringPk?: number) => {
     loading,
     refetch: baseRefetch,
     fetchMore,
-  } = useQuery<Query, { pk: number; offset: number; count: number }>(
-    RECURRING_RESERVATION_QUERY,
-    {
-      skip: !recurringPk,
-      fetchPolicy: "cache-and-network",
-      nextFetchPolicy: "cache-first",
-      errorPolicy: "all",
-      variables: {
-        pk: recurringPk ?? 0,
-        offset: 0,
-        count: LIMIT,
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
-  );
+  } = useQuery<
+    Query,
+    { pk: number; offset: number; count: number; state: string[] }
+  >(RECURRING_RESERVATION_QUERY, {
+    skip: !recurringPk,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
+    errorPolicy: "all",
+    variables: {
+      pk: recurringPk ?? 0,
+      offset: 0,
+      count: LIMIT,
+      state: state
+        ? [state]
+        : [
+            ReservationsReservationStateChoices.Confirmed,
+            ReservationsReservationStateChoices.Denied,
+          ],
+    },
+    onError: () => {
+      notifyError(t("RequestedReservation.errorFetchingData"));
+    },
+  });
 
   const qd = data?.reservations;
   const ds =

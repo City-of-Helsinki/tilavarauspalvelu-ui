@@ -78,7 +78,9 @@ const client = new ApolloClient({
       Query: {
         fields: {
           reservations: {
-            // key to create separate caches for all reservations (no key) and recurring (with recurring pk as key)
+            // key to create separate caches
+            // recurring (with recurring pk as key)
+            // other options are filter arguments given to the GQL request
             keyArgs: [
               "recurringReservation",
               "state",

@@ -1,5 +1,8 @@
 import React from "react";
-import { RecurringReservationType } from "common/types/gql-types";
+import {
+  RecurringReservationType,
+  ReservationsReservationStateChoices,
+} from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { Button } from "hds-react";
 import DenyDialog from "./DenyDialog";
@@ -20,10 +23,11 @@ const ApprovalButtonsRecurring = ({
   const { setModalContent } = useModal();
   const { t } = useTranslation();
 
-  // TODO need total count here because reservations is not complete (so the filters fail)
-  const { loading, reservations, refetch } = useRecurringReservations(
-    recurringReservation.pk ?? undefined
-  );
+  const { loading, reservations, refetch, fetchMore, totalCount } =
+    useRecurringReservations(
+      recurringReservation.pk ?? undefined,
+      ReservationsReservationStateChoices.Confirmed
+    );
 
   const handleDeleteSuccess = () => {
     refetch();
@@ -31,12 +35,11 @@ const ApprovalButtonsRecurring = ({
   };
 
   const now = new Date();
-  const reservationsPossibleToDelete = reservations
-    .filter((x) => new Date(x.begin) > now)
-    .filter((x) => x.state !== "DENIED");
+  const reservationsPossibleToDelete = reservations.filter(
+    (x) => new Date(x.begin) > now
+  );
 
   const handleDenyClick = () => {
-    // TODO this needs to show progress indicator (deleting 100+ reservations take a long time)
     setModalContent(
       <DenyDialog
         reservations={reservationsPossibleToDelete}
@@ -58,6 +61,22 @@ const ApprovalButtonsRecurring = ({
     variant: "secondary",
     disabled: false,
   } as const;
+
+  // Don't allow delete all unless we have loaded all
+  // TODO this should use an auto loader (assuming totalCount < 1000 or something)
+  // and show a load indicator while we are waiting
+  if (reservations.length !== totalCount) {
+    return (
+      <Button
+        {...btnCommon}
+        onClick={() =>
+          fetchMore({ variables: { offset: reservations.length } })
+        }
+      >
+        {t("common.showMore")}
+      </Button>
+    );
+  }
 
   if (reservationsPossibleToDelete.length === 0) {
     return null;
