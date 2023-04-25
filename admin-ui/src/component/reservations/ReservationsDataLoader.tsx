@@ -135,8 +135,6 @@ const ReservationsDataLoader = ({
     return <Loader />;
   }
 
-  // TODO confirm that the data is unique (no duplicate ids)
-
   return (
     <>
       <ReservationsTable
