@@ -314,7 +314,6 @@ const Events = ({
             />
           )}
           <div
-            key={String(e.event?.pk)}
             style={{
               left,
               ...TemplateProps,
