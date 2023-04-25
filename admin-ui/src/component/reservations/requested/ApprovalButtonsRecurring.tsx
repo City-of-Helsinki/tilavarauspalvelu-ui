@@ -20,6 +20,7 @@ const ApprovalButtonsRecurring = ({
   const { setModalContent } = useModal();
   const { t } = useTranslation();
 
+  // TODO need total count here because reservations is not complete (so the filters fail)
   const { loading, reservations, refetch } = useRecurringReservations(
     recurringReservation.pk ?? undefined
   );
@@ -35,6 +36,7 @@ const ApprovalButtonsRecurring = ({
     .filter((x) => x.state !== "DENIED");
 
   const handleDenyClick = () => {
+    // TODO this needs to show progress indicator (deleting 100+ reservations take a long time)
     setModalContent(
       <DenyDialog
         reservations={reservationsPossibleToDelete}

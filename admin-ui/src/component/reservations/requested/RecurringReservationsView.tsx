@@ -16,9 +16,8 @@ const RecurringReservationsView = ({
 }) => {
   const { t } = useTranslation();
 
-  const { loading, reservations } = useRecurringReservations(
-    reservation.recurringReservation?.pk ?? undefined
-  );
+  const { loading, reservations, fetchMore, totalCount } =
+    useRecurringReservations(reservation.recurringReservation?.pk ?? undefined);
 
   if (loading) {
     return <div>Loading</div>;
@@ -61,10 +60,22 @@ const RecurringReservationsView = ({
     ],
   }));
 
+  const handleLoadMore = () => {
+    fetchMore({
+      variables: {
+        offset: reservations.length,
+      },
+    });
+  };
+
+  const hasMore = reservations.length < (totalCount ?? 0);
+
   return (
     <ReservationList
       header={<H6 as="h3">{t("RecurringReservationsView.Heading")}</H6>}
       items={forDisplay}
+      onLoadMore={handleLoadMore}
+      hasMore={hasMore}
     />
   );
 };

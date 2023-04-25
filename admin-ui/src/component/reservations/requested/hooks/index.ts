@@ -80,47 +80,57 @@ export const useReservationData = (
 const LIMIT = 100;
 
 export const useRecurringReservations = (recurringPk?: number) => {
-  const [reservations, setReservations] = useState<ReservationType[]>([]);
-
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  const { loading, refetch: baseRefetch } = useQuery<
-    Query,
-    { pk: number; offset: number; count: number }
-  >(RECURRING_RESERVATION_QUERY, {
-    skip: !recurringPk,
-    variables: {
-      pk: recurringPk ?? 0,
-      offset: reservations.length,
-      count: LIMIT,
-    },
-    onCompleted: (data) => {
-      const qd = data?.reservations;
-      if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
-        const ds =
-          qd?.edges
-            ?.map((x) => x?.node)
-            .filter((x): x is ReservationType => x != null) ?? [];
+  const {
+    data,
+    loading,
+    refetch: baseRefetch,
+    fetchMore,
+  } = useQuery<Query, { pk: number; offset: number; count: number }>(
+    RECURRING_RESERVATION_QUERY,
+    {
+      skip: !recurringPk,
+      fetchPolicy: "cache-and-network",
+      nextFetchPolicy: "cache-first",
+      errorPolicy: "all",
+      variables: {
+        pk: recurringPk ?? 0,
+        offset: 0,
+        count: LIMIT,
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
+  );
 
-        setReservations([...reservations, ...ds]);
-      }
-    },
-    onError: () => {
-      notifyError(t("RequestedReservation.errorFetchingData"));
-    },
-  });
+  const qd = data?.reservations;
+  const ds =
+    qd?.edges
+      ?.map((x) => x?.node)
+      .filter((x): x is ReservationType => x != null) ?? [];
 
   // TODO there should be a version to invalidate a single part or a range
   // full cache reset is slow
   const refetch = () => {
-    setReservations([]);
-    baseRefetch();
+    baseRefetch({ offset: 0, count: LIMIT });
   };
 
-  return { loading, reservations, refetch };
+  return {
+    loading,
+    reservations: ds,
+    refetch,
+    fetchMore,
+    pageInfo: data?.reservations?.pageInfo,
+    totalCount: data?.reservations?.totalCount,
+  };
 };
 
+// TODO this has the same useState being local problems as the useRecurringReservations
+// but it's not obvious because we don't use refetch here.
+// cache it in Apollo InMemory cache instead.
 export const useDenyReasonOptions = () => {
   const [denyReasonOptions, setDenyReasonOptions] = useState<OptionType[]>([]);
   const { notifyError } = useNotification();

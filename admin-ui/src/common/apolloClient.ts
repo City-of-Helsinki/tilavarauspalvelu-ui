@@ -72,7 +72,27 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 });
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          reservations: {
+            // use key to create separate caches for non recurring list (all reservations) and recurring
+            keyArgs: ["recurringReservation"],
+            // eslint-disable-next-line default-param-last
+            // TODO types (ReservationsQuery respons)
+            // combineResults is the one used before
+            merge(existing, incoming) {
+              return {
+                ...incoming,
+                edges: [...(existing?.edges ?? []), ...incoming.edges],
+              };
+            },
+          },
+        },
+      },
+    },
+  }),
   link: ApolloLink.from([errorLink, authLink, terminatingLink]),
 });
 
