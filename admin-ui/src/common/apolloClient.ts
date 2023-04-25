@@ -8,6 +8,7 @@ import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { set } from "lodash";
+import { ReservationTypeConnection } from "common/types/gql-types";
 
 import { getApiAccessToken, updateApiAccessToken } from "./auth/util";
 import { apiBaseUrl } from "./const";
@@ -77,12 +78,12 @@ const client = new ApolloClient({
       Query: {
         fields: {
           reservations: {
-            // use key to create separate caches for non recurring list (all reservations) and recurring
+            // key to create separate caches for all reservations (no key) and recurring (with recurring pk as key)
             keyArgs: ["recurringReservation"],
-            // eslint-disable-next-line default-param-last
-            // TODO types (ReservationsQuery respons)
-            // combineResults is the one used before
-            merge(existing, incoming) {
+            merge(
+              existing: ReservationTypeConnection,
+              incoming: ReservationTypeConnection
+            ) {
               return {
                 ...incoming,
                 edges: [...(existing?.edges ?? []), ...incoming.edges],
