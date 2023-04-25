@@ -2,7 +2,7 @@ import { breakpoints } from "common/src/common/style";
 import { ReservationsReservationStateChoices } from "common/types/gql-types";
 import { LoadingSpinner } from "hds-react";
 import { signIn, useSession } from "next-auth/react";
-import { GetStaticProps } from "next";
+import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -12,7 +12,7 @@ import ReservationFail from "../components/reservation/ReservationFail";
 import { authEnabled, authenticationIssuer } from "../modules/const";
 import { useOrder, useReservation } from "../hooks/reservation";
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale)),
@@ -43,9 +43,7 @@ const ReservationSuccess = () => {
   const [refreshRetries, setRefreshRetries] = useState<number>(0);
 
   const isCheckingAuth = session?.status === "loading";
-  const isLoggedOut = authEnabled
-    ? session?.status === "unauthenticated"
-    : false;
+  const isLoggedOut = authEnabled && session?.status === "unauthenticated";
 
   useEffect(() => {
     if (isLoggedOut) {
