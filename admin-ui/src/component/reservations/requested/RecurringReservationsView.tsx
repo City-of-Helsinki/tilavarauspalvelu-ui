@@ -24,6 +24,7 @@ const LIMIT = 100;
 /// refetch does a full cache reset that can take a long time and also causes rendering artefacts
 /// because it resets a list to [].
 /// refetchSingle has no error reporting incorrect reservation pk's are ignored
+/// TODO there is version of this with proper cache behavior in TILA-2390 (replace after merge)
 const useRecurringReservationList = (recurringReservationPk?: number) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
