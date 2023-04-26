@@ -25,7 +25,7 @@ const RecurringReservationsView = ({
   const { t } = useTranslation();
   const { setModalContent } = useModal();
 
-  const { loading, reservations, fetchMore, refetchSingle, totalCount } =
+  const { loading, reservations, fetchMore, totalCount } =
     useRecurringReservations(
       reservation.recurringReservation?.pk ?? undefined,
       { limit: RECURRING_AUTOMATIC_REFETCH_LIMIT }
@@ -43,7 +43,6 @@ const RecurringReservationsView = ({
 
   const handleCloseRemoveDialog = (shouldRefetch?: boolean, pk?: number) => {
     if (shouldRefetch && pk) {
-      refetchSingle(pk);
       onChange();
     }
     setModalContent(null);
@@ -69,6 +68,7 @@ const RecurringReservationsView = ({
       if (startDate > now) {
         buttons.push(
           <ReservationListButton
+            key="change"
             callback={() => handleChange(x)}
             type="change"
           />
@@ -76,11 +76,19 @@ const RecurringReservationsView = ({
       }
 
       buttons.push(
-        <ReservationListButton callback={() => onSelect(x)} type="show" />
+        <ReservationListButton
+          key="show"
+          callback={() => onSelect(x)}
+          type="show"
+        />
       );
       if (startDate > now) {
         buttons.push(
-          <ReservationListButton callback={() => handleRemove(x)} type="deny" />
+          <ReservationListButton
+            key="deny"
+            callback={() => handleRemove(x)}
+            type="deny"
+          />
         );
       }
     }

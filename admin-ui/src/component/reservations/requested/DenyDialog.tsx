@@ -8,6 +8,8 @@ import {
   Mutation,
   ReservationDenyMutationInput,
   ReservationType,
+  ReservationTypeConnection,
+  ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useModal } from "../../../context/ModalContext";
 import { DENY_RESERVATION } from "./queries";
@@ -31,7 +33,47 @@ const DialogContent = ({
   onClose: () => void;
   onReject: () => void;
 }) => {
-  const [denyReservationMutation] = useMutation<Mutation>(DENY_RESERVATION);
+  const [denyReservationMutation] = useMutation<Mutation>(DENY_RESERVATION, {
+    update(cache, { data }) {
+      // Manually update the cache instead of invalidating the whole query
+      // because we can't invalidate single elements in the recurring list.
+      // For a single reservation doing a query invalidation is fine
+      // but doing that to a list of 2000 reservations when a single one of them gets
+      // denied would cause 5s delay and full rerender of the list on every button press.
+      cache.modify({
+        fields: {
+          // find the pk => slice the array => replace the state variable in the slice
+          reservations(existing: ReservationTypeConnection) {
+            if (data) {
+              // TODO null check separately for safety
+              const fid = existing.edges.findIndex(
+                (x) => x?.node?.pk === data?.denyReservation?.pk
+              );
+              if (fid > -1) {
+                const cpy = structuredClone(existing.edges[fid]);
+                if (cpy?.node?.state && data.denyReservation?.state) {
+                  // FIXME I hate casts. use zod instead or smth
+                  // State === ReservationsReservationStateChoices: they are the exact same enums
+                  cpy.node.state = data.denyReservation
+                    ?.state as unknown as ReservationsReservationStateChoices;
+                }
+                const newValues = {
+                  ...existing,
+                  edges: [
+                    ...existing.edges.slice(0, fid),
+                    cpy,
+                    ...existing.edges.slice(fid + 1),
+                  ],
+                };
+                return newValues;
+              }
+            }
+            return existing;
+          },
+        },
+      });
+    },
+  });
 
   const denyReservation = (input: ReservationDenyMutationInput) =>
     denyReservationMutation({ variables: { input } });

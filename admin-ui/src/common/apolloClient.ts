@@ -117,12 +117,31 @@ const client = new ApolloClient({
               existing: ReservationTypeConnection,
               incoming: ReservationTypeConnection
             ) {
+              const dateCmp = (a?: string, b?: string) => {
+                if (!a) {
+                  return -1;
+                }
+                if (!b) {
+                  return 1;
+                }
+                return new Date(a).getTime() - new Date(b).getTime();
+              };
               // TODO this should be optimized using both spread and uniqBy creates a lot of copies
+              // TODO how does this work when invalidating? e.g. if we get only a single pk that already exists
+              // which one will uniqBy select? probably the first
+              // FIXME the date sort breaks reservations query for non-recurring reservations
+              // it's required for recurring because we need them in date order
+              // but non requiring (i.e. the massive table) should use the backend sorted results
               return {
                 ...incoming,
                 edges: uniqBy(
                   [...(existing?.edges ?? []), ...incoming.edges],
                   (x) => x?.node?.pk
+                ).sort((a, b) =>
+                  dateCmp(
+                    a?.node?.begin ?? undefined,
+                    b?.node?.begin ?? undefined
+                  )
                 ),
               };
             },

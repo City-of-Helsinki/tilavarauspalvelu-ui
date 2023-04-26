@@ -48,12 +48,17 @@ export const RECURRING_RESERVATION_QUERY = gql`
     $offset: Int
     $count: Int
     $state: [String]
+    $begin: DateTime
+    $end: DateTime
   ) {
     reservations(
       offset: $offset
       recurringReservation: $pk
       state: $state
       first: $count
+      begin: $begin
+      end: $end
+      orderBy: "begin"
     ) {
       edges {
         node {

@@ -5,9 +5,8 @@ import {
   ReservationDenyReasonType,
   ReservationsReservationStateChoices,
   ReservationType,
-  QueryReservationByPkArgs,
 } from "common/types/gql-types";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import {
@@ -15,7 +14,7 @@ import {
   RECURRING_RESERVATION_QUERY,
 } from "./queries";
 import { useNotification } from "../../../../context/NotificationContext";
-import { RESERVATION_QUERY, RESERVATION_DENY_REASONS } from "../queries";
+import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 
 export const useReservationData = (
@@ -92,16 +91,25 @@ const defaultOptions = {
   limit: LIMIT,
 };
 
+type CustomQueryParams = {
+  pk: number;
+  count: number;
+  offset: number;
+  state: ReservationsReservationStateChoices[];
+  begin?: Date;
+  end?: Date;
+};
+
 /// @param recurringPk fetch reservations related to this pk
 /// @param state optionally only fetch some reservation states
 /// @param limit allows to over fetch: 100 is the limit per query, larger amounts are done with multiple fetches
 /// TODO for some reason ReservationList is not updated after deny all (cache invalidation / refetch doesn't work properly)
-/// FIXME refetchSingle is broken after cache change
-/// Prefer the use of refetchSingle if at all possible, it takes a reservation pk as an argument
-/// and only updates that.
-/// refetch does a full cache reset that can take a long time and also causes rendering artefacts
-/// because it resets a list to [].
-/// refetchSingle has no error reporting incorrect reservation pk's are ignored
+///
+/// NOTE on cache
+/// refetching this query is a super bad idea
+/// use cache invalidation in the mutation instead
+/// The two solutions are either to queryInvalidate / refetch if you REALLY REALLY must do it (it's super slow)
+/// or use a update callback in a mutation to update the cache manually with cache.modify
 export const useRecurringReservations = (
   recurringPk?: number,
   options?: Partial<OptionsType>
@@ -110,48 +118,39 @@ export const useRecurringReservations = (
   const { t } = useTranslation();
 
   const { limit, states } = { ...defaultOptions, ...options };
-  const {
-    data,
-    loading,
-    refetch: baseRefetch,
-    fetchMore,
-  } = useQuery<
-    Query,
+  const { data, loading, fetchMore } = useQuery<Query, CustomQueryParams>(
+    RECURRING_RESERVATION_QUERY,
     {
-      pk: number;
-      count: number;
-      offset: number;
-      state: ReservationsReservationStateChoices[];
-    }
-  >(RECURRING_RESERVATION_QUERY, {
-    skip: !recurringPk,
-    fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-first",
-    errorPolicy: "all",
-    variables: {
-      pk: recurringPk ?? 0,
-      offset: 0,
-      count: limit < LIMIT ? limit : LIMIT,
-      state: states,
-    },
-    // handle automatic refetching and let the cache manage merging
-    onCompleted: (d: Query) => {
-      const allCount = d?.reservations?.totalCount ?? 0;
-      const edgeCount = d?.reservations?.edges.length ?? 0;
+      skip: !recurringPk,
+      fetchPolicy: "cache-and-network",
+      nextFetchPolicy: "cache-first",
+      errorPolicy: "all",
+      variables: {
+        pk: recurringPk ?? 0,
+        offset: 0,
+        count: limit < LIMIT ? limit : LIMIT,
+        state: states,
+      },
+      // handle automatic refetching and let the cache manage merging
+      onCompleted: (d: Query) => {
+        const allCount = d?.reservations?.totalCount ?? 0;
+        const edgeCount = d?.reservations?.edges.length ?? 0;
 
-      if (limit > LIMIT) {
-        if (allCount > 0 && edgeCount > 0 && edgeCount < limit) {
-          fetchMore({ variables: { offset: edgeCount } });
+        if (limit > LIMIT && allCount > LIMIT) {
+          console.log("doing a automatic fetchMore");
+          console.log(`completed: request total: "${allCount}"
+          request edges: "${edgeCount}"
+          limit: "${limit}"
+        `);
+          if (allCount > 0 && edgeCount > 0 && edgeCount < limit) {
+            fetchMore({ variables: { offset: edgeCount } });
+          }
         }
-      }
-    },
-    onError: () => {
-      notifyError(t("RequestedReservation.errorFetchingData"));
-    },
-  });
-
-  const [getReservation] = useLazyQuery<Query, QueryReservationByPkArgs>(
-    RESERVATION_QUERY
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
   );
 
   const qd = data?.reservations;
@@ -160,46 +159,36 @@ export const useRecurringReservations = (
       ?.map((x) => x?.node)
       .filter((x): x is ReservationType => x != null) ?? [];
 
-  // TODO there should be a version to invalidate a single part or a range
-  // full cache reset is slow
-  // FIXME this doesn't work properly (at least in ReservationList)
-  const refetch = () => {
-    baseRefetch({ offset: 0, count: LIMIT });
-  };
-
   // FIXME this doesn't work right now (how does it update the cache?)
   // it does the request but doesn't cache invalidate it because
   // RESERVATION query is different than RESERVATIONS query (so their caches are separate)
   // either use the original query with a recurringPk + begin parameters (to only update a single day in the cache)
   // or see if we can use reservationByPk to update reservations cache automatically (reservations is just a subset of the getByPk)
   // there is no pk filtering for reservations query so no luck there
-  const refetchSingle = (pk: number) => {
-    getReservation({ variables: { pk } }).then((res) => {
-      console.log("refetched reservation: ", res);
-      /*
-      const data = res.data?.reservationByPk;
-      const indexToUpdate = reservations.findIndex((x) => x.pk === data?.pk);
-      if (data && indexToUpdate > -1) {
-        setReservations([
-          ...reservations.slice(0, indexToUpdate),
-          data,
-          ...reservations.slice(indexToUpdate + 1),
-        ]);
-      }
-      */
-    });
-  };
+  //
+  // if we use client.readQuery (we'd need force a fetch and the cache merge has to support that use case)
+  // if we use lazyQuery to reservation + manual cache.modify we always bypass the cache and we modify only a single element
+  // the upside of cache.modify is that it's easier to implement and more performant in this specific case
+  // the downside is that it does not scale at all to other queries (or cache invalidation in general)
+  // and it's more case specific code (non elegant solution)
 
   // TODO how does the limit work with this? (as in what happens if the limit ~100)
+  // FIXME this doesn't work as expected for now
+  // seems to be a problem with initial loading not getting 100 Confirmed but instead returning
+  // 100 first of anything
+  // maybe automatic fetch isn't working as it should
+  // might be that we need to check the cache not the ones we loaded now
   const nAlreayLoaded = data?.reservations?.edges?.length ?? 0;
   const nAllToLoad = data?.reservations?.totalCount ?? 0;
   const stillDataToLoad = nAlreayLoaded < nAllToLoad;
 
+  console.log(`loaded: ${nAlreayLoaded} but should load ${nAllToLoad}`);
+  if (stillDataToLoad) {
+    console.log("still loading");
+  }
   return {
-    loading: loading || stillDataToLoad,
+    loading, // loading || stillDataToLoad,
     reservations: ds,
-    refetch,
-    refetchSingle,
     fetchMore,
     pageInfo: data?.reservations?.pageInfo,
     totalCount: data?.reservations?.totalCount,

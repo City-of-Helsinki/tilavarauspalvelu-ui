@@ -23,14 +23,13 @@ const ApprovalButtonsRecurring = ({
   const { setModalContent } = useModal();
   const { t } = useTranslation();
 
-  const { loading, reservations, refetch, fetchMore, totalCount } =
+  const { loading, reservations, fetchMore, totalCount } =
     useRecurringReservations(recurringReservation.pk ?? undefined, {
       states: [ReservationsReservationStateChoices.Confirmed],
       limit: RECURRING_AUTOMATIC_REFETCH_LIMIT,
     });
 
   const handleDeleteSuccess = () => {
-    refetch();
     handleAccept();
   };
 
@@ -52,6 +51,7 @@ const ApprovalButtonsRecurring = ({
   };
 
   if (loading) {
+    console.log("loading reservations");
     return null;
   }
 
@@ -77,6 +77,7 @@ const ApprovalButtonsRecurring = ({
   }
 
   if (reservationsPossibleToDelete.length === 0) {
+    console.log("no reservations to delete");
     return null;
   }
 
