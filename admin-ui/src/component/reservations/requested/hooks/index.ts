@@ -79,16 +79,30 @@ export const useReservationData = (
 
 const LIMIT = 100;
 
-export const useRecurringReservations = (
-  recurringPk?: number,
-  states: ReservationsReservationStateChoices[] = [
+type OptionsType = {
+  states: ReservationsReservationStateChoices[];
+  limit: number;
+};
+const defaultOptions = {
+  states: [
     ReservationsReservationStateChoices.Confirmed,
     ReservationsReservationStateChoices.Denied,
-  ]
+  ],
+  limit: LIMIT,
+};
+
+/// @param recurringPk fetch reservations related to this pk
+/// @param state optionally only fetch some reservation states
+/// @param limit allows to over fetch: 100 is the limit per query, larger amounts are done with multiple fetches
+/// TODO for some reason ReservationList is not updated after deny all (cache invalidation / refetch doesn't work properly)
+export const useRecurringReservations = (
+  recurringPk?: number,
+  options?: Partial<OptionsType>
 ) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
+  const { limit, states } = { ...defaultOptions, ...options };
   const {
     data,
     loading,
@@ -104,13 +118,25 @@ export const useRecurringReservations = (
     }
   >(RECURRING_RESERVATION_QUERY, {
     skip: !recurringPk,
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
     errorPolicy: "all",
     variables: {
       pk: recurringPk ?? 0,
       offset: 0,
-      count: LIMIT,
+      count: limit < LIMIT ? limit : LIMIT,
       state: states,
+    },
+    // handle automatic refetching and let the cache manage merging
+    onCompleted: (d: Query) => {
+      const allCount = d?.reservations?.totalCount ?? 0;
+      const edgeCount = d?.reservations?.edges.length ?? 0;
+
+      if (limit > LIMIT) {
+        if (allCount > 0 && edgeCount > 0 && edgeCount < limit) {
+          fetchMore({ variables: { offset: edgeCount } });
+        }
+      }
     },
     onError: () => {
       notifyError(t("RequestedReservation.errorFetchingData"));
@@ -125,12 +151,18 @@ export const useRecurringReservations = (
 
   // TODO there should be a version to invalidate a single part or a range
   // full cache reset is slow
+  // FIXME this doesn't work properly (at least in ReservationList)
   const refetch = () => {
     baseRefetch({ offset: 0, count: LIMIT });
   };
 
+  // TODO how does the limit work with this? (as in what happens if the limit ~100)
+  const nAlreayLoaded = data?.reservations?.edges?.length ?? 0;
+  const nAllToLoad = data?.reservations?.totalCount ?? 0;
+  const stillDataToLoad = nAlreayLoaded < nAllToLoad;
+
   return {
-    loading,
+    loading: loading || stillDataToLoad,
     reservations: ds,
     refetch,
     fetchMore,

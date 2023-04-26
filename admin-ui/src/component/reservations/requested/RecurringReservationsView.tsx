@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import ReservationList from "../../ReservationsList";
 import ReservationListButton from "../../ReservationListButton";
 import { useRecurringReservations } from "./hooks";
+import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "../../../common/const";
 
 const RecurringReservationsView = ({
   reservation,
@@ -17,7 +18,10 @@ const RecurringReservationsView = ({
   const { t } = useTranslation();
 
   const { loading, reservations, fetchMore, totalCount } =
-    useRecurringReservations(reservation.recurringReservation?.pk ?? undefined);
+    useRecurringReservations(
+      reservation.recurringReservation?.pk ?? undefined,
+      { limit: RECURRING_AUTOMATIC_REFETCH_LIMIT }
+    );
 
   if (loading) {
     return <div>Loading</div>;
