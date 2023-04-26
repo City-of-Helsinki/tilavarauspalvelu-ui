@@ -51,12 +51,25 @@ const RecurringReservationsView = ({
     endTime: format(new Date(x.end), "HH:mm"),
     isRemoved: x.state !== "CONFIRMED",
     buttons: [
-      <ReservationListButton callback={() => handleChange(x)} type="change" />,
-      <ReservationListButton callback={() => onSelect(x)} type="show" />,
+      <ReservationListButton
+        key="change"
+        callback={() => handleChange(x)}
+        type="change"
+      />,
+      <ReservationListButton
+        key="show"
+        callback={() => onSelect(x)}
+        type="show"
+      />,
       x.state === "CONFIRMED" ? (
-        <ReservationListButton callback={() => handleRemove(x)} type="remove" />
+        <ReservationListButton
+          key="remove"
+          callback={() => handleRemove(x)}
+          type="remove"
+        />
       ) : (
         <ReservationListButton
+          key="restore"
           callback={() => handleRestore(x)}
           type="restore"
         />
