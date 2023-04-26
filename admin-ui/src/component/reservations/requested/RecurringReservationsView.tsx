@@ -1,23 +1,31 @@
 import React from "react";
-import { type ReservationType } from "common/types/gql-types";
-import { H6 } from "common/src/common/typography";
-import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import ReservationList from "../../ReservationsList";
-import ReservationListButton from "../../ReservationListButton";
+import { useTranslation } from "react-i18next";
+import {
+  ReservationsReservationStateChoices,
+  type ReservationType,
+} from "common/types/gql-types";
+import { H6 } from "common/src/common/typography";
 import { useRecurringReservations } from "./hooks";
 import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "../../../common/const";
+import ReservationList from "../../ReservationsList";
+import ReservationListButton from "../../ReservationListButton";
+import DenyDialog from "./DenyDialog";
+import { useModal } from "../../../context/ModalContext";
 
 const RecurringReservationsView = ({
   reservation,
   onSelect,
+  onChange,
 }: {
   reservation: ReservationType;
   onSelect: (selected: ReservationType) => void;
+  onChange: () => void;
 }) => {
   const { t } = useTranslation();
+  const { setModalContent } = useModal();
 
-  const { loading, reservations, fetchMore, totalCount } =
+  const { loading, reservations, fetchMore, refetchSingle, totalCount } =
     useRecurringReservations(
       reservation.recurringReservation?.pk ?? undefined,
       { limit: RECURRING_AUTOMATIC_REFETCH_LIMIT }
@@ -33,49 +41,57 @@ const RecurringReservationsView = ({
     console.warn("Change NOT Implemented.");
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemove = (_x: ReservationType) => {
-    // eslint-disable-next-line no-console
-    console.warn("Remove NOT Implemented.");
+  const handleCloseRemoveDialog = (shouldRefetch?: boolean, pk?: number) => {
+    if (shouldRefetch && pk) {
+      refetchSingle(pk);
+      onChange();
+    }
+    setModalContent(null);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRestore = (_x: ReservationType) => {
-    // eslint-disable-next-line no-console
-    console.warn("Restore NOT Implemented.");
+  const handleRemove = (res: ReservationType) => {
+    setModalContent(
+      <DenyDialog
+        reservations={[res]}
+        onReject={() => handleCloseRemoveDialog(true, res.pk ?? undefined)}
+        onClose={() => handleCloseRemoveDialog(false)}
+      />,
+      true
+    );
   };
 
-  const forDisplay = reservations.map((x) => ({
-    date: new Date(x.begin),
-    startTime: format(new Date(x.begin), "HH:mm"),
-    endTime: format(new Date(x.end), "HH:mm"),
-    isRemoved: x.state !== "CONFIRMED",
-    buttons: [
-      <ReservationListButton
-        key="change"
-        callback={() => handleChange(x)}
-        type="change"
-      />,
-      <ReservationListButton
-        key="show"
-        callback={() => onSelect(x)}
-        type="show"
-      />,
-      x.state === "CONFIRMED" ? (
-        <ReservationListButton
-          key="remove"
-          callback={() => handleRemove(x)}
-          type="remove"
-        />
-      ) : (
-        <ReservationListButton
-          key="restore"
-          callback={() => handleRestore(x)}
-          type="restore"
-        />
-      ),
-    ],
-  }));
+  const forDisplay = reservations.map((x) => {
+    const buttons = [];
+    const startDate = new Date(x.begin);
+    const now = new Date();
+
+    if (x.state !== ReservationsReservationStateChoices.Denied) {
+      if (startDate > now) {
+        buttons.push(
+          <ReservationListButton
+            callback={() => handleChange(x)}
+            type="change"
+          />
+        );
+      }
+
+      buttons.push(
+        <ReservationListButton callback={() => onSelect(x)} type="show" />
+      );
+      if (startDate > now) {
+        buttons.push(
+          <ReservationListButton callback={() => handleRemove(x)} type="deny" />
+        );
+      }
+    }
+    return {
+      date: startDate,
+      startTime: format(startDate, "hh:mm"),
+      endTime: format(new Date(x.end), "hh:mm"),
+      isRemoved: x.state === "DENIED",
+      buttons,
+    };
+  });
 
   const handleLoadMore = () => {
     fetchMore({ variables: { offset: reservations.length } });

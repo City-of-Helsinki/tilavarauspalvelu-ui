@@ -5,8 +5,9 @@ import {
   ReservationDenyReasonType,
   ReservationsReservationStateChoices,
   ReservationType,
+  QueryReservationByPkArgs,
 } from "common/types/gql-types";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import {
@@ -14,7 +15,7 @@ import {
   RECURRING_RESERVATION_QUERY,
 } from "./queries";
 import { useNotification } from "../../../../context/NotificationContext";
-import { RESERVATION_DENY_REASONS } from "../queries";
+import { RESERVATION_QUERY, RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 
 export const useReservationData = (
@@ -95,6 +96,12 @@ const defaultOptions = {
 /// @param state optionally only fetch some reservation states
 /// @param limit allows to over fetch: 100 is the limit per query, larger amounts are done with multiple fetches
 /// TODO for some reason ReservationList is not updated after deny all (cache invalidation / refetch doesn't work properly)
+/// FIXME refetchSingle is broken after cache change
+/// Prefer the use of refetchSingle if at all possible, it takes a reservation pk as an argument
+/// and only updates that.
+/// refetch does a full cache reset that can take a long time and also causes rendering artefacts
+/// because it resets a list to [].
+/// refetchSingle has no error reporting incorrect reservation pk's are ignored
 export const useRecurringReservations = (
   recurringPk?: number,
   options?: Partial<OptionsType>
@@ -143,6 +150,10 @@ export const useRecurringReservations = (
     },
   });
 
+  const [getReservation] = useLazyQuery<Query, QueryReservationByPkArgs>(
+    RESERVATION_QUERY
+  );
+
   const qd = data?.reservations;
   const ds =
     qd?.edges
@@ -156,6 +167,29 @@ export const useRecurringReservations = (
     baseRefetch({ offset: 0, count: LIMIT });
   };
 
+  // FIXME this doesn't work right now (how does it update the cache?)
+  // it does the request but doesn't cache invalidate it because
+  // RESERVATION query is different than RESERVATIONS query (so their caches are separate)
+  // either use the original query with a recurringPk + begin parameters (to only update a single day in the cache)
+  // or see if we can use reservationByPk to update reservations cache automatically (reservations is just a subset of the getByPk)
+  // there is no pk filtering for reservations query so no luck there
+  const refetchSingle = (pk: number) => {
+    getReservation({ variables: { pk } }).then((res) => {
+      console.log("refetched reservation: ", res);
+      /*
+      const data = res.data?.reservationByPk;
+      const indexToUpdate = reservations.findIndex((x) => x.pk === data?.pk);
+      if (data && indexToUpdate > -1) {
+        setReservations([
+          ...reservations.slice(0, indexToUpdate),
+          data,
+          ...reservations.slice(indexToUpdate + 1),
+        ]);
+      }
+      */
+    });
+  };
+
   // TODO how does the limit work with this? (as in what happens if the limit ~100)
   const nAlreayLoaded = data?.reservations?.edges?.length ?? 0;
   const nAllToLoad = data?.reservations?.totalCount ?? 0;
@@ -165,6 +199,7 @@ export const useRecurringReservations = (
     loading: loading || stillDataToLoad,
     reservations: ds,
     refetch,
+    refetchSingle,
     fetchMore,
     pageInfo: data?.reservations?.pageInfo,
     totalCount: data?.reservations?.totalCount,

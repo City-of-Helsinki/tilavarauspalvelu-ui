@@ -546,6 +546,7 @@ const RequestedReservation = (): JSX.Element | null => {
                 // selected !== reservation so a selection doesn't
                 reservation={reservation}
                 onSelect={setSelectedReservation}
+                onChange={refetch}
               />
             </Accordion>
           )}
