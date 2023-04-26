@@ -203,12 +203,17 @@ const ButtonsWithPermChecks = ({
   };
 
   const { hasPermission } = useAuthState().authState;
-  const permission =
-    unitPk != null
-      ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
-      : false;
+  const permission = hasPermission(
+    "can_manage_reservations",
+    unitPk,
+    serviceSectorPks
+  );
 
-  if (permission || isUsersOwnReservation) {
+  const ownPermissions = isUsersOwnReservation
+    ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
+    : false;
+
+  if (permission || ownPermissions) {
     return (
       <ApprovalButtons
         state={reservation.state}
@@ -302,6 +307,7 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   )}`;
 
   const weekDayTag = reservation.recurringReservation?.weekdays
+    ?.sort()
     ?.map((x) => t(`dayShort.${x}`))
     ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
 
@@ -345,7 +351,7 @@ const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
   // (2) else if reservation is in the future => show that
   // (3) else if reservation.recurrance has an event in the future => show that
   // (4) else show today
-  const { data: recurringData } = useRecurringReservations(
+  const { data: recurringData, refetch } = useRecurringReservations(
     reservation.recurringReservation?.pk ?? undefined
   );
   const events =
@@ -374,6 +380,7 @@ const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
           <RecurringReservationsView
             reservation={reservation}
             onSelect={setSelected}
+            onChange={refetch}
           />
         </Accordion>
       )}

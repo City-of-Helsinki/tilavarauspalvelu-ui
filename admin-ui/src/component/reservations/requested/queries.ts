@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { ReservationsReservationStateChoices } from "common/types/gql-types";
 
 export const UPDATE_WORKING_MEMO = gql`
   mutation updateWorkingMemo($input: ReservationWorkingMemoMutationInput!) {
@@ -103,6 +104,30 @@ export const RESERVATION_QUERY = gql`
       billingAddressZip
       freeOfChargeReason
       applyingForFreeOfCharge
+    }
+  }
+`;
+
+export const RECURRING_RESERVATION_QUERY = gql`
+  query recurringReservation($pk: ID!, $offset: Int, $count: Int) {
+    reservations(
+      offset: $offset
+      recurringReservation: $pk
+      state: ["${ReservationsReservationStateChoices.Confirmed}", "${ReservationsReservationStateChoices.Denied}"]
+      first: $count
+    ) {
+      edges {
+        node {
+          pk
+          begin
+          end
+          state
+          recurringReservation {
+            pk
+          }
+        }
+      }
+      totalCount
     }
   }
 `;
