@@ -58,7 +58,7 @@ const Cancel = () => {
     }
   }, [deleteReservation, order]);
 
-  if (loading || deleteLoading || isCheckingAuth || !called) {
+  if (loading || deleteLoading || isCheckingAuth || !called || isLoggedOut) {
     return (
       <StyledContainer>
         <LoadingSpinner />
