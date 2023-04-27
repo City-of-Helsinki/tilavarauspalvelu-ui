@@ -103,13 +103,12 @@ type CustomQueryParams = {
 /// @param recurringPk fetch reservations related to this pk
 /// @param state optionally only fetch some reservation states
 /// @param limit allows to over fetch: 100 is the limit per query, larger amounts are done with multiple fetches
-/// TODO for some reason ReservationList is not updated after deny all (cache invalidation / refetch doesn't work properly)
 ///
 /// NOTE on cache
 /// refetching this query is a super bad idea
 /// use cache invalidation in the mutation instead
 /// The two solutions are either to queryInvalidate / refetch if you REALLY REALLY must do it (it's super slow)
-/// or use a update callback in a mutation to update the cache manually with cache.modify
+/// or use the update callback in the mutation to update the cache manually with cache.modify
 export const useRecurringReservations = (
   recurringPk?: number,
   options?: Partial<OptionsType>
@@ -131,20 +130,18 @@ export const useRecurringReservations = (
         count: limit < LIMIT ? limit : LIMIT,
         state: states,
       },
-      // handle automatic refetching and let the cache manage merging
+      // handle automatic fetching and let the cache manage merging
       onCompleted: (d: Query) => {
         const allCount = d?.reservations?.totalCount ?? 0;
         const edgeCount = d?.reservations?.edges.length ?? 0;
 
-        if (limit > LIMIT && allCount > LIMIT) {
-          console.log("doing a automatic fetchMore");
-          console.log(`completed: request total: "${allCount}"
-          request edges: "${edgeCount}"
-          limit: "${limit}"
-        `);
-          if (allCount > 0 && edgeCount > 0 && edgeCount < limit) {
-            fetchMore({ variables: { offset: edgeCount } });
-          }
+        if (
+          limit > LIMIT &&
+          allCount > LIMIT &&
+          edgeCount > 0 &&
+          edgeCount < allCount
+        ) {
+          fetchMore({ variables: { offset: edgeCount } });
         }
       },
       onError: () => {
@@ -159,35 +156,12 @@ export const useRecurringReservations = (
       ?.map((x) => x?.node)
       .filter((x): x is ReservationType => x != null) ?? [];
 
-  // FIXME this doesn't work right now (how does it update the cache?)
-  // it does the request but doesn't cache invalidate it because
-  // RESERVATION query is different than RESERVATIONS query (so their caches are separate)
-  // either use the original query with a recurringPk + begin parameters (to only update a single day in the cache)
-  // or see if we can use reservationByPk to update reservations cache automatically (reservations is just a subset of the getByPk)
-  // there is no pk filtering for reservations query so no luck there
-  //
-  // if we use client.readQuery (we'd need force a fetch and the cache merge has to support that use case)
-  // if we use lazyQuery to reservation + manual cache.modify we always bypass the cache and we modify only a single element
-  // the upside of cache.modify is that it's easier to implement and more performant in this specific case
-  // the downside is that it does not scale at all to other queries (or cache invalidation in general)
-  // and it's more case specific code (non elegant solution)
-
-  // TODO how does the limit work with this? (as in what happens if the limit ~100)
-  // FIXME this doesn't work as expected for now
-  // seems to be a problem with initial loading not getting 100 Confirmed but instead returning
-  // 100 first of anything
-  // maybe automatic fetch isn't working as it should
-  // might be that we need to check the cache not the ones we loaded now
   const nAlreayLoaded = data?.reservations?.edges?.length ?? 0;
   const nAllToLoad = data?.reservations?.totalCount ?? 0;
   const stillDataToLoad = nAlreayLoaded < nAllToLoad;
 
-  console.log(`loaded: ${nAlreayLoaded} but should load ${nAllToLoad}`);
-  if (stillDataToLoad) {
-    console.log("still loading");
-  }
   return {
-    loading, // loading || stillDataToLoad,
+    loading: loading || stillDataToLoad,
     reservations: ds,
     fetchMore,
     pageInfo: data?.reservations?.pageInfo,

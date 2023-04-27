@@ -25,7 +25,6 @@ const ApprovalButtonsRecurring = ({
 
   const { loading, reservations, fetchMore, totalCount } =
     useRecurringReservations(recurringReservation.pk ?? undefined, {
-      states: [ReservationsReservationStateChoices.Confirmed],
       limit: RECURRING_AUTOMATIC_REFETCH_LIMIT,
     });
 
@@ -34,9 +33,10 @@ const ApprovalButtonsRecurring = ({
   };
 
   const now = new Date();
-  const reservationsPossibleToDelete = reservations.filter(
-    (x) => new Date(x.begin) > now
-  );
+  // need to do get all data here otherwise totalCount is incorrect (filter here instead of in the query)
+  const reservationsPossibleToDelete = reservations
+    .filter((x) => new Date(x.begin) > now)
+    .filter((x) => x.state === ReservationsReservationStateChoices.Confirmed);
 
   const handleDenyClick = () => {
     setModalContent(
@@ -51,7 +51,6 @@ const ApprovalButtonsRecurring = ({
   };
 
   if (loading) {
-    console.log("loading reservations");
     return null;
   }
 
@@ -77,7 +76,6 @@ const ApprovalButtonsRecurring = ({
   }
 
   if (reservationsPossibleToDelete.length === 0) {
-    console.log("no reservations to delete");
     return null;
   }
 
