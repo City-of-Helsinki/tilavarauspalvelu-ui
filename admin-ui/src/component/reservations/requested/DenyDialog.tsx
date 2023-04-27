@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useMutation } from "@apollo/client";
 import { Button, Dialog, TextArea } from "hds-react";
 import { GraphQLError } from "graphql";
+import { z } from "zod";
 import {
   Mutation,
   ReservationDenyMutationInput,
@@ -44,20 +45,32 @@ const DialogContent = ({
         fields: {
           // find the pk => slice the array => replace the state variable in the slice
           reservations(existing: ReservationTypeConnection) {
-            if (data) {
-              // TODO null check separately for safety
-              const fid = existing.edges.findIndex(
-                (x) => x?.node?.pk === data?.denyReservation?.pk
+            const queryRes = data?.denyReservation;
+            if (queryRes?.errors) {
+              // eslint-disable-next-line no-console
+              console.error(
+                "NOT updating cache: mutation failed with: ",
+                queryRes?.errors
               );
+            } else if (!queryRes?.errors && !queryRes?.pk) {
+              // eslint-disable-next-line no-console
+              console.error(
+                "NOT updating cache: mutation success but PK missing"
+              );
+            } else {
+              const { state, pk } = queryRes;
+              const fid = existing.edges.findIndex((x) => x?.node?.pk === pk);
               if (fid > -1) {
                 const cpy = structuredClone(existing.edges[fid]);
-                if (cpy?.node?.state && data.denyReservation?.state) {
-                  // FIXME I hate casts. use zod instead or smth
-                  // State === ReservationsReservationStateChoices: they are the exact same enums
-                  cpy.node.state = data.denyReservation
-                    ?.state as unknown as ReservationsReservationStateChoices;
+                if (cpy?.node && state) {
+                  // State === ReservationsReservationStateChoices: are the exact same enum
+                  // but Typescript complains about them so use zod just in case.
+                  const val = z
+                    .nativeEnum(ReservationsReservationStateChoices)
+                    .parse(state.valueOf());
+                  cpy.node.state = val;
                 }
-                const newValues = {
+                return {
                   ...existing,
                   edges: [
                     ...existing.edges.slice(0, fid),
@@ -65,7 +78,6 @@ const DialogContent = ({
                     ...existing.edges.slice(fid + 1),
                   ],
                 };
-                return newValues;
               }
             }
             return existing;

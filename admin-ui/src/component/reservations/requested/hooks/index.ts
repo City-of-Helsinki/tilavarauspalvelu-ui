@@ -129,16 +129,15 @@ export const useRecurringReservations = (
         count: limit < LIMIT ? limit : LIMIT,
         state: states,
       },
-      // handle automatic fetching and let the cache manage merging
+      // do automatic fetching and let the cache manage merging
       onCompleted: (d: Query) => {
         const allCount = d?.reservations?.totalCount ?? 0;
         const edgeCount = d?.reservations?.edges.length ?? 0;
 
         if (
-          limit > LIMIT &&
-          allCount > LIMIT &&
-          edgeCount > 0 &&
-          edgeCount < allCount
+          limit > LIMIT && // user wanted over fetching
+          edgeCount > 0 && // don't fetch if last fetch had no data
+          edgeCount < allCount // backend has more data available
         ) {
           fetchMore({ variables: { offset: edgeCount } });
         }
@@ -149,28 +148,27 @@ export const useRecurringReservations = (
     }
   );
 
-  const qd = data?.reservations;
-  const ds =
-    qd?.edges
+  const reservations =
+    data?.reservations?.edges
       ?.map((x) => x?.node)
       .filter((x): x is ReservationType => x != null) ?? [];
 
   const nAlreayLoaded = data?.reservations?.edges?.length ?? 0;
   const nAllToLoad = data?.reservations?.totalCount ?? 0;
-  const stillDataToLoad = nAlreayLoaded < nAllToLoad;
+  const hasDataToLoad = nAlreayLoaded < nAllToLoad;
 
   return {
-    loading: loading || stillDataToLoad,
-    reservations: ds,
+    loading: loading || hasDataToLoad,
+    reservations,
     fetchMore,
     pageInfo: data?.reservations?.pageInfo,
     totalCount: data?.reservations?.totalCount,
   };
 };
 
-// TODO this has the same useState being local problems as the useRecurringReservations
-// but it's not obvious because we don't use refetch here.
-// cache it in Apollo InMemory cache instead.
+// TODO this has the same useState being local problems as useRecurringReservations
+// used to have but it's not obvious because we don't mutate / refetch this.
+// Cache it in Apollo InMemory cache instead.
 export const useDenyReasonOptions = () => {
   const [denyReasonOptions, setDenyReasonOptions] = useState<OptionType[]>([]);
   const { notifyError } = useNotification();
