@@ -72,7 +72,6 @@ export const useOrder = (
     >(DELETE_RESERVATION, {
       fetchPolicy: "no-cache",
       onCompleted: (res) => {
-        console.log("deldata", res);
         if (res.deleteReservation.deleted) {
           setDeleted(true);
         }
