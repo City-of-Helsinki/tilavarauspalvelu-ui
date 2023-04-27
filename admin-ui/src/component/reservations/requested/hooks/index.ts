@@ -16,6 +16,7 @@ import {
 import { useNotification } from "../../../../context/NotificationContext";
 import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
+import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 
 export const useReservationData = (
   begin: Date,
@@ -77,13 +78,11 @@ export const useReservationData = (
   return { ...rest, events };
 };
 
-const LIMIT = 100;
-
 type OptionsType = {
   limit: number;
 };
 const defaultOptions = {
-  limit: LIMIT,
+  limit: GQL_MAX_RESULTS_PER_QUERY,
 };
 
 type CustomQueryParams = {
@@ -126,7 +125,7 @@ export const useRecurringReservations = (
       variables: {
         pk: recurringPk ?? 0,
         offset: 0,
-        count: limit < LIMIT ? limit : LIMIT,
+        count: Math.min(limit, defaultOptions.limit),
         state: states,
       },
       // do automatic fetching and let the cache manage merging
@@ -135,7 +134,7 @@ export const useRecurringReservations = (
         const edgeCount = d?.reservations?.edges.length ?? 0;
 
         if (
-          limit > LIMIT && // user wanted over fetching
+          limit > defaultOptions.limit && // user wanted over fetching
           edgeCount > 0 && // don't fetch if last fetch had no data
           edgeCount < allCount // backend has more data available
         ) {
@@ -153,9 +152,9 @@ export const useRecurringReservations = (
       ?.map((x) => x?.node)
       .filter((x): x is ReservationType => x != null) ?? [];
 
-  const nAlreayLoaded = data?.reservations?.edges?.length ?? 0;
-  const nAllToLoad = data?.reservations?.totalCount ?? 0;
-  const hasDataToLoad = nAlreayLoaded < nAllToLoad;
+  const edgeCount = data?.reservations?.edges?.length ?? 0;
+  const totalCount = data?.reservations?.totalCount ?? 0;
+  const hasDataToLoad = edgeCount < totalCount;
 
   return {
     loading: loading || hasDataToLoad,
