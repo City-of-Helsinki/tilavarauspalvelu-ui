@@ -1543,7 +1543,7 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
           ...baseOrder,
           reservationPk: "6666",
           status: "PAID",
-          receiptUrl: "https://example.com/receipt.pdf",
+          receiptUrl: "https://example.com/receipt.pdf?orderId=123",
         };
         break;
       default:

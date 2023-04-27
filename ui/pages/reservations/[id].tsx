@@ -237,7 +237,7 @@ const Terms = styled.div`
 `;
 
 const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [reservation, setReservation] = useState<ReservationType>(null);
   const [order, setOrder] = useState<PaymentOrderType>(null);
@@ -351,7 +351,12 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                 ["PAID", "REFUNDED"].includes(order?.status) && (
                   <BlackButton
                     data-testid="reservation__confirmation--button__receipt-link"
-                    onClick={() => window.open(order.receiptUrl, "_blank")}
+                    onClick={() =>
+                      window.open(
+                        `${order.receiptUrl}&lang=${i18n.language}`,
+                        "_blank"
+                      )
+                    }
                     variant="secondary"
                     iconRight={<IconLinkExternal aria-hidden />}
                   >
@@ -363,7 +368,14 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
         </>
       )
     );
-  }, [reservation, reservationUnit, order?.receiptUrl, order?.status, t]);
+  }, [
+    reservation,
+    reservationUnit,
+    order?.receiptUrl,
+    order?.status,
+    t,
+    i18n.language,
+  ]);
 
   const [canTimeBeModified, modifyTimeReason] = useMemo(
     () => canReservationTimeBeChanged({ reservation }),
