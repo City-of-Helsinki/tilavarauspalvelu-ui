@@ -78,13 +78,17 @@ const client = new ApolloClient({
       Query: {
         fields: {
           reservations: {
-            // key to create separate caches
-            // recurring (with recurring pk as key)
-            // other options are filter arguments given to the GQL request
-            // TODO search options should not use separate caches
+            // Separate caches for all query params
+            // causes a full refetch when anything changes which is bad (e.g. sorting)
+            // but otherwise we get weird UI behaviour: "Load more" button loads
+            // new elements into positions 20 - 40 while it's own position is after 200+ list elements
+            // primary usecase is that recurringReservation loading 2000 reservations needs to be cached
+            // added benefit is that it allows fast swapping between the same query param values
             keyArgs: [
               "recurringReservation",
               "unit",
+              "state",
+              "orderBy",
               "reservationUnitType",
               "reservationUnit",
               "textSearch",
@@ -94,54 +98,19 @@ const client = new ApolloClient({
               "priceLte",
               "orderStatus",
             ],
-            read(
-              existing: ReservationTypeConnection,
-              options: {
-                args: {
-                  state?: string[] | null;
-                } | null;
-              }
-            ) {
-              const { args } = options;
-
-              const state = args?.state;
-              return {
-                ...existing,
-                edges: existing?.edges.filter(
-                  (x) =>
-                    !state || (x?.node?.state && state.includes(x.node.state))
-                ),
-              };
+            read(existing: ReservationTypeConnection) {
+              return existing;
             },
             merge(
               existing: ReservationTypeConnection,
               incoming: ReservationTypeConnection
             ) {
-              const dateCmp = (a?: string, b?: string) => {
-                if (!a) {
-                  return -1;
-                }
-                if (!b) {
-                  return 1;
-                }
-                return new Date(a).getTime() - new Date(b).getTime();
-              };
               // TODO this should be optimized using both spread and uniqBy creates a lot of copies
-              // TODO how does this work when invalidating? e.g. if we get only a single pk that already exists
-              // which one will uniqBy select? probably the first
-              // FIXME the date sort breaks reservations query for non-recurring reservations
-              // it's required for recurring because we need them in date order
-              // but non requiring (i.e. the massive table) should use the backend sorted results
               return {
                 ...incoming,
                 edges: uniqBy(
                   [...(existing?.edges ?? []), ...incoming.edges],
                   (x) => x?.node?.pk
-                ).sort((a, b) =>
-                  dateCmp(
-                    a?.node?.begin ?? undefined,
-                    b?.node?.begin ?? undefined
-                  )
                 ),
               };
             },

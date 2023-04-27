@@ -80,14 +80,9 @@ export const useReservationData = (
 const LIMIT = 100;
 
 type OptionsType = {
-  states: ReservationsReservationStateChoices[];
   limit: number;
 };
 const defaultOptions = {
-  states: [
-    ReservationsReservationStateChoices.Confirmed,
-    ReservationsReservationStateChoices.Denied,
-  ],
   limit: LIMIT,
 };
 
@@ -116,7 +111,11 @@ export const useRecurringReservations = (
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  const { limit, states } = { ...defaultOptions, ...options };
+  const states = [
+    ReservationsReservationStateChoices.Confirmed,
+    ReservationsReservationStateChoices.Denied,
+  ];
+  const { limit } = { ...defaultOptions, ...options };
   const { data, loading, fetchMore } = useQuery<Query, CustomQueryParams>(
     RECURRING_RESERVATION_QUERY,
     {
