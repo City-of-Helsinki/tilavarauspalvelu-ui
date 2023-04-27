@@ -185,10 +185,19 @@ const deleteReservation = graphql.mutation<
   { deleteReservation: ReservationDeleteMutationPayload },
   { input: ReservationDeleteMutationInput }
 >("deleteReservation", (req, res, ctx) => {
+  let deleted: boolean;
+  switch (req.variables.input.pk) {
+    case 3333:
+      deleted = false;
+      break;
+    default:
+      deleted = true;
+  }
+
   return res(
     ctx.data({
       deleteReservation: {
-        deleted: true,
+        deleted,
       },
     })
   );

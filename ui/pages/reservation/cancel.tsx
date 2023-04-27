@@ -35,8 +35,6 @@ const Cancel = () => {
   const router = useRouter();
   const { orderId } = router.query as { orderId: string };
 
-  const [error, setError] = useState(false);
-
   const isCheckingAuth = session?.status === "loading";
   const isLoggedOut = authEnabled && session?.status === "unauthenticated";
 
@@ -48,14 +46,8 @@ const Cancel = () => {
     }
   }, [isLoggedOut]);
 
-  const {
-    order,
-    loading,
-    deleteReservation,
-    deleteError,
-    deleteLoading,
-    deleted,
-  } = useOrder(orderId);
+  const { order, loading, called, deleteReservation, deleteLoading, deleted } =
+    useOrder(orderId);
 
   useEffect(() => {
     const { reservationPk } = order || {};
@@ -66,14 +58,7 @@ const Cancel = () => {
     }
   }, [deleteReservation, order]);
 
-  useEffect(() => {
-    if (deleteLoading) return;
-    if (deleteError) {
-      setError(true);
-    }
-  }, [deleteError, deleteLoading]);
-
-  if (loading || deleteLoading || isCheckingAuth) {
+  if (loading || deleteLoading || isCheckingAuth || !called) {
     return (
       <StyledContainer>
         <LoadingSpinner />
@@ -81,13 +66,19 @@ const Cancel = () => {
     );
   }
 
-  const content = deleted ? (
-    <DeleteConfirmation reservationPk={order?.reservationPk} error={error} />
-  ) : (
-    <ReservationFail type="order" />
-  );
+  if (!order || !order.reservationPk) {
+    return <ReservationFail type="order" />;
+  }
 
-  return <StyledContainer>{content}</StyledContainer>;
+  if (deleted === false) {
+    return <DeleteConfirmation reservationPk={order?.reservationPk} error />;
+  }
+
+  return (
+    <StyledContainer>
+      <DeleteConfirmation reservationPk={order?.reservationPk} error={false} />
+    </StyledContainer>
+  );
 };
 
 export default Cancel;

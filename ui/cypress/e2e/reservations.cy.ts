@@ -406,3 +406,37 @@ describe("Returning reservation", () => {
     receiptLinkButton().should("exist");
   });
 });
+
+describe("Reservation cancellation callback", () => {
+  beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+  });
+
+  it("should display error for invalid order id", () => {
+    const orderUuid = "1111-1111-1111-1111";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Virheellinen tilausnumero");
+  });
+
+  it("should display error for invalid order id", () => {
+    const orderUuid = "2222-2222-2222-2222";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Virheellinen tilausnumero");
+  });
+
+  it("should display error for unsuccessfull deletion", () => {
+    const orderUuid = "3333-3333-3333-3333";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Virhe");
+  });
+
+  it("should display success message", () => {
+    const orderUuid = "4444-4444-4444-4444";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Varauksesi on peruttu!");
+  });
+});
