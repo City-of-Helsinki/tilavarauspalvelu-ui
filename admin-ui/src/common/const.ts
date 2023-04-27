@@ -24,6 +24,7 @@ export const previewUrlPrefix =
   process.env.REACT_APP_RESERVATION_UNIT_PREVIEW_URL_PREFIX;
 
 export const LIST_PAGE_SIZE = 50;
+export const LARGE_LIST_PAGE_SIZE = 100;
 
 export const ALLOCATION_CALENDAR_TIMES = [7, 23];
 
