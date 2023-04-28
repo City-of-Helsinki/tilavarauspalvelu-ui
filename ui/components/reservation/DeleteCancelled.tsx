@@ -59,7 +59,7 @@ const StyledLink = styled(Link)`
   ${fontMedium}
 `;
 
-const DeleteConfirmation = ({ reservationPk, error }: Props) => {
+const DeleteCancelled = ({ reservationPk, error }: Props) => {
   const { t } = useTranslation();
   const { logout } = useLogout();
 
@@ -108,4 +108,4 @@ const DeleteConfirmation = ({ reservationPk, error }: Props) => {
   );
 };
 
-export default DeleteConfirmation;
+export default DeleteCancelled;

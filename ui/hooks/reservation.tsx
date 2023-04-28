@@ -26,7 +26,9 @@ export const useOrder = (
   refreshError: ApolloError;
   loading: boolean;
   refresh: () => void;
-  deleteReservation: () => void;
+  deleteReservation: (
+    arg: Record<"variables", Record<"input", Record<"pk", number>>>
+  ) => void;
   deleteError: ApolloError;
   deleteLoading: boolean;
   called: boolean;

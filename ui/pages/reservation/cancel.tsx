@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { authEnabled, authenticationIssuer } from "../../modules/const";
 import { useOrder } from "../../hooks/reservation";
 import Container from "../../components/common/Container";
-import DeleteConfirmation from "../../components/reservation/DeleteConfirmation";
+import DeleteCancelled from "../../components/reservation/DeleteCancelled";
 import ReservationFail from "../../components/reservation/ReservationFail";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
@@ -84,13 +84,13 @@ const Cancel = () => {
     (!deleteError ||
       deleteError?.message !== "No Reservation matches the given query.")
   ) {
-    return <DeleteConfirmation reservationPk={order?.reservationPk} error />;
+    return <DeleteCancelled reservationPk={order?.reservationPk} error />;
   }
 
   // return success report - even if deletion failed
   return (
     <StyledContainer>
-      <DeleteConfirmation reservationPk={order?.reservationPk} error={false} />
+      <DeleteCancelled reservationPk={order?.reservationPk} error={false} />
     </StyledContainer>
   );
 };
