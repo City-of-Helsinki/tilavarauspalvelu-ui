@@ -39,10 +39,7 @@ const RecurringReservationsView = ({
     console.warn("Change NOT Implemented.");
   };
 
-  const handleCloseRemoveDialog = (shouldRefetch?: boolean, pk?: number) => {
-    if (shouldRefetch && pk) {
-      // empty
-    }
+  const handleCloseRemoveDialog = () => {
     setModalContent(null);
   };
 
@@ -50,8 +47,8 @@ const RecurringReservationsView = ({
     setModalContent(
       <DenyDialog
         reservations={[res]}
-        onReject={() => handleCloseRemoveDialog(true, res.pk ?? undefined)}
-        onClose={() => handleCloseRemoveDialog(false)}
+        onReject={handleCloseRemoveDialog}
+        onClose={handleCloseRemoveDialog}
       />,
       true
     );
