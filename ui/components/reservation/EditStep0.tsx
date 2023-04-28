@@ -183,7 +183,7 @@ const EditStep0 = ({
           new Date(initialReservation.end),
           new Date(initialReservation.begin)
         );
-      const duration = diff >= 90 ? formatDurationMinutes(diff) : "";
+      const duration = diff >= 90 ? `(${formatDurationMinutes(diff)})` : "";
       const shownReservation = { ...initialReservation, state: "INITIAL" } || {
         begin: reservation.begin,
         end: reservation.end,

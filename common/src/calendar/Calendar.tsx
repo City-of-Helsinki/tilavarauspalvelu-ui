@@ -416,7 +416,7 @@ const StyledCalendar = styled(BigCalendar)<{
   }
 
   .rbc-event-content {
-    font-size: var(--fontsize-body-s);
+    font-size: 80%;
     margin-top: var(--spacing-3-xs);
   }
 

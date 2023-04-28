@@ -648,7 +648,7 @@ const ReservationUnit = ({
           new Date(initialReservation.end),
           new Date(initialReservation.begin)
         );
-      const duration = diff >= 90 ? formatDurationMinutes(diff) : "";
+      const duration = diff >= 90 ? `(${formatDurationMinutes(diff)})` : "";
 
       return userReservations && reservationUnit?.reservations
         ? [
