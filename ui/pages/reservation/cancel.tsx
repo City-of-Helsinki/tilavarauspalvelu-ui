@@ -46,8 +46,15 @@ const Cancel = () => {
     }
   }, [isLoggedOut]);
 
-  const { order, loading, called, deleteReservation, deleteLoading, deleted } =
-    useOrder(orderId);
+  const {
+    order,
+    loading,
+    called,
+    deleteReservation,
+    deleteError,
+    deleteLoading,
+    deleted,
+  } = useOrder(orderId);
 
   useEffect(() => {
     const { reservationPk } = order || {};
@@ -66,14 +73,21 @@ const Cancel = () => {
     );
   }
 
+  // return invalid order id error
   if (!order || !order.reservationPk) {
     return <ReservationFail type="order" />;
   }
 
-  if (deleted === false) {
+  // return general error
+  if (
+    deleted === false &&
+    (!deleteError ||
+      deleteError?.message !== "No Reservation matches the given query.")
+  ) {
     return <DeleteConfirmation reservationPk={order?.reservationPk} error />;
   }
 
+  // return success report - even if deletion failed
   return (
     <StyledContainer>
       <DeleteConfirmation reservationPk={order?.reservationPk} error={false} />

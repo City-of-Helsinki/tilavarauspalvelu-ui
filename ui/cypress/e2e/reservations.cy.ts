@@ -407,7 +407,7 @@ describe("Returning reservation", () => {
   });
 });
 
-describe("Reservation cancellation callback", () => {
+describe.only("Reservation cancellation callback", () => {
   beforeEach(() => {
     Cypress.config("defaultCommandTimeout", 20000);
   });
@@ -429,8 +429,15 @@ describe("Reservation cancellation callback", () => {
   it("should display error for unsuccessfull deletion", () => {
     const orderUuid = "3333-3333-3333-3333";
     cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
-
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
     cy.get("h1").should("have.text", "Virhe");
+  });
+
+  it("should display success message if deletion is unsuccesful", () => {
+    const orderUuid = "3333-3333-3333-3333-2";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Varauksesi on peruttu!");
   });
 
   it("should display success message", () => {

@@ -26,8 +26,8 @@ export const useOrder = (
   refreshError: ApolloError;
   loading: boolean;
   refresh: () => void;
-  deleteReservation: any;
-  deleteError: boolean;
+  deleteReservation: () => void;
+  deleteError: ApolloError;
   deleteLoading: boolean;
   called: boolean;
   deleted: boolean;
@@ -86,7 +86,7 @@ export const useOrder = (
     loading: orderLoading || refreshLoading,
     refresh,
     deleteReservation,
-    deleteError: deleteError != null,
+    deleteError,
     deleteLoading,
     called,
     deleted,
