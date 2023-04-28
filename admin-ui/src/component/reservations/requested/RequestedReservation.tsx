@@ -54,6 +54,7 @@ import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
 import { useRecurringReservations } from "./hooks";
+import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 
 const Dot = styled.div`
   display: inline-block;
@@ -199,7 +200,6 @@ const ButtonsWithPermChecks = ({
 
   const closeDialogAndRefetch = () => {
     closeDialog();
-    refetch();
   };
 
   const { hasPermission } = useAuthState().authState;
@@ -213,19 +213,30 @@ const ButtonsWithPermChecks = ({
     ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
     : false;
 
-  if (permission || ownPermissions) {
+  const userIsAllowToModify = permission || ownPermissions;
+  if (!userIsAllowToModify) {
+    return null;
+  }
+
+  if (reservation.recurringReservation) {
     return (
-      <ApprovalButtons
-        state={reservation.state}
-        isFree={isFree}
-        reservation={reservation}
+      <ApprovalButtonsRecurring
+        recurringReservation={reservation.recurringReservation}
         handleClose={closeDialog}
         handleAccept={closeDialogAndRefetch}
       />
     );
   }
 
-  return null;
+  return (
+    <ApprovalButtons
+      state={reservation.state}
+      isFree={isFree}
+      reservation={reservation}
+      handleClose={closeDialog}
+      handleAccept={closeDialogAndRefetch}
+    />
+  );
 };
 
 const ReservationSummary = ({
@@ -351,15 +362,11 @@ const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
   // (2) else if reservation is in the future => show that
   // (3) else if reservation.recurrance has an event in the future => show that
   // (4) else show today
-  const { data: recurringData, refetch } = useRecurringReservations(
+  const { reservations } = useRecurringReservations(
     reservation.recurringReservation?.pk ?? undefined
   );
-  const events =
-    recurringData?.reservations?.edges
-      ?.map((x) => x?.node)
-      .filter((x): x is ReservationType => x != null) ?? [];
 
-  const nextReservation = events.find(
+  const nextReservation = reservations.find(
     (x) =>
       x.state === ReservationsReservationStateChoices.Confirmed &&
       new Date(x.begin) > new Date()
@@ -380,7 +387,6 @@ const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
           <RecurringReservationsView
             reservation={reservation}
             onSelect={setSelected}
-            onChange={refetch}
           />
         </Accordion>
       )}
@@ -513,7 +519,7 @@ const RequestedReservation = (): JSX.Element | null => {
           <Tagline>{reservationTagline}</Tagline>
           <DateTime>
             {t("RequestedReservation.createdAt")}{" "}
-            {formatDateTime(reservation.createdAt as string)}
+            {formatDateTime(reservation.createdAt ?? "")}
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
