@@ -174,11 +174,9 @@ const ApplicationData = ({
 
 const ButtonsWithPermChecks = ({
   reservation,
-  refetch,
   isFree,
 }: {
   reservation: ReservationType;
-  refetch: () => void;
   isFree: boolean;
 }) => {
   const { setModalContent } = useModal();
@@ -196,10 +194,6 @@ const ButtonsWithPermChecks = ({
 
   const closeDialog = () => {
     setModalContent(null);
-  };
-
-  const closeDialogAndRefetch = () => {
-    closeDialog();
   };
 
   const { hasPermission } = useAuthState().authState;
@@ -223,7 +217,7 @@ const ButtonsWithPermChecks = ({
       <ApprovalButtonsRecurring
         recurringReservation={reservation.recurringReservation}
         handleClose={closeDialog}
-        handleAccept={closeDialogAndRefetch}
+        handleAccept={closeDialog}
       />
     );
   }
@@ -234,7 +228,7 @@ const ButtonsWithPermChecks = ({
       isFree={isFree}
       reservation={reservation}
       handleClose={closeDialog}
-      handleAccept={closeDialogAndRefetch}
+      handleAccept={closeDialog}
     />
   );
 };
@@ -487,7 +481,6 @@ const RequestedReservation = (): JSX.Element | null => {
           buttons={
             <ButtonsWithPermChecks
               reservation={reservation}
-              refetch={refetch}
               isFree={!isNonFree}
             />
           }
@@ -525,7 +518,6 @@ const RequestedReservation = (): JSX.Element | null => {
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
           <ButtonsWithPermChecks
             reservation={reservation}
-            refetch={refetch}
             isFree={!isNonFree}
           />
         </HorisontalFlex>

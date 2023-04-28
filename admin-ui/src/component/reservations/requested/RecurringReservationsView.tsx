@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { H6 } from "common/src/common/typography";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
