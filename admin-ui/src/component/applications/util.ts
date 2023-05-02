@@ -1,6 +1,10 @@
 import { differenceInWeeks } from "date-fns";
 import { sum } from "lodash";
-import { ApplicationType } from "common/types/gql-types";
+import {
+  type ApplicationType,
+  ApplicationStatus as ApplicationStatusGQL,
+  ApplicationRoundStatus as ApplicationRoundStatusGQL,
+} from "common/types/gql-types";
 import {
   Application,
   ApplicationRoundStatus,
@@ -123,3 +127,37 @@ export const applicationTurns = (application: Application): number =>
       )
     )
   );
+
+// TODO check the enums
+// TODO convert the base functions after they have been migrated to GQL types
+export const convertRoundGQLStatusToRest: (
+  status: ApplicationRoundStatusGQL
+) => ApplicationRoundStatus = (status) => {
+  switch (status) {
+    case ApplicationRoundStatusGQL.Archived:
+    case ApplicationRoundStatusGQL.Reserving:
+    case ApplicationRoundStatusGQL.Sending:
+    case ApplicationRoundStatusGQL.Sent:
+      return "in_review";
+    case ApplicationRoundStatusGQL.Allocated:
+      return "approved";
+    default:
+      return status;
+  }
+};
+
+export const convertGQLStatusToRest: (
+  status: ApplicationStatusGQL
+) => ApplicationStatus = (status) => {
+  switch (status) {
+    case ApplicationStatusGQL.Handled:
+    case ApplicationStatusGQL.Allocated:
+      return "approved";
+    case ApplicationStatusGQL.Expired:
+      return "cancelled";
+    case ApplicationStatusGQL.Received:
+      return "sent";
+    default:
+      return status;
+  }
+};

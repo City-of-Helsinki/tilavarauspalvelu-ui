@@ -1,47 +1,48 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Card, Table } from "hds-react";
-import { isEqual, set, orderBy, trim } from "lodash";
+import { isEqual, trim } from "lodash";
 import omit from "lodash/omit";
 import { TFunction } from "i18next";
 import { H2, H4, H5, Strong } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
+import {
+  Query,
+  ApplicationEventType,
+  ReservationUnitType,
+  ApplicationEventScheduleType,
+  QuerySpaceByPkArgs,
+} from "common/types/gql-types";
+import { useQuery } from "@apollo/client";
 import Accordion from "../Accordion";
-import {
-  getApplication,
-  getApplicationRound,
-  getParameters,
-} from "../../common/api";
 import Loader from "../Loader";
-import {
-  Application as ApplicationType,
-  ApplicationEvent,
-  ApplicationRound,
-  Parameter,
-} from "../../common/types";
 import { IngressContainer } from "../../styles/layout";
 import withMainMenu from "../withMainMenu";
 import {
   formatNumber,
   formatDate,
-  parseApplicationEventSchedules,
   parseAgeGroups,
   parseDurationString,
   formatDurationShort,
 } from "../../common/util";
 import ValueBox from "./ValueBox";
 import { publicUrl, weekdays } from "../../common/const";
-import { applicantName } from "./util";
+import {
+  applicantName,
+  convertGQLStatusToRest,
+  convertRoundGQLStatusToRest,
+} from "./util";
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
-import { useNotification } from "../../context/NotificationContext";
 import TimeSelector from "./time-selector/TimeSelector";
 import ScrollIntoView from "../../common/ScrollIntoView";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 import ShowWhenTargetInvisible from "../ShowWhenTargetInvisible";
 import StickyHeader from "../StickyHeader";
 import ApplicationUserBirthDate from "./ApplicationUserBirthDate";
+import { GET_APPLICATION_BY_PK } from "./queries";
+import { useNotification } from "../../context/NotificationContext";
 
 interface IRouteParams {
   [key: string]: string;
@@ -185,69 +186,84 @@ const formatDuration = (
 };
 
 const appEventDuration = (
-  min: string | null,
-  max: string | null,
+  min: number | null,
+  max: number | null,
   t: TFunction
 ): string => {
   let duration = "";
+  // TODO invalid number / null handling
   if (isEqual(min, max)) {
-    duration += formatDuration(min, t);
+    duration += formatDuration(String(min), t);
   } else {
-    duration += formatDuration(min, t, "min");
-    duration += `, ${formatDuration(max, t, "max")}`;
+    duration += formatDuration(String(min), t, "min");
+    duration += `, ${formatDuration(String(max), t, "max")}`;
   }
   return trim(duration, ", ");
 };
 
-function ApplicationDetails(): JSX.Element | null {
+// Return a single application
+const useApplicationQuery = (pk?: string) => {
   const { notifyError } = useNotification();
-  const [isLoading, setIsLoading] = useState(true);
-  const [application, setApplication] = useState<ApplicationType | null>(null);
-  const [applicationRound, setApplicationRound] =
-    useState<ApplicationRound | null>(null);
-  const [cities, setCities] = useState<Parameter[]>([]);
+  const { t } = useTranslation();
+  // All ByPkArgs types are equal so use Spaces randomly here
+  const { data, loading } = useQuery<Query, QuerySpaceByPkArgs>(
+    GET_APPLICATION_BY_PK,
+    {
+      skip: !pk || Number.isNaN(Number(pk)),
+      variables: {
+        pk: Number(pk),
+      },
+      onError: () => {
+        notifyError(t("errors.errorFetchingApplication"));
+      },
+    }
+  );
 
+  /// FIXME transfer this portion to GQL or local hook
+  /*
+  application.applicationEvents.forEach((ae) => {
+    set(
+      ae,
+      "eventReservationUnits",
+      orderBy(ae.eventReservationUnits, "priority", "asc")
+    );
+    set(
+      ae,
+      "applicationEventSchedules",
+      orderBy(ae.applicationEventSchedules, "begin", "asc")
+    );
+  });
+  */
+
+  const application =
+    data?.applications?.edges.find(() => true)?.node ?? undefined;
+
+  return { application, loading };
+};
+
+export const parseApplicationEventSchedules = (
+  applicationEventSchedules: ApplicationEventScheduleType[],
+  index: number,
+  priority: number
+): string => {
+  const schedules = applicationEventSchedules
+    .filter((s) => s.day === index)
+    .filter((s) => s.priority === priority);
+
+  return schedules
+    .map((s) => `${s.begin.substring(0, 2)}-${s.end.substring(0, 2)}`)
+    .join(", ");
+};
+
+function ApplicationDetails(): JSX.Element | null {
   const { applicationId } = useParams<IRouteParams>();
   const { t } = useTranslation();
 
-  const fetchApplication = async (id: number) => {
-    try {
-      const appResult = await getApplication(id);
-      const citiesResult = await getParameters("city");
-      const applicationRoundResult = await getApplicationRound({
-        id: appResult.applicationRoundId,
-      });
-      appResult.applicationEvents.forEach((ae) => {
-        set(
-          ae,
-          "eventReservationUnits",
-          orderBy(ae.eventReservationUnits, "priority", "asc")
-        );
-        set(
-          ae,
-          "applicationEventSchedules",
-          orderBy(ae.applicationEventSchedules, "begin", "asc")
-        );
-      });
-
-      setApplication(appResult);
-      setCities(citiesResult);
-      setApplicationRound(applicationRoundResult);
-    } catch (error) {
-      notifyError(t("errors.errorFetchingApplication"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchApplication(Number(applicationId));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applicationId]);
-
   const ref = useRef<HTMLHeadingElement>(null);
 
-  if (isLoading) {
+  const { application, loading } = useApplicationQuery(applicationId);
+
+  if (loading) {
     return <Loader />;
   }
 
@@ -265,10 +281,8 @@ function ApplicationDetails(): JSX.Element | null {
     );
 
   const customerName = applicantName(application);
-
-  const homeCity: Parameter | undefined = cities.find(
-    (n) => n.id === application?.homeCityId
-  );
+  const homeCity = application.homeCity ?? undefined;
+  const { applicationRound } = application;
 
   return (
     <Wrapper>
@@ -278,27 +292,41 @@ function ApplicationDetails(): JSX.Element | null {
             route={[
               "recurring-reservations",
               `${publicUrl}/recurring-reservations/application-rounds`,
-              `${publicUrl}/recurring-reservations/application-rounds/${applicationRound.id}`,
+              `${publicUrl}/recurring-reservations/application-rounds/${applicationRound.pk}`,
               `application`,
             ]}
             aliases={[
-              { slug: "application-round", title: applicationRound.name },
-              { slug: `${applicationRound.id}`, title: applicationRound.name },
+              {
+                slug: "application-round",
+                title: applicationRound.nameFi ?? undefined,
+              },
+              {
+                slug: `${applicationRound.pk}`,
+                title: applicationRound.nameFi ?? undefined,
+              },
               { slug: "application", title: customerName },
             ]}
           />
           <ShowWhenTargetInvisible target={ref}>
             <StickyHeader
               name={customerName}
-              tagline={`${t("Application.id")}: ${application.id}`}
+              tagline={`${t("Application.id")}: ${applicationId}`}
             />
           </ShowWhenTargetInvisible>
 
           <IngressContainer>
-            <StyledApplicationStatusBlock
-              status={application.status}
-              view={applicationRound.status}
-            />
+            {application.status ? (
+              <StyledApplicationStatusBlock
+                status={convertGQLStatusToRest(application.status)}
+                view={
+                  applicationRound.status
+                    ? convertRoundGQLStatusToRest(applicationRound.status)
+                    : undefined
+                }
+              />
+            ) : (
+              <div>ERROR: Application should have status</div>
+            )}
             <H2
               ref={ref}
               style={{ margin: "1rem 0" }}
@@ -322,7 +350,7 @@ function ApplicationDetails(): JSX.Element | null {
                   <KV
                     k={t("Application.applicantType")}
                     v={t(
-                      `Application.applicantTypes.${application.applicantType}`
+                      `Application.applicantTypes.${application.applicantType?.toLocaleLowerCase()}`
                     )}
                     dataId="application-details__data--applicant-type"
                   />
@@ -337,14 +365,14 @@ function ApplicationDetails(): JSX.Element | null {
                     k={t("Application.numHours")}
                     v={`${t("common.hoursUnitLong", {
                       count:
-                        (application.aggregatedData.appliedMinDurationTotal ??
+                        (application.aggregatedData?.appliedMinDurationTotal ??
                           0) / 3600,
                     })}`}
                   />
                   <KV
                     k={t("Application.numTurns")}
                     v={`${
-                      application.aggregatedData.appliedReservationsTotal
+                      application.aggregatedData?.appliedReservationsTotal
                     } ${t("common.volumeUnit")}`}
                   />
                   <KV k={t("Application.basket")} v="" />
@@ -353,19 +381,24 @@ function ApplicationDetails(): JSX.Element | null {
             </Card>
           </IngressContainer>
           <IngressContainer>
-            {application.applicationEvents.map(
-              (applicationEvent: ApplicationEvent) => {
+            {application?.applicationEvents
+              ?.filter((x): x is ApplicationEventType => x != null)
+              .map((applicationEvent) => {
                 const duration = appEventDuration(
-                  applicationEvent.minDuration,
-                  applicationEvent.maxDuration,
+                  applicationEvent.minDuration ?? null,
+                  applicationEvent.maxDuration ?? null,
                   t
                 );
 
+                const ageGroup = {
+                  minimum: applicationEvent?.ageGroup?.minimum,
+                  maximum: applicationEvent?.ageGroup?.maximum ?? undefined,
+                };
+
+                // TODO don't default input fields to undefined (causes errors)
+                const pk = applicationEvent.pk ?? 0;
                 return (
-                  <ScrollIntoView
-                    key={applicationEvent.id}
-                    hash={applicationEvent.id.toString()}
-                  >
+                  <ScrollIntoView key={pk} hash={pk.toString()}>
                     <StyledAccordion
                       heading={applicationEvent.name}
                       defaultOpen
@@ -373,9 +406,9 @@ function ApplicationDetails(): JSX.Element | null {
                       <EventProps>
                         <ValueBox
                           label={t("ApplicationEvent.ageGroup")}
-                          value={parseAgeGroups(
-                            applicationEvent.ageGroupDisplay
-                          )}
+                          value={
+                            ageGroup ? parseAgeGroups(ageGroup) : undefined
+                          }
                         />
                         <ValueBox
                           label={t("ApplicationEvent.groupSize")}
@@ -386,7 +419,7 @@ function ApplicationDetails(): JSX.Element | null {
                         />
                         <ValueBox
                           label={t("ApplicationEvent.purpose")}
-                          value={applicationEvent.purpose}
+                          value={applicationEvent.purpose?.nameFi}
                         />
                         <ValueBox
                           label={t("ApplicationEvent.eventDuration")}
@@ -399,22 +432,23 @@ function ApplicationDetails(): JSX.Element | null {
                         <ValueBox
                           label={t("ApplicationEvent.dates")}
                           value={`${formatDate(
-                            applicationEvent.begin
-                          )} - ${formatDate(applicationEvent.end)}`}
+                            applicationEvent.begin ?? null
+                          )} - ${formatDate(applicationEvent.end ?? null)}`}
                         />
                       </EventProps>
                       <H4>{t("ApplicationEvent.requestedReservationUnits")}</H4>
                       <StyledTable
-                        rows={applicationEvent.eventReservationUnits.map(
-                          (reservationUnit, index) => ({
-                            index: index + 1,
-                            id: reservationUnit.id,
-                            unit: reservationUnit.reservationUnitDetails.unit
-                              .name.fi,
-                            name: reservationUnit.reservationUnitDetails.name
-                              .fi,
-                          })
-                        )}
+                        rows={
+                          applicationEvent?.eventReservationUnits
+                            ?.map((x) => x?.reservationUnit)
+                            ?.filter((x): x is ReservationUnitType => x != null)
+                            ?.map((reservationUnit, index) => ({
+                              index: index + 1,
+                              id: reservationUnit.pk,
+                              unit: reservationUnit.unit?.nameFi,
+                              name: reservationUnit.nameFi,
+                            })) ?? []
+                        }
                         cols={[
                           { headerName: "a", key: "index" },
                           { headerName: "b", key: "unit" },
@@ -441,7 +475,10 @@ function ApplicationDetails(): JSX.Element | null {
                               {weekdays.map((day, index) => {
                                 const schedulesTxt =
                                   parseApplicationEventSchedules(
-                                    applicationEvent.applicationEventSchedules,
+                                    applicationEvent?.applicationEventSchedules?.filter(
+                                      (x): x is ApplicationEventScheduleType =>
+                                        x != null
+                                    ) ?? [],
                                     index,
                                     300
                                   );
@@ -461,7 +498,10 @@ function ApplicationDetails(): JSX.Element | null {
                               {weekdays.map((day, index) => {
                                 const schedulesTxt =
                                   parseApplicationEventSchedules(
-                                    applicationEvent.applicationEventSchedules,
+                                    applicationEvent?.applicationEventSchedules?.filter(
+                                      (x): x is ApplicationEventScheduleType =>
+                                        x != null
+                                    ) ?? [],
                                     index,
                                     200
                                   );
@@ -480,8 +520,7 @@ function ApplicationDetails(): JSX.Element | null {
                     </StyledAccordion>
                   </ScrollIntoView>
                 );
-              }
-            )}
+              })}
             <H4>{t("Application.customerBasicInfo")}</H4>
             <EventProps>
               <ValueBox
@@ -491,7 +530,7 @@ function ApplicationDetails(): JSX.Element | null {
               <ValueBox
                 label={t("Application.applicantType")}
                 value={t(
-                  `Application.applicantTypes.${application?.applicantType}`
+                  `Application.applicantTypes.${application?.applicantType?.toLocaleLowerCase()}`
                 )}
               />
               <ValueBox
@@ -515,7 +554,7 @@ function ApplicationDetails(): JSX.Element | null {
                 label={t("Application.headings.userBirthDate")}
                 value={
                   <ApplicationUserBirthDate
-                    applicationPk={application.id}
+                    applicationPk={applicationId}
                     showLabel={t("RequestedReservation.showBirthDate")}
                     hideLabel={t("RequestedReservation.hideBirthDate")}
                   />

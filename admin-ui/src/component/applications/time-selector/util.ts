@@ -1,7 +1,5 @@
-import {
-  ApplicationEventSchedule,
-  ApplicationEventSchedulePriority,
-} from "../../../common/types";
+import { ApplicationEventScheduleType } from "common/types/gql-types";
+import { ApplicationEventSchedulePriority } from "../../../common/types";
 
 export type Cell = {
   hour: number;
@@ -14,8 +12,12 @@ const cellLabel = (row: number): string => {
   return `${row} - ${row + 1}`;
 };
 
+type ScheduleWithDay = Omit<ApplicationEventScheduleType, "day"> & {
+  day: number;
+};
+
 export const applicationEventSchedulesToCells = (
-  applicationEventSchedules: ApplicationEventSchedule[]
+  applicationEventSchedules: ApplicationEventScheduleType[]
 ): Cell[][] => {
   const firstSlotStart = 7;
   const lastSlotStart = 23;
@@ -34,20 +36,36 @@ export const applicationEventSchedulesToCells = (
     cells.push(day);
   }
 
-  applicationEventSchedules.forEach((applicationEventSchedule) => {
-    const { day } = applicationEventSchedule;
-    const hourBegin =
-      Number(applicationEventSchedule.begin.substring(0, 2)) - firstSlotStart;
+  applicationEventSchedules
+    .filter((x): x is ScheduleWithDay => x.day != null)
+    .forEach((applicationEventSchedule) => {
+      const { day } = applicationEventSchedule;
+      const hourBegin =
+        Number(applicationEventSchedule.begin.substring(0, 2)) - firstSlotStart;
 
-    const hourEnd =
-      (Number(applicationEventSchedule.end.substring(0, 2)) || 24) -
-      firstSlotStart;
+      const hourEnd =
+        (Number(applicationEventSchedule.end.substring(0, 2)) || 24) -
+        firstSlotStart;
 
-    for (let h = hourBegin; h < hourEnd; h += 1) {
-      const cell = cells[day][h];
-      cell.state = applicationEventSchedule.priority;
-    }
-  });
+      for (let h = hourBegin; h < hourEnd; h += 1) {
+        const cell = cells[day][h];
+        const convertPriority = (x?: number) => {
+          if (!x) {
+            return 100;
+          }
+          if (x > 299) {
+            return 300;
+          }
+          if (x > 199) {
+            return 200;
+          }
+          return 100;
+        };
+        cell.state = convertPriority(
+          applicationEventSchedule.priority ?? undefined
+        );
+      }
+    });
 
   return cells;
 };

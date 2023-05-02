@@ -10,7 +10,6 @@ import {
 } from "common/types/gql-types";
 import {
   AllocationResult,
-  ApplicationEventSchedule,
   ApplicationEventStatus,
   ApplicationRound,
   ApplicationRoundStatus,
@@ -131,20 +130,6 @@ export const getNormalizedApplicationRoundStatus = (
   }
 
   return normalizedStatus;
-};
-
-export const parseApplicationEventSchedules = (
-  applicationEventSchedules: ApplicationEventSchedule[],
-  index: number,
-  priority: number
-): string => {
-  const schedules = applicationEventSchedules
-    .filter((s) => s.day === index)
-    .filter((s) => s.priority === priority);
-
-  return schedules
-    .map((s) => `${s.begin.substring(0, 2)}-${s.end.substring(0, 2)}`)
-    .join(", ");
 };
 
 export const parseApplicationEventScheduleTime = (

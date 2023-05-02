@@ -2,11 +2,12 @@ import React, { useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import { useTranslation } from "react-i18next";
 import { breakpoints } from "common/src/common/style";
-import { weekdays } from "../../../common/const";
 import {
-  ApplicationEvent,
-  ApplicationEventSchedulePriority,
-} from "../../../common/types";
+  ApplicationEventScheduleType,
+  ApplicationEventType,
+} from "common/types/gql-types";
+import { weekdays } from "../../../common/const";
+import { ApplicationEventSchedulePriority } from "../../../common/types";
 import { applicationEventSchedulesToCells, Cell } from "./util";
 
 const arrowUp = css`
@@ -30,7 +31,7 @@ const arrowDown = css`
 `;
 
 type Props = {
-  applicationEvent: ApplicationEvent;
+  applicationEvent: ApplicationEventType;
 };
 
 const CalendarHead = styled.div`
@@ -194,7 +195,11 @@ const LegendLabel = styled.div`
 
 const TimeSelector = ({ applicationEvent }: Props): JSX.Element => {
   const [cells] = useState(
-    applicationEventSchedulesToCells(applicationEvent.applicationEventSchedules)
+    applicationEventSchedulesToCells(
+      applicationEvent?.applicationEventSchedules?.filter(
+        (x): x is ApplicationEventScheduleType => x != null
+      ) ?? []
+    )
   );
   const { t } = useTranslation();
 
