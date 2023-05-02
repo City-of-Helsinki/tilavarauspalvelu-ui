@@ -220,7 +220,9 @@ const ReservationFormField = ({
       : 1;
   const maxValue =
     get(params, field)?.max != null && !Number.isNaN(get(params, field).max)
-      ? Number(get(params, field)?.max)
+      ? Number(get(params, field)?.max) < 200
+        ? Number(get(params, field)?.max)
+        : 200
       : undefined;
 
   return Object.keys(options).includes(field) ? (
