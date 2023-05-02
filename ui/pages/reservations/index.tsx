@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { fontMedium } from "common/src/common/typography";
+import { signIn, useSession } from "next-auth/react";
 import { breakpoints } from "common/src/common/style";
 import {
   Query,
@@ -22,7 +23,6 @@ import Head from "../../components/reservations/Head";
 import { CenterSpinner } from "../../components/common/common";
 import { CURRENT_USER } from "../../modules/queries/user";
 import { Toast } from "../../styles/util";
-import { signIn, useSession } from "next-auth/react";
 import { authEnabled, authenticationIssuer } from "../../modules/const";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
