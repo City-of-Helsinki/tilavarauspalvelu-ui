@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import styled from "styled-components";
@@ -13,11 +13,15 @@ import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
 import trim from "lodash/trim";
 import { breakpoints } from "common/src/common/style";
+import {
+  ApplicationRoundStatus,
+  ApplicationRoundType,
+} from "common/types/gql-types";
 import Loader from "../Loader";
 import {
   AllocationResult,
-  ApplicationRound as ApplicationRoundType,
-  ApplicationRoundStatus,
+  ApplicationRoundBasket,
+  ApplicationRoundStatus as ApplicationRoundStatusRest,
   DataFilterConfig,
   GroupedAllocationResult,
 } from "../../common/types";
@@ -48,11 +52,7 @@ import {
   getAllocationCapacity,
 } from "../../common/AllocationResult";
 import StatusCell from "../StatusCell";
-import {
-  getAllocationResults,
-  getApplicationRound,
-  triggerAllocation,
-} from "../../common/api";
+import { getAllocationResults, triggerAllocation } from "../../common/api";
 import SelectionActionBar from "../SelectionActionBar";
 import RecommendationDataTableGroup from "./RecommendationDataTableGroup";
 import {
@@ -64,8 +64,9 @@ import { useNotification } from "../../context/NotificationContext";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
-  setApplicationRound: Dispatch<SetStateAction<ApplicationRoundType | null>>;
-  setApplicationRoundStatus: (status: ApplicationRoundStatus) => Promise<void>;
+  setApplicationRoundStatus: (
+    status: ApplicationRoundStatusRest
+  ) => Promise<void>;
 }
 
 const Wrapper = styled.div`
@@ -238,7 +239,7 @@ const getCellConfig = (
             applicantType === "individual" ? applicantName : organisationName;
           return index ? (
             <InlineRowLink
-              to={`${applicationRoundUrl(applicationRound.id)}/${
+              to={`${applicationRoundUrl(applicationRound.pk ?? 0)}/${
                 organisationId ? "organisation" : "applicant"
               }/${index}`}
             >
@@ -305,13 +306,13 @@ const getCellConfig = (
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
         ? `${applicationRoundUrl(
-            applicationRound.id
+            applicationRound.pk ?? 0
           )}/recommendation/${applicationEventScheduleId}`
         : "";
     },
     groupLink: ({ space }) =>
       applicationRound
-        ? `${applicationRoundUrl(applicationRound.id)}/reservationUnit/${
+        ? `${applicationRoundUrl(applicationRound.pk ?? 0)}/reservationUnit/${
             space?.id
           }`
         : "",
@@ -360,12 +361,11 @@ const renderGroup = (
 
 function Handling({
   applicationRound,
-  setApplicationRound,
   setApplicationRoundStatus,
 }: IProps): JSX.Element {
-  const isApplicationRoundApproved = ["approved"].includes(
-    applicationRound.status
-  );
+  // TODO "approved" in the rest is what in the GQL?
+  const isApplicationRoundApproved =
+    applicationRound.status === ApplicationRoundStatus.Allocated;
   const { notifyError } = useNotification();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -384,8 +384,8 @@ function Handling({
   const fetchRecommendations = async () => {
     try {
       const result = await getAllocationResults({
-        applicationRoundId: applicationRound.id,
-        serviceSectorId: applicationRound.serviceSectorId,
+        applicationRoundId: applicationRound.pk ?? 0,
+        serviceSectorId: applicationRound.serviceSector?.pk ?? 0,
       });
 
       const processedResult = processAllocationResult(result);
@@ -401,14 +401,13 @@ function Handling({
   };
 
   const startAllocation = async () => {
-    if (!applicationRound) return;
-
     try {
       const allocation = await triggerAllocation({
-        applicationRoundId: applicationRound.id,
-        applicationRoundBasketIds: applicationRound.applicationRoundBaskets.map(
-          (n) => n.id
-        ),
+        applicationRoundId: applicationRound.pk ?? 0,
+        applicationRoundBasketIds:
+          applicationRound.applicationRoundBaskets
+            ?.filter((x): x is ApplicationRoundBasket => x != null)
+            ?.map((n) => n.pk) ?? [],
       });
       setIsAllocating(!!allocation?.id);
     } catch (error) {
@@ -418,15 +417,21 @@ function Handling({
   };
 
   useEffect(() => {
-    if (typeof applicationRound?.id === "number") {
+    if (typeof applicationRound.pk === "number") {
       fetchRecommendations();
     }
   }, [applicationRound, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* FIXME this should not cross component boundaries
+   * either poll in the parent or poll only here
+   * FIXME needs to have a GQL poll
   useEffect(() => {
     const poller = setInterval(async () => {
       if (isAllocating) {
-        const result = await getApplicationRound({ id: applicationRound.id });
+        // TODO replace with GQL
+        const result = await getApplicationRound({
+          id: applicationRound.pk ?? 0,
+        });
         if (result.allocating === false) {
           setApplicationRound(result);
           setIsAllocating(false);
@@ -438,6 +443,7 @@ function Handling({
       clearInterval(poller);
     };
   }, [isAllocating, applicationRound, setApplicationRound]);
+  */
 
   const unhandledRecommendationCount: number = recommendations
     .flatMap((recommendation) => recommendation.applicationEvent)
@@ -452,9 +458,11 @@ function Handling({
 
   const capacity = getAllocationCapacity(
     recommendations,
-    applicationRound.aggregatedData.totalHourCapacity,
-    applicationRound.aggregatedData.totalReservationDuration
+    applicationRound.aggregatedData?.totalHourCapacity ?? 0,
+    applicationRound.aggregatedData?.totalReservationDuration ?? 0
   );
+
+  const roundName = applicationRound.nameFi ?? "Ei nimeä";
 
   return (
     <Wrapper>
@@ -464,7 +472,7 @@ function Handling({
           "/recurring-reservations/application-rounds",
           "application-round",
         ]}
-        aliases={[{ slug: "application-round", title: applicationRound.name }]}
+        aliases={[{ slug: "application-round", title: roundName }]}
       />
       {applicationRound && (
         <>
@@ -480,23 +488,23 @@ function Handling({
           )}
           <IngressContainer>
             <ApplicationRoundNavi
-              applicationRoundId={applicationRound.id}
-              applicationRoundStatus={applicationRound.status}
+              applicationRoundId={applicationRound.pk ?? 0}
+              applicationRoundStatus={applicationRound.status ?? undefined}
             />
             <TopIngress>
               <div>
-                <ContentHeading>{applicationRound.name}</ContentHeading>
+                <ContentHeading>{roundName}</ContentHeading>
                 <TimeframeStatus
                   applicationPeriodBegin={
                     applicationRound.applicationPeriodBegin
                   }
                   applicationPeriodEnd={applicationRound.applicationPeriodEnd}
                   isResolved={isApplicationRoundApproved}
-                  resolutionDate={applicationRound.statusTimestamp}
+                  resolutionDate={applicationRound.statusTimestamp ?? undefined}
                 />
               </div>
               <div>
-                {applicationRound.aggregatedData.totalHourCapacity &&
+                {applicationRound.aggregatedData?.totalHourCapacity &&
                   capacity && (
                     <>
                       <StatusCircle status={capacity.percentage} />
@@ -519,7 +527,7 @@ function Handling({
                       reservationPeriodEnd={
                         applicationRound.reservationPeriodEnd
                       }
-                      name={applicationRound.name}
+                      name={roundName}
                     />
                   </RecommendationValue>
                 </Recommendation>
@@ -560,7 +568,7 @@ function Handling({
                 </H3>
                 <p>
                   <BasicLink
-                    to={applicationRoundApplications(applicationRound.id)}
+                    to={applicationRoundApplications(applicationRound.pk ?? 0)}
                     style={{ textDecoration: "underline" }}
                   >
                     {t("ApplicationRound.notificationResolutionDoneBody")}

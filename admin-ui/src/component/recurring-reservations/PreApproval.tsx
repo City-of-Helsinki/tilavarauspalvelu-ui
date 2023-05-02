@@ -13,10 +13,13 @@ import uniq from "lodash/uniq";
 import { H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
+  ApplicationRoundStatus,
+  ApplicationRoundType,
+} from "common/types/gql-types";
+import {
   AllocationResult,
   Application as ApplicationType,
-  ApplicationRound as ApplicationRoundType,
-  ApplicationRoundStatus,
+  ApplicationRoundStatus as ApplicationRoundStatusRest,
   DataFilterConfig,
 } from "../../common/types";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
@@ -43,7 +46,9 @@ import { useNotification } from "../../context/NotificationContext";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
-  setApplicationRoundStatus: (status: ApplicationRoundStatus) => Promise<void>;
+  setApplicationRoundStatus: (
+    status: ApplicationRoundStatusRest
+  ) => Promise<void>;
 }
 
 const Wrapper = styled.div`
@@ -162,7 +167,7 @@ const BoldValue = styled.span`
 
 const getCellConfig = (
   t: TFunction,
-  applicationRound: ApplicationRoundType | null,
+  applicationRound: ApplicationRoundType,
   type: "unallocated" | "allocated"
 ): CellConfig => {
   const unallocatedCellConfig = {
@@ -261,7 +266,7 @@ const getCellConfig = (
     rowLink: ({ applicationEventScheduleId }: AllocationResult) => {
       return applicationEventScheduleId && applicationRound
         ? `${applicationRoundUrl(
-            applicationRound.id
+            applicationRound.pk ?? 0
           )}/recommendation/${applicationEventScheduleId}`
         : "";
     },
@@ -408,12 +413,14 @@ function PreApproval({
       }
     };
 
-    if (typeof applicationRound?.id === "number") {
-      fetchData(applicationRound.id, applicationRound.serviceSectorId);
+    const ssId = applicationRound.serviceSector?.pk;
+    if (applicationRound?.pk && ssId) {
+      fetchData(applicationRound.pk, ssId);
     }
   }, [applicationRound, notifyError, t]);
 
-  const hasBeenSentForApproval = applicationRound.status === "validated";
+  const hasBeenSentForApproval =
+    applicationRound.status === ApplicationRoundStatus.Sent;
 
   const filteredResults =
     activeFilter === "unallocated"
@@ -432,11 +439,13 @@ function PreApproval({
   ): void => {
     const result: IAllocationCapacity | null = getAllocationCapacity(
       rows,
-      ar?.aggregatedData.totalHourCapacity,
-      ar?.aggregatedData.totalReservationDuration
+      ar?.aggregatedData?.totalHourCapacity ?? 0,
+      ar?.aggregatedData?.totalReservationDuration ?? 0
     );
     setCapacity(result);
   };
+
+  const roundName = applicationRound.nameFi ?? "Ei nimeä";
 
   return (
     <Wrapper>
@@ -446,7 +455,7 @@ function PreApproval({
           "/recurring-reservations/application-rounds",
           "application-round",
         ]}
-        aliases={[{ slug: "application-round", title: applicationRound.name }]}
+        aliases={[{ slug: "application-round", title: roundName }]}
       />
       {recommendations &&
         unAllocatedCellConfig &&
@@ -455,10 +464,12 @@ function PreApproval({
         allocatedFilterConfig && (
           <>
             <IngressContainer>
-              <ApplicationRoundNavi applicationRoundId={applicationRound.id} />
+              <ApplicationRoundNavi
+                applicationRoundId={applicationRound.pk ?? 0}
+              />
               <TopIngress>
                 <div>
-                  <ContentHeading>{applicationRound.name}</ContentHeading>
+                  <ContentHeading>{roundName}</ContentHeading>
                   <TimeframeStatus
                     applicationPeriodBegin={
                       applicationRound.applicationPeriodBegin
@@ -496,7 +507,7 @@ function PreApproval({
                         : "approvalPreparation"
                     }
                     reservationPeriodEnd={applicationRound.reservationPeriodEnd}
-                    name={applicationRound.name}
+                    name={roundName}
                   />
                 </RecommendationValue>
               </Recommendation>

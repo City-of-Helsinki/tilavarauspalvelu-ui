@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
-import { ApplicationRoundStatus } from "../../common/types";
+import { ApplicationRoundStatus } from "common/types/gql-types";
 import {
   applicationRoundApplications,
   applicationRoundUrl,
@@ -43,7 +43,8 @@ function ApplicationRoundNavi({
   return (
     <Wrapper>
       {applicationRoundStatus &&
-        ["approved"].includes(applicationRoundStatus) && (
+        // TODO what is "approved"
+        ApplicationRoundStatus.Allocated === applicationRoundStatus && (
           <NaviItem
             to={`${applicationRoundUrl(applicationRoundId)}/resolution`}
           >

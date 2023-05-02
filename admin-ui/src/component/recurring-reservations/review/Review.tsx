@@ -111,14 +111,10 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
               paddingBottom: "var(--spacing-m)",
             }}
           >
-            <ApplicationRoundStatusTag
-              applicationRound={
-                applicationRound as unknown as ApplicationRoundType
-              }
-            />
+            <ApplicationRoundStatusTag applicationRound={applicationRound} />
             <div>
               <NaviItem
-                to={`${applicationRoundUrl(applicationRound.id)}/criteria`}
+                to={`${applicationRoundUrl(applicationRound.pk ?? 0)}/criteria`}
               >
                 {t("ApplicationRound.roundCriteria")}
               </NaviItem>

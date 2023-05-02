@@ -4,9 +4,10 @@ import styled from "styled-components";
 import { Button, IconArrowRedo } from "hds-react";
 import { Strong } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
+import { ApplicationRoundType } from "common/types/gql-types";
 import { getApplicationRound, triggerAllocation } from "../../common/api";
 import {
-  ApplicationRound as ApplicationRoundType,
+  ApplicationRoundBasket,
   ApplicationRoundStatus,
 } from "../../common/types";
 import {
@@ -117,15 +118,17 @@ const Allocation = ({
 
   const { t } = useTranslation();
 
+  // TODO this is a copy from Handling
   const startAllocation = async () => {
     if (!applicationRound) return;
 
     try {
       const allocation = await triggerAllocation({
-        applicationRoundId: applicationRound.id,
-        applicationRoundBasketIds: applicationRound.applicationRoundBaskets.map(
-          (n) => n.id
-        ),
+        applicationRoundId: applicationRound.pk ?? 0,
+        applicationRoundBasketIds:
+          applicationRound.applicationRoundBaskets
+            ?.filter((x): x is ApplicationRoundBasket => x != null)
+            ?.map((n) => n.pk) ?? [],
       });
       setIsAllocating(!!allocation?.id);
     } catch (error) {
@@ -143,7 +146,9 @@ const Allocation = ({
   useEffect(() => {
     const poller = setInterval(async () => {
       if (isAllocating) {
-        const result = await getApplicationRound({ id: applicationRound.id });
+        const result = await getApplicationRound({
+          id: applicationRound.pk ?? 0,
+        });
         setIsAllocated(!result.allocating);
       }
     }, 2000);
@@ -153,6 +158,8 @@ const Allocation = ({
     };
   }, [isAllocating, applicationRound]);
 
+  const roundName = applicationRound.nameFi ?? "Ei nimeä";
+
   return (
     <Wrapper>
       <BreadcrumbWrapper
@@ -161,12 +168,12 @@ const Allocation = ({
           "/recurring-reservations/application-rounds",
           "application-round",
         ]}
-        aliases={[{ slug: "application-round", title: applicationRound.name }]}
+        aliases={[{ slug: "application-round", title: roundName }]}
       />
       <IngressContainer>
-        <ApplicationRoundNavi applicationRoundId={applicationRound.id} />
+        <ApplicationRoundNavi applicationRoundId={applicationRound.pk ?? 0} />
         <div>
-          <ContentHeading>{applicationRound.name}</ContentHeading>
+          <ContentHeading>{roundName}</ContentHeading>
           <Details>
             <div>
               <TimeframeStatus
@@ -181,7 +188,7 @@ const Allocation = ({
                   <StatusRecommendation
                     status="review_done"
                     reservationPeriodEnd={applicationRound.reservationPeriodEnd}
-                    name={applicationRound.name}
+                    name={roundName}
                   />
                 </RecommendationValue>
               </Recommendation>
