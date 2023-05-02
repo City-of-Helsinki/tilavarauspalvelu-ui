@@ -81,10 +81,14 @@ function AllApplicationRounds(): JSX.Element | null {
           (ar) => ar?.node as ApplicationRoundType
         );
         if (result) {
-          // group
           const roundsByStatus = groupBy(
             result,
-            (round) => getApplicationRoundStatus(round).group
+            (round) =>
+              getApplicationRoundStatus({
+                periodBegin: round.reservationPeriodBegin,
+                periodEnd: round.reservationPeriodEnd,
+                status: round.status ?? undefined,
+              }).group
           );
 
           setApplicationRounds(roundsByStatus);

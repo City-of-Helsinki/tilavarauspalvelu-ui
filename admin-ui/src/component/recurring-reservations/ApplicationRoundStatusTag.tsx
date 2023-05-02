@@ -16,11 +16,17 @@ type RoundStatus = {
   group: string;
 };
 
-export const getApplicationRoundStatus = (
-  applicationRound: ApplicationRoundType
-): RoundStatus => {
+export const getApplicationRoundStatus = ({
+  periodBegin,
+  periodEnd,
+  status,
+}: {
+  periodBegin: string;
+  periodEnd: string;
+  status?: ApplicationRoundStatus;
+}): RoundStatus => {
   const cutOffDate = new Date();
-  switch (applicationRound.status) {
+  switch (status) {
     case ApplicationRoundStatus.InReview:
       return {
         group: "g1",
@@ -37,7 +43,7 @@ export const getApplicationRoundStatus = (
     case ApplicationRoundStatus.Handled:
       return { group: "g2", color: "var(--color-bus-light)", label: "handled" };
     case ApplicationRoundStatus.Draft: {
-      if (cutOffDate < new Date(applicationRound.applicationPeriodBegin)) {
+      if (cutOffDate < new Date(periodBegin)) {
         return {
           group: "g4",
           color: "var(--color-engel-light)",
@@ -45,7 +51,7 @@ export const getApplicationRoundStatus = (
         };
       }
 
-      if (cutOffDate > new Date(applicationRound.applicationPeriodEnd)) {
+      if (cutOffDate > new Date(periodEnd)) {
         return {
           group: "g1",
           color: "var(--color-info-light)",
@@ -61,24 +67,25 @@ export const getApplicationRoundStatus = (
       return {
         group: "g5",
         color: "white",
-        label: applicationRound.status as string,
+        label: status ?? "",
       };
   }
 };
 
 function ApplicationRoundStatusTag({ applicationRound }: IProps): JSX.Element {
   const { t } = useTranslation();
+  const statusFlag = getApplicationRoundStatus({
+    periodBegin: applicationRound.reservationPeriodBegin,
+    periodEnd: applicationRound.reservationPeriodEnd,
+    status: applicationRound.status ?? undefined,
+  });
   return (
     <Tag
       theme={{
-        "--tag-background": getApplicationRoundStatus(applicationRound).color,
+        "--tag-background": statusFlag.color,
       }}
     >
-      {t(
-        `ApplicationRound.statuses.${
-          getApplicationRoundStatus(applicationRound).label
-        }`
-      )}
+      {t(`ApplicationRound.statuses.${statusFlag.label}`)}
     </Tag>
   );
 }
