@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { H1, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { ApplicationRound } from "../../common/types";
 import { formatDate } from "../../common/util";
 
 interface IProps {
   activeStage: number;
-  applicationRound: ApplicationRound;
+  // TODO shouls be a date (convert before we end up here)
+  reservationPeriodEnd: string;
+  name: string;
 }
 
 interface Stage {
@@ -74,13 +75,17 @@ const Stage = styled.div<{ $active: boolean }>`
   }
 `;
 
-function StageInfo({ activeStage, applicationRound }: IProps): JSX.Element {
+function StageInfo({
+  activeStage,
+  reservationPeriodEnd,
+  name,
+}: IProps): JSX.Element {
   const { t } = useTranslation();
 
   const stages: Stage[] = [1, 2, 3, 4, 5, 6].map((stage) => {
     let data;
     if (stage === 1) {
-      data = formatDate(applicationRound.reservationPeriodEnd);
+      data = formatDate(reservationPeriodEnd);
     }
     return {
       id: stage,
@@ -102,7 +107,7 @@ function StageInfo({ activeStage, applicationRound }: IProps): JSX.Element {
 
   return (
     <Wrapper>
-      <Title>{applicationRound.name}</Title>
+      <Title>{name}</Title>
       <H1 $legacy>{t("StageInfo.stagesOfHandling")}</H1>
       <Stages>
         {stages.map((stage) => (

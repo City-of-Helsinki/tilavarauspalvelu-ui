@@ -4,7 +4,7 @@ import { TFunction } from "i18next";
 import { memoize } from "lodash";
 import { CustomTable, DataOrMessage, TableLink } from "../../lists/components";
 
-import { ApplicationView, truncate } from "../util";
+import { type ApplicationView, truncate } from "../util";
 import { applicationDetailsUrl } from "../../../common/urls";
 
 const unitsTruncateLen = 23;

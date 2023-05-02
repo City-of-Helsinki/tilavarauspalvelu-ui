@@ -2,9 +2,10 @@ import React from "react";
 import { ApolloError, useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import {
-  ApplicationType,
-  Query,
-  QueryApplicationsArgs,
+  type ApplicationRoundType,
+  type ApplicationType,
+  type Query,
+  type QueryApplicationsArgs,
 } from "common/types/gql-types";
 import { APPLICATIONS_QUERY } from "./queries";
 import { FilterArguments } from "./Filters";
@@ -15,7 +16,6 @@ import { More } from "../../lists/More";
 import { LIST_PAGE_SIZE } from "../../../common/const";
 import { combineResults } from "../../../common/util";
 import { appMapper } from "../util";
-import { ApplicationRound } from "../../../common/types";
 
 export type Sort = {
   field: string;
@@ -23,7 +23,7 @@ export type Sort = {
 };
 
 type Props = {
-  applicationRound: ApplicationRound;
+  applicationRound: ApplicationRoundType;
   filters: FilterArguments;
   sort?: Sort;
   sortChanged: (field: string) => void;
@@ -62,9 +62,10 @@ const ApplicationDataLoader = ({
   const { fetchMore, loading, data } = useQuery<Query, QueryApplicationsArgs>(
     APPLICATIONS_QUERY,
     {
+      skip: !applicationRound.pk,
       variables: {
         ...mapFilterParams(filters),
-        applicationRound: String(applicationRound.id),
+        applicationRound: String(applicationRound.pk),
         offset: 0,
         first: LIST_PAGE_SIZE,
         orderBy: sortString,
@@ -80,9 +81,10 @@ const ApplicationDataLoader = ({
     return <Loader />;
   }
 
-  const applications = (data?.applications?.edges || []).map((edge) =>
-    appMapper(applicationRound, edge?.node as ApplicationType, t)
-  );
+  const applications = (data?.applications?.edges || [])
+    .map((x) => x?.node)
+    .filter((x): x is ApplicationType => x != null)
+    .map((x) => appMapper(applicationRound, x, t));
 
   return (
     <>

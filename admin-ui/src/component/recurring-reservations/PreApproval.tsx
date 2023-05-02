@@ -495,7 +495,8 @@ function PreApproval({
                         ? "approval"
                         : "approvalPreparation"
                     }
-                    applicationRound={applicationRound}
+                    reservationPeriodEnd={applicationRound.reservationPeriodEnd}
+                    name={applicationRound.name}
                   />
                 </RecommendationValue>
               </Recommendation>

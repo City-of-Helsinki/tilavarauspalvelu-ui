@@ -1,5 +1,43 @@
 import { gql } from "@apollo/client";
 
+export const APPLICATION_ROUND_BY_PK_QUERY = gql`
+  query applicationRoundByPk($pk: [ID]) {
+    applicationRounds(pk: $pk) {
+      edges {
+        node {
+          pk
+          nameFi
+          status
+          applicationPeriodBegin
+          applicationPeriodEnd
+          publicDisplayEnd
+          publicDisplayBegin
+          criteriaFi
+          applicationsSent
+          applicationsCount
+          allocating
+          serviceSector {
+            pk
+            nameFi
+          }
+          applicationRoundBaskets {
+            ageGroupIds
+            name
+          }
+          reservationUnits {
+            pk
+            nameFi
+          }
+          purposes {
+            pk
+            nameFi
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const APPLICATION_ROUNDS_QUERY = gql`
   query applicationRounds {
     applicationRounds {

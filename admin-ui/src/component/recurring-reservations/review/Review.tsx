@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { gql, useQuery } from "@apollo/client";
 import { H2 } from "common/src/common/typography";
 import { ApplicationRoundType, Query } from "common/types/gql-types";
-import { ApplicationRound as RestApplicationRoundType } from "../../../common/types";
 import { applicationRoundUrl } from "../../../common/urls";
 import { Container, VerticalFlex } from "../../../styles/layout";
 import StatusRecommendation from "../../applications/StatusRecommendation";
@@ -21,7 +20,7 @@ import Filters, { emptyFilterState, FilterArguments } from "./Filters";
 import ApplicationEventDataLoader from "./ApplicationEventDataLoader";
 
 interface IProps {
-  applicationRound: RestApplicationRoundType;
+  applicationRound: ApplicationRoundType;
 }
 
 const Header = styled.div`
@@ -77,9 +76,11 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
 
   const { t } = useTranslation();
 
+  // TODO this query is needless if we can include it in the original applicationRound query
   const { data } = useQuery<Query>(APPLICATION_RESERVATION_UNITS_QUERY, {
+    skip: !applicationRound.reservationUnits?.length,
     variables: {
-      pks: applicationRound.reservationUnitIds,
+      pks: applicationRound.reservationUnits?.map((x) => x?.pk),
     },
   });
 
@@ -87,6 +88,9 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
     data?.reservationUnits?.edges
       ?.map((x) => x?.node?.unit?.pk)
       ?.filter((x): x is number => x != null) ?? [];
+
+  // TODO translation
+  const roundName = applicationRound.nameFi ?? "Ei nimeä";
 
   return (
     <>
@@ -96,7 +100,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           "/recurring-reservations/application-rounds",
           "application-round",
         ]}
-        aliases={[{ slug: "application-round", title: applicationRound.name }]}
+        aliases={[{ slug: "application-round", title: roundName }]}
       />
       <Container>
         <Header>
@@ -121,7 +125,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
             </div>
           </div>
 
-          <StyledH2>{applicationRound.name}</StyledH2>
+          <StyledH2>{applicationRound.nameFi}</StyledH2>
           <TimeframeStatus
             applicationPeriodBegin={applicationRound.applicationPeriodBegin}
             applicationPeriodEnd={applicationRound.applicationPeriodEnd}
@@ -136,7 +140,8 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
             <RecommendationValue>
               <StatusRecommendation
                 status="in_review"
-                applicationRound={applicationRound}
+                reservationPeriodEnd={applicationRound.reservationPeriodEnd}
+                name={roundName}
               />
             </RecommendationValue>
             <Button
@@ -158,7 +163,6 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
                 <Filters onSearch={debouncedSearch} unitPks={unitPks} />
                 <ApplicationDataLoader
                   applicationRound={applicationRound}
-                  key={JSON.stringify({ ...search, ...sort })}
                   filters={search}
                   sort={sort}
                   sortChanged={onSortChanged}
@@ -172,7 +176,6 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
                 <Filters onSearch={debouncedSearch} unitPks={unitPks} />
                 <ApplicationEventDataLoader
                   applicationRound={applicationRound}
-                  key={JSON.stringify({ ...search, ...sort })}
                   filters={search}
                   sort={sort}
                   sortChanged={onSortChanged}

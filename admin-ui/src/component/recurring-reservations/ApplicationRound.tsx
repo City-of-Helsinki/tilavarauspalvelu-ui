@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
+import { useQuery } from "@apollo/client";
+import { Query, QuerySpaceByPkArgs } from "common/types/gql-types";
 import Review from "./review/Review";
 import Allocation from "./Allocation";
 import Handling from "./Handling";
@@ -16,6 +18,31 @@ import {
 } from "../../common/api";
 import Loader from "../Loader";
 import { useNotification } from "../../context/NotificationContext";
+import { APPLICATION_ROUND_BY_PK_QUERY } from "./queries";
+
+const useApplicationRoundByPkQuery = (pk?: string) => {
+  const { notifyError } = useNotification();
+  const { t } = useTranslation();
+
+  // All ByPkArgs types are equal so use Spaces randomly here
+  const { data, loading } = useQuery<Query, QuerySpaceByPkArgs>(
+    APPLICATION_ROUND_BY_PK_QUERY,
+    {
+      skip: !pk || Number.isNaN(Number(pk)),
+      variables: {
+        pk: Number(pk),
+      },
+      onError: () => {
+        notifyError(t("errors.errorFetchingApplication"));
+      },
+    }
+  );
+
+  const applicationRound =
+    data?.applicationRounds?.edges?.find(() => true)?.node ?? undefined;
+
+  return { applicationRound, loading };
+};
 
 type IProps = {
   applicationRoundId: string;
@@ -41,6 +68,8 @@ function ApplicationRound(): JSX.Element | null {
       notifyError(t("errors.errorSavingData"));
     }
   };
+  const { applicationRound: applicationRoundGQL, loading } =
+    useApplicationRoundByPkQuery(applicationRoundId);
 
   useEffect(() => {
     const fetchApplicationRound = async () => {
@@ -50,6 +79,7 @@ function ApplicationRound(): JSX.Element | null {
         const result = await getApplicationRound({
           id: Number(applicationRoundId),
         });
+        console.log("application round: ", result);
         setApplicationRound(result);
       } catch (error) {
         const msg =
@@ -66,7 +96,9 @@ function ApplicationRound(): JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationRoundId]);
 
-  if (isLoading) {
+  console.log("GQL round: ", applicationRoundGQL);
+
+  if (isLoading || loading) {
     return <Loader />;
   }
 
@@ -102,8 +134,12 @@ function ApplicationRound(): JSX.Element | null {
         />
       );
     case "draft":
-    case "in_review":
-      return <Review applicationRound={applicationRound} />;
+    case "in_review": {
+      if (applicationRoundGQL) {
+        return <Review applicationRound={applicationRoundGQL} />;
+      }
+      return <div>ERROR: should never happen GQL migration problem.</div>;
+    }
 
     default:
       return <> </>;

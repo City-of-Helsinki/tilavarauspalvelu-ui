@@ -516,7 +516,10 @@ function Handling({
                   <RecommendationValue>
                     <StatusRecommendation
                       status="allocated"
-                      applicationRound={applicationRound}
+                      reservationPeriodEnd={
+                        applicationRound.reservationPeriodEnd
+                      }
+                      name={applicationRound.name}
                     />
                   </RecommendationValue>
                 </Recommendation>

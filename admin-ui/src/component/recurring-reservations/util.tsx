@@ -1,27 +1,30 @@
 import React from "react";
 import styled from "styled-components";
-import { orderBy, trim, uniqBy } from "lodash";
 import { TFunction } from "i18next";
-import { formatters as getFormatters } from "common";
+import { orderBy, trim, uniqBy } from "lodash";
 import { parse } from "date-fns";
 import {
-  ApplicationEventType,
-  ApplicationType,
-  UnitType,
-} from "common/types/gql-types";
-import {
-  ApplicationRound as ApplicationRoundType,
   ApplicationRoundStatus,
+  type ApplicationRoundType,
   ApplicationStatus,
-} from "../../common/types";
-import {
-  appEventHours,
-  applicantName,
-  getNormalizedApplicationStatus,
-  numTurns,
-} from "../applications/util";
+  type ApplicationType,
+  type UnitType,
+  ApplicationEventType,
+} from "common/types/gql-types";
+import { formatters as getFormatters } from "common";
 import StatusCell from "../StatusCell";
 import { formatNumber } from "../../common/util";
+import {
+  applicantName,
+  convertGQLStatusToRest,
+  getNormalizedApplicationStatus,
+  appEventHours,
+  numTurns,
+} from "../applications/util";
+import {
+  ApplicationStatus as ApplicationStatusRest,
+  ApplicationRoundStatus as ApplicationRoundStatusRest,
+} from "../../common/types";
 
 export type ApplicationView = {
   id: number;
@@ -32,9 +35,9 @@ export type ApplicationView = {
   type: string;
   units: UnitType[];
   applicationCount: string;
-  status: ApplicationStatus;
+  status: ApplicationStatusRest;
   statusView: JSX.Element;
-  statusType: ApplicationStatus;
+  statusType: ApplicationStatusRest;
 };
 
 export type ApplicationEventView = {
@@ -61,9 +64,10 @@ export const appMapper = (
   app: ApplicationType,
   t: TFunction
 ): ApplicationView => {
-  let applicationStatusView: ApplicationRoundStatus;
+  let applicationStatusView: ApplicationRoundStatusRest;
   switch (round.status) {
-    case "approved":
+    // TODO is this correct? e.g. what is "approved"
+    case ApplicationRoundStatus.Allocated:
       applicationStatusView = "approved";
       break;
     default:
@@ -76,7 +80,7 @@ export const appMapper = (
         .flatMap((ae) => ae?.eventReservationUnits)
         .flatMap((eru) => ({
           ...eru?.reservationUnit?.unit,
-          priority: eru?.priority as number,
+          priority: eru?.priority,
         })),
       "pk"
     ),
@@ -84,11 +88,13 @@ export const appMapper = (
     "asc"
   ) as UnitType[];
   const name = app.applicationEvents?.find(() => true)?.name || "-";
-  const eventId = app.applicationEvents?.find(() => true)
-    ?.id as unknown as number;
+  const eventId = app.applicationEvents?.find(() => true)?.id;
 
+  const convertedApplicationStatus = convertGQLStatusToRest(
+    app.status ?? ApplicationStatus.Draft
+  );
   const status = getNormalizedApplicationStatus(
-    app.status as ApplicationStatus,
+    convertedApplicationStatus,
     applicationStatusView
   );
 
@@ -96,15 +102,15 @@ export const appMapper = (
 
   return {
     key: `${app.id}-${eventId || "-"} `,
-    id: app.pk as number,
-    eventId,
+    id: app.pk ?? 0,
+    eventId: eventId && !Number.isNaN(Number(eventId)) ? Number(eventId) : 0,
     applicant,
     type: app.applicantType
       ? t(`Application.applicantTypes.${app.applicantType.toLowerCase()}`)
       : "",
     units,
     name,
-    status: status as ApplicationStatus,
+    status,
     statusView: (
       <StyledStatusCell
         status={status}
@@ -113,7 +119,7 @@ export const appMapper = (
         withArrow={false}
       />
     ),
-    statusType: app.status as ApplicationStatus,
+    statusType: convertedApplicationStatus,
     applicationCount: trim(
       `${formatNumber(
         app.aggregatedData?.appliedReservationsTotal,
@@ -130,17 +136,21 @@ export const appEventMapper = (
   round: ApplicationRoundType,
   appEvent: ApplicationEventType
 ): ApplicationEventView => {
-  let applicationStatusView: ApplicationRoundStatus;
+  let applicationStatusView: ApplicationRoundStatusRest;
   switch (round.status) {
-    case "approved":
+    case ApplicationRoundStatus.Allocated:
       applicationStatusView = "approved";
       break;
     default:
       applicationStatusView = "in_review";
   }
 
+  const convertedApplicationStatus = convertGQLStatusToRest(
+    appEvent.application.status ?? ApplicationStatus.Draft
+  );
+
   const status = getNormalizedApplicationStatus(
-    appEvent.application.status as ApplicationStatus,
+    convertedApplicationStatus,
     applicationStatusView
   );
 
@@ -151,7 +161,7 @@ export const appEventMapper = (
     uniqBy(
       appEvent.eventReservationUnits?.flatMap((eru) => ({
         ...eru?.reservationUnit?.unit,
-        priority: eru?.priority as number,
+        priority: eru?.priority,
       })),
       "pk"
     ),
@@ -159,7 +169,7 @@ export const appEventMapper = (
     "asc"
   ) as UnitType[];
   const name = appEvent.name || "-";
-  const eventId = appEvent.pk as number;
+  const eventId = appEvent.pk;
 
   const applicant = applicantName(appEvent.application);
 
@@ -169,7 +179,7 @@ export const appEventMapper = (
           appEvent.begin,
           appEvent.end,
           appEvent.biweekly,
-          appEvent.eventsPerWeek as number
+          appEvent.eventsPerWeek ?? 0
         )
       : 0;
 
@@ -179,14 +189,14 @@ export const appEventMapper = (
           fromAPIDate(appEvent.begin).toISOString(),
           fromAPIDate(appEvent.end).toISOString(),
           appEvent.biweekly,
-          appEvent.eventsPerWeek as number,
-          appEvent.minDuration as number
+          appEvent.eventsPerWeek ?? 0,
+          appEvent.minDuration ?? 0
         )
       : 0;
 
   return {
-    applicationId: appEvent.application.pk as number,
-    id: eventId,
+    applicationId: appEvent.application.pk ?? 0,
+    id: eventId && !Number.isNaN(eventId) ? eventId : 0,
     applicant,
     units,
     name,

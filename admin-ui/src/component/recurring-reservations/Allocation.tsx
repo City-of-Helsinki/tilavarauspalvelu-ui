@@ -180,7 +180,8 @@ const Allocation = ({
                 <RecommendationValue>
                   <StatusRecommendation
                     status="review_done"
-                    applicationRound={applicationRound}
+                    reservationPeriodEnd={applicationRound.reservationPeriodEnd}
+                    name={applicationRound.name}
                   />
                 </RecommendationValue>
               </Recommendation>

@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 import { useModal } from "../../context/ModalContext";
 import InfoBubble from "../InfoBubble";
 import StageInfo from "../recurring-reservations/StageInfo";
-import { ApplicationRound } from "../../common/types";
 
 interface IProps {
   status: string;
-  applicationRound: ApplicationRound;
+  reservationPeriodEnd: string;
+  name: string;
   className?: string;
 }
 
@@ -24,7 +24,8 @@ const StyledInfoBubble = styled(InfoBubble)`
 
 function StatusRecommendation({
   status,
-  applicationRound,
+  reservationPeriodEnd,
+  name,
   className,
 }: IProps): JSX.Element {
   const { t } = useTranslation();
@@ -65,7 +66,8 @@ function StatusRecommendation({
             setModalContent(
               <StageInfo
                 activeStage={activeState}
-                applicationRound={applicationRound}
+                name={name}
+                reservationPeriodEnd={reservationPeriodEnd}
               />
             )
           }
