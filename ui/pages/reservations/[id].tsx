@@ -538,6 +538,11 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     </>
   );
 
+  const isReservationCancellable =
+    canUserCancelReservation(reservation) &&
+    !isReservationCancelled &&
+    !isBeingHandled;
+
   return (
     <Wrapper>
       <Container>
@@ -587,29 +592,33 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                   {t("reservations:modifyReservationTime")}
                 </BlackButton>
               )}
-              {canUserCancelReservation(reservation) &&
-                !isReservationCancelled &&
-                !isBeingHandled && (
-                  <BlackButton
-                    variant="secondary"
-                    iconRight={<IconCross aria-hidden />}
-                    onClick={() =>
-                      router.push(`${reservationsUrl}${reservation.pk}/cancel`)
-                    }
-                    data-testid="reservation-detail__button--cancel"
-                  >
-                    {t(
-                      `reservations:cancel${
-                        isBeingHandled ? "Application" : "Reservation"
-                      }`
-                    )}
-                  </BlackButton>
-                )}
+              {isReservationCancellable && (
+                <BlackButton
+                  variant="secondary"
+                  iconRight={<IconCross aria-hidden />}
+                  onClick={() =>
+                    router.push(`${reservationsUrl}${reservation.pk}/cancel`)
+                  }
+                  data-testid="reservation-detail__button--cancel"
+                >
+                  {t(
+                    `reservations:cancel${
+                      isBeingHandled ? "Application" : "Reservation"
+                    }`
+                  )}
+                </BlackButton>
+              )}
             </Actions>
             <Reasons>
               {modifyTimeReason && (
                 <ReasonText>
                   {t(`reservations:modifyTimeReasons:${modifyTimeReason}`)}
+                  {modifyTimeReason ===
+                    "RESERVATION_MODIFICATION_NOT_ALLOWED" &&
+                    isReservationCancellable &&
+                    ` ${t(
+                      "reservations:modifyTimeReasons:RESERVATION_MODIFICATION_NOT_ALLOWED_SUFFIX"
+                    )}`}
                 </ReasonText>
               )}
               {cancellationReason && !modifyTimeReason && (
