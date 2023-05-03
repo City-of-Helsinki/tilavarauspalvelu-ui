@@ -6,13 +6,18 @@ export const APPLICATIONS_QUERY = gql`
     $first: Int
     $applicationRound: ID
     $unit: [ID]
+    $status: [String]
+    $applicationCount: Decimal
+    $applicantType: [String]
   ) {
     applications(
       first: $first
       offset: $offset
       unit: $unit
+      status: $status
       applicationRound: $applicationRound
-      status: "in_review"
+      appliedCountGte: $applicationCount
+      applicantType: $applicantType
     ) {
       edges {
         node {
@@ -32,8 +37,10 @@ export const APPLICATIONS_QUERY = gql`
             organisationType
           }
           applicationEvents {
+            pk
             name
             eventReservationUnits {
+              pk
               priority
               reservationUnit {
                 unit {
@@ -53,6 +60,7 @@ export const APPLICATIONS_QUERY = gql`
     }
   }
 `;
+
 export const APPLICATIONS_EVENTS_QUERY = gql`
   query getApplicationEvents(
     $offset: Int

@@ -26,16 +26,16 @@ const getColConfig = (t: TFunction) => [
     headerName: t("Application.headings.id"),
     isSortable: true,
     key: "id",
-    transform: ({ id }: ApplicationView) => String(id),
+    transform: ({ pk }: ApplicationView) => String(pk),
   },
   {
     headerName: t("Application.headings.customer"),
     isSortable: true,
     key: "applicant",
-    transform: ({ applicant, id }: ApplicationView) => (
-      <TableLink href={applicationDetailsUrl(id)}>
+    transform: ({ applicant, pk }: ApplicationView) => (
+      <TableLink href={applicationDetailsUrl(pk)}>
         <span title={applicant}>
-          {truncate(applicant as string, applicantTruncateLen)}
+          {truncate(applicant ?? "", applicantTruncateLen)}
         </span>
       </TableLink>
     ),

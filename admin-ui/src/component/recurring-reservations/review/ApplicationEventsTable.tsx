@@ -26,7 +26,7 @@ const getColConfig = (t: TFunction) => [
     headerName: t("ApplicationEvent.headings.id"),
     isSortable: true,
     key: "id",
-    transform: ({ id }: ApplicationEventView) => String(id),
+    transform: ({ pk }: ApplicationEventView) => String(pk),
   },
   {
     headerName: t("ApplicationEvent.headings.customer"),

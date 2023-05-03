@@ -27,7 +27,7 @@ import {
 } from "../../common/types";
 
 export type ApplicationView = {
-  id: number;
+  pk: number;
   eventId: number;
   key: string;
   applicant?: string;
@@ -42,7 +42,7 @@ export type ApplicationView = {
 
 export type ApplicationEventView = {
   applicationId: number;
-  id: number;
+  pk: number;
   applicant?: string;
   name: string;
   units: UnitType[];
@@ -87,8 +87,9 @@ export const appMapper = (
     "priority",
     "asc"
   ) as UnitType[];
+
   const name = app.applicationEvents?.find(() => true)?.name || "-";
-  const eventId = app.applicationEvents?.find(() => true)?.id;
+  const eventId = app.applicationEvents?.find(() => true)?.pk;
 
   const convertedApplicationStatus = convertGQLStatusToRest(
     app.status ?? ApplicationStatus.Draft
@@ -98,13 +99,11 @@ export const appMapper = (
     applicationStatusView
   );
 
-  const applicant = applicantName(app);
-
   return {
-    key: `${app.id}-${eventId || "-"} `,
-    id: app.pk ?? 0,
+    key: `${app.pk}-${eventId || "-"} `,
+    pk: app.pk ?? 0,
     eventId: eventId && !Number.isNaN(Number(eventId)) ? Number(eventId) : 0,
-    applicant,
+    applicant: applicantName(app),
     type: app.applicantType
       ? t(`Application.applicantTypes.${app.applicantType.toLowerCase()}`)
       : "",
@@ -196,7 +195,7 @@ export const appEventMapper = (
 
   return {
     applicationId: appEvent.application.pk ?? 0,
-    id: eventId && !Number.isNaN(eventId) ? eventId : 0,
+    pk: eventId && !Number.isNaN(eventId) ? eventId : 0,
     applicant,
     units,
     name,
