@@ -107,27 +107,11 @@ export const RESERVATION_QUERY = gql`
   }
 `;
 
-export const RECURRING_RESERVATION_QUERY = gql`
-  query recurringReservation($pk: ID!) {
-    reservations(recurringReservation: $pk, state: ["CONFIRMED", "DENIED"]) {
-      edges {
-        node {
-          pk
-          begin
-          end
-          state
-          recurringReservation {
-            pk
-          }
-        }
-      }
-    }
-  }
-`;
-
 export const APPROVE_RESERVATION = gql`
   mutation approveReservation($input: ReservationApproveMutationInput!) {
     approveReservation(input: $input) {
+      pk
+      state
       errors {
         field
         messages
@@ -139,6 +123,8 @@ export const APPROVE_RESERVATION = gql`
 export const DENY_RESERVATION = gql`
   mutation denyReservation($input: ReservationDenyMutationInput!) {
     denyReservation(input: $input) {
+      pk
+      state
       errors {
         field
         messages
@@ -150,6 +136,8 @@ export const DENY_RESERVATION = gql`
 export const REQUIRE_HANDLING_RESERVATION = gql`
   mutation requireHandling($input: ReservationRequiresHandlingMutationInput!) {
     requireHandlingForReservation(input: $input) {
+      pk
+      state
       errors {
         field
         messages

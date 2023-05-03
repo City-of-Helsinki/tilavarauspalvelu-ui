@@ -34,6 +34,10 @@ import {
   ReservationUnitsReservationUnitPricingPriceUnitChoices,
   ReservationAdjustTimeMutationPayload,
   ReservationAdjustTimeMutationInput,
+  QueryOrderArgs,
+  PaymentOrderType,
+  RefreshOrderMutationPayload,
+  RefreshOrderMutationInput,
 } from "common/types/gql-types";
 import { toUIDate } from "common/src/common/util";
 
@@ -181,10 +185,33 @@ const deleteReservation = graphql.mutation<
   { deleteReservation: ReservationDeleteMutationPayload },
   { input: ReservationDeleteMutationInput }
 >("deleteReservation", (req, res, ctx) => {
+  const { pk } = req.variables.input;
+  let deleted: boolean;
+  switch (pk) {
+    case 3333:
+      deleted = false;
+      break;
+    default:
+      deleted = true;
+  }
+
+  if (pk === 6666) {
+    return res(
+      ctx.errors([
+        {
+          message: "No Reservation matches the given query.",
+          extensions: {
+            error_code: "OOPS",
+          },
+        },
+      ])
+    );
+  }
+
   return res(
     ctx.data({
       deleteReservation: {
-        deleted: true,
+        deleted,
       },
     })
   );
@@ -492,6 +519,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         canBeCancelledTimeBefore: 0,
         needsHandling: false,
       };
+      data.orderUuid = "6666-6666-6666-6666";
       data.reservationUnits[0].pricings = [
         {
           begins: addDays(new Date(), -10).toISOString(),
@@ -629,6 +657,23 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       data.reserveeAddressCity = "Helsinki";
       data.reserveeAddressZip = "00100";
       data.homeCity = { id: "123", name: "Lande", pk: 2 };
+    }
+
+    if (pk === 702) {
+      data.state = ReservationsReservationStateChoices.Denied;
+    }
+
+    if (pk === 4444) {
+      data.state = ReservationsReservationStateChoices.WaitingForPayment;
+    }
+
+    if (pk === 5555) {
+      data.state = ReservationsReservationStateChoices.Confirmed;
+    }
+
+    if (pk === 6666) {
+      data.state = ReservationsReservationStateChoices.Confirmed;
+      data.orderUuid = "6666-6666-6666-6666";
     }
 
     return res(
@@ -1435,6 +1480,76 @@ const listReservations = graphql.query<Query, QueryReservationsArgs>(
           ],
         },
       },
+      {
+        node: {
+          id: "UmVzZXJ2YXRpb25UeXBlOjIx",
+          pk: 22,
+          name: "Cancelled reservation",
+          begin: addDays(new Date(), 21).toISOString(),
+          end: addHours(addDays(new Date(), 21), 1).toISOString(),
+          user: "user@email.com",
+          state: ReservationsReservationStateChoices.Denied,
+          bufferTimeBefore: 3600,
+          bufferTimeAfter: 1800,
+          orderStatus: "PAID_MANUALLY",
+          reservationUnits: [
+            {
+              pk: 3,
+              nameFi: "Studiohuone 42 + soittimet",
+              nameEn: null,
+              nameSv: null,
+              termsOfUseFi:
+                "Kirjaston varattavien tilojen yleiset käyttösäännöt:\r\n1. Varattu tila kalusteineen on vuokralaisen käytettävissä sopimuksessa määriteltynä aikana.\r\n2. Mahdollisten alkuvalmistelujen ja loppusiivouksen tulee sisältyä varattuun aikaan. Varaus laskutetaan täysiltä tunneilta.\r\n3. Peruuttamatta jääneet varaukset laskutetaan.\r\n4. Vuokraajan tulee olla täysi-ikäinen.\r\n5. Kirjastossa ei voi järjestää kursseja tai toistuvia tilaisuuksia, joista otetaan pääsy- tai osallistumismaksu (koskien myös materiaalikuluja). Yksittäisiä osallistujille maksullisia tapahtumia voi järjestää.\r\n6. Vuokrausajan päättyessä vuokraajan tulee jättää tila samaan kuntoon kuin se oli vuokrausajan alkaessa.\r\n7. Vuokraaja on korvausvelvollinen, mikäli tilan käyttäjät aiheuttavat vahinkoa kiinteistölle tai irtaimistolle. Vahingoista on ilmoitettava välittömästi kirjaston henkilökunnalle.\r\n8. Vuokrattavassa tilassa järjestettävä tilaisuus ei saa häiritä muuta kirjaston toimintaa, asiakkaita tai käyttäjiä.\r\n9. Vuokrattavassa tilassa järjestettävän tilaisuuden sisältö tai luonne ei voi olla ristiriidassa Suomen lain kanssa tai hyvän tavan vastainen.\r\n10. Kirjastolla on tarvittaessa ja harkintansa mukaan oikeus evätä vuokralaisen pääsy vuokrattavaan tilaan tai keskeyttää vuokrattavassa tilassa järjestettävä tilaisuus, mikäli ilmenee, että edellä mainittuja sääntöjä rikotaan tai on rikottu.",
+              unit: {
+                nameFi: "Helsingin keskustakirjasto Oodi",
+                nameEn: null,
+                nameSv: null,
+              },
+              cancellationRule: {
+                canBeCancelledTimeBefore: 86400,
+                needsHandling: false,
+              },
+              location: null,
+              images: [],
+            } as ReservationUnitType,
+          ],
+        },
+      },
+      {
+        node: {
+          id: "UmVzZXJ2YXRpb25UeXBlOjIx",
+          pk: 23,
+          name: "Cancelled reservation",
+          begin: addDays(new Date(), -25).toISOString(),
+          end: addHours(addDays(new Date(), -25), 1).toISOString(),
+          user: "user@email.com",
+          state: ReservationsReservationStateChoices.Denied,
+          bufferTimeBefore: 3600,
+          bufferTimeAfter: 1800,
+          orderStatus: "PAID_MANUALLY",
+          reservationUnits: [
+            {
+              pk: 3,
+              nameFi: "Studiohuone 43 + soittimet",
+              nameEn: null,
+              nameSv: null,
+              termsOfUseFi:
+                "Kirjaston varattavien tilojen yleiset käyttösäännöt:\r\n1. Varattu tila kalusteineen on vuokralaisen käytettävissä sopimuksessa määriteltynä aikana.\r\n2. Mahdollisten alkuvalmistelujen ja loppusiivouksen tulee sisältyä varattuun aikaan. Varaus laskutetaan täysiltä tunneilta.\r\n3. Peruuttamatta jääneet varaukset laskutetaan.\r\n4. Vuokraajan tulee olla täysi-ikäinen.\r\n5. Kirjastossa ei voi järjestää kursseja tai toistuvia tilaisuuksia, joista otetaan pääsy- tai osallistumismaksu (koskien myös materiaalikuluja). Yksittäisiä osallistujille maksullisia tapahtumia voi järjestää.\r\n6. Vuokrausajan päättyessä vuokraajan tulee jättää tila samaan kuntoon kuin se oli vuokrausajan alkaessa.\r\n7. Vuokraaja on korvausvelvollinen, mikäli tilan käyttäjät aiheuttavat vahinkoa kiinteistölle tai irtaimistolle. Vahingoista on ilmoitettava välittömästi kirjaston henkilökunnalle.\r\n8. Vuokrattavassa tilassa järjestettävä tilaisuus ei saa häiritä muuta kirjaston toimintaa, asiakkaita tai käyttäjiä.\r\n9. Vuokrattavassa tilassa järjestettävän tilaisuuden sisältö tai luonne ei voi olla ristiriidassa Suomen lain kanssa tai hyvän tavan vastainen.\r\n10. Kirjastolla on tarvittaessa ja harkintansa mukaan oikeus evätä vuokralaisen pääsy vuokrattavaan tilaan tai keskeyttää vuokrattavassa tilassa järjestettävä tilaisuus, mikäli ilmenee, että edellä mainittuja sääntöjä rikotaan tai on rikottu.",
+              unit: {
+                nameFi: "Helsingin keskustakirjasto Oodi",
+                nameEn: null,
+                nameSv: null,
+              },
+              cancellationRule: {
+                canBeCancelledTimeBefore: 86400,
+                needsHandling: false,
+              },
+              location: null,
+              images: [],
+            } as ReservationUnitType,
+          ],
+        },
+      },
     ] as ReservationTypeEdge[];
 
     const edges = reservationData.filter((reservationEdge) =>
@@ -1458,6 +1573,105 @@ const listReservations = graphql.query<Query, QueryReservationsArgs>(
   }
 );
 
+const getOrder = graphql.query<Query, QueryOrderArgs>(
+  "order",
+  (req, res, ctx) => {
+    const { orderUuid } = req.variables ?? {};
+
+    const baseOrder = {
+      id: "1",
+      pk: 1,
+      orderUuid,
+    };
+    let order: PaymentOrderType | null = null;
+
+    switch (orderUuid) {
+      case "2222-2222-2222-2222":
+        order = baseOrder;
+        break;
+      case "3333-3333-3333-3333":
+        order = {
+          ...baseOrder,
+          reservationPk: "3333",
+          status: ReservationsReservationStateChoices.WaitingForPayment,
+        };
+        break;
+      case "3333-3333-3333-3333-2":
+        order = {
+          ...baseOrder,
+          reservationPk: "6666",
+          status: ReservationsReservationStateChoices.WaitingForPayment,
+        };
+        break;
+      case "4444-4444-4444-4444":
+        order = {
+          ...baseOrder,
+          reservationPk: "4444",
+          status: "PAID",
+        };
+        break;
+      case "5555-5555-5555-5555":
+        order = {
+          ...baseOrder,
+          reservationPk: "5555",
+          status: "PAID",
+        };
+        break;
+      case "6666-6666-6666-6666":
+        order = {
+          ...baseOrder,
+          reservationPk: "6666",
+          status: "PAID",
+          receiptUrl: "https://example.com/receipt.pdf?orderId=123",
+        };
+        break;
+      default:
+        break;
+    }
+
+    return res(ctx.data({ order }));
+  }
+);
+
+const refreshOrder = graphql.mutation<
+  { refreshOrder: RefreshOrderMutationPayload },
+  { input: RefreshOrderMutationInput }
+>("refreshOrder", (req, res, ctx) => {
+  const { orderUuid } = req.variables.input ?? {};
+
+  if (orderUuid === "3333-3333-3333-3333") {
+    return res(
+      ctx.errors([
+        {
+          message: "External service error",
+          extensions: {
+            error_code: "EXTERNAL_SERVICE_ERROR",
+          },
+        },
+      ])
+    );
+  }
+
+  if (orderUuid === "3333-3333-3333-3333-2") {
+    return res(
+      ctx.data({
+        refreshOrder: {
+          orderUuid,
+          status: "PAID",
+        },
+      })
+    );
+  }
+
+  return res(
+    ctx.data({
+      refreshOrder: {
+        orderUuid,
+      },
+    })
+  );
+});
+
 export const reservationHandlers = [
   createReservation,
   updateReservation,
@@ -1471,4 +1685,6 @@ export const reservationHandlers = [
   reservationPurposes,
   ageGroups,
   cities,
+  getOrder,
+  refreshOrder,
 ];

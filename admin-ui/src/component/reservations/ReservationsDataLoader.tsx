@@ -8,7 +8,6 @@ import {
   ReservationType,
 } from "common/types/gql-types";
 import { LIST_PAGE_SIZE } from "../../common/const";
-import { combineResults } from "../../common/util";
 import { useNotification } from "../../context/NotificationContext";
 import { More } from "../lists/More";
 import Loader from "../Loader";
@@ -68,17 +67,6 @@ const mapFilterParams = (
   };
 };
 
-const updateQuery = (
-  previousResult: Query,
-  { fetchMoreResult }: { fetchMoreResult: Query }
-): Query => {
-  if (!fetchMoreResult) {
-    return previousResult;
-  }
-
-  return combineResults(previousResult, fetchMoreResult, "reservations");
-};
-
 const useReservations = (
   filters: FilterArguments,
   defaultFiltering: QueryReservationsArgs,
@@ -104,6 +92,9 @@ const useReservations = (
   const { fetchMore, loading, data } = useQuery<Query, QueryReservationsArgs>(
     RESERVATIONS_QUERY,
     {
+      fetchPolicy: "cache-and-network",
+      nextFetchPolicy: "cache-first",
+      errorPolicy: "all",
       variables: {
         orderBy: sortString,
         first: LIST_PAGE_SIZE,
@@ -112,7 +103,6 @@ const useReservations = (
       onError: (err: ApolloError) => {
         notifyError(err.message);
       },
-      fetchPolicy: "cache-and-network",
     }
   );
 
@@ -155,14 +145,8 @@ const ReservationsDataLoader = ({
       <More
         totalCount={totalCount || 0}
         count={data.length}
-        fetchMore={() =>
-          fetchMore({
-            variables: {
-              offset,
-            },
-            updateQuery,
-          })
-        }
+        isLoading={loading}
+        fetchMore={() => fetchMore({ variables: { offset } })}
       />
     </>
   );

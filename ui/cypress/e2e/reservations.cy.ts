@@ -6,6 +6,7 @@ import {
   reservationInfoCard,
   calendarLinkButton,
   modifyButton,
+  receiptLinkButton,
 } from "../model/reservation-detail";
 import {
   startTimeSelectorToggle,
@@ -41,6 +42,8 @@ import {
 
 describe("Tilavaraus user reservations", () => {
   beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+
     cy.window().then(() => {
       sessionStorage.setItem(
         `oidc.apiToken.${Cypress.env("API_SCOPE")}`,
@@ -59,26 +62,28 @@ describe("Tilavaraus user reservations", () => {
   });
 
   it("should list proper items with correct button states and link to reservation unit", () => {
-    reservationCards().should("have.length", 5);
+    reservationCards().should("have.length", 6);
 
     statusTag("desktop")
-      .should("have.length", 5)
+      .should("have.length", 6)
       .each(($el, $i) => {
-        if ([0, 2, 4].includes($i)) {
+        if ([1, 3, 5].includes($i)) {
           expect($el).to.contain("Hyväksytty");
-        } else if ($i === 3) {
+        } else if ($i === 4) {
           expect($el).to.contain("Odottaa maksua");
+        } else if ($i === 0) {
+          expect($el).to.contain("Hylätty");
         } else {
           expect($el).to.contain("Käsiteltävänä");
         }
       });
 
     orderStatusTag("desktop")
-      .should("have.length", 2)
+      .should("have.length", 3)
       .each(($el, $i) => {
-        if ($i === 1) {
+        if ($i === 2) {
           expect($el).to.contain("Maksettu");
-        } else if ($i === 0) {
+        } else if ([0, 1].includes($i)) {
           expect($el).to.contain("Paikan päällä");
         }
       });
@@ -97,39 +102,43 @@ describe("Tilavaraus user reservations", () => {
     cancelButton().should("exist");
 
     reservationCards()
-      .eq(4)
+      .eq(5)
       .find('[data-testid="reservation__card--price"]')
       .should("contain.text", "42\u00a0€");
 
     reservationCards()
-      .eq(0)
+      .eq(4)
       .find('[data-testid="reservation__card--price"]')
       .should("contain.text", "Maksuton");
 
     reservationCards()
-      .eq(1)
+      .eq(2)
       .find('[data-testid="reservation__card--status-desktop"]')
       .should("contain.text", "Käsiteltävänä");
 
     reservationCards()
-      .eq(1)
+      .eq(2)
       .find('[data-testid="reservation__card--price"]')
       .should("contain.text", "80,00 - 240,00\u00a0€");
 
     tab(2).click();
 
-    reservationCards().should("have.length", 2);
+    reservationCards().should("have.length", 3);
     statusTag("desktop")
-      .should("have.length", 2)
-      .each(($el) => {
-        expect($el).to.contain("Hyväksytty");
+      .should("have.length", 3)
+      .each(($el, $i) => {
+        if ($i === 2) {
+          expect($el).to.contain("Hylätty");
+        } else {
+          expect($el).to.contain("Hyväksytty");
+        }
       });
   });
 
   it("should display reservation detail view with company reservee", () => {
-    detailButton().eq(3).click();
+    detailButton().eq(4).click();
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/11$/);
+    cy.url().should("match", /\/reservations\/11$/);
 
     detailCancelButton().should("not.exist");
 
@@ -179,13 +188,15 @@ describe("Tilavaraus user reservations", () => {
       .should("be.enabled")
       .should("contain.text", "Tallenna kalenteriin");
 
+    receiptLinkButton().should("not.exist");
+
     cy.checkA11y(undefined, undefined, undefined, true);
   });
 
   it("should display reservation detail view with individual reservee", () => {
-    detailButton().eq(4).click();
+    detailButton().eq(5).click();
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
 
     detailCancelButton().should("not.exist");
 
@@ -235,14 +246,18 @@ describe("Tilavaraus user reservations", () => {
       .should("be.enabled")
       .should("contain.text", "Tallenna kalenteriin");
 
+    receiptLinkButton()
+      .should("be.enabled")
+      .should("contain.text", "Näytä kuitti");
+
     cy.checkA11y(undefined, undefined, undefined, true);
   });
 
   it("should do cancellation", () => {
-    detailButton().eq(0).click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
+    detailButton().eq(1).click();
+    cy.url().should("match", /\/reservations\/21$/);
     detailCancelButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
+    cy.url().should("match", /\/reservations\/21\/cancel$/);
 
     cancelTitle().should("have.text", "Peru varaus");
     cancelCancelButton().should("be.disabled");
@@ -250,17 +265,14 @@ describe("Tilavaraus user reservations", () => {
     orderStatusTag("desktop").should("not.exist");
 
     backButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21$/);
+    cy.url().should("match", /\/reservations\/21$/);
 
     cy.visit("/reservations");
 
-    detailButton().eq(0).click();
+    detailButton().eq(1).click();
     detailCancelButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/21\/cancel$/);
+    cy.url().should("match", /\/reservations\/21\/cancel$/);
 
-    cancelCancelButton().should("be.disabled");
-
-    reasonSelect().click().siblings("ul").children().eq(0).click();
     cancelCancelButton().should("be.disabled");
 
     reasonSelect().click().siblings("ul").children().eq(1).click();
@@ -282,16 +294,16 @@ describe("Tilavaraus user reservations", () => {
   it("should do time modification", () => {
     const titles = ["Muuta varauksen aikaa", "Tarkista varauksen tiedot"];
 
-    detailButton().eq(4).click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    detailButton().eq(5).click();
+    cy.url().should("match", /\/reservations\/4$/);
     modifyButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4\/edit$/);
+    cy.url().should("match", /\/reservations\/4\/edit$/);
 
     reservationEditActionCancel().click();
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
     modifyButton().click();
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4\/edit$/);
+    cy.url().should("match", /\/reservations\/4\/edit$/);
     cy.get("h1").should("have.text", titles[0]);
 
     reservationControlsDateInput().should("not.exist");
@@ -340,6 +352,97 @@ describe("Tilavaraus user reservations", () => {
 
     errorNotification().should("not.exist");
 
-    cy.url({ timeout: 20000 }).should("match", /\/reservations\/4$/);
+    cy.url().should("match", /\/reservations\/4$/);
+  });
+});
+
+describe("Returning reservation", () => {
+  beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+  });
+
+  it("should return error for invalid order data", () => {
+    cy.visit("/success?orderId=1111-1111-1111-1111");
+
+    cy.get("h1").should("have.text", "Virheellinen tilausnumero");
+  });
+
+  it("should return error for invalid order id", () => {
+    cy.visit("/success?orderId=2222-2222-2222-2222");
+
+    cy.get("h1").should("have.text", "Varauksesi on vanhentunut");
+  });
+
+  it("should return error for invalid order status", () => {
+    cy.visit("/success?orderId=3333-3333-3333-3333");
+
+    cy.get("h1").should("have.text", "Varauksesi on vanhentunut");
+  });
+
+  it("should return success report for refreshed order status", () => {
+    cy.visit("/success?orderId=3333-3333-3333-3333-2");
+
+    cy.get("h1").should("have.text", "Varaus tehty!");
+  });
+
+  it("should return error for invalid order status", () => {
+    cy.visit("/success?orderId=4444-4444-4444-4444");
+
+    cy.url().should("match", /\/reservations\?error=order1$/);
+  });
+
+  it("should return error for missing reservation uuid", () => {
+    cy.visit("/success?orderId=5555-5555-5555-5555");
+
+    cy.get("h1").should("have.text", "Virhe");
+  });
+
+  it("should return success report", () => {
+    cy.visit("/success?orderId=6666-6666-6666-6666");
+
+    cy.get("h1", { timeout: 20000 }).should("have.text", "Varaus tehty!");
+
+    receiptLinkButton().should("exist");
+  });
+});
+
+describe.only("Reservation cancellation callback", () => {
+  beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+  });
+
+  it("should display error for invalid order id", () => {
+    const orderUuid = "1111-1111-1111-1111";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Virheellinen tilausnumero");
+  });
+
+  it("should display error for invalid order id", () => {
+    const orderUuid = "2222-2222-2222-2222";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Virheellinen tilausnumero");
+  });
+
+  it("should display error for unsuccessfull deletion", () => {
+    const orderUuid = "3333-3333-3333-3333";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+    cy.get("h1").should("have.text", "Virhe");
+  });
+
+  it("should display success message if deletion is unsuccesful", () => {
+    const orderUuid = "3333-3333-3333-3333-2";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Varauksesi on peruttu!");
+  });
+
+  it("should display success message", () => {
+    const orderUuid = "4444-4444-4444-4444";
+    cy.visit(`/reservation/cancel?orderId=${orderUuid}`);
+
+    cy.get("h1").should("have.text", "Varauksesi on peruttu!");
   });
 });

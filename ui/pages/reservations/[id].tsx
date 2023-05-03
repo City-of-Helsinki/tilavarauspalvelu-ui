@@ -9,6 +9,7 @@ import { useLazyQuery, useQuery } from "@apollo/client";
 import { useTranslation } from "next-i18next";
 import { H2, H4, fontRegular } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
+import { signIn, useSession } from "next-auth/react";
 import {
   Query,
   QueryReservationByPkArgs,
@@ -53,7 +54,7 @@ import ReservationStatus from "../../components/reservation/ReservationStatus";
 import Address from "../../components/reservation-unit/Address";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import ReservationOrderStatus from "../../components/reservation/ReservationOrderStatus";
-import { reservationUnitPath } from "../../modules/const";
+import { reservationUnitPath, authEnabled, authenticationIssuer } from "../../modules/const";
 
 type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
@@ -80,6 +81,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
     return {
       props: {
+        key: `${id}-${locale}`,
         ...(await serverSideTranslations(locale)),
         overrideBackgroundColor: "var(--tilavaraus-white)",
         termsOfUse: {
@@ -263,7 +265,19 @@ const Terms = styled.div`
 `;
 
 const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const session = useSession();
+
+  const isUserUnauthenticated =
+    authEnabled && session?.status === "unauthenticated";
+
+  useEffect(() => {
+    if (isUserUnauthenticated) {
+      signIn(authenticationIssuer, {
+        callbackUrl: window.location.href,
+      });
+    }
+  }, [isUserUnauthenticated]);
 
   const [reservation, setReservation] = useState<ReservationType>(null);
   const [order, setOrder] = useState<PaymentOrderType>(null);
@@ -373,22 +387,35 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
               >
                 {t("reservations:saveToCalendar")}
               </BlackButton>
-              {order?.receiptUrl && (
-                <BlackButton
-                  data-testid="reservation__confirmation--button__receipt-link"
-                  onClick={() => window.open(order.receiptUrl, "_blank")}
-                  variant="secondary"
-                  iconRight={<IconLinkExternal aria-hidden />}
-                >
-                  {t("reservations:downloadReceipt")}
-                </BlackButton>
-              )}
+              {order?.receiptUrl &&
+                ["PAID", "REFUNDED"].includes(order?.status) && (
+                  <BlackButton
+                    data-testid="reservation__confirmation--button__receipt-link"
+                    onClick={() =>
+                      window.open(
+                        `${order.receiptUrl}&lang=${i18n.language}`,
+                        "_blank"
+                      )
+                    }
+                    variant="secondary"
+                    iconRight={<IconLinkExternal aria-hidden />}
+                  >
+                    {t("reservations:downloadReceipt")}
+                  </BlackButton>
+                )}
             </SecondaryActions>
           )}
         </>
       )
     );
-  }, [reservation, reservationUnit, order?.receiptUrl, t]);
+  }, [
+    reservation,
+    reservationUnit,
+    order?.receiptUrl,
+    order?.status,
+    t,
+    i18n.language,
+  ]);
 
   const [canTimeBeModified, modifyTimeReason] = useMemo(
     () => canReservationTimeBeChanged({ reservation }),
@@ -407,6 +434,8 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
         return null;
     }
   }, [reservation]);
+
+  if (isUserUnauthenticated) return null;
 
   if (error) {
     return (

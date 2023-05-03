@@ -1,49 +1,39 @@
 import React from "react";
+import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import {
-  Query,
-  QueryReservationByPkArgs,
+  ReservationsReservationStateChoices,
   type ReservationType,
 } from "common/types/gql-types";
 import { H6 } from "common/src/common/typography";
-import { useTranslation } from "react-i18next";
-import { useQuery } from "@apollo/client";
-import { format } from "date-fns";
-import { RECURRING_RESERVATION_QUERY } from "./queries";
-import { useNotification } from "../../../context/NotificationContext";
+import { useRecurringReservations } from "./hooks";
+import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "../../../common/const";
 import ReservationList from "../../ReservationsList";
 import ReservationListButton from "../../ReservationListButton";
+import DenyDialog from "./DenyDialog";
+import { useModal } from "../../../context/ModalContext";
 
 const RecurringReservationsView = ({
   reservation,
   onSelect,
+  onChange,
 }: {
   reservation: ReservationType;
   onSelect: (selected: ReservationType) => void;
+  onChange: () => void;
 }) => {
-  const { notifyError } = useNotification();
   const { t } = useTranslation();
+  const { setModalContent } = useModal();
 
-  const { loading, data } = useQuery<Query, QueryReservationByPkArgs>(
-    RECURRING_RESERVATION_QUERY,
-    {
-      skip: !reservation.recurringReservation?.pk,
-      variables: {
-        pk: Number(reservation.recurringReservation?.pk),
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
-  );
+  const { loading, reservations, fetchMore, totalCount } =
+    useRecurringReservations(
+      reservation.recurringReservation?.pk ?? undefined,
+      { limit: RECURRING_AUTOMATIC_REFETCH_LIMIT }
+    );
 
-  if (loading || data == null) {
+  if (loading) {
     return <div>Loading</div>;
   }
-
-  const reservations =
-    data?.reservations?.edges
-      ?.map((x) => x?.node)
-      .filter((x): x is ReservationType => x != null) ?? [];
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleChange = (_x: ReservationType) => {
@@ -51,41 +41,78 @@ const RecurringReservationsView = ({
     console.warn("Change NOT Implemented.");
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemove = (_x: ReservationType) => {
-    // eslint-disable-next-line no-console
-    console.warn("Remove NOT Implemented.");
+  const handleCloseRemoveDialog = (shouldRefetch?: boolean, pk?: number) => {
+    if (shouldRefetch && pk) {
+      onChange();
+    }
+    setModalContent(null);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRestore = (_x: ReservationType) => {
-    // eslint-disable-next-line no-console
-    console.warn("Restore NOT Implemented.");
+  const handleRemove = (res: ReservationType) => {
+    setModalContent(
+      <DenyDialog
+        reservations={[res]}
+        onReject={() => handleCloseRemoveDialog(true, res.pk ?? undefined)}
+        onClose={() => handleCloseRemoveDialog(false)}
+      />,
+      true
+    );
   };
 
-  const forDisplay = reservations.map((x) => ({
-    date: new Date(x.begin),
-    startTime: format(new Date(x.begin), "hh:mm"),
-    endTime: format(new Date(x.begin), "hh:mm"),
-    isRemoved: x.state !== "CONFIRMED",
-    buttons: [
-      <ReservationListButton callback={() => handleChange(x)} type="change" />,
-      <ReservationListButton callback={() => onSelect(x)} type="show" />,
-      x.state === "CONFIRMED" ? (
-        <ReservationListButton callback={() => handleRemove(x)} type="remove" />
-      ) : (
+  const forDisplay = reservations.map((x) => {
+    const buttons = [];
+    const startDate = new Date(x.begin);
+    const now = new Date();
+
+    if (x.state !== ReservationsReservationStateChoices.Denied) {
+      if (startDate > now) {
+        buttons.push(
+          <ReservationListButton
+            key="change"
+            callback={() => handleChange(x)}
+            type="change"
+          />
+        );
+      }
+
+      buttons.push(
         <ReservationListButton
-          callback={() => handleRestore(x)}
-          type="restore"
+          key="show"
+          callback={() => onSelect(x)}
+          type="show"
         />
-      ),
-    ],
-  }));
+      );
+      if (startDate > now) {
+        buttons.push(
+          <ReservationListButton
+            key="deny"
+            callback={() => handleRemove(x)}
+            type="deny"
+          />
+        );
+      }
+    }
+    return {
+      date: startDate,
+      startTime: format(startDate, "hh:mm"),
+      endTime: format(new Date(x.end), "hh:mm"),
+      isRemoved: x.state === "DENIED",
+      buttons,
+    };
+  });
+
+  const handleLoadMore = () => {
+    fetchMore({ variables: { offset: reservations.length } });
+  };
+
+  const hasMore = reservations.length < (totalCount ?? 0);
 
   return (
     <ReservationList
       header={<H6 as="h3">{t("RecurringReservationsView.Heading")}</H6>}
       items={forDisplay}
+      onLoadMore={handleLoadMore}
+      hasMore={hasMore}
     />
   );
 };

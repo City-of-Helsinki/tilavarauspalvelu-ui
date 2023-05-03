@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useMutation, useQuery } from "@apollo/client";
-import router from "next/router";
+import { useRouter } from "next/router";
 import { useLocalStorage, useSessionStorage } from "react-use";
 import { Stepper } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -40,7 +40,11 @@ import { Inputs, Reservation } from "common/src/reservation-form/types";
 import { Subheading } from "common/src/reservation-form/styles";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import apolloClient from "../../modules/apolloClient";
-import { isBrowser, reservationUnitPrefix } from "../../modules/const";
+import {
+  isBrowser,
+  reservationUnitPath,
+  reservationUnitPrefix,
+} from "../../modules/const";
 import { getTranslation } from "../../modules/util";
 import {
   RESERVATION_UNIT,
@@ -150,6 +154,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
       return {
         props: {
+          key: `${id}${locale}`,
           reservationUnit: reservationUnitData.reservationUnitByPk,
           reservationPurposes,
           ageGroups,
@@ -227,6 +232,8 @@ const ReservationUnitReservation = ({
   termsOfUse,
 }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
+
   const [reservationData, setPendingReservation] = useSessionStorage(
     "pendingReservation",
     null
@@ -378,11 +385,11 @@ const ReservationUnitReservation = ({
         reservationConfirmSuccess();
       } else if (steps?.length > 2) {
         const order = data.confirmReservation?.order;
-        const { checkoutUrl, receiptUrl } = order ?? {};
+        const { checkoutUrl } = order ?? {};
         const { origin, pathname, searchParams } = new URL(checkoutUrl) || {};
         const userId = searchParams?.get("user");
 
-        if (checkoutUrl && receiptUrl && userId && origin && pathname) {
+        if (checkoutUrl && userId && origin && pathname) {
           const baseUrl = `${origin}${pathname}`;
           router.push(
             `${baseUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
@@ -510,8 +517,8 @@ const ReservationUnitReservation = ({
     });
   };
 
-  const cancelReservation = () => {
-    deleteReservation({
+  const cancelReservation = useCallback(async () => {
+    await deleteReservation({
       variables: {
         input: {
           pk: reservationPk,
@@ -519,7 +526,20 @@ const ReservationUnitReservation = ({
       },
     });
     setPendingReservation(null);
-  };
+  }, [deleteReservation, reservationPk, setPendingReservation]);
+
+  useEffect(() => {
+    router.beforePopState(({ as }) => {
+      if (as === reservationUnitPath(reservationUnit.pk)) {
+        cancelReservation();
+      }
+      return true;
+    });
+
+    return () => {
+      router.beforePopState(() => true);
+    };
+  }, [router, reservationUnit.pk, cancelReservation]);
 
   const shouldDisplayReservationUnitPrice = useMemo(() => {
     switch (step) {

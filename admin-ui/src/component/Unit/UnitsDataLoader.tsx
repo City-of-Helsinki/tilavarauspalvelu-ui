@@ -5,7 +5,7 @@ import { FilterArguments } from "./Filters";
 import { useNotification } from "../../context/NotificationContext";
 import Loader from "../Loader";
 import UnitsTable from "./UnitsTable";
-import { LIST_PAGE_SIZE } from "../../common/const";
+import { LARGE_LIST_PAGE_SIZE } from "../../common/const";
 import { More } from "../lists/More";
 import { combineResults } from "../../common/util";
 import { UNITS_QUERY } from "./queries";
@@ -19,6 +19,7 @@ type Props = {
   filters: FilterArguments;
   sort?: Sort;
   sortChanged: (field: string) => void;
+  isMyUnits?: boolean;
 };
 
 const mapFilterParams = (params: FilterArguments) => ({
@@ -41,6 +42,7 @@ const UnitsDataLoader = ({
   filters,
   sort,
   sortChanged: onSortChanged,
+  isMyUnits,
 }: Props): JSX.Element => {
   const { notifyError } = useNotification();
 
@@ -55,7 +57,7 @@ const UnitsDataLoader = ({
       variables: {
         orderBy: sortString,
         offset: 0,
-        first: LIST_PAGE_SIZE,
+        first: LARGE_LIST_PAGE_SIZE,
         ...mapFilterParams(filters),
       },
       onError: (err: ApolloError) => {
@@ -75,7 +77,12 @@ const UnitsDataLoader = ({
 
   return (
     <>
-      <UnitsTable units={units} sort={sort} sortChanged={onSortChanged} />
+      <UnitsTable
+        units={units}
+        sort={sort}
+        sortChanged={onSortChanged}
+        isMyUnits={isMyUnits}
+      />
       <More
         key={units.length}
         totalCount={data?.units?.totalCount || 0}

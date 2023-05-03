@@ -52,6 +52,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
+import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 
 const Dot = styled.div`
   display: inline-block;
@@ -201,24 +202,40 @@ const ButtonsWithPermChecks = ({
   };
 
   const { hasPermission } = useAuthState().authState;
-  const permission =
-    unitPk != null
-      ? hasPermission("can_manage_reservations", unitPk, serviceSectorPks)
-      : false;
+  const permission = hasPermission(
+    "can_manage_reservations",
+    unitPk,
+    serviceSectorPks
+  );
 
-  if (permission || isUsersOwnReservation) {
+  const ownPermissions = isUsersOwnReservation
+    ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
+    : false;
+
+  const userIsAllowToModify = permission || ownPermissions;
+  if (!userIsAllowToModify) {
+    return null;
+  }
+
+  if (reservation.recurringReservation) {
     return (
-      <ApprovalButtons
-        state={reservation.state}
-        isFree={isFree}
-        reservation={reservation}
+      <ApprovalButtonsRecurring
+        recurringReservation={reservation.recurringReservation}
         handleClose={closeDialog}
         handleAccept={closeDialogAndRefetch}
       />
     );
   }
 
-  return null;
+  return (
+    <ApprovalButtons
+      state={reservation.state}
+      isFree={isFree}
+      reservation={reservation}
+      handleClose={closeDialog}
+      handleAccept={closeDialogAndRefetch}
+    />
+  );
 };
 
 const ReservationSummary = ({
@@ -300,6 +317,7 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   )}`;
 
   const weekDayTag = reservation.recurringReservation?.weekdays
+    ?.sort()
     ?.map((x) => t(`dayShort.${x}`))
     ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
 
@@ -441,7 +459,7 @@ const RequestedReservation = (): JSX.Element | null => {
           <Tagline>{reservationTagline}</Tagline>
           <DateTime>
             {t("RequestedReservation.createdAt")}{" "}
-            {formatDateTime(reservation.createdAt as string)}
+            {formatDateTime(reservation.createdAt ?? "")}
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
@@ -524,8 +542,11 @@ const RequestedReservation = (): JSX.Element | null => {
           {reservation.recurringReservation && (
             <Accordion heading={t("RequestedReservation.recurring")}>
               <RecurringReservationsView
+                // reservation change causes a refetch
+                // selected !== reservation so a selection doesn't
                 reservation={reservation}
                 onSelect={setSelectedReservation}
+                onChange={refetch}
               />
             </Accordion>
           )}
