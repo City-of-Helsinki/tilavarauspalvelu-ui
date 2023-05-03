@@ -89,8 +89,8 @@ const RecurringReservationsView = ({
     }
     return {
       date: startDate,
-      startTime: format(startDate, "k:mm"),
-      endTime: format(new Date(x.end), "k:mm"),
+      startTime: format(startDate, "H:mm"),
+      endTime: format(new Date(x.end), "H:mm"),
       isRemoved: x.state === "DENIED",
       buttons,
     };
