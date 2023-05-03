@@ -604,7 +604,7 @@ const ReservationUnitReservation = ({
                   <StyledStepper
                     language={i18n.language}
                     selectedStep={step}
-                    small={steps.length > 2}
+                    small={false}
                     onStepClick={(e) => {
                       const target = e.currentTarget;
                       const s = target
