@@ -302,10 +302,8 @@ const ReservationFormField = ({
       {...register(field, {
         valueAsNumber: true,
         required,
-        ...(required && {
-          min: minValue,
-          max: maxValue,
-        }),
+        min: minValue,
+        max: maxValue,
       })}
       key={field}
       errorText={
