@@ -32,6 +32,8 @@ type Props = {
 const mapFilterParams = (params: FilterArguments) => ({
   ...params,
   unit: params.unit?.map((u) => u.value as string),
+  applicantType: params.applicantType.map((x) => x.toLocaleLowerCase()),
+  // appliedCountGte: params.applicationCount,
 });
 
 const updateQuery = (
