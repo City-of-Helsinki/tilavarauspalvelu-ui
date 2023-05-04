@@ -50,11 +50,8 @@ function ApplicationRound(): JSX.Element | null {
   const { applicationRoundId } = useParams<IProps>();
   const { t } = useTranslation();
 
-  const {
-    applicationRound: applicationRoundGQL,
-    loading,
-    refetch,
-  } = useApplicationRoundByPkQuery(applicationRoundId);
+  const { applicationRound, loading, refetch } =
+    useApplicationRoundByPkQuery(applicationRoundId);
 
   // TODO replace with GQL mutation and move down stream where it's used (use a hook if needed)
   const setApplicationRoundStatus = async (
@@ -74,12 +71,12 @@ function ApplicationRound(): JSX.Element | null {
   }
 
   // FIXME confirm the enums (what matches what in the old rest API)
-  switch (applicationRoundGQL?.status) {
+  switch (applicationRound?.status) {
     case ApplicationRoundStatus.ReviewDone:
     case ApplicationRoundStatus.Archived:
       return (
         <Allocation
-          applicationRound={applicationRoundGQL}
+          applicationRound={applicationRound}
           setApplicationRoundStatus={(status: ApplicationRoundStatusRest) =>
             setApplicationRoundStatus(Number(applicationRoundId), status)
           }
@@ -88,7 +85,7 @@ function ApplicationRound(): JSX.Element | null {
     case ApplicationRoundStatus.Allocated:
       return (
         <Handling
-          applicationRound={applicationRoundGQL}
+          applicationRound={applicationRound}
           // setApplicationRound={setApplicationRound}
           setApplicationRoundStatus={(status: ApplicationRoundStatusRest) =>
             setApplicationRoundStatus(Number(applicationRoundId), status)
@@ -99,7 +96,7 @@ function ApplicationRound(): JSX.Element | null {
     case ApplicationRoundStatus.Sent:
       return (
         <PreApproval
-          applicationRound={applicationRoundGQL}
+          applicationRound={applicationRound}
           setApplicationRoundStatus={(status: ApplicationRoundStatusRest) =>
             setApplicationRoundStatus(Number(applicationRoundId), status)
           }
@@ -109,10 +106,7 @@ function ApplicationRound(): JSX.Element | null {
     case ApplicationRoundStatus.Sending:
     case ApplicationRoundStatus.Draft:
     case ApplicationRoundStatus.InReview: {
-      if (applicationRoundGQL) {
-        return <Review applicationRound={applicationRoundGQL} />;
-      }
-      return <div>ERROR: should never happen GQL migration problem.</div>;
+      return <Review applicationRound={applicationRound} />;
     }
 
     default:
