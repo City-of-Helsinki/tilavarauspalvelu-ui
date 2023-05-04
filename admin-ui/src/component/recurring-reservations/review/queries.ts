@@ -69,13 +69,22 @@ export const APPLICATIONS_EVENTS_QUERY = gql`
     $first: Int
     $applicationRound: ID
     $unit: [ID]
+    $name: String
+    $applicationStatus: String
+    $applicationCountGte: Decimal
+    $applicationCountLte: Decimal
+    $applicantType: [String]
   ) {
     applicationEvents(
       first: $first
       offset: $offset
       unit: $unit
+      name: $name
+      applicationStatus: $applicationStatus
       applicationRound: $applicationRound
-      applicationStatus: "in_review"
+      appliedCountGte: $applicationCountGte
+      appliedCountLte: $applicationCountLte
+      applicantType: $applicantType
     ) {
       edges {
         node {

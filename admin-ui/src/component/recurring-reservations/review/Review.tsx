@@ -148,7 +148,11 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           </Tabs.TabPanel>
           <Tabs.TabPanel>
             <TabContent>
-              <Filters onSearch={debouncedSearch} units={units} />
+              <Filters
+                onSearch={debouncedSearch}
+                units={units}
+                isApplicationEvent
+              />
               <ApplicationEventDataLoader
                 applicationRound={applicationRound}
                 filters={search}

@@ -1,8 +1,12 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { Select } from "hds-react";
-import { ApplicationStatus } from "common/types/gql-types";
+import { Select, TextInput } from "hds-react";
+import { TFunction } from "i18next";
+import {
+  ApplicationStatus,
+  ApplicationsApplicationApplicantTypeChoices,
+} from "common/types/gql-types";
 import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
@@ -19,9 +23,12 @@ Vaiheen mukaan
 */
 export type FilterArguments = {
   unit: OptionType[];
-  applicantType: StringOptionType[]; // applicant type
+  name?: string;
+  applicantType: StringOptionType[];
   applicationCountGte?: string;
   applicationCountLte?: string;
+  // this is only for application
+  // application event queries have different status
   applicationStatus: StringOptionType[];
 };
 
@@ -62,7 +69,7 @@ const ReviewUnitFilter = ({
   );
 };
 
-const ReviewStateFilter = ({
+const ReviewApplicationStateFilter = ({
   options,
   value,
   onChange,
@@ -76,12 +83,65 @@ const ReviewStateFilter = ({
   return (
     <Select<StringOptionType>
       id="applications-review-state-filter"
-      label={t("ReservationUnitsSearch.stateLabel")}
-      placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
+      label={t("ApplicationsFilters.stateLabel")}
+      placeholder={t("ApplicationsFilters.statePlaceHolder")}
       value={value}
       multiselect
       options={options}
       onChange={onChange}
+      // TODO translate
+      clearButtonAriaLabel="Clear all selections"
+      selectedItemRemoveButtonAriaLabel="Remove value"
+    />
+  );
+};
+const ReviewApplicationEventStateFilter = ({
+  options,
+  value,
+  onChange,
+}: {
+  options: StringOptionType[];
+  onChange: (status: StringOptionType[]) => void;
+  value: StringOptionType[];
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <Select<StringOptionType>
+      id="applications-review-state-filter"
+      label={t("ApplicationsFilters.stateLabel")}
+      placeholder={t("ApplicationsFilters.statePlaceHolder")}
+      value={value.find(() => true) ?? { label: "", value: "" }}
+      options={options}
+      onChange={(val: StringOptionType) => onChange([val])}
+      // TODO translate
+      clearButtonAriaLabel="Clear all selections"
+      selectedItemRemoveButtonAriaLabel="Remove value"
+    />
+  );
+};
+
+const ApplicantTypeFilter = ({
+  options,
+  onChange,
+  value,
+}: {
+  options: StringOptionType[];
+  onChange: (status: StringOptionType[]) => void;
+  value: StringOptionType[];
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <Select<StringOptionType>
+      id="applications-review-type-filter"
+      label={t("ApplicationsFilters.filters.applicantType")}
+      placeholder={t("ApplicationsFilters.filters.applicantTypePlaceHolder")}
+      value={value}
+      multiselect
+      options={options}
+      onChange={onChange}
+      // TODO translate
       clearButtonAriaLabel="Clear all selections"
       selectedItemRemoveButtonAriaLabel="Remove value"
     />
@@ -102,23 +162,12 @@ const CountLabel = styled.div`
 type Props = {
   onSearch: (args: FilterArguments) => void;
   units: { name: string; pk: number }[];
+  isApplicationEvent?: boolean;
 };
 
-const Filters = ({ onSearch, units }: Props): JSX.Element => {
-  const { t } = useTranslation();
-  const [state, dispatch] = useReducer(
-    getReducer<FilterArguments>(emptyFilterState),
-    emptyFilterState
-  );
-
-  useEffect(() => {
-    onSearch(state);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
-
-  const tags = toTags(state, t, multivaledFields, [], "ApplicationsFilters");
-
-  const options = [
+// TODO these functions can be simplified with Object.values(Enum)
+const getApplicationStateOptions = (t: TFunction) =>
+  [
     ApplicationStatus.Allocated,
     ApplicationStatus.Cancelled,
     ApplicationStatus.Draft,
@@ -133,8 +182,62 @@ const Filters = ({ onSearch, units }: Props): JSX.Element => {
     value: x.toString(),
   }));
 
+const Filters = ({
+  onSearch,
+  units,
+  isApplicationEvent,
+}: Props): JSX.Element => {
+  const { t } = useTranslation();
+  const [state, dispatch] = useReducer(
+    getReducer<FilterArguments>(emptyFilterState),
+    emptyFilterState
+  );
+
+  useEffect(() => {
+    onSearch(state);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  const tags = toTags(state, t, multivaledFields, [], "ApplicationsFilters");
+
+  const stateOptions = getApplicationStateOptions(t);
+
+  const typeOptions = [
+    ApplicationsApplicationApplicantTypeChoices.Association,
+    ApplicationsApplicationApplicantTypeChoices.Individual,
+    ApplicationsApplicationApplicantTypeChoices.Community,
+    ApplicationsApplicationApplicantTypeChoices.Company,
+  ].map((x) => ({
+    label: t(`Application.applicantTypes.${x.toString().toLocaleLowerCase()}`),
+    value: x.toString(),
+  }));
+
   return (
     <AutoGrid>
+      {isApplicationEvent ? (
+        <TextInput
+          id="applications-review-name-filter"
+          label={t("ApplicationsFilters.textSearchLabel")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onSearch(state);
+            }
+          }}
+          onChange={(e) =>
+            dispatch({ type: "set", value: { name: e.target.value } })
+          }
+          placeholder={t("ApplicationsFilters.textSearchPlaceHolder")}
+          value={state.name || ""}
+        />
+      ) : (
+        <ApplicantTypeFilter
+          onChange={(e) =>
+            dispatch({ type: "set", value: { applicantType: e } })
+          }
+          value={state.applicantType}
+          options={typeOptions}
+        />
+      )}
       <ReviewUnitFilter
         units={units}
         onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
@@ -179,13 +282,24 @@ const Filters = ({ onSearch, units }: Props): JSX.Element => {
           }}
         />
       </CountFilterContainer>
-      <ReviewStateFilter
-        onChange={(e) =>
-          dispatch({ type: "set", value: { applicationStatus: e } })
-        }
-        value={state.applicationStatus}
-        options={options}
-      />
+      {!isApplicationEvent ? (
+        <ReviewApplicationStateFilter
+          onChange={(e) =>
+            dispatch({ type: "set", value: { applicationStatus: e } })
+          }
+          value={state.applicationStatus}
+          options={stateOptions}
+        />
+      ) : (
+        <ReviewApplicationEventStateFilter
+          onChange={(e) =>
+            dispatch({ type: "set", value: { applicationStatus: e } })
+          }
+          value={state.applicationStatus}
+          options={stateOptions}
+        />
+      )}
+
       <FullRow>
         <Tags tags={tags} t={t} dispatch={dispatch} />
       </FullRow>

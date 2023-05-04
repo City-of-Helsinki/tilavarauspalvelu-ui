@@ -733,7 +733,13 @@ const translations: ITranslations = {
     sent: ["Lähetetty"],
   },
   ApplicationsFilters: {
+    textSearchLabel: ["Nimi"],
+    textSearchPlaceHolder: ["Nimi"],
+    stateLabel: ["Vaihe"],
+    statePlaceHolder: ["Valitse"],
     filters: {
+      applicantType: ["Hakijatyyppi"],
+      applicantTypePlaceHolder: ["Hakijatyyppi"],
       applicationCountGteTag: ["Vähintään {{ value }}"],
       applicationCountLteTag: ["Enintään {{ value }}"],
     },

@@ -28,8 +28,18 @@ type Props = {
   sortChanged: (field: string) => void;
 };
 
-const mapFilterParams = (params: FilterArguments) => ({
+const mapFilterParams = ({
+  applicationStatus,
+  ...params
+}: FilterArguments) => ({
+  ...params,
   unit: params.unit?.map((u) => u.value as string),
+  applicantType: params.applicantType.map(({ value }) =>
+    value.toLocaleLowerCase()
+  ),
+  // Using same reducer but queries have [String] and String for state
+  applicationStatus: applicationStatus.find(() => true)?.value,
+  // FIXME what is the count here? it works to filter something but what?
 });
 
 const updateQuery = (
