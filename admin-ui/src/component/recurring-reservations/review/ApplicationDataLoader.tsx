@@ -32,7 +32,10 @@ type Props = {
 const mapFilterParams = (params: FilterArguments) => ({
   ...params,
   unit: params.unit?.map((u) => u.value as string),
-  applicantType: params.applicantType.map((x) => x.toLocaleLowerCase()),
+  applicantType: params.applicantType.map(({ value }) =>
+    value.toLocaleLowerCase()
+  ),
+  applicationStatus: params.applicationStatus.map(({ value }) => value),
   // appliedCountGte: params.applicationCount,
 });
 

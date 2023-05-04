@@ -720,6 +720,25 @@ const translations: ITranslations = {
       "Valituilla suodattimilla ei löytynyt yhtään haettua vuoroa. Valitse suodattimia uudelleen tai tyhjennä kaikki suodattimet.",
     ],
   },
+  ApplicationStatus: {
+    // TODO translations from Figma
+    allocated: ["Allokoitu"],
+    cancelled: ["Peruutettu"],
+    draft: ["Luonnos"],
+    expired: ["Vanhentunut"],
+    handled: ["Käsitelty"],
+    in_review: ["TODO in review"],
+    received: ["Saatu"],
+    review_done: ["TODO review done"],
+    sent: ["Lähetetty"],
+  },
+  ApplicationsFilters: {
+    filters: {
+      applicationCountGteTag: ["Vähintään {{ value }}"],
+      applicationCountLteTag: ["Enintään {{ value }}"],
+    },
+    countLabel: ["Määrä"],
+  },
   Basket: {
     purpose: ["Tuettava toiminta"],
     customerType: ["Asiakastyypin täytyy olla"],
@@ -1322,6 +1341,8 @@ const translations: ITranslations = {
       surfaceAreaGteTag: ["Vähintään {{value}} m²."],
       surfaceAreaLteTag: ["Enintään {{value}} m²."],
     },
+    applicationCountGtePlaceHolder: ["Vähintään"],
+    applicationCountLtePlaceHolder: ["Enintään"],
   },
   ReservationStateFilter: {
     label: ["Käsittelytila"],

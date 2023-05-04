@@ -1,16 +1,15 @@
 import { Button, IconAngleDown, IconAngleUp, TextInput } from "hds-react";
-import { isEmpty } from "lodash";
 import React, { useEffect, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { OptionType } from "../../common/types";
 import UnitFilter from "../filters/UnitFilter";
-import Tags, { Action, getReducer, toTags } from "../lists/Tags";
+import Tags, { getReducer, toTags } from "../lists/Tags";
 import { Grid, Span3 } from "../../styles/layout";
 import ReservationUnitStateFilter from "../filters/ReservationUnitStateFilter";
 import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
+import NumberFilter from "../NumberFilter";
 
 export type FilterArguments = {
   nameFi?: string;
@@ -78,41 +77,6 @@ export const emptyState = {
   unit: [],
   reservationUnitStates: [],
 };
-
-const MyTextInput = ({
-  id,
-  value,
-  dispatch,
-}: {
-  id: keyof FilterArguments;
-  value?: string;
-  dispatch: React.Dispatch<Action<FilterArguments>>;
-}) => (
-  <TextInput
-    id={id}
-    label=" "
-    onChange={(e) => {
-      if (e.target.value.length > 0) {
-        dispatch({
-          type: "set",
-          value: { [id]: e.target.value },
-        });
-      } else {
-        dispatch({
-          type: "deleteTag",
-          field: id,
-        });
-      }
-    }}
-    value={value || ""}
-    placeholder={i18next.t(`ReservationUnitsSearch.${id}PlaceHolder`)}
-    errorText={
-      !isEmpty(value) && Number.isNaN(Number(value))
-        ? i18next.t("ReservationUnitsSearch.notANumber")
-        : undefined
-    }
-  />
-);
 
 const Filters = ({ onSearch }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -182,12 +146,12 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
             <div>
               <div>{t("ReservationUnitsSearch.maxPersonsLabel")}</div>
               <RangeContrainer>
-                <MyTextInput
+                <NumberFilter
                   id="maxPersonsGte"
                   value={state.maxPersonsGte}
                   dispatch={dispatch}
                 />
-                <MyTextInput
+                <NumberFilter
                   id="maxPersonsLte"
                   value={state.maxPersonsLte}
                   dispatch={dispatch}
@@ -197,12 +161,12 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
             <div>
               <div>{t("ReservationUnitsSearch.surfaceAreaLabel")}</div>
               <RangeContrainer>
-                <MyTextInput
+                <NumberFilter
                   id="surfaceAreaGte"
                   value={state.surfaceAreaGte}
                   dispatch={dispatch}
                 />
-                <MyTextInput
+                <NumberFilter
                   id="surfaceAreaLte"
                   value={state.surfaceAreaLte}
                   dispatch={dispatch}

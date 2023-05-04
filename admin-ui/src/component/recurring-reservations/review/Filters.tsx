@@ -1,13 +1,16 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { gql, useQuery } from "@apollo/client";
-import { NumberInput, Select } from "hds-react";
+import styled from "styled-components";
+import { Select } from "hds-react";
 import { ApplicationStatus, Query, UnitType } from "common/types/gql-types";
 import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
+import NumberFilter from "../../NumberFilter";
 
+type StringOptionType = { value: string; label: string };
 /**
 Hakijatyypin mukaan (only on first tab)
 Vuoron nimen mukaan (only on second tab)
@@ -17,20 +20,19 @@ Vaiheen mukaan
 */
 export type FilterArguments = {
   unit: OptionType[];
-  applicantType: string[]; // applicant type
-  applicationCount: number | null;
-  // TODO this should be Application status => transformed to string when querying
-  status: string[];
+  applicantType: StringOptionType[]; // applicant type
+  applicationCountGte?: string;
+  applicationCountLte?: string;
+  applicationStatus: StringOptionType[];
 };
 
 export const emptyFilterState = {
   unit: [],
   applicantType: [],
-  applicationCount: null,
-  status: [],
+  applicationStatus: [],
 };
 
-const multivaledFields = ["unit", "status", "applicantType"];
+const multivaledFields = ["unit", "applicationStatus", "applicantType"];
 
 const APPLICATION_UNITS_QUERY = gql`
   query units($pks: [ID]) {
@@ -45,6 +47,26 @@ const APPLICATION_UNITS_QUERY = gql`
   }
 `;
 
+// TODO this is inefficent (doing an extra call), should be refactored to be included in the main query for an application
+const useApplicationUnitOptions = (pks: number[]) => {
+  // TODO this should use cache properly (auto fetch 2000 units)
+  const { data, loading } = useQuery<Query>(APPLICATION_UNITS_QUERY, {
+    variables: {
+      pks,
+    },
+  });
+
+  const options: OptionType[] = (data?.units?.edges || [])
+    .map((e) => e?.node)
+    .filter((e): e is UnitType => e != null)
+    .map((unit) => ({
+      label: unit?.nameFi ?? "",
+      value: unit?.pk ?? "",
+    }));
+
+  return { options, loading };
+};
+
 const ReviewUnitFilter = ({
   unitPks,
   value,
@@ -55,20 +77,7 @@ const ReviewUnitFilter = ({
   value: OptionType[];
 }) => {
   const { t } = useTranslation();
-  // TODO this should use cache properly (auto fetch 2000 units)
-  const { data, loading } = useQuery<Query>(APPLICATION_UNITS_QUERY, {
-    variables: {
-      pks: unitPks,
-    },
-  });
-
-  const opts: OptionType[] = (data?.units?.edges || [])
-    .map((e) => e?.node)
-    .filter((e): e is UnitType => e != null)
-    .map((unit) => ({
-      label: unit?.nameFi ?? "",
-      value: unit?.pk ?? "",
-    }));
+  const { options, loading } = useApplicationUnitOptions(unitPks);
 
   return (
     <SortedSelect
@@ -76,7 +85,7 @@ const ReviewUnitFilter = ({
       label={t("ReservationUnitsSearch.unitLabel")}
       multiselect
       placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
-      options={opts}
+      options={options}
       value={value}
       onChange={onChange}
       id="reservation-unit-combobox"
@@ -84,68 +93,42 @@ const ReviewUnitFilter = ({
   );
 };
 
-const ReviewCountFilter = ({
-  value,
-  onChange,
-}: {
-  onChange: (count: number) => void;
-  value: number | null;
-}) => {
-  return (
-    <NumberInput
-      id="applications-review-count-filter"
-      label="count"
-      value={value ?? ""}
-      onChange={(e) => onChange(Number(e.target.value))}
-    />
-  );
-};
-
-type StringOptionType = { value: string; label: string };
 const ReviewStateFilter = ({
+  options,
   value,
   onChange,
 }: {
-  onChange: (status: string[]) => void;
-  value: string[];
+  options: StringOptionType[];
+  onChange: (status: StringOptionType[]) => void;
+  value: StringOptionType[];
 }) => {
-  // TODO translate the keys
-  const opts = [
-    ApplicationStatus.Allocated,
-    ApplicationStatus.Cancelled,
-    ApplicationStatus.Draft,
-    ApplicationStatus.Expired,
-    ApplicationStatus.Handled,
-    ApplicationStatus.InReview,
-    ApplicationStatus.Received,
-    ApplicationStatus.ReviewDone,
-    ApplicationStatus.Sent,
-  ].map((x) => ({
-    label: x.toString(),
-    value: x.toString(),
-  }));
-
-  const sVal = opts.filter((x) => value.includes(x.value));
-
-  const handleChange = (val: StringOptionType[]) => {
-    onChange(val.map((x) => x.value));
-  };
+  const { t } = useTranslation();
 
   return (
     <Select<StringOptionType>
       id="applications-review-state-filter"
-      label="state"
-      helper="Assistive text"
-      placeholder="Placeholder"
-      value={sVal}
+      label={t("ReservationUnitsSearch.stateLabel")}
+      placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
+      value={value}
       multiselect
-      options={opts}
-      onChange={handleChange}
+      options={options}
+      onChange={onChange}
       clearButtonAriaLabel="Clear all selections"
       selectedItemRemoveButtonAriaLabel="Remove value"
     />
   );
 };
+
+const CountFilterContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-self: start;
+  height: 100%;
+`;
+
+const CountLabel = styled.div`
+  grid-column: 1 / -1;
+`;
 
 type Props = {
   onSearch: (args: FilterArguments) => void;
@@ -164,11 +147,22 @@ const Filters = ({ onSearch, unitPks }: Props): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  // FIXME there is an extra "null" tag here
-  // FIXME tags don't work for applicationState at all
-  // they are also rather off for count
-  // check the other pages for how they are supposed to be
-  const tags = toTags(state, t, multivaledFields, ["applicationCount"]);
+  const tags = toTags(state, t, multivaledFields, [], "ApplicationsFilters");
+
+  const options = [
+    ApplicationStatus.Allocated,
+    ApplicationStatus.Cancelled,
+    ApplicationStatus.Draft,
+    ApplicationStatus.Expired,
+    ApplicationStatus.Handled,
+    ApplicationStatus.InReview,
+    ApplicationStatus.Received,
+    ApplicationStatus.ReviewDone,
+    ApplicationStatus.Sent,
+  ].map((x) => ({
+    label: t(`ApplicationStatus.${x.toString()}`),
+    value: x.toString(),
+  }));
 
   return (
     <AutoGrid>
@@ -177,15 +171,29 @@ const Filters = ({ onSearch, unitPks }: Props): JSX.Element => {
         onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
         value={state.unit}
       />
-      <ReviewCountFilter
-        onChange={(e) =>
-          dispatch({ type: "set", value: { applicationCount: e } })
-        }
-        value={state.applicationCount}
-      />
+      <CountFilterContainer>
+        <CountLabel>{t("ApplicationsFilters.countLabel")}</CountLabel>
+        <NumberFilter
+          id="applicationCountGte"
+          value={
+            state.applicationCountGte ? String(state.applicationCountGte) : ""
+          }
+          dispatch={dispatch}
+        />
+        <NumberFilter
+          id="applicationCountLte"
+          value={
+            state.applicationCountLte ? String(state.applicationCountLte) : ""
+          }
+          dispatch={dispatch}
+        />
+      </CountFilterContainer>
       <ReviewStateFilter
-        onChange={(e) => dispatch({ type: "set", value: { status: e } })}
-        value={state.status}
+        onChange={(e) =>
+          dispatch({ type: "set", value: { applicationStatus: e } })
+        }
+        value={state.applicationStatus}
+        options={options}
       />
       <FullRow>
         <Tags tags={tags} t={t} dispatch={dispatch} />

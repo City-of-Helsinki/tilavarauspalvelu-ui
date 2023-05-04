@@ -6,17 +6,19 @@ export const APPLICATIONS_QUERY = gql`
     $first: Int
     $applicationRound: ID
     $unit: [ID]
-    $status: [String]
-    $applicationCount: Decimal
+    $applicationStatus: [String]
+    $applicationCountGte: Decimal
+    $applicationCountLte: Decimal
     $applicantType: [String]
   ) {
     applications(
       first: $first
       offset: $offset
       unit: $unit
-      status: $status
+      status: $applicationStatus
       applicationRound: $applicationRound
-      appliedCountGte: $applicationCount
+      appliedCountGte: $applicationCountGte
+      appliedCountLte: $applicationCountLte
       applicantType: $applicantType
     ) {
       edges {
