@@ -147,14 +147,36 @@ const Filters = ({ onSearch, units }: Props): JSX.Element => {
           value={
             state.applicationCountGte ? String(state.applicationCountGte) : ""
           }
-          dispatch={dispatch}
+          onValueChange={(val: string) => {
+            dispatch({
+              type: "set",
+              value: { applicationCountGte: val },
+            });
+          }}
+          onReset={() => {
+            dispatch({
+              type: "deleteTag",
+              field: "applicationCountGte",
+            });
+          }}
         />
         <NumberFilter
           id="applicationCountLte"
           value={
             state.applicationCountLte ? String(state.applicationCountLte) : ""
           }
-          dispatch={dispatch}
+          onValueChange={(val: string) => {
+            dispatch({
+              type: "set",
+              value: { applicationCountLte: val },
+            });
+          }}
+          onReset={() => {
+            dispatch({
+              type: "deleteTag",
+              field: "applicationCountLte",
+            });
+          }}
         />
       </CountFilterContainer>
       <ReviewStateFilter

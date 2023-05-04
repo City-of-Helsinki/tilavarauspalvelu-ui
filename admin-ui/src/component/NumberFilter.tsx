@@ -2,16 +2,17 @@ import React from "react";
 import { isEmpty } from "lodash";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "hds-react";
-import { Action } from "./lists/Tags";
 
-function NumberFilter<T>({
+function NumberFilter({
   id,
   value,
-  dispatch,
+  onReset,
+  onValueChange,
 }: {
-  id: keyof T;
+  id: string;
   value?: string;
-  dispatch: React.Dispatch<Action<T>>;
+  onReset: () => void;
+  onValueChange: (val: string) => void;
 }) {
   const { t } = useTranslation();
 
@@ -21,22 +22,13 @@ function NumberFilter<T>({
       label=" "
       onChange={(e) => {
         if (e.target.value.length > 0) {
-          dispatch({
-            type: "set",
-            // FIXME typescript
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            value: { [id]: e.target.value },
-          });
+          onValueChange(e.target.value);
         } else {
-          dispatch({
-            type: "deleteTag",
-            field: id,
-          });
+          onReset();
         }
       }}
       value={value || ""}
-      placeholder={t(`ReservationUnitsSearch.${String(id)}PlaceHolder`)}
+      placeholder={t(`ReservationUnitsSearch.${id}PlaceHolder`)}
       errorText={
         !isEmpty(value) && Number.isNaN(Number(value))
           ? t("ReservationUnitsSearch.notANumber")

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { OptionType } from "../../common/types";
 import UnitFilter from "../filters/UnitFilter";
-import Tags, { getReducer, toTags } from "../lists/Tags";
+import Tags, { Action, getReducer, toTags } from "../lists/Tags";
 import { Grid, Span3 } from "../../styles/layout";
 import ReservationUnitStateFilter from "../filters/ReservationUnitStateFilter";
 import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
@@ -21,6 +21,35 @@ export type FilterArguments = {
   reservationUnitType: OptionType[];
   reservationUnitStates: OptionType[];
 };
+
+function CustomNumberFilter({
+  id,
+  value,
+  dispatch,
+}: {
+  id: keyof FilterArguments;
+  value?: string;
+  dispatch: React.Dispatch<Action<FilterArguments>>;
+}) {
+  return (
+    <NumberFilter
+      id={id}
+      value={value}
+      onValueChange={(val: string) => {
+        dispatch({
+          type: "set",
+          value: { [id]: val },
+        });
+      }}
+      onReset={() => {
+        dispatch({
+          type: "deleteTag",
+          field: id,
+        });
+      }}
+    />
+  );
+}
 
 const multivaluedFields = [
   "unit",
@@ -146,12 +175,12 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
             <div>
               <div>{t("ReservationUnitsSearch.maxPersonsLabel")}</div>
               <RangeContrainer>
-                <NumberFilter
+                <CustomNumberFilter
                   id="maxPersonsGte"
                   value={state.maxPersonsGte}
                   dispatch={dispatch}
                 />
-                <NumberFilter
+                <CustomNumberFilter
                   id="maxPersonsLte"
                   value={state.maxPersonsLte}
                   dispatch={dispatch}
@@ -161,12 +190,12 @@ const Filters = ({ onSearch }: Props): JSX.Element => {
             <div>
               <div>{t("ReservationUnitsSearch.surfaceAreaLabel")}</div>
               <RangeContrainer>
-                <NumberFilter
+                <CustomNumberFilter
                   id="surfaceAreaGte"
                   value={state.surfaceAreaGte}
                   dispatch={dispatch}
                 />
-                <NumberFilter
+                <CustomNumberFilter
                   id="surfaceAreaLte"
                   value={state.surfaceAreaLte}
                   dispatch={dispatch}
