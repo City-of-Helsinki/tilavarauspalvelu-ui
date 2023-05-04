@@ -7,7 +7,7 @@ import { gql, useQuery } from "@apollo/client";
 import { H2 } from "common/src/common/typography";
 import { ApplicationRoundType, Query } from "common/types/gql-types";
 import { applicationRoundUrl } from "../../../common/urls";
-import { Container, VerticalFlex } from "../../../styles/layout";
+import { Container } from "../../../styles/layout";
 import StatusRecommendation from "../../applications/StatusRecommendation";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import withMainMenu from "../../withMainMenu";
@@ -41,11 +41,13 @@ const StyledH2 = styled(H2).attrs({ $legacy: true })`
 `;
 
 const TabContent = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--spacing-m);
   margin-top: var(--spacing-s);
   line-height: 1;
+  & table {
+    width: 100%;
+  }
 `;
 
 const APPLICATION_RESERVATION_UNITS_QUERY = gql`
@@ -155,28 +157,24 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           </Tabs.TabList>
           <Tabs.TabPanel>
             <TabContent>
-              <VerticalFlex>
-                <Filters onSearch={debouncedSearch} unitPks={unitPks} />
-                <ApplicationDataLoader
-                  applicationRound={applicationRound}
-                  filters={search}
-                  sort={sort}
-                  sortChanged={onSortChanged}
-                />
-              </VerticalFlex>
+              <Filters onSearch={debouncedSearch} unitPks={unitPks} />
+              <ApplicationDataLoader
+                applicationRound={applicationRound}
+                filters={search}
+                sort={sort}
+                sortChanged={onSortChanged}
+              />
             </TabContent>
           </Tabs.TabPanel>
           <Tabs.TabPanel>
             <TabContent>
-              <VerticalFlex>
-                <Filters onSearch={debouncedSearch} unitPks={unitPks} />
-                <ApplicationEventDataLoader
-                  applicationRound={applicationRound}
-                  filters={search}
-                  sort={sort}
-                  sortChanged={onSortChanged}
-                />
-              </VerticalFlex>
+              <Filters onSearch={debouncedSearch} unitPks={unitPks} />
+              <ApplicationEventDataLoader
+                applicationRound={applicationRound}
+                filters={search}
+                sort={sort}
+                sortChanged={onSortChanged}
+              />
             </TabContent>
           </Tabs.TabPanel>
         </Tabs>
