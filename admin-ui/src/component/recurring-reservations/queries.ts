@@ -27,6 +27,10 @@ export const APPLICATION_ROUND_BY_PK_QUERY = gql`
           reservationUnits {
             pk
             nameFi
+            unit {
+              pk
+              nameFi
+            }
           }
           purposes {
             pk

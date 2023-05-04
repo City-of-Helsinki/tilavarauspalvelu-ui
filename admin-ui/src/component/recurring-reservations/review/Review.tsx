@@ -3,9 +3,8 @@ import { debounce } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { gql, useQuery } from "@apollo/client";
 import { H2 } from "common/src/common/typography";
-import { ApplicationRoundType, Query } from "common/types/gql-types";
+import { ApplicationRoundType } from "common/types/gql-types";
 import { applicationRoundUrl } from "../../../common/urls";
 import { Container } from "../../../styles/layout";
 import StatusRecommendation from "../../applications/StatusRecommendation";
@@ -50,20 +49,6 @@ const TabContent = styled.div`
   }
 `;
 
-const APPLICATION_RESERVATION_UNITS_QUERY = gql`
-  query reservationUnits($pks: [ID]) {
-    reservationUnits(onlyWithPermission: true, pk: $pks) {
-      edges {
-        node {
-          unit {
-            pk
-          }
-        }
-      }
-    }
-  }
-`;
-
 function Review({ applicationRound }: IProps): JSX.Element | null {
   const [search, setSearch] = useState<FilterArguments>(emptyFilterState);
   const [sort, setSort] = useState<Sort>();
@@ -78,18 +63,13 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
 
   const { t } = useTranslation();
 
-  // TODO this query is needless if we can include it in the original applicationRound query
-  const { data } = useQuery<Query>(APPLICATION_RESERVATION_UNITS_QUERY, {
-    skip: !applicationRound.reservationUnits?.length,
-    variables: {
-      pks: applicationRound.reservationUnits?.map((x) => x?.pk),
-    },
-  });
-
-  const unitPks =
-    data?.reservationUnits?.edges
-      ?.map((x) => x?.node?.unit?.pk)
-      ?.filter((x): x is number => x != null) ?? [];
+  const units =
+    applicationRound.reservationUnits
+      ?.map((x) => x?.unit)
+      ?.map((x) =>
+        x?.pk && x?.nameFi ? { pk: x.pk, name: x.nameFi } : undefined
+      )
+      ?.filter((x): x is { pk: number; name: string } => x != null) ?? [];
 
   // TODO translation
   const roundName = applicationRound.nameFi ?? "Ei nimeä";
@@ -157,7 +137,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           </Tabs.TabList>
           <Tabs.TabPanel>
             <TabContent>
-              <Filters onSearch={debouncedSearch} unitPks={unitPks} />
+              <Filters onSearch={debouncedSearch} units={units} />
               <ApplicationDataLoader
                 applicationRound={applicationRound}
                 filters={search}
@@ -168,7 +148,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           </Tabs.TabPanel>
           <Tabs.TabPanel>
             <TabContent>
-              <Filters onSearch={debouncedSearch} unitPks={unitPks} />
+              <Filters onSearch={debouncedSearch} units={units} />
               <ApplicationEventDataLoader
                 applicationRound={applicationRound}
                 filters={search}

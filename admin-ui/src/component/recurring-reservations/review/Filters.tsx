@@ -1,9 +1,8 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
-import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
 import { Select } from "hds-react";
-import { ApplicationStatus, Query, UnitType } from "common/types/gql-types";
+import { ApplicationStatus } from "common/types/gql-types";
 import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
@@ -34,54 +33,24 @@ export const emptyFilterState = {
 
 const multivaledFields = ["unit", "applicationStatus", "applicantType"];
 
-const APPLICATION_UNITS_QUERY = gql`
-  query units($pks: [ID]) {
-    units(onlyWithPermission: true, pk: $pks, orderBy: "nameFI") {
-      edges {
-        node {
-          nameFi
-          pk
-        }
-      }
-    }
-  }
-`;
-
-// TODO this is inefficent (doing an extra call), should be refactored to be included in the main query for an application
-const useApplicationUnitOptions = (pks: number[]) => {
-  // TODO this should use cache properly (auto fetch 2000 units)
-  const { data, loading } = useQuery<Query>(APPLICATION_UNITS_QUERY, {
-    variables: {
-      pks,
-    },
-  });
-
-  const options: OptionType[] = (data?.units?.edges || [])
-    .map((e) => e?.node)
-    .filter((e): e is UnitType => e != null)
-    .map((unit) => ({
-      label: unit?.nameFi ?? "",
-      value: unit?.pk ?? "",
-    }));
-
-  return { options, loading };
-};
-
 const ReviewUnitFilter = ({
-  unitPks,
+  units,
   value,
   onChange,
 }: {
-  unitPks: number[];
+  units: { pk: number; name: string }[];
   onChange: (units: OptionType[]) => void;
   value: OptionType[];
 }) => {
   const { t } = useTranslation();
-  const { options, loading } = useApplicationUnitOptions(unitPks);
+
+  const options: OptionType[] = units.map((x) => ({
+    label: x.name,
+    value: x.pk,
+  }));
 
   return (
     <SortedSelect
-      disabled={loading}
       label={t("ReservationUnitsSearch.unitLabel")}
       multiselect
       placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
@@ -132,10 +101,10 @@ const CountLabel = styled.div`
 
 type Props = {
   onSearch: (args: FilterArguments) => void;
-  unitPks: number[];
+  units: { name: string; pk: number }[];
 };
 
-const Filters = ({ onSearch, unitPks }: Props): JSX.Element => {
+const Filters = ({ onSearch, units }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(
     getReducer<FilterArguments>(emptyFilterState),
@@ -167,7 +136,7 @@ const Filters = ({ onSearch, unitPks }: Props): JSX.Element => {
   return (
     <AutoGrid>
       <ReviewUnitFilter
-        unitPks={unitPks}
+        units={units}
         onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
         value={state.unit}
       />
