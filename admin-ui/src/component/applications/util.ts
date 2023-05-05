@@ -129,7 +129,8 @@ export const applicationTurns = (application: Application): number =>
   );
 
 // TODO check the enums
-// TODO convert the base functions after they have been migrated to GQL types
+// Migration function to convert enums from GQL to REST
+// can be removed after base functions use GQL types instead.
 export const convertRoundGQLStatusToRest: (
   status: ApplicationRoundStatusGQL
 ) => ApplicationRoundStatus = (status) => {
