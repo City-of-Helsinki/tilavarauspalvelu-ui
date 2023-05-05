@@ -155,7 +155,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
       return {
         props: {
-          key: `${id}${locale}`,
+          key: `${reservationUnitPk}${locale}`,
           reservationUnit: reservationUnitData.reservationUnitByPk,
           reservationPurposes,
           ageGroups,
