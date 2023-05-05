@@ -38,79 +38,35 @@ export const emptyFilterState = {
 
 const multivaledFields = ["unit", "applicationStatus", "applicantType"];
 
-const ReviewApplicationStateFilter = ({
-  options,
-  value,
-  onChange,
+// Backend doesn't support multiple states for application event queries
+// so don't allow user to select more than one state at a time.
+const ReviewStateFilter = ({
+  isApplicationEvent,
+  ...props
 }: {
   options: StringOptionType[];
   onChange: (status: StringOptionType[]) => void;
   value: StringOptionType[];
+  isApplicationEvent?: boolean;
 }) => {
   const { t } = useTranslation();
 
-  return (
+  const commonProps = {
+    id: "applications-review-state-filter",
+    label: t("ApplicationsFilters.stateLabel"),
+    placeholder: t("ApplicationsFilters.statePlaceHolder"),
+    clearButtonAriaLabel: t("common.clearAllSelections"),
+    selectedItemRemoveButtonAriaLabel: t("common.removeValue"),
+  };
+
+  return !isApplicationEvent ? (
+    <Select<StringOptionType> multiselect {...commonProps} {...props} />
+  ) : (
     <Select<StringOptionType>
-      id="applications-review-state-filter"
-      label={t("ApplicationsFilters.stateLabel")}
-      placeholder={t("ApplicationsFilters.statePlaceHolder")}
-      value={value}
-      multiselect
-      options={options}
-      onChange={onChange}
-      clearButtonAriaLabel={t("common.clearAllSelections")}
-      selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
-    />
-  );
-};
-
-const ReviewApplicationEventStateFilter = ({
-  options,
-  value,
-  onChange,
-}: {
-  options: StringOptionType[];
-  onChange: (status: StringOptionType[]) => void;
-  value: StringOptionType[];
-}) => {
-  const { t } = useTranslation();
-
-  return (
-    <Select<StringOptionType>
-      id="applications-review-state-filter"
-      label={t("ApplicationsFilters.stateLabel")}
-      placeholder={t("ApplicationsFilters.statePlaceHolder")}
-      value={value.find(() => true) ?? { label: "", value: "" }}
-      options={options}
-      onChange={(val: StringOptionType) => onChange([val])}
-      clearButtonAriaLabel={t("common.clearAllSelections")}
-      selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
-    />
-  );
-};
-
-const ApplicantTypeFilter = ({
-  options,
-  onChange,
-  value,
-}: {
-  options: StringOptionType[];
-  onChange: (status: StringOptionType[]) => void;
-  value: StringOptionType[];
-}) => {
-  const { t } = useTranslation();
-
-  return (
-    <Select<StringOptionType>
-      id="applications-review-type-filter"
-      label={t("ApplicationsFilters.filters.applicantType")}
-      placeholder={t("ApplicationsFilters.filters.applicantTypePlaceHolder")}
-      value={value}
-      multiselect
-      options={options}
-      onChange={onChange}
-      clearButtonAriaLabel={t("common.clearAllSelections")}
-      selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
+      {...commonProps}
+      value={props.value.find(() => true) ?? { label: "", value: "" }}
+      options={props.options}
+      onChange={(val: StringOptionType) => props.onChange([val])}
     />
   );
 };
@@ -191,12 +147,20 @@ const Filters = ({
           value={state.name || ""}
         />
       ) : (
-        <ApplicantTypeFilter
+        <Select<StringOptionType>
+          id="applications-review-type-filter"
+          label={t("ApplicationsFilters.filters.applicantType")}
+          placeholder={t(
+            "ApplicationsFilters.filters.applicantTypePlaceHolder"
+          )}
+          multiselect
           onChange={(e) =>
             dispatch({ type: "set", value: { applicantType: e } })
           }
           value={state.applicantType}
           options={typeOptions}
+          clearButtonAriaLabel={t("common.clearAllSelections")}
+          selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
         />
       )}
       <SortedSelect
@@ -247,23 +211,14 @@ const Filters = ({
           }}
         />
       </CountFilterContainer>
-      {!isApplicationEvent ? (
-        <ReviewApplicationStateFilter
-          onChange={(e) =>
-            dispatch({ type: "set", value: { applicationStatus: e } })
-          }
-          value={state.applicationStatus}
-          options={stateOptions}
-        />
-      ) : (
-        <ReviewApplicationEventStateFilter
-          onChange={(e) =>
-            dispatch({ type: "set", value: { applicationStatus: e } })
-          }
-          value={state.applicationStatus}
-          options={stateOptions}
-        />
-      )}
+      <ReviewStateFilter
+        isApplicationEvent={isApplicationEvent}
+        onChange={(e) =>
+          dispatch({ type: "set", value: { applicationStatus: e } })
+        }
+        value={state.applicationStatus}
+        options={stateOptions}
+      />
 
       <FullRow>
         <Tags tags={tags} t={t} dispatch={dispatch} />
