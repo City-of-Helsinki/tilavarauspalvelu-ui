@@ -71,8 +71,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
       )
       ?.filter((x): x is { pk: number; name: string } => x != null) ?? [];
 
-  // TODO translation
-  const roundName = applicationRound.nameFi ?? "Ei nimeä";
+  const roundName = applicationRound.nameFi ?? t("Navigation.noName");
 
   return (
     <>

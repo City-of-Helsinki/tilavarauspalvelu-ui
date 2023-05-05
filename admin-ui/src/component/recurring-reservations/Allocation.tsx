@@ -158,7 +158,7 @@ const Allocation = ({
     };
   }, [isAllocating, applicationRound]);
 
-  const roundName = applicationRound.nameFi ?? "Ei nimeä";
+  const roundName = applicationRound.nameFi ?? t("Navigation.noName");
 
   return (
     <Wrapper>

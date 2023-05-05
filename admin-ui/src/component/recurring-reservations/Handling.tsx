@@ -462,7 +462,7 @@ function Handling({
     applicationRound.aggregatedData?.totalReservationDuration ?? 0
   );
 
-  const roundName = applicationRound.nameFi ?? "Ei nimeä";
+  const roundName = applicationRound.nameFi ?? t("Navigation.noName");
 
   return (
     <Wrapper>

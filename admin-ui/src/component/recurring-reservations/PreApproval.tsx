@@ -445,7 +445,7 @@ function PreApproval({
     setCapacity(result);
   };
 
-  const roundName = applicationRound.nameFi ?? "Ei nimeä";
+  const roundName = applicationRound.nameFi ?? t("Navigation.noName");
 
   return (
     <Wrapper>
