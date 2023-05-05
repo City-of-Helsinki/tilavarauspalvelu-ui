@@ -1,12 +1,13 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ApplicationEventStatus } from "../../common/types";
+import type { ApplicationEventStatus } from "common/types/gql-types";
+import type { ExtendedApplicationEventStatus } from "../../common/types";
 import { getNormalizedApplicationEventStatus } from "../../common/util";
 import { getApplicationEventStatusColor } from "../../styles/util";
 import StatusBlock from "../StatusBlock";
 
 interface IProps {
-  status: ApplicationEventStatus;
+  status: ApplicationEventStatus | ExtendedApplicationEventStatus;
   accepted?: boolean;
   className?: string;
 }

@@ -15,14 +15,14 @@ import trim from "lodash/trim";
 import { breakpoints } from "common/src/common/style";
 import {
   ApplicationRoundStatus,
-  ApplicationRoundType,
+  type ApplicationRoundType,
 } from "common/types/gql-types";
 import Loader from "../Loader";
-import {
+import type {
   AllocationResult,
   ApplicationRoundBasket,
-  ApplicationRoundStatus as ApplicationRoundStatusRest,
   DataFilterConfig,
+  ExtendedAllocationResult,
   GroupedAllocationResult,
 } from "../../common/types";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
@@ -64,9 +64,7 @@ import { useNotification } from "../../context/NotificationContext";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
-  setApplicationRoundStatus: (
-    status: ApplicationRoundStatusRest
-  ) => Promise<void>;
+  setApplicationRoundStatus: (status: ApplicationRoundStatus) => Promise<void>;
   enablePolling: (enable: boolean) => void;
 }
 
@@ -159,23 +157,20 @@ const StyledNotification = styled(Notification)`
 `;
 
 const getFilterConfig = (
-  recommendations: AllocationResult[]
+  recommendations: AllocationResult[] | ExtendedAllocationResult[]
 ): DataFilterConfig[] => {
   const purposes = uniq(
-    recommendations.map((rec: AllocationResult) => rec.applicationEvent.purpose)
+    recommendations.map((rec) => rec.applicationEvent.purpose)
   ).sort();
   const statuses = uniq(
-    recommendations.map((rec: AllocationResult) => rec.applicationEvent.status)
+    recommendations.map((rec) => rec.applicationEvent.status)
   );
   const reservationUnits = uniq(
-    recommendations.map((rec: AllocationResult) => rec.unitName)
+    recommendations.map((rec) => rec.unitName)
   ).sort();
-  const baskets = uniqBy(
-    recommendations,
-    (rec: AllocationResult) => rec.basketName
-  )
-    .filter((rec: AllocationResult) => rec.basketName)
-    .map((rec: AllocationResult) => ({
+  const baskets = uniqBy(recommendations, (rec) => rec.basketName)
+    .filter((rec) => rec.basketName)
+    .map((rec) => ({
       title: `${rec.basketOrderNumber}. ${rec.basketName}`,
       value: rec.basketName,
     }));
@@ -334,7 +329,7 @@ const renderGroup = (
     selection: number[],
     method?: "add" | "remove" | undefined
   ) => void,
-  children: React.ReactChild
+  children: React.ReactNode
 ): JSX.Element => (
   <RecommendationDataTableGroup
     group={group}
@@ -372,9 +367,9 @@ function Handling({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isAllocating, setIsAllocating] = useState(applicationRound.allocating);
-  const [recommendations, setRecommendations] = useState<AllocationResult[]>(
-    []
-  );
+  const [recommendations, setRecommendations] = useState<
+    AllocationResult[] | ExtendedAllocationResult[]
+  >([]);
   const [isResolutionNotificationVisible, setIsResolutionNotificationVisible] =
     useState<boolean>(isApplicationRoundApproved);
   const [cellConfig, setCellConfig] = useState<CellConfig | null>(null);
@@ -516,7 +511,7 @@ function Handling({
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setApplicationRoundStatus("handled");
+                      setApplicationRoundStatus(ApplicationRoundStatus.Handled);
                     }}
                     disabled={unhandledRecommendationCount > 0 || isSaving}
                   >
@@ -563,6 +558,7 @@ function Handling({
               setSelections={setSelections}
               renderGroup={renderGroup}
               hasGrouping
+              // FIXME don't use includes / string[] for enums
               config={{
                 filtering: true,
                 rowFilters: true,
@@ -580,6 +576,7 @@ function Handling({
                   row.declined
               )}
               isRowDisabled={(row: AllocationResult) => {
+                // FIXME don't use includes for enums
                 return (
                   ["ignored", "declined"].includes(
                     row.applicationEvent.status
@@ -603,19 +600,21 @@ function Handling({
               value: "ignore",
             },
           ]}
-          callback={(action: string) => {
+          callback={(action) => {
             setIsSaving(true);
-            modifyAllocationResults({
-              data: recommendations,
-              selections,
-              action,
-              notifyError,
-              t,
-              callback: () => {
-                setTimeout(() => setIsSaving(false), 1000);
-                fetchRecommendations();
-              },
-            });
+            if (["ignore", "approve", "decline"].includes(action)) {
+              modifyAllocationResults({
+                data: recommendations,
+                selections,
+                action: action as "ignore" | "approve" | "decline",
+                notifyError,
+                t,
+                callback: () => {
+                  setTimeout(() => setIsSaving(false), 1000);
+                  fetchRecommendations();
+                },
+              });
+            }
           }}
           isSaving={isSaving}
         />

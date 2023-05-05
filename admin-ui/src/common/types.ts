@@ -1,23 +1,32 @@
+import {
+  ApplicationStatus,
+  ApplicationRoundStatus,
+  ApplicationEventStatus,
+} from "common/types/gql-types";
+
 export type LocalizationLanguages = "fi" | "sv" | "en";
 
 export type TranslationObject = {
   [key: string]: string;
 };
 
-export type ApplicationRoundStatus =
-  | "draft"
-  | "in_review"
-  | "review_done"
-  | "allocated"
-  | "handled"
-  | "validated"
+// The state enum is correct for both REST and GQL
+// create extended types for some old frontend features that require them
+export type ExtendedApplicationRoundStatus =
+  | `${ApplicationRoundStatus}`
+  | "handling"
   | "approved";
 
-export type NormalizedApplicationRoundStatus =
-  | ApplicationRoundStatus
-  | "incoming"
-  | "handling"
-  | "sent";
+export type ExtendedApplicationStatus =
+  | `${ApplicationStatus}`
+  | "approved"
+  | "review_done";
+
+export type ExtendedApplicationEventStatus =
+  | `${ApplicationEventStatus}`
+  | "ignored"
+  | "validated"
+  | "created";
 
 export type ApplicationRoundBasket = any; // eslint-disable-line
 
@@ -28,6 +37,8 @@ export type ApplicationRoundAggregatedData = {
   allocationResultEventsCount: number;
 };
 
+// FIXME these are duplicated in common/types/common.ts
+// not changing because type fixes in admin would break the ui
 export type ApplicationRound = {
   id: number;
   name: string;
@@ -124,15 +135,6 @@ export type Parameter = {
   minimum?: number;
   maximum?: number;
 };
-
-export type ApplicationStatus =
-  | "draft"
-  | "in_review"
-  | "review_done"
-  | "declined"
-  | "cancelled"
-  | "approved"
-  | "sent";
 
 export type ApplicationAggregatedData = {
   appliedMinDurationTotal?: number;
@@ -233,14 +235,6 @@ export type ApplicationEvent = {
   aggregatedData: ApplicationEventAggregatedData;
 };
 
-export type ApplicationEventStatus =
-  | "created"
-  | "allocated"
-  | "validated"
-  | "approved"
-  | "declined"
-  | "ignored";
-
 interface AgeGroupDisplay {
   id?: number;
   minimum: number;
@@ -322,6 +316,17 @@ export interface AllocationResult {
   declined: boolean;
 }
 
+type ExtendedApplicationEvent = Omit<ApplicationEvent, "status"> & {
+  status: ExtendedApplicationEventStatus;
+};
+
+export type ExtendedAllocationResult = Omit<
+  AllocationResult,
+  "applicationEvent"
+> & {
+  applicationEvent: ExtendedApplicationEvent;
+};
+
 export interface AllocationResultAggregatedData {
   durationTotal: number;
   reservationsTotal: number;
@@ -350,7 +355,7 @@ export interface GroupedAllocationResult {
   id: number;
   space: AllocatedSpace;
   reservationUnit: AllocatedReservationUnit;
-  data: AllocationResult[];
+  data: AllocationResult[] | ExtendedAllocationResult[];
 }
 
 export type ParameterTypes =

@@ -3,21 +3,22 @@ import i18next from "i18next";
 import trim from "lodash/trim";
 import upperFirst from "lodash/upperFirst";
 import { groupBy, set, get } from "lodash";
-import {
+import type {
   ApplicationEventScheduleType,
+  ApplicationEventStatus,
   LocationType,
   Query,
 } from "common/types/gql-types";
-import {
+import type {
   AllocationResult,
-  ApplicationEventStatus,
   ApplicationRound,
-  ApplicationRoundStatus,
   DataFilterOption,
   LocalizationLanguages,
   Location,
-  NormalizedApplicationRoundStatus,
+  ExtendedApplicationRoundStatus,
   TranslationObject,
+  ExtendedApplicationEventStatus,
+  ExtendedAllocationResult,
 } from "./types";
 import { NUMBER_OF_DECIMALS } from "./const";
 
@@ -72,27 +73,26 @@ export const formatDecimal = ({
   return parseFloat(value.toFixed(decimals));
 };
 
-export type ApplicationRoundStatusView = "listing";
-
+// TODO this is not normalized; normalized to what?
 export const getNormalizedApplicationEventStatus = (
-  status: ApplicationEventStatus,
+  status: ApplicationEventStatus | ExtendedApplicationEventStatus,
   accepted?: boolean
-): ApplicationEventStatus => {
-  let normalizedStatus: ApplicationEventStatus = status;
-
+): ExtendedApplicationEventStatus => {
   if (accepted) {
-    normalizedStatus = "validated";
-  } else if (["created", "allocating", "allocated"].includes(status)) {
-    normalizedStatus = "created";
+    return "validated";
+  }
+  // TODO don't use includes for enum checking
+  if (["created", "allocating", "allocated"].includes(status)) {
+    return "created";
   }
 
-  return normalizedStatus;
+  return status;
 };
 
-export const normalizeApplicationEventStatus = (
-  allocationResult: AllocationResult
-): ApplicationEventStatus => {
-  let { status } = allocationResult.applicationEvent;
+export const extendedApplicationEventStatus = (
+  allocationResult: AllocationResult | ExtendedAllocationResult
+): ExtendedApplicationEventStatus => {
+  const { status } = allocationResult.applicationEvent;
 
   if (
     allocationResult.allocatedReservationUnitId &&
@@ -100,36 +100,37 @@ export const normalizeApplicationEventStatus = (
       allocationResult.allocatedReservationUnitId
     )
   ) {
-    status = "ignored";
-  } else if (allocationResult.declined) {
-    status = "declined";
-  } else if (allocationResult.accepted) {
-    status = "validated";
+    return "ignored";
   }
+  if (allocationResult.declined) {
+    return "declined";
+  }
+  if (allocationResult.accepted) {
+    return "validated";
+  }
+
   return status;
 };
 
+// TODO how many times is this same function here?
+// TODO don't use includes for enums it's gonna fail
 export const getNormalizedApplicationRoundStatus = (
   applicationRound: ApplicationRound
-): ApplicationRoundStatus | NormalizedApplicationRoundStatus => {
-  let normalizedStatus: NormalizedApplicationRoundStatus;
-
+): ExtendedApplicationRoundStatus => {
   if (
     ["in_review", "review_done", "allocated", "handled"].includes(
       applicationRound.status
     )
   ) {
-    normalizedStatus = "handling";
-  } else if (
+    return "handling";
+  }
+  if (
     ["approved"].includes(applicationRound.status) &&
     applicationRound.applicationsSent
   ) {
-    normalizedStatus = "sent";
-  } else {
-    normalizedStatus = applicationRound.status;
+    return "sent";
   }
-
-  return normalizedStatus;
+  return applicationRound.status;
 };
 
 export const parseApplicationEventScheduleTime = (

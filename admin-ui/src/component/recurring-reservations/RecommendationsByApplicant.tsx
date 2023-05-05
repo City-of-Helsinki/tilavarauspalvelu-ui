@@ -19,6 +19,7 @@ import {
   Application as ApplicationType,
   ApplicationRound as ApplicationRoundType,
   DataFilterConfig,
+  ExtendedAllocationResult,
 } from "../../common/types";
 import { ContentContainer, IngressContainer } from "../../styles/layout";
 import { BasicLink, InlineRowLink } from "../../styles/util";
@@ -190,23 +191,20 @@ const getCellConfig = (
 };
 
 const getFilterConfig = (
-  recommendations: AllocationResult[]
+  recommendations: AllocationResult[] | ExtendedAllocationResult[]
 ): DataFilterConfig[] => {
   const purposes = uniq(
-    recommendations.map((rec: AllocationResult) => rec.applicationEvent.purpose)
+    recommendations.map((rec) => rec.applicationEvent.purpose)
   ).sort();
   const statuses = uniq(
-    recommendations.map((rec: AllocationResult) => rec.applicationEvent.status)
+    recommendations.map((rec) => rec.applicationEvent.status)
   );
   const reservationUnits = uniq(
-    recommendations.map((rec: AllocationResult) => rec.unitName)
+    recommendations.map((rec) => rec.unitName)
   ).sort();
-  const baskets = uniqBy(
-    recommendations,
-    (rec: AllocationResult) => rec.basketName
-  )
-    .filter((rec: AllocationResult) => rec.basketName)
-    .map((rec: AllocationResult) => ({
+  const baskets = uniqBy(recommendations, (rec) => rec.basketName)
+    .filter((rec) => rec.basketName)
+    .map((rec) => ({
       title: `${rec.basketOrderNumber}. ${rec.basketName}`,
       value: rec.basketName,
     }));
@@ -255,7 +253,7 @@ function RecommendationsByApplicant(): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [recommendations, setRecommendations] = useState<
-    AllocationResult[] | []
+    ExtendedAllocationResult[]
   >([]);
   const [application, setApplication] = useState<ApplicationType | null>(null);
   const [applicationRound, setApplicationRound] =
@@ -297,7 +295,7 @@ function RecommendationsByApplicant(): JSX.Element {
 
       setFilterConfig(getFilterConfig(processedResult));
       setCellConfig(getCellConfig(t, ar));
-      setRecommendations(processedResult || []);
+      setRecommendations(processedResult);
       if (result.length < 1) setIsLoading(false);
     } catch (error) {
       notifyError(t("errors.errorFetchingApplications"));
@@ -343,9 +341,7 @@ function RecommendationsByApplicant(): JSX.Element {
       viewType === "organisation"
         ? get(recommendations, "[0].applicationId")
         : get(
-            recommendations.filter(
-              (n: AllocationResult) => n.applicantType === "individual"
-            ),
+            recommendations.filter((n) => n.applicantType === "individual"),
             "0.applicationId"
           );
     if (aId) {
@@ -401,7 +397,7 @@ function RecommendationsByApplicant(): JSX.Element {
                     <div>{applicationRound?.name}</div>
                     <StyledApplicantApplicationsStatusBlock
                       applicationRound={applicationRound}
-                      application={application}
+                      applicationStatus={application.status}
                     />
                   </div>
                   <div>
@@ -467,21 +463,23 @@ function RecommendationsByApplicant(): JSX.Element {
                 ]}
                 callback={(action: string) => {
                   setIsSaving(true);
-                  modifyAllocationResults({
-                    data: recommendations,
-                    selections,
-                    action,
-                    t,
-                    notifyError,
-                    callback: () => {
-                      setTimeout(() => setIsSaving(false), 1000);
-                      fetchRecommendations(
-                        applicationRound,
-                        viewType,
-                        viewIndex
-                      );
-                    },
-                  });
+                  if (["ignore", "approve", "decline"].includes(action)) {
+                    modifyAllocationResults({
+                      data: recommendations,
+                      selections,
+                      action: action as "ignore" | "approve" | "decline",
+                      t,
+                      notifyError,
+                      callback: () => {
+                        setTimeout(() => setIsSaving(false), 1000);
+                        fetchRecommendations(
+                          applicationRound,
+                          viewType,
+                          viewIndex
+                        );
+                      },
+                    });
+                  }
                 }}
                 isSaving={isSaving}
               />

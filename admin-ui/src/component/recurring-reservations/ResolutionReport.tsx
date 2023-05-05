@@ -9,11 +9,12 @@ import { IconArrowRight } from "hds-react";
 import { AxiosError } from "axios";
 import { H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import {
+import type {
   AllocationResult,
   Application as ApplicationType,
   ApplicationRound as ApplicationRoundType,
   DataFilterConfig,
+  ExtendedAllocationResult,
 } from "../../common/types";
 import { ContentContainer, IngressContainer } from "../../styles/layout";
 import withMainMenu from "../withMainMenu";
@@ -194,6 +195,7 @@ const getCellConfig = (
             }}
           >
             <span>
+              {/* FIXME what is applicationEvent.status (gql-type) */}
               {["validated"].includes(applicationEvent.status)
                 ? trim(
                     `${formatNumber(
@@ -231,17 +233,17 @@ const getCellConfig = (
 };
 
 const getFilterConfig = (
-  recommendations: AllocationResult[] | null,
+  recommendations: AllocationResult[] | ExtendedAllocationResult[] | null,
   applications: ApplicationType[] | null,
   type: "unallocated" | "allocated",
   t: TFunction
 ): DataFilterConfig[] => {
-  const getApplicantTypes = (input: AllocationResult[] | ApplicationType[]) =>
-    uniq(
-      input.map((n: AllocationResult | ApplicationType) => n.applicantType)
-    ).sort();
-  const getReservationUnits = (input: AllocationResult[]) =>
-    uniq(input.map((n: AllocationResult) => n.unitName)).sort();
+  const getApplicantTypes = (
+    input: AllocationResult[] | ExtendedAllocationResult[] | ApplicationType[]
+  ) => uniq(input.map((n) => n.applicantType)).sort();
+  const getReservationUnits = (
+    input: AllocationResult[] | ExtendedAllocationResult[]
+  ) => uniq(input.map((n) => n.unitName)).sort();
 
   const unallocatedFilterConfig = [
     {
@@ -294,7 +296,7 @@ function ResolutionReport(): JSX.Element {
   const [applicationRound, setApplicationRound] =
     useState<ApplicationRoundType | null>(null);
   const [recommendations, setRecommendations] = useState<
-    AllocationResult[] | []
+    AllocationResult[] | ExtendedAllocationResult[]
   >([]);
   const [unallocatedApplications, setUnallocatedApplications] = useState<
     ApplicationType[]
@@ -435,7 +437,8 @@ function ResolutionReport(): JSX.Element {
                       applicationRound.applicationPeriodBegin
                     }
                     applicationPeriodEnd={applicationRound.applicationPeriodEnd}
-                    isResolved={["approved"].includes(applicationRound.status)}
+                    // FIXME there is no "approved" status
+                    // isResolved={applicationRound.status === "approved"}
                     resolutionDate={applicationRound.statusTimestamp}
                   />
                 </div>

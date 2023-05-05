@@ -21,6 +21,10 @@ export type TranslationObject = {
 
 export type Language = "fi" | "en" | "sv";
 
+// FIXME this is wrong ApplicationRoundStatus returned by REST is the same as gql-types
+// Not changing now because some frontend code uses these as states internally
+// solution is to refactor frontend code to use custom enum that has nothing to do with
+// the REST / GQL response and provide utility functions to convert between them.
 export type ApplicationRoundStatus =
   | "draft"
   | "in_review"

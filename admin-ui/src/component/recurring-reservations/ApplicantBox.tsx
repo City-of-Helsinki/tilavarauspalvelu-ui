@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { H2 } from "common/src/common/typography";
+import { ApplicationStatus } from "common/types/gql-types";
 import { Application as ApplicationType } from "../../common/types";
 import { BasicLink, StatusDot } from "../../styles/util";
 import { ReactComponent as IconCustomers } from "../../images/icon_customers.svg";
@@ -101,7 +102,7 @@ function ApplicantBox({ application, type }: IProps): JSX.Element {
       <div>
         {details}
         <Status>
-          <StatusDot status="review_done" size={16} />
+          <StatusDot status={ApplicationStatus.ReviewDone} size={16} />
           <BasicLink to={applicationDetailsUrl(application.id)}>
             {t("Applicant.inAllocation")}
           </BasicLink>

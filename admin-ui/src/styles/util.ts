@@ -9,9 +9,9 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { breakpoints } from "common/src/common/style";
 import {
-  ApplicationEventStatus,
-  ApplicationStatus,
-  NormalizedApplicationRoundStatus,
+  ExtendedApplicationEventStatus,
+  ExtendedApplicationRoundStatus,
+  ExtendedApplicationStatus,
 } from "../common/types";
 import { getApplicationStatusColor } from "../component/applications/util";
 
@@ -20,14 +20,16 @@ export const getGridFraction = (space: number, columns = 12): number => {
   return fraction > 0 ? fraction : 0;
 };
 
+// TODO does this get called with the Extended or the GQL type?
+//    TS does implicit conversions from enum => string union
+//    if it uses the base type this is wrong
 export const getApplicationEventStatusColor = (
-  status: ApplicationEventStatus,
+  status: ExtendedApplicationEventStatus,
   size: "s" | "l"
 ): string => {
   let color = "";
   switch (status) {
     case "created":
-    case "allocated":
       color = "var(--color-info)";
       break;
     case "validated":
@@ -53,17 +55,21 @@ export const getApplicationEventStatusColor = (
   return color;
 };
 
+// TODO revisit these with the Figma spec
+// TODO bump this way deeper in the source tree where it's actually used
 export const getApplicationRoundStatusColor = (
-  status: NormalizedApplicationRoundStatus | "incoming"
+  status: ExtendedApplicationRoundStatus | "incoming"
 ): string => {
   let color = "";
   switch (status) {
     case "handling":
       color = "var(--color-info)";
       break;
+    /*
     case "validated":
       color = "var(--color-alert-light)";
       break;
+    */
     case "approved":
     case "sent":
       color = "var(--color-success)";
@@ -94,7 +100,7 @@ export const Seranwrap = styled.div`
 `;
 
 export const StatusDot = styled.div<{
-  status: ApplicationStatus;
+  status: ExtendedApplicationStatus;
   size: number;
 }>`
   display: inline-block;
@@ -102,18 +108,6 @@ export const StatusDot = styled.div<{
   height: ${({ size }) => size && `${size}px`};
   border-radius: 50%;
   background-color: ${({ status }) => getApplicationStatusColor(status, "s")};
-`;
-
-export const ApplicationEventStatusDot = styled.div<{
-  status: ApplicationEventStatus;
-  size: number;
-}>`
-  display: inline-block;
-  width: ${({ size }) => size && `${size}px`};
-  height: ${({ size }) => size && `${size}px`};
-  border-radius: 50%;
-  background-color: ${({ status }) =>
-    getApplicationEventStatusColor(status, "s")};
 `;
 
 export const InlineErrorSummary = styled(ErrorSummary)`

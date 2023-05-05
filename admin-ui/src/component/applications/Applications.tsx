@@ -15,18 +15,18 @@ import { getApplicationRound, getApplications } from "../../common/api";
 import {
   Application as ApplicationType,
   ApplicationRound as ApplicationRoundType,
-  ApplicationRoundStatus,
   DataFilterConfig,
-  ApplicationStatus,
-  ApplicationEventStatus,
   Unit,
+  ExtendedApplicationStatus,
+  ExtendedApplicationEventStatus,
+  ExtendedApplicationRoundStatus,
 } from "../../common/types";
 import Loader from "../Loader";
 import DataTable, { CellConfig } from "../DataTable";
 import { formatNumber, formatDuration } from "../../common/util";
 import StatusCell from "../StatusCell";
 import { applicationUrl } from "../../common/urls";
-import { getNormalizedApplicationStatus } from "./util";
+import { getFilteredApplicationStatus } from "./util";
 import { useNotification } from "../../context/NotificationContext";
 
 interface IRouteParams {
@@ -60,7 +60,7 @@ type ApplicationView = {
   unitsSort: string;
   applicationCount: string;
   applicationCountSort: number;
-  status: ApplicationStatus | ApplicationEventStatus;
+  status: ExtendedApplicationStatus | ExtendedApplicationEventStatus;
 };
 
 const getFilterConfig = (
@@ -105,18 +105,13 @@ const getFilterConfig = (
 };
 
 const appMapper = (
-  round: ApplicationRoundType,
+  roundStatus: ExtendedApplicationRoundStatus,
   app: ApplicationType,
   t: TFunction
 ): ApplicationView => {
-  let applicationStatusView: ApplicationRoundStatus;
-  switch (round.status) {
-    case "approved":
-      applicationStatusView = "approved";
-      break;
-    default:
-      applicationStatusView = "in_review";
-  }
+  // TODO this doesn't do anything since the return value from GQL / REST should never be approved
+  const applicationStatusView =
+    roundStatus === "approved" ? "approved" : "in_review";
 
   const units = uniqBy(
     app.applicationEvents
@@ -136,7 +131,7 @@ const appMapper = (
       : "",
     unitsSort: units.find(() => true)?.name.fi || "",
     units,
-    status: getNormalizedApplicationStatus(app.status, applicationStatusView),
+    status: getFilteredApplicationStatus(app.status, applicationStatusView),
     applicationCount: trim(
       `${formatNumber(
         app.aggregatedData?.appliedReservationsTotal,
@@ -148,15 +143,14 @@ const appMapper = (
   };
 };
 
-const getCellConfig = (applicationRound: ApplicationRoundType): CellConfig => {
-  let statusTitle: string;
-  switch (applicationRound.status) {
-    case "approved":
-      statusTitle = "Application.headings.resolutionStatus";
-      break;
-    default:
-      statusTitle = "Application.headings.reviewStatus";
-  }
+const getCellConfig = (): CellConfig => {
+  const statusTitle = "Application.headings.reviewStatus";
+  /* TODO there is no approved state from REST responses
+  const statusTitle =
+    applicationRound.status === "approved"
+      ? "Application.headings.resolutionStatus"
+      : "Application.headings.reviewStatus";
+  */
 
   return {
     cols: [
@@ -245,8 +239,8 @@ function Applications(): JSX.Element {
           applicationRound: ar.id,
           status: "in_review,review_done,declined,sent",
         });
-        const mapped = result.map((app) => appMapper(ar, app, t));
-        setCellConfig(getCellConfig(ar));
+        const mapped = result.map((app) => appMapper(ar.status, app, t));
+        setCellConfig(getCellConfig());
         setFilterConfig(getFilterConfig(mapped));
         setApplications(mapped);
       } catch (error) {

@@ -28,6 +28,7 @@ import {
   AllocationResult,
   Application as ApplicationType,
   ApplicationRound as ApplicationRoundType,
+  ExtendedAllocationResult,
 } from "../../common/types";
 import {
   formatNumber,
@@ -187,9 +188,9 @@ function Recommendation(): JSX.Element {
   const { notifyError } = useNotification();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [recommendation, setRecommendation] = useState<AllocationResult | null>(
-    null
-  );
+  const [recommendation, setRecommendation] = useState<
+    AllocationResult | ExtendedAllocationResult | null
+  >(null);
   const [application, setApplication] = useState<ApplicationType | null>(null);
   const [applicationRound, setApplicationRound] =
     useState<ApplicationRoundType | null>(null);
@@ -275,7 +276,7 @@ function Recommendation(): JSX.Element {
   };
 
   const ignoreReservationUnit = async (
-    rec: AllocationResult,
+    rec: AllocationResult | ExtendedAllocationResult,
     ar: ApplicationRoundType,
     revert = false
   ) => {

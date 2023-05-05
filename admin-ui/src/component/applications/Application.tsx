@@ -17,6 +17,10 @@ import differenceInSeconds from "date-fns/differenceInSeconds";
 import { H2, H3, Strong } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
+  ApplicationRoundStatus,
+  ApplicationStatus,
+} from "common/types/gql-types";
+import {
   getApplication,
   getApplicationRound,
   getRecurringReservations,
@@ -27,7 +31,6 @@ import {
   Application as ApplicationType,
   ApplicationEvent,
   ApplicationRound as ApplicationRoundType,
-  ApplicationStatus,
   RecurringReservation,
   Reservation,
   ReservationUnit,
@@ -492,14 +495,22 @@ const Application = () => {
       action = {
         text: t("Application.actions.declineApplication"),
         button: "secondary",
-        function: () => modifyApplicationStatus(application, "declined", true),
+        function: () =>
+          // NOTE this used to be "declined" which is not a valid state
+          modifyApplicationStatus(application, ApplicationStatus.Handled, true),
       };
       break;
-    case "declined":
+    // NOTE this used to be "declined" which is not a valid state
+    case "handled":
       action = {
         text: t("Application.actions.returnAsPartOfAllocation"),
         button: "primary",
-        function: () => modifyApplicationStatus(application, "in_review", true),
+        function: () =>
+          modifyApplicationStatus(
+            application,
+            ApplicationStatus.InReview,
+            true
+          ),
       };
       break;
     default:
@@ -526,15 +537,17 @@ const Application = () => {
 
   const customerName = applicantName(application);
 
-  const isApplicationRoundApproved: boolean | null =
-    applicationRound && ["approved", "sent"].includes(applicationRound.status);
+  // TODO is there other states that should be included ("approved" is not a valid state)
+  const isApplicationRoundApproved =
+    applicationRound?.status === ApplicationRoundStatus.Sent;
 
   const applicantId: number | null | undefined =
     application?.applicantType === "individual"
       ? application?.applicantId
       : application?.organisation?.id;
 
-  const normalizedApplicationStatus: ApplicationStatus | null =
+  // FIXME this can never return "approved"
+  const normalizedApplicationStatus =
     application &&
     applicationRound &&
     getNormalizedApplicationStatus(application.status, applicationRound.status);
@@ -729,6 +742,7 @@ const Application = () => {
           </NarrowContainer>
           <ContentContainer>
             {isApplicationRoundApproved &&
+              // TODO don't use includes for enum checking
               !["declined"].includes(application.status) && (
                 <WideContainer>
                   {recurringReservations &&
@@ -743,7 +757,10 @@ const Application = () => {
                     {normalizedApplicationStatus === "approved" && (
                       <MarkAsResolutionSentBtn
                         onClick={() =>
-                          modifyApplicationStatus(application, "sent")
+                          modifyApplicationStatus(
+                            application,
+                            ApplicationStatus.Sent
+                          )
                         }
                       >
                         {t("Application.markAsResolutionSent")}
@@ -752,7 +769,10 @@ const Application = () => {
                     {normalizedApplicationStatus === "sent" && (
                       <MarkAsResolutionNotSentBtn
                         onClick={() =>
-                          modifyApplicationStatus(application, "in_review")
+                          modifyApplicationStatus(
+                            application,
+                            ApplicationStatus.InReview
+                          )
                         }
                       >
                         {t("Application.markAsResolutionNotSent")}
@@ -761,6 +781,7 @@ const Application = () => {
                   </ActionButtonContainer>
                 </WideContainer>
               )}
+            {/* TODO don't use includes for enum checking */}
             {["draft", "in_review"].includes(applicationRound.status) &&
               action.function && (
                 <ActionButton

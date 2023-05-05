@@ -16,15 +16,11 @@ import StatusCell from "../StatusCell";
 import { formatNumber } from "../../common/util";
 import {
   applicantName,
-  convertGQLStatusToRest,
-  getNormalizedApplicationStatus,
   appEventHours,
   numTurns,
+  getFilteredApplicationStatus,
 } from "../applications/util";
-import {
-  ApplicationStatus as ApplicationStatusRest,
-  ApplicationRoundStatus as ApplicationRoundStatusRest,
-} from "../../common/types";
+import { ExtendedApplicationStatus } from "../../common/types";
 
 export type ApplicationView = {
   pk: number;
@@ -35,9 +31,9 @@ export type ApplicationView = {
   type: string;
   units: UnitType[];
   applicationCount: string;
-  status: ApplicationStatusRest;
+  status: ExtendedApplicationStatus;
   statusView: JSX.Element;
-  statusType: ApplicationStatusRest;
+  statusType: ApplicationStatus;
 };
 
 export type ApplicationEventView = {
@@ -64,15 +60,10 @@ export const appMapper = (
   app: ApplicationType,
   t: TFunction
 ): ApplicationView => {
-  let applicationStatusView: ApplicationRoundStatusRest;
-  switch (round.status) {
-    // TODO is this correct? e.g. what is "approved"
-    case ApplicationRoundStatus.Allocated:
-      applicationStatusView = "approved";
-      break;
-    default:
-      applicationStatusView = "in_review";
-  }
+  const applicationStatusView =
+    round.status === ApplicationRoundStatus.Allocated
+      ? "approved"
+      : "in_review";
 
   const units = orderBy(
     uniqBy(
@@ -91,11 +82,9 @@ export const appMapper = (
   const name = app.applicationEvents?.find(() => true)?.name || "-";
   const eventId = app.applicationEvents?.find(() => true)?.pk;
 
-  const convertedApplicationStatus = convertGQLStatusToRest(
-    app.status ?? ApplicationStatus.Draft
-  );
-  const status = getNormalizedApplicationStatus(
-    convertedApplicationStatus,
+  const applicationStatus = app.status ?? ApplicationStatus.Draft;
+  const status = getFilteredApplicationStatus(
+    applicationStatus,
     applicationStatusView
   );
 
@@ -118,7 +107,7 @@ export const appMapper = (
         withArrow={false}
       />
     ),
-    statusType: convertedApplicationStatus,
+    statusType: applicationStatus,
     applicationCount: trim(
       `${formatNumber(
         app.aggregatedData?.appliedReservationsTotal,
@@ -135,21 +124,13 @@ export const appEventMapper = (
   round: ApplicationRoundType,
   appEvent: ApplicationEventType
 ): ApplicationEventView => {
-  let applicationStatusView: ApplicationRoundStatusRest;
-  switch (round.status) {
-    case ApplicationRoundStatus.Allocated:
-      applicationStatusView = "approved";
-      break;
-    default:
-      applicationStatusView = "in_review";
-  }
+  const applicationStatusView =
+    round.status === ApplicationRoundStatus.Allocated
+      ? "approved"
+      : "in_review";
 
-  const convertedApplicationStatus = convertGQLStatusToRest(
-    appEvent.application.status ?? ApplicationStatus.Draft
-  );
-
-  const status = getNormalizedApplicationStatus(
-    convertedApplicationStatus,
+  const status = getFilteredApplicationStatus(
+    appEvent.application.status ?? ApplicationStatus.Draft,
     applicationStatusView
   );
 

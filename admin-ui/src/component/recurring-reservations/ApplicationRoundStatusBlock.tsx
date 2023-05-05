@@ -1,6 +1,7 @@
 import React from "react";
 import isPast from "date-fns/isPast";
 import { useTranslation } from "react-i18next";
+import { ApplicationRoundStatus } from "common/types/gql-types";
 import { ApplicationRound } from "../../common/types";
 import { getNormalizedApplicationRoundStatus } from "../../common/util";
 import { getApplicationRoundStatusColor } from "../../styles/util";
@@ -22,7 +23,7 @@ function ApplicationRoundStatusBlock({
     status === "draft" &&
     isPast(new Date(applicationRound.applicationPeriodEnd))
   ) {
-    status = "in_review";
+    status = ApplicationRoundStatus.InReview;
   }
 
   const normalizedStatus = getNormalizedApplicationRoundStatus({

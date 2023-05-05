@@ -58,6 +58,9 @@ module.exports = {
         allowAsProps: true,
       },
     ],
+    // TS case check is better
+    "default-case": "off",
+    "@typescript-eslint/switch-exhaustiveness-check": "error",
   },
   plugins: ["jsx-a11y"],
 };

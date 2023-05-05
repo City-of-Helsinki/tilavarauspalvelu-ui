@@ -29,11 +29,7 @@ import {
 } from "../../common/util";
 import ValueBox from "./ValueBox";
 import { publicUrl, weekdays } from "../../common/const";
-import {
-  applicantName,
-  convertGQLStatusToRest,
-  convertRoundGQLStatusToRest,
-} from "./util";
+import { applicantName } from "./util";
 import ApplicationStatusBlock from "./ApplicationStatusBlock";
 import TimeSelector from "./time-selector/TimeSelector";
 import ScrollIntoView from "../../common/ScrollIntoView";
@@ -317,12 +313,8 @@ function ApplicationDetails(): JSX.Element | null {
           <IngressContainer>
             {application.status ? (
               <StyledApplicationStatusBlock
-                status={convertGQLStatusToRest(application.status)}
-                view={
-                  applicationRound.status
-                    ? convertRoundGQLStatusToRest(applicationRound.status)
-                    : undefined
-                }
+                status={application.status}
+                view={applicationRound.status ?? undefined}
               />
             ) : (
               <div>ERROR: Application should have status</div>

@@ -1,34 +1,38 @@
 import React from "react";
-import isPast from "date-fns/isPast";
 import { useTranslation } from "react-i18next";
-import { Application, ApplicationRound } from "../../common/types";
-import { getNormalizedApplicationRoundStatus } from "../../common/util";
+import { isPast } from "date-fns";
+import {
+  ApplicationRoundStatus,
+  ApplicationStatus,
+} from "common/types/gql-types";
+import { ApplicationRound } from "../../common/types";
 import { getApplicationRoundStatusColor } from "../../styles/util";
 import StatusBlock from "../StatusBlock";
+import { getNormalizedApplicationRoundStatus } from "../../common/util";
 
 interface IProps {
   applicationRound: ApplicationRound;
-  application: Application;
+  applicationStatus: ApplicationStatus;
   className?: string;
 }
 
 function ApplicantApplicationsStatusBlock({
   applicationRound,
-  application,
+  applicationStatus,
   className,
 }: IProps): JSX.Element {
   const { t } = useTranslation();
 
   let { status } = applicationRound;
   if (
-    status === "draft" &&
+    status === ApplicationRoundStatus.Draft &&
     isPast(new Date(applicationRound.applicationPeriodEnd))
   ) {
-    status = "in_review";
+    status = ApplicationRoundStatus.InReview;
   }
 
   const normalizedStatus =
-    application.status === "sent"
+    applicationStatus === ApplicationStatus.Sent
       ? "sent"
       : getNormalizedApplicationRoundStatus(applicationRound);
 

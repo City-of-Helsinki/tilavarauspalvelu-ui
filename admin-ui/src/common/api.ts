@@ -1,19 +1,21 @@
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import omit from "lodash/omit";
+import type {
+  ApplicationEventStatus,
+  ApplicationRoundStatus,
+  ApplicationStatus,
+} from "common/types/gql-types";
 import axiosClient from "./auth/axiosClient";
-import {
+import type {
   Application,
   ApplicationRound,
   ReservationUnit,
   Parameter,
   AllocationRequest,
   AllocationResult,
-  ApplicationEventStatus,
   ApplicationEventsDeclinedReservationUnits,
   Reservation,
   RecurringReservation,
-  ApplicationRoundStatus,
-  ApplicationStatus,
   ReservationStatus,
   ReservationUnitCapacity,
   ReservationUnitCalendarUrl,

@@ -475,6 +475,7 @@ const translations: ITranslations = {
       cancelled: ["Peruutettu"],
       approved: ["Päatös tehty"],
       sent: ["Päatös lähetetty"],
+      received: ["Saatu"],
     },
     actions: {
       returnAsPartOfAllocation: ["Palauta hakemus osaksi jakoa"],

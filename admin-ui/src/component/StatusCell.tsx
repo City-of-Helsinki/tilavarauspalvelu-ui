@@ -2,12 +2,16 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { IconArrowRight, IconCheck, IconEnvelope } from "hds-react";
 import { useTranslation } from "react-i18next";
-import { ApplicationEventStatus, ApplicationStatus } from "../common/types";
-import { ApplicationEventStatusDot, StatusDot } from "../styles/util";
+import type { ApplicationStatus } from "common/types/gql-types";
+import type {
+  ExtendedApplicationEventStatus,
+  ExtendedApplicationStatus,
+} from "../common/types";
+import { StatusDot, getApplicationEventStatusColor } from "../styles/util";
 
 interface IStatusCellProps {
   text: string;
-  status?: ApplicationStatus | ApplicationEventStatus;
+  status?: ExtendedApplicationStatus | ExtendedApplicationEventStatus;
   type: "application" | "applicationEvent";
   withArrow?: boolean;
 }
@@ -28,6 +32,18 @@ const Status = styled.div`
   align-items: center;
 `;
 
+const ApplicationEventStatusDot = styled.div<{
+  status: ExtendedApplicationEventStatus;
+  size: number;
+}>`
+  display: inline-block;
+  width: ${({ size }) => size && `${size}px`};
+  height: ${({ size }) => size && `${size}px`};
+  border-radius: 50%;
+  background-color: ${({ status }) =>
+    getApplicationEventStatusColor(status, "s")};
+`;
+
 const StatusCell = ({
   text,
   status,
@@ -38,20 +54,21 @@ const StatusCell = ({
 
   let icon: ReactNode;
   let linkText = "";
+  // TODO type casts are bad and usafe (here they only cause visual artifacts)
   switch (type) {
     case "applicationEvent":
       icon = (
         <ApplicationEventStatusDot
-          status={status as ApplicationEventStatus}
+          status={status as ExtendedApplicationEventStatus}
           size={12}
         />
       );
       linkText = "ApplicationEvent.gotoLink";
       break;
     case "application":
-      if (["sent"].includes(status as ApplicationStatus)) {
+      if (status === "sent") {
         icon = <IconEnvelope aria-hidden />;
-      } else if (["approved"].includes(status as ApplicationStatus)) {
+      } else if (status === "approved") {
         icon = (
           <IconCheck aria-hidden style={{ color: "var(--color-success)" }} />
         );

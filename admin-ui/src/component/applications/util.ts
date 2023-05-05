@@ -2,14 +2,10 @@ import { differenceInWeeks } from "date-fns";
 import { sum } from "lodash";
 import {
   type ApplicationType,
-  ApplicationStatus as ApplicationStatusGQL,
-  ApplicationRoundStatus as ApplicationRoundStatusGQL,
-} from "common/types/gql-types";
-import {
-  Application,
-  ApplicationRoundStatus,
   ApplicationStatus,
-} from "../../common/types";
+  ApplicationRoundStatus,
+} from "common/types/gql-types";
+import { Application, ExtendedApplicationStatus } from "../../common/types";
 
 export const applicantName = (app: Application | ApplicationType): string => {
   return app.applicantType === "individual" ||
@@ -21,55 +17,57 @@ export const applicantName = (app: Application | ApplicationType): string => {
 };
 
 export const getApplicationStatusColor = (
-  status: ApplicationStatus,
+  status: ExtendedApplicationStatus,
   size: "s" | "l"
 ): string => {
-  let color = "";
   switch (status) {
     case "draft":
     case "in_review":
-      color = "var(--color-info)";
-      break;
+      return "var(--color-info)";
     case "review_done":
-      color = "var(--color-success)";
-      break;
-    case "approved":
+      return "var(--color-success)";
     case "sent":
-      color = "var(--color-white)";
-      break;
-    case "declined":
-    case "cancelled":
-      switch (size) {
-        case "s":
-          color = "var(--color-error)";
-          break;
-        case "l":
-        default:
-          color = "var(--color-error-dark)";
+      return "var(--color-white)";
+    case "cancelled": {
+      if (size === "s") {
+        return "var(--color-error)";
       }
-      break;
+      return "var(--color-error-dark)";
+    }
     default:
+      return "";
+  }
+};
+
+export const getFilteredApplicationStatus = (
+  status: ApplicationStatus,
+  view?: "approved" | "in_review" | ""
+): ExtendedApplicationStatus => {
+  if (view === "in_review" && status === "in_review") {
+    return "review_done";
+  }
+  if (
+    view === "approved" &&
+    (status === "in_review" || status === "review_done")
+  ) {
+    return "approved";
   }
 
-  return color;
+  return status;
 };
 
 export const getNormalizedApplicationStatus = (
   status: ApplicationStatus,
   view: ApplicationRoundStatus
-): ApplicationStatus => {
-  let normalizedStatus: ApplicationStatus = status;
-  if (["draft", "in_review", "allocated"].includes(view)) {
-    if (status === "in_review") {
-      normalizedStatus = "review_done";
-    }
-  } else if (view === "approved") {
-    if (["in_review", "review_done"].includes(normalizedStatus)) {
-      normalizedStatus = "approved";
-    }
+): ExtendedApplicationStatus => {
+  if (
+    (view === "draft" || view === "in_review" || view === "allocated") &&
+    status === "in_review"
+  ) {
+    return "review_done";
   }
 
-  return normalizedStatus;
+  return status;
 };
 
 export const numTurns = (
@@ -127,38 +125,3 @@ export const applicationTurns = (application: Application): number =>
       )
     )
   );
-
-// TODO check the enums
-// Migration function to convert enums from GQL to REST
-// can be removed after base functions use GQL types instead.
-export const convertRoundGQLStatusToRest: (
-  status: ApplicationRoundStatusGQL
-) => ApplicationRoundStatus = (status) => {
-  switch (status) {
-    case ApplicationRoundStatusGQL.Archived:
-    case ApplicationRoundStatusGQL.Reserving:
-    case ApplicationRoundStatusGQL.Sending:
-    case ApplicationRoundStatusGQL.Sent:
-      return "in_review";
-    case ApplicationRoundStatusGQL.Allocated:
-      return "approved";
-    default:
-      return status;
-  }
-};
-
-export const convertGQLStatusToRest: (
-  status: ApplicationStatusGQL
-) => ApplicationStatus = (status) => {
-  switch (status) {
-    case ApplicationStatusGQL.Handled:
-    case ApplicationStatusGQL.Allocated:
-      return "approved";
-    case ApplicationStatusGQL.Expired:
-      return "cancelled";
-    case ApplicationStatusGQL.Received:
-      return "sent";
-    default:
-      return status;
-  }
-};

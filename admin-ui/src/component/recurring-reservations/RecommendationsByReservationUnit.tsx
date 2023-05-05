@@ -27,6 +27,7 @@ import {
   AllocationResult,
   ReservationUnit,
   ReservationUnitCapacity,
+  ExtendedAllocationResult,
 } from "../../common/types";
 import DataTable, { CellConfig } from "../DataTable";
 import {
@@ -265,23 +266,20 @@ const getCellConfig = (
 };
 
 const getFilterConfig = (
-  recommendations: AllocationResult[]
+  recommendations: AllocationResult[] | ExtendedAllocationResult[]
 ): DataFilterConfig[] => {
   const purposes = uniq(
-    recommendations.map((rec: AllocationResult) => rec.applicationEvent.purpose)
+    recommendations.map((rec) => rec.applicationEvent.purpose)
   ).sort();
   const statuses = uniq(
-    recommendations.map((rec: AllocationResult) => rec.applicationEvent.status)
+    recommendations.map((rec) => rec.applicationEvent.status)
   );
   const reservationUnits = uniq(
-    recommendations.map((rec: AllocationResult) => rec.unitName)
+    recommendations.map((rec) => rec.unitName)
   ).sort();
-  const baskets = uniqBy(
-    recommendations,
-    (rec: AllocationResult) => rec.basketName
-  )
-    .filter((rec: AllocationResult) => rec.basketName)
-    .map((rec: AllocationResult) => ({
+  const baskets = uniqBy(recommendations, (rec) => rec.basketName)
+    .filter((rec) => rec.basketName)
+    .map((rec) => ({
       title: `${rec.basketOrderNumber}. ${rec.basketName}`,
       value: rec.basketName,
     }));
@@ -330,7 +328,7 @@ function RecommendationsByReservationUnit(): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [recommendations, setRecommendations] = useState<
-    AllocationResult[] | null
+    ExtendedAllocationResult[] | null
   >(null);
   const [reservationUnit, setReservationUnit] =
     useState<ReservationUnit | null>(null);
@@ -360,13 +358,13 @@ function RecommendationsByReservationUnit(): JSX.Element {
         serviceSectorId: ar.serviceSectorId,
       });
 
-      const filteredResult: AllocationResult[] = processAllocationResult(
-        result
-      ).filter((n: AllocationResult) => n.allocatedReservationUnitId === ruId);
+      const filteredResult = processAllocationResult(result).filter(
+        (n) => n.allocatedReservationUnitId === ruId
+      );
 
       setFilterConfig(getFilterConfig(filteredResult));
       setCellConfig(getCellConfig(t, ar));
-      setRecommendations(filteredResult || []);
+      setRecommendations(filteredResult);
     } catch (error) {
       notifyError(t("errors.errorFetchingApplications"));
       setIsLoading(false);
@@ -629,20 +627,22 @@ function RecommendationsByReservationUnit(): JSX.Element {
                 callback={(action: string) => {
                   setIsSaving(true);
 
-                  modifyAllocationResults({
-                    data: recommendations,
-                    selections,
-                    action,
-                    t,
-                    notifyError,
-                    callback: () => {
-                      setTimeout(() => setIsSaving(false), 1000);
-                      fetchRecommendations(
-                        applicationRound,
-                        Number(reservationUnitId)
-                      );
-                    },
-                  });
+                  if (["ignore", "approve", "decline"].includes(action)) {
+                    modifyAllocationResults({
+                      data: recommendations,
+                      selections,
+                      action: action as "ignore" | "approve" | "decline",
+                      t,
+                      notifyError,
+                      callback: () => {
+                        setTimeout(() => setIsSaving(false), 1000);
+                        fetchRecommendations(
+                          applicationRound,
+                          Number(reservationUnitId)
+                        );
+                      },
+                    });
+                  }
                 }}
                 isSaving={isSaving}
               />

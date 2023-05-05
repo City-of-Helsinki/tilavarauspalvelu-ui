@@ -10,9 +10,8 @@ import {
 import { H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
-  AllocationResult,
-  DataGroup,
-  GroupedAllocationResult,
+  type DataGroup,
+  type GroupedAllocationResult,
 } from "../../common/types";
 import { BasicLink, SelectionCheckbox } from "../../styles/util";
 
@@ -133,7 +132,7 @@ function RecommendationDataTableGroup({
   const colCount: number = isSelectionActive ? cols + 1 : cols;
 
   const selectionDisabled = group.data.every(
-    (row: AllocationResult) => row.applicationEvent?.status === "ignored"
+    (row) => row.applicationEvent?.status === "ignored"
   );
 
   if (hasGrouping === false) {

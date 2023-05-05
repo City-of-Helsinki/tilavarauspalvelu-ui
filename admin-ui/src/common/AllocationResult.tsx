@@ -7,10 +7,14 @@ import {
   setApplicationEventScheduleResultStatus,
   setDeclinedApplicationEventReservationUnits,
 } from "./api";
-import { AllocationResult, GroupedAllocationResult } from "./types";
+import {
+  type AllocationResult,
+  type ExtendedAllocationResult,
+  type GroupedAllocationResult,
+} from "./types";
 import {
   convertHMSToHours,
-  normalizeApplicationEventStatus,
+  extendedApplicationEventStatus,
   secondsToHms,
 } from "./util";
 
@@ -26,20 +30,17 @@ export interface IAllocationCapacity {
 }
 
 const getReservationAllocations = (
-  allocationResults: AllocationResult[]
+  allocationResults: AllocationResult[] | ExtendedAllocationResult[]
 ): IReservationAllocation => {
-  return uniqBy(
-    allocationResults,
-    (n: AllocationResult) => n.applicationEventScheduleId
-  )
+  return uniqBy(allocationResults, (n) => n.applicationEventScheduleId)
     .filter(
-      (n: AllocationResult) =>
+      (n) =>
         n.aggregatedData.durationTotal &&
         n.aggregatedData.reservationsTotal &&
-        ["validated"].includes(normalizeApplicationEventStatus(n))
+        extendedApplicationEventStatus(n) === "validated"
     )
     .reduce(
-      (acc: IReservationAllocation, cur: AllocationResult) => {
+      (acc: IReservationAllocation, cur) => {
         return {
           seconds: acc.seconds + cur.aggregatedData.durationTotal,
           volume: acc.volume + cur.aggregatedData.reservationsTotal,
@@ -50,7 +51,7 @@ const getReservationAllocations = (
 };
 
 export const getAllocationCapacity = (
-  allocationResults: AllocationResult[],
+  allocationResults: AllocationResult[] | ExtendedAllocationResult[],
   totalHourCapacity = 0,
   totalReservationDuration = 0
 ): IAllocationCapacity | null => {
@@ -70,9 +71,9 @@ export const getAllocationCapacity = (
 };
 
 interface IModifyAllocationResults {
-  data: AllocationResult[];
+  data: AllocationResult[] | ExtendedAllocationResult[];
   selections: number[];
-  action: string;
+  action: "ignore" | "approve" | "decline";
   notifyError: (s: string) => void;
   t: TFunction;
   callback: () => void;
@@ -89,7 +90,7 @@ export const modifyAllocationResults = async ({
   try {
     if (action === "ignore") {
       const allocationResults = data.filter(
-        (n: AllocationResult) =>
+        (n) =>
           n.applicationEventScheduleId &&
           selections.includes(n.applicationEventScheduleId)
       );
@@ -126,22 +127,22 @@ export const modifyAllocationResults = async ({
 
 export const processAllocationResult = (
   allocationResults: AllocationResult[]
-): AllocationResult[] =>
+): ExtendedAllocationResult[] =>
   allocationResults.map((allocationResult) => ({
     ...allocationResult,
     applicationEvent: {
       ...allocationResult.applicationEvent,
-      status: normalizeApplicationEventStatus(allocationResult),
+      status: extendedApplicationEventStatus(allocationResult),
     },
   }));
 
 export const prepareAllocationResults = (
-  results: AllocationResult[]
+  results: AllocationResult[] | ExtendedAllocationResult[]
 ): GroupedAllocationResult[] => {
   const groups = groupBy(results, (n) => n.allocatedReservationUnitName);
   return Object.keys(groups).map(
     (key: string, index: number): GroupedAllocationResult => {
-      const row = groups[key][0] as AllocationResult;
+      const row = groups[key][0];
       return {
         id: index + 1,
         space: {

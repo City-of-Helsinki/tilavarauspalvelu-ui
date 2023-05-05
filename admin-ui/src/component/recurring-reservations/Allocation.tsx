@@ -4,12 +4,12 @@ import styled from "styled-components";
 import { Button, IconArrowRedo } from "hds-react";
 import { Strong } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { ApplicationRoundType } from "common/types/gql-types";
-import { getApplicationRound, triggerAllocation } from "../../common/api";
 import {
-  ApplicationRoundBasket,
   ApplicationRoundStatus,
-} from "../../common/types";
+  ApplicationRoundType,
+} from "common/types/gql-types";
+import { getApplicationRound, triggerAllocation } from "../../common/api";
+import { ApplicationRoundBasket } from "../../common/types";
 import {
   IngressContainer,
   NarrowContainer,
@@ -139,7 +139,7 @@ const Allocation = ({
 
   useEffect(() => {
     if (isAllocated) {
-      setApplicationRoundStatus("allocated");
+      setApplicationRoundStatus(ApplicationRoundStatus.Allocated);
     }
   }, [isAllocated, setApplicationRoundStatus]);
 
@@ -209,7 +209,7 @@ const Allocation = ({
               type="button"
               variant="secondary"
               onClick={() => {
-                setApplicationRoundStatus("in_review");
+                setApplicationRoundStatus(ApplicationRoundStatus.InReview);
               }}
             >
               {t("ApplicationRound.navigateBackToReview")}

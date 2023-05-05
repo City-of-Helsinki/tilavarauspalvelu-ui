@@ -1,7 +1,10 @@
 import { IconCheck, IconEnvelope } from "hds-react";
 import React, { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { ApplicationStatus, ApplicationRoundStatus } from "../../common/types";
+import type {
+  ApplicationStatus,
+  ApplicationRoundStatus,
+} from "common/types/gql-types";
 
 import StatusBlock from "../StatusBlock";
 import {
@@ -26,7 +29,7 @@ function ApplicationStatusBlock({
     ? getNormalizedApplicationStatus(status, view)
     : status;
 
-  let icon: ReactNode | null;
+  let icon: ReactNode;
   let style: React.CSSProperties = {};
   switch (normalizedStatus) {
     case "approved":

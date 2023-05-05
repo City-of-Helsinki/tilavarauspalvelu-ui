@@ -17,10 +17,10 @@ import {
   ApplicationRoundType,
 } from "common/types/gql-types";
 import {
-  AllocationResult,
-  Application as ApplicationType,
-  ApplicationRoundStatus as ApplicationRoundStatusRest,
-  DataFilterConfig,
+  type AllocationResult,
+  type Application as ApplicationType,
+  type DataFilterConfig,
+  type ExtendedAllocationResult,
 } from "../../common/types";
 import { IngressContainer, NarrowContainer } from "../../styles/layout";
 import StatusRecommendation from "../applications/StatusRecommendation";
@@ -35,7 +35,7 @@ import {
   prepareAllocationResults,
   processAllocationResult,
   getAllocationCapacity,
-  IAllocationCapacity,
+  type IAllocationCapacity,
 } from "../../common/AllocationResult";
 import BigRadio from "../BigRadio";
 import { getAllocationResults, getApplications } from "../../common/api";
@@ -46,9 +46,7 @@ import { useNotification } from "../../context/NotificationContext";
 
 interface IProps {
   applicationRound: ApplicationRoundType;
-  setApplicationRoundStatus: (
-    status: ApplicationRoundStatusRest
-  ) => Promise<void>;
+  setApplicationRoundStatus: (status: ApplicationRoundStatus) => Promise<void>;
 }
 
 const Wrapper = styled.div`
@@ -245,6 +243,7 @@ const getCellConfig = (
             }}
           >
             <span>
+              {/* FIXME don't use includes; no overlap error */}
               {["validated"].includes(applicationEvent.status)
                 ? trim(
                     `${formatNumber(
@@ -282,17 +281,17 @@ const getCellConfig = (
 };
 
 const getFilterConfig = (
-  recommendations: AllocationResult[] | null,
+  recommendations: ExtendedAllocationResult[] | null,
   applications: ApplicationType[] | null,
   type: "unallocated" | "allocated",
   t: TFunction
 ): DataFilterConfig[] => {
-  const getApplicantTypes = (input: AllocationResult[] | ApplicationType[]) =>
-    uniq(
-      input.map((n: AllocationResult | ApplicationType) => n.applicantType)
-    ).sort();
-  const getReservationUnits = (input: AllocationResult[]) =>
-    uniq(input.map((n: AllocationResult) => n.unitName)).sort();
+  const getApplicantTypes = (
+    input: AllocationResult[] | ExtendedAllocationResult[] | ApplicationType[]
+  ) => uniq(input.map((n) => n.applicantType)).sort();
+  const getReservationUnits = (
+    input: AllocationResult[] | ExtendedAllocationResult[]
+  ) => uniq(input.map((n) => n.unitName)).sort();
 
   const unallocatedFilterConfig = [
     {
@@ -348,7 +347,7 @@ function PreApproval({
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [recommendations, setRecommendations] = useState<
-    AllocationResult[] | []
+    ExtendedAllocationResult[] | []
   >([]);
   const [unallocatedApplications, setUnallocatedApplications] = useState<
     ApplicationType[]
@@ -426,6 +425,7 @@ function PreApproval({
     activeFilter === "unallocated"
       ? unallocatedApplications
       : recommendations.filter((n) =>
+          /* FIXME what is applicationEvent.status (gql-type) */
           ["validated"].includes(n.applicationEvent.status)
         );
 
@@ -517,7 +517,9 @@ function PreApproval({
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setApplicationRoundStatus("allocated");
+                      setApplicationRoundStatus(
+                        ApplicationRoundStatus.Allocated
+                      );
                     }}
                   >
                     {t("ApplicationRound.navigateBackToHandling")}
@@ -649,7 +651,8 @@ function PreApproval({
                     type="submit"
                     variant="primary"
                     onClick={() => {
-                      setApplicationRoundStatus("validated");
+                      // FIXME this is wrong; there is no "validated" in the REST api
+                      // setApplicationRoundStatus(ApplicationRoundStatus "validated");
                       setConfirmationDialogVisibility(false);
                     }}
                   >
