@@ -67,6 +67,7 @@ interface IProps {
   setApplicationRoundStatus: (
     status: ApplicationRoundStatusRest
   ) => Promise<void>;
+  enablePolling: (enable: boolean) => void;
 }
 
 const Wrapper = styled.div`
@@ -362,6 +363,7 @@ const renderGroup = (
 function Handling({
   applicationRound,
   setApplicationRoundStatus,
+  enablePolling,
 }: IProps): JSX.Element {
   // TODO "approved" in the rest is what in the GQL?
   const isApplicationRoundApproved =
@@ -409,6 +411,7 @@ function Handling({
             ?.filter((x): x is ApplicationRoundBasket => x != null)
             ?.map((n) => n.pk) ?? [],
       });
+      enablePolling(!!allocation?.id);
       setIsAllocating(!!allocation?.id);
     } catch (error) {
       const msg = "errors.errorStartingAllocation";
@@ -421,29 +424,6 @@ function Handling({
       fetchRecommendations();
     }
   }, [applicationRound, t]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* FIXME this should not cross component boundaries
-   * either poll in the parent or poll only here
-   * FIXME needs to have a GQL poll
-  useEffect(() => {
-    const poller = setInterval(async () => {
-      if (isAllocating) {
-        // TODO replace with GQL
-        const result = await getApplicationRound({
-          id: applicationRound.pk ?? 0,
-        });
-        if (result.allocating === false) {
-          setApplicationRound(result);
-          setIsAllocating(false);
-        }
-      }
-    }, 2000);
-
-    return () => {
-      clearInterval(poller);
-    };
-  }, [isAllocating, applicationRound, setApplicationRound]);
-  */
 
   const unhandledRecommendationCount: number = recommendations
     .flatMap((recommendation) => recommendation.applicationEvent)

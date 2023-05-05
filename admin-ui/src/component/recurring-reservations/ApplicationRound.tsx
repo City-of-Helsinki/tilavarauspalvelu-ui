@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
@@ -17,7 +17,7 @@ import Loader from "../Loader";
 import { useNotification } from "../../context/NotificationContext";
 import { APPLICATION_ROUND_BY_PK_QUERY } from "./queries";
 
-const useApplicationRoundByPkQuery = (pk?: string) => {
+const useApplicationRoundByPkQuery = (pk?: string, pollInterval?: number) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
@@ -32,6 +32,7 @@ const useApplicationRoundByPkQuery = (pk?: string) => {
       onError: () => {
         notifyError(t("errors.errorFetchingApplication"));
       },
+      pollInterval,
     }
   );
 
@@ -49,9 +50,12 @@ function ApplicationRound(): JSX.Element | null {
   const { notifyError } = useNotification();
   const { applicationRoundId } = useParams<IProps>();
   const { t } = useTranslation();
+  const [pollingInterval, setPollingInterval] = useState(0);
 
-  const { applicationRound, loading, refetch } =
-    useApplicationRoundByPkQuery(applicationRoundId);
+  const { applicationRound, loading, refetch } = useApplicationRoundByPkQuery(
+    applicationRoundId,
+    pollingInterval
+  );
 
   // TODO replace with GQL mutation and move down stream where it's used (use a hook if needed)
   const setApplicationRoundStatus = async (
@@ -86,10 +90,10 @@ function ApplicationRound(): JSX.Element | null {
       return (
         <Handling
           applicationRound={applicationRound}
-          // setApplicationRound={setApplicationRound}
           setApplicationRoundStatus={(status: ApplicationRoundStatusRest) =>
             setApplicationRoundStatus(Number(applicationRoundId), status)
           }
+          enablePolling={() => setPollingInterval(2000)}
         />
       );
     case ApplicationRoundStatus.Handled:
