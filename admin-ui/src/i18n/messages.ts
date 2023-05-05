@@ -720,21 +720,21 @@ const translations: ITranslations = {
       "Valituilla suodattimilla ei löytynyt yhtään haettua vuoroa. Valitse suodattimia uudelleen tai tyhjennä kaikki suodattimet.",
     ],
   },
+  // Copy from Application.statuses (some differences)
   ApplicationStatus: {
-    // TODO translations from Figma
-    allocated: ["Allokoitu"],
+    allocated: ["Käsittelemättä"],
     cancelled: ["Peruutettu"],
     draft: ["Luonnos"],
     expired: ["Vanhentunut"],
     handled: ["Käsitelty"],
-    in_review: ["TODO in review"],
+    in_review: ["Tarkastuksessa"],
     received: ["Saatu"],
-    review_done: ["TODO review done"],
-    sent: ["Lähetetty"],
+    review_done: ["Etenee jakoon"],
+    sent: ["Päatös lähetetty"],
   },
   ApplicationsFilters: {
-    textSearchLabel: ["Nimi"],
-    textSearchPlaceHolder: ["Nimi"],
+    textSearchLabel: ["Vuoron nimi"],
+    textSearchPlaceHolder: ["Vuoron nimi"],
     stateLabel: ["Vaihe"],
     statePlaceHolder: ["Valitse"],
     filters: {
@@ -742,6 +742,7 @@ const translations: ITranslations = {
       applicantTypePlaceHolder: ["Hakijatyyppi"],
       applicationCountGteTag: ["Vähintään {{ value }}"],
       applicationCountLteTag: ["Enintään {{ value }}"],
+      nameTag: ['"{{ value }}"'],
     },
     countLabel: ["Määrä"],
   },

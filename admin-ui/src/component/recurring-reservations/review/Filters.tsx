@@ -27,8 +27,6 @@ export type FilterArguments = {
   applicantType: StringOptionType[];
   applicationCountGte?: string;
   applicationCountLte?: string;
-  // this is only for application
-  // application event queries have different status
   applicationStatus: StringOptionType[];
 };
 
@@ -39,35 +37,6 @@ export const emptyFilterState = {
 };
 
 const multivaledFields = ["unit", "applicationStatus", "applicantType"];
-
-const ReviewUnitFilter = ({
-  units,
-  value,
-  onChange,
-}: {
-  units: { pk: number; name: string }[];
-  onChange: (units: OptionType[]) => void;
-  value: OptionType[];
-}) => {
-  const { t } = useTranslation();
-
-  const options: OptionType[] = units.map((x) => ({
-    label: x.name,
-    value: x.pk,
-  }));
-
-  return (
-    <SortedSelect
-      label={t("ReservationUnitsSearch.unitLabel")}
-      multiselect
-      placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
-      options={options}
-      value={value}
-      onChange={onChange}
-      id="reservation-unit-combobox"
-    />
-  );
-};
 
 const ReviewApplicationStateFilter = ({
   options,
@@ -89,12 +58,12 @@ const ReviewApplicationStateFilter = ({
       multiselect
       options={options}
       onChange={onChange}
-      // TODO translate
-      clearButtonAriaLabel="Clear all selections"
-      selectedItemRemoveButtonAriaLabel="Remove value"
+      clearButtonAriaLabel={t("common.clearAllSelections")}
+      selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
     />
   );
 };
+
 const ReviewApplicationEventStateFilter = ({
   options,
   value,
@@ -114,9 +83,8 @@ const ReviewApplicationEventStateFilter = ({
       value={value.find(() => true) ?? { label: "", value: "" }}
       options={options}
       onChange={(val: StringOptionType) => onChange([val])}
-      // TODO translate
-      clearButtonAriaLabel="Clear all selections"
-      selectedItemRemoveButtonAriaLabel="Remove value"
+      clearButtonAriaLabel={t("common.clearAllSelections")}
+      selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
     />
   );
 };
@@ -141,9 +109,8 @@ const ApplicantTypeFilter = ({
       multiselect
       options={options}
       onChange={onChange}
-      // TODO translate
-      clearButtonAriaLabel="Clear all selections"
-      selectedItemRemoveButtonAriaLabel="Remove value"
+      clearButtonAriaLabel={t("common.clearAllSelections")}
+      selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
     />
   );
 };
@@ -152,7 +119,6 @@ const CountFilterContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-self: start;
-  height: 100%;
 `;
 
 const CountLabel = styled.div`
@@ -167,17 +133,7 @@ type Props = {
 
 // TODO these functions can be simplified with Object.values(Enum)
 const getApplicationStateOptions = (t: TFunction) =>
-  [
-    ApplicationStatus.Allocated,
-    ApplicationStatus.Cancelled,
-    ApplicationStatus.Draft,
-    ApplicationStatus.Expired,
-    ApplicationStatus.Handled,
-    ApplicationStatus.InReview,
-    ApplicationStatus.Received,
-    ApplicationStatus.ReviewDone,
-    ApplicationStatus.Sent,
-  ].map((x) => ({
+  Object.values(ApplicationStatus).map((x) => ({
     label: t(`ApplicationStatus.${x.toString()}`),
     value: x.toString(),
   }));
@@ -212,12 +168,18 @@ const Filters = ({
     value: x.toString(),
   }));
 
+  const unitOptions: OptionType[] = units.map((x) => ({
+    label: x.name,
+    value: x.pk,
+  }));
+
   return (
     <AutoGrid>
       {isApplicationEvent ? (
         <TextInput
           id="applications-review-name-filter"
           label={t("ApplicationsFilters.textSearchLabel")}
+          placeholder={t("ApplicationsFilters.textSearchPlaceHolder")}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               onSearch(state);
@@ -226,7 +188,6 @@ const Filters = ({
           onChange={(e) =>
             dispatch({ type: "set", value: { name: e.target.value } })
           }
-          placeholder={t("ApplicationsFilters.textSearchPlaceHolder")}
           value={state.name || ""}
         />
       ) : (
@@ -238,8 +199,12 @@ const Filters = ({
           options={typeOptions}
         />
       )}
-      <ReviewUnitFilter
-        units={units}
+      <SortedSelect
+        id="reservation-unit-combobox"
+        label={t("ReservationUnitsSearch.unitLabel")}
+        placeholder={t("ReservationUnitsSearch.unitPlaceHolder")}
+        multiselect
+        options={unitOptions}
         onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
         value={state.unit}
       />
