@@ -76,6 +76,7 @@ import { PinkBox } from "../../components/reservation-unit/ReservationUnitStyles
 import { Toast } from "../../styles/util";
 
 type Props = {
+  fetchedReservation: Reservation;
   reservationUnit: ReservationUnitType;
   reservationPurposes: ReservationPurposeType[];
   ageGroups: AgeGroupType[];
@@ -88,19 +89,19 @@ export const getServerSideProps: GetServerSideProps = async ({
   locale,
   params,
 }) => {
-  const id = Number(params.params[0]);
+  const reservationUnitPk = Number(params.params[0]);
   const path = params.params[1];
   let reservationPurposes = [];
   let ageGroups = [];
   let cities = [];
 
-  if (isFinite(id) && path === "reservation") {
+  if (isFinite(reservationUnitPk) && path === "reservation") {
     const { data: reservationUnitData } = await apolloClient.query<
       Query,
       QueryReservationUnitByPkArgs
     >({
       query: RESERVATION_UNIT,
-      variables: { pk: id },
+      variables: { pk: reservationUnitPk },
       fetchPolicy: "no-cache",
     });
 
@@ -223,7 +224,8 @@ const StyledStepper = styled(Stepper)<{ small: boolean }>`
   ${({ small }) => !small && "max-width: 300px;"}
 `;
 
-const ReservationUnitReservation = ({
+const ReservationUnitReservationWithReservationProp = ({
+  fetchedReservation,
   reservationUnit,
   reservationPurposes,
   ageGroups,
@@ -245,22 +247,17 @@ const ReservationUnitReservation = ({
     "pending"
   );
   const [step, setStep] = useState(0);
-  const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [reservation, setReservation] = useState<Reservation | null>(
+    fetchedReservation
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [reserveeType, setReserveeType] =
     useState<ReservationsReservationReserveeTypeChoices>(null);
 
-  const form = useForm<Inputs>();
+  const defaultValues = pick(reservation || {}, profileUserFields);
+  const form = useForm<Inputs>({ defaultValues });
   const { handleSubmit, watch } = form;
-
-  const { data: fetchedReservationData } = useQuery<
-    Query,
-    QueryReservationByPkArgs
-  >(GET_RESERVATION, {
-    variables: { pk: reservationData?.pk },
-    skip: !reservationData?.pk,
-  });
 
   const requireHandling =
     reservationUnit.requireReservationHandling ||
@@ -288,29 +285,6 @@ const ReservationUnitReservation = ({
   useEffect(() => {
     if (storedReservation) removeStoredReservation();
   }, [storedReservation, removeStoredReservation]);
-
-  useEffect(() => {
-    const data = fetchedReservationData?.reservationByPk;
-    if (data?.pk && reservationUnit.pk) {
-      const res: Reservation = {
-        ...data,
-        pk: data.pk,
-        purpose: data.purpose?.pk,
-        ageGroup: data.ageGroup?.pk,
-        homeCity: data.homeCity?.pk,
-        reservationUnitPks: [reservationUnit.pk],
-      };
-      setReservation(res);
-    }
-  }, [
-    fetchedReservationData?.reservationByPk,
-    reservationUnit?.pk,
-    setPendingReservation,
-  ]);
-
-  const defaultValues = useMemo(() => {
-    return reservation !== null ? pick(reservation, profileUserFields) : {};
-  }, [reservation]);
 
   const [deleteReservation] = useMutation<
     { deleteReservation: ReservationDeleteMutationPayload },
@@ -624,7 +598,6 @@ const ReservationUnitReservation = ({
                   setReserveeType={setReserveeType}
                   cancelReservation={cancelReservation}
                   options={options}
-                  defaultValues={defaultValues}
                 />
               )}
               {step === 1 && (
@@ -668,6 +641,39 @@ const ReservationUnitReservation = ({
         </Toast>
       )}
     </StyledContainer>
+  );
+};
+
+const ReservationUnitReservation = (props) => {
+  const [reservationData] = useSessionStorage("pendingReservation", null);
+
+  const { data, loading } = useQuery<Query, QueryReservationByPkArgs>(
+    GET_RESERVATION,
+    {
+      variables: { pk: reservationData?.pk },
+      skip: !reservationData?.pk,
+      onError: () => {},
+    }
+  );
+
+  if (loading || !data?.reservationByPk?.pk) return null;
+
+  const { reservationByPk } = data;
+  const { reservationUnit } = props;
+
+  const fetchedReservation: Reservation = {
+    ...reservationByPk,
+    pk: reservationByPk.pk,
+    purpose: reservationByPk.purpose?.pk,
+    ageGroup: reservationByPk.ageGroup?.pk,
+    homeCity: reservationByPk.homeCity?.pk,
+    reservationUnitPks: [reservationUnit.pk],
+  };
+  return (
+    <ReservationUnitReservationWithReservationProp
+      {...props}
+      fetchedReservation={fetchedReservation}
+    />
   );
 };
 
