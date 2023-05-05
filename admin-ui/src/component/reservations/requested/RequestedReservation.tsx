@@ -18,6 +18,7 @@ import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ServiceSectorType,
+  ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
@@ -52,6 +53,8 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
+import { useRecurringReservations } from "./hooks";
+import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 
 const Dot = styled.div`
   display: inline-block;
@@ -171,11 +174,9 @@ const ApplicationData = ({
 
 const ButtonsWithPermChecks = ({
   reservation,
-  refetch,
   isFree,
 }: {
   reservation: ReservationType;
-  refetch: () => void;
   isFree: boolean;
 }) => {
   const { setModalContent } = useModal();
@@ -195,11 +196,6 @@ const ButtonsWithPermChecks = ({
     setModalContent(null);
   };
 
-  const closeDialogAndRefetch = () => {
-    closeDialog();
-    refetch();
-  };
-
   const { hasPermission } = useAuthState().authState;
   const permission = hasPermission(
     "can_manage_reservations",
@@ -211,19 +207,30 @@ const ButtonsWithPermChecks = ({
     ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
     : false;
 
-  if (permission || ownPermissions) {
+  const userIsAllowToModify = permission || ownPermissions;
+  if (!userIsAllowToModify) {
+    return null;
+  }
+
+  if (reservation.recurringReservation) {
     return (
-      <ApprovalButtons
-        state={reservation.state}
-        isFree={isFree}
-        reservation={reservation}
+      <ApprovalButtonsRecurring
+        recurringReservation={reservation.recurringReservation}
         handleClose={closeDialog}
-        handleAccept={closeDialogAndRefetch}
+        handleAccept={closeDialog}
       />
     );
   }
 
-  return null;
+  return (
+    <ApprovalButtons
+      state={reservation.state}
+      isFree={isFree}
+      reservation={reservation}
+      handleClose={closeDialog}
+      handleAccept={closeDialog}
+    />
+  );
 };
 
 const ReservationSummary = ({
@@ -331,6 +338,68 @@ const createTagString = (reservation: ReservationType, t: TFunction) => {
   return reservationTagline;
 };
 
+const maybeStringToDate: (s?: string) => Date | undefined = (str) =>
+  str ? new Date(str) : undefined;
+
+const onlyFutureDates: (d?: Date) => Date | undefined = (d) =>
+  d && d > new Date() ? d : undefined;
+
+const TimeBlock = ({ reservation }: { reservation: ReservationType }) => {
+  const [selected, setSelected] = useState<ReservationType | undefined>(
+    undefined
+  );
+
+  const { t } = useTranslation();
+
+  // date focus rules for Calendar
+  // (1) if selected => show that
+  // (2) else if reservation is in the future => show that
+  // (3) else if reservation.recurrance has an event in the future => show that
+  // (4) else show today
+  const { reservations } = useRecurringReservations(
+    reservation.recurringReservation?.pk ?? undefined
+  );
+
+  const nextReservation = reservations.find(
+    (x) =>
+      x.state === ReservationsReservationStateChoices.Confirmed &&
+      new Date(x.begin) > new Date()
+  );
+
+  const shownReservation =
+    new Date(reservation.begin) > new Date() ? reservation : nextReservation;
+
+  const focusDate =
+    maybeStringToDate(selected?.begin) ??
+    onlyFutureDates(maybeStringToDate(shownReservation?.begin)) ??
+    new Date();
+
+  return (
+    <>
+      {reservation.recurringReservation && (
+        <Accordion heading={t("RequestedReservation.recurring")}>
+          <RecurringReservationsView
+            reservation={reservation}
+            onSelect={setSelected}
+          />
+        </Accordion>
+      )}
+      <Accordion
+        heading={t("RequestedReservation.calendar")}
+        initiallyOpen={reservation.recurringReservation != null}
+        id="reservation-calendar"
+      >
+        <Calendar
+          reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
+          reservation={reservation}
+          selected={selected}
+          focusDate={focusDate}
+        />
+      </Accordion>
+    </>
+  );
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType | undefined>(
@@ -338,9 +407,7 @@ const RequestedReservation = (): JSX.Element | null => {
   );
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
-  const [selectedReservation, setSelectedReservation] = useState<
-    ReservationType | undefined
-  >(undefined);
+
   const { t } = useTranslation();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
@@ -353,7 +420,6 @@ const RequestedReservation = (): JSX.Element | null => {
       onCompleted: ({ reservationByPk }) => {
         if (reservationByPk) {
           setReservation(reservationByPk);
-          setSelectedReservation(reservationByPk);
           setWorkingMemo(reservationByPk.workingMemo || "");
         }
       },
@@ -415,7 +481,6 @@ const RequestedReservation = (): JSX.Element | null => {
           buttons={
             <ButtonsWithPermChecks
               reservation={reservation}
-              refetch={refetch}
               isFree={!isNonFree}
             />
           }
@@ -447,13 +512,12 @@ const RequestedReservation = (): JSX.Element | null => {
           <Tagline>{reservationTagline}</Tagline>
           <DateTime>
             {t("RequestedReservation.createdAt")}{" "}
-            {formatDateTime(reservation.createdAt as string)}
+            {formatDateTime(reservation.createdAt ?? "")}
           </DateTime>
         </div>
         <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
           <ButtonsWithPermChecks
             reservation={reservation}
-            refetch={refetch}
             isFree={!isNonFree}
           />
         </HorisontalFlex>
@@ -527,20 +591,7 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
-          {reservation.recurringReservation && (
-            <Accordion heading={t("RequestedReservation.recurring")}>
-              <RecurringReservationsView
-                reservation={reservation}
-                onSelect={setSelectedReservation}
-              />
-            </Accordion>
-          )}
-          <Accordion heading={t("RequestedReservation.calendar")}>
-            <Calendar
-              reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
-              reservation={selectedReservation ?? reservation}
-            />
-          </Accordion>
+          <TimeBlock reservation={reservation} />
           <Accordion heading={t("RequestedReservation.reservationDetails")}>
             <ApplicationDatas>
               <ApplicationData

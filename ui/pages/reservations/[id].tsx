@@ -3,12 +3,13 @@ import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
-import { get, isFinite } from "lodash";
+import { camelCase, capitalize, get, isFinite, trim } from "lodash";
 import { IconCalendar, IconCross, IconLinkExternal } from "hds-react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useTranslation } from "next-i18next";
-import { H2, H4 } from "common/src/common/typography";
+import { H2, H4, fontRegular } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
+import { signIn, useSession } from "next-auth/react";
 import {
   Query,
   QueryReservationByPkArgs,
@@ -21,6 +22,8 @@ import {
   QueryOrderArgs,
   PaymentOrderType,
 } from "common/types/gql-types";
+import { parseISO } from "date-fns";
+import Link from "next/link";
 import apolloClient from "../../modules/apolloClient";
 import { GET_ORDER, GET_RESERVATION } from "../../modules/queries/reservation";
 import {
@@ -38,6 +41,7 @@ import {
   canUserCancelReservation,
   getNormalizedReservationOrderStatus,
   getReservationCancellationReason,
+  getReservationValue,
 } from "../../modules/reservation";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
 import {
@@ -50,6 +54,11 @@ import ReservationStatus from "../../components/reservation/ReservationStatus";
 import Address from "../../components/reservation-unit/Address";
 import ReservationInfoCard from "../../components/reservation/ReservationInfoCard";
 import ReservationOrderStatus from "../../components/reservation/ReservationOrderStatus";
+import {
+  reservationUnitPath,
+  authEnabled,
+  authenticationIssuer,
+} from "../../modules/const";
 
 type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
@@ -76,6 +85,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
     return {
       props: {
+        key: `${id}-${locale}`,
         ...(await serverSideTranslations(locale)),
         overrideBackgroundColor: "var(--tilavaraus-white)",
         termsOfUse: {
@@ -120,6 +130,27 @@ const Heading = styled(H2).attrs({ as: "h1" })`
 const SubHeading = styled(H4).attrs({ as: "h2" })`
   margin-top: 0;
   margin-bottom: var(--spacing-m);
+  line-height: 2rem;
+  ${fontRegular}
+
+  a,
+  a:visited {
+    color: var(--color-black);
+    text-decoration: underline;
+    display: block;
+    margin-bottom: var(--spacing-xs);
+
+    @media (min-width: ${breakpoints.m}) {
+      &:after {
+        content: "|";
+        position: relative;
+        right: calc(var(--spacing-xs) * -1);
+      }
+      display: inline-block;
+      margin-right: var(--spacing-m);
+      margin-bottom: 0;
+    }
+  }
 `;
 
 const StatusContainer = styled.div`
@@ -168,6 +199,7 @@ const Reasons = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--spacing-m);
+  margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-layout-m);
 `;
 
@@ -237,7 +269,19 @@ const Terms = styled.div`
 `;
 
 const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const session = useSession();
+
+  const isUserUnauthenticated =
+    authEnabled && session?.status === "unauthenticated";
+
+  useEffect(() => {
+    if (isUserUnauthenticated) {
+      signIn(authenticationIssuer, {
+        callbackUrl: window.location.href,
+      });
+    }
+  }, [isUserUnauthenticated]);
 
   const [reservation, setReservation] = useState<ReservationType>(null);
   const [order, setOrder] = useState<PaymentOrderType>(null);
@@ -335,9 +379,9 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
             reservationUnit={reservationUnit}
             type="complete"
           />
-          {reservation.state ===
-            ReservationsReservationStateChoices.Confirmed && (
-            <SecondaryActions>
+          <SecondaryActions>
+            {reservation.state ===
+              ReservationsReservationStateChoices.Confirmed && (
               <BlackButton
                 variant="secondary"
                 iconRight={<IconCalendar aria-hidden />}
@@ -347,22 +391,35 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
               >
                 {t("reservations:saveToCalendar")}
               </BlackButton>
-              {order?.receiptUrl && (
+            )}
+            {order?.receiptUrl &&
+              ["PAID", "REFUNDED"].includes(order?.status) && (
                 <BlackButton
                   data-testid="reservation__confirmation--button__receipt-link"
-                  onClick={() => window.open(order.receiptUrl, "_blank")}
+                  onClick={() =>
+                    window.open(
+                      `${order.receiptUrl}&lang=${i18n.language}`,
+                      "_blank"
+                    )
+                  }
                   variant="secondary"
                   iconRight={<IconLinkExternal aria-hidden />}
                 >
                   {t("reservations:downloadReceipt")}
                 </BlackButton>
               )}
-            </SecondaryActions>
-          )}
+          </SecondaryActions>
         </>
       )
     );
-  }, [reservation, reservationUnit, order?.receiptUrl, t]);
+  }, [
+    reservation,
+    reservationUnit,
+    order?.receiptUrl,
+    order?.status,
+    t,
+    i18n.language,
+  ]);
 
   const [canTimeBeModified, modifyTimeReason] = useMemo(
     () => canReservationTimeBeChanged({ reservation }),
@@ -381,6 +438,8 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
         return null;
     }
   }, [reservation]);
+
+  if (isUserUnauthenticated) return null;
 
   if (error) {
     return (
@@ -407,6 +466,116 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     return null;
   }
 
+  const { begin, end } = reservation;
+
+  const beginDate = t("common:dateWithWeekday", {
+    date: begin && parseISO(begin),
+  });
+
+  const beginTime = t("common:timeWithPrefixInForm", {
+    date: begin && parseISO(begin),
+  });
+
+  const endDate = t("common:dateWithWeekday", {
+    date: end && parseISO(end),
+  });
+
+  const endTime = t("common:timeInForm", {
+    date: end && parseISO(end),
+  });
+
+  const timeString = capitalize(
+    trim(
+      `${beginDate} ${beginTime}-${
+        endDate !== beginDate ? endDate : ""
+      }${endTime}`,
+      " - "
+    )
+  );
+
+  const supportedFields =
+    reservationUnit.metadataSet?.supportedFields?.map(camelCase) || [];
+
+  const reservationInfo = [
+    "purpose",
+    "numPersons",
+    "ageGroup",
+    "description",
+  ].map(
+    (field) =>
+      supportedFields.includes(field) && (
+        <ParagraphAlt key={field}>
+          {t(`reservationApplication:label.common.${field}`)}:{" "}
+          {getReservationValue(reservation, field) || "-"}
+        </ParagraphAlt>
+      )
+  );
+
+  const reserveeInfo = [
+    ReservationsReservationReserveeTypeChoices.Business.toString(),
+    ReservationsReservationReserveeTypeChoices.Nonprofit.toString(),
+  ].includes(reservation.reserveeType) ? (
+    <>
+      {supportedFields.includes("reserveeOrganisationName") && (
+        <ParagraphAlt>
+          {t("reservations:organisationName")}:{" "}
+          {reservation.reserveeOrganisationName || "-"}
+        </ParagraphAlt>
+      )}
+      {supportedFields.includes("reserveeId") && (
+        <ParagraphAlt>
+          {t("reservations:reserveeId")}: {reservation.reserveeId || "-"}
+        </ParagraphAlt>
+      )}
+      {(supportedFields.includes("reserveeFirstName") ||
+        supportedFields.includes("reserveeLastName")) && (
+        <ParagraphAlt>
+          {t("reservations:contactName")}:{" "}
+          {`${reservation.reserveeFirstName || ""} ${
+            reservation.reserveeLastName || ""
+          }`.trim()}
+        </ParagraphAlt>
+      )}
+      {supportedFields.includes("reserveePhone") && (
+        <ParagraphAlt>
+          {t("reservations:contactPhone")}: {reservation.reserveePhone}
+        </ParagraphAlt>
+      )}
+      {supportedFields.includes("reserveeEmail") && (
+        <ParagraphAlt>
+          {t("reservations:contactEmail")}: {reservation.reserveeEmail}
+        </ParagraphAlt>
+      )}
+    </>
+  ) : (
+    <>
+      {(supportedFields.includes("reserveeFirstName") ||
+        supportedFields.includes("reserveeLastName")) && (
+        <ParagraphAlt>
+          {t("common:name")}:{" "}
+          {`${reservation.reserveeFirstName || ""} ${
+            reservation.reserveeLastName || ""
+          }`.trim()}
+        </ParagraphAlt>
+      )}
+      {supportedFields.includes("reserveePhone") && (
+        <ParagraphAlt>
+          {t("common:phone")}: {reservation.reserveePhone || "-"}
+        </ParagraphAlt>
+      )}
+      {supportedFields.includes("reserveeEmail") && (
+        <ParagraphAlt>
+          {t("common:email")}: {reservation.reserveeEmail || "-"}
+        </ParagraphAlt>
+      )}
+    </>
+  );
+
+  const isReservationCancellable =
+    canUserCancelReservation(reservation) &&
+    !isReservationCancelled &&
+    !isBeingHandled;
+
   return (
     <Wrapper>
       <Container>
@@ -427,7 +596,12 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
             <Heading>
               {t("reservations:reservationName", { id: reservation.pk })}
             </Heading>
-            <SubHeading>{getReservationUnitName(reservationUnit)}</SubHeading>
+            <SubHeading>
+              <Link href={`${reservationUnitPath(reservationUnit.pk)}`}>
+                {getReservationUnitName(reservationUnit)}
+              </Link>
+              <span>{timeString}</span>
+            </SubHeading>
             <StatusContainer>
               <ReservationStatus state={reservation.state} />
               {normalizedOrderStatus && (
@@ -451,32 +625,36 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                   {t("reservations:modifyReservationTime")}
                 </BlackButton>
               )}
-              {canUserCancelReservation(reservation) &&
-                !isReservationCancelled &&
-                !isBeingHandled && (
-                  <BlackButton
-                    variant="secondary"
-                    iconRight={<IconCross aria-hidden />}
-                    onClick={() =>
-                      router.push(`${reservationsUrl}${reservation.pk}/cancel`)
-                    }
-                    data-testid="reservation-detail__button--cancel"
-                  >
-                    {t(
-                      `reservations:cancel${
-                        isBeingHandled ? "Application" : "Reservation"
-                      }`
-                    )}
-                  </BlackButton>
-                )}
+              {isReservationCancellable && (
+                <BlackButton
+                  variant="secondary"
+                  iconRight={<IconCross aria-hidden />}
+                  onClick={() =>
+                    router.push(`${reservationsUrl}${reservation.pk}/cancel`)
+                  }
+                  data-testid="reservation-detail__button--cancel"
+                >
+                  {t(
+                    `reservations:cancel${
+                      isBeingHandled ? "Application" : "Reservation"
+                    }`
+                  )}
+                </BlackButton>
+              )}
             </Actions>
             <Reasons>
               {modifyTimeReason && (
                 <ReasonText>
                   {t(`reservations:modifyTimeReasons:${modifyTimeReason}`)}
+                  {modifyTimeReason ===
+                    "RESERVATION_MODIFICATION_NOT_ALLOWED" &&
+                    isReservationCancellable &&
+                    ` ${t(
+                      "reservations:modifyTimeReasons:RESERVATION_MODIFICATION_NOT_ALLOWED_SUFFIX"
+                    )}`}
                 </ReasonText>
               )}
-              {cancellationReason && (
+              {cancellationReason && !modifyTimeReason && (
                 <ReasonText>
                   {t(`reservations:cancellationReasons:${cancellationReason}`)}
                 </ReasonText>
@@ -494,73 +672,13 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
                 </ContentContainer>
               )}
               <ParagraphHeading>
+                {t("reservationApplication:applicationInfo")}
+              </ParagraphHeading>
+              <ContentContainer>{reservationInfo}</ContentContainer>
+              <ParagraphHeading>
                 {t("reservationCalendar:reserverInfo")}
               </ParagraphHeading>
-              <ContentContainer>
-                {[
-                  ReservationsReservationReserveeTypeChoices.Business.toString(),
-                  ReservationsReservationReserveeTypeChoices.Nonprofit.toString(),
-                ].includes(reservation.type) ? (
-                  <>
-                    {reservation.reserveeOrganisationName && (
-                      <ParagraphAlt>
-                        {t("reservations:organisationName")}:{" "}
-                        {reservation.reserveeOrganisationName}
-                      </ParagraphAlt>
-                    )}
-                    {reservation.reserveeId && (
-                      <ParagraphAlt>
-                        {t("reservations:reserveeId")}: {reservation.reserveeId}
-                      </ParagraphAlt>
-                    )}
-                    {reservation.reserveeId && (
-                      <ParagraphAlt>
-                        {t("reservations:reserveeId")}: {reservation.reserveeId}
-                      </ParagraphAlt>
-                    )}
-                    <ParagraphAlt>
-                      {t("reservations:contactName")}:{" "}
-                      {`${reservation.reserveeFirstName || ""} ${
-                        reservation.reserveeLastName || ""
-                      }`.trim()}
-                    </ParagraphAlt>
-                    {reservation.reserveePhone && (
-                      <ParagraphAlt>
-                        {t("reservations:contactPhone")}:{" "}
-                        {reservation.reserveePhone}
-                      </ParagraphAlt>
-                    )}
-                    {reservation.reserveeEmail && (
-                      <ParagraphAlt>
-                        {t("reservations:contactEmail")}:{" "}
-                        {reservation.reserveeEmail}
-                      </ParagraphAlt>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {(reservation.reserveeFirstName ||
-                      reservation.reserveeLastName) && (
-                      <ParagraphAlt>
-                        {t("common:name")}:{" "}
-                        {`${reservation.reserveeFirstName || ""} ${
-                          reservation.reserveeLastName || ""
-                        }`.trim()}
-                      </ParagraphAlt>
-                    )}
-                    {reservation.reserveePhone && (
-                      <ParagraphAlt>
-                        {t("common:phone")}: {reservation.reserveePhone}
-                      </ParagraphAlt>
-                    )}
-                    {reservation.reserveeEmail && (
-                      <ParagraphAlt>
-                        {t("common:email")}: {reservation.reserveeEmail}
-                      </ParagraphAlt>
-                    )}
-                  </>
-                )}
-              </ContentContainer>
+              <ContentContainer>{reserveeInfo}</ContentContainer>
               <Terms>
                 {(paymentTermsContent || cancellationTermsContent) && (
                   <Accordion

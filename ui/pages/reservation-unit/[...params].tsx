@@ -155,6 +155,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
       return {
         props: {
+          key: `${id}${locale}`,
           reservationUnit: reservationUnitData.reservationUnitByPk,
           reservationPurposes,
           ageGroups,
@@ -358,11 +359,11 @@ const ReservationUnitReservationWithReservationProp = ({
         reservationConfirmSuccess();
       } else if (steps?.length > 2) {
         const order = data.confirmReservation?.order;
-        const { checkoutUrl, receiptUrl } = order ?? {};
+        const { checkoutUrl } = order ?? {};
         const { origin, pathname, searchParams } = new URL(checkoutUrl) || {};
         const userId = searchParams?.get("user");
 
-        if (checkoutUrl && receiptUrl && userId && origin && pathname) {
+        if (checkoutUrl && userId && origin && pathname) {
           const baseUrl = `${origin}${pathname}`;
           router.push(
             `${baseUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
@@ -574,19 +575,21 @@ const ReservationUnitReservationWithReservationProp = ({
             <FormProvider {...form}>
               <div>
                 <Title>{pageTitle}</Title>
-                <StyledStepper
-                  language={i18n.language}
-                  selectedStep={step}
-                  small={steps.length > 2}
-                  onStepClick={(e) => {
-                    const target = e.currentTarget;
-                    const s = target
-                      .getAttribute("data-testid")
-                      .replace("hds-stepper-step-", "");
-                    setStep(parseInt(s, 10));
-                  }}
-                  steps={steps}
-                />
+                {steps.length <= 2 && (
+                  <StyledStepper
+                    language={i18n.language}
+                    selectedStep={step}
+                    small={false}
+                    onStepClick={(e) => {
+                      const target = e.currentTarget;
+                      const s = target
+                        .getAttribute("data-testid")
+                        .replace("hds-stepper-step-", "");
+                      setStep(parseInt(s, 10));
+                    }}
+                    steps={steps}
+                  />
+                )}
               </div>
               {step === 0 && (
                 <Step0
