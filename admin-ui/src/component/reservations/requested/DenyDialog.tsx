@@ -112,7 +112,7 @@ const DialogContent = ({
     x.price && x.price > 0 && x.orderStatus === "PAID" && x.orderUuid != null;
 
   const pricesList = reservations.map(({ price, orderStatus, orderUuid }) => ({
-    price: price ?? undefined,
+    price: price ?? 0,
     orderStatus: orderStatus ?? undefined,
     orderUuid: orderUuid ?? undefined,
   }));
@@ -172,6 +172,7 @@ const DialogContent = ({
       </Dialog.Content>
     );
   }
+
   // FIXME translations
   // FIXME remove the debug true value after all other changes
   return (
@@ -197,7 +198,7 @@ const DialogContent = ({
               "RequestedReservation.DenyDialog.handlingDetailsHelper"
             )}
           />
-          {(true || returnState !== "free") && (
+          {returnState !== "free" && (
             <SelectionGroup
               required
               direction="horizontal"
@@ -206,7 +207,9 @@ const DialogContent = ({
               <RadioButton
                 id="return-money"
                 name="return-money"
-                label={`Palauta maksu (${reservation?.price} €)`}
+                label={`Palauta maksu (${reservations.find(
+                  (x) => x.price && x.price > 0
+                )} €)`}
                 checked={returnState === "return"}
                 onChange={() => setReturnState("return")}
               />
