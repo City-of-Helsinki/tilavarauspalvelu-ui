@@ -42,6 +42,7 @@ const getColConfig = (t: TFunction) => [
   },
   {
     headerName: t("ApplicationEvent.headings.name"),
+    isSortable: true,
     key: "name",
   },
   {
