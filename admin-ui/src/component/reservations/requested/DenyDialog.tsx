@@ -19,7 +19,7 @@ import {
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useModal } from "../../../context/ModalContext";
-import { DENY_RESERVATION } from "./queries";
+import { DENY_RESERVATION, REFUND_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import Select from "../../ReservationUnits/ReservationUnitEditor/Select";
@@ -30,6 +30,91 @@ import { useDenyReasonOptions } from "./hooks";
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
 `;
+
+type ReturnAllowedState =
+  // state selection
+  | "refund"
+  | "no-refund"
+  | "not-decided"
+  // invalid type (i.e. multi reservation)
+  | "not-allowed"
+  // no refunds
+  | "free"
+  | "already-refunded";
+
+const convertToReturnState: (
+  reservations: ReservationType[]
+) => ReturnAllowedState = (reservations) => {
+  const isPriceReturnable = (x: {
+    price?: number;
+    orderStatus?: string;
+    orderUuid?: string;
+    refundUuid?: string;
+  }) =>
+    x.price && x.price > 0 && x.orderStatus === "PAID" && x.orderUuid != null;
+
+  const payed = reservations
+    .map(({ price, orderStatus, orderUuid }) => ({
+      price: price ?? 0,
+      orderStatus: orderStatus ?? undefined,
+      orderUuid: orderUuid ?? undefined,
+    }))
+    .filter((x) => isPriceReturnable(x));
+
+  // multiple reservations shouldn't be paid and are not tested
+  if (payed.length > 1) {
+    return "not-allowed";
+  }
+
+  if (payed.length === 0) {
+    return "free";
+  }
+  return "not-decided";
+};
+
+const ReturnMoney = ({
+  state,
+  onChange,
+  price,
+}: {
+  state: ReturnAllowedState;
+  onChange: (val: ReturnAllowedState) => void;
+  price: number;
+}) => {
+  const { t } = useTranslation("translation", {
+    keyPrefix: "RequestedReservation.DenyDialog.refund",
+  });
+
+  switch (state) {
+    case "free":
+      return null;
+    case "not-allowed":
+      return <div>{t("notAllowed")}</div>;
+    case "already-refunded":
+      return <div>{t("alreadyRefunded")}</div>;
+    case "refund":
+    case "no-refund":
+    case "not-decided":
+    default:
+      return (
+        <SelectionGroup required direction="horizontal" label={t("radioLabel")}>
+          <RadioButton
+            id="return-money"
+            name="return-money"
+            label={t("returnChoice", { price })}
+            checked={state === "refund"}
+            onChange={() => onChange("refund")}
+          />
+          <RadioButton
+            id="no-return-money"
+            checked={state === "no-refund"}
+            label={t("noReturnChoice")}
+            onChange={() => onChange("no-refund")}
+          />
+        </SelectionGroup>
+      );
+  }
+};
 
 const DialogContent = ({
   reservations,
@@ -93,6 +178,27 @@ const DialogContent = ({
     },
   });
 
+  const { notifyError, notifySuccess } = useNotification();
+  const { t } = useTranslation();
+
+  const [refundReservationMutation] = useMutation<Mutation>(
+    REFUND_RESERVATION,
+    {
+      onCompleted: () => {
+        notifySuccess(
+          t("RequestedReservation.DenyDialog.refund.mutationSuccess")
+        );
+      },
+      onError: (err) => {
+        // eslint-disable-next-line no-console
+        console.error("Refund failed with: ", err);
+        notifyError(
+          t("RequestedReservation.DenyDialog.refund.mutationFailure")
+        );
+      },
+    }
+  );
+
   const denyReservation = (input: ReservationDenyMutationInput) =>
     denyReservationMutation({ variables: { input } });
 
@@ -101,33 +207,12 @@ const DialogContent = ({
   );
   const [denyReasonPk, setDenyReason] = useState<number | null>(null);
   const [inProgress, setInProgress] = useState(false);
-  const { notifyError, notifySuccess } = useNotification();
-  const { t } = useTranslation();
 
-  const isPriceReturnable = (x: {
-    price?: number;
-    orderStatus?: string;
-    orderUuid?: string;
-  }) =>
-    x.price && x.price > 0 && x.orderStatus === "PAID" && x.orderUuid != null;
-
-  const pricesList = reservations.map(({ price, orderStatus, orderUuid }) => ({
-    price: price ?? 0,
-    orderStatus: orderStatus ?? undefined,
-    orderUuid: orderUuid ?? undefined,
-  }));
-  const [returnState, setReturnState] = React.useState<
-    "return" | "no-return" | "" | "free"
-  >(pricesList.find((x) => isPriceReturnable(x)) ? "" : "free");
+  const [returnState, setReturnState] = React.useState<ReturnAllowedState>(
+    convertToReturnState(reservations)
+  );
 
   const { options, loading } = useDenyReasonOptions();
-
-  // TODO this gets us the free ones, but does it get the subvention also?
-  // TODO get the order status / uuid from GQL and check against those on top of the price
-  console.log("reservation order: ", pricesList);
-
-  // TODO should block if refundUuid is set but it's not in the backend yet
-  // Refund id === null otherwise we try to do a double refund
 
   const handleDeny = async () => {
     try {
@@ -155,7 +240,14 @@ const DialogContent = ({
         console.error("Deny failed with: ", errors);
         notifyError(t("RequestedReservation.DenyDialog.errorSaving"));
       } else {
-        notifySuccess(t("RequestedReservation.DenyDialog.successNotify"));
+        if (returnState === "refund") {
+          const refundPromises = reservations.map((x) =>
+            refundReservationMutation({ variables: { pk: x.pk } })
+          );
+          Promise.all(refundPromises);
+        } else {
+          notifySuccess(t("RequestedReservation.DenyDialog.successNotify"));
+        }
         onReject();
       }
     } catch (e) {
@@ -173,8 +265,6 @@ const DialogContent = ({
     );
   }
 
-  // FIXME translations
-  // FIXME remove the debug true value after all other changes
   return (
     <>
       <Dialog.Content>
@@ -198,29 +288,11 @@ const DialogContent = ({
               "RequestedReservation.DenyDialog.handlingDetailsHelper"
             )}
           />
-          {returnState !== "free" && (
-            <SelectionGroup
-              required
-              direction="horizontal"
-              label="Varausmaksun palautus"
-            >
-              <RadioButton
-                id="return-money"
-                name="return-money"
-                label={`Palauta maksu (${reservations.find(
-                  (x) => x.price && x.price > 0
-                )} €)`}
-                checked={returnState === "return"}
-                onChange={() => setReturnState("return")}
-              />
-              <RadioButton
-                id="no-return-money"
-                checked={returnState === "no-return"}
-                label="Ei palautusta"
-                onChange={() => setReturnState("no-return")}
-              />
-            </SelectionGroup>
-          )}
+          <ReturnMoney
+            state={returnState}
+            onChange={setReturnState}
+            price={reservations.find((x) => x.price && x.price > 0)?.price ?? 0}
+          />
         </VerticalFlex>
       </Dialog.Content>
       <ActionButtons>
@@ -228,7 +300,7 @@ const DialogContent = ({
           {t("common.prev")}
         </Button>
         <Button
-          disabled={!denyReasonPk || returnState === ""}
+          disabled={!denyReasonPk || returnState === "not-decided"}
           onClick={handleDeny}
         >
           {t("RequestedReservation.DenyDialog.reject")}
