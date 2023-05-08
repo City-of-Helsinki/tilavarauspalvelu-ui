@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
-import { Query, QueryReservationByPkArgs } from "common/types/gql-types";
+import { Query, QueryApplicationsArgs } from "common/types/gql-types";
 import { BirthDate } from "../BirthDate";
 import { GET_BIRTHDATE_BY_APPLICATION_PK } from "./queries";
 import Loader from "../Loader";
@@ -16,13 +16,13 @@ const ApplicationUserBirthDate = ({
   showLabel,
   hideLabel,
 }: Props): JSX.Element => {
-  const { loading, data } = useQuery<Query, QueryReservationByPkArgs>(
+  const { loading, data } = useQuery<Query, QueryApplicationsArgs>(
     GET_BIRTHDATE_BY_APPLICATION_PK,
     {
       skip: !applicationPk || Number.isNaN(Number(applicationPk)),
       fetchPolicy: "no-cache",
       variables: {
-        pk: Number(applicationPk),
+        pk: applicationPk ? [applicationPk] : [],
       },
     }
   );

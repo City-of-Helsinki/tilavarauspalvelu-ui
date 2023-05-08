@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import {
   ApplicationRoundStatus,
   Query,
-  QuerySpaceByPkArgs,
+  QueryApplicationRoundsArgs,
 } from "common/types/gql-types";
 import Review from "./review/Review";
 import Allocation from "./Allocation";
@@ -20,20 +20,19 @@ const useApplicationRoundByPkQuery = (pk?: string, pollInterval?: number) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  // All ByPkArgs types are equal so use Spaces randomly here
-  const { data, loading, refetch } = useQuery<Query, QuerySpaceByPkArgs>(
-    APPLICATION_ROUND_BY_PK_QUERY,
-    {
-      skip: !pk || Number.isNaN(Number(pk)),
-      variables: {
-        pk: Number(pk),
-      },
-      onError: () => {
-        notifyError(t("errors.errorFetchingApplication"));
-      },
-      pollInterval,
-    }
-  );
+  const { data, loading, refetch } = useQuery<
+    Query,
+    QueryApplicationRoundsArgs
+  >(APPLICATION_ROUND_BY_PK_QUERY, {
+    skip: !pk || Number.isNaN(Number(pk)),
+    variables: {
+      pk: pk ? [pk] : [],
+    },
+    onError: () => {
+      notifyError(t("errors.errorFetchingApplication"));
+    },
+    pollInterval,
+  });
 
   const applicationRound =
     data?.applicationRounds?.edges?.find(() => true)?.node ?? undefined;

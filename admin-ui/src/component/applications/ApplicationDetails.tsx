@@ -13,7 +13,7 @@ import {
   ApplicationEventType,
   ReservationUnitType,
   ApplicationEventScheduleType,
-  QuerySpaceByPkArgs,
+  QueryApplicationsArgs,
 } from "common/types/gql-types";
 import { useQuery } from "@apollo/client";
 import Accordion from "../Accordion";
@@ -201,13 +201,12 @@ const appEventDuration = (
 const useApplicationQuery = (pk?: string) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
-  // All ByPkArgs types are equal so use Spaces randomly here
-  const { data, loading } = useQuery<Query, QuerySpaceByPkArgs>(
+  const { data, loading } = useQuery<Query, QueryApplicationsArgs>(
     GET_APPLICATION_BY_PK,
     {
       skip: !pk || Number.isNaN(Number(pk)),
       variables: {
-        pk: Number(pk),
+        pk: pk ? [pk] : [],
       },
       onError: () => {
         notifyError(t("errors.errorFetchingApplication"));
