@@ -20,7 +20,6 @@ import {
   numTurns,
   getFilteredApplicationStatus,
 } from "../applications/util";
-import { ExtendedApplicationStatus } from "../../common/types";
 
 export type ApplicationView = {
   pk: number;
@@ -31,9 +30,8 @@ export type ApplicationView = {
   type: string;
   units: UnitType[];
   applicationCount: string;
-  status: ExtendedApplicationStatus;
+  status?: ApplicationStatus;
   statusView: JSX.Element;
-  statusType: ApplicationStatus;
 };
 
 export type ApplicationEventView = {
@@ -60,10 +58,7 @@ export const appMapper = (
   app: ApplicationType,
   t: TFunction
 ): ApplicationView => {
-  const applicationStatusView =
-    round.status === ApplicationRoundStatus.Allocated
-      ? "approved"
-      : "in_review";
+  const { status } = app;
 
   const units = orderBy(
     uniqBy(
@@ -82,12 +77,6 @@ export const appMapper = (
   const name = app.applicationEvents?.find(() => true)?.name || "-";
   const eventId = app.applicationEvents?.find(() => true)?.pk;
 
-  const applicationStatus = app.status ?? ApplicationStatus.Draft;
-  const status = getFilteredApplicationStatus(
-    applicationStatus,
-    applicationStatusView
-  );
-
   return {
     key: `${app.pk}-${eventId || "-"} `,
     pk: app.pk ?? 0,
@@ -98,16 +87,15 @@ export const appMapper = (
       : "",
     units,
     name,
-    status,
+    status: status ?? undefined,
     statusView: (
       <StyledStatusCell
-        status={status}
-        text={`Application.statuses.${status}`}
+        status={status ?? undefined}
+        text={`ApplicationStatus.${status}`}
         type="application"
         withArrow={false}
       />
     ),
-    statusType: applicationStatus,
     applicationCount: trim(
       `${formatNumber(
         app.aggregatedData?.appliedReservationsTotal,

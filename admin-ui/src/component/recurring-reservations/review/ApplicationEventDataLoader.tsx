@@ -31,6 +31,9 @@ type Props = {
 const mapFilterParamsOverride = (params: FilterArguments) => ({
   ...mapFilterParams(params),
   // Using same reducer but queries have String instead of [String] as state
+  // TODO problem with this is that it does not allow the use of buckets
+  // TODO this also doesn't allow us to filter out the Cancelled, Draft, Expired states
+  // undefined returns all events
   applicationStatus: params.applicationStatus.find(() => true)?.value,
 });
 

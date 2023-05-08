@@ -465,7 +465,7 @@ const translations: ITranslations = {
     },
     statuses: {
       draft: ["Luonnos"],
-      in_review: ["Tarkastuksessa"],
+      in_review: ["Jaettavissa"],
       review_done: ["Etenee jakoon"],
       allocating: ["Varauksessa"],
       allocated: ["Käsittelemättä"],
@@ -723,15 +723,17 @@ const translations: ITranslations = {
   },
   // Copy from Application.statuses (some differences)
   ApplicationStatus: {
-    allocated: ["Käsittelemättä"],
-    cancelled: ["Peruutettu"],
+    // NO shows
     draft: ["Luonnos"],
+    cancelled: ["Peruutettu"],
     expired: ["Vanhentunut"],
+    // used
+    received: ["Vastaanotettu"],
+    in_review: ["Jaettavissa"],
+    review_done: ["Jaettavissa"],
+    allocated: ["Käsitelty"],
     handled: ["Käsitelty"],
-    in_review: ["Tarkastuksessa"],
-    received: ["Saatu"],
-    review_done: ["Etenee jakoon"],
-    sent: ["Päatös lähetetty"],
+    sent: ["Lähetetty"],
   },
   ApplicationsFilters: {
     textSearchLabel: ["Vuoron nimi"],

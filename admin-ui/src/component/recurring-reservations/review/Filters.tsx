@@ -31,10 +31,25 @@ export const emptyFilterState = {
   applicationStatus: [],
 };
 
+export const STATUS_BUCKETS: Record<string, ApplicationStatus[]> = {
+  received: [ApplicationStatus.Received],
+  in_review: [ApplicationStatus.InReview, ApplicationStatus.ReviewDone],
+  handled: [ApplicationStatus.Allocated, ApplicationStatus.Handled],
+  sent: [ApplicationStatus.Sent],
+};
+
 const multivaledFields = ["unit", "applicationStatus", "applicantType"];
 
+// Never show in the UI
+const POSSIBLE_APPLICATION_STATES = Object.values(ApplicationStatus).filter(
+  (x) =>
+    x !== ApplicationStatus.Cancelled &&
+    x !== ApplicationStatus.Draft &&
+    x !== ApplicationStatus.Expired
+);
+
 export const mapFilterParams = (params: FilterArguments) => ({
-  ...params,
+  applicationStatus: POSSIBLE_APPLICATION_STATES,
   unit: params.unit
     ?.map((u) => u.value)
     ?.filter((x): x is number | string => x != null)
@@ -42,7 +57,6 @@ export const mapFilterParams = (params: FilterArguments) => ({
   applicantType: params.applicantType.map(({ value }) =>
     value.toLocaleLowerCase()
   ),
-  applicationStatus: params.applicationStatus.map(({ value }) => value),
   applicationCountLte: params.applicationCountLte
     ? Number(params.applicationCountLte) * 3600
     : undefined,
@@ -51,18 +65,30 @@ export const mapFilterParams = (params: FilterArguments) => ({
     : undefined,
 });
 
+const getApplicationStateOptions = (t: TFunction) =>
+  POSSIBLE_APPLICATION_STATES.map((x) => ({
+    label: t(`ApplicationStatus.${x.toString()}`),
+    value: x.toString(),
+  }));
+
 // Backend doesn't support multiple states for application event queries
 // so don't allow user to select more than one state at a time.
 const ReviewStateFilter = ({
   isApplicationEvent,
   ...props
 }: {
-  options: StringOptionType[];
   onChange: (status: StringOptionType[]) => void;
   value: StringOptionType[];
   isApplicationEvent?: boolean;
 }) => {
   const { t } = useTranslation();
+
+  const stateOptions = isApplicationEvent
+    ? getApplicationStateOptions(t)
+    : Object.keys(STATUS_BUCKETS).map((x) => ({
+        value: x,
+        label: t(`ApplicationStatus.${x}`),
+      }));
 
   const commonProps = {
     id: "applications-review-state-filter",
@@ -73,12 +99,17 @@ const ReviewStateFilter = ({
   };
 
   return !isApplicationEvent ? (
-    <Select<StringOptionType> multiselect {...commonProps} {...props} />
+    <Select<StringOptionType>
+      multiselect
+      {...commonProps}
+      {...props}
+      options={stateOptions}
+    />
   ) : (
     <Select<StringOptionType>
       {...commonProps}
       value={props.value.find(() => true) ?? { label: "", value: "" }}
-      options={props.options}
+      options={stateOptions}
       onChange={(val: StringOptionType) => props.onChange([val])}
     />
   );
@@ -100,12 +131,6 @@ type Props = {
   isApplicationEvent?: boolean;
 };
 
-const getApplicationStateOptions = (t: TFunction) =>
-  Object.values(ApplicationStatus).map((x) => ({
-    label: t(`ApplicationStatus.${x.toString()}`),
-    value: x.toString(),
-  }));
-
 const Filters = ({
   onSearch,
   units,
@@ -123,8 +148,6 @@ const Filters = ({
   }, [state]);
 
   const tags = toTags(state, t, multivaledFields, [], "ApplicationsFilters");
-
-  const stateOptions = getApplicationStateOptions(t);
 
   const typeOptions = [
     ApplicationsApplicationApplicantTypeChoices.Association,
@@ -225,9 +248,7 @@ const Filters = ({
           dispatch({ type: "set", value: { applicationStatus: e } })
         }
         value={state.applicationStatus}
-        options={stateOptions}
       />
-
       <FullRow>
         <Tags tags={tags} t={t} dispatch={dispatch} />
       </FullRow>
