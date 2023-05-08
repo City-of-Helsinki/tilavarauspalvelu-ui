@@ -18,7 +18,7 @@ function NumberFilter({
 
   return (
     <TextInput
-      id={String(id)}
+      id={id}
       label=" "
       onChange={(e) => {
         if (e.target.value.length > 0) {

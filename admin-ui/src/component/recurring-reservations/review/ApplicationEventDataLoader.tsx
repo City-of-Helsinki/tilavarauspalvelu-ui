@@ -7,7 +7,7 @@ import {
   type QueryApplicationEventsArgs,
 } from "common/types/gql-types";
 import { APPLICATIONS_EVENTS_QUERY } from "./queries";
-import { FilterArguments } from "./Filters";
+import { FilterArguments, mapFilterParams } from "./Filters";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import { More } from "../../lists/More";
@@ -28,18 +28,10 @@ type Props = {
   sortChanged: (field: string) => void;
 };
 
-const mapFilterParams = ({
-  applicationStatus,
-  ...params
-}: FilterArguments) => ({
-  ...params,
-  unit: params.unit?.map((u) => u.value as string),
-  applicantType: params.applicantType.map(({ value }) =>
-    value.toLocaleLowerCase()
-  ),
-  // Using same reducer but queries have [String] and String for state
-  applicationStatus: applicationStatus.find(() => true)?.value,
-  // FIXME what is the count here? it works to filter something but what?
+const mapFilterParamsOverride = (params: FilterArguments) => ({
+  ...mapFilterParams(params),
+  // Using same reducer but queries have String instead of [String] as state
+  applicationStatus: params.applicationStatus.find(() => true)?.value,
 });
 
 const updateQuery = (
@@ -72,7 +64,7 @@ const ApplicationEventDataLoader = ({
   >(APPLICATIONS_EVENTS_QUERY, {
     skip: !applicationRound.pk,
     variables: {
-      ...mapFilterParams(filters),
+      ...mapFilterParamsOverride(filters),
       applicationRound: String(applicationRound.pk),
       offset: 0,
       first: LIST_PAGE_SIZE,

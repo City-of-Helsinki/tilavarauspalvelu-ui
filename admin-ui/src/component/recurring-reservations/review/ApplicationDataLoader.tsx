@@ -8,7 +8,7 @@ import {
   type QueryApplicationsArgs,
 } from "common/types/gql-types";
 import { APPLICATIONS_QUERY } from "./queries";
-import { FilterArguments } from "./Filters";
+import { FilterArguments, mapFilterParams } from "./Filters";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import ApplicationsTable from "./ApplicationsTable";
@@ -28,16 +28,6 @@ type Props = {
   sort?: Sort;
   sortChanged: (field: string) => void;
 };
-
-const mapFilterParams = (params: FilterArguments) => ({
-  ...params,
-  unit: params.unit?.map((u) => u.value as string),
-  applicantType: params.applicantType.map(({ value }) =>
-    value.toLocaleLowerCase()
-  ),
-  applicationStatus: params.applicationStatus.map(({ value }) => value),
-  // appliedCountGte: params.applicationCount,
-});
 
 const updateQuery = (
   previousResult: Query,

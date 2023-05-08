@@ -14,17 +14,12 @@ import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSel
 import NumberFilter from "../../NumberFilter";
 
 type StringOptionType = { value: string; label: string };
-/**
-Hakijatyypin mukaan (only on first tab)
-Vuoron nimen mukaan (only on second tab)
-Toimipisteen mukaan (unit)
-Haettu = haetun määrän mukaan
-Vaiheen mukaan
-*/
 export type FilterArguments = {
   unit: OptionType[];
   name?: string;
   applicantType: StringOptionType[];
+  // For applications this is the number of hours (seconds in the api)
+  // FIXME what is the count for events? it filters something but what?
   applicationCountGte?: string;
   applicationCountLte?: string;
   applicationStatus: StringOptionType[];
@@ -37,6 +32,24 @@ export const emptyFilterState = {
 };
 
 const multivaledFields = ["unit", "applicationStatus", "applicantType"];
+
+export const mapFilterParams = (params: FilterArguments) => ({
+  ...params,
+  unit: params.unit
+    ?.map((u) => u.value)
+    ?.filter((x): x is number | string => x != null)
+    ?.map((x) => String(x)),
+  applicantType: params.applicantType.map(({ value }) =>
+    value.toLocaleLowerCase()
+  ),
+  applicationStatus: params.applicationStatus.map(({ value }) => value),
+  applicationCountLte: params.applicationCountLte
+    ? Number(params.applicationCountLte) * 3600
+    : undefined,
+  applicationCountGte: params.applicationCountGte
+    ? Number(params.applicationCountGte) * 3600
+    : undefined,
+});
 
 // Backend doesn't support multiple states for application event queries
 // so don't allow user to select more than one state at a time.
@@ -87,7 +100,6 @@ type Props = {
   isApplicationEvent?: boolean;
 };
 
-// TODO these functions can be simplified with Object.values(Enum)
 const getApplicationStateOptions = (t: TFunction) =>
   Object.values(ApplicationStatus).map((x) => ({
     label: t(`ApplicationStatus.${x.toString()}`),
@@ -176,9 +188,7 @@ const Filters = ({
         <CountLabel>{t("ApplicationsFilters.countLabel")}</CountLabel>
         <NumberFilter
           id="applicationCountGte"
-          value={
-            state.applicationCountGte ? String(state.applicationCountGte) : ""
-          }
+          value={state.applicationCountGte ?? ""}
           onValueChange={(val: string) => {
             dispatch({
               type: "set",
@@ -194,9 +204,7 @@ const Filters = ({
         />
         <NumberFilter
           id="applicationCountLte"
-          value={
-            state.applicationCountLte ? String(state.applicationCountLte) : ""
-          }
+          value={state.applicationCountLte ?? ""}
           onValueChange={(val: string) => {
             dispatch({
               type: "set",
