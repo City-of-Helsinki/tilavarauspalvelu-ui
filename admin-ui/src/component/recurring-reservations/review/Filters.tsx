@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
 import { Select, TextInput } from "hds-react";
 import { TFunction } from "i18next";
 import {
@@ -11,7 +10,6 @@ import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
-import NumberFilter from "../../NumberFilter";
 
 type StringOptionType = { value: string; label: string };
 export type FilterArguments = {
@@ -57,12 +55,6 @@ export const mapFilterParams = (params: FilterArguments) => ({
   applicantType: params.applicantType.map(({ value }) =>
     value.toLocaleLowerCase()
   ),
-  applicationCountLte: params.applicationCountLte
-    ? Number(params.applicationCountLte) * 3600
-    : undefined,
-  applicationCountGte: params.applicationCountGte
-    ? Number(params.applicationCountGte) * 3600
-    : undefined,
 });
 
 const getApplicationStateOptions = (t: TFunction) =>
@@ -114,16 +106,6 @@ const ReviewStateFilter = ({
     />
   );
 };
-
-const CountFilterContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-self: start;
-`;
-
-const CountLabel = styled.div`
-  grid-column: 1 / -1;
-`;
 
 type Props = {
   onSearch: (args: FilterArguments) => void;
@@ -207,41 +189,6 @@ const Filters = ({
         onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
         value={state.unit}
       />
-      <CountFilterContainer>
-        <CountLabel>{t("ApplicationsFilters.countLabel")}</CountLabel>
-        <NumberFilter
-          id="applicationCountGte"
-          value={state.applicationCountGte ?? ""}
-          onValueChange={(val: string) => {
-            dispatch({
-              type: "set",
-              value: { applicationCountGte: val },
-            });
-          }}
-          onReset={() => {
-            dispatch({
-              type: "deleteTag",
-              field: "applicationCountGte",
-            });
-          }}
-        />
-        <NumberFilter
-          id="applicationCountLte"
-          value={state.applicationCountLte ?? ""}
-          onValueChange={(val: string) => {
-            dispatch({
-              type: "set",
-              value: { applicationCountLte: val },
-            });
-          }}
-          onReset={() => {
-            dispatch({
-              type: "deleteTag",
-              field: "applicationCountLte",
-            });
-          }}
-        />
-      </CountFilterContainer>
       <ReviewStateFilter
         isApplicationEvent={isApplicationEvent}
         onChange={(e) =>
