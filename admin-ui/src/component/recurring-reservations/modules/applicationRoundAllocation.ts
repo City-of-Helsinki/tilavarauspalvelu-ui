@@ -296,7 +296,7 @@ export const getApplicantName = (
   return application?.applicantType ===
     ApplicationsApplicationApplicantTypeChoices.Individual
     ? `${application?.contactPerson?.firstName} ${application?.contactPerson?.lastName}`.trim()
-    : application?.applicantName || "";
+    : application?.organisation?.name || "";
 };
 
 export const getSlotApplicationEvents = (
