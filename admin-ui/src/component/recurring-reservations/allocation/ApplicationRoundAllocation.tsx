@@ -124,7 +124,11 @@ function ApplicationRoundAllocation(): JSX.Element {
     {
       variables: {
         applicationRound: applicationRoundId,
-        status: [ApplicationStatus.Sent],
+        status: [
+          ApplicationStatus.InReview,
+          ApplicationStatus.ReviewDone,
+          ApplicationStatus.Received,
+        ],
       },
     }
   );

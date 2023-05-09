@@ -33,6 +33,7 @@ const Card = styled.button<{ $type: AllocationApplicationEventCardType }>`
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  min-height: 4rem;
   margin-bottom: var(--spacing-xs);
   padding: var(--spacing-2-xs) var(--spacing-xs) var(--spacing-xs);
   line-height: var(--lineheight-xl);
@@ -57,6 +58,7 @@ const StyledRadioButton = styled(RadioButton)`
     padding-left: var(--spacing-xl) !important;
   }
   cursor: pointer;
+  margin-bottom: var(--spacing-xs);
 `;
 
 const ToggleIcon = styled.div`
