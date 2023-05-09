@@ -244,7 +244,7 @@ const DialogContent = ({
           const refundPromises = reservations.map((x) =>
             refundReservationMutation({ variables: { pk: x.pk } })
           );
-          Promise.all(refundPromises);
+          await Promise.all(refundPromises);
         } else {
           notifySuccess(t("RequestedReservation.DenyDialog.successNotify"));
         }
