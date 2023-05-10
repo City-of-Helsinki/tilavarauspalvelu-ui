@@ -810,6 +810,12 @@ const translations: ITranslations = {
     errorGeneratingDocument: ["Dokumenttia ei pystytty luomaan"],
     EditTime: {
       title: ["Muokkaa varauksen aikaa"],
+      form: {
+        length: ["Kesto"],
+      },
+      error: {
+        mutation: ["Ajan muutos epäonnistui."],
+      },
     },
     EditPage: {
       title: ["Muokkaa varauksen tietoja"],

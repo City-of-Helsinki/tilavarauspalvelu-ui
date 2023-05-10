@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   useController,
   UseControllerProps,
@@ -14,6 +14,10 @@ interface ControllerProps<T extends FieldValues> extends UseControllerProps<T> {
   disabled?: boolean;
 }
 
+const isDateValid = (d: Date) => {
+  return d instanceof Date && !Number.isNaN(d.getTime());
+};
+
 const ControlledDateInput = <T extends FieldValues>({
   control,
   name,
@@ -23,9 +27,15 @@ const ControlledDateInput = <T extends FieldValues>({
 }: ControllerProps<T>) => {
   const {
     field: { value, onChange },
-    fieldState: { isDirty },
   } = useController({ control, name, rules: { required } });
   const { t } = useTranslation();
+  // There is no default value for DateInput
+  // so we need to control the input from controller
+  // save the string because we can't only update the Date because
+  // keyboard input requires invalid dates (ex 1.1.).
+  const [textValue, setTextValue] = useState(
+    isDateValid(value) ? format(value, "dd.MM.yyyy") : ""
+  );
 
   return (
     <DateInput
@@ -37,11 +47,12 @@ const ControlledDateInput = <T extends FieldValues>({
       language="fi"
       errorText={error}
       disabled={disabled}
-      // invalid={errors.date != null}
-      // hack to deal with defaultValue without breaking keyboard input
-      value={!isDirty && value ? format(value, "dd.MM.yyyy") : undefined}
-      required
-      onChange={(_, date) => onChange(date)}
+      value={textValue}
+      required={required}
+      onChange={(text, date) => {
+        setTextValue(text);
+        onChange(date);
+      }}
     />
   );
 };
