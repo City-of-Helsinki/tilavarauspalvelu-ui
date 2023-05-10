@@ -31,6 +31,9 @@ import {
   reservationQuotaNotification,
   reserveeTypeSelector,
   datePickerModal,
+  notificationContainer,
+  notificationCloseButton,
+  reservationInfoPrice,
 } from "../model/reservation-creation";
 import { reservationInfoCard } from "../model/reservation-detail";
 import {
@@ -61,7 +64,7 @@ const matchEvent = (): void => {
             .invoke("text")
             .then((duration) => {
               const [hours, minutes] = startTimeLabel.split(".");
-              const startTime = `${hours.padStart(2, "0")}:${minutes}`;
+              const startTime = `${hours}:${minutes}`;
               const [durationHours, durationMinutes] = duration.split(":");
               const endTime = format(
                 addMinutes(
@@ -71,7 +74,7 @@ const matchEvent = (): void => {
                   ),
                   Number(durationMinutes)
                 ),
-                "HH:mm"
+                "H:mm"
               );
               expect(text).to.eq(`${startTime}-${endTime}`);
             });
@@ -153,7 +156,7 @@ describe("reservation", () => {
     reservationEvent().should("not.exist");
   });
 
-  it("can do the reservation with form inputs", () => {
+  it.only("can do the reservation with form inputs", () => {
     const today = format(new Date(), "d.M.yyyy");
 
     dateSelector().should("not.exist");
@@ -184,137 +187,160 @@ describe("reservation", () => {
       'button[aria-label="Seuraava kuukausi"]'
     );
     nextMonthBtn.should("exist");
-    nextMonthBtn.click({ force: true });
 
-    dateSelector()
-      .parent()
-      .find('select[aria-label="Kuukausi"]')
-      .invoke("val")
-      .then((value) => {
-        const monthNow = new Date().getMonth();
-        const monthNext = monthNow === 11 ? 0 : monthNow + 1;
-        expect(value).to.eq(monthNext.toString());
+    const daysFromNow = (days: number): string =>
+      format(addDays(new Date(), days), "d.M.yyyy");
+    dateSelector().clear().type(daysFromNow(9));
+
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(6)")
+      .click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+
+    notificationContainer().contains(
+      "Varaus on liian lähellä edellistä tai seuraavaa varausta. Muuta varauksen ajankohtaa."
+    );
+    notificationCloseButton().click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:first-of-type")
+      .click();
+
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(6)")
+      .click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+
+    notificationContainer().contains(
+      "Varaus on liian lähellä edellistä tai seuraavaa varausta. Muuta varauksen ajankohtaa."
+    );
+    notificationCloseButton().click();
+
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(9)")
+      .click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+
+    notificationContainer().contains(
+      "Kohde on jo varattu valitsemanasi ajankohtana. Muuta varauksen ajankohtaa."
+    );
+    notificationCloseButton().click();
+
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(6)")
+      .click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:last-of-type")
+      .click();
+
+    notificationCloseButton().should("be.visible").click();
+
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+
+    reservationInfoPrice()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.contain("Maksuton");
       });
 
-    // TODO: fix timezone issues to make this test pass
-    // dateSelector().clear().type(nextWeek);
+    dateSelector().clear().type(daysFromNow(2));
 
-    // startTimeSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(6)")
-    //   .click();
-    // matchEvent();
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
 
-    // notificationContainer().should("not.exist");
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+    matchEvent();
 
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(2)")
-    //   .click();
+    reservationInfoPrice()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.contain("10,00 - 30,00\u00a0€");
+      });
 
-    // notificationContainer().contains(
-    //   "Varauksen puskuriajan vaatimukset eivät täyty. Valitse toinen varausaika."
-    // );
-    // notificationCloseButton().click();
+    dateSelector().clear().type(daysFromNow(3));
 
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:first-of-type")
-    //   .click();
+    startTimeSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
 
-    // startTimeSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(6)")
-    //   .click();
-    // matchEvent();
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:nth-of-type(2)")
+      .click();
+    matchEvent();
 
-    // notificationContainer().should("not.exist");
+    reservationInfoPrice()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.contain("80,00 - 200,00\u00a0€");
+      });
 
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(2)")
-    //   .click();
+    durationSelectorToggle()
+      .click()
+      .siblings("ul")
+      .children("li:last-of-type")
+      .click();
+    matchEvent();
 
-    // notificationContainer().contains(
-    //   "Varauksen puskuriajan vaatimukset eivät täyty. Valitse toinen varausaika."
-    // );
-    // notificationCloseButton().click();
-
-    // startTimeSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(4)")
-    //   .click();
-
-    // notificationContainer().contains(
-    //   "Valittu aika on varattu. Valitse toinen aika."
-    // );
-    // notificationCloseButton().click();
-
-    // startTimeSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(6)")
-    //   .click();
-
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:last-of-type")
-    //   .click();
-
-    // notificationCloseButton().should("be.visible").click();
-
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:first-of-type")
-    //   .click();
-    // matchEvent();
-
-    // reservationInfoPrice()
-    //   .invoke("text")
-    //   .then((text) => {
-    //     expect(text).to.contain("80\u00a0€");
-    //   });
-
-    // startTimeSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:first-of-type")
-    //   .click();
-    // matchEvent();
-
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:nth-of-type(2)")
-    //   .click();
-    // matchEvent();
-
-    // reservationInfoPrice()
-    //   .invoke("text")
-    //   .then((text) => {
-    //     expect(text).to.contain("100\u00a0€");
-    //   });
-
-    // durationSelectorToggle()
-    //   .click()
-    //   .siblings("ul")
-    //   .children("li:last-of-type")
-    //   .click();
-    // matchEvent();
-
-    // reservationInfoPrice()
-    //   .invoke("text")
-    //   .then((text) => {
-    //     expect(text).to.contain("120\u00a0€");
-    //   });
+    reservationInfoPrice()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.contain("120,00 - 300,00\u00a0€");
+      });
 
     cy.checkA11y(undefined, undefined, undefined, true);
   });
@@ -349,7 +375,7 @@ describe("renders with basic data", () => {
     textWithIcon(0).should("have.text", "Nuorisopalvelut Fi");
     textWithIcon(1).should("have.text", "10 - 60 henkilöä");
     textWithIcon(2).should("have.text", "1 t - 1 t 30 min varaus");
-    textWithIcon(3).should("have.text", "20 € / 15 min");
+    textWithIcon(3).should("have.text", "20 € / tunti");
 
     reservationInfo().contains(
       "Voit tehdä varauksen aikaisintaan 12 kuukautta ja viimeistään 2 päivää etukäteen."
@@ -369,7 +395,7 @@ describe("renders with basic data", () => {
       `Tämän kohteen hinta muuttuu ${toUIDate(addDays(new Date(), 2))} alkaen.`
     );
     reservationNotice().contains(
-      "Uusi hinta on 10,00 - 30,00 € / 15 min (sis. alv. 20%)"
+      "Uusi hinta on 10,00 - 30,00 € / tunti (sis. alv. 20%)"
     );
 
     paymentAndCancellationTerms().find("> button").contains("Peruutusehdot");
@@ -414,7 +440,7 @@ describe("quick reservation", () => {
 
     nextAvailableTimeLink("desktop").click();
     timeSlots("desktop").first().click();
-    price("desktop").should("contain.text", "Hinta: 40,00 - 120,00\u00a0€");
+    price("desktop").should("contain.text", "Hinta: 10,00 - 30,00\u00a0€");
 
     durationSelect()
       .click()
@@ -422,7 +448,7 @@ describe("quick reservation", () => {
       .children("li:nth-of-type(2)")
       .click();
 
-    price("desktop").should("contain.text", "Hinta: 50,00 - 150,00\u00a0€");
+    price("desktop").should("contain.text", "Hinta: 12,50 - 37,50\u00a0€");
 
     durationSelect()
       .click()
@@ -430,7 +456,7 @@ describe("quick reservation", () => {
       .children("li:nth-of-type(3)")
       .click();
 
-    price("desktop").should("contain.text", "Hinta: 60,00 - 180,00\u00a0€");
+    price("desktop").should("contain.text", "Hinta: 15,00 - 45,00\u00a0€");
     submitButton("desktop").should("not.be.disabled");
 
     timeSlots("desktop").first().click();

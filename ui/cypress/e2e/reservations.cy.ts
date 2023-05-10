@@ -406,7 +406,7 @@ describe("Returning reservation", () => {
   });
 });
 
-describe.only("Reservation cancellation callback", () => {
+describe("Reservation cancellation callback", () => {
   beforeEach(() => {
     Cypress.config("defaultCommandTimeout", 20000);
   });
