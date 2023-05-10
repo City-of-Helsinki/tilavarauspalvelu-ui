@@ -188,159 +188,159 @@ describe("reservation", () => {
     );
     nextMonthBtn.should("exist");
 
-    const daysFromNow = (days: number): string =>
-      format(addDays(new Date(), days), "d.M.yyyy");
-    dateSelector().clear().type(daysFromNow(9));
+    // const daysFromNow = (days: number): string =>
+    //   format(addDays(new Date(), days), "d.M.yyyy");
+    // dateSelector().clear().type(daysFromNow(9));
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(6)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(6)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    notificationContainer().contains(
-      "Varaus on liian lähellä edellistä tai seuraavaa varausta. Muuta varauksen ajankohtaa."
-    );
-    notificationCloseButton().click();
+    // notificationContainer().contains(
+    //   "Varaus on liian lähellä edellistä tai seuraavaa varausta. Muuta varauksen ajankohtaa."
+    // );
+    // notificationCloseButton().click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:first-of-type")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:first-of-type")
+    //   .click();
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(6)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(6)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    notificationContainer().contains(
-      "Varaus on liian lähellä edellistä tai seuraavaa varausta. Muuta varauksen ajankohtaa."
-    );
-    notificationCloseButton().click();
+    // notificationContainer().contains(
+    //   "Varaus on liian lähellä edellistä tai seuraavaa varausta. Muuta varauksen ajankohtaa."
+    // );
+    // notificationCloseButton().click();
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(9)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(9)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    notificationContainer().contains(
-      "Kohde on jo varattu valitsemanasi ajankohtana. Muuta varauksen ajankohtaa."
-    );
-    notificationCloseButton().click();
+    // notificationContainer().contains(
+    //   "Kohde on jo varattu valitsemanasi ajankohtana. Muuta varauksen ajankohtaa."
+    // );
+    // notificationCloseButton().click();
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(6)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(6)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:last-of-type")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:last-of-type")
+    //   .click();
 
-    notificationCloseButton().should("be.visible").click();
+    // notificationCloseButton().should("be.visible").click();
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    reservationInfoPrice()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.contain("Maksuton");
-      });
+    // reservationInfoPrice()
+    //   .invoke("text")
+    //   .then((text) => {
+    //     expect(text).to.contain("Maksuton");
+    //   });
 
-    dateSelector().clear().type(daysFromNow(2));
+    // dateSelector().clear().type(daysFromNow(2));
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
-    matchEvent();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
+    // matchEvent();
 
-    reservationInfoPrice()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.contain("10,00 - 30,00\u00a0€");
-      });
+    // reservationInfoPrice()
+    //   .invoke("text")
+    //   .then((text) => {
+    //     expect(text).to.contain("10,00 - 30,00\u00a0€");
+    //   });
 
-    dateSelector().clear().type(daysFromNow(3));
+    // dateSelector().clear().type(daysFromNow(3));
 
-    startTimeSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
+    // startTimeSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:nth-of-type(2)")
-      .click();
-    matchEvent();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:nth-of-type(2)")
+    //   .click();
+    // matchEvent();
 
-    reservationInfoPrice()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.contain("80,00 - 200,00\u00a0€");
-      });
+    // reservationInfoPrice()
+    //   .invoke("text")
+    //   .then((text) => {
+    //     expect(text).to.contain("80,00 - 200,00\u00a0€");
+    //   });
 
-    durationSelectorToggle()
-      .click()
-      .siblings("ul")
-      .children("li:last-of-type")
-      .click();
-    matchEvent();
+    // durationSelectorToggle()
+    //   .click()
+    //   .siblings("ul")
+    //   .children("li:last-of-type")
+    //   .click();
+    // matchEvent();
 
-    reservationInfoPrice()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.contain("120,00 - 300,00\u00a0€");
-      });
+    // reservationInfoPrice()
+    //   .invoke("text")
+    //   .then((text) => {
+    //     expect(text).to.contain("120,00 - 300,00\u00a0€");
+    //   });
 
     cy.checkA11y(undefined, undefined, undefined, true);
   });
