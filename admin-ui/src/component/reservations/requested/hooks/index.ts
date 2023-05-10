@@ -32,6 +32,7 @@ export const useReservationData = (
   const { data, ...rest } = useQuery<Query, QueryReservationsArgs>(
     RESERVATIONS_BY_RESERVATIONUNIT,
     {
+      fetchPolicy: "no-cache",
       variables: {
         reservationUnit: [reservationUnitPk],
         begin: begin.toISOString(),

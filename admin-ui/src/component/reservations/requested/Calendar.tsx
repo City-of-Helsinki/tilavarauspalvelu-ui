@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import CommonCalendar, { CalendarEvent } from "common/src/calendar/Calendar";
 import { SLOTS_EVERY_HOUR } from "common/src/calendar/util";
 import { Toolbar } from "common/src/calendar/Toolbar";
-import { add, startOfISOWeek } from "date-fns";
+import {
+  add,
+  addMilliseconds,
+  differenceInMilliseconds,
+  startOfISOWeek,
+} from "date-fns";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { type ReservationType } from "common/types/gql-types";
@@ -15,7 +20,9 @@ type Props = {
   reservation: ReservationType;
   selected?: ReservationType;
   focusDate: Date;
+  bottomContent?: React.ReactNode;
   allowEditing?: boolean;
+  onSubmit?: (begin: Date, end: Date) => Promise<unknown>;
 };
 
 const Legends = styled.div`
@@ -59,9 +66,11 @@ const isOverlapping = (
 const Calendar = ({
   reservationUnitPk,
   reservation,
+  bottomContent,
   allowEditing,
   selected,
   focusDate: initialFocusDate,
+  onSubmit,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [focusDate, setFocusDate] = useState(initialFocusDate);
@@ -70,7 +79,7 @@ const Calendar = ({
   // No month view so always query the whole week even if a single day is selected
   // to avoid spamming queries and having to deal with start of day - end of day.
   // focus day can be in the middle of the week.
-  const { events: eventsAll } = useReservationData(
+  const { events: eventsAll, refetch } = useReservationData(
     startOfISOWeek(focusDate),
     add(startOfISOWeek(focusDate), { days: 7 }),
     reservationUnitPk,
@@ -92,23 +101,51 @@ const Calendar = ({
   // FIXME onChange mutation (requires backend changes)
 
   // outside control of the calendar navigation
+
+  // switch date when the selected reservation changes
   useEffect(() => {
     if (initialFocusDate) {
       setFocusDate(initialFocusDate);
     }
   }, [initialFocusDate]);
 
+  // Move the event on resize and drag-n-drop
   const handleEventChange = (e: CalendarEvent<ReservationType>) => {
-    // TODO how to show this to the user?
     // TODO do an interval check (ReservationUnit specific 15, 30, 45, 90 minutes)
     // the backend mutation is impossible without it
     // real solution would be to snap the time to nearest interval?
+    /* Overlapping needs a more complex check not including the reservation itself
     if (isOverlapping(e, events)) {
       // eslint-disable-next-line no-console
       console.error("can't move event because it overlaps");
     } else {
-      // eslint-disable-next-line no-console
-      console.warn("NOT implemented backend mutation: Should change time");
+    */
+    // eslint-disable-next-line no-console
+    if (onSubmit) {
+      onSubmit(e.start, e.end).then(() => {
+        refetch();
+      });
+    }
+  };
+
+  // Move the event on click
+  const handleEventClick = ({
+    start,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    action,
+  }: {
+    start: Date;
+    action: "click" | "doubleClick" | "select";
+  }) => {
+    const diff = differenceInMilliseconds(
+      new Date(reservation.end),
+      new Date(reservation.begin)
+    );
+    const end = addMilliseconds(start, diff);
+    if (onSubmit) {
+      onSubmit(start, end).then(() => {
+        refetch();
+      });
     }
   };
 
@@ -117,10 +154,8 @@ const Calendar = ({
 
   const extraProps = allowEditing
     ? {
-        // onSelectEvent: handleSelect,
         onEventDrop: handleEventChange,
         onEventResize: handleEventChange,
-        // onSelectSlot: handleSlotClick,
         resizable: true,
         draggable: true,
         // both need to return true for us to be able to resize
@@ -142,9 +177,11 @@ const Calendar = ({
         showToolbar
         begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation, selected)}
-        /* TODO if we want to onSelect use router or use a Popup / Modal to show it
-        onSelectEvent={(e) => {}}}
-        */
+        reservable
+        resizable
+        onSelectSlot={(e) => {
+          handleEventClick(e);
+        }}
         onNavigate={(d: Date) => {
           setFocusDate(d);
         }}
@@ -156,6 +193,7 @@ const Calendar = ({
         }}
         {...extraProps}
       />
+      {bottomContent}
       <Legends>
         {legend.map((l) => (
           <Legend key={l.label} style={l.style} label={t(l.label)} />
