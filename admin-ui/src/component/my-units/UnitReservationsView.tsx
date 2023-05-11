@@ -77,7 +77,6 @@ const UnitReservationsView = (): JSX.Element => {
       <Grid>
         <Span4>
           <ReservationUnitTypeFilter
-            style={{ zIndex: 101 }}
             value={state.reservationUnitType}
             onChange={(reservationUnitType) => {
               dispatch({ type: "set", value: { reservationUnitType } });

@@ -34,7 +34,6 @@ const SingleReservationUnitFilter = ({
 
   return (
     <SortedSelect
-      style={{ zIndex: "101" }}
       disabled={loading}
       sort
       label={t("ReservationUnitsFilter.label")}
