@@ -17,7 +17,11 @@ import ApplicationRoundStatusTag from "../ApplicationRoundStatusTag";
 import TimeframeStatus from "../TimeframeStatus";
 import ApplicationDataLoader from "./ApplicationDataLoader";
 import { Sort } from "./ApplicationsTable";
-import Filters, { emptyFilterState, FilterArguments } from "./Filters";
+import Filters, {
+  emptyFilterState,
+  FilterArguments,
+  type UnitPkName,
+} from "./Filters";
 import ApplicationEventDataLoader from "./ApplicationEventDataLoader";
 import { GQL_MAX_RESULTS_PER_QUERY } from "../../../common/const";
 
@@ -62,6 +66,7 @@ const APPLICATION_RESERVATION_UNITS_QUERY = gql`
         node {
           unit {
             pk
+            nameFi
           }
         }
       }
@@ -74,7 +79,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
   const [search, setSearch] = useState<FilterArguments>(emptyFilterState);
   const [sort, setSort] = useState<Sort>();
   const debouncedSearch = debounce((value) => setSearch(value), 300);
-  const [unitPks, setUnitPks] = useState<number[]>([]);
+  const [unitPks, setUnitPks] = useState<UnitPkName[]>([]);
 
   const onSortChanged = (sortField: string) => {
     setSort({
@@ -97,8 +102,13 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
       if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
         const ds =
           data?.reservationUnits?.edges
-            ?.map((x) => x?.node?.unit?.pk)
-            ?.filter((x): x is number => x != null) ?? [];
+            ?.map((x) => x?.node?.unit)
+            ?.map((x) =>
+              x?.pk != null && x.nameFi != null
+                ? { pk: x.pk, nameFi: x.nameFi }
+                : null
+            )
+            ?.filter((x): x is UnitPkName => x != null) ?? [];
         setUnitPks([...unitPks, ...ds]);
       }
     },
@@ -171,7 +181,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           <Tabs.TabPanel>
             <TabContent>
               <VerticalFlex>
-                <Filters onSearch={debouncedSearch} unitPks={unitPks} />
+                <Filters onSearch={debouncedSearch} units={unitPks} />
                 <ApplicationDataLoader
                   applicationRound={applicationRound}
                   key={JSON.stringify({ ...search, ...sort })}
@@ -185,7 +195,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
           <Tabs.TabPanel>
             <TabContent>
               <VerticalFlex>
-                <Filters onSearch={debouncedSearch} unitPks={unitPks} />
+                <Filters onSearch={debouncedSearch} units={unitPks} />
                 <ApplicationEventDataLoader
                   applicationRound={applicationRound}
                   key={JSON.stringify({ ...search, ...sort })}
