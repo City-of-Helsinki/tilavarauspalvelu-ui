@@ -18,7 +18,6 @@ const ApplicationUserBirthDate = ({
 }: Props): JSX.Element => {
   const [loaded, setLoaded] = useState(false);
 
-  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { loading, data } = useQuery<Query, QueryReservationByPkArgs>(
     GET_BIRTHDATE_BY_APPLICATION_PK,
     {

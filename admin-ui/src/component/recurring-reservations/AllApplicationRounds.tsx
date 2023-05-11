@@ -73,7 +73,7 @@ function AllApplicationRounds(): JSX.Element | null {
   const { t } = useTranslation();
   const { notifyError } = useNotification();
 
-  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
+  // TODO autoload 2000 elements by default (same as in ReservationUnitFilter) or provide pagination
   const { loading } = useQuery<Query, QueryApplicationRoundsArgs>(
     APPLICATION_ROUNDS_QUERY,
     {

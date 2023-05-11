@@ -104,7 +104,6 @@ export const useOptions = () => {
 
 // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
 export const useReservationUnitQuery = (unitPk?: number) => {
-  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
     RESERVATION_UNIT_QUERY,
     {
@@ -122,7 +121,6 @@ export const useReservationUnitQuery = (unitPk?: number) => {
 export const useUnitQuery = (pk?: number | string) => {
   const { notifyError } = useNotification();
 
-  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const res = useQuery<Query, QueryUnitsArgs>(UNIT_QUERY, {
     skip: pk == null,
     onError: (err) => {
@@ -134,6 +132,7 @@ export const useUnitQuery = (pk?: number | string) => {
   return res;
 };
 
+// TODO is this on purpose full DateTime and not set to midnight?
 export const useUnitResources = (
   begin: Date,
   unitPk: string,
@@ -141,7 +140,8 @@ export const useUnitResources = (
 ) => {
   const { notifyError } = useNotification();
 
-  // TODO autoload or does this use fetchMore??
+  // this queries a single day so it should always have less than 100 edges
+  // in practice should check edge count and have pagination / automatic fetching
   const { data, ...rest } = useQuery<
     Query,
     QueryReservationUnitsArgs & ReservationUnitByPkTypeReservationsArgs
