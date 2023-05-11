@@ -156,7 +156,7 @@ describe("reservation", () => {
     reservationEvent().should("not.exist");
   });
 
-  it.only("can do the reservation with form inputs", () => {
+  it("can do the reservation with form inputs", () => {
     const today = format(new Date(), "d.M.yyyy");
 
     dateSelector().should("not.exist");
