@@ -12,12 +12,18 @@ type Props = {
   value: OptionType[];
 };
 
+// TODO this should be refactored to use Apollo cache because local state is bad
+// local state problems:
+// - two components have separate state so a mutation requires refetch on both
+// - load time issues if the data changes between component loads they are inconsistant
+// - the fetch (that could include 100s of gql queries) is run for every component
+// i.e. create dummy data of 10k ReservationUnits, add 100 filter components to the page and
+// watch the backend break.
 const ReservationUnitFilter = ({ onChange, value }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [resUnits, setResUnits] = useState<ReservationUnitType[]>([]);
 
   // TODO this request is rerun whenever the selection changes (it'll return 0 every time)
-  // lol this is way too clever (took me a few minutes to understand the logic)
   const { loading } = useQuery<Query>(RESERVATION_UNITS_QUERY, {
     variables: { offset: resUnits.length, count: GQL_MAX_RESULTS_PER_QUERY },
     onCompleted: (data) => {

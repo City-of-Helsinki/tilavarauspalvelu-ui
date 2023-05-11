@@ -19,6 +19,7 @@ import ApplicationDataLoader from "./ApplicationDataLoader";
 import { Sort } from "./ApplicationsTable";
 import Filters, { emptyFilterState, FilterArguments } from "./Filters";
 import ApplicationEventDataLoader from "./ApplicationEventDataLoader";
+import { GQL_MAX_RESULTS_PER_QUERY } from "../../../common/const";
 
 interface IProps {
   applicationRound: RestApplicationRoundType;
@@ -50,8 +51,13 @@ const TabContent = styled.div`
 `;
 
 const APPLICATION_RESERVATION_UNITS_QUERY = gql`
-  query reservationUnits($pks: [ID]) {
-    reservationUnits(onlyWithPermission: true, pk: $pks) {
+  query reservationUnits($offset: Int, $count: Int, $pks: [ID]) {
+    reservationUnits(
+      onlyWithPermission: true
+      offset: $offset
+      first: $count
+      pk: $pks
+    ) {
       edges {
         node {
           unit {
@@ -59,6 +65,7 @@ const APPLICATION_RESERVATION_UNITS_QUERY = gql`
           }
         }
       }
+      totalCount
     }
   }
 `;
@@ -67,6 +74,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
   const [search, setSearch] = useState<FilterArguments>(emptyFilterState);
   const [sort, setSort] = useState<Sort>();
   const debouncedSearch = debounce((value) => setSearch(value), 300);
+  const [unitPks, setUnitPks] = useState<number[]>([]);
 
   const onSortChanged = (sortField: string) => {
     setSort({
@@ -77,17 +85,24 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
 
   const { t } = useTranslation();
 
-  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
-  const { data } = useQuery<Query>(APPLICATION_RESERVATION_UNITS_QUERY, {
+  // Copy-paste from ReservationUnitFilter (same issues etc.)
+  useQuery<Query>(APPLICATION_RESERVATION_UNITS_QUERY, {
     variables: {
+      offset: unitPks.length,
+      count: GQL_MAX_RESULTS_PER_QUERY,
       pks: applicationRound.reservationUnitIds,
     },
+    onCompleted: (data) => {
+      const qd = data?.reservationUnits;
+      if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
+        const ds =
+          data?.reservationUnits?.edges
+            ?.map((x) => x?.node?.unit?.pk)
+            ?.filter((x): x is number => x != null) ?? [];
+        setUnitPks([...unitPks, ...ds]);
+      }
+    },
   });
-
-  const unitPks =
-    data?.reservationUnits?.edges
-      ?.map((x) => x?.node?.unit?.pk)
-      ?.filter((x): x is number => x != null) ?? [];
 
   return (
     <>

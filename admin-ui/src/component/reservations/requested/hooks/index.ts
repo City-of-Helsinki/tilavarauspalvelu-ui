@@ -18,6 +18,7 @@ import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 
+/// NOTE only fetches 100 reservations => use pageInfo and fetchMore
 export const useReservationData = (
   begin: Date,
   end: Date,
@@ -26,7 +27,6 @@ export const useReservationData = (
 ) => {
   const { notifyError } = useNotification();
 
-  // FIXME autoload 2000 elements by default (same as where not ReservationUnitFilter???)
   const { data, ...rest } = useQuery<Query, QueryReservationsArgs>(
     RESERVATIONS_BY_RESERVATIONUNIT,
     {

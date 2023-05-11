@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { gql, useQuery } from "@apollo/client";
 import { Query, UnitType } from "common/types/gql-types";
@@ -6,6 +6,7 @@ import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
+import { GQL_MAX_RESULTS_PER_QUERY } from "../../../common/const";
 
 export type FilterArguments = {
   unit: OptionType[];
@@ -16,14 +17,21 @@ export const emptyFilterState = { unit: [] };
 const multivaledFields = ["unit"];
 
 const APPLICATION_UNITS_QUERY = gql`
-  query units($pks: [ID]) {
-    units(onlyWithPermission: true, pk: $pks, orderBy: "nameFI") {
+  query units($offset: Int, $count: Int, $pks: [ID]) {
+    units(
+      onlyWithPermission: true
+      offset: $offset
+      first: $count
+      pk: $pks
+      orderBy: "nameFI"
+    ) {
       edges {
         node {
           nameFi
           pk
         }
       }
+      totalCount
     }
   }
 `;
@@ -38,20 +46,31 @@ const ReviewUnitFilter = ({
   value: OptionType[];
 }) => {
   const { t } = useTranslation();
-  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
-  const { data, loading } = useQuery<Query>(APPLICATION_UNITS_QUERY, {
+  const [units, setUnits] = useState<UnitType[]>([]);
+
+  // Copy-paste from ReservationUnitFilter (same issues etc.)
+  const { loading } = useQuery<Query>(APPLICATION_UNITS_QUERY, {
     variables: {
+      offset: units.length,
+      count: GQL_MAX_RESULTS_PER_QUERY,
       pks: unitPks,
+    },
+    onCompleted: (data) => {
+      const qd = data?.units;
+      if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
+        const ds =
+          data.units?.edges
+            .map((x) => x?.node)
+            .filter((e): e is UnitType => e != null) ?? [];
+        setUnits([...units, ...ds]);
+      }
     },
   });
 
-  const opts: OptionType[] = (data?.units?.edges || [])
-    .map((e) => e?.node)
-    .filter((e): e is UnitType => e != null)
-    .map((unit) => ({
-      label: unit?.nameFi ?? "",
-      value: unit?.pk ?? "",
-    }));
+  const opts: OptionType[] = units.map((unit) => ({
+    label: unit?.nameFi ?? "",
+    value: unit?.pk ?? "",
+  }));
 
   return (
     <SortedSelect
