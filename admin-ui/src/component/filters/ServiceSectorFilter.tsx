@@ -8,7 +8,7 @@ import { GQL_MAX_RESULTS_PER_QUERY } from "../../common/const";
 
 const SERVICE_SECTORS_QUERY = gql`
   query serviceSector($offset: Int, $count: Int) {
-    serviceSectors(onlyWithPermission: true, offset: $offset, first: $count) {
+    serviceSectors(offset: $offset, first: $count) {
       edges {
         node {
           nameFi
@@ -36,7 +36,7 @@ const ServiceSectorFilter = ({ onChange, value }: Props): JSX.Element => {
       count: GQL_MAX_RESULTS_PER_QUERY,
     },
     onCompleted: (data) => {
-      const qd = data?.units;
+      const qd = data?.serviceSectors;
       if (qd?.edges.length != null && qd?.totalCount && qd?.edges.length > 0) {
         const ds =
           data.serviceSectors?.edges
