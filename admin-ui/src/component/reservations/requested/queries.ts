@@ -136,8 +136,8 @@ export const DENY_RESERVATION = gql`
 `;
 
 export const REFUND_RESERVATION = gql`
-  mutation refundReservation($pk: ReservationRefundMutationInput!) {
-    refundReservation(input: $pk) {
+  mutation refundReservation($input: ReservationRefundMutationInput!) {
+    refundReservation(input: $input) {
       errors {
         field
         messages

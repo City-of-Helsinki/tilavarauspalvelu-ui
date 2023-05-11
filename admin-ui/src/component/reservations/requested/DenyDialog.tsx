@@ -13,7 +13,10 @@ import {
 } from "hds-react";
 import {
   Mutation,
+  MutationDenyReservationArgs,
+  MutationRefundReservationArgs,
   ReservationDenyMutationInput,
+  ReservationRefundMutationInput,
   ReservationType,
   ReservationTypeConnection,
   ReservationsReservationStateChoices,
@@ -125,7 +128,10 @@ const DialogContent = ({
   onClose: () => void;
   onReject: () => void;
 }) => {
-  const [denyReservationMutation] = useMutation<Mutation>(DENY_RESERVATION, {
+  const [denyReservationMutation] = useMutation<
+    Mutation,
+    MutationDenyReservationArgs
+  >(DENY_RESERVATION, {
     update(cache, { data }) {
       // Manually update the cache instead of invalidating the whole query
       // because we can't invalidate single elements in the recurring list.
@@ -181,26 +187,27 @@ const DialogContent = ({
   const { notifyError, notifySuccess } = useNotification();
   const { t } = useTranslation();
 
-  const [refundReservationMutation] = useMutation<Mutation>(
-    REFUND_RESERVATION,
-    {
-      onCompleted: () => {
-        notifySuccess(
-          t("RequestedReservation.DenyDialog.refund.mutationSuccess")
-        );
-      },
-      onError: (err) => {
-        // eslint-disable-next-line no-console
-        console.error("Refund failed with: ", err);
-        notifyError(
-          t("RequestedReservation.DenyDialog.refund.mutationFailure")
-        );
-      },
-    }
-  );
+  const [refundReservationMutation] = useMutation<
+    Mutation,
+    MutationRefundReservationArgs
+  >(REFUND_RESERVATION, {
+    onCompleted: () => {
+      notifySuccess(
+        t("RequestedReservation.DenyDialog.refund.mutationSuccess")
+      );
+    },
+    onError: (err) => {
+      // eslint-disable-next-line no-console
+      console.error("Refund failed with: ", err);
+      notifyError(t("RequestedReservation.DenyDialog.refund.mutationFailure"));
+    },
+  });
 
   const denyReservation = (input: ReservationDenyMutationInput) =>
     denyReservationMutation({ variables: { input } });
+
+  const refundReservation = (input: ReservationRefundMutationInput) =>
+    refundReservationMutation({ variables: { input } });
 
   const [handlingDetails, setHandlingDetails] = useState<string>(
     reservations.length === 1 ? reservations[0].workingMemo ?? "" : ""
@@ -242,7 +249,7 @@ const DialogContent = ({
       } else {
         if (returnState === "refund") {
           const refundPromises = reservations.map((x) =>
-            refundReservationMutation({ variables: { pk: x.pk } })
+            refundReservation({ pk: x.pk })
           );
           await Promise.all(refundPromises);
         } else {
