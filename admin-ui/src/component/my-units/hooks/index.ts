@@ -104,6 +104,7 @@ export const useOptions = () => {
 
 // TODO this should be combined with the code in CreateReservationModal (duplicated for now)
 export const useReservationUnitQuery = (unitPk?: number) => {
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
     RESERVATION_UNIT_QUERY,
     {
@@ -121,6 +122,7 @@ export const useReservationUnitQuery = (unitPk?: number) => {
 export const useUnitQuery = (pk?: number | string) => {
   const { notifyError } = useNotification();
 
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const res = useQuery<Query, QueryUnitsArgs>(UNIT_QUERY, {
     skip: pk == null,
     onError: (err) => {
@@ -139,6 +141,7 @@ export const useUnitResources = (
 ) => {
   const { notifyError } = useNotification();
 
+  // TODO autoload or does this use fetchMore??
   const { data, ...rest } = useQuery<
     Query,
     QueryReservationUnitsArgs & ReservationUnitByPkTypeReservationsArgs

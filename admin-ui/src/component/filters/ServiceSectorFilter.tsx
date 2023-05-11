@@ -25,6 +25,7 @@ type Props = {
 
 const ServiceSectorFilter = ({ onChange, value }: Props): JSX.Element => {
   const { t } = useTranslation();
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query>(SERVICE_SECTORS_QUERY);
 
   if (loading) {

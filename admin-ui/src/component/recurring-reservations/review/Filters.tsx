@@ -38,6 +38,7 @@ const ReviewUnitFilter = ({
   value: OptionType[];
 }) => {
   const { t } = useTranslation();
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query>(APPLICATION_UNITS_QUERY, {
     variables: {
       pks: unitPks,

@@ -55,6 +55,9 @@ function ApplicationRounds(): JSX.Element {
   const [applicationRounds, setApplicationRounds] = useState<
     ApplicationRoundType[]
   >([]);
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
+  // FIXME include the filter (below) into the query (state)
+  // don't need to auto load but print an error if there is more
   const { loading } = useQuery<Query, QueryApplicationRoundsArgs>(
     APPLICATION_ROUNDS_QUERY,
     {

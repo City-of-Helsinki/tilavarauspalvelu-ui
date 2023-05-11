@@ -77,6 +77,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
 
   const { t } = useTranslation();
 
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data } = useQuery<Query>(APPLICATION_RESERVATION_UNITS_QUERY, {
     variables: {
       pks: applicationRound.reservationUnitIds,

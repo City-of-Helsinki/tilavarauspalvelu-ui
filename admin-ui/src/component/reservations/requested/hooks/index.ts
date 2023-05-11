@@ -26,6 +26,7 @@ export const useReservationData = (
 ) => {
   const { notifyError } = useNotification();
 
+  // FIXME autoload 2000 elements by default (same as where not ReservationUnitFilter???)
   const { data, ...rest } = useQuery<Query, QueryReservationsArgs>(
     RESERVATIONS_BY_RESERVATIONUNIT,
     {

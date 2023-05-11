@@ -19,6 +19,7 @@ const SingleReservationUnitFilter = ({
   unitPk,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
     RESERVATION_UNITS_QUERY,
     { variables: { unit: [unitPk as string] } }

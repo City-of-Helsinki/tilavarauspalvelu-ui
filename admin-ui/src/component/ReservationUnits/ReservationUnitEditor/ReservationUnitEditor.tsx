@@ -391,6 +391,7 @@ const ReservationUnitEditor = (): JSX.Element | null => {
     },
   });
 
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   useQuery<Query>(RESERVATION_UNIT_EDITOR_PARAMETERS, {
     onCompleted: (query) => {
       dispatch({ type: "parametersLoaded", parameters: query });

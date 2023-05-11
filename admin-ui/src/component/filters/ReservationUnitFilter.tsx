@@ -17,6 +17,7 @@ const ReservationUnitFilter = ({ onChange, value }: Props): JSX.Element => {
   const [resUnits, setResUnits] = useState<ReservationUnitType[]>([]);
 
   // TODO this request is rerun whenever the selection changes (it'll return 0 every time)
+  // lol this is way too clever (took me a few minutes to understand the logic)
   const { loading } = useQuery<Query>(RESERVATION_UNITS_QUERY, {
     variables: { offset: resUnits.length, count: GQL_MAX_RESULTS_PER_QUERY },
     onCompleted: (data) => {

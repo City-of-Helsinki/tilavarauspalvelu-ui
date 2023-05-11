@@ -25,6 +25,7 @@ type Props = {
 
 const UnitFilter = ({ onChange, value }: Props): JSX.Element => {
   const { t } = useTranslation();
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query>(UNITS_QUERY);
 
   const opts: OptionType[] = (data?.units?.edges || [])

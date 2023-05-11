@@ -18,6 +18,7 @@ const ReservationUnitTypeFilter = ({
   style,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  // FIXME autoload 2000 elements by default (sam as in ReservationUnitFilter)
   const { data, loading } = useQuery<Query, QueryReservationUnitTypesArgs>(
     RESERVATION_UNIT_TYPES_QUERY,
     {}
