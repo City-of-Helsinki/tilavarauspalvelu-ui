@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { Control, Controller, useForm } from "react-hook-form";
+import { Control, Controller, UseFormReturn, useForm } from "react-hook-form";
 import { checkDate, checkTimeStringFormat } from "app/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { add, differenceInMinutes, format, set } from "date-fns";
 import styled from "styled-components";
-import { Button, Select } from "hds-react";
+import { Button, Select, TimeInput } from "hds-react";
 import { z } from "zod";
 import {
   Mutation,
@@ -24,6 +24,7 @@ import Calendar from "./requested/Calendar";
 import { CHANGE_RESERVATION_TIME } from "./queries";
 import ControlledDateInput from "../my-units/components/ControlledDateInput";
 import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
+import { ProvidedRequiredArgumentsOnDirectivesRule } from "graphql/validation/rules/ProvidedRequiredArgumentsRule";
 
 const StyledForm = styled.form`
   display: grid;
@@ -189,37 +190,29 @@ const LengthSelect = ({
 const ChangeTimeFormPart = ({
   reservation,
   onSubmit,
+  form,
 }: {
   reservation: ReservationType;
   onSubmit: (begin: Date, end: Date) => Promise<unknown>;
+  form: UseFormReturn<FormValueType>;
 }) => {
   const reservationStartInterval =
     reservation?.reservationUnits?.find(() => true)?.reservationStartInterval ??
     ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_30Mins;
 
-  const length = differenceInMinutes(
-    new Date(reservation.end),
-    new Date(reservation.begin)
-  );
   const {
     control,
     handleSubmit,
+    register,
     formState: { errors, isDirty },
-  } = useForm<FormValueType>({
-    resolver: zodResolver(TimeChangeFormSchemaRefined),
-    mode: "onChange",
-    defaultValues: {
-      date: new Date(reservation.begin),
-      startTime: format(new Date(reservation.begin), "HH:mm"),
-      length: durationToTimeString(minutesToDuration(length)),
-    },
-  });
+  } = form;
 
   const { t } = useTranslation();
 
   const translateError = (errorMsg?: string) =>
     errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
+  // TODO clear the dirty after submission
   const tSubmit = (values: FormValueType) => {
     if (values.date && values.startTime && values.length) {
       const start = setTimeOnDate(values.date, values.startTime);
@@ -239,11 +232,14 @@ const ChangeTimeFormPart = ({
         error={translateError(errors.date?.message)}
         required
       />
-      <ControlledTimeInput
-        name="startTime"
-        control={control}
-        error={translateError(errors.startTime?.message)}
+      <TimeInput
+        {...register("startTime")}
+        id="ReservationDialog.startTime"
+        label={t(`ReservationDialog.startTime`)}
+        hoursLabel={t("common.hoursLabel")}
+        minutesLabel={t("common.minutesLabel")}
         required
+        errorText={translateError(errors.startTime?.message)}
       />
       <LengthSelect control={control} interval={reservationStartInterval} />
       <div style={{ alignSelf: "end" }}>
@@ -264,6 +260,7 @@ const EditTime = ({
 }) => {
   const { notifyError } = useNotification();
   const { t } = useTranslation();
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const [changeTimeMutation] = useMutation<
     Mutation,
@@ -271,6 +268,7 @@ const EditTime = ({
   >(CHANGE_RESERVATION_TIME, {
     onCompleted: () => {
       onReservationChanged();
+      setForceUpdate(forceUpdate + 1);
     },
     onError: (error) => {
       // TODO handle noOverlapping error separately
@@ -279,6 +277,27 @@ const EditTime = ({
       notifyError(t("Reservation.EditTime.error.mutation"));
     },
   });
+
+  // TODO form part should be in the component above because
+  // we need to do form submits for all mutations.
+  // Calendar should update the form data
+  const length = differenceInMinutes(
+    new Date(reservation.end),
+    new Date(reservation.begin)
+  );
+
+  const form = useForm<FormValueType>({
+    resolver: zodResolver(TimeChangeFormSchemaRefined),
+    mode: "onChange",
+    defaultValues: {
+      date: new Date(reservation.begin),
+      startTime: format(new Date(reservation.begin), "HH:mm"),
+      length: durationToTimeString(minutesToDuration(length)),
+    },
+  });
+  const { getValues } = form;
+
+  console.log("form values: ", getValues());
 
   const handleSubmit = async (begin: Date, end: Date) => {
     return changeTimeMutation({
@@ -293,9 +312,25 @@ const EditTime = ({
     });
   };
 
-  // TODO Calendar isn't updated because Form submission causes a refetch
-  // but does not refetch the calendar events (they need to be passed down)
-  // or we need to add forceRefetch prop to trigger it
+  // TODO change the form values here (no submit)
+  // TODO we need to push an override for the time into Calendar after
+  // because reservation is the same but the date and time is changed
+  // all forma value changes should cause that
+  // WE also need to filter out the selected reservation in the Calendar
+  // events query.
+  const handleChange = (begin: Date, end: Date) => {
+    console.log("handleChange: ", begin, " : ", end);
+    const l = differenceInMinutes(begin, end);
+    const params = {
+      shouldValidate: true, // trigger validation
+      shouldTouch: true, // update touched fields form state
+      shouldDirty: true, // update dirty and dirty fields form state
+    };
+    form.setValue("date", begin, params);
+    form.setValue("startTime", format(begin, "HH:mm"), params);
+    form.setValue("length", durationToTimeString(minutesToDuration(l)), params);
+  };
+
   return (
     // Quick-n-dirty fix: for select near the bottom of a page; enough padding so opening the select doesn't resize the page
     <div style={{ paddingBottom: "4rem" }}>
@@ -307,12 +342,14 @@ const EditTime = ({
         // TODO onSubmit should not move the event
         // instead track changes in the frontend
         // do a mutation when the user confirms the change
-        onSubmit={handleSubmit}
+        onChange={handleChange}
+        forceUpdate={forceUpdate}
         /* TODO this should be inside an accordian and hidden by default */
         bottomContent={
           <ChangeTimeFormPart
             reservation={reservation}
             onSubmit={handleSubmit}
+            form={form}
           />
         }
       />

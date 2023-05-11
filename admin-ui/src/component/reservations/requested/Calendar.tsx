@@ -22,7 +22,8 @@ type Props = {
   focusDate: Date;
   bottomContent?: React.ReactNode;
   allowEditing?: boolean;
-  onSubmit?: (begin: Date, end: Date) => Promise<unknown>;
+  onChange?: (begin: Date, end: Date) => void;
+  forceUpdate?: unknown;
 };
 
 const Legends = styled.div`
@@ -70,7 +71,8 @@ const Calendar = ({
   allowEditing,
   selected,
   focusDate: initialFocusDate,
-  onSubmit,
+  onChange,
+  forceUpdate,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const [focusDate, setFocusDate] = useState(initialFocusDate);
@@ -85,6 +87,10 @@ const Calendar = ({
     reservationUnitPk,
     reservation?.pk ?? undefined
   );
+
+  useEffect(() => {
+    refetch();
+  }, [forceUpdate, refetch]);
 
   // Because the calendar is fixed to 6 - 24 interval anything outside it causes rendering
   // artefacts and is not usable. Filter them and note it in console for now.
@@ -121,10 +127,8 @@ const Calendar = ({
     } else {
     */
     // eslint-disable-next-line no-console
-    if (onSubmit) {
-      onSubmit(e.start, e.end).then(() => {
-        refetch();
-      });
+    if (onChange) {
+      onChange(e.start, e.end);
     }
   };
 
@@ -142,10 +146,8 @@ const Calendar = ({
       new Date(reservation.begin)
     );
     const end = addMilliseconds(start, diff);
-    if (onSubmit) {
-      onSubmit(start, end).then(() => {
-        refetch();
-      });
+    if (onChange) {
+      onChange(start, end);
     }
   };
 
