@@ -52,8 +52,8 @@ const ReservationUnitTypeFilter = ({
   );
 
   const options = resUnitTypes.map((type) => ({
-    label: type?.nameFi as string,
-    value: String(type?.pk),
+    label: type?.nameFi ?? "",
+    value: String(type?.pk ?? 0),
   }));
 
   return (
