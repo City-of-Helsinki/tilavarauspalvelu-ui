@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useController,
   UseControllerProps,
@@ -37,6 +37,19 @@ const ControlledDateInput = <T extends FieldValues>({
     isDateValid(value) ? format(value, "dd.MM.yyyy") : ""
   );
 
+  // TODO this is problematic
+  // we need to update the text value if another control updates the date value
+  // in the form (e.g. the calendar) but we can't shadow the date value too closely
+  // if the user is writing with keyboard
+  // A solution would be to include the text value in the form and only convert it to Date on validation
+  useEffect(() => {
+    if (isDateValid(value)) {
+      setTextValue(format(value, "dd.MM.yyyy"));
+    }
+  }, [value]);
+
+  console.log("value: ", value);
+  console.log("text value: ", textValue);
   return (
     <DateInput
       id={`reservationDialog.${name}`}

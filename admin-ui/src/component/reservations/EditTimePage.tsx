@@ -7,7 +7,7 @@ import { checkDate, checkTimeStringFormat } from "app/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { add, differenceInMinutes, format, set } from "date-fns";
 import styled from "styled-components";
-import { Button, Select, TimeInput } from "hds-react";
+import { Button, Select, TextInput, TimeInput } from "hds-react";
 import { z } from "zod";
 import {
   Mutation,
@@ -23,8 +23,6 @@ import Loader from "../Loader";
 import Calendar from "./requested/Calendar";
 import { CHANGE_RESERVATION_TIME } from "./queries";
 import ControlledDateInput from "../my-units/components/ControlledDateInput";
-import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
-import { ProvidedRequiredArgumentsOnDirectivesRule } from "graphql/validation/rules/ProvidedRequiredArgumentsRule";
 
 const StyledForm = styled.form`
   display: grid;
@@ -205,6 +203,7 @@ const ChangeTimeFormPart = ({
     handleSubmit,
     register,
     formState: { errors, isDirty },
+    getValues,
   } = form;
 
   const { t } = useTranslation();
@@ -224,6 +223,13 @@ const ChangeTimeFormPart = ({
     }
   };
 
+  // FIXME neither the DateInput nor the TimeInput are changed when the event is moved
+  // in the calendar. DateInput issue is because the text / Date format problems.
+  // TimeInput is a mystery. Neither register nor setting value works for it.
+  // I'm guessing it's a bug in HDS with refs / values not updated properly
+  // because they break the input into two text fields (which is silly but w/e),
+  // so they could lose the ref in the process. There also isn't a useEffect for value changes
+  // in TimeInput so a value change should not do anything after creation.
   return (
     <StyledForm onSubmit={handleSubmit(tSubmit)} noValidate>
       <ControlledDateInput
@@ -232,9 +238,15 @@ const ChangeTimeFormPart = ({
         error={translateError(errors.date?.message)}
         required
       />
+      <TextInput
+        id="EditPage.startTimeText"
+        value={getValues("startTime")}
+        label={t(`ReservationDialog.startTime`)}
+      />
       <TimeInput
         {...register("startTime")}
-        id="ReservationDialog.startTime"
+        value={getValues("startTime")}
+        id="EditPage.startTime"
         label={t(`ReservationDialog.startTime`)}
         hoursLabel={t("common.hoursLabel")}
         minutesLabel={t("common.minutesLabel")}
@@ -297,14 +309,16 @@ const EditTime = ({
   });
   const { getValues } = form;
 
-  console.log("form values: ", getValues());
+  const convertToApiFormat = (begin: Date, end: Date) => ({
+    begin: begin.toISOString(),
+    end: end.toISOString(),
+  });
 
   const handleSubmit = async (begin: Date, end: Date) => {
     return changeTimeMutation({
       variables: {
         input: {
-          begin: begin.toISOString(),
-          end: end.toISOString(),
+          ...convertToApiFormat(begin, end),
           // TODO pk can be fixed variable (in the mutation)
           pk: reservation.pk ?? 0,
         },
@@ -320,7 +334,7 @@ const EditTime = ({
   // events query.
   const handleChange = (begin: Date, end: Date) => {
     console.log("handleChange: ", begin, " : ", end);
-    const l = differenceInMinutes(begin, end);
+    const l = differenceInMinutes(end, begin);
     const params = {
       shouldValidate: true, // trigger validation
       shouldTouch: true, // update touched fields form state
@@ -331,12 +345,36 @@ const EditTime = ({
     form.setValue("length", durationToTimeString(minutesToDuration(l)), params);
   };
 
+  // TODO this is not production code;
+  // combine the similar function and make it into a utility or remove it
+  const formToDates = (
+    values: Partial<FormValueType>
+  ): { begin: Date; end: Date } | undefined => {
+    if (values.date && values.startTime && values.length) {
+      const begin = setTimeOnDate(values.date, values.startTime);
+      const dur = timeToDuration(values.length);
+      if (dur) {
+        const end = add(begin, dur);
+        return {
+          begin,
+          end,
+        };
+      }
+    }
+    return undefined;
+  };
+
+  const editedReservation = ((x) => ({
+    ...reservation,
+    ...(x != null ? convertToApiFormat(x.begin, x.end) : {}),
+  }))(formToDates(getValues()));
+
   return (
     // Quick-n-dirty fix: for select near the bottom of a page; enough padding so opening the select doesn't resize the page
     <div style={{ paddingBottom: "4rem" }}>
       <Calendar
         reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
-        reservation={reservation}
+        reservation={editedReservation}
         allowEditing
         focusDate={new Date()}
         // TODO onSubmit should not move the event

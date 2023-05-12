@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { type ReservationType } from "common/types/gql-types";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import Legend from "./Legend";
-import { useReservationData } from "./hooks";
+import { useReservationData, convertReservationToCalendarEvent } from "./hooks";
 
 type Props = {
   reservationUnitPk: string;
@@ -95,9 +95,14 @@ const Calendar = ({
   // Because the calendar is fixed to 6 - 24 interval anything outside it causes rendering
   // artefacts and is not usable. Filter them and note it in console for now.
   // TODO this is common problem in the UI
+  // can be removed if and when scroll is added to the Calendar
   const isInsideCalendarRange = (x: { start: Date; end: Date }) =>
     x.start.getHours() >= 6 && x.end.getHours() >= 6;
-  const events = eventsAll.filter(isInsideCalendarRange);
+  const events = eventsAll
+    .filter(isInsideCalendarRange)
+    // TODO add this because we need to change the current reservation time without backend
+    // filter out the current even for edit mode
+    .filter((x) => x.event.pk !== reservation.pk);
   const notIncludedEvents = eventsAll.filter((x) => !isInsideCalendarRange(x));
   if (notIncludedEvents.length > 0) {
     // eslint-disable-next-line no-console
@@ -171,10 +176,15 @@ const Calendar = ({
       }
     : {};
 
+  const eventsToDisplay = [
+    ...events,
+    convertReservationToCalendarEvent(reservation),
+  ];
+
   return (
     <Container>
       <CommonCalendar<ReservationType>
-        events={events}
+        events={eventsToDisplay}
         toolbarComponent={Toolbar}
         showToolbar
         begin={focusDate}

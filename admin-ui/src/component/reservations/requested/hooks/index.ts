@@ -20,6 +20,38 @@ import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 
+const getEventName = (eventType?: string, title?: string) =>
+  eventType === "blocked"
+    ? "Suljettu"
+    : title && title.trim() !== ""
+    ? title
+    : "No title";
+
+const getReservationTitle = (r: ReservationType) =>
+  `${
+    r.reserveeOrganisationName ||
+    `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
+  }`;
+
+// TODO move it to utils
+export const convertReservationToCalendarEvent = (r: ReservationType) => ({
+  title: getEventName(r.type ?? undefined, getReservationTitle(r)),
+  event: {
+    ...r,
+    name: r.name?.trim() !== "" ? r.name : "No name",
+  },
+  // TODO use zod for datetime conversions
+  start: new Date(r.begin),
+  end: new Date(r.end),
+});
+
+// TODO This would be better if we combined two GQL queries, one for the reservation itself
+// and other that includes the states (now we are fetching a lot of things we don't need)
+const shouldBeShownInTheCalendar = (r: ReservationType, ownPk?: number) =>
+  r.state === ReservationsReservationStateChoices.Confirmed ||
+  r.state === ReservationsReservationStateChoices.RequiresHandling ||
+  r.pk === ownPk;
+
 /// NOTE only fetches 100 reservations => use pageInfo and fetchMore
 export const useReservationData = (
   begin: Date,
@@ -48,36 +80,8 @@ export const useReservationData = (
     data?.reservations?.edges
       .map((e) => e?.node)
       .filter((r): r is ReservationType => r != null)
-      .filter(
-        (r) =>
-          [
-            ReservationsReservationStateChoices.Confirmed,
-            ReservationsReservationStateChoices.RequiresHandling,
-          ].includes(r.state) || r.pk === reservationPk
-      )
-      .map((r) => ({
-        title: `${
-          r.reserveeOrganisationName ||
-          `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
-        }`,
-        event: r,
-        // TODO use zod for datetime conversions
-        start: new Date(r.begin),
-        end: new Date(r.end),
-      }))
-      .map((x) => ({
-        ...x,
-        title:
-          x.event.type === "blocked"
-            ? "Suljettu"
-            : x.title.trim() !== ""
-            ? x.title
-            : "No title",
-        event: {
-          ...x.event,
-          name: x.event.name?.trim() !== "" ? x.event.name : "No name",
-        },
-      })) ?? [];
+      .filter((r) => shouldBeShownInTheCalendar(r, reservationPk))
+      .map((r) => convertReservationToCalendarEvent(r)) ?? [];
 
   return { ...rest, events };
 };
