@@ -1,5 +1,5 @@
 import { Button, Tabs } from "hds-react";
-import { debounce } from "lodash";
+import { debounce, uniqBy } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -109,7 +109,7 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
                 : null
             )
             ?.filter((x): x is UnitPkName => x != null) ?? [];
-        setUnitPks([...unitPks, ...ds]);
+        setUnitPks(uniqBy([...unitPks, ...ds], (unit) => unit.pk));
       }
     },
   });
