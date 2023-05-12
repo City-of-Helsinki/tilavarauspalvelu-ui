@@ -175,7 +175,7 @@ const Carousel = ({
       cellSpacing={cellSpacing}
       withoutControls={children?.length <= slidesToShow}
       {...(hideCenterControls && {
-        renderCenterBottomControls: () => null,
+        renderBottomCenterControls: () => null,
       })}
       dragging={children?.length > slidesToShow}
       {...rest}
