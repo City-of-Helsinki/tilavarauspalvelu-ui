@@ -257,7 +257,7 @@ const ReservationUnitReservationWithReservationProp = ({
     useState<ReservationsReservationReserveeTypeChoices>(null);
 
   const defaultValues = pick(reservation || {}, profileUserFields);
-  const form = useForm<Inputs>({ defaultValues });
+  const form = useForm<Inputs>({ defaultValues, mode: "onBlur" });
   const { handleSubmit, watch } = form;
 
   const requireHandling =
@@ -441,7 +441,6 @@ const ReservationUnitReservationWithReservationProp = ({
         ) &&
         !reserveeType
       ) {
-        setErrorMsg(t("reservationApplication:errors.noFormType"));
         return;
       }
 
@@ -476,7 +475,6 @@ const ReservationUnitReservationWithReservationProp = ({
       reservationPk,
       reservationUnit.metadataSet?.supportedFields,
       reserveeType,
-      t,
       updateReservation,
     ]
   );
@@ -615,7 +613,6 @@ const ReservationUnitReservationWithReservationProp = ({
                   steps={steps}
                   setStep={setStep}
                   termsOfUse={termsOfUse}
-                  setErrorMsg={setErrorMsg}
                 />
               )}
             </FormProvider>

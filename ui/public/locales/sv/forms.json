@@ -2,8 +2,24 @@
   "clearSelection": "Töm valen",
   "selectAll": "Välj alla",
   "inputPlaceholder": "Skriv sökord",
-  "invalidEmail": "Ogiltig e-postadress",
-  "requiredField": "Obligatorisk",
+  "invalidEmail": "E-postaddress måste vara i korrekt format (inklusive @-symbol, utan ä, ö or å)",
+  "invalidReserveeId": "FO-nummer måste ha minst tre siffror",
+  "required": "Obligatorisk",
+  "requiredField": "{{prefix}} {{fieldName}}",
   "min": "Värdet är för litet",
-  "max": "Värdet är för stort"
+  "max": "Värdet är för stort",
+  "minNumPersons": "Antalet deltagare måste vara kan vara minimum {{minValue}} personer",
+  "maxNumPersons": "Number of participants can be maximum {{maxValue}} persons",
+  "minLength": "Värdet är för kort",
+  "maxLength": "Värdet är för långt",
+  "invalidPhoneNumber": "Telefonnummer måste ha minst {{minLength}} siffror",
+  "prefix": {
+    "text": "Ange",
+    "select": "Välj",
+    "approve": "Acceptera"
+  },
+  "heading": {
+    "errorsTitle": "Fyll i den information som saknas",
+    "errorsSubtitle": "Fyll i följande fält för att göra bokningen:"
+  }
 }

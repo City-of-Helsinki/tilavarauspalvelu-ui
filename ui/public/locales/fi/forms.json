@@ -2,8 +2,24 @@
   "clearSelection": "Tyhjennä valinnat",
   "selectAll": "Valitse kaikki",
   "inputPlaceholder": "Kirjoita hakusana",
-  "invalidEmail": "Virheellinen sähköpostiosoite",
-  "requiredField": "Kenttä on pakollinen",
+  "invalidEmail": "Sähköpostin tulee olla oikeassa muodossa (sisältäen @-merkin, ilman ääkkösiä)",
+  "invalidReserveeId": "Y-tunnuksen tulee olla vähintään kolme merkkiä",
+  "required": "Pakollinen tieto",
+  "requiredField": "{{prefix}} {{fieldName}}",
   "min": "Arvo on liian pieni",
-  "max": "Arvo on liian suuri"
+  "max": "Arvo on liian suuri",
+  "minNumPersons": "Osallistujamäärän tulee olla vähintään {{minValue}} henkilöä",
+  "maxNumPersons": "Osallistujamäärä voi olla enintään {{maxValue}} henkilöä",
+  "minLength": "Arvo on liian lyhyt",
+  "maxLength": "Arvo on liian pitkä",
+  "invalidPhoneNumber": "Puhelinnumerossa tulee olla vähintään {{minLength}} merkkiä",
+  "prefix": {
+    "text": "Syötä",
+    "select": "Valitse",
+    "approve": "Hyväksy"
+  },
+  "heading": {
+    "errorsTitle": "Täytä puuttuvat tiedot",
+    "errorsSubtitle": "Täytä seuraavat kohdat tehdäksesi varauksen:"
+  }
 }
