@@ -266,51 +266,52 @@ const SearchSingle = (): JSX.Element => {
           />
         </StyledContainer>
       </HeadContainer>
-      <section ref={content} />
-      <ClientOnly>
-        <BottomWrapper>
-          <ListWithPagination
-            id="searchResultList"
-            items={reservationUnits?.map((ru) => (
-              <ReservationUnitCard reservationUnit={ru} key={ru.id} />
-            ))}
-            loading={loading}
-            loadingMore={loadingMore}
-            pageInfo={pageInfo}
-            totalCount={totalCount}
-            fetchMore={(cursor) => {
-              const variables = {
-                ...values,
-                after: cursor,
-              };
-              fetchMore({
-                variables: processVariables(variables, i18n.language),
-              });
-            }}
-            sortingComponent={
-              <StyledSorting
-                value={values.sort}
-                sortingOptions={sortingOptions}
-                setSorting={(val: OptionType) => {
-                  const params = {
-                    ...values,
-                    sort: String(val.value),
-                  };
-                  router.replace(singleSearchUrl(params));
-                }}
-                isOrderingAsc={isOrderingAsc}
-                setIsOrderingAsc={(isAsc: boolean) => {
-                  const params = {
-                    ...values,
-                    order: isAsc ? "asc" : "desc",
-                  };
-                  router.replace(singleSearchUrl(params));
-                }}
-              />
-            }
-          />
-        </BottomWrapper>
-      </ClientOnly>
+      <section ref={content}>
+        <ClientOnly>
+          <BottomWrapper>
+            <ListWithPagination
+              id="searchResultList"
+              items={reservationUnits?.map((ru) => (
+                <ReservationUnitCard reservationUnit={ru} key={ru.id} />
+              ))}
+              loading={loading}
+              loadingMore={loadingMore}
+              pageInfo={pageInfo}
+              totalCount={totalCount}
+              fetchMore={(cursor) => {
+                const variables = {
+                  ...values,
+                  after: cursor,
+                };
+                fetchMore({
+                  variables: processVariables(variables, i18n.language),
+                });
+              }}
+              sortingComponent={
+                <StyledSorting
+                  value={values.sort}
+                  sortingOptions={sortingOptions}
+                  setSorting={(val: OptionType) => {
+                    const params = {
+                      ...values,
+                      sort: String(val.value),
+                    };
+                    router.replace(singleSearchUrl(params));
+                  }}
+                  isOrderingAsc={isOrderingAsc}
+                  setIsOrderingAsc={(isAsc: boolean) => {
+                    const params = {
+                      ...values,
+                      order: isAsc ? "asc" : "desc",
+                    };
+                    router.replace(singleSearchUrl(params));
+                  }}
+                />
+              }
+            />
+          </BottomWrapper>
+        </ClientOnly>
+      </section>
     </Wrapper>
   );
 };
