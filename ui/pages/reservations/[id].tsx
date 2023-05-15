@@ -4,7 +4,12 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
 import router from "next/router";
 import { camelCase, capitalize, get, isFinite, trim } from "lodash";
-import { IconCalendar, IconCross, IconLinkExternal } from "hds-react";
+import {
+  IconArrowRight,
+  IconCalendar,
+  IconCross,
+  IconLinkExternal,
+} from "hds-react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { useTranslation } from "next-i18next";
 import { H2, H4, fontRegular } from "common/src/common/typography";
@@ -39,6 +44,7 @@ import { AccordionWithState as Accordion } from "../../components/common/Accordi
 import {
   canReservationTimeBeChanged,
   canUserCancelReservation,
+  getCheckoutUrl,
   getNormalizedReservationOrderStatus,
   getReservationCancellationReason,
   getReservationValue,
@@ -576,6 +582,12 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     !isReservationCancelled &&
     !isBeingHandled;
 
+  const checkoutUrl = getCheckoutUrl(order, i18n.language);
+
+  const isWaitingForPayment =
+    reservation.state ===
+      ReservationsReservationStateChoices.WaitingForPayment && checkoutUrl;
+
   return (
     <Wrapper>
       <Container>
@@ -613,6 +625,19 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
             </StatusContainer>
             <JustForMobile>{bylineContent}</JustForMobile>
             <Actions>
+              {isWaitingForPayment && (
+                <BlackButton
+                  variant="secondary"
+                  iconRight={<IconArrowRight aria-hidden />}
+                  onClick={() => {
+                    const url = getCheckoutUrl(order, i18n.language);
+                    if (url) router.push(url);
+                  }}
+                  data-testid="reservation-detail__button--checkout"
+                >
+                  {t("reservations:payReservation")}
+                </BlackButton>
+              )}
               {canTimeBeModified && (
                 <BlackButton
                   variant="secondary"

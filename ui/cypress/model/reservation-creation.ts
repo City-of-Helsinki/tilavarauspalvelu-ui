@@ -136,3 +136,7 @@ export function reservationEditActionSubmit(): Cypress.Chainable<
 > {
   return cy.get('[data-testid="reservation-edit__button--submit"]');
 }
+
+export function checkoutButton(): Cypress.Chainable<JQuery<HTMLElement>> {
+  return cy.get('[data-testid="reservation-detail__button--checkout"]');
+}

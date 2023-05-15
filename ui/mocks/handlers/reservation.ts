@@ -640,6 +640,11 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       };
     }
 
+    if (pk === 22) {
+      data.state = ReservationsReservationStateChoices.WaitingForPayment;
+      data.orderUuid = "22-1";
+    }
+
     if (pk === 42) {
       data.price = 0;
     }
@@ -1586,6 +1591,12 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
     let order: PaymentOrderType | null = null;
 
     switch (orderUuid) {
+      case "22-1":
+        order = {
+          ...baseOrder,
+          checkoutUrl: "https://google.com/search?user=123",
+        };
+        break;
       case "2222-2222-2222-2222":
         order = baseOrder;
         break;

@@ -16,6 +16,7 @@ import {
   reservationEditActionBack,
   reservationEditActionSubmit,
   durationSelectorToggle,
+  checkoutButton,
 } from "../model/reservation-creation";
 import {
   cancelButton,
@@ -354,6 +355,20 @@ describe("Tilavaraus user reservations", () => {
 
     cy.url().should("match", /\/reservations\/4$/);
   });
+
+  it("should go from unpaid order to checkout url", () => {
+    detailButton().eq(0).click();
+    cy.url().should("match", /\/reservations\/22$/);
+
+    checkoutButton()
+      .click()
+      .then(() => {
+        cy.url().should(
+          "equal",
+          "https://www.google.com/search/paymentmethod?user=123&lang=fi"
+        );
+      });
+  });
 });
 
 describe("Returning reservation", () => {
@@ -406,7 +421,7 @@ describe("Returning reservation", () => {
   });
 });
 
-describe.only("Reservation cancellation callback", () => {
+describe("Reservation cancellation callback", () => {
   beforeEach(() => {
     Cypress.config("defaultCommandTimeout", 20000);
   });
