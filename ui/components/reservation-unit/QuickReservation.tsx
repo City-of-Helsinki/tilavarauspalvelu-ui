@@ -467,6 +467,7 @@ const QuickReservation = ({
               hideCenterControls
               wrapAround={false}
               buttonVariant="small"
+              key={`${date}-${time}-${duration.value}`}
             >
               {timeChunks.map((chunk: string[], index: number) => (
                 <SlotGroup key={chunk[0]}>
