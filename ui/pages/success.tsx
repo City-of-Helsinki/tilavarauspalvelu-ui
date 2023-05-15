@@ -66,7 +66,9 @@ const ReservationSuccess = () => {
     reservation,
     error: reservationError,
     loading: reservationLoading,
-  } = useReservation(parseInt(order?.reservationPk, 10));
+  } = useReservation(
+    order?.reservationPk ? parseInt(order?.reservationPk, 10) : null
+  );
 
   useEffect(() => {
     if (order && !orderLoading) {
