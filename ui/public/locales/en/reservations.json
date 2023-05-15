@@ -106,5 +106,11 @@
   "confirmationError": {
     "heading": "Awaiting for payment",
     "body": "Your payment could not be confirmed. Please check the status of your booking in a moment from Your bookings -page. If the booking was unsuccessful, please repeat the booking process. Our customer service will provide assistance if necessary."
+  },
+  "notifications": {
+    "waitingForPayment": {
+      "title": "Your booking is waiting for payment",
+      "body": "Your booking will be cancelled automatically, if the booking won’t be paid within 20 minutes."
+    }
   }
 }

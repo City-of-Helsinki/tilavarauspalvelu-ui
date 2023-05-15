@@ -17,6 +17,8 @@ import {
   reservationEditActionSubmit,
   durationSelectorToggle,
   checkoutButton,
+  notificationCheckoutButton,
+  notificationDeleteButton,
 } from "../model/reservation-creation";
 import {
   cancelButton,
@@ -40,6 +42,10 @@ import {
   errorNotificationCloseButton,
   errorNotification,
 } from "../model/notification";
+import {
+  notificationErrorTitle,
+  notificationTitle,
+} from "../model/application";
 
 describe("Tilavaraus user reservations", () => {
   beforeEach(() => {
@@ -367,6 +373,44 @@ describe("Tilavaraus user reservations", () => {
           "equal",
           "https://www.google.com/search/paymentmethod?user=123&lang=fi"
         );
+      });
+  });
+
+  it("should checkout from notification button", () => {
+    detailButton().eq(0).click();
+    cy.url().should("match", /\/reservations\/22$/);
+
+    notificationCheckoutButton()
+      .click()
+      .then(() => {
+        cy.url().should(
+          "equal",
+          "https://www.google.com/search/paymentmethod?user=123&lang=fi"
+        );
+      });
+  });
+
+  it("should delete reservation from notification button", () => {
+    detailButton().eq(0).click();
+    cy.url().should("match", /\/reservations\/22$/);
+
+    notificationDeleteButton()
+      .click()
+      .then(() => {
+        notificationDeleteButton().should("be.disabled");
+
+        cy.url().should("match", /\/reservations$/);
+      });
+  });
+
+  it("should delete reservation from notification button", () => {
+    cy.visit("/reservations/23");
+    cy.url().should("match", /\/reservations\/23$/);
+
+    notificationDeleteButton()
+      .click()
+      .then(() => {
+        notificationErrorTitle().should("contain", "Virhe");
       });
   });
 });

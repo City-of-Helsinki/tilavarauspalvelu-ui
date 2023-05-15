@@ -26,17 +26,10 @@ export const useOrder = (
   refreshError: ApolloError;
   loading: boolean;
   refresh: () => void;
-  deleteReservation: (
-    arg: Record<"variables", Record<"input", Record<"pk", number>>>
-  ) => void;
-  deleteError: ApolloError;
-  deleteLoading: boolean;
   called: boolean;
-  deleted: boolean;
 } => {
   const [data, setData] = useState<PaymentOrderType | null>(null);
   const [called, setCalled] = useState(false);
-  const [deleted, setDeleted] = useState(false);
 
   const { error, loading: orderLoading } = useQuery<Query, QueryOrderArgs>(
     GET_ORDER,
@@ -67,6 +60,31 @@ export const useOrder = (
       onError: () => {},
     });
 
+  return {
+    order: data,
+    error: error != null,
+    refreshError,
+    loading: orderLoading || refreshLoading,
+    refresh,
+    called,
+  };
+};
+
+export const useReservation = (
+  reservationPk: number
+): {
+  reservation: ReservationType;
+  error: ApolloError;
+  loading: boolean;
+  deleteReservation: (
+    arg: Record<"variables", Record<"input", Record<"pk", number>>>
+  ) => void;
+  deleteError: ApolloError;
+  deleteLoading: boolean;
+  deleted: boolean;
+} => {
+  const [deleted, setDeleted] = useState(false);
+
   const [deleteReservation, { error: deleteError, loading: deleteLoading }] =
     useMutation<
       { deleteReservation: ReservationDeleteMutationPayload },
@@ -81,23 +99,6 @@ export const useOrder = (
       onError: () => {},
     });
 
-  return {
-    order: data,
-    error: error != null,
-    refreshError,
-    loading: orderLoading || refreshLoading,
-    refresh,
-    deleteReservation,
-    deleteError,
-    deleteLoading,
-    called,
-    deleted,
-  };
-};
-
-export const useReservation = (
-  reservationPk: number
-): { reservation: ReservationType; error: ApolloError; loading: boolean } => {
   const { data, error, loading } = useQuery<Query, QueryReservationByPkArgs>(
     GET_RESERVATION,
     {
@@ -107,5 +108,13 @@ export const useReservation = (
     }
   );
 
-  return { reservation: data?.reservationByPk, error, loading };
+  return {
+    reservation: data?.reservationByPk,
+    error,
+    loading,
+    deleteReservation,
+    deleteError,
+    deleteLoading,
+    deleted,
+  };
 };

@@ -195,7 +195,7 @@ const deleteReservation = graphql.mutation<
       deleted = true;
   }
 
-  if (pk === 6666) {
+  if ([23, 6666].includes(pk)) {
     return res(
       ctx.errors([
         {
@@ -640,7 +640,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       };
     }
 
-    if (pk === 22) {
+    if (pk === 22 || pk === 23) {
       data.state = ReservationsReservationStateChoices.WaitingForPayment;
       data.orderUuid = "22-1";
     }

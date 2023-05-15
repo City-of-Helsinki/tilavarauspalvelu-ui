@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
@@ -10,27 +10,21 @@ import {
   IconCross,
   IconLinkExternal,
 } from "hds-react";
-import { useLazyQuery, useQuery } from "@apollo/client";
 import { useTranslation } from "next-i18next";
 import { H2, H4, fontRegular } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { signIn, useSession } from "next-auth/react";
 import {
   Query,
-  QueryReservationByPkArgs,
   QueryTermsOfUseArgs,
   ReservationsReservationReserveeTypeChoices,
-  ReservationType,
   TermsOfUseType,
   TermsOfUseTermsOfUseTermsTypeChoices,
   ReservationsReservationStateChoices,
-  QueryOrderArgs,
-  PaymentOrderType,
 } from "common/types/gql-types";
 import { parseISO } from "date-fns";
 import Link from "next/link";
 import apolloClient from "../../modules/apolloClient";
-import { GET_ORDER, GET_RESERVATION } from "../../modules/queries/reservation";
 import {
   JustForDesktop,
   JustForMobile,
@@ -65,6 +59,8 @@ import {
   authEnabled,
   authenticationIssuer,
 } from "../../modules/const";
+import NotificationWrapper from "../../components/common/NotificationWrapper";
+import { useReservation, useOrder } from "../../hooks/reservation";
 
 type Props = {
   termsOfUse: Record<string, TermsOfUseType>;
@@ -117,6 +113,26 @@ const StyledBreadcrumbWrapper = styled(BreadcrumbWrapper)`
 
 const Wrapper = styled.div`
   background-color: var(--color-white);
+`;
+
+const NotificationContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-s);
+
+  @media (min-width: ${breakpoints.m}) {
+    flex-direction: row;
+  }
+`;
+
+const NotificationButtons = styled.div`
+  display: flex;
+  gap: var(--spacing-s);
+
+  > button {
+    white-space: nowrap;
+  }
 `;
 
 const Container = styled(NarrowCenteredContainer)`
@@ -289,47 +305,16 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     }
   }, [isUserUnauthenticated]);
 
-  const [reservation, setReservation] = useState<ReservationType>(null);
-  const [order, setOrder] = useState<PaymentOrderType>(null);
-
   const {
-    data: reservationData,
+    reservation,
     loading,
     error,
-  } = useQuery<Query, QueryReservationByPkArgs>(GET_RESERVATION, {
-    fetchPolicy: "no-cache",
-    variables: {
-      pk: id,
-    },
-  });
-
-  const [getOrder, { loading: orderLoading }] = useLazyQuery<
-    Query,
-    QueryOrderArgs
-  >(GET_ORDER, {
-    fetchPolicy: "no-cache",
-    onCompleted: (data) => {
-      if (!data.order) {
-        return;
-      }
-      setOrder(data.order);
-    },
-    onError: () => {},
-  });
-
-  useEffect(() => {
-    if (reservationData?.reservationByPk) {
-      setReservation(reservationData.reservationByPk);
-
-      if (reservationData.reservationByPk.orderUuid) {
-        getOrder({
-          variables: {
-            orderUuid: reservationData.reservationByPk.orderUuid,
-          },
-        });
-      }
-    }
-  }, [reservationData, getOrder]);
+    deleteReservation,
+    deleteError,
+    deleteLoading,
+    deleted,
+  } = useReservation(id);
+  const { order, loading: orderLoading } = useOrder(reservation?.orderUuid);
 
   const reservationUnit = get(reservation?.reservationUnits, "0");
 
@@ -590,6 +575,43 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
 
   return (
     <Wrapper>
+      {isWaitingForPayment && (
+        <NotificationWrapper
+          type="alert"
+          dismissible
+          label={t("reservations:notifications.waitingForPayment.title")}
+          closeButtonLabelText={t("common:close")}
+        >
+          <NotificationContent>
+            <div>{t("reservations:notifications.waitingForPayment.body")}</div>
+            <NotificationButtons>
+              <BlackButton
+                variant="secondary"
+                size="small"
+                onClick={() =>
+                  deleteReservation({
+                    variables: { input: { pk: id } },
+                  })
+                }
+                disabled={deleteLoading || deleted}
+                data-testid="reservation-notification__button--delete"
+              >
+                {t("reservations:cancelReservation")}
+              </BlackButton>
+              {isWaitingForPayment && (
+                <BlackButton
+                  variant="secondary"
+                  size="small"
+                  onClick={() => router.push(checkoutUrl)}
+                  data-testid="reservation-notification__button--checkout"
+                >
+                  {t("reservations:payReservation")}
+                </BlackButton>
+              )}
+            </NotificationButtons>
+          </NotificationContent>
+        </NotificationWrapper>
+      )}
       <Container>
         <StyledBreadcrumbWrapper
           route={["", "/reservations", "reservationName"]}
@@ -760,6 +782,28 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
           </div>
         </Columns>
       </Container>
+      {deleted && (
+        <Toast
+          type="success"
+          label={t("reservations:reservationCancelledTitle")}
+          position="top-center"
+          autoClose
+          autoCloseDuration={3000}
+          displayAutoCloseProgress
+          onClose={() => router.push(reservationsUrl)}
+          dismissible
+          closeButtonLabelText={t("common:error.closeErrorMsg")}
+        />
+      )}
+      {!deleted && deleteError != null && (
+        <Toast
+          type="error"
+          label={t("common:error.error")}
+          position="top-center"
+        >
+          {t("errors:general_error")}
+        </Toast>
+      )}
     </Wrapper>
   );
 };
