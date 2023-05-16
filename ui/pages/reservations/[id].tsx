@@ -59,7 +59,6 @@ import {
   authEnabled,
   authenticationIssuer,
 } from "../../modules/const";
-import NotificationWrapper from "../../components/common/NotificationWrapper";
 import { useReservation, useOrder } from "../../hooks/reservation";
 
 type Props = {
@@ -113,26 +112,6 @@ const StyledBreadcrumbWrapper = styled(BreadcrumbWrapper)`
 
 const Wrapper = styled.div`
   background-color: var(--color-white);
-`;
-
-const NotificationContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--spacing-s);
-
-  @media (min-width: ${breakpoints.m}) {
-    flex-direction: row;
-  }
-`;
-
-const NotificationButtons = styled.div`
-  display: flex;
-  gap: var(--spacing-s);
-
-  > button {
-    white-space: nowrap;
-  }
 `;
 
 const Container = styled(NarrowCenteredContainer)`
@@ -305,15 +284,7 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     }
   }, [isUserUnauthenticated]);
 
-  const {
-    reservation,
-    loading,
-    error,
-    deleteReservation,
-    deleteError,
-    deleteLoading,
-    deleted,
-  } = useReservation(id);
+  const { reservation, loading, error } = useReservation(id);
   const { order, loading: orderLoading } = useOrder(reservation?.orderUuid);
 
   const reservationUnit = get(reservation?.reservationUnits, "0");
@@ -575,43 +546,6 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
 
   return (
     <Wrapper>
-      {isWaitingForPayment && (
-        <NotificationWrapper
-          type="alert"
-          dismissible
-          label={t("reservations:notifications.waitingForPayment.title")}
-          closeButtonLabelText={t("common:close")}
-        >
-          <NotificationContent>
-            <div>{t("reservations:notifications.waitingForPayment.body")}</div>
-            <NotificationButtons>
-              <BlackButton
-                variant="secondary"
-                size="small"
-                onClick={() =>
-                  deleteReservation({
-                    variables: { input: { pk: id } },
-                  })
-                }
-                disabled={deleteLoading || deleted}
-                data-testid="reservation-notification__button--delete"
-              >
-                {t("reservations:cancelReservation")}
-              </BlackButton>
-              {isWaitingForPayment && (
-                <BlackButton
-                  variant="secondary"
-                  size="small"
-                  onClick={() => router.push(checkoutUrl)}
-                  data-testid="reservation-notification__button--checkout"
-                >
-                  {t("reservations:payReservation")}
-                </BlackButton>
-              )}
-            </NotificationButtons>
-          </NotificationContent>
-        </NotificationWrapper>
-      )}
       <Container>
         <StyledBreadcrumbWrapper
           route={["", "/reservations", "reservationName"]}
@@ -782,28 +716,6 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
           </div>
         </Columns>
       </Container>
-      {deleted && (
-        <Toast
-          type="success"
-          label={t("reservations:reservationCancelledTitle")}
-          position="top-center"
-          autoClose
-          autoCloseDuration={3000}
-          displayAutoCloseProgress
-          onClose={() => router.push(reservationsUrl)}
-          dismissible
-          closeButtonLabelText={t("common:error.closeErrorMsg")}
-        />
-      )}
-      {!deleted && deleteError != null && (
-        <Toast
-          type="error"
-          label={t("common:error.error")}
-          position="top-center"
-        >
-          {t("errors:general_error")}
-        </Toast>
-      )}
     </Wrapper>
   );
 };

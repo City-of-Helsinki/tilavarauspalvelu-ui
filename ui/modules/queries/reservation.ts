@@ -142,6 +142,7 @@ export const LIST_RESERVATIONS = gql`
           price
           bufferTimeBefore
           bufferTimeAfter
+          orderUuid
           reservationUnits {
             pk
             nameFi

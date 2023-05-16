@@ -5,16 +5,20 @@ import {
   Query,
   QueryOrderArgs,
   QueryReservationByPkArgs,
+  QueryReservationsArgs,
   RefreshOrderMutationInput,
   RefreshOrderMutationPayload,
   ReservationDeleteMutationInput,
   ReservationDeleteMutationPayload,
   ReservationType,
+  ReservationsReservationStateChoices,
+  UserType,
 } from "common/types/gql-types";
 import {
   DELETE_RESERVATION,
   GET_ORDER,
   GET_RESERVATION,
+  LIST_RESERVATIONS,
   REFRESH_ORDER,
 } from "../modules/queries/reservation";
 
@@ -116,5 +120,34 @@ export const useReservation = (
     deleteError,
     deleteLoading,
     deleted,
+  };
+};
+
+export const useReservations = (
+  currentUser: UserType,
+  states?: ReservationsReservationStateChoices[],
+  orderBy?: string
+): {
+  reservations: ReservationType[];
+  error: ApolloError;
+  loading: boolean;
+} => {
+  const { data, error, loading } = useQuery<Query, QueryReservationsArgs>(
+    LIST_RESERVATIONS,
+    {
+      skip: !currentUser?.pk,
+      variables: {
+        ...(states?.length > 0 && { state: states }),
+        ...(orderBy && { orderBy }),
+        user: currentUser?.pk.toString(),
+      },
+      fetchPolicy: "no-cache",
+    }
+  );
+
+  return {
+    reservations: data?.reservations.edges.map((edge) => edge.node) ?? [],
+    error,
+    loading,
   };
 };

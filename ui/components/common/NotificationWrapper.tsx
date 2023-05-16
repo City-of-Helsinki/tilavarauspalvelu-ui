@@ -17,7 +17,13 @@ const NotificationWrapper = (props): JSX.Element => {
 
   return isVisible ? (
     <Wrapper>
-      <Notification {...props} onClose={() => setIsVisible(false)} />
+      <Notification
+        {...props}
+        onClose={() => {
+          setIsVisible(false);
+          if (props.onClose) props.onClose();
+        }}
+      />
     </Wrapper>
   ) : null;
 };
