@@ -375,6 +375,7 @@ export const GET_ORDER = gql`
       status
       paymentType
       receiptUrl
+      checkoutUrl
     }
   }
 `;
