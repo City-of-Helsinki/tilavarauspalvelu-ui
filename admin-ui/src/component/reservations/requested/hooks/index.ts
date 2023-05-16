@@ -2,14 +2,15 @@ import { useState } from "react";
 import {
   type Query,
   type ReservationType,
-  type QueryReservationsArgs,
   ReservationsReservationStateChoices,
+  type QueryReservationUnitByPkArgs,
   type ReservationDenyReasonType,
   type QueryReservationDenyReasonsArgs,
   type QueryReservationByPkArgs,
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
+import { format } from "date-fns";
 import {
   RECURRING_RESERVATION_QUERY,
   RESERVATIONS_BY_RESERVATIONUNIT,
@@ -61,27 +62,26 @@ export const useReservationData = (
 ) => {
   const { notifyError } = useNotification();
 
-  const { data, ...rest } = useQuery<Query, QueryReservationsArgs>(
-    RESERVATIONS_BY_RESERVATIONUNIT,
-    {
-      fetchPolicy: "no-cache",
-      variables: {
-        reservationUnit: [reservationUnitPk],
-        begin: begin.toISOString(),
-        end: end.toISOString(),
-      },
-      onError: () => {
-        notifyError("Varauksia ei voitu hakea");
-      },
-    }
-  );
+  const { data, ...rest } = useQuery<
+    Query,
+    QueryReservationUnitByPkArgs & { from: string; to: string }
+  >(RESERVATIONS_BY_RESERVATIONUNIT, {
+    fetchPolicy: "no-cache",
+    variables: {
+      pk: Number(reservationUnitPk),
+      from: format(begin, "yyyy-MM-dd"),
+      to: format(end, "yyyy-MM-dd"),
+    },
+    onError: () => {
+      notifyError("Varauksia ei voitu hakea");
+    },
+  });
 
   const events =
-    data?.reservations?.edges
-      .map((e) => e?.node)
-      .filter((r): r is ReservationType => r != null)
-      .filter((r) => shouldBeShownInTheCalendar(r, reservationPk))
-      .map((r) => convertReservationToCalendarEvent(r)) ?? [];
+    data?.reservationUnitByPk?.reservations
+      ?.filter((r): r is ReservationType => r != null)
+      ?.filter((r) => shouldBeShownInTheCalendar(r, reservationPk))
+      ?.map((r) => convertReservationToCalendarEvent(r)) ?? [];
 
   return { ...rest, events };
 };
