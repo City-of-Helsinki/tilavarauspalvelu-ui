@@ -18,6 +18,7 @@ const isDateValid = (d: Date) => {
   return d instanceof Date && !Number.isNaN(d.getTime());
 };
 
+// TODO this can't emit Date because it breaks keyboard input
 const ControlledDateInput = <T extends FieldValues>({
   control,
   name,
@@ -48,8 +49,6 @@ const ControlledDateInput = <T extends FieldValues>({
     }
   }, [value]);
 
-  console.log("value: ", value);
-  console.log("text value: ", textValue);
   return (
     <DateInput
       id={`reservationDialog.${name}`}

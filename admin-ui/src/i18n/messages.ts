@@ -811,6 +811,7 @@ const translations: ITranslations = {
     EditTime: {
       title: ["Muokkaa varauksen aikaa"],
       form: {
+        startTime: ["Aloitusaika"],
         length: ["Kesto"],
       },
       error: {

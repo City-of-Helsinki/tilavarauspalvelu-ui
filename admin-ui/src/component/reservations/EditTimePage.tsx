@@ -7,7 +7,7 @@ import { checkDate, checkTimeStringFormat } from "app/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { add, differenceInMinutes, format, set } from "date-fns";
 import styled from "styled-components";
-import { Button, Select, TextInput, TimeInput } from "hds-react";
+import { Button, Select } from "hds-react";
 import { z } from "zod";
 import {
   Mutation,
@@ -40,6 +40,8 @@ const StyledForm = styled.form`
 // type FormValueType = ReservationFormType;
 
 const TimeFormSchema = z.object({
+  // TODO this needs to be string and we have to use custom date checker because it's in FI format
+  // string because it can be invalid date while user is typing
   date: z.date(),
   startTime: z.string(),
   length: z.string(),
@@ -143,20 +145,26 @@ const generateTimeIntervals = (
     : [];
 };
 
+type Time = {
+  hours: number;
+  minutes: number;
+};
 type OptionType = { value: string; label: string };
 const LengthSelect = ({
   control,
   interval,
+  min,
+  max,
+  name,
 }: {
   control: Control<FormValueType, unknown>;
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
+  min: Time;
+  max: Time;
+  name: "length" | "startTime";
 }) => {
   const { t } = useTranslation();
 
-  // TODO make these configurable
-  // TODO make these relative to the interval (x * interval)
-  const min = { hours: 1, minutes: 0 };
-  const max = { hours: 6, minutes: 0 };
   const options = generateTimeIntervals(
     intervalToMinutes(interval),
     min,
@@ -166,16 +174,15 @@ const LengthSelect = ({
     label: x,
   }));
 
-  // TODO errors?
   return (
     <Controller
-      name="length"
+      name={name}
       control={control}
       rules={{ required: true }}
       render={({ field: { onChange, value } }) => (
         <Select<OptionType>
-          label={t("Reservation.EditTime.form.length")}
-          id="length"
+          label={t(`Reservation.EditTime.form.${name}`)}
+          id={name}
           options={options}
           onChange={(selected: OptionType) => onChange(selected.value)}
           value={options.find((x) => x.value === value)}
@@ -201,9 +208,7 @@ const ChangeTimeFormPart = ({
   const {
     control,
     handleSubmit,
-    register,
     formState: { errors, isDirty },
-    getValues,
   } = form;
 
   const { t } = useTranslation();
@@ -238,22 +243,21 @@ const ChangeTimeFormPart = ({
         error={translateError(errors.date?.message)}
         required
       />
-      <TextInput
-        id="EditPage.startTimeText"
-        value={getValues("startTime")}
-        label={t(`ReservationDialog.startTime`)}
+      {/* Use select because HDS TimeInput can't be controlled since their ref is broken */}
+      <LengthSelect
+        control={control}
+        interval={reservationStartInterval}
+        min={{ hours: 0, minutes: 0 }}
+        max={{ hours: 23, minutes: 0 }}
+        name="startTime"
       />
-      <TimeInput
-        {...register("startTime")}
-        value={getValues("startTime")}
-        id="EditPage.startTime"
-        label={t(`ReservationDialog.startTime`)}
-        hoursLabel={t("common.hoursLabel")}
-        minutesLabel={t("common.minutesLabel")}
-        required
-        errorText={translateError(errors.startTime?.message)}
+      <LengthSelect
+        control={control}
+        interval={reservationStartInterval}
+        min={{ hours: 1, minutes: 0 }}
+        max={{ hours: 6, minutes: 0 }}
+        name="length"
       />
-      <LengthSelect control={control} interval={reservationStartInterval} />
       <div style={{ alignSelf: "end" }}>
         <Button type="submit" disabled={!isDirty}>
           {t("Reservation.EditPage.save")}
@@ -298,16 +302,20 @@ const EditTime = ({
     new Date(reservation.begin)
   );
 
+  const startDateTime = new Date(reservation.begin);
+
   const form = useForm<FormValueType>({
     resolver: zodResolver(TimeChangeFormSchemaRefined),
     mode: "onChange",
     defaultValues: {
-      date: new Date(reservation.begin),
-      startTime: format(new Date(reservation.begin), "HH:mm"),
+      // TODO convert from DateTime to Date string
+      // date: reservation.begin,
+      date: startDateTime,
+      startTime: format(startDateTime, "HH:mm"),
       length: durationToTimeString(minutesToDuration(length)),
     },
   });
-  const { getValues } = form;
+  const { getValues, watch } = form;
 
   const convertToApiFormat = (begin: Date, end: Date) => ({
     begin: begin.toISOString(),
@@ -333,7 +341,6 @@ const EditTime = ({
   // WE also need to filter out the selected reservation in the Calendar
   // events query.
   const handleChange = (begin: Date, end: Date) => {
-    console.log("handleChange: ", begin, " : ", end);
     const l = differenceInMinutes(end, begin);
     const params = {
       shouldValidate: true, // trigger validation
@@ -368,6 +375,9 @@ const EditTime = ({
     ...reservation,
     ...(x != null ? convertToApiFormat(x.begin, x.end) : {}),
   }))(formToDates(getValues()));
+
+  // need a watcher to update the Calendar when the form changes
+  watch();
 
   return (
     // Quick-n-dirty fix: for select near the bottom of a page; enough padding so opening the select doesn't resize the page
