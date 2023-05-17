@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type {
   ErrorType,
@@ -12,7 +12,7 @@ import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,7 @@ import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 import { ReservationMade } from "./RecurringReservationDone";
 import { ActionsWrapper, Grid as BaseGrid, Element } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
-import { useMultipleReservation, useReservationsInInterval } from "./hooks";
+import { useFilteredReservationList, useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
@@ -55,137 +55,70 @@ const Grid = styled(BaseGrid)`
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
-// TODO move the utility code somewhere else (we could use it in the calendar also)
-type DateRange = {
-  begin: Date;
-  end: Date;
-};
-
-// TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
-const isDateInRange = (a: Date, range: DateRange) => {
-  if (a > range.begin && a < range.end) {
-    return true;
-  }
-  return false;
-};
-
-// TODO write tests for this (there are some fail cases on full overlaps)
-// e.g. 9:00 - 10:00 and 9 - 10 overlap but this fails
-const isOverllaping = (a: DateRange, b: DateRange) => {
-  if (isDateInRange(a.begin, b) || isDateInRange(a.end, b)) {
-    return true;
-  }
-  if (isDateInRange(b.begin, a) || isDateInRange(b.end, a)) {
-    return true;
-  }
-  return false;
-};
-
-// TODO error boundaries so this doesn't happen
-const convertToDate = (d: Date, time: string) => {
-  try {
-    return parse(time, "HH:mm", d);
-  } catch (e) {
-    console.log("exception: ", e);
-    return undefined;
-  }
-};
-
-// TODO this requires some performance testing
-// it's probably not great but is it good enough?
+/// @param items the checked list of all new reservations to make
+/// @param removedReservations the events the user wanted to remove
+/// @param setRemovedReservations update the user's list
+/// Using two arrays because modifiying single array causes the hooks to rerun
+/// flow: user makes a time selection => do a query => allow user to disable dates.
+/// TODO check that we clear the removed array when the user changes time selection
+/// TODO this requires some performance testing
+/// it's probably not great but is it good enough?
 const ReservationListEditor = ({
   items,
-  reservationUnitPk,
-  begin,
-  end,
+  removedReservations,
+  setRemovedReservations,
 }: {
   items: NewReservationListItem[];
-  reservationUnitPk: number;
-  begin: Date;
-  end: Date;
+  removedReservations: NewReservationListItem[];
+  setRemovedReservations: (items: NewReservationListItem[]) => void;
 }) => {
-  const { reservations } = useReservationsInInterval({
-    reservationUnitPk,
-    begin,
-    end,
-  });
-
   const { t } = useTranslation();
-
-  // TODO quick-n-diry move the state upward or better yet useContext
-  const [itemsLocal, setItemsLocal] = useState<NewReservationListItem[]>(items);
-  useEffect(() => {
-    if (reservations.length === 0) {
-      setItemsLocal(items);
-    } else {
-      const tested = items.map((x) =>
-        reservations.find((y) => {
-          const startDate = convertToDate(x.date, x.startTime);
-          const endDate = convertToDate(x.date, x.endTime);
-          if (startDate && endDate) {
-            // FIXME this check fails if the dates are 9:00 - 10:00 and 9:00 - 11:00
-            // similarly 9:00 - 10:00 and 9:00 - 10:00 fails for another event
-            // i.e. one event matches the other while the other matches the other
-            return isOverllaping(
-              {
-                begin: startDate,
-                end: endDate,
-              },
-              y
-            );
-          }
-          return false;
-        })
-          ? { ...x, isOverllaping: true }
-          : x
-      );
-      setItemsLocal(tested);
-    }
-  }, [items, reservations, t]);
 
   const isEq = (a: NewReservationListItem, b: NewReservationListItem) =>
     a.date.getTime() === b.date.getTime() &&
     a.endTime === b.endTime &&
     a.startTime === b.startTime;
 
-  const handleRemoveChange = (
-    item: NewReservationListItem,
-    isRemoved: boolean
-  ) => {
-    const fid = itemsLocal.findIndex((x) => isEq(item, x));
-    if (fid !== undefined) {
-      const toUpdate = [
-        ...itemsLocal.slice(0, fid),
-        { ...itemsLocal[fid], isRemoved },
-        ...itemsLocal.slice(fid + 1),
-      ];
-
-      setItemsLocal(toUpdate);
+  const handleRemove = (item: NewReservationListItem) => {
+    const fid = removedReservations.findIndex((x) => isEq(item, x));
+    if (fid === -1) {
+      setRemovedReservations([...removedReservations, item]);
+    } else {
+      console.error("remove called while the element was already removed");
     }
   };
 
-  const handleRemove = (item: NewReservationListItem) => {
-    handleRemoveChange(item, true);
-  };
-
   const handleRestore = (item: NewReservationListItem) => {
-    handleRemoveChange(item, false);
+    const fid = removedReservations.findIndex((x) => isEq(item, x));
+    if (fid !== -1) {
+      setRemovedReservations([
+        ...removedReservations.slice(0, fid),
+        ...removedReservations.slice(fid + 1),
+      ]);
+    } else {
+      console.error("restore called without removal");
+    }
   };
 
-  const itemsWithButtons = itemsLocal.map((x) => ({
-    ...x,
-    buttons: !x.isOverllaping
-      ? [
-          ReservationListButton({
-            callback: x.isRemoved
-              ? () => handleRestore(x)
-              : () => handleRemove(x),
-            type: x.isRemoved ? "restore" : "remove",
-            t,
-          }),
-        ]
-      : [],
-  }));
+  const itemsWithButtons = items.map((x) => {
+    if (x.isOverllaping) {
+      return x;
+    }
+    const elem = removedReservations.find((y) => isEq(x, y));
+    const isRemoved = elem !== undefined;
+
+    return {
+      ...x,
+      isRemoved,
+      buttons: [
+        ReservationListButton({
+          callback: isRemoved ? () => handleRestore(x) : () => handleRemove(x),
+          type: isRemoved ? "restore" : "remove",
+          t,
+        }),
+      ],
+    };
+  });
 
   return <ReservationList items={itemsWithButtons} hasPadding />;
 };
@@ -245,6 +178,10 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     createReservationMutation[0]({ variables: { input } });
 
+  const [removedReservations, setRemovedReservations] = useState<
+    NewReservationListItem[]
+  >([]);
+
   const unit = selectedReservationUnit?.value;
 
   const { reservationUnit } = useReservationUnitQuery(
@@ -265,6 +202,13 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     form,
     reservationUnit?.reservationStartInterval
   );
+
+  const checkedReservations = useFilteredReservationList({
+    items: newReservations.reservations,
+    reservationUnitPk: reservationUnit?.pk ?? undefined,
+    begin: getValues("startingDate"),
+    end: getValues("endingDate"),
+  });
 
   const navigate = useNavigate();
 
@@ -337,6 +281,9 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           dateTime(format(date, "dd.MM.yyyy"), time);
 
         // TODO see if this can be combined with ReservationDialog (it's very similar)
+        // FIXME remove all days here that the user didn't want (combine removed / reservations)
+        // TODO should we also not run mutations for collisions? if yes
+        // we need to show the collisions separately (they are currently from gql errors)
         const rets = newReservations.reservations.map(async (x) => {
           const common = {
             startTime: x.startTime,
@@ -545,10 +492,9 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
                 })}
               </Label>
               <ReservationListEditor
-                reservationUnitPk={reservationUnit.pk}
-                items={newReservations.reservations}
-                begin={getValues("startingDate")}
-                end={getValues("endingDate")}
+                setRemovedReservations={setRemovedReservations}
+                removedReservations={removedReservations}
+                items={checkedReservations}
               />
             </Element>
           )}

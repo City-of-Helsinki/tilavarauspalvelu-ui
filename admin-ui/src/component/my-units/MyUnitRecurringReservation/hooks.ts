@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import type {
   Query,
   QueryReservationUnitByPkArgs,
@@ -15,6 +15,7 @@ import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import { useNotification } from "../../../context/NotificationContext";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { GET_RESERVATIONS_IN_INTERVAL } from "./queries";
+import { NewReservationListItem } from "../../ReservationsList";
 
 export const useMultipleReservation = (
   form: UseFormReturn<RecurringReservationForm>,
@@ -31,20 +32,17 @@ export const useMultipleReservation = (
     "repeatOnDays",
   ]);
 
-  return useMemo(
-    () =>
-      generateReservations(
-        {
-          startingDate: selectedReservationParams[0],
-          endingDate: selectedReservationParams[1],
-          startTime: selectedReservationParams[2],
-          endTime: selectedReservationParams[3],
-          repeatPattern: selectedReservationParams[4],
-          repeatOnDays: selectedReservationParams[5],
-        },
-        interval
-      ),
-    [selectedReservationParams, interval]
+  // NOTE useMemo is useless here, watcher already filters out unnecessary runs
+  return generateReservations(
+    {
+      startingDate: selectedReservationParams[0],
+      endingDate: selectedReservationParams[1],
+      startTime: selectedReservationParams[2],
+      endTime: selectedReservationParams[3],
+      repeatPattern: selectedReservationParams[4],
+      repeatOnDays: selectedReservationParams[5],
+    },
+    interval
   );
 };
 
@@ -84,7 +82,7 @@ export const useReservationsInInterval = ({
 }: {
   begin: Date;
   end: Date;
-  reservationUnitPk: number;
+  reservationUnitPk?: number;
 }) => {
   const { notifyError } = useNotification();
 
@@ -118,4 +116,87 @@ export const useReservationsInInterval = ({
   );
 
   return { reservations, loading };
+};
+
+// TODO move the utility code somewhere else (we could use it in the calendar also)
+type DateRange = {
+  begin: Date;
+  end: Date;
+};
+
+// TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
+const isDateInRange = (a: Date, range: DateRange) => {
+  if (a > range.begin && a < range.end) {
+    return true;
+  }
+  return false;
+};
+
+// TODO write tests for this (there are some fail cases on full overlaps)
+// e.g. 9:00 - 10:00 and 9 - 10 overlap but this fails
+const isOverllaping = (a: DateRange, b: DateRange) => {
+  if (isDateInRange(a.begin, b) || isDateInRange(a.end, b)) {
+    return true;
+  }
+  if (isDateInRange(b.begin, a) || isDateInRange(b.end, a)) {
+    return true;
+  }
+  return false;
+};
+
+// TODO error boundaries so this doesn't happen
+const convertToDate = (d: Date, time: string) => {
+  try {
+    return parse(time, "HH:mm", d);
+  } catch (e) {
+    console.log("exception: ", e);
+    return undefined;
+  }
+};
+
+export const useFilteredReservationList = ({
+  items,
+  reservationUnitPk,
+  begin,
+  end,
+}: {
+  items: NewReservationListItem[];
+  reservationUnitPk?: number;
+  begin: Date;
+  end: Date;
+}) => {
+  const { reservations } = useReservationsInInterval({
+    reservationUnitPk,
+    begin,
+    end,
+  });
+
+  // TODO check if useMemo is necessary?
+  return useMemo(() => {
+    if (reservations.length === 0) {
+      return items;
+    }
+    const tested = items.map((x) =>
+      reservations.find((y) => {
+        const startDate = convertToDate(x.date, x.startTime);
+        const endDate = convertToDate(x.date, x.endTime);
+        if (startDate && endDate) {
+          // FIXME this check fails if the dates are 9:00 - 10:00 and 9:00 - 11:00
+          // similarly 9:00 - 10:00 and 9:00 - 10:00 fails for another event
+          // i.e. one event matches the other while the other matches the other
+          return isOverllaping(
+            {
+              begin: startDate,
+              end: endDate,
+            },
+            y
+          );
+        }
+        return false;
+      })
+        ? { ...x, isOverllaping: true }
+        : x
+    );
+    return tested;
+  }, [items, reservations]);
 };
