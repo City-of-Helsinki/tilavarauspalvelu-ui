@@ -105,14 +105,17 @@ export const useReservationsInInterval = ({
     },
   });
 
-  const reservations =
-    data?.reservationUnitByPk?.reservations
-      ?.map((x) =>
-        x?.begin && x?.end
-          ? { begin: new Date(x.begin), end: new Date(x.end) }
-          : undefined
-      )
-      ?.filter((x): x is { begin: Date; end: Date } => x != null) ?? [];
+  const reservations = useMemo(
+    () =>
+      data?.reservationUnitByPk?.reservations
+        ?.map((x) =>
+          x?.begin && x?.end
+            ? { begin: new Date(x.begin), end: new Date(x.end) }
+            : undefined
+        )
+        ?.filter((x): x is { begin: Date; end: Date } => x != null) ?? [],
+    [data]
+  );
 
   return { reservations, loading };
 };

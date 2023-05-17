@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type {
   ErrorType,
@@ -55,11 +55,44 @@ const Grid = styled(BaseGrid)`
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
-/* TODO this needs a wrapper with a query to check the available reservations
-Also needs controls that allow adding and removing the reservations to the list
-Use a separate array for the blocked (clear it if the date selection changes)
-This is the easiest way of doing it, but might be inefficient.
-*/
+// TODO move the utility code somewhere else (we could use it in the calendar also)
+type DateRange = {
+  begin: Date;
+  end: Date;
+};
+
+// TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
+const isDateInRange = (a: Date, range: DateRange) => {
+  if (a > range.begin && a < range.end) {
+    return true;
+  }
+  return false;
+};
+
+// TODO write tests for this (there are some fail cases on full overlaps)
+// e.g. 9:00 - 10:00 and 9 - 10 overlap but this fails
+const isOverllaping = (a: DateRange, b: DateRange) => {
+  if (isDateInRange(a.begin, b) || isDateInRange(a.end, b)) {
+    return true;
+  }
+  if (isDateInRange(b.begin, a) || isDateInRange(b.end, a)) {
+    return true;
+  }
+  return false;
+};
+
+// TODO error boundaries so this doesn't happen
+const convertToDate = (d: Date, time: string) => {
+  try {
+    return parse(time, "HH:mm", d);
+  } catch (e) {
+    console.log("exception: ", e);
+    return undefined;
+  }
+};
+
+// TODO this requires some performance testing
+// it's probably not great but is it good enough?
 const ReservationListEditor = ({
   items,
   reservationUnitPk,
@@ -71,7 +104,7 @@ const ReservationListEditor = ({
   begin: Date;
   end: Date;
 }) => {
-  const { reservations, loading } = useReservationsInInterval({
+  const { reservations } = useReservationsInInterval({
     reservationUnitPk,
     begin,
     end,
@@ -80,103 +113,81 @@ const ReservationListEditor = ({
   const { t } = useTranslation();
 
   // TODO quick-n-diry move the state upward or better yet useContext
-  const [removedItems, setRemovedItems] = useState<number[]>([]);
-
-  // TODO move the utility code somewhere else (we could use it in the calendar also)
-  type DateRange = {
-    begin: Date;
-    end: Date;
-  };
-
-  // TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
-  const isDateInRange = (a: Date, range: DateRange) => {
-    if (a > range.begin && a < range.end) {
-      return true;
+  const [itemsLocal, setItemsLocal] = useState<NewReservationListItem[]>(items);
+  useEffect(() => {
+    if (reservations.length === 0) {
+      setItemsLocal(items);
+    } else {
+      const tested = items.map((x) =>
+        reservations.find((y) => {
+          const startDate = convertToDate(x.date, x.startTime);
+          const endDate = convertToDate(x.date, x.endTime);
+          if (startDate && endDate) {
+            // FIXME this check fails if the dates are 9:00 - 10:00 and 9:00 - 11:00
+            // similarly 9:00 - 10:00 and 9:00 - 10:00 fails for another event
+            // i.e. one event matches the other while the other matches the other
+            return isOverllaping(
+              {
+                begin: startDate,
+                end: endDate,
+              },
+              y
+            );
+          }
+          return false;
+        })
+          ? { ...x, isOverllaping: true }
+          : x
+      );
+      setItemsLocal(tested);
     }
-    return false;
-  };
+  }, [items, reservations, t]);
 
-  const isOverllaping = (a: DateRange, b: DateRange) => {
-    if (isDateInRange(a.begin, b) || isDateInRange(a.end, b)) {
-      return true;
-    }
-    if (isDateInRange(b.begin, a) || isDateInRange(b.end, a)) {
-      return true;
-    }
-    return false;
-  };
+  const isEq = (a: NewReservationListItem, b: NewReservationListItem) =>
+    a.date.getTime() === b.date.getTime() &&
+    a.endTime === b.endTime &&
+    a.startTime === b.startTime;
 
-  // TODO error boundaries so this doesn't happen
-  const convertToDate = (d: Date, time: string) => {
-    try {
-      return parse(time, "HH:mm", d);
-    } catch (e) {
-      console.log("exception: ", e);
-      return undefined;
-    }
-  };
-
-  // TODO use a hashmap or something else than an index?
-  // We can directly modify the input array (assuming we use a state)
-  // the problem with this approach is that it's massive array and copying it is silly
-  // but the map below does a full copy anyway when ever the state changes
-  const handleRemove = (index: number) => {
-    setRemovedItems([...removedItems, index]);
-  };
-
-  const handleRestore = (index: number) => {
-    const fid = removedItems.findIndex((i) => i === index);
-    if (fid) {
+  const handleRemoveChange = (
+    item: NewReservationListItem,
+    isRemoved: boolean
+  ) => {
+    const fid = itemsLocal.findIndex((x) => isEq(item, x));
+    if (fid !== undefined) {
       const toUpdate = [
-        ...removedItems.slice(0, fid),
-        ...removedItems.slice(fid + 1),
+        ...itemsLocal.slice(0, fid),
+        { ...itemsLocal[fid], isRemoved },
+        ...itemsLocal.slice(fid + 1),
       ];
 
-      setRemovedItems(toUpdate);
+      setItemsLocal(toUpdate);
     }
   };
 
-  // TODO add buttons that allow removing the reservation from the list
-  // need a context to hold the removed reservations though
-  // FIXME cleanup so we don't need ts-ignore
-  const tested = items.map((x, index) =>
-    reservations.find(
-      (y) =>
-        convertToDate(x.date, x.startTime) &&
-        convertToDate(x.date, x.endTime) &&
-        isOverllaping(
-          {
-            // @ts-ignore
-            begin: convertToDate(x.date, x.startTime),
-            // @ts-ignore
-            end: convertToDate(x.date, x.endTime),
-          },
-          y
-        )
-    )
-      ? { ...x, isOverllaping: true }
-      : // TODO cleanup (use a wrapper function or multiple maps)
-        {
-          ...x,
-          buttons: removedItems.find((i) => i === index)
-            ? [
-                ReservationListButton({
-                  callback: () => handleRestore(index),
-                  type: "restore",
-                  t,
-                }),
-              ]
-            : [
-                ReservationListButton({
-                  callback: () => handleRemove(index),
-                  type: "remove",
-                  t,
-                }),
-              ],
-        }
-  );
+  const handleRemove = (item: NewReservationListItem) => {
+    handleRemoveChange(item, true);
+  };
 
-  return <ReservationList items={tested} hasPadding />;
+  const handleRestore = (item: NewReservationListItem) => {
+    handleRemoveChange(item, false);
+  };
+
+  const itemsWithButtons = itemsLocal.map((x) => ({
+    ...x,
+    buttons: !x.isOverllaping
+      ? [
+          ReservationListButton({
+            callback: x.isRemoved
+              ? () => handleRestore(x)
+              : () => handleRemove(x),
+            type: x.isRemoved ? "restore" : "remove",
+            t,
+          }),
+        ]
+      : [],
+  }));
+
+  return <ReservationList items={itemsWithButtons} hasPadding />;
 };
 
 type Props = {
