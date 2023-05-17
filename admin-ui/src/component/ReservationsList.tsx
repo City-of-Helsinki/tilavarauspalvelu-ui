@@ -12,6 +12,7 @@ type NewReservationListItem = {
   reservationPk?: number;
   buttons?: React.ReactNode;
   isRemoved?: boolean;
+  isOverllaping?: boolean;
 };
 
 type Props = {
@@ -96,11 +97,20 @@ const ReservationList = ({
             key={`${item.date}-${item.startTime}-${item.endTime}`}
           >
             <TextWrapper $failed={!!item.error}>
-              <DateElement $isRemoved={item.isRemoved ?? false}>
+              <DateElement
+                $isRemoved={(item.isRemoved || item.isOverllaping) ?? false}
+              >
                 {`${toUIDate(item.date, "cccccc d.M.yyyy")}, ${stripTimeZeros(
                   item.startTime
                 )}-${stripTimeZeros(item.endTime)}`}
               </DateElement>
+              {item.isOverllaping && (
+                <ErrorLabel>
+                  <span>
+                    {t("MyUnits.RecurringReservation.Confirmation.overllaping")}
+                  </span>
+                </ErrorLabel>
+              )}
               {item.isRemoved && (
                 <ErrorLabel>
                   <span>

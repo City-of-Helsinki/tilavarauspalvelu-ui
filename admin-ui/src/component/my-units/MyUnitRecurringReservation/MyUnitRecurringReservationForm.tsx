@@ -12,7 +12,7 @@ import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,9 @@ import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
 import { WeekdaysSelector } from "./WeekdaysSelector";
-import ReservationList from "../../ReservationsList";
+import ReservationList, {
+  NewReservationListItem,
+} from "../../ReservationsList";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
@@ -29,7 +31,7 @@ import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 import { ReservationMade } from "./RecurringReservationDone";
 import { ActionsWrapper, Grid as BaseGrid, Element } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
-import { useMultipleReservation } from "./hooks";
+import { useMultipleReservation, useReservationsInInterval } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
@@ -52,6 +54,87 @@ const Grid = styled(BaseGrid)`
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
+/* TODO this needs a wrapper with a query to check the available reservations
+Also needs controls that allow adding and removing the reservations to the list
+Use a separate array for the blocked (clear it if the date selection changes)
+This is the easiest way of doing it, but might be inefficient.
+*/
+const ReservationListEditor = ({
+  items,
+  reservationUnitPk,
+  begin,
+  end,
+}: {
+  items: NewReservationListItem[];
+  reservationUnitPk: number;
+  begin: Date;
+  end: Date;
+}) => {
+  const { reservations, loading } = useReservationsInInterval({
+    reservationUnitPk,
+    begin,
+    end,
+  });
+
+  // TODO move the utility code somewhere else (we could use it in the calendar also)
+  type DateRange = {
+    begin: Date;
+    end: Date;
+  };
+
+  // TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
+  const isDateInRange = (a: Date, range: DateRange) => {
+    if (a > range.begin && a < range.end) {
+      return true;
+    }
+    return false;
+  };
+
+  const isOverllaping = (a: DateRange, b: DateRange) => {
+    if (isDateInRange(a.begin, b) || isDateInRange(a.end, b)) {
+      return true;
+    }
+    if (isDateInRange(b.begin, a) || isDateInRange(b.end, a)) {
+      return true;
+    }
+    return false;
+  };
+
+  // TODO error boundaries so this doesn't happen
+  const convertToDate = (d: Date, time: string) => {
+    try {
+      return parse(time, "HH:mm", d);
+    } catch (e) {
+      console.log("exception: ", e);
+      return undefined;
+    }
+  };
+
+  // TODO add buttons that allow removing the reservation from the list
+  // need a context to hold the removed reservations though
+  // FIXME cleanup so we don't need ts-ignore
+  const tested = items.map((x) =>
+    reservations.find(
+      (y) =>
+        convertToDate(x.date, x.startTime) &&
+        convertToDate(x.date, x.endTime) &&
+        isOverllaping(
+          {
+            // @ts-ignore
+            begin: convertToDate(x.date, x.startTime),
+            // @ts-ignore
+            end: convertToDate(x.date, x.endTime),
+          },
+          y
+        )
+    )
+      ? { ...x, isOverllaping: true }
+      : x
+  );
+
+  return <ReservationList items={tested} hasPadding />;
+};
+
 type Props = {
   reservationUnits: ReservationUnitType[];
 };
@@ -73,6 +156,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     control,
     register,
     watch,
+    getValues,
     formState: { errors, isSubmitting, dirtyFields, isSubmitted },
   } = form;
 
@@ -398,16 +482,18 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             />
           </Element>
 
-          {reservationUnit != null && (
+          {reservationUnit?.pk != null && (
             <Element $wide>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
                   count: newReservations.reservations.length,
                 })}
               </Label>
-              <ReservationList
+              <ReservationListEditor
+                reservationUnitPk={reservationUnit.pk}
                 items={newReservations.reservations}
-                hasPadding
+                begin={getValues("startingDate")}
+                end={getValues("endingDate")}
               />
             </Element>
           )}
