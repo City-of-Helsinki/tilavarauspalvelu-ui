@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type {
   ErrorType,
@@ -36,6 +36,7 @@ import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
 import ControlledDateInput from "../components/ControlledDateInput";
+import ReservationListButton from "../../ReservationListButton";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -76,6 +77,11 @@ const ReservationListEditor = ({
     end,
   });
 
+  const { t } = useTranslation();
+
+  // TODO quick-n-diry move the state upward or better yet useContext
+  const [removedItems, setRemovedItems] = useState<number[]>([]);
+
   // TODO move the utility code somewhere else (we could use it in the calendar also)
   type DateRange = {
     begin: Date;
@@ -110,10 +116,30 @@ const ReservationListEditor = ({
     }
   };
 
+  // TODO use a hashmap or something else than an index?
+  // We can directly modify the input array (assuming we use a state)
+  // the problem with this approach is that it's massive array and copying it is silly
+  // but the map below does a full copy anyway when ever the state changes
+  const handleRemove = (index: number) => {
+    setRemovedItems([...removedItems, index]);
+  };
+
+  const handleRestore = (index: number) => {
+    const fid = removedItems.findIndex((i) => i === index);
+    if (fid) {
+      const toUpdate = [
+        ...removedItems.slice(0, fid),
+        ...removedItems.slice(fid + 1),
+      ];
+
+      setRemovedItems(toUpdate);
+    }
+  };
+
   // TODO add buttons that allow removing the reservation from the list
   // need a context to hold the removed reservations though
   // FIXME cleanup so we don't need ts-ignore
-  const tested = items.map((x) =>
+  const tested = items.map((x, index) =>
     reservations.find(
       (y) =>
         convertToDate(x.date, x.startTime) &&
@@ -129,7 +155,25 @@ const ReservationListEditor = ({
         )
     )
       ? { ...x, isOverllaping: true }
-      : x
+      : // TODO cleanup (use a wrapper function or multiple maps)
+        {
+          ...x,
+          buttons: removedItems.find((i) => i === index)
+            ? [
+                ReservationListButton({
+                  callback: () => handleRestore(index),
+                  type: "restore",
+                  t,
+                }),
+              ]
+            : [
+                ReservationListButton({
+                  callback: () => handleRemove(index),
+                  type: "remove",
+                  t,
+                }),
+              ],
+        }
   );
 
   return <ReservationList items={tested} hasPadding />;

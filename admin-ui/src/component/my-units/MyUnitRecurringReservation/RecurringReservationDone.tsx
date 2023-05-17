@@ -66,6 +66,8 @@ const RecurringReservationDone = () => {
   const location = useLocation();
   const props = z.array(ReservationMadeSchema).parse(location.state);
 
+  const { t } = useTranslation();
+
   const failed = props
     .filter(({ error }) => error != null)
     .map(({ error, ...x }) => ({ ...x, error: String(error) }));
@@ -75,9 +77,10 @@ const RecurringReservationDone = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .map(({ error, ...x }) => x)
     // TODO button is temp code till another feature is implemented
-    .map((x, i) => ({ ...x, buttons: [ReservationListButton(btn[i % 2])] }));
-
-  const { t } = useTranslation();
+    .map((x, i) => ({
+      ...x,
+      buttons: [ReservationListButton({ ...btn[i % 2], t })],
+    }));
 
   const navigate = useNavigate();
 
