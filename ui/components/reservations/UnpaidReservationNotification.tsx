@@ -37,7 +37,7 @@ const NotificationButtons = styled.div`
   }
 `;
 
-const UnpaidReservationNotification = () => {
+const ReservationNotification = () => {
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
@@ -133,6 +133,17 @@ const UnpaidReservationNotification = () => {
       </NotificationContent>
     </NotificationWrapper>
   ) : null;
+};
+
+const UnpaidReservationNotification = () => {
+  const router = useRouter();
+  const restrictedRoutes = ["/reservation/cancel", "/success"];
+
+  if (restrictedRoutes.some((route) => router.pathname.startsWith(route))) {
+    return null;
+  }
+
+  return <ReservationNotification />;
 };
 
 export default UnpaidReservationNotification;
