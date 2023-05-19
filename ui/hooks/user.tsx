@@ -1,14 +1,22 @@
 import { Query, UserType } from "common/types/gql-types";
 import { ApolloError, useQuery } from "@apollo/client";
-import { CURRENT_USER } from "../modules/queries/user";
+import { CURRENT_USER, CURRENT_USER_GLOBAL } from "../modules/queries/user";
 
-export const useCurrentUser = (): {
+type Props = {
+  global?: boolean;
+};
+
+export const useCurrentUser = ({
+  global,
+}: Props): {
   currentUser: UserType | null;
   error: ApolloError;
   loading: boolean;
 } => {
-  const { data, error, loading } = useQuery<Query>(CURRENT_USER, {
+  const query = global ? CURRENT_USER_GLOBAL : CURRENT_USER;
+  const { data, error, loading } = useQuery<Query>(query, {
     fetchPolicy: "no-cache",
+    variables: { referrer: window?.location?.href },
   });
 
   return {

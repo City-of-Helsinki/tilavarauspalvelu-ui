@@ -46,12 +46,14 @@ const Cancel = () => {
     }
   }, [isLoggedOut]);
 
-  const { order, loading, called } = useOrder(orderId);
+  const { order, loading, called } = useOrder({ orderUuid: orderId });
 
   const { deleteReservation, deleteError, deleteLoading, deleted } =
-    useReservation(
-      order?.reservationPk ? parseInt(order?.reservationPk, 10) : null
-    );
+    useReservation({
+      reservationPk: order?.reservationPk
+        ? parseInt(order?.reservationPk, 10)
+        : null,
+    });
 
   useEffect(() => {
     const { reservationPk } = order || {};

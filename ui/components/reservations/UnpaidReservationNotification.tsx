@@ -43,12 +43,12 @@ const ReservationNotification = () => {
 
   const [reservation, setReservation] = React.useState<ReservationType>(null);
 
-  const { currentUser } = useCurrentUser();
-  const { reservations } = useReservations(
+  const { currentUser } = useCurrentUser({ global: true });
+  const { reservations } = useReservations({
     currentUser,
-    [ReservationsReservationStateChoices.WaitingForPayment],
-    "-pk"
-  );
+    states: [ReservationsReservationStateChoices.WaitingForPayment],
+    orderBy: "-pk",
+  });
 
   useEffect(() => {
     if (reservations?.length) {
@@ -61,10 +61,10 @@ const ReservationNotification = () => {
     }
   }, [reservations]);
 
-  const { order } = useOrder(reservation?.orderUuid);
+  const { order } = useOrder({ orderUuid: reservation?.orderUuid });
 
   const { deleteReservation, deleteLoading, deleteError, deleted } =
-    useReservation(reservation?.pk);
+    useReservation({ reservationPk: reservation?.pk });
 
   const checkoutUrl = getCheckoutUrl(order, i18n.language);
 

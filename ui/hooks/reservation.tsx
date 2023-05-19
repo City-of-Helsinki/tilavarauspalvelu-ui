@@ -22,9 +22,13 @@ import {
   REFRESH_ORDER,
 } from "../modules/queries/reservation";
 
-export const useOrder = (
-  orderUuid: string
-): {
+type UseOrderProps = {
+  orderUuid: string;
+};
+
+export const useOrder = ({
+  orderUuid,
+}: UseOrderProps): {
   order: PaymentOrderType | null;
   error: boolean;
   refreshError: ApolloError;
@@ -74,9 +78,13 @@ export const useOrder = (
   };
 };
 
-export const useReservation = (
-  reservationPk: number
-): {
+type UseReservationProps = {
+  reservationPk: number;
+};
+
+export const useReservation = ({
+  reservationPk,
+}: UseReservationProps): {
   reservation: ReservationType;
   error: ApolloError;
   loading: boolean;
@@ -123,11 +131,17 @@ export const useReservation = (
   };
 };
 
-export const useReservations = (
-  currentUser: UserType,
-  states?: ReservationsReservationStateChoices[],
-  orderBy?: string
-): {
+type UseReservationsProps = {
+  currentUser: UserType;
+  states?: ReservationsReservationStateChoices[];
+  orderBy?: string;
+};
+
+export const useReservations = ({
+  currentUser,
+  states,
+  orderBy,
+}: UseReservationsProps): {
   reservations: ReservationType[];
   error: ApolloError;
   loading: boolean;

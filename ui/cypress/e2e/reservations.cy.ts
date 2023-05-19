@@ -19,6 +19,7 @@ import {
   checkoutButton,
   notificationCheckoutButton,
   notificationDeleteButton,
+  notificationContainer,
 } from "../model/reservation-creation";
 import {
   cancelButton,
@@ -42,10 +43,6 @@ import {
   errorNotificationCloseButton,
   errorNotification,
 } from "../model/notification";
-import {
-  notificationErrorTitle,
-  notificationTitle,
-} from "../model/application";
 
 describe("Tilavaraus user reservations", () => {
   beforeEach(() => {
@@ -375,11 +372,20 @@ describe("Tilavaraus user reservations", () => {
         );
       });
   });
+});
+
+describe("Unpaid reservation notification", () => {
+  beforeEach(() => {
+    Cypress.config("defaultCommandTimeout", 20000);
+
+    cy.window().then((win) => {
+      win.sessionStorage.clear();
+      cy.visit("/search");
+      cy.injectAxe();
+    });
+  });
 
   it("should checkout from notification button", () => {
-    detailButton().eq(0).click();
-    cy.url().should("match", /\/reservations\/22$/);
-
     notificationCheckoutButton()
       .click()
       .then(() => {
@@ -391,26 +397,13 @@ describe("Tilavaraus user reservations", () => {
   });
 
   it("should delete reservation from notification button", () => {
-    detailButton().eq(0).click();
-    cy.url().should("match", /\/reservations\/22$/);
-
     notificationDeleteButton()
       .click()
       .then(() => {
-        notificationDeleteButton().should("be.disabled");
-
-        cy.url().should("match", /\/reservations$/);
-      });
-  });
-
-  it("should delete reservation from notification button", () => {
-    cy.visit("/reservations/23");
-    cy.url().should("match", /\/reservations\/23$/);
-
-    notificationDeleteButton()
-      .click()
-      .then(() => {
-        notificationErrorTitle().should("contain", "Virhe");
+        notificationContainer().should(
+          "contain.text",
+          "Varauksesi on peruttu!"
+        );
       });
   });
 });

@@ -284,8 +284,10 @@ const Reservation = ({ termsOfUse, id }: Props): JSX.Element => {
     }
   }, [isUserUnauthenticated]);
 
-  const { reservation, loading, error } = useReservation(id);
-  const { order, loading: orderLoading } = useOrder(reservation?.orderUuid);
+  const { reservation, loading, error } = useReservation({ reservationPk: id });
+  const { order, loading: orderLoading } = useOrder({
+    orderUuid: reservation?.orderUuid,
+  });
 
   const reservationUnit = get(reservation?.reservationUnits, "0");
 

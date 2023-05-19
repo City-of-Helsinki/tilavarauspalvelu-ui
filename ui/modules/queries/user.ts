@@ -9,3 +9,13 @@ export const CURRENT_USER = gql`
     }
   }
 `;
+
+export const CURRENT_USER_GLOBAL = gql`
+  query getCurrentUserGlobal($referrer: String) {
+    currentUser(referrer: $referrer) {
+      pk
+      firstName
+      lastName
+    }
+  }
+`;
