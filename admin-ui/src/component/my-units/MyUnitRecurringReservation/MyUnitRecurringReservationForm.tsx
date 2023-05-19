@@ -55,6 +55,20 @@ const Grid = styled(BaseGrid)`
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
 
+const isReservationEq = (
+  a: NewReservationListItem,
+  b: NewReservationListItem
+) =>
+  a.date.getTime() === b.date.getTime() &&
+  a.endTime === b.endTime &&
+  a.startTime === b.startTime;
+
+const filterOutRemovedReservations = (
+  items: NewReservationListItem[],
+  removedReservations: NewReservationListItem[]
+) =>
+  items.filter((x) => !removedReservations.find((y) => isReservationEq(x, y)));
+
 /// @param items the checked list of all new reservations to make
 /// @param removedReservations the events the user wanted to remove
 /// @param setRemovedReservations update the user's list
@@ -74,13 +88,8 @@ const ReservationListEditor = ({
 }) => {
   const { t } = useTranslation();
 
-  const isEq = (a: NewReservationListItem, b: NewReservationListItem) =>
-    a.date.getTime() === b.date.getTime() &&
-    a.endTime === b.endTime &&
-    a.startTime === b.startTime;
-
   const handleRemove = (item: NewReservationListItem) => {
-    const fid = removedReservations.findIndex((x) => isEq(item, x));
+    const fid = removedReservations.findIndex((x) => isReservationEq(item, x));
     if (fid === -1) {
       setRemovedReservations([...removedReservations, item]);
     } else {
@@ -89,7 +98,7 @@ const ReservationListEditor = ({
   };
 
   const handleRestore = (item: NewReservationListItem) => {
-    const fid = removedReservations.findIndex((x) => isEq(item, x));
+    const fid = removedReservations.findIndex((x) => isReservationEq(item, x));
     if (fid !== -1) {
       setRemovedReservations([
         ...removedReservations.slice(0, fid),
@@ -104,7 +113,7 @@ const ReservationListEditor = ({
     if (x.isOverllaping) {
       return x;
     }
-    const elem = removedReservations.find((y) => isEq(x, y));
+    const elem = removedReservations.find((y) => isReservationEq(x, y));
     const isRemoved = elem !== undefined;
 
     return {
@@ -280,11 +289,16 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         const myDateTime = (date: Date, time: string) =>
           dateTime(format(date, "dd.MM.yyyy"), time);
 
-        // TODO see if this can be combined with ReservationDialog (it's very similar)
-        // FIXME remove all days here that the user didn't want (combine removed / reservations)
+        // TODO see if parts of this can be combined with ReservationDialog (it's very similar)
         // TODO should we also not run mutations for collisions? if yes
         // we need to show the collisions separately (they are currently from gql errors)
-        const rets = newReservations.reservations.map(async (x) => {
+        // Problem with that is we move validation logic from backend to frontend
+        // what would be better is to dry run mutation with same parameters that checks what is possible,
+        // otherwise we assume that our frontend logic is correct any logic changes needs to be done on both.
+        const rets = filterOutRemovedReservations(
+          newReservations.reservations,
+          removedReservations
+        ).map(async (x) => {
           const common = {
             startTime: x.startTime,
             endTime: x.endTime,
@@ -488,7 +502,10 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             <Element $wide>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
-                  count: newReservations.reservations.length,
+                  count: filterOutRemovedReservations(
+                    newReservations.reservations,
+                    removedReservations
+                  ).length,
                 })}
               </Label>
               <ReservationListEditor
