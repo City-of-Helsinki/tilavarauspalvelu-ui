@@ -14,7 +14,6 @@ export const CREATE_RECURRING_RESERVATION = gql`
   }
 `;
 
-// FIXME states (need others that are blocking)
 export const GET_RESERVATIONS_IN_INTERVAL = gql`
   query ReservationTimesInReservationUnit($pk: Int, $from: Date, $to: Date) {
     reservationUnitByPk(pk: $pk) {
@@ -22,7 +21,13 @@ export const GET_RESERVATIONS_IN_INTERVAL = gql`
         from: $from
         to: $to
         includeWithSameComponents: true
-        state: "CONFIRMED"
+        state: [
+          "CONFIRMED"
+          "CREATED"
+          "REQUIRES_HANDLING"
+          "WAITING_FOR_PAYMENT"
+          "CONFIRMED"
+        ]
       ) {
         begin
         end
