@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import type {
   Query,
   QueryReservationUnitByPkArgs,
@@ -16,6 +16,7 @@ import { useNotification } from "../../../context/NotificationContext";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { GET_RESERVATIONS_IN_INTERVAL } from "./queries";
 import { NewReservationListItem } from "../../ReservationsList";
+import { convertToDate, isOverllaping } from "./utils";
 
 export const useMultipleReservation = (
   form: UseFormReturn<RecurringReservationForm>,
@@ -116,42 +117,6 @@ export const useReservationsInInterval = ({
   );
 
   return { reservations, loading };
-};
-
-// TODO move the utility code somewhere else (we could use it in the calendar also)
-type DateRange = {
-  begin: Date;
-  end: Date;
-};
-
-// TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
-const isDateInRange = (a: Date, range: DateRange) => {
-  if (a > range.begin && a < range.end) {
-    return true;
-  }
-  return false;
-};
-
-// TODO write tests for this (there are some fail cases on full overlaps)
-// e.g. 9:00 - 10:00 and 9 - 10 overlap but this fails
-const isOverllaping = (a: DateRange, b: DateRange) => {
-  if (isDateInRange(a.begin, b) || isDateInRange(a.end, b)) {
-    return true;
-  }
-  if (isDateInRange(b.begin, a) || isDateInRange(b.end, a)) {
-    return true;
-  }
-  return false;
-};
-
-// TODO error boundaries so this doesn't happen
-const convertToDate = (d: Date, time: string) => {
-  try {
-    return parse(time, "HH:mm", d);
-  } catch (e) {
-    console.log("exception: ", e);
-    return undefined;
-  }
 };
 
 export const useFilteredReservationList = ({
