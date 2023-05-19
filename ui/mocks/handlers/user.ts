@@ -32,8 +32,7 @@ const currentUserGlobal = graphql.query(
     };
 
     // return global user for view in which reservation notification is wanted
-    const shouldReturnUser =
-      req.variables.referrer === "https://local-tilavaraus.hel.fi:3000/search";
+    const shouldReturnUser = req.variables.referrer.endsWith("/search");
     const data = shouldReturnUser ? { currentUser: user } : null;
     return res(ctx.data(data));
   }
