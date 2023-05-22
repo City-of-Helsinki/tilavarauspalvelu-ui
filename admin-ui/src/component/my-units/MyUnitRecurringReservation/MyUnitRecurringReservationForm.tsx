@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type {
   ErrorType,
@@ -157,8 +157,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     formState: { errors, isSubmitting, dirtyFields, isSubmitted },
   } = form;
 
-  const selectedReservationUnit = watch("reservationUnit");
-
   const reservationUnitOptions =
     reservationUnits.map((unit) => ({
       label: unit?.nameFi ?? "",
@@ -191,11 +189,19 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     NewReservationListItem[]
   >([]);
 
+  const selectedReservationUnit = watch("reservationUnit");
+
   const unit = selectedReservationUnit?.value;
 
   const { reservationUnit } = useReservationUnitQuery(
     unit ? Number(unit) : undefined
   );
+
+  // Reset removed when time change (infi loop if array is unwrapped)
+  const [startTime, endTime] = watch(["startTime", "endTime"]);
+  useEffect(() => {
+    setRemovedReservations([]);
+  }, [startTime, endTime, reservationUnit]);
 
   // TODO these are problematic since there is no test case for them
   // they are the same in the single reservation but the use case and design isn't clear.
@@ -539,6 +545,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             >
               {t("common.cancel")}
             </Button>
+            {/* TODO disable button if there is no reservations to make but the form is complete */}
             <Button variant="primary" type="submit" isLoading={isSubmitting}>
               {t("common.reserve")}
             </Button>
