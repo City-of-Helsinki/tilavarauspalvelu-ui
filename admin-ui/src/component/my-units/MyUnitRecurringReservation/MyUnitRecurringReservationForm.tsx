@@ -233,7 +233,12 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
       notifyError(t(translateError("formNotValid")));
       return;
     }
-    if (newReservations.reservations.length === 0) {
+    const reservationsToMake = filterOutRemovedReservations(
+      checkedReservations,
+      removedReservations
+    ).filter((x) => !x.isOverlapping);
+
+    if (reservationsToMake.length === 0) {
       notifyError(t(translateError("noReservations")));
       return;
     }
@@ -292,19 +297,12 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         );
       } else {
         // TODO this is common with the ReservationForm combine them
+        // TODO use safeFormat (with no exceptions) (toApiDate with formatStr)
         const myDateTime = (date: Date, time: string) =>
           dateTime(format(date, "dd.MM.yyyy"), time);
 
         // TODO see if parts of this can be combined with ReservationDialog (it's very similar)
-        // TODO should we also not run mutations for collisions? if yes
-        // we need to show the collisions separately (they are currently from gql errors)
-        // Problem with that is we move validation logic from backend to frontend
-        // what would be better is to dry run mutation with same parameters that checks what is possible,
-        // otherwise we assume that our frontend logic is correct any logic changes needs to be done on both.
-        const rets = filterOutRemovedReservations(
-          newReservations.reservations,
-          removedReservations
-        ).map(async (x) => {
+        const rets = reservationsToMake.map(async (x) => {
           const common = {
             startTime: x.startTime,
             endTime: x.endTime,
@@ -402,6 +400,11 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           )
         )
       : "";
+
+  const newReservationsToMake = filterOutRemovedReservations(
+    checkedReservations,
+    removedReservations
+  ).filter((x) => !x.isOverlapping);
 
   return (
     <FormProvider {...form}>
@@ -508,10 +511,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             <Element $wide>
               <Label $bold>
                 {t(`${TRANS_PREFIX}.reservationsList`, {
-                  count: filterOutRemovedReservations(
-                    newReservations.reservations,
-                    removedReservations
-                  ).length,
+                  count: newReservationsToMake.length,
                 })}
               </Label>
               <ReservationListEditor
@@ -546,7 +546,12 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
               {t("common.cancel")}
             </Button>
             {/* TODO disable button if there is no reservations to make but the form is complete */}
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={isSubmitting}
+              disabled={newReservationsToMake.length === 0}
+            >
               {t("common.reserve")}
             </Button>
           </ActionsWrapper>
