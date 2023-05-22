@@ -153,7 +153,7 @@ export const useReservations = ({
       variables: {
         ...(states?.length > 0 && { state: states }),
         ...(orderBy && { orderBy }),
-        user: currentUser?.pk.toString(),
+        user: currentUser?.pk?.toString(),
       },
       fetchPolicy: "no-cache",
     }
