@@ -1,12 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
-import {
-  ReservationType,
-  ReservationsReservationStateChoices,
-} from "common/types/gql-types";
+import { ReservationsReservationStateChoices } from "common/types/gql-types";
 import { BlackButton, Toast } from "../../styles/util";
 import {
   useReservations,
@@ -28,6 +25,10 @@ const NotificationContent = styled.div`
   }
 `;
 
+const BodyText = styled.p`
+  margin: 0;
+`;
+
 const NotificationButtons = styled.div`
   display: flex;
   gap: var(--spacing-s);
@@ -41,8 +42,6 @@ const ReservationNotification = () => {
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
-  const [reservation, setReservation] = React.useState<ReservationType>(null);
-
   const { currentUser } = useCurrentUser({ global: true });
   const { reservations } = useReservations({
     currentUser,
@@ -50,16 +49,9 @@ const ReservationNotification = () => {
     orderBy: "-pk",
   });
 
-  useEffect(() => {
-    if (reservations?.length) {
-      setReservation(
-        reservations.find(
-          (r) =>
-            r.state === ReservationsReservationStateChoices.WaitingForPayment
-        )
-      );
-    }
-  }, [reservations]);
+  const reservation = reservations?.find(
+    (r) => r.state === ReservationsReservationStateChoices.WaitingForPayment
+  );
 
   const { order } = useOrder({ orderUuid: reservation?.orderUuid });
 
@@ -102,21 +94,23 @@ const ReservationNotification = () => {
       closeButtonLabelText={t("common:close")}
     >
       <NotificationContent>
-        <div>{t("notification:waitingForPayment.body")}</div>
+        <BodyText>{t("notification:waitingForPayment.body")}</BodyText>
         <NotificationButtons>
           <BlackButton
             variant="secondary"
             size="small"
-            onClick={() =>
-              deleteReservation({
-                variables: {
-                  input: {
-                    pk: reservation.pk,
+            onClick={() => {
+              if (reservation?.pk) {
+                deleteReservation({
+                  variables: {
+                    input: {
+                      pk: reservation.pk,
+                    },
                   },
-                },
-              })
-            }
-            disabled={deleteLoading}
+                });
+              }
+            }}
+            disabled={deleteLoading || !reservation?.pk}
             data-testid="reservation-notification__button--delete"
           >
             {t("notification:waitingForPayment.cancelReservation")}

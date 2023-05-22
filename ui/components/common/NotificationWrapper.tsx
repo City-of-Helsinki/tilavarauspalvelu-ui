@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Notification } from "hds-react";
+import { Notification, NotificationProps } from "hds-react";
 import { breakpoints } from "common/src/common/style";
 
 const Wrapper = styled.div`
@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const NotificationWrapper = (props): JSX.Element => {
+const NotificationWrapper = (props: NotificationProps): JSX.Element => {
   const [isVisible, setIsVisible] = React.useState(true);
 
   return isVisible ? (
