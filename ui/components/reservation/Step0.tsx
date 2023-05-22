@@ -90,7 +90,12 @@ const Step0 = ({
     formState: { errors, isSubmitted },
   } = useFormContext();
 
-  const errorKeys = Object.keys(errors) || [];
+  const errorKeys =
+    Object.keys(errors).sort((a, b) => {
+      const fields = [...generalFields, ...reservationApplicationFields];
+      return fields.indexOf(a) - fields.indexOf(b);
+    }) || [];
+
   if (isSubmitted && !reserveeType) errorKeys.push("reserveeType");
 
   return (
