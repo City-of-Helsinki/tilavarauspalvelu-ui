@@ -16,7 +16,7 @@ import { useNotification } from "../../../context/NotificationContext";
 import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { GET_RESERVATIONS_IN_INTERVAL } from "./queries";
 import { NewReservationListItem } from "../../ReservationsList";
-import { convertToDate, isOverllaping } from "./utils";
+import { DateRange, convertToDate, isOverlapping } from "./utils";
 
 export const useMultipleReservation = (
   form: UseFormReturn<RecurringReservationForm>,
@@ -139,30 +139,32 @@ export const useFilteredReservationList = ({
     end,
   });
 
+  const isReservationInsideRange = (
+    res: NewReservationListItem,
+    range: DateRange
+  ) => {
+    const startDate = convertToDate(res.date, res.startTime);
+    const endDate = convertToDate(res.date, res.endTime);
+    if (startDate && endDate) {
+      return isOverlapping(
+        {
+          begin: startDate,
+          end: endDate,
+        },
+        range
+      );
+    }
+    return false;
+  };
+
   // TODO check if useMemo is necessary?
   return useMemo(() => {
     if (reservations.length === 0) {
       return items;
     }
     const tested = items.map((x) =>
-      reservations.find((y) => {
-        const startDate = convertToDate(x.date, x.startTime);
-        const endDate = convertToDate(x.date, x.endTime);
-        if (startDate && endDate) {
-          // FIXME this check fails if the dates are 9:00 - 10:00 and 9:00 - 11:00
-          // similarly 9:00 - 10:00 and 9:00 - 10:00 fails for another event
-          // i.e. one event matches the other while the other matches the other
-          return isOverllaping(
-            {
-              begin: startDate,
-              end: endDate,
-            },
-            y
-          );
-        }
-        return false;
-      })
-        ? { ...x, isOverllaping: true }
+      reservations.find((y) => isReservationInsideRange(x, y))
+        ? { ...x, isOverlapping: true }
         : x
     );
     return tested;

@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, expect, test } from "@jest/globals";
 import { set } from "date-fns";
-import { convertToDate, isOverllaping } from "./utils";
+import { convertToDate, isOverlapping } from "./utils";
 
 // TODO even if this function works the actual date conversion might include seconds and ms
 describe("isOverlapping", () => {
@@ -15,7 +15,8 @@ describe("isOverlapping", () => {
       begin: set(d, { hours: 22, minutes: 0 }),
       end: set(d, { hours: 23, minutes: 0 }),
     };
-    expect(isOverllaping(r1, r2)).toBeTruthy();
+    expect(isOverlapping(r1, r2)).toBeTruthy();
+    expect(isOverlapping(r2, r1)).toBeTruthy();
   });
 
   test("9:15 - 10:15 and 9:00 - 10:00 on the same day overlap", () => {
@@ -28,7 +29,8 @@ describe("isOverlapping", () => {
       begin: set(d, { hours: 10, minutes: 0 }),
       end: set(d, { hours: 11, minutes: 0 }),
     };
-    expect(isOverllaping(r1, r2)).toBeTruthy();
+    expect(isOverlapping(r1, r2)).toBeTruthy();
+    expect(isOverlapping(r2, r1)).toBeTruthy();
   });
 
   test("ranges 9:00 - 10:00 and 9:00 - 10:00 on the same day overlap", () => {
@@ -37,13 +39,14 @@ describe("isOverlapping", () => {
       begin: set(d, { hours: 9, minutes: 0 }),
       end: set(d, { hours: 10, minutes: 0 }),
     };
-    expect(isOverllaping(r1, r1)).toBeTruthy();
+    expect(isOverlapping(r1, r1)).toBeTruthy();
   });
 
   test("two ranges on different days have no overlap", () => {
     const r1 = { begin: new Date(2024, 1, 1), end: new Date(2024, 1, 2) };
     const r2 = { begin: new Date(2024, 1, 3), end: new Date(2024, 1, 4) };
-    expect(isOverllaping(r1, r2)).toBeFalsy();
+    expect(isOverlapping(r1, r2)).toBeFalsy();
+    expect(isOverlapping(r2, r1)).toBeFalsy();
   });
 
   test("ranges 9:00 - 10:00 and 10:00 - 11:00 on the same day have no overlap", () => {
@@ -56,7 +59,8 @@ describe("isOverlapping", () => {
       begin: set(d, { hours: 10, minutes: 0 }),
       end: set(d, { hours: 11, minutes: 0 }),
     };
-    expect(isOverllaping(r1, r2)).toBeFalsy();
+    expect(isOverlapping(r1, r2)).toBeFalsy();
+    expect(isOverlapping(r2, r1)).toBeFalsy();
   });
 
   // TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?

@@ -110,7 +110,7 @@ const ReservationListEditor = ({
   };
 
   const itemsWithButtons = items.map((x) => {
-    if (x.isOverllaping) {
+    if (x.isOverlapping) {
       return x;
     }
     const elem = removedReservations.find((y) => isReservationEq(x, y));
