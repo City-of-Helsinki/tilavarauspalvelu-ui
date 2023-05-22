@@ -380,7 +380,7 @@ describe("Unpaid reservation notification", () => {
 
     cy.window().then((win) => {
       win.sessionStorage.clear();
-      cy.visit("/search");
+      cy.visit("/search/single");
       cy.injectAxe();
     });
   });

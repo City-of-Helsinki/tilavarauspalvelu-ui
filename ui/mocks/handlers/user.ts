@@ -32,7 +32,9 @@ const currentUserGlobal = graphql.query(
     };
 
     // return global user for view in which reservation notification is wanted
-    const shouldReturnUser = req.variables.referrer.endsWith("/search");
+    const headers = req.headers.all();
+    const xReferrer = headers["x-referrer"];
+    const shouldReturnUser = xReferrer?.endsWith("/search/single");
     const data = shouldReturnUser ? { currentUser: user } : null;
     return res(ctx.data(data));
   }

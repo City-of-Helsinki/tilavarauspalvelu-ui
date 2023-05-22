@@ -16,7 +16,12 @@ export const useCurrentUser = ({
   const query = global ? CURRENT_USER_GLOBAL : CURRENT_USER;
   const { data, error, loading } = useQuery<Query>(query, {
     fetchPolicy: "no-cache",
-    variables: { referrer: window?.location?.href },
+    context: {
+      headers: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        "x-referrer": window?.location?.href,
+      },
+    },
   });
 
   return {
