@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
-import { format } from "date-fns";
+import { toApiDate } from "common/src/common/util";
 import type {
   Query,
   QueryReservationUnitByPkArgs,
@@ -93,11 +93,14 @@ export const useReservationsInInterval = ({
     QueryReservationUnitByPkArgs & ReservationUnitByPkTypeReservationsArgs
   >(GET_RESERVATIONS_IN_INTERVAL, {
     skip:
-      !reservationUnitPk || Number.isNaN(reservationUnitPk) || !begin || !end,
+      !reservationUnitPk ||
+      Number.isNaN(reservationUnitPk) ||
+      !toApiDate(begin) ||
+      !toApiDate(end),
     variables: {
       pk: reservationUnitPk,
-      from: begin ? format(begin, "yyyy-MM-dd") : undefined,
-      to: end ? format(end, "yyyy-MM-dd") : undefined,
+      from: toApiDate(begin),
+      to: toApiDate(end),
     },
     onError: (err) => {
       notifyError(err.message);
