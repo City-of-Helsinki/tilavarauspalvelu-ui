@@ -64,15 +64,27 @@ const btn = [
 
 const RecurringReservationDone = () => {
   const location = useLocation();
-  const props = z.array(ReservationMadeSchema).parse(location.state);
-
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const failed = props
+  const props = z.array(ReservationMadeSchema).safeParse(location.state);
+
+  const handleGoToReservation = (id: number) => {
+    const url = `/reservations/${id}`;
+    navigate(url);
+  };
+
+  if (!props.success) {
+    return (
+      <div>ERROR: No data in completed reservation: Should not be here</div>
+    );
+  }
+
+  const failed = props.data
     .filter(({ error }) => error != null)
     .map(({ error, ...x }) => ({ ...x, error: String(error) }));
 
-  const successes = props
+  const successes = props.data
     .filter((x) => x.error == null)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .map(({ error, ...x }) => x)
@@ -82,23 +94,12 @@ const RecurringReservationDone = () => {
       buttons: [ReservationListButton({ ...btn[i % 2], t })],
     }));
 
-  const navigate = useNavigate();
-
   const locPrefix = "MyUnits.RecurringReservation.Confirmation";
 
   const reservationId = successes.map((x) => x.reservationPk).find(() => true);
 
   // TODO holidays not implemented
   const holidays = 0;
-
-  const handleGoToReservation = (id: number) => {
-    const url = `/reservations/${id}`;
-    navigate(url);
-  };
-
-  if (!props) {
-    return <div>No data in completed reservation: Should not be here</div>;
-  }
 
   return (
     <StyledContainer>
@@ -108,14 +109,14 @@ const RecurringReservationDone = () => {
           {failed.length === 0
             ? t(`${locPrefix}.successInfo`)
             : t(`${locPrefix}.failureInfo`, {
-                total: props.length,
+                total: props.data.length,
                 conflicts: failed.length,
               })}
         </span>
         {holidays > 0 && (
           <span>
             {t(`${locPrefix}.holidayInfo`, {
-              total: props.length,
+              total: props.data.length,
               holidays: 0,
             })}
           </span>
