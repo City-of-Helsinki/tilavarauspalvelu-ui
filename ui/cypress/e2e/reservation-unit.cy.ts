@@ -668,7 +668,7 @@ describe("with metadataset", () => {
     cy.get('button[type="submit"]').click();
     cy.get("#reserveeEmail-error").should(
       "contain.text",
-      "Sähköpostin tulee olla oikeassa muodossa (sisältäen @-merkin, ilman ääkkösiä)"
+      "Sähköpostin tulee olla oikeassa muodossa (sisältäen @-merkin)"
     );
 
     cy.get("#reserveeFirstName").clear().type("Forename");
