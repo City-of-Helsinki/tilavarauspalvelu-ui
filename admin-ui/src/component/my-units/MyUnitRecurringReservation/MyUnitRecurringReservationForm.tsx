@@ -481,6 +481,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
               error={getZodError("startTime")}
               disabled={reservationUnit == null}
               required
+              testId="recurring-reservation-start-time"
             />
           </Element>
           <Element>
@@ -490,6 +491,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
               error={getZodError("endTime")}
               disabled={reservationUnit == null}
               required
+              testId="recurring-reservation-end-time"
             />
           </Element>
 

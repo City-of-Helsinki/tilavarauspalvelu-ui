@@ -131,7 +131,7 @@ const ReservationList = ({
   if (!items.length) return null;
 
   return (
-    <ListWrapper>
+    <ListWrapper data-testid="reservations-list">
       {header}
       <StyledList $hasPadding={hasPadding ?? false}>
         {items.map((item) => (
