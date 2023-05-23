@@ -87,7 +87,7 @@ const StatusElement = ({ item }: { item: NewReservationListItem }) => {
     if (x.isOverlapping) {
       return {
         isError: true,
-        msg: "MyUnits.RecurringReservation.Confirmation.overllaping",
+        msg: "MyUnits.RecurringReservation.Confirmation.overlapping",
       };
     }
     if (x.isRemoved) {

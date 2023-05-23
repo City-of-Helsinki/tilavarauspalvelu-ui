@@ -322,7 +322,7 @@ const translations: ITranslations = {
       pageTitle: ["Tee toistuva varaus"],
       Confirmation: {
         removed: ["Poistettu"],
-        overllaping: ["Ei saatavilla"],
+        overlapping: ["Ei saatavilla"],
         title: ["Toistuva varaus tehty"],
         failedTitle: ["Epäonnistuneet varaukset"],
         successTitle: ["Varaukset"],
