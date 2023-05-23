@@ -2,7 +2,7 @@
   "clearSelection": "Clear selection",
   "selectAll": "Select all",
   "inputPlaceholder": "Search",
-  "invalidEmail": " Email must be in right format (including @ symbol, without letters ä, ö or å)",
+  "invalidEmail": "Email must be in right format (including @ symbol)",
   "invalidReserveeId": "Business ID must have at least three digits",
   "required": "Required field",
   "requiredField": "{{prefix}} {{fieldName}}",
@@ -12,7 +12,6 @@
   "maxNumPersons": "Number of participants can be maximum {{maxValue}} persons",
   "minLength": "Value is too short",
   "maxLength": "Value is too long",
-  "invalidPhoneNumber": "Phone number must have at least {{minLength}} digits",
   "prefix": {
     "text": "Enter",
     "select": "Select",

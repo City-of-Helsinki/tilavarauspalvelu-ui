@@ -123,12 +123,6 @@ const ControlledCheckbox = (props: {
   />
 );
 
-const validation = {
-  phone: {
-    minLength: 9,
-  },
-};
-
 const ReservationFormField = ({
   field,
   options,
@@ -236,10 +230,6 @@ const ReservationFormField = ({
           return t("forms:maxNumPersons", { maxValue });
         break;
       case "minLength":
-        if (field === "reserveePhone")
-          return t("forms:invalidPhoneNumber", {
-            minLength: validation.phone.minLength,
-          });
         if (field === "reserveeId") return t("forms:invalidReserveeId");
         return t("forms:minLength");
       case "maxLength":
@@ -270,7 +260,7 @@ const ReservationFormField = ({
   };
 
   const emailPattern = {
-    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+    value: /^[A-ZÖÄÅ0-9._%+-]+@[A-ZÖÄÅ0-9.-]+\.[A-ZÖÄÅ]{2,}$/i,
     message: "email",
   };
 
@@ -412,9 +402,6 @@ const ReservationFormField = ({
         required,
         ...(isEmailField && {
           pattern: emailPattern,
-        }),
-        ...(field === "reserveePhone" && {
-          minLength: validation.phone.minLength,
         }),
       })}
       key={field}

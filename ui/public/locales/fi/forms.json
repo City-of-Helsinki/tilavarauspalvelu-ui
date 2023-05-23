@@ -2,7 +2,7 @@
   "clearSelection": "Tyhjennä valinnat",
   "selectAll": "Valitse kaikki",
   "inputPlaceholder": "Kirjoita hakusana",
-  "invalidEmail": "Sähköpostin tulee olla oikeassa muodossa (sisältäen @-merkin, ilman ääkkösiä)",
+  "invalidEmail": "Sähköpostin tulee olla oikeassa muodossa (sisältäen @-merkin)",
   "invalidReserveeId": "Y-tunnuksen tulee olla vähintään kolme merkkiä",
   "required": "Pakollinen tieto",
   "requiredField": "{{prefix}} {{fieldName}}",
@@ -12,7 +12,6 @@
   "maxNumPersons": "Osallistujamäärä voi olla enintään {{maxValue}} henkilöä",
   "minLength": "Arvo on liian lyhyt",
   "maxLength": "Arvo on liian pitkä",
-  "invalidPhoneNumber": "Puhelinnumerossa tulee olla vähintään {{minLength}} merkkiä",
   "prefix": {
     "text": "Syötä",
     "select": "Valitse",

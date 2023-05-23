@@ -2,7 +2,7 @@
   "clearSelection": "Töm valen",
   "selectAll": "Välj alla",
   "inputPlaceholder": "Skriv sökord",
-  "invalidEmail": "E-postaddress måste vara i korrekt format (inklusive @-symbol, utan ä, ö or å)",
+  "invalidEmail": "E-postaddress måste vara i korrekt format (inklusive @-symbol)",
   "invalidReserveeId": "FO-nummer måste ha minst tre siffror",
   "required": "Obligatorisk",
   "requiredField": "{{prefix}} {{fieldName}}",
@@ -12,7 +12,6 @@
   "maxNumPersons": "Number of participants can be maximum {{maxValue}} persons",
   "minLength": "Värdet är för kort",
   "maxLength": "Värdet är för långt",
-  "invalidPhoneNumber": "Telefonnummer måste ha minst {{minLength}} siffror",
   "prefix": {
     "text": "Ange",
     "select": "Välj",
