@@ -74,9 +74,7 @@ const filterOutRemovedReservations = (
 /// @param setRemovedReservations update the user's list
 /// Using two arrays because modifiying single array causes the hooks to rerun
 /// flow: user makes a time selection => do a query => allow user to disable dates.
-/// TODO check that we clear the removed array when the user changes time selection
-/// TODO this requires some performance testing
-/// it's probably not great but is it good enough?
+// TODO there is a key error here, because this components gets recreated?
 const ReservationListEditor = ({
   items,
   removedReservations,
@@ -129,7 +127,9 @@ const ReservationListEditor = ({
     };
   });
 
-  return <ReservationList items={itemsWithButtons} hasPadding />;
+  return (
+    <ReservationList key="list-editor" items={itemsWithButtons} hasPadding />
+  );
 };
 
 type Props = {
@@ -218,6 +218,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     reservationUnit?.reservationStartInterval
   );
 
+  // FIXME this fails on the last element if selected endingDate is blocked (at least if the time is same)
+  // do we need to query for date + 1?
   const checkedReservations = useFilteredReservationList({
     items: newReservations.reservations,
     reservationUnitPk: reservationUnit?.pk ?? undefined,
@@ -545,7 +547,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
             >
               {t("common.cancel")}
             </Button>
-            {/* TODO disable button if there is no reservations to make but the form is complete */}
             <Button
               variant="primary"
               type="submit"

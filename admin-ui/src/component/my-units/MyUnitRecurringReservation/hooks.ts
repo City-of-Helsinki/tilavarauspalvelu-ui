@@ -17,6 +17,7 @@ import { RECURRING_RESERVATION_UNIT_QUERY } from "../queries";
 import { GET_RESERVATIONS_IN_INTERVAL } from "./queries";
 import { NewReservationListItem } from "../../ReservationsList";
 import { DateRange, convertToDate, isOverlapping } from "./utils";
+import { addDays } from "date-fns";
 
 export const useMultipleReservation = (
   form: UseFormReturn<RecurringReservationForm>,
@@ -76,6 +77,7 @@ export const useRecurringReservationsUnits = (unitId: number) => {
 // in an interval can easily be more than 2000
 // to be fair it would require a complex cache strategy to allow extending the range without refetching everything
 // so if the date is moved by one in a 1 year range that would refetch everything
+// TODO Write a mock test for it but since it's inside another query it might return all of them even if they are thousands
 export const useReservationsInInterval = ({
   begin,
   end,
@@ -87,6 +89,10 @@ export const useReservationsInInterval = ({
 }) => {
   const { notifyError } = useNotification();
 
+  const apiStart = toApiDate(begin);
+  // NOTE backend error, it returns all till 00:00 not 23:59
+  const apiEnd = toApiDate(addDays(end, 1));
+
   // TODO check if we have more than 100 elements
   const { loading, data } = useQuery<
     Query,
@@ -95,12 +101,12 @@ export const useReservationsInInterval = ({
     skip:
       !reservationUnitPk ||
       Number.isNaN(reservationUnitPk) ||
-      !toApiDate(begin) ||
-      !toApiDate(end),
+      !apiStart ||
+      !apiEnd,
     variables: {
       pk: reservationUnitPk,
-      from: toApiDate(begin),
-      to: toApiDate(end),
+      from: apiStart,
+      to: apiEnd,
     },
     onError: (err) => {
       notifyError(err.message);
