@@ -23,6 +23,7 @@ const ReservationListButton = ({
     variant: "supplementary",
     onClick: callback,
     size: "small",
+    key: type,
   } as const;
 
   switch (type) {
