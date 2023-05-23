@@ -8,8 +8,8 @@
   "requiredField": "{{prefix}} {{fieldName}}",
   "min": "Värdet är för litet",
   "max": "Värdet är för stort",
-  "minNumPersons": "Antalet deltagare måste vara kan vara minimum {{minValue}} personer",
-  "maxNumPersons": "Number of participants can be maximum {{maxValue}} persons",
+  "minNumPersons": "Antalet deltagare kan vara minimum {{minValue}} personer",
+  "maxNumPersons": "Antalet deltagare kan vara maximalt {{maxValue}} personer",
   "minLength": "Värdet är för kort",
   "maxLength": "Värdet är för långt",
   "prefix": {
