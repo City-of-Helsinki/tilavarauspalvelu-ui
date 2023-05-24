@@ -33,7 +33,10 @@ const SingleReservationUnitFilter = ({
       label: reservationUnit?.nameFi ?? "",
       value: reservationUnit?.pk ?? "",
     }));
-  const valueOption = options.find((o) => o.value === value?.value);
+  const valueOption = options.find((o) => o.value === value?.value) ?? {
+    value: "",
+    label: "",
+  };
 
   return (
     <SortedSelect
