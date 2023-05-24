@@ -90,8 +90,6 @@ const ReservationListEditor = ({
     const fid = removedReservations.findIndex((x) => isReservationEq(item, x));
     if (fid === -1) {
       setRemovedReservations([...removedReservations, item]);
-    } else {
-      console.error("remove called while the element was already removed");
     }
   };
 
@@ -102,8 +100,6 @@ const ReservationListEditor = ({
         ...removedReservations.slice(0, fid),
         ...removedReservations.slice(fid + 1),
       ]);
-    } else {
-      console.error("restore called without removal");
     }
   };
 
