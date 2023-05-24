@@ -77,7 +77,9 @@ const UnitReservationsView = (): JSX.Element => {
       <Grid>
         <Span4>
           <ReservationUnitTypeFilter
-            style={{ zIndex: 11 }}
+            style={{
+              zIndex: "var(--tilavaraus-admin-stack-select-over-calendar)",
+            }}
             value={state.reservationUnitType}
             onChange={(reservationUnitType) => {
               dispatch({ type: "set", value: { reservationUnitType } });

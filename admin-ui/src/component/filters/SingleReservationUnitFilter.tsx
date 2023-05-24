@@ -21,7 +21,10 @@ const SingleReservationUnitFilter = ({
   const { t } = useTranslation();
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
     RESERVATION_UNITS_QUERY,
-    { variables: { unit: [unitPk as string] } }
+    {
+      variables: { unit: [unitPk ?? ""] },
+      skip: !unitPk,
+    }
   );
 
   const options = (data?.reservationUnits?.edges || [])
@@ -34,7 +37,7 @@ const SingleReservationUnitFilter = ({
 
   return (
     <SortedSelect
-      style={{ zIndex: 11 }}
+      style={{ zIndex: "var(--tilavaraus-admin-stack-select-over-calendar)" }}
       disabled={loading}
       sort
       label={t("ReservationUnitsFilter.label")}
