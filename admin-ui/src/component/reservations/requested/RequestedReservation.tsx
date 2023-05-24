@@ -731,7 +731,7 @@ const RequestedReservation = (): JSX.Element | null => {
                 label={t("RequestedReservation.addressStreet")}
                 data={
                   <>
-                    <span>{reservation.reserveeAddressStreet ?? ""}</span>
+                    <span>{reservation.reserveeAddressStreet || "-"}</span>
                     <br />
                     <span>
                       {reservation.reserveeAddressZip ||
@@ -744,7 +744,7 @@ const RequestedReservation = (): JSX.Element | null => {
               />
               <ApplicationData
                 label={t("RequestedReservation.addressCity")}
-                data={reservation.reserveeAddressCity}
+                data={reservation.reserveeAddressCity || "-"}
               />
             </ApplicationDatas>
           </Accordion>
