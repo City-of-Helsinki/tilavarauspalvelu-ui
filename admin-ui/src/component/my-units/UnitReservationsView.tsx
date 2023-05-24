@@ -8,13 +8,12 @@ import { useLocation } from "react-use";
 import styled from "styled-components";
 import { useQueryParams } from "../../common/hooks";
 import { OptionType } from "../../common/types";
-import { myUnitUrl } from "../../common/urls";
 import { Grid, Span4, VerticalFlex } from "../../styles/layout";
-import { BasicLink } from "../../styles/util";
 import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
 import Tags, { getReducer, toTags } from "../lists/Tags";
 import DayNavigation from "./DayNavigation";
 import UnitReservations from "./UnitReservations";
+import { HR } from "../lists/components";
 
 const HorisontalFlexWrapper = styled.div`
   display: flex;
@@ -66,12 +65,6 @@ const UnitReservationsView = (): JSX.Element => {
     "UnitReservationsView"
   );
 
-  // NOTE This should never happen but the code should be restructured so it can't happen
-  const recurringReservationUrl =
-    unitId != null
-      ? `${myUnitUrl(parseInt(unitId, 10))}/recurring-reservation`
-      : null;
-
   return (
     <VerticalFlex>
       <Grid>
@@ -88,10 +81,13 @@ const UnitReservationsView = (): JSX.Element => {
         </Span4>
       </Grid>
       <Tags tags={tags} dispatch={dispatch} t={t} />
+      <HR />
       <HorisontalFlexWrapper>
         <Button
           disabled={false}
           variant="secondary"
+          theme="black"
+          size="small"
           onClick={() => {
             onDateChange({ date: new Date() });
           }}
@@ -99,15 +95,7 @@ const UnitReservationsView = (): JSX.Element => {
           {t("common.today")}
         </Button>
         <DayNavigation date={begin} onDateChange={onDateChange} />
-        <BasicLink to={recurringReservationUrl ?? ""}>
-          <Button
-            disabled={false}
-            variant="secondary"
-            style={{ width: "100%" }}
-          >
-            {t("MyUnits.Calendar.header.recurringReservation")}
-          </Button>
-        </BasicLink>
+        <div />
       </HorisontalFlexWrapper>
       {unitId ? (
         <UnitReservations

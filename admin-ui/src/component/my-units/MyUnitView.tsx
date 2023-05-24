@@ -3,16 +3,18 @@ import { H1 } from "common/src/common/typography";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { LoadingSpinner } from "hds-react";
+import { Button, LoadingSpinner, Tabs as HDSTabs } from "hds-react";
 import { breakpoints } from "common/src/common/style";
 import { publicUrl } from "../../common/const";
 import { parseAddress } from "../../common/util";
 import { Container } from "../../styles/layout";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 import withMainMenu from "../withMainMenu";
+import { myUnitUrl } from "../../common/urls";
+import { BasicLink } from "../../styles/util";
 import ReservationUnitCalendarView from "./ReservationUnitCalendarView";
 import UnitReservationsView from "./UnitReservationsView";
-import { TabHeader, TabPanel, Tabs } from "../Tabs";
+import { TabHeader, Tabs } from "../Tabs";
 import { useUnitQuery } from "./hooks";
 
 type Params = {
@@ -29,6 +31,23 @@ const ContainerHack = styled(Container)`
 const LocationOnlyOnDesktop = styled.p`
   @media (max-width: ${breakpoints.s}) {
     display: none;
+  }
+`;
+
+const ContainerWithSpacing = styled.div`
+  margin: var(--spacing-s) 0;
+  @media (min-width: ${breakpoints.m}) {
+    margin: var(--spacing-m) 0;
+  }
+`;
+
+// NOTE overflow-x if the 1st isn't grid and 2nd block
+const TabPanel = styled(HDSTabs.TabPanel)`
+  padding-block: var(--spacing-m);
+`;
+const TabPanel1 = styled(TabPanel)`
+  & > div {
+    display: grid;
   }
 `;
 
@@ -55,6 +74,12 @@ const MyUnitView = () => {
     return <LoadingSpinner />;
   }
 
+  // NOTE This should never happen but the code should be restructured so it can't happen
+  const recurringReservationUrl =
+    unitId != null
+      ? `${myUnitUrl(parseInt(unitId, 10))}/recurring-reservation`
+      : null;
+
   return (
     <>
       <BreadcrumbWrapper
@@ -62,18 +87,30 @@ const MyUnitView = () => {
         aliases={[{ slug: "unit", title: unit.nameFi ?? "unnamed unit" }]}
       />
       <ContainerHack>
-        <div>
+        <ContainerWithSpacing>
           <H1 $legacy>{unit?.nameFi}</H1>
           {unit.location && (
             <LocationOnlyOnDesktop>
               {parseAddress(unit.location)}
             </LocationOnlyOnDesktop>
           )}
-        </div>
+        </ContainerWithSpacing>
+        <ContainerWithSpacing>
+          <BasicLink to={recurringReservationUrl ?? ""}>
+            <Button
+              disabled={!recurringReservationUrl}
+              variant="secondary"
+              theme="black"
+              size="small"
+            >
+              {t("MyUnits.Calendar.header.recurringReservation")}
+            </Button>
+          </BasicLink>
+        </ContainerWithSpacing>
         <Tabs headers={TabHeaders}>
-          <TabPanel key="unit-reservations">
+          <TabPanel1 key="unit-reservations">
             <UnitReservationsView />
-          </TabPanel>
+          </TabPanel1>
           <TabPanel key="reservation-unit">
             <ReservationUnitCalendarView />
           </TabPanel>

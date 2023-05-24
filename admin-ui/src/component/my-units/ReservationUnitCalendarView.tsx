@@ -1,19 +1,11 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { addDays, formatISO, startOfDay, subDays } from "date-fns";
-import styled from "styled-components";
 
 import SingleReservationUnitFilter from "../filters/SingleReservationUnitFilter";
 import { Grid, HorisontalFlex, Span6 } from "../../styles/layout";
 import ReservationUnitCalendar from "./ReservationUnitCalendar";
 import WeekNavigation from "./WeekNavigation";
-
-// NOTE something sets the child div to grid which causes overflow on mobile
-const Block = styled.div`
-  && {
-    display: block;
-  }
-`;
 
 type Params = {
   unitId: string;
@@ -42,7 +34,7 @@ const ReservationUnitCalendarView = (): JSX.Element => {
         </Span6>
       </Grid>
       {hasReservationUnitId && (
-        <Block>
+        <>
           <HorisontalFlex style={{ justifyContent: "center" }}>
             <WeekNavigation
               date={begin}
@@ -59,7 +51,7 @@ const ReservationUnitCalendarView = (): JSX.Element => {
             begin={begin}
             reservationUnitPk={reservationUnitId}
           />
-        </Block>
+        </>
       )}
     </>
   );
