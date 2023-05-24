@@ -561,9 +561,6 @@ test("Form submission with a lot of blocking reservations", async () => {
   const typeStaff = screen.getByLabelText(/STAFF/);
   await userEvent.click(typeStaff);
 
-  const list = view.getByTestId("reservations-list");
-  expect(list).toBeInTheDocument();
-
   // Handle 52 / 53 mondays in a year
   let nMondays = 0;
   for (let day = 0; day < 367; day += 1) {
@@ -576,6 +573,9 @@ test("Form submission with a lot of blocking reservations", async () => {
       nMondays += 1;
     }
   }
+
+  const list = view.getByTestId("reservations-list");
+  expect(list).toBeInTheDocument();
   const elems = within(list).getAllByText(/ma (?:\d+\.\d+\.\d+), 10:00-11:00/);
   expect(elems).toHaveLength(nMondays);
 
@@ -594,15 +594,50 @@ test("Form submission with a lot of blocking reservations", async () => {
   // NOTE This test is long running by design, jest.setTimeout doesn't work for async functions
 }, 30_000);
 
-test.todo("Removed reservations can be restored");
-test.todo(
-  "Submit without any valid dates is disabled even though it is fully filled"
-);
-test.todo(
-  "Test that invalid date ranges don't have reservation list (missing it means it's empty)"
-);
+test("Reservations can be removed and restored", async () => {
+  const view = customRender();
+
+  await fillForm({
+    begin: `1.6.${YEAR}`,
+    end: `30.6.${YEAR}`,
+    dayNumber: 1,
+  });
+
+  const typeStaff = screen.getByLabelText(/STAFF/);
+  await userEvent.click(typeStaff);
+
+  const list = view.getByTestId("reservations-list");
+  expect(list).toBeInTheDocument();
+
+  const elems = within(list).getAllByText(/ti (?:\d+\.\d+\.\d+), 10:00-11:00/);
+  expect(elems).toHaveLength(4);
+  const overlaps = within(list).queryAllByText(/Confirmation.overlapping/);
+  expect(overlaps).toHaveLength(0);
+
+  const removeButtons = within(list).queryAllByRole("button");
+  expect(removeButtons).toHaveLength(4);
+  removeButtons.forEach((x) => {
+    expect(x).toHaveTextContent(/common.remove/);
+  });
+
+  userEvent.click(removeButtons[0]);
+  await within(list).findByText(/common.restore/);
+  const restore = within(list).getByText(/common.restore/);
+  expect(within(list).queryAllByText(/common.remove/)).toHaveLength(3);
+
+  userEvent.click(restore);
+  waitFor(
+    async () => (await within(list).findAllByText(/common.remove/)).length === 4
+  );
+  // const elems = within(list).getAllByText(/ti (?:\d+\.\d+\.\d+), 10:00-11:00/);
+});
+
 // NOTE this requires us to fix submission checking
 test.todo("Removed reservations are not included in the mutation");
+
+test.todo(
+  "Submit without any valid dates is disabled even though form is fully filled"
+);
 
 test.todo("Form has reservation type selection.");
 test.todo("Form submission can bypass required meta field");
