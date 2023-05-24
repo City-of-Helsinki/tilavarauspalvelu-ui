@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { LoadingSpinner } from "hds-react";
+import { breakpoints } from "common/src/common/style";
 import { publicUrl } from "../../common/const";
 import { parseAddress } from "../../common/util";
 import { Container } from "../../styles/layout";
@@ -23,6 +24,12 @@ type Params = {
 // flex and block cause problems on other pages (tables overflowing).
 const ContainerHack = styled(Container)`
   display: block;
+`;
+
+const LocationOnlyOnDesktop = styled.p`
+  @media (max-width: ${breakpoints.s}) {
+    display: none;
+  }
 `;
 
 const MyUnitView = () => {
@@ -57,7 +64,11 @@ const MyUnitView = () => {
       <ContainerHack>
         <div>
           <H1 $legacy>{unit?.nameFi}</H1>
-          {unit.location && <p>{parseAddress(unit.location)}</p>}
+          {unit.location && (
+            <LocationOnlyOnDesktop>
+              {parseAddress(unit.location)}
+            </LocationOnlyOnDesktop>
+          )}
         </div>
         <Tabs headers={TabHeaders}>
           <TabPanel key="unit-reservations">
