@@ -86,8 +86,6 @@ export const toApiDate = (
   try {
     return format(date, formatStr);
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Uncaught exception thrown: ", e);
     return undefined;
   }
 };

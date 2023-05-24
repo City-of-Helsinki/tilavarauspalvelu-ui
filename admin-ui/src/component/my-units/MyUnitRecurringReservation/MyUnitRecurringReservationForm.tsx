@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { toApiDate } from "common/src/common/util";
 import { removeRefParam } from "common/src/reservation-form/util";
 import { RecurringReservationFormSchema } from "./RecurringReservationSchema";
 import type { RecurringReservationForm } from "./RecurringReservationSchema";
@@ -72,9 +73,8 @@ const filterOutRemovedReservations = (
 /// @param items the checked list of all new reservations to make
 /// @param removedReservations the events the user wanted to remove
 /// @param setRemovedReservations update the user's list
-/// Using two arrays because modifiying single array causes the hooks to rerun
+/// Using two arrays because modifiying a single array causes the hooks to rerun
 /// flow: user makes a time selection => do a query => allow user to disable dates.
-// TODO there is a key error here, because this components gets recreated?
 const ReservationListEditor = ({
   items,
   removedReservations,
@@ -214,8 +214,6 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     reservationUnit?.reservationStartInterval
   );
 
-  // FIXME this fails on the last element if selected endingDate is blocked (at least if the time is same)
-  // do we need to query for date + 1?
   const checkedReservations = useFilteredReservationList({
     items: newReservations.reservations,
     reservationUnitPk: reservationUnit?.pk ?? undefined,
@@ -295,9 +293,10 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         );
       } else {
         // TODO this is common with the ReservationForm combine them
-        // TODO use safeFormat (with no exceptions) (toApiDate with formatStr)
-        const myDateTime = (date: Date, time: string) =>
-          dateTime(format(date, "dd.MM.yyyy"), time);
+        const myDateTime = (date: Date, time: string) => {
+          const maybeDateString = toApiDate(date, "dd.MM.yyyy");
+          return maybeDateString ? dateTime(maybeDateString, time) : undefined;
+        };
 
         // TODO see if parts of this can be combined with ReservationDialog (it's very similar)
         const rets = reservationsToMake.map(async (x) => {
@@ -308,13 +307,20 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           };
 
           try {
+            const begin = myDateTime(x.date, x.startTime);
+            const end = myDateTime(x.date, x.endTime);
+
+            if (!begin || !end) {
+              throw new Error("Invalid date selected");
+            }
+
             const staffInput: ReservationStaffCreateMutationInput = {
               reservationUnitPks: [unitPk],
               recurringReservationPk:
                 createResponse.createRecurringReservation.pk,
               type: data.type,
-              begin: myDateTime(x.date, x.startTime),
-              end: myDateTime(x.date, x.endTime),
+              begin,
+              end,
               bufferTimeBefore: bufferTimeBefore
                 ? String(bufferTimeBefore)
                 : undefined,

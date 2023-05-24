@@ -3,7 +3,6 @@ import { describe, expect, test } from "@jest/globals";
 import { set } from "date-fns";
 import { convertToDate, isOverlapping } from "./utils";
 
-// TODO even if this function works the actual date conversion might include seconds and ms
 describe("isOverlapping", () => {
   test("21:00 - 22:15 and 22:00 - 23:00 on the same day overlap", () => {
     const d = new Date(2024, 1, 1);
@@ -33,7 +32,7 @@ describe("isOverlapping", () => {
     expect(isOverlapping(r2, r1)).toBeTruthy();
   });
 
-  test("ranges 9:00 - 10:00 and 9:00 - 10:00 on the same day overlap", () => {
+  test("same range 9:00 - 10:00 on the same day overlap", () => {
     const d = new Date(2024, 1, 1);
     const r1 = {
       begin: set(d, { hours: 9, minutes: 0 }),
@@ -62,15 +61,12 @@ describe("isOverlapping", () => {
     expect(isOverlapping(r1, r2)).toBeFalsy();
     expect(isOverlapping(r2, r1)).toBeFalsy();
   });
-
-  // TODO equality check or no? does 08:00 - 09:00 and 09:00 - 10:00 overlap or no?
 });
 
 describe("convertToDate", () => {
-  // TODO convert these to check for undefined and no throw
   test("return undefined, don't throw on invalid date", () => {
     const invalidDate: Date = new Date(undefined as unknown as number);
-    expect(() => convertToDate(invalidDate, "10:00")).not.toThrow(); // toBe(undefined);
+    expect(() => convertToDate(invalidDate, "10:00")).not.toThrow();
     expect(convertToDate(invalidDate, "10:00")).toBe(undefined);
   });
 

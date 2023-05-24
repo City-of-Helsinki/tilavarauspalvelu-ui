@@ -479,13 +479,13 @@ async function fillForm({
   expect(endTime).toBeInTheDocument();
   expect(endTime).toHaveValue("11:00");
 
-  // select tuesday and check it's activated
   const button = screen.getByRole("checkbox", {
     name: `dayShort.${dayNumber}`,
   });
   expect(button).toBeInTheDocument();
   await user.click(button);
-  // TODO this logic is wrong in the component (should use checked attribute not classes and component state)
+
+  // NOTE this logic is wrong in the component (should use checked attribute not classes and component state)
   // toBeChecked doesn't work even though the role is checkbox, type is button
   expect(button.getAttribute("class")).toContain("active");
 }
@@ -539,7 +539,7 @@ test("Form submission without any blocking reservations", async () => {
   // TODO need await after fireEvent it doesn't wait
 
   expect(view.queryByText(/required/)).not.toBeInTheDocument();
-  /* FIXME submit checking doesn't work
+  /* TODO submit checking doesn't work
    * we either have to provide extra context (like router) to the component
    * or refactor it so that we can check a mock callback
    * or mock library calls
@@ -579,19 +579,18 @@ test("Form submission with a lot of blocking reservations", async () => {
   const elems = within(list).getAllByText(/ma (?:\d+\.\d+\.\d+), 10:00-11:00/);
   expect(elems).toHaveLength(nMondays);
 
-  // Can't check the count before the list because it's using i18n (would need to modify the TFunction mock)
+  // Can't check the count printed before the list because it's using i18n (would need to modify the TFunction mock)
   const listCountLabel = view.getByText(
     /RecurringReservationForm.reservationsList/
   );
   expect(listCountLabel).toBeInTheDocument();
 
-  // count of error statuses
   const overlaps = within(list).queryAllByText(/Confirmation.overlapping/);
   expect(overlaps).toHaveLength(mondayMorningReservations.length);
 
   // TODO test submit, but it doesn't work without extra context
 
-  // NOTE This test is long running by design, jest.setTimeout doesn't work for async functions
+  // NOTE This test is long running by design. jest.setTimeout doesn't work for async functions
 }, 30_000);
 
 test("Reservations can be removed and restored", async () => {
@@ -629,7 +628,6 @@ test("Reservations can be removed and restored", async () => {
   waitFor(
     async () => (await within(list).findAllByText(/common.remove/)).length === 4
   );
-  // const elems = within(list).getAllByText(/ti (?:\d+\.\d+\.\d+), 10:00-11:00/);
 });
 
 // NOTE this requires us to fix submission checking

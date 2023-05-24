@@ -73,11 +73,6 @@ export const useRecurringReservationsUnits = (unitId: number) => {
   return { loading, reservationUnits };
 };
 
-// TODO this should be in cache or use a custom context, because the amount of reservations
-// in an interval can easily be more than 2000
-// to be fair it would require a complex cache strategy to allow extending the range without refetching everything
-// so if the date is moved by one in a 1 year range that would refetch everything
-// TODO Write a mock test for it but since it's inside another query it might return all of them even if they are thousands
 export const useReservationsInInterval = ({
   begin,
   end,
@@ -93,7 +88,8 @@ export const useReservationsInInterval = ({
   // NOTE backend error, it returns all till 00:00 not 23:59
   const apiEnd = toApiDate(addDays(end, 1));
 
-  // TODO check if we have more than 100 elements
+  // NOTE unlike array fetches this fetches a single element with an included array
+  // so it doesn't have the 100 limitation of array fetch nor does it have pagination
   const { loading, data } = useQuery<
     Query,
     QueryReservationUnitByPkArgs & ReservationUnitByPkTypeReservationsArgs
@@ -163,7 +159,6 @@ export const useFilteredReservationList = ({
     return false;
   };
 
-  // TODO check if useMemo is necessary?
   return useMemo(() => {
     if (reservations.length === 0) {
       return items;
