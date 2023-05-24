@@ -563,14 +563,21 @@ test("Form submission with a lot of blocking reservations", async () => {
 
   const list = view.getByTestId("reservations-list");
   expect(list).toBeInTheDocument();
-  // TODO add a list of days that should be available vs. not
-  // The full list of mondays is here
-  // but some of them are blocked so we need to check the count of reservations to make
-  // both the title section (that has the number)
-  // and count the error labels
-  // TODO how is this 53? oh because there is 53 mondays next year
+
+  // Handle 52 / 53 mondays in a year
+  let nMondays = 0;
+  for (let day = 0; day < 367; day += 1) {
+    const isMonday = (d: Date) => d.getDay() === 1;
+    const d = new Date(YEAR, 0, day);
+    if (d.getFullYear() > YEAR) {
+      break;
+    }
+    if (isMonday(d)) {
+      nMondays += 1;
+    }
+  }
   const elems = within(list).getAllByText(/ma (?:\d+\.\d+\.\d+), 10:00-11:00/);
-  expect(elems).toHaveLength(53);
+  expect(elems).toHaveLength(nMondays);
 
   // Can't check the count before the list because it's using i18n (would need to modify the TFunction mock)
   const listCountLabel = view.getByText(
@@ -579,17 +586,14 @@ test("Form submission with a lot of blocking reservations", async () => {
   expect(listCountLabel).toBeInTheDocument();
 
   // count of error statuses
-  // const overlaps = within(list).getAllByText(/Confirmation.overlapping/);
   const overlaps = within(list).queryAllByText(/Confirmation.overlapping/);
-  expect(overlaps).toHaveLength(12);
+  expect(overlaps).toHaveLength(mondayMorningReservations.length);
 
-  // TODO submit it and check we get both CREATE_RECURRING and CREATE_STAFF mutations
+  // TODO test submit, but it doesn't work without extra context
 
   // NOTE This test is long running by design, jest.setTimeout doesn't work for async functions
 }, 30_000);
 
-// TODO add a test for removing and restoring a reservation
-test.todo("Removed reservations are not included in the mutation");
 test.todo("Removed reservations can be restored");
 test.todo(
   "Submit without any valid dates is disabled even though it is fully filled"
@@ -597,6 +601,8 @@ test.todo(
 test.todo(
   "Test that invalid date ranges don't have reservation list (missing it means it's empty)"
 );
+// NOTE this requires us to fix submission checking
+test.todo("Removed reservations are not included in the mutation");
 
 test.todo("Form has reservation type selection.");
 test.todo("Form submission can bypass required meta field");
