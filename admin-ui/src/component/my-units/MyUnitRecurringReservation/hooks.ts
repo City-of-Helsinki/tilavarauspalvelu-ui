@@ -104,6 +104,7 @@ export const useReservationsInInterval = ({
       from: apiStart,
       to: apiEnd,
     },
+    fetchPolicy: "no-cache",
     onError: (err) => {
       notifyError(err.message);
     },
