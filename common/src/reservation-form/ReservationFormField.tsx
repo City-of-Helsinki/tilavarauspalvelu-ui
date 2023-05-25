@@ -7,7 +7,6 @@ import {
   FieldValues,
   useFormContext,
 } from "react-hook-form";
-import { TFunction } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
@@ -22,7 +21,10 @@ type Props = {
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   reservation: Reservation;
   required: boolean;
-  t: TFunction;
+  t: (
+    key: string,
+    options?: Record<string, string | number | undefined>
+  ) => string;
   params?: Record<string, Record<string, string | number>>;
   data?: {
     termsForDiscount?: JSX.Element | string;

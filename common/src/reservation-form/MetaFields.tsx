@@ -13,7 +13,6 @@ import React, { Fragment } from "react";
 import styled from "styled-components";
 import camelCase from "lodash/camelCase";
 import { useFormContext } from "react-hook-form";
-import { TFunction } from "next-i18next";
 
 import {
   ReservationMetadataSetType,
@@ -31,7 +30,10 @@ import IconPremises from "../icons/IconPremises";
 
 type CommonProps = {
   options: Record<string, OptionType[]>;
-  t: TFunction;
+  t: (
+    key: string,
+    options?: Record<string, string | number | undefined>
+  ) => string;
   // TODO this should be refactored out to be the translation key
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   data?: {
@@ -219,7 +221,7 @@ export const ReservationMetaFields = ({
   fields: string[];
   reservationUnit: ReservationUnitType;
   options: Record<string, OptionType[]>;
-  t: TFunction;
+  t: (key: string) => string;
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
@@ -272,7 +274,7 @@ export const ReserverMetaFields = ({
   fields: string[];
   reservationUnit: ReservationUnitType;
   options: Record<string, OptionType[]>;
-  t: TFunction;
+  t: (key: string) => string;
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   setReserveeType: React.Dispatch<
     React.SetStateAction<ReservationsReservationReserveeTypeChoices | undefined>
