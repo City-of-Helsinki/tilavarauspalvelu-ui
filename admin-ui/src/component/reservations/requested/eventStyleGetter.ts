@@ -4,17 +4,6 @@ import {
   ReservationType,
 } from "common/types/gql-types";
 
-const CURRENT = (state: string) => {
-  const lcState = state.toLowerCase();
-  return {
-    style: {
-      backgroundColor: `var(--tilavaraus-event-current-${lcState}-background)`,
-      color: `var(--tilavaraus-event-current-${lcState}-color)`,
-      border: `2px dashed var(--tilavaraus-event-current-${lcState}-border-color)`,
-    },
-  };
-};
-
 const SELECTED = {
   style: {
     outline: "2px solid var(--color-bus)",
@@ -22,38 +11,70 @@ const SELECTED = {
   },
 };
 
+const STYLE_COMMON = {
+  borderStyle: "solid",
+  borderWidth: "0px 0px 0px 3px",
+  color: "black",
+};
+
+const CONFIRMED = {
+  style: {
+    ...STYLE_COMMON,
+    background: "var(--tilavaraus-event-booking-success)",
+    borderColor: "var(--tilavaraus-event-booking-success-border)",
+  },
+};
+
 const UNCONFIRMED = {
   style: {
-    border: `2px solid var(--tilavaraus-event-other-requires_handling-border-color)`,
-    backgroundColor: `var(--tilavaraus-event-other-requires_handling-background)`,
-    color: `black`,
+    ...STYLE_COMMON,
+    borderColor: "var(--tilavaraus-event-booking-wish-border)",
+    backgroundColor: "var(--tilavaraus-event-booking-wish)",
+  },
+};
+const REQUIRES_HANDLING = UNCONFIRMED;
+
+const WAITING_PAYMENT = {
+  style: {
+    ...CONFIRMED.style,
+    borderStyle: "dashed",
+  },
+};
+
+const STAFF_RESERVATION = {
+  style: {
+    ...STYLE_COMMON,
+    borderColor: "var(--tilavaraus-event-booking-internal-border)",
+    background: "var(--tilavaraus-event-booking-internal)",
   },
 };
 
 const REST = {
   style: {
-    border: `2px solid var(--tilavaraus-event-rest-border-color)`,
     background: `var(--tilavaraus-event-rest-background)`,
     color: `black`,
+    borderColor: `var(--tilavaraus-event-rest-border-color)`,
+    borderStyle: "solid",
+    borderWidth: "0px 0px 0px 3px",
   },
 };
 
 export const legend = [
   {
-    label: "Calendar.legend.currentRequiresHandling",
-    style: CURRENT(ReservationsReservationStateChoices.RequiresHandling).style,
+    label: "Calendar.legend.confirmed",
+    style: CONFIRMED.style,
   },
   {
-    label: "Calendar.legend.currentConfirmed",
-    style: CURRENT(ReservationsReservationStateChoices.Confirmed).style,
+    label: "MyUnits.Calendar.legend.waitingPayment",
+    style: WAITING_PAYMENT.style,
   },
   {
-    label: "Calendar.legend.currentDenied",
-    style: CURRENT(ReservationsReservationStateChoices.Denied).style,
+    label: "Calendar.legend.unconfirmed",
+    style: REQUIRES_HANDLING.style,
   },
   {
-    label: "Calendar.legend.otherRequiedHandling",
-    style: UNCONFIRMED.style,
+    label: "MyUnits.Calendar.legend.staffReservation",
+    style: STAFF_RESERVATION.style,
   },
   {
     label: "Calendar.legend.rest",
@@ -87,24 +108,38 @@ const eventStyleGetter =
       currentReservation?.recurringReservation &&
       currentReservation.recurringReservation?.pk ===
         event?.recurringReservation?.pk;
+
+    const isConfirmed =
+      event?.state === ReservationsReservationStateChoices.Confirmed;
+    const isWaitingForPayment =
+      event?.state === ReservationsReservationStateChoices.WaitingForPayment;
+
+    const isClosed = event?.type === "blocked";
+    const isStaff = event?.type === "staff";
+
+    if (isConfirmed && isStaff) {
+      Object.assign(style, STAFF_RESERVATION.style);
+    } else if (isWaitingForPayment) {
+      Object.assign(style, WAITING_PAYMENT.style);
+    } else if (isConfirmed && !isClosed) {
+      Object.assign(style, CONFIRMED.style);
+    } else {
+      Object.assign(style, REST.style);
+    }
+
+    if (currentReservation?.pk === event?.pk || isPartOfRecurrance) {
+      style.cursor = "default";
+    }
+
     if (selectedReservation?.pk === event?.pk) {
       return {
         style: {
           ...style,
-          ...CURRENT(event?.state ?? "").style,
           ...SELECTED.style,
         },
       };
     }
 
-    if (currentReservation?.pk === event?.pk || isPartOfRecurrance) {
-      Object.assign(style, CURRENT(event?.state ?? "").style);
-      style.cursor = "default";
-    } else if (event?.state !== ReservationsReservationStateChoices.Confirmed) {
-      Object.assign(style, UNCONFIRMED.style);
-    } else {
-      Object.assign(style, REST.style);
-    }
     return {
       style,
     };

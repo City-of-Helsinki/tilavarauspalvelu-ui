@@ -307,7 +307,7 @@ const translations: ITranslations = {
         pause: ["Tauko"],
         closed: ["Suljettu"],
         waitingPayment: ["Hyväksytty varaus, Odottaa maksua"],
-        staffReservation: ["Henkilökunnan varaus"],
+        staffReservation: ["Sisäinen varaus"],
         reservationUnitReleased: ["Varausyksikkö julkaistu"],
         reservationUnitDraft: ["Varausyksikkö luonnostilassa"],
       },
@@ -1836,9 +1836,8 @@ const translations: ITranslations = {
   },
   Calendar: {
     legend: {
-      currentRequiresHandling: ["Varaajan toive"],
-      currentConfirmed: ["Varaajan toive (hyväksytty)"],
-      currentDenied: ["Varaajan toive (hylätty)"],
+      confirmed: ["Hyväksytty varaus"],
+      unconfirmed: ["Varaustoive"],
       otherRequiedHandling: ["Muun varaajan toive"],
       rest: ["Varattu"],
     },
