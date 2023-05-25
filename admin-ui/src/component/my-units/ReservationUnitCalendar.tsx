@@ -61,14 +61,25 @@ const getEventTitle = ({
   const reservationUnit = reservation.reservationUnits?.[0];
   const isOtherReservationUnit = reservationUnitPk !== reservationUnit?.pk;
 
+  const reserveeName = getReserveeName(reservation);
   if (isOtherReservationUnit) {
-    const reserveeName = getReserveeName(reservation);
     const reservationUnitName = reservationUnit?.nameFi ?? "";
 
     return [reserveeName, reservationUnitName];
   }
 
-  return null;
+  return [reserveeName, ""];
+};
+
+const constructEventTitle = (res: ReservationType, resUnitPk: number) => {
+  const [reservee, unit] = getEventTitle({
+    reservationUnitPk: resUnitPk,
+    reservation: res,
+  });
+  if (unit.length > 0) {
+    return `${reservee} (${unit})`;
+  }
+  return reservee;
 };
 
 const ReservationUnitCalendar = ({
@@ -103,18 +114,8 @@ const ReservationUnitCalendar = ({
 
       setEvents(
         reservations.map((reservation) => {
-          const titleParts = getEventTitle({
-            reservationUnitPk,
-            reservation,
-          });
-          const title = titleParts
-            ? `${titleParts[0]} / ${t("common.reservationUnit")} ${
-                titleParts[1]
-              }`
-            : "";
-
           return {
-            title,
+            title: constructEventTitle(reservation, reservationUnitPk),
             event: reservation,
             start: new Date(get(reservation, "begin")),
             end: new Date(get(reservation, "end")),
@@ -126,6 +127,7 @@ const ReservationUnitCalendar = ({
       notifyError(t("errors.errorFetchingData"));
     },
   });
+
   useEffect(() => {
     if (hasMore) {
       setHasMore(false);
@@ -153,6 +155,7 @@ const ReservationUnitCalendar = ({
             "_blank"
           );
         }}
+        underlineEvents
       />
       <Legends>
         {legend
