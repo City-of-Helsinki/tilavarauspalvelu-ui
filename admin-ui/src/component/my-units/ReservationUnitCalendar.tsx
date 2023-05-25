@@ -114,8 +114,12 @@ const ReservationUnitCalendar = ({
 
       setEvents(
         reservations.map((reservation) => {
+          const title =
+            reservation.type !== "blocked"
+              ? constructEventTitle(reservation, reservationUnitPk)
+              : t("MyUnits.Calendar.legend.closed");
           return {
-            title: constructEventTitle(reservation, reservationUnitPk),
+            title,
             event: reservation,
             start: new Date(get(reservation, "begin")),
             end: new Date(get(reservation, "end")),

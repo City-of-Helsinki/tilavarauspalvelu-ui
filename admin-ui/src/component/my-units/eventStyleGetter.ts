@@ -186,14 +186,18 @@ const eventStyleGetter =
       zIndex: 100,
     };
 
-    const isCurrentReservationUnit = !!event?.reservationUnits?.find((ru) => {
-      return ru?.pk === currentReservationUnitPk;
-    });
+    const isCurrentReservationUnit = !!event?.reservationUnits?.find(
+      (ru) => ru?.pk === currentReservationUnitPk
+    );
 
     const isConfirmed =
       event?.state === ReservationsReservationStateChoices.Confirmed;
 
-    if (isConfirmed) {
+    const isClosed = event?.type === "blocked";
+
+    if (isClosed) {
+      Object.assign(style, CLOSED.style);
+    } else if (isConfirmed) {
       Object.assign(style, CONFIRMED.style);
     } else {
       Object.assign(style, UNCONFIRMED.style);

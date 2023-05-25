@@ -12,6 +12,7 @@ import Popup from "reactjs-popup";
 import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
 import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter, {
@@ -237,9 +238,15 @@ const PostBuffer = ({
 
 const getEventTitle = ({
   reservation: { title, event },
+  t,
 }: {
   reservation: CalendarEvent<ReservationType>;
+  t: TFunction;
 }) => {
+  if (event?.type === "blocked") {
+    return t("MyUnits.Calendar.legend.closed");
+  }
+
   return event && event?.pk !== event?.reservationUnits?.[0]?.pk
     ? getReserveeName(event)
     : title;
@@ -277,73 +284,78 @@ const Events = ({
   events: CalendarEvent<ReservationType>[];
   eventStyleGetter: EventStyleGetter;
   numHours: number;
-}) => (
-  <EventContainer>
-    {events.map((e) => {
-      const title = getEventTitle({ reservation: e });
-      const startDate = new Date(e.start);
-      const endDate = new Date(e.end);
-      const dayStartDate = new Date(e.start);
-      dayStartDate.setHours(firstHour);
-      dayStartDate.setMinutes(0);
-      dayStartDate.setSeconds(0);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <EventContainer>
+      {events.map((e) => {
+        const title = getEventTitle({ reservation: e, t });
+        const startDate = new Date(e.start);
+        const endDate = new Date(e.end);
+        const dayStartDate = new Date(e.start);
+        dayStartDate.setHours(firstHour);
+        dayStartDate.setMinutes(0);
+        dayStartDate.setSeconds(0);
 
-      const startMinutes = differenceInMinutes(startDate, dayStartDate);
+        const startMinutes = differenceInMinutes(startDate, dayStartDate);
 
-      const hourPercent = 100 / numHours;
-      const hours = startMinutes / 60;
-      const left = `${hourPercent * hours}%`;
+        const hourPercent = 100 / numHours;
+        const hours = startMinutes / 60;
+        const left = `${hourPercent * hours}%`;
 
-      const durationMinutes = differenceInMinutes(endDate, startDate);
+        const durationMinutes = differenceInMinutes(endDate, startDate);
 
-      const isEventInCurrentReservationUnit =
-        currentReservationUnit === e.event?.reservationUnits?.[0]?.pk;
+        const isEventInCurrentReservationUnit =
+          currentReservationUnit === e.event?.reservationUnits?.[0]?.pk;
 
-      const right = `calc(${left} + ${durationMinutes / 60} * ${
-        100 / numHours
-      }% + 1px)`;
+        const right = `calc(${left} + ${durationMinutes / 60} * ${
+          100 / numHours
+        }% + 1px)`;
 
-      return (
-        <Fragment key={`${title}-${startDate.toISOString()}`}>
-          {isEventInCurrentReservationUnit && (
-            <PreBuffer
-              event={e}
-              hourPercent={hourPercent}
-              left={left}
-              style={TemplateProps}
-            />
-          )}
-          <div
-            style={{
-              left,
-              ...TemplateProps,
-              width: `calc(${durationMinutes / 60} * ${100 / numHours}% + 1px)`,
-              zIndex: 5,
-            }}
-          >
-            <EventContent style={{ ...eventStyleGetter(e).style }}>
-              <p>{title}</p>
-              <Popup
-                position={["right center", "left center"]}
-                trigger={EventTriggerButton}
-              >
-                {e.event && <ReservationPopupContent reservation={e.event} />}
-              </Popup>
-            </EventContent>
-          </div>
-          {isEventInCurrentReservationUnit && (
-            <PostBuffer
-              event={e}
-              hourPercent={hourPercent}
-              right={right}
-              style={TemplateProps}
-            />
-          )}
-        </Fragment>
-      );
-    })}
-  </EventContainer>
-);
+        return (
+          <Fragment key={`${title}-${startDate.toISOString()}`}>
+            {isEventInCurrentReservationUnit && (
+              <PreBuffer
+                event={e}
+                hourPercent={hourPercent}
+                left={left}
+                style={TemplateProps}
+              />
+            )}
+            <div
+              style={{
+                left,
+                ...TemplateProps,
+                width: `calc(${durationMinutes / 60} * ${
+                  100 / numHours
+                }% + 1px)`,
+                zIndex: 5,
+              }}
+            >
+              <EventContent style={{ ...eventStyleGetter(e).style }}>
+                <p>{title}</p>
+                <Popup
+                  position={["right center", "left center"]}
+                  trigger={EventTriggerButton}
+                >
+                  {e.event && <ReservationPopupContent reservation={e.event} />}
+                </Popup>
+              </EventContent>
+            </div>
+            {isEventInCurrentReservationUnit && (
+              <PostBuffer
+                event={e}
+                hourPercent={hourPercent}
+                right={right}
+                style={TemplateProps}
+              />
+            )}
+          </Fragment>
+        );
+      })}
+    </EventContainer>
+  );
+};
 
 const sortByDraftStatusAndTitle = (resources: Resource[]) => {
   return resources.sort((a, b) => {
