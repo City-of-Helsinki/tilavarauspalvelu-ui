@@ -343,8 +343,9 @@ const ReservationFormField = ({
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
       min={minValue}
       max={maxValue}
-      onChange={() => {
+      onChange={(e) => {
         trigger(field);
+        register(field).onChange(e);
       }}
     />
   ) : isTextArea ? (
