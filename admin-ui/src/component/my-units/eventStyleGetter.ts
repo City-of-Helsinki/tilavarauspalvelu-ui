@@ -30,35 +30,32 @@ const STYLE_COMMON = {
 const CONFIRMED = {
   style: {
     ...STYLE_COMMON,
-    borderColor: "var(--color-success)",
-    background: "var(--color-success-light)",
+    borderColor: "var(--tilavaraus-event-booking-success-border)",
+    background: "var(--tilavaraus-event-booking-success)",
   },
 };
 
 const WAITING_PAYMENT = {
   style: {
-    ...STYLE_COMMON,
-    borderColor: "var(--color-success)",
+    ...CONFIRMED.style,
     borderStyle: "dashed",
-    background: "var(--color-success-light)",
   },
 };
 
 const UNCONFIRMED = {
   style: {
     ...STYLE_COMMON,
-    borderColor: "var(--tilavaraus-event-other-requires_handling-border-color)",
+    borderColor: "var(--tilavaraus-event-booking-wish-border)",
     borderStyle: "dashed",
-    background: "var(--tilavaraus-event-other-requires_handling-background)",
+    background: "var(--tilavaraus-event-booking-wish)",
   },
 };
 
 const STAFF_RESERVATION = {
   style: {
     ...STYLE_COMMON,
-    borderColor: "var(--color-gold)",
-    borderStyle: "double",
-    background: "var(--color-gold-light)",
+    borderColor: "var(--tilavaraus-event-booking-internal-border)",
+    background: "var(--tilavaraus-event-booking-internal)",
   },
 };
 
@@ -71,11 +68,12 @@ const INTERSECTING_RESERVATION_UNIT = {
     backgroundSize: "5px",
   },
 };
+
 export const PRE_PAUSE = {
   style: {
     ...STYLE_COMMON,
     borderColor: "var(--color-black-40)",
-    borderLeft: "3px / 1px solid var(--color-blac)",
+    borderLeft: "3px / 1px solid var(--color-black)",
     background: "var(--color-black-10)",
     color: "black",
   },
@@ -84,8 +82,8 @@ export const PRE_PAUSE = {
 export const POST_PAUSE = {
   style: {
     borderColor: "var(--color-black-40)",
-    borderLeft: "3px / 1px solid var(--color-blac)",
-    background: "var(--color-black-10)",
+    borderLeft: "3px / 1px solid var(--color-black)",
+    background: "var(--tilavaraus-event-booking-break)",
     color: "black",
   },
 };
@@ -94,7 +92,8 @@ const CLOSED = {
   style: {
     ...STYLE_COMMON,
     backgroundColor: "var(--color-black-20)",
-    borderColor: "var(--color-black)",
+    borderColor: "var(--tilavaraus-event-booking-closed-border)",
+    background: "var(--tilavaraus-event-booking-closed)",
   },
 };
 
@@ -175,7 +174,6 @@ const eventStyleGetter =
     const style: React.CSSProperties = {
       cursor: "pointer",
       borderRadius: "0px",
-      color: "var(--color-white)",
       display: "block",
       borderColor: "transparent",
       fontSize: "var(--fontsize-body-s)",
@@ -189,11 +187,18 @@ const eventStyleGetter =
 
     const isConfirmed =
       event?.state === ReservationsReservationStateChoices.Confirmed;
+    const isWaitingForPayment =
+      event?.state === ReservationsReservationStateChoices.WaitingForPayment;
 
     const isClosed = event?.type === "blocked";
+    const isStaff = event?.type === "staff";
 
-    if (isClosed) {
+    if (isConfirmed && isClosed) {
       Object.assign(style, CLOSED.style);
+    } else if (isConfirmed && isStaff) {
+      Object.assign(style, STAFF_RESERVATION.style);
+    } else if (isWaitingForPayment) {
+      Object.assign(style, WAITING_PAYMENT.style);
     } else if (isConfirmed) {
       Object.assign(style, CONFIRMED.style);
     } else {
