@@ -328,7 +328,7 @@ const Events = ({
                 ...TemplateProps,
                 width: `calc(${durationMinutes / 60} * ${
                   100 / numHours
-                }% + 1px)`,
+                }% - 2px)`,
                 zIndex: 5,
               }}
             >
