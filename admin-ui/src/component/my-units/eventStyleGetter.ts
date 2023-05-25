@@ -175,7 +175,7 @@ const eventStyleGetter =
     style: React.CSSProperties;
     className?: string;
   } => {
-    const style = {
+    const style: React.CSSProperties = {
       cursor: "pointer",
       borderRadius: "0px",
       color: "var(--color-white)",
@@ -184,7 +184,7 @@ const eventStyleGetter =
       fontSize: "var(--fontsize-body-s)",
       opacity: 0.8,
       zIndex: 100,
-    } as React.CSSProperties;
+    };
 
     const isCurrentReservationUnit = !!event?.reservationUnits?.find((ru) => {
       return ru?.pk === currentReservationUnitPk;

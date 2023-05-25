@@ -75,7 +75,7 @@ const ReservationUnitCalendar = ({
   begin,
   reservationUnitPk,
 }: Props): JSX.Element => {
-  const [events, setEvents] = useState([] as CalendarEvent<ReservationType>[]);
+  const [events, setEvents] = useState<CalendarEvent<ReservationType>[]>([]);
   const [hasMore, setHasMore] = useState(false);
   const { notifyError } = useNotification();
   const { t } = useTranslation();
@@ -96,33 +96,31 @@ const ReservationUnitCalendar = ({
       to: toApiDate(addDays(endOfISOWeek(new Date(begin)), 1)),
     },
     onCompleted: ({ reservationUnitByPk }) => {
-      const reservations =
+      const reservations: ReservationType[] =
         reservationUnitByPk?.reservations?.filter(
           (item): item is ReservationType => !!item
         ) || [];
 
-      if (reservations) {
-        setEvents(
-          reservations.map((reservation) => {
-            const titleParts = getEventTitle({
-              reservationUnitPk,
-              reservation,
-            });
-            const title = titleParts
-              ? `${titleParts[0]} / ${t("common.reservationUnit")} ${
-                  titleParts[1]
-                }`
-              : "";
+      setEvents(
+        reservations.map((reservation) => {
+          const titleParts = getEventTitle({
+            reservationUnitPk,
+            reservation,
+          });
+          const title = titleParts
+            ? `${titleParts[0]} / ${t("common.reservationUnit")} ${
+                titleParts[1]
+              }`
+            : "";
 
-            return {
-              title,
-              event: reservation as ReservationType,
-              start: new Date(get(reservation, "begin")),
-              end: new Date(get(reservation, "end")),
-            };
-          })
-        );
-      }
+          return {
+            title,
+            event: reservation,
+            start: new Date(get(reservation, "begin")),
+            end: new Date(get(reservation, "end")),
+          };
+        })
+      );
     },
     onError: () => {
       notifyError(t("errors.errorFetchingData"));
