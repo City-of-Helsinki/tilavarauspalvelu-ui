@@ -69,13 +69,13 @@ const scrollToBox = (id: string): void => {
   const element = document.getElementById(id);
   const checkbox = document.getElementById(`${id}-terms-accepted`);
 
-  const top = element.getBoundingClientRect()?.y;
+  const top = element?.getBoundingClientRect()?.y || 0;
   window.scroll({
     top: window.scrollY + top - 28,
     left: 0,
     behavior: "smooth",
   });
-  checkbox.focus();
+  checkbox?.focus();
 };
 
 const Step1 = ({

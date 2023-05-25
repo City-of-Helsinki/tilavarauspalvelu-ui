@@ -7,6 +7,7 @@ import {
   FieldValues,
   useFormContext,
 } from "react-hook-form";
+import { TFunction } from "next-i18next";
 import styled from "styled-components";
 import { fontMedium, fontRegular, Strongish } from "../common/typography";
 import { ReservationsReservationReserveeTypeChoices } from "../../types/gql-types";
@@ -21,12 +22,7 @@ type Props = {
   reserveeType?: ReservationsReservationReserveeTypeChoices | "COMMON";
   reservation: Reservation;
   required: boolean;
-  // Not good to pass the translation function here but this is because this is shared between ui and admin
-  // and admin is lacking translation namespaces
-  t: (
-    key: string,
-    options?: Record<string, string | number | undefined>
-  ) => string;
+  t: TFunction;
   params?: Record<string, Record<string, string | number>>;
   data?: {
     termsForDiscount?: JSX.Element | string;
@@ -273,8 +269,6 @@ const ReservationFormField = ({
       rules={{ required }}
       render={({ field: formField }) => (
         <StyledSelect
-          // TODO some (like this) get the * added by the component
-          // others (so far seems all the others) get it from the label text.
           label={label}
           id={field}
           options={options[field]}
@@ -318,7 +312,6 @@ const ReservationFormField = ({
     </StyledCheckboxWrapper>
   ) : field === "freeOfChargeReason" ? (
     <StyledTextArea
-      // TODO this needs to be separated or use required like all the other components
       label={label}
       id={field}
       key={field}

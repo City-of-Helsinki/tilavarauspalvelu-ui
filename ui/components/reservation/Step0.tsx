@@ -170,14 +170,14 @@ const Step0 = ({
                       const element =
                         document.getElementById(key) ||
                         document.getElementById(`${key}-label`);
-                      const top = element.getBoundingClientRect()?.y;
+                      const top = element.getBoundingClientRect()?.y || 0;
                       window.scroll({
                         top: window.scrollY + top - 28,
                         left: 0,
                         behavior: "smooth",
                       });
                       setTimeout(() => {
-                        element.focus();
+                        element?.focus();
                       }, 500);
                     }}
                   >
