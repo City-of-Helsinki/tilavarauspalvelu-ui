@@ -38,8 +38,6 @@
   --helper-color-invalid: #b01038;
 
   /* still used in reservation calendar, not my-units */
-  --tilavaraus-event-other-requires_handling-border-color: var(--color-bus);
-  --tilavaraus-event-other-requires_handling-background: rgba(0, 0, 191, 0.1);
   --tilavaraus-event-rest-border-color: #1a1a1a;
   --tilavaraus-event-rest-background: rgba(26, 26, 26, 0.1);
 

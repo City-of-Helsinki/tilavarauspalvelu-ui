@@ -3,49 +3,18 @@ import {
   ReservationsReservationStateChoices,
   ReservationType,
 } from "common/types/gql-types";
+import {
+  COMMON_LEGEND,
+  CONFIRMED,
+  EVENT_STYLE,
+  STAFF_RESERVATION,
+  WAITING_PAYMENT,
+} from "../../../common/calendarStyling";
 
 const SELECTED = {
   style: {
     outline: "2px solid var(--color-bus)",
     outlineOffset: "3px",
-  },
-};
-
-const STYLE_COMMON = {
-  borderStyle: "solid",
-  borderWidth: "0px 0px 0px 3px",
-  color: "black",
-};
-
-const CONFIRMED = {
-  style: {
-    ...STYLE_COMMON,
-    background: "var(--tilavaraus-event-booking-success)",
-    borderColor: "var(--tilavaraus-event-booking-success-border)",
-  },
-};
-
-const UNCONFIRMED = {
-  style: {
-    ...STYLE_COMMON,
-    borderColor: "var(--tilavaraus-event-booking-wish-border)",
-    backgroundColor: "var(--tilavaraus-event-booking-wish)",
-  },
-};
-const REQUIRES_HANDLING = UNCONFIRMED;
-
-const WAITING_PAYMENT = {
-  style: {
-    ...CONFIRMED.style,
-    borderStyle: "dashed",
-  },
-};
-
-const STAFF_RESERVATION = {
-  style: {
-    ...STYLE_COMMON,
-    borderColor: "var(--tilavaraus-event-booking-internal-border)",
-    background: "var(--tilavaraus-event-booking-internal)",
   },
 };
 
@@ -60,22 +29,7 @@ const REST = {
 };
 
 export const legend = [
-  {
-    label: "Calendar.legend.confirmed",
-    style: CONFIRMED.style,
-  },
-  {
-    label: "MyUnits.Calendar.legend.waitingPayment",
-    style: WAITING_PAYMENT.style,
-  },
-  {
-    label: "Calendar.legend.unconfirmed",
-    style: REQUIRES_HANDLING.style,
-  },
-  {
-    label: "MyUnits.Calendar.legend.staffReservation",
-    style: STAFF_RESERVATION.style,
-  },
+  ...COMMON_LEGEND,
   {
     label: "Calendar.legend.rest",
     style: REST.style,
@@ -93,17 +47,6 @@ const eventStyleGetter =
     style: React.CSSProperties;
     className?: string;
   } => {
-    const style = {
-      cursor: "pointer",
-      borderRadius: "0px",
-      opacity: "0.8",
-      color: "var(--color-white)",
-      display: "block",
-      borderColor: "transparent",
-      padding: "3px 6px",
-      fontSize: "var(--fontsize-body-s)",
-    };
-
     const isPartOfRecurrance =
       currentReservation?.recurringReservation &&
       currentReservation.recurringReservation?.pk ===
@@ -116,6 +59,12 @@ const eventStyleGetter =
 
     const isClosed = event?.type === "blocked";
     const isStaff = event?.type === "staff";
+
+    const style = {
+      ...EVENT_STYLE,
+      padding: "3px 6px",
+      color: "var(--color-white)",
+    };
 
     if (isConfirmed && isStaff) {
       Object.assign(style, STAFF_RESERVATION.style);
