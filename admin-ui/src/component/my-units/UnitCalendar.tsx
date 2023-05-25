@@ -32,9 +32,11 @@ export type Resource = {
   events: CalendarEvent<ReservationType>[];
 };
 
+const CELL_HEIGHT = 44;
+
 const TemplateProps: CSSProperties = {
   zIndex: "var(--tilavaraus-admin-stack-calendar-buffer)",
-  height: "41px",
+  height: `${CELL_HEIGHT}px`,
   position: "absolute",
 };
 
@@ -76,7 +78,7 @@ const ResourceNameContainer = styled.div<{ $isDraft: boolean }>`
 `;
 
 const HeadingRow = styled.div`
-  height: 44px;
+  height: ${CELL_HEIGHT}px;
   display: grid;
   grid-template-columns: 150px 1fr;
   border-right: 1px solid transparent;

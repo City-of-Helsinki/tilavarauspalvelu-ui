@@ -21,43 +21,44 @@ type EventStyle = {
   style: Record<string, string>;
 };
 
+const STYLE_COMMON = {
+  borderStyle: "solid",
+  borderWidth: "0px 0px 0px 3px",
+  color: "black",
+};
+
 const CONFIRMED = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--color-success)",
-    borderStyle: "solid",
-    borderWidth: "2px 0px",
     background: "var(--color-success-light)",
-    color: "black",
   },
 };
 
 const WAITING_PAYMENT = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--color-success)",
     borderStyle: "dashed",
-    borderWidth: "2px 0px",
     background: "var(--color-success-light)",
-    color: "black",
   },
 };
 
 const UNCONFIRMED = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--tilavaraus-event-other-requires_handling-border-color)",
     borderStyle: "dashed",
-    borderWidth: "2px 0px",
     background: "var(--tilavaraus-event-other-requires_handling-background)",
-    color: "black",
   },
 };
 
 const STAFF_RESERVATION = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--color-gold)",
     borderStyle: "double",
-    borderWidth: "2px 0px",
     background: "var(--color-gold-light)",
-    color: "black",
   },
 };
 
@@ -72,9 +73,9 @@ const INTERSECTING_RESERVATION_UNIT = {
 };
 export const PRE_PAUSE = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--color-black-40)",
-    borderStyle: "double",
-    borderWidth: "0px 0px 0px 2px",
+    borderLeft: "3px / 1px solid var(--color-blac)",
     background: "var(--color-black-10)",
     color: "black",
   },
@@ -83,8 +84,7 @@ export const PRE_PAUSE = {
 export const POST_PAUSE = {
   style: {
     borderColor: "var(--color-black-40)",
-    borderStyle: "double",
-    borderWidth: "0px 2px 0px 0px",
+    borderLeft: "3px / 1px solid var(--color-blac)",
     background: "var(--color-black-10)",
     color: "black",
   },
@@ -92,29 +92,26 @@ export const POST_PAUSE = {
 
 const CLOSED = {
   style: {
-    border: "none",
+    ...STYLE_COMMON,
     backgroundColor: "var(--color-black-20)",
-    color: "black",
+    borderColor: "var(--color-black)",
   },
 };
 
 const RESERVATION_UNIT_RELEASED = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--color-black-20)",
-    borderStyle: "solid",
-    borderWidth: "0px 0px 0px 2px",
     background: "var(--color-white)",
-    color: "black",
   },
 };
 
 const RESERVATION_UNIT_DRAFT = {
   style: {
+    ...STYLE_COMMON,
     borderColor: "var(--color-alert-dark)",
     borderStyle: "dashed",
-    borderWidth: "0px 0px 0px 2px",
     background: "var(--color-white)",
-    color: "black",
     width: "4px",
   },
 };
