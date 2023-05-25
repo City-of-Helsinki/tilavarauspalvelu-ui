@@ -155,6 +155,7 @@ const ReservationFormField = ({
     register,
     control,
     formState: { errors },
+    trigger,
   } = useFormContext();
 
   const isTextArea = useMemo(
@@ -349,6 +350,9 @@ const ReservationFormField = ({
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
       min={minValue}
       max={maxValue}
+      onChange={() => {
+        trigger(field);
+      }}
     />
   ) : isTextArea ? (
     <StyledTextArea
