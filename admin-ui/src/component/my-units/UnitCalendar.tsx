@@ -143,6 +143,14 @@ const TitleCell = styled.div`
   overflow: hidden;
 `;
 
+const HideTimesOverTitles = styled.div`
+  position: absolute;
+  width: ${TITLE_CELL_WIDTH_CH}ch;
+  height: ${CELL_HEIGHT}px;
+  background-color: white;
+  z-index: var(--tilavaraus-admin-stack-select-over-calendar);
+`;
+
 const Cells = ({
   cols,
   reservationUnitPk,
@@ -403,44 +411,47 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
   }, [scrollCalendar]);
 
   return (
-    <FlexContainer $numCols={numHours * 2} ref={calendarRef}>
-      <HeadingRow>
-        <div />
-        <CellContent
-          $numCols={numHours}
-          key="header"
-          className="calendar-header"
-        >
-          {Array.from(Array(numHours).keys()).map((i, index) => (
-            <Time key={i}>{beginHour + index}</Time>
-          ))}
-        </CellContent>
-      </HeadingRow>
+    <>
+      <HideTimesOverTitles />
+      <FlexContainer $numCols={numHours * 2} ref={calendarRef}>
+        <HeadingRow>
+          <div />
+          <CellContent
+            $numCols={numHours}
+            key="header"
+            className="calendar-header"
+          >
+            {Array.from(Array(numHours).keys()).map((i, index) => (
+              <Time key={i}>{beginHour + index}</Time>
+            ))}
+          </CellContent>
+        </HeadingRow>
 
-      {orderedResources.map((row) => (
-        <Row key={row.url}>
-          <ResourceNameContainer title={row.title} $isDraft={row.isDraft}>
-            <TitleCell>{row.title}</TitleCell>
-          </ResourceNameContainer>
-          <RowCalendarArea>
-            <Cells
-              cols={numHours * 2}
-              date={startDate}
-              reservationUnitPk={row.pk}
-              setModalContent={setModalContent}
-              onComplete={refetch}
-            />
-            <Events
-              currentReservationUnit={row.pk}
-              firstHour={beginHour}
-              numHours={numHours}
-              events={row.events}
-              eventStyleGetter={resourceEventStyleGetter(row.pk)}
-            />
-          </RowCalendarArea>
-        </Row>
-      ))}
-    </FlexContainer>
+        {orderedResources.map((row) => (
+          <Row key={row.url}>
+            <ResourceNameContainer title={row.title} $isDraft={row.isDraft}>
+              <TitleCell>{row.title}</TitleCell>
+            </ResourceNameContainer>
+            <RowCalendarArea>
+              <Cells
+                cols={numHours * 2}
+                date={startDate}
+                reservationUnitPk={row.pk}
+                setModalContent={setModalContent}
+                onComplete={refetch}
+              />
+              <Events
+                currentReservationUnit={row.pk}
+                firstHour={beginHour}
+                numHours={numHours}
+                events={row.events}
+                eventStyleGetter={resourceEventStyleGetter(row.pk)}
+              />
+            </RowCalendarArea>
+          </Row>
+        ))}
+      </FlexContainer>
+    </>
   );
 };
 
