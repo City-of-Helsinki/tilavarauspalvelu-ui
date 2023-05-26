@@ -1,6 +1,6 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
-import { addMinutes, differenceInMinutes, startOfDay } from "date-fns";
+import { addMinutes, differenceInMinutes, isToday, startOfDay } from "date-fns";
 import React, {
   CSSProperties,
   Fragment,
@@ -397,14 +397,29 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
 
     if (!ref) return;
 
+    // NOTE on mobile only for today move the scroll position to this hour
+    // TODO improve the calculations (less magic numbers), add desktop version (sidebars, margins)
+    const LAST_HOUR = 17;
+    const FIRST_HOUR = 9;
+    const HOUR_CELL_WIDTH = 82;
+    const PAGE_MARGIN = 30;
+    const TITLE_CELL_WIDTH = 105;
+    const calendarSectionSize =
+      window.innerWidth - PAGE_MARGIN - TITLE_CELL_WIDTH;
+    const nCells = Math.round(calendarSectionSize / HOUR_CELL_WIDTH);
+    const now = new Date();
+    const mobileCell = isToday(date)
+      ? now.getHours() + nCells
+      : FIRST_HOUR + nCells;
+    const isMobile = window.innerWidth < 768;
+    const cellToScroll = isMobile ? mobileCell : LAST_HOUR;
     const lastElementOfHeader = ref.querySelector(
-      ".calendar-header > div:nth-of-type(17)"
+      `.calendar-header > div:nth-of-type(${cellToScroll})`
     );
-
     if (lastElementOfHeader) {
       lastElementOfHeader.scrollIntoView();
     }
-  }, [calendarRef]);
+  }, [date]);
 
   useEffect(() => {
     scrollCalendar();
