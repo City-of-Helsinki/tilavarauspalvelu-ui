@@ -146,7 +146,9 @@ const EventContent = styled.div`
 
 const TitleCell = styled.div`
   display: -webkit-box;
+  /* stylelint-disable value-no-vendor-prefix */
   -webkit-line-clamp: 2;
+  /* stylelint-disable value-no-vendor-prefix */
   -webkit-box-orient: vertical;
   overflow: hidden;
 `;
