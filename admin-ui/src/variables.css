@@ -51,6 +51,7 @@
   --tilavaraus-event-booking-break: rgba(176, 184, 191, 0.2);
   --tilavaraus-event-calendar-closed: rgba(176, 184, 191, 0.15);
   --tilavaraus-event-booking-others: rgba(176, 184, 191, 0.1);
+  --tilavaraus-event-booking-past-date: rgba(176, 184, 191, 0.3);
 
   --tilavaraus-event-booking-success-border: var(--color-copper-dark);
   --tilavaraus-event-booking-wish-border: var(--color-gold-dark);

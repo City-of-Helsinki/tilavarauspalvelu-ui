@@ -1,6 +1,12 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import { breakpoints } from "common/src/common/style";
-import { addMinutes, differenceInMinutes, isToday, startOfDay } from "date-fns";
+import {
+  addMinutes,
+  differenceInMinutes,
+  isToday,
+  setHours,
+  startOfDay,
+} from "date-fns";
 import React, {
   CSSProperties,
   Fragment,
@@ -105,7 +111,9 @@ const CellContent = styled.div<{ $numCols: number }>`
   position: relative;
 `;
 
-const Cell = styled.div`
+const Cell = styled.div<{ $isPast?: boolean }>`
+  ${({ $isPast }) =>
+    $isPast ? "background: var(--tilavaraus-event-booking-past-date);" : ""}
   height: 100%;
   width: 100%;
   border-left: ${CELL_BORDER};
@@ -164,6 +172,12 @@ const Cells = ({
   setModalContent: (content: JSX.Element | null, isHds?: boolean) => void;
   onComplete: () => void;
 }) => {
+  const now = new Date();
+
+  const isPast = (index: number) => {
+    return setHours(date, Math.round(index / 2)) < now;
+  };
+
   const onClick =
     (offset: number) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       e.preventDefault();
@@ -179,10 +193,11 @@ const Cells = ({
         true
       );
     };
+
   return (
     <CellContent $numCols={cols}>
       {Array.from(Array(cols).keys()).map((i) => (
-        <Cell key={i} onClick={onClick(i)} />
+        <Cell key={i} onClick={onClick(i)} $isPast={isPast(i)} />
       ))}
     </CellContent>
   );
