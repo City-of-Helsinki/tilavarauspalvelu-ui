@@ -85,7 +85,6 @@ const eventStyleGetter =
 
     const style = {
       ...EVENT_STYLE,
-      zIndex: 100,
     };
 
     if (isConfirmed && isClosed) {
