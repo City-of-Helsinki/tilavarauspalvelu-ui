@@ -30,7 +30,8 @@ export type Resource = {
   events: CalendarEvent<ReservationType>[];
 };
 
-const CELL_HEIGHT = 44;
+const CELL_HEIGHT = 50;
+const TITLE_CELL_WIDTH_CH = 13;
 
 const TemplateProps: CSSProperties = {
   zIndex: "var(--tilavaraus-admin-stack-calendar-buffer)",
@@ -61,24 +62,23 @@ const FlexContainer = styled.div<{ $numCols: number }>`
 `;
 
 const ResourceNameContainer = styled.div<{ $isDraft: boolean }>`
-  display: flex;
-  align-items: center;
+  padding: var(--spacing-2-xs);
   border-top: ${CELL_BORDER};
   border-right: ${CELL_BORDER};
   border-left: ${({ $isDraft }) =>
     $isDraft ? CELL_BORDER_LEFT_ALERT : CELL_BORDER_LEFT};
   font-size: var(--fontsize-body-s);
-  padding-inline: var(--spacing-4-xs);
   position: sticky;
   left: 0;
   z-index: 10;
   background: var(--color-white);
+  max-width: ${TITLE_CELL_WIDTH_CH}ch;
 `;
 
 const HeadingRow = styled.div`
   height: ${CELL_HEIGHT}px;
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: ${TITLE_CELL_WIDTH_CH}ch 1fr;
   border-right: 1px solid transparent;
   border-left: 2px solid transparent;
 `;
@@ -134,6 +134,13 @@ const EventContent = styled.div`
     height: calc(100% - var(--spacing-xs) * 2);
     pointer-events: none;
   }
+`;
+
+const TitleCell = styled.div`
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
 const Cells = ({
@@ -413,16 +420,7 @@ const UnitCalendar = ({ date, resources, refetch }: Props): JSX.Element => {
       {orderedResources.map((row) => (
         <Row key={row.url}>
           <ResourceNameContainer title={row.title} $isDraft={row.isDraft}>
-            <div
-              style={{
-                overflow: "hidden",
-                whiteSpace: "nowrap",
-                textOverflow: "ellipsis",
-                padding: "var(--spacing-xs)",
-              }}
-            >
-              {row.title}
-            </div>
+            <TitleCell>{row.title}</TitleCell>
           </ResourceNameContainer>
           <RowCalendarArea>
             <Cells
