@@ -257,7 +257,7 @@ const ReservationSummary = ({
             ? t(
                 getTranslationKeyForType(
                   reservation.reserveeType as ReservationsReservationReserveeTypeChoices,
-                  reservation.reserveeIsUnregisteredAssociation
+                  Boolean(reservation.reserveeIsUnregisteredAssociation)
                 )
               )
             : undefined,
