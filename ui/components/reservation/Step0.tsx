@@ -96,7 +96,12 @@ const Step0 = ({
       return fields.indexOf(a) - fields.indexOf(b);
     }) || [];
 
-  if (isSubmitted && !reserveeType) errorKeys.push("reserveeType");
+  if (
+    reservationUnit?.metadataSet?.supportedFields?.includes("reservee_type") &&
+    isSubmitted &&
+    !reserveeType
+  )
+    errorKeys.push("reserveeType");
 
   return (
     <Form
