@@ -294,8 +294,8 @@ const translations: ITranslations = {
     ],
     Calendar: {
       Tabs: {
-        byUnit: ["Varaukset varausyksiköittäin"],
-        byReservationUnit: ["Kaikki toimipisteen varaukset"],
+        byUnit: ["Varausyksiköittäin"],
+        byReservationUnit: ["Kaikki varaukset"],
       },
       header: {
         recurringReservation: ["Tee toistuva varaus"],
