@@ -31,7 +31,7 @@ export type Resource = {
 };
 
 const CELL_HEIGHT = 50;
-const TITLE_CELL_WIDTH_CH = 13;
+const TITLE_CELL_WIDTH_CH = 11;
 
 const TemplateProps: CSSProperties = {
   zIndex: "var(--tilavaraus-admin-stack-calendar-buffer)",
@@ -62,17 +62,17 @@ const FlexContainer = styled.div<{ $numCols: number }>`
 `;
 
 const ResourceNameContainer = styled.div<{ $isDraft: boolean }>`
-  padding: var(--spacing-2-xs);
+  padding: var(--spacing-2-xs) var(--spacing-4-xs);
   border-top: ${CELL_BORDER};
   border-right: ${CELL_BORDER};
   border-left: ${({ $isDraft }) =>
     $isDraft ? CELL_BORDER_LEFT_ALERT : CELL_BORDER_LEFT};
   font-size: var(--fontsize-body-s);
+  line-height: var(--lineheight-m);
   position: sticky;
   left: 0;
-  z-index: 10;
+  z-index: var(--tilavaraus-admin-stack--calendar-title-cells);
   background: var(--color-white);
-  max-width: ${TITLE_CELL_WIDTH_CH}ch;
 `;
 
 const HeadingRow = styled.div`
@@ -148,7 +148,7 @@ const HideTimesOverTitles = styled.div`
   width: ${TITLE_CELL_WIDTH_CH}ch;
   height: ${CELL_HEIGHT}px;
   background-color: white;
-  z-index: var(--tilavaraus-admin-stack-select-over-calendar);
+  z-index: var(--tilavaraus-admin-stack--calendar-title-cells);
 `;
 
 const Cells = ({
