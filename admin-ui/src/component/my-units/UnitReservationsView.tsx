@@ -8,7 +8,7 @@ import { useLocation } from "react-use";
 import styled from "styled-components";
 import { useQueryParams } from "../../common/hooks";
 import { OptionType } from "../../common/types";
-import { Grid, Span4, VerticalFlex } from "../../styles/layout";
+import { AutoGrid, VerticalFlex } from "../../styles/layout";
 import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
 import Tags, { getReducer, toTags } from "../lists/Tags";
 import DayNavigation from "./DayNavigation";
@@ -66,19 +66,17 @@ const UnitReservationsView = (): JSX.Element => {
 
   return (
     <VerticalFlex>
-      <Grid>
-        <Span4>
-          <ReservationUnitTypeFilter
-            style={{
-              zIndex: "var(--tilavaraus-admin-stack-select-over-calendar)",
-            }}
-            value={state.reservationUnitType}
-            onChange={(reservationUnitType) => {
-              dispatch({ type: "set", value: { reservationUnitType } });
-            }}
-          />
-        </Span4>
-      </Grid>
+      <AutoGrid>
+        <ReservationUnitTypeFilter
+          style={{
+            zIndex: "var(--tilavaraus-admin-stack-select-over-calendar)",
+          }}
+          value={state.reservationUnitType}
+          onChange={(reservationUnitType) => {
+            dispatch({ type: "set", value: { reservationUnitType } });
+          }}
+        />
+      </AutoGrid>
       <Tags tags={tags} dispatch={dispatch} t={t} />
       <HR />
       <HorisontalFlexWrapper>
