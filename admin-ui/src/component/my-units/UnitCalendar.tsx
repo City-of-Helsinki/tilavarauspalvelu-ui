@@ -148,7 +148,7 @@ const HideTimesOverTitles = styled.div`
   width: ${TITLE_CELL_WIDTH_CH}ch;
   height: ${CELL_HEIGHT}px;
   background-color: white;
-  z-index: var(--tilavaraus-admin-stack--calendar-title-cells);
+  z-index: var(--tilavaraus-admin-stack-calendar-title-cells);
 `;
 
 const Cells = ({
