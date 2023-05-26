@@ -26,9 +26,10 @@
   --tilavaraus-admin-stack-notification: 801;
   --tilavaraus-admin-stack-sticky-header: 700;
   --tilavaraus-admin-stack-main-menu: 500;
-  --tilavaraus-admin-stack-calendar-buffer: 101;
+  --tilavaraus-admin-stack-calendar-buffer: 9;
   --tilavaraus-admin-stack-select-over-calendar: 11;
-  --tilavaraus-admin-stack--calendar-title-cells: 10;
+  --tilavaraus-admin-stack-calendar-title-cells: 10;
+  --tilavaraus-calendar-gutter-zindex: 9;
   --tilavaraus-calendar-selected: var(--color-bus);
   --tilavaraus-calendar-selected-secondary: #ffe977;
   --font-regular: HelsinkiGrotesk, var(--font-default);

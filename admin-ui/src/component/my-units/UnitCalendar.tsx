@@ -71,7 +71,7 @@ const ResourceNameContainer = styled.div<{ $isDraft: boolean }>`
   line-height: var(--lineheight-m);
   position: sticky;
   left: 0;
-  z-index: var(--tilavaraus-admin-stack--calendar-title-cells);
+  z-index: var(--tilavaraus-admin-stack-calendar-title-cells);
   background: var(--color-white);
 `;
 
