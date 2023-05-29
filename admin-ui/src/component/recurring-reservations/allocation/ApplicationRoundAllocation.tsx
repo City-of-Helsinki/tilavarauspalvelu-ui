@@ -24,6 +24,7 @@ import { getFilteredApplicationEvents } from "../modules/applicationRoundAllocat
 import ApplicationRoundAllocationApplicationEvents from "./ApplicationRoundAllocationApplicationEvents";
 import LinkPrev from "../../LinkPrev";
 import { useAllocationContext } from "../../../context/AllocationContext";
+import { useAuthState } from "../../../context/AuthStateContext";
 
 type Props = {
   applicationRoundId: string;
@@ -72,6 +73,8 @@ const Tab = styled(Tabs.Tab)`
 function ApplicationRoundAllocation(): JSX.Element {
   const { refreshApplicationEvents, setRefreshApplicationEvents } =
     useAllocationContext();
+  const { authState } = useAuthState();
+  const { user } = authState || {};
 
   const [isLoading, setIsLoading] = useState(true);
   const { notifyError } = useNotification();
@@ -122,7 +125,9 @@ function ApplicationRoundAllocation(): JSX.Element {
   } = useQuery<Query, QueryApplicationsArgs>(
     APPLICATIONS_BY_APPLICATION_ROUND_QUERY,
     {
+      skip: !user?.pk,
       variables: {
+        user: user?.pk?.toString(),
         applicationRound: applicationRoundId,
         status: [
           ApplicationStatus.Allocated,
