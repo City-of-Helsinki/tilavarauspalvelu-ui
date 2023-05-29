@@ -185,10 +185,33 @@ const deleteReservation = graphql.mutation<
   { deleteReservation: ReservationDeleteMutationPayload },
   { input: ReservationDeleteMutationInput }
 >("deleteReservation", (req, res, ctx) => {
+  const { pk } = req.variables.input;
+  let deleted: boolean;
+  switch (pk) {
+    case 3333:
+      deleted = false;
+      break;
+    default:
+      deleted = true;
+  }
+
+  if ([23, 6666].includes(pk)) {
+    return res(
+      ctx.errors([
+        {
+          message: "No Reservation matches the given query.",
+          extensions: {
+            error_code: "OOPS",
+          },
+        },
+      ])
+    );
+  }
+
   return res(
     ctx.data({
       deleteReservation: {
-        deleted: true,
+        deleted,
       },
     })
   );
@@ -332,20 +355,32 @@ const cities = graphql.query<Query, QueryCitiesArgs>(
           edges: [
             {
               node: {
+                id: "Q2l0eTof",
                 pk: 1,
                 name: "Helsinki",
+                nameFi: "Helsinki FI",
+                nameEn: "Helsinki EN",
+                nameSv: "Helsinki Sv",
               },
             },
             {
               node: {
+                id: "Q2l0eTod",
                 pk: 2,
                 name: "Lande",
+                nameFi: "Lande FI",
+                nameEn: "Lande EN",
+                nameSv: "Lande SV",
               },
             },
             {
               node: {
+                id: "Q2l0eToz",
                 pk: 3,
                 name: "Muu",
+                nameFi: "Muu FI",
+                nameEn: "Muu EN",
+                nameSv: "Muu SV",
               },
             },
           ],
@@ -364,7 +399,8 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       type: ReservationsReservationReserveeTypeChoices.Individual,
       id: "UmVzZXJ2YXRpb246Mg==",
       name: "Reservation name",
-      description: "Reservation description - a long one with alotta text",
+      description:
+        "Reservation description - a long one with alotta text and then some",
       reserveeFirstName: "First name",
       reserveeLastName: "Last name",
       reserveePhone: "+358 123 4567",
@@ -530,12 +566,42 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
           },
         },
       ];
+      data.reservationUnits[0].metadataSet = {
+        id: "fawoifhj",
+        name: "Company metadata",
+        supportedFields: [
+          "reservee_organisation_name",
+          "reservee_first_name",
+          "reservee_last_name",
+          "reservee_phone",
+          "reservee_email",
+          "description",
+          "purpose",
+          "ageGroup",
+          "numPersons",
+        ],
+      };
     }
 
     if (pk === 11) {
-      data.type = ReservationsReservationReserveeTypeChoices.Business;
+      data.reserveeType = ReservationsReservationReserveeTypeChoices.Business;
       data.reserveeOrganisationName = "Acme Oyj";
       data.orderStatus = "PAID";
+      data.reservationUnits[0].metadataSet = {
+        id: "fawoifhj",
+        name: "Company metadata",
+        supportedFields: [
+          "reservee_organisation_name",
+          "reservee_first_name",
+          "reservee_last_name",
+          "reservee_phone",
+          "reservee_email",
+          "description",
+          "purpose",
+          "ageGroup",
+          "numPersons",
+        ],
+      };
     }
 
     if (pk === 20) {
@@ -559,6 +625,36 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       data.reservationUnits[0].reservationCancelledInstructionsFi =
         "Ohjeet perutulle varaukselle";
       data.orderStatus = "foobar";
+      data.reservationUnits[0].metadataSet = {
+        pk: 4,
+        id: "fawoifhj",
+        name: "Metadata set",
+        supportedFields: [
+          "reservee_first_name",
+          "reservee_last_name",
+          "reservee_address_street",
+          "reservee_address_zip",
+          "reservee_address_city",
+          "reservee_email",
+          "reservee_phone",
+          "name",
+          "purpose",
+          "num_persons",
+          "age_group",
+          "description",
+          "applying_for_free_of_charge",
+          "free_of_charge_reason",
+          "reservee_organisation_name",
+          "home_city",
+          "reservee_is_unregistered_association",
+          "reservee_id",
+        ],
+      };
+    }
+
+    if (pk === 22 || pk === 23) {
+      data.state = ReservationsReservationStateChoices.WaitingForPayment;
+      data.orderUuid = "22-1";
     }
 
     if (pk === 42) {
@@ -577,7 +673,14 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       data.reserveeAddressStreet = "Katu 13";
       data.reserveeAddressCity = "Helsinki";
       data.reserveeAddressZip = "00100";
-      data.homeCity = { id: "123", name: "Lande", pk: 2 };
+      data.homeCity = {
+        id: "123",
+        name: "Lande",
+        nameFi: "Lande FI",
+        nameEn: "Lande En",
+        nameSv: "Lande Sv",
+        pk: 2,
+      };
     }
 
     if (pk === 702) {
@@ -771,6 +874,7 @@ const listReservations = graphql.query<Query, QueryReservationsArgs>(
           state: ReservationsReservationStateChoices.WaitingForPayment,
           bufferTimeBefore: 3600,
           bufferTimeAfter: 1800,
+          orderUuid: "7777-7777-7777-7777",
           reservationUnits: [
             {
               pk: 4,
@@ -1507,6 +1611,12 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
     let order: PaymentOrderType | null = null;
 
     switch (orderUuid) {
+      case "22-1":
+        order = {
+          ...baseOrder,
+          checkoutUrl: "https://google.com/search?user=123",
+        };
+        break;
       case "2222-2222-2222-2222":
         order = baseOrder;
         break;
@@ -1544,6 +1654,15 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
           reservationPk: "6666",
           status: "PAID",
           receiptUrl: "https://example.com/receipt.pdf?orderId=123",
+        };
+        break;
+      case "7777-7777-7777-7777":
+        order = {
+          ...baseOrder,
+          reservationPk: "7777",
+          status: "PAID",
+          receiptUrl: "https://example.com/receipt.pdf?orderId=123",
+          checkoutUrl: "https://google.com/search?user=123",
         };
         break;
       default:

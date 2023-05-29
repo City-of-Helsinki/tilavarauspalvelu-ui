@@ -12,30 +12,37 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return <FormProvider {...formMethods}>{children}</FormProvider>;
 };
 
-const reservationData: Reservation = {
-  name: "",
-  pk: 1,
-  begin: "",
-  end: "",
-  reservationUnitPks: [1],
-};
-
 /* options are gotten from GraphQL so some mock data */
 const options: Record<string, OptionType[]> = {
   purpose: [
     { value: "purple", label: "Purpose" },
     { value: "not", label: "Not a thing" },
   ],
-  ageGroups: [
+  ageGroup: [
     { value: 1, label: "1-9" },
     { value: 2, label: "10-" },
   ],
-  cities: [
+  homeCity: [
     { value: 1, label: "Helsinki" },
     { value: 2, label: "Muu" },
   ],
 };
-const WrappedComponent = (props: {
+
+const WrappedComponent = ({
+  field,
+  required,
+  translationKey,
+  params,
+  data,
+  reservationData = {
+    name: "",
+    pk: 1,
+    begin: "",
+    end: "",
+    reservationUnitPks: [1],
+  },
+  defaultValues = {},
+}: {
   field: keyof Inputs;
   required?: boolean;
   params?: Record<string, Record<string, string | number>>;
@@ -43,13 +50,19 @@ const WrappedComponent = (props: {
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
+  reservationData?: Reservation;
+  defaultValues?: Record<string, string | number>;
 }) => (
   <Wrapper>
     <ReservationFormField
+      // key={`key-${field}`}
+      field={field}
       options={options}
-      reservation={reservationData}
-      {...props}
-      required={props.required ?? false}
+      required={required ?? false}
+      translationKey={translationKey}
+      reservation={{ ...reservationData, ...defaultValues }}
+      params={params}
+      data={data}
     />
   </Wrapper>
 );
@@ -57,11 +70,11 @@ const WrappedComponent = (props: {
 // describe("Text fields", () => {
 // Text fields
 test("Renders required text field", async () => {
-  const fname = "name";
-  const view = render(<WrappedComponent field={fname} required />);
+  const fieldName = "name";
+  const view = render(<WrappedComponent field={fieldName} required />);
 
   const input = await view.findByLabelText(
-    `reservationApplication:label.individual.${fname} *`
+    `reservationApplication:label.individual.${fieldName} *`
   );
   expect(input).toBeInTheDocument();
   expect(input).toBeRequired();
@@ -73,11 +86,11 @@ test("Renders required text field", async () => {
 
 // TODO description (textArea) but doesn it make a difference
 test("Renders non required text field", async () => {
-  const fname = "description";
-  const view = render(<WrappedComponent field={fname} />);
+  const fieldName = "description";
+  const view = render(<WrappedComponent field={fieldName} />);
 
   const input = await view.findByLabelText(
-    `reservationApplication:label.individual.${fname}`
+    `reservationApplication:label.individual.${fieldName}`
   );
   expect(input).toBeInTheDocument();
   expect(input).not.toBeRequired();
@@ -103,13 +116,13 @@ test.todo("reserveeEmail only allows emails or it's an error");
 test.todo("billingEmail only allows emails or it's an error");
 
 test("ReserveeType changes translation namespaces", async () => {
-  const fname = "name";
+  const fieldName = "name";
   const view = render(
-    <WrappedComponent field={fname} required translationKey="COMMON" />
+    <WrappedComponent field={fieldName} required translationKey="COMMON" />
   );
 
   const input = await view.findByLabelText(
-    `reservationApplication:label.common.${fname} *`
+    `reservationApplication:label.common.${fieldName} *`
   );
   expect(input).toBeInTheDocument();
   expect(input).toBeRequired();
@@ -157,14 +170,14 @@ test("numPersons min and max", async () => {
 });
 
 /* Selects are rendered, not testing functionality since it's HDS */
-test("Renders required Select field", async () => {
-  const fname = "purpose";
+test("Renders non-required Select field", async () => {
+  const fieldName = "purpose";
   const required = false;
-  const label = `reservationApplication:label.individual.${fname}${
+  const label = `reservationApplication:label.individual.${fieldName}${
     required ? " *" : ""
   }`;
 
-  const view = render(<WrappedComponent field={fname} required={false} />);
+  const view = render(<WrappedComponent field={fieldName} required={false} />);
 
   // Find and click the button so the listbox is visible
   const btn = await view.findByLabelText(label, { selector: "button" });
@@ -180,13 +193,15 @@ test("Renders required Select field", async () => {
 });
 
 test("Renders required version of Select", async () => {
-  const fname = "purpose";
+  const fieldName = "purpose";
   const required = true;
-  const label = `reservationApplication:label.individual.${fname}${
+  const label = `reservationApplication:label.individual.${fieldName}${
     required ? " *" : ""
   }`;
 
-  const view = render(<WrappedComponent field={fname} required={required} />);
+  const view = render(
+    <WrappedComponent field={fieldName} required={required} />
+  );
 
   // Find and click the button so the listbox is visible
   const btn = await view.findByLabelText(label, { selector: "button" });
@@ -198,6 +213,32 @@ test("Renders required version of Select", async () => {
   expect(listbox).toBeInTheDocument();
   expect(await within(listbox).findByText(/purpose/i)).toBeInTheDocument();
   expect(await within(listbox).findByText(/not a thing/i)).toBeInTheDocument();
+});
+
+test("Renders select with a default value", async () => {
+  const fieldName = "homeCity";
+  const required = false;
+  const label = `reservationApplication:label.individual.${fieldName}${
+    required ? " *" : ""
+  }`;
+
+  const view = render(
+    <WrappedComponent
+      field={fieldName}
+      required={required}
+      defaultValues={{ homeCity: 2 }}
+    />
+  );
+
+  // Find and click the button so the listbox is visible
+  const btn = await view.findByLabelText(label, { selector: "button" });
+  expect(btn).toBeInTheDocument();
+  await user.click(btn);
+
+  const listbox = await view.findByLabelText(label, { selector: "ul" });
+  const selectedOption = listbox.querySelector("li[aria-selected='true']");
+
+  expect(selectedOption).toBeInTheDocument();
 });
 
 // Required checkbox makes no sense at all so not testing it
@@ -220,17 +261,17 @@ test("Renders a checkbox for reserveeIsUnregisteredAssociation", async () => {
 });
 
 test("free of charge shows termsForDiscount component", async () => {
-  const fname = "applyingForFreeOfCharge";
+  const fieldName = "applyingForFreeOfCharge";
   const view = render(
     <WrappedComponent
-      field={fname}
+      field={fieldName}
       data={{
         termsForDiscount: <div>Dummy</div>,
       }}
     />
   );
 
-  const check = await view.findByLabelText(RegExp(fname));
+  const check = await view.findByLabelText(RegExp(fieldName));
   expect(check).toBeInTheDocument();
   expect(check).not.toBeChecked();
   await user.click(check);

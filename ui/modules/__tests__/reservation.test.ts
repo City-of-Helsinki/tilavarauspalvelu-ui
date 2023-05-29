@@ -1,6 +1,7 @@
 import { get as mockGet } from "lodash";
 import { addDays, addHours, addMinutes, format, startOfToday } from "date-fns";
 import {
+  PaymentOrderType,
   ReservationsReservationReserveeTypeChoices,
   ReservationsReservationStateChoices,
   ReservationType,
@@ -10,6 +11,7 @@ import {
   CanReservationBeChangedProps,
   canReservationTimeBeChanged,
   canUserCancelReservation,
+  getCheckoutUrl,
   getDurationOptions,
   getNormalizedReservationOrderStatus,
   getReservationApplicationMutationValues,
@@ -17,6 +19,7 @@ import {
   isReservationInThePast,
 } from "../reservation";
 import mockTranslations from "../../public/locales/fi/prices.json";
+import { Language } from "common";
 
 jest.mock("next-i18next", () => ({
   i18n: {
@@ -467,14 +470,6 @@ describe("canReservationBeChanged", () => {
     ).toStrictEqual([false, "RESERVATION_BEGIN_IN_PAST"]);
   });
 
-  test("handles price check", () => {
-    expect(
-      canReservationTimeBeChanged({
-        reservation: { ...reservation, price: 1.01 },
-      } as CanReservationBeChangedProps)
-    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
-  });
-
   test("handles cancellation rule check", () => {
     expect(
       canReservationTimeBeChanged({
@@ -488,7 +483,7 @@ describe("canReservationBeChanged", () => {
           ],
         },
       } as CanReservationBeChangedProps)
-    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
 
     expect(
       canReservationTimeBeChanged({
@@ -504,7 +499,7 @@ describe("canReservationBeChanged", () => {
           ],
         },
       } as CanReservationBeChangedProps)
-    ).toStrictEqual([false, "CANCELLATION_NOT_ALLOWED"]);
+    ).toStrictEqual([false, "RESERVATION_MODIFICATION_NOT_ALLOWED"]);
   });
 
   test("handles cancellation rule buffer check", () => {
@@ -688,5 +683,50 @@ describe("canReservationBeChanged", () => {
         } as CanReservationBeChangedProps)
       ).toStrictEqual([true]);
     });
+  });
+});
+
+describe("getCheckoutUrl", () => {
+  const order: PaymentOrderType = {
+    id: "order-id",
+    checkoutUrl: "https://checkout.url/path?user=1111-2222-3333-4444",
+  };
+
+  test("returns checkout url", () => {
+    expect(getCheckoutUrl(order, "sv")).toBe(
+      "https://checkout.url/path/paymentmethod?user=1111-2222-3333-4444&lang=sv"
+    );
+
+    expect(getCheckoutUrl(order, "fi")).toBe(
+      "https://checkout.url/path/paymentmethod?user=1111-2222-3333-4444&lang=fi"
+    );
+  });
+
+  test("returns null with falsy input", () => {
+    expect(getCheckoutUrl(order, null as unknown as Language)).toBe(null);
+
+    expect(getCheckoutUrl({ ...order, checkoutUrl: undefined }, "fi")).toBe(
+      null
+    );
+
+    expect(
+      getCheckoutUrl(
+        {
+          ...order,
+          checkoutUrl: "checkout.url?user=1111-2222-3333-4444",
+        },
+        "fi"
+      )
+    ).toBe(null);
+
+    expect(
+      getCheckoutUrl(
+        {
+          ...order,
+          checkoutUrl: "https://checkout.url/path",
+        },
+        "fi"
+      )
+    ).toBe(null);
   });
 });

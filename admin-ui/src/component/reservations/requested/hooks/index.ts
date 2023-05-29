@@ -1,15 +1,15 @@
 import {
-  Query,
-  QueryReservationByPkArgs,
-  QueryReservationDenyReasonsArgs,
-  QueryReservationsArgs,
-  ReservationDenyReasonType,
+  type Query,
+  type ReservationType,
+  type QueryReservationsArgs,
   ReservationsReservationStateChoices,
-  ReservationType,
+  type ReservationDenyReasonType,
+  type QueryReservationDenyReasonsArgs,
+  type QueryReservationByPkArgs,
 } from "common/types/gql-types";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   RECURRING_RESERVATION_QUERY,
   RESERVATIONS_BY_RESERVATIONUNIT,
@@ -20,6 +20,7 @@ import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 
+/// NOTE only fetches 100 reservations => use pageInfo and fetchMore
 export const useReservationData = (
   begin: Date,
   end: Date,

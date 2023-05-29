@@ -16,6 +16,7 @@ import {
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ServiceSectorType,
+  ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
@@ -47,6 +48,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { CURRENT_USER } from "../../../context/queries";
 import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
+import { useRecurringReservations } from "./hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
 
@@ -92,31 +94,29 @@ const ApplicationData = ({
   label: string;
   data?: Maybe<string> | number | JSX.Element;
   wide?: boolean;
-}) =>
-  data ? (
+}) => (
+  <div style={{ fontWeight: "400", gridColumn: wide ? "1 / span 2" : "auto" }}>
     <div
-      style={{ fontWeight: "400", gridColumn: wide ? "1 / span 2" : "auto" }}
+      style={{
+        paddingBottom: "var(--spacing-xs)",
+        color: "var(--color-black-70)",
+      }}
     >
-      <div
-        style={{
-          paddingBottom: "var(--spacing-xs)",
-          color: "var(--color-black-70)",
-        }}
-      >
-        <span>{label}</span>
-      </div>
-      <span style={{ fontSize: "var(--fontsize-body-l)" }}>{data}</span>
+      <span>{label}</span>
     </div>
-  ) : null;
+    <span style={{ fontSize: "var(--fontsize-body-l)" }}>{data}</span>
+  </div>
+);
 
 const ButtonsWithPermChecks = ({
   reservation,
-  refetch,
   isFree,
+  onReservationUpdated,
 }: {
   reservation: ReservationType;
-  refetch: () => void;
   isFree: boolean;
+  // Hack to deal with reservation query not being cached so we need to refetch
+  onReservationUpdated: () => void;
 }) => {
   const { setModalContent } = useModal();
 
@@ -133,11 +133,6 @@ const ButtonsWithPermChecks = ({
 
   const closeDialog = () => {
     setModalContent(null);
-  };
-
-  const closeDialogAndRefetch = () => {
-    closeDialog();
-    refetch();
   };
 
   const { hasPermission } = useAuthState().authState;
@@ -161,7 +156,10 @@ const ButtonsWithPermChecks = ({
       <ApprovalButtonsRecurring
         recurringReservation={reservation.recurringReservation}
         handleClose={closeDialog}
-        handleAccept={closeDialogAndRefetch}
+        handleAccept={() => {
+          onReservationUpdated();
+          closeDialog();
+        }}
       />
     );
   }
@@ -172,7 +170,10 @@ const ButtonsWithPermChecks = ({
       isFree={isFree}
       reservation={reservation}
       handleClose={closeDialog}
-      handleAccept={closeDialogAndRefetch}
+      handleAccept={() => {
+        onReservationUpdated();
+        closeDialog();
+      }}
     />
   );
 };
@@ -260,6 +261,75 @@ const ReservationSummary = ({
   );
 };
 
+const maybeStringToDate: (s?: string) => Date | undefined = (str) =>
+  str ? new Date(str) : undefined;
+
+const onlyFutureDates: (d?: Date) => Date | undefined = (d) =>
+  d && d > new Date() ? d : undefined;
+
+const TimeBlock = ({
+  reservation,
+  onReservationUpdated,
+}: {
+  reservation: ReservationType;
+  onReservationUpdated: () => void;
+}) => {
+  const [selected, setSelected] = useState<ReservationType | undefined>(
+    undefined
+  );
+
+  const { t } = useTranslation();
+
+  // date focus rules for Calendar
+  // (1) if selected => show that
+  // (2) else if reservation is in the future => show that
+  // (3) else if reservation.recurrance has an event in the future => show that
+  // (4) else show today
+  const { reservations } = useRecurringReservations(
+    reservation.recurringReservation?.pk ?? undefined
+  );
+
+  const nextReservation = reservations.find(
+    (x) =>
+      x.state === ReservationsReservationStateChoices.Confirmed &&
+      new Date(x.begin) > new Date()
+  );
+
+  const shownReservation =
+    new Date(reservation.begin) > new Date() ? reservation : nextReservation;
+
+  const focusDate =
+    maybeStringToDate(selected?.begin) ??
+    onlyFutureDates(maybeStringToDate(shownReservation?.begin)) ??
+    new Date();
+
+  return (
+    <>
+      {reservation.recurringReservation && (
+        <Accordion heading={t("RequestedReservation.recurring")}>
+          <RecurringReservationsView
+            reservation={reservation}
+            onSelect={setSelected}
+            onReservationUpdated={onReservationUpdated}
+          />
+        </Accordion>
+      )}
+      <Accordion
+        heading={t("RequestedReservation.calendar")}
+        initiallyOpen={reservation.recurringReservation != null}
+        id="reservation-calendar"
+      >
+        <Calendar
+          reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
+          reservation={reservation}
+          selected={selected}
+          focusDate={focusDate}
+        />
+      </Accordion>
+    </>
+  );
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
   const [reservation, setReservation] = useState<ReservationType | undefined>(
@@ -267,9 +337,7 @@ const RequestedReservation = (): JSX.Element | null => {
   );
   const [workingMemo, setWorkingMemo] = useState<string>();
   const { notifyError, notifySuccess } = useNotification();
-  const [selectedReservation, setSelectedReservation] = useState<
-    ReservationType | undefined
-  >(undefined);
+
   const { t } = useTranslation();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
@@ -282,7 +350,6 @@ const RequestedReservation = (): JSX.Element | null => {
       onCompleted: ({ reservationByPk }) => {
         if (reservationByPk) {
           setReservation(reservationByPk);
-          setSelectedReservation(reservationByPk);
           setWorkingMemo(reservationByPk.workingMemo || "");
         }
       },
@@ -344,13 +411,12 @@ const RequestedReservation = (): JSX.Element | null => {
           buttons={
             <ButtonsWithPermChecks
               reservation={reservation}
-              refetch={refetch}
               isFree={!isNonFree}
+              onReservationUpdated={refetch}
             />
           }
         />
       </ShowWhenTargetInvisible>
-
       <Container>
         <ReservationTitleSection
           ref={ref}
@@ -359,7 +425,7 @@ const RequestedReservation = (): JSX.Element | null => {
         />
         <ButtonsWithPermChecks
           reservation={reservation}
-          refetch={refetch}
+          onReservationUpdated={refetch}
           isFree={!isNonFree}
         />
         <ReservationSummary reservation={reservation} isFree={!isNonFree} />
@@ -432,23 +498,7 @@ const RequestedReservation = (): JSX.Element | null => {
               </VisibleIfPermission>
             </VerticalFlex>
           </Accordion>
-          {reservation.recurringReservation && (
-            <Accordion heading={t("RequestedReservation.recurring")}>
-              <RecurringReservationsView
-                // reservation change causes a refetch
-                // selected !== reservation so a selection doesn't
-                reservation={reservation}
-                onSelect={setSelectedReservation}
-                onChange={refetch}
-              />
-            </Accordion>
-          )}
-          <Accordion heading={t("RequestedReservation.calendar")}>
-            <Calendar
-              reservationUnitPk={String(reservation?.reservationUnits?.[0]?.pk)}
-              reservation={selectedReservation ?? reservation}
-            />
-          </Accordion>
+          <TimeBlock reservation={reservation} onReservationUpdated={refetch} />
           <Accordion heading={t("RequestedReservation.reservationDetails")}>
             <ApplicationDatas>
               <ApplicationData
@@ -507,7 +557,10 @@ const RequestedReservation = (): JSX.Element | null => {
               />
               <ApplicationData
                 label={t("RequestedReservation.reserveeId")}
-                data={reservation.reserveeId}
+                data={
+                  reservation.reserveeId ||
+                  t("RequestedReservation.noReserveeId")
+                }
               />
               <ApplicationData
                 label={t("RequestedReservation.reserveeFirstName")}
@@ -524,19 +577,6 @@ const RequestedReservation = (): JSX.Element | null => {
               <ApplicationData
                 label={t("RequestedReservation.reserveeEmail")}
                 data={reservation.reserveeEmail}
-              />
-              <ApplicationData
-                label={t("RequestedReservation.addressStreet")}
-                data={reservation.reserveeAddressStreet}
-              />
-              <ApplicationData
-                label={t("RequestedReservation.addressZipCity")}
-                data={
-                  reservation.reserveeAddressZip ||
-                  reservation.reserveeAddressCity
-                    ? `${reservation.reserveeAddressZip} ${reservation.reserveeAddressCity}`
-                    : undefined
-                }
               />
             </ApplicationDatas>
           </Accordion>
@@ -596,6 +636,25 @@ const RequestedReservation = (): JSX.Element | null => {
                     hideLabel={t("RequestedReservation.hideBirthDate")}
                   />
                 }
+              />
+              <ApplicationData
+                label={t("RequestedReservation.addressStreet")}
+                data={
+                  <>
+                    <span>{reservation.reserveeAddressStreet || "-"}</span>
+                    <br />
+                    <span>
+                      {reservation.reserveeAddressZip ||
+                      reservation.reserveeAddressCity
+                        ? `${reservation.reserveeAddressZip} ${reservation.reserveeAddressCity}`
+                        : ""}
+                    </span>
+                  </>
+                }
+              />
+              <ApplicationData
+                label={t("RequestedReservation.addressCity")}
+                data={reservation.reserveeAddressCity || "-"}
               />
             </ApplicationDatas>
           </Accordion>

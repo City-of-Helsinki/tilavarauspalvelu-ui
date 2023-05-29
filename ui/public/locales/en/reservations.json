@@ -27,6 +27,7 @@
   "pastReservations": "Past",
   "cancelledReservations": "Cancelled",
   "upcomingSlug": "Coming",
+  "payReservation": "Pay",
   "pastSlug": "Past",
   "modifyReservationTime": "Change the time",
   "modifyApplication": "Edit the application",
@@ -39,7 +40,7 @@
   "cancelReason": "Reason for the cancellation",
   "cancelDescription": "Description of the cancellation",
   "cancelDescriptionPlaceHolder": "Please explain briefly why you are cancelling the booking.",
-  "reservationCancelledTitle": "Your booking has been cancelled.",
+  "reservationCancelledTitle": "Your booking has been cancelled!",
   "reservationCancelledBody": "You will receive a booking confirmation by email in a moment.",
   "reservationCancellationFailed": "Failed to cancel the booking",
   "makeNewReservation": "Please make a new booking for the same item.",
@@ -76,10 +77,11 @@
     "5": "Payment"
   },
   "modifyTimeReasons": {
-    "RESERVATION_MODIFICATION_NOT_ALLOWED": "Unfortunately, the booking could not be changed. If necessary, you can cancel it and make a new booking.",
+    "RESERVATION_MODIFICATION_NOT_ALLOWED": "Unfortunately, the booking could not be changed.",
+    "RESERVATION_MODIFICATION_NOT_ALLOWED_SUFFIX": "If necessary, you can cancel it and make a new booking.",
     "RESERVATION_BEGIN_IN_PAST": "The booking can no longer be cancelled or changed because the booking time has passed.",
     "CANCELLATION_NOT_ALLOWED": "The booking is binding and cannot be cancelled.",
-    "CANCELLATION_TIME_PAST": "Unfortunately, the booking could not be cancelled, because the cancellation time has passed.",
+    "CANCELLATION_TIME_PAST": "Unfortunately, the booking could not be cancelled or changed, because the cancellation time has passed.",
     "RESERVATION_TIME_INVALID": "The booking period is too short"
   },
   "cancellationReasons": {

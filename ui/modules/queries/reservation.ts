@@ -142,6 +142,7 @@ export const LIST_RESERVATIONS = gql`
           price
           bufferTimeBefore
           bufferTimeAfter
+          orderUuid
           reservationUnits {
             pk
             nameFi
@@ -195,6 +196,8 @@ export const GET_RESERVATION = gql`
       reserveeEmail
       reserveePhone
       reserveeType
+      reserveeId
+      reserveeOrganisationName
       begin
       end
       calendarUrl
@@ -317,6 +320,7 @@ export const GET_RESERVATION = gql`
         pk
         name
       }
+      numPersons
       handledAt
     }
   }
@@ -344,6 +348,9 @@ export const GET_CITIES = gql`
         node {
           pk
           name
+          nameFi
+          nameEn
+          nameSv
         }
       }
     }
@@ -372,6 +379,7 @@ export const GET_ORDER = gql`
       status
       paymentType
       receiptUrl
+      checkoutUrl
     }
   }
 `;

@@ -89,7 +89,7 @@ const ReservationTitleSection = forwardRef<HTMLDivElement, Props>(
         <Tagline>{tagline}</Tagline>
         <DateTime>
           {t("RequestedReservation.createdAt")}{" "}
-          {formatDateTime(reservation.createdAt as string)}
+          {formatDateTime(reservation.createdAt ?? "")}
         </DateTime>
       </div>
     );

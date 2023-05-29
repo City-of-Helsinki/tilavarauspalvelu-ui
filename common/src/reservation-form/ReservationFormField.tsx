@@ -26,7 +26,6 @@ type Props = {
   data?: {
     termsForDiscount?: JSX.Element | string;
   };
-  defaultValues?: Record<string, string | number>;
 };
 
 const StyledCheckboxWrapper = styled(CheckboxWrapper)<{
@@ -127,7 +126,6 @@ const ReservationFormField = ({
   reservation,
   params = {},
   data = {},
-  defaultValues = {},
 }: Props) => {
   const { t } = useTranslation();
 
@@ -197,7 +195,7 @@ const ReservationFormField = ({
   const error = get(errors, field);
   const errorText = error && t("forms:requiredField");
 
-  const defaultValue = get(defaultValues, field);
+  const defaultValue = get(reservation, field);
 
   const checkParams = {
     field,
@@ -212,6 +210,17 @@ const ReservationFormField = ({
     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
     message: "email",
   };
+
+  const minValue =
+    get(params, field)?.min != null && !Number.isNaN(get(params, field).min)
+      ? Number(get(params, field)?.min)
+      : 1;
+  const maxValue =
+    get(params, field)?.max != null && !Number.isNaN(get(params, field).max)
+      ? Number(get(params, field)?.max) < 200
+        ? Number(get(params, field)?.max)
+        : 200
+      : undefined;
 
   return Object.keys(options).includes(field) ? (
     <Controller
@@ -230,9 +239,9 @@ const ReservationFormField = ({
           options={options[field]}
           {...removeRefParam(formField)}
           value={
-            formField.value ||
-            options[field].find((n) => n.value === defaultValue) ||
-            null
+            typeof formField.value === "object"
+              ? formField.value
+              : options[field].find((n) => n.value === defaultValue) || null
           }
           error={errorText}
           required={required}
@@ -290,27 +299,24 @@ const ReservationFormField = ({
       {...register(field, {
         valueAsNumber: true,
         required,
-        ...(required && {
-          min: 1,
-        }),
+        min: minValue,
+        max: maxValue,
       })}
       key={field}
-      errorText={errorText}
+      errorText={
+        error?.type === "min"
+          ? t("forms:min")
+          : error?.type === "max"
+          ? t("forms:max")
+          : errorText
+      }
       invalid={!!error}
       required={required}
       step={1}
       minusStepButtonAriaLabel={t("common:decrease") || "Decrease"}
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
-      min={
-        get(params, field)?.min != null && !Number.isNaN(get(params, field).min)
-          ? Number(get(params, field)?.min)
-          : undefined
-      }
-      max={
-        get(params, field)?.max != null && !Number.isNaN(get(params, field).max)
-          ? Number(get(params, field)?.max)
-          : undefined
-      }
+      min={minValue}
+      max={maxValue}
     />
   ) : isTextArea ? (
     <StyledTextArea

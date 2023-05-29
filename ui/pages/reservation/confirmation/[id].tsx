@@ -32,6 +32,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   return {
     props: {
+      key: `${reservationPk}${locale}`,
       reservationPk,
       ...(await serverSideTranslations(locale)),
     },
@@ -86,7 +87,7 @@ const ReservationSuccess = ({ reservationPk }: Props) => {
     order,
     error: orderError,
     loading: orderLoading,
-  } = useOrder(reservation?.orderUuid);
+  } = useOrder({ orderUuid: reservation?.orderUuid });
 
   const isOrderUuidMissing = reservation && !reservation.orderUuid;
 

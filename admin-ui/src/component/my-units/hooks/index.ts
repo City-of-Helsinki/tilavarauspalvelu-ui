@@ -118,6 +118,7 @@ export const useUnitQuery = (pk?: number | string) => {
   return res;
 };
 
+// TODO is this on purpose full DateTime and not set to midnight?
 export const useUnitResources = (
   begin: Date,
   unitPk: string,
@@ -125,6 +126,8 @@ export const useUnitResources = (
 ) => {
   const { notifyError } = useNotification();
 
+  // this queries a single day so it should always have less than 100 edges
+  // in practice should check edge count and have pagination / automatic fetching
   const { data, ...rest } = useQuery<
     Query,
     QueryReservationUnitsArgs & ReservationUnitByPkTypeReservationsArgs

@@ -60,6 +60,7 @@ import {
 import Sanitize from "../../components/common/Sanitize";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import {
+  getCheckoutUrl,
   getReservationApplicationMutationValues,
   profileUserFields,
 } from "../../modules/reservation";
@@ -76,6 +77,7 @@ import { PinkBox } from "../../components/reservation-unit/ReservationUnitStyles
 import { Toast } from "../../styles/util";
 
 type Props = {
+  fetchedReservation: Reservation;
   reservationUnit: ReservationUnitType;
   reservationPurposes: ReservationPurposeType[];
   ageGroups: AgeGroupType[];
@@ -88,19 +90,19 @@ export const getServerSideProps: GetServerSideProps = async ({
   locale,
   params,
 }) => {
-  const id = Number(params.params[0]);
+  const reservationUnitPk = Number(params.params[0]);
   const path = params.params[1];
   let reservationPurposes = [];
   let ageGroups = [];
   let cities = [];
 
-  if (isFinite(id) && path === "reservation") {
+  if (isFinite(reservationUnitPk) && path === "reservation") {
     const { data: reservationUnitData } = await apolloClient.query<
       Query,
       QueryReservationUnitByPkArgs
     >({
       query: RESERVATION_UNIT,
-      variables: { pk: id },
+      variables: { pk: reservationUnitPk },
       fetchPolicy: "no-cache",
     });
 
@@ -154,6 +156,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
       return {
         props: {
+          key: `${reservationUnitPk}${locale}`,
           reservationUnit: reservationUnitData.reservationUnitByPk,
           reservationPurposes,
           ageGroups,
@@ -223,7 +226,8 @@ const StyledStepper = styled(Stepper)<{ small: boolean }>`
   ${({ small }) => !small && "max-width: 300px;"}
 `;
 
-const ReservationUnitReservation = ({
+const ReservationUnitReservationWithReservationProp = ({
+  fetchedReservation,
   reservationUnit,
   reservationPurposes,
   ageGroups,
@@ -245,21 +249,16 @@ const ReservationUnitReservation = ({
     "pending"
   );
   const [step, setStep] = useState(0);
-  const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [reservation, setReservation] = useState<Reservation | null>(
+    fetchedReservation
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const form = useForm<Inputs>();
+  const defaultValues = pick(reservation || {}, profileUserFields);
+  const form = useForm<Inputs>({ defaultValues });
   const { handleSubmit, watch } = form;
 
   const reserveeType = watch("reserveeType");
-
-  const { data: fetchedReservationData } = useQuery<
-    Query,
-    QueryReservationByPkArgs
-  >(GET_RESERVATION, {
-    variables: { pk: reservationData?.pk },
-    skip: !reservationData?.pk,
-  });
 
   const requireHandling =
     reservationUnit.requireReservationHandling ||
@@ -287,29 +286,6 @@ const ReservationUnitReservation = ({
   useEffect(() => {
     if (storedReservation) removeStoredReservation();
   }, [storedReservation, removeStoredReservation]);
-
-  useEffect(() => {
-    const data = fetchedReservationData?.reservationByPk;
-    if (data?.pk && reservationUnit.pk) {
-      const res: Reservation = {
-        ...data,
-        pk: data.pk,
-        purpose: data.purpose?.pk,
-        ageGroup: data.ageGroup?.pk,
-        homeCity: data.homeCity?.pk,
-        reservationUnitPks: [reservationUnit.pk],
-      };
-      setReservation(res);
-    }
-  }, [
-    fetchedReservationData?.reservationByPk,
-    reservationUnit?.pk,
-    setPendingReservation,
-  ]);
-
-  const defaultValues = useMemo(() => {
-    return reservation !== null ? pick(reservation, profileUserFields) : {};
-  }, [reservation]);
 
   const [deleteReservation] = useMutation<
     { deleteReservation: ReservationDeleteMutationPayload },
@@ -383,15 +359,10 @@ const ReservationUnitReservation = ({
         reservationConfirmSuccess();
       } else if (steps?.length > 2) {
         const order = data.confirmReservation?.order;
-        const { checkoutUrl } = order ?? {};
-        const { origin, pathname, searchParams } = new URL(checkoutUrl) || {};
-        const userId = searchParams?.get("user");
+        const checkoutUrl = getCheckoutUrl(order, i18n.language);
 
-        if (checkoutUrl && userId && origin && pathname) {
-          const baseUrl = `${origin}${pathname}`;
-          router.push(
-            `${baseUrl}/paymentmethod?user=${userId}&lang=${i18n.language}`
-          );
+        if (checkoutUrl) {
+          router.push(checkoutUrl);
         } else {
           setErrorMsg(t("errors:general_error"));
         }
@@ -418,7 +389,7 @@ const ReservationUnitReservation = ({
         value: ageGroup.pk,
       })),
       homeCity: cities.map((city) => ({
-        label: city.name,
+        label: getTranslation(city, "name"),
         value: city.pk,
       })),
     }),
@@ -599,19 +570,21 @@ const ReservationUnitReservation = ({
             <FormProvider {...form}>
               <div>
                 <Title>{pageTitle}</Title>
-                <StyledStepper
-                  language={i18n.language}
-                  selectedStep={step}
-                  small={steps.length > 2}
-                  onStepClick={(e) => {
-                    const target = e.currentTarget;
-                    const s = target
-                      .getAttribute("data-testid")
-                      .replace("hds-stepper-step-", "");
-                    setStep(parseInt(s, 10));
-                  }}
-                  steps={steps}
-                />
+                {steps.length <= 2 && (
+                  <StyledStepper
+                    language={i18n.language}
+                    selectedStep={step}
+                    small={false}
+                    onStepClick={(e) => {
+                      const target = e.currentTarget;
+                      const s = target
+                        .getAttribute("data-testid")
+                        .replace("hds-stepper-step-", "");
+                      setStep(parseInt(s, 10));
+                    }}
+                    steps={steps}
+                  />
+                )}
               </div>
               {step === 0 && (
                 <Step0
@@ -621,7 +594,6 @@ const ReservationUnitReservation = ({
                   reservationApplicationFields={reservationApplicationFields}
                   cancelReservation={cancelReservation}
                   options={options}
-                  defaultValues={defaultValues}
                 />
               )}
               {step === 1 && (
@@ -665,6 +637,39 @@ const ReservationUnitReservation = ({
         </Toast>
       )}
     </StyledContainer>
+  );
+};
+
+const ReservationUnitReservation = (props) => {
+  const [reservationData] = useSessionStorage("pendingReservation", null);
+
+  const { data, loading } = useQuery<Query, QueryReservationByPkArgs>(
+    GET_RESERVATION,
+    {
+      variables: { pk: reservationData?.pk },
+      skip: !reservationData?.pk,
+      onError: () => {},
+    }
+  );
+
+  if (loading || !data?.reservationByPk?.pk) return null;
+
+  const { reservationByPk } = data;
+  const { reservationUnit } = props;
+
+  const fetchedReservation: Reservation = {
+    ...reservationByPk,
+    pk: reservationByPk.pk,
+    purpose: reservationByPk.purpose?.pk,
+    ageGroup: reservationByPk.ageGroup?.pk,
+    homeCity: reservationByPk.homeCity?.pk,
+    reservationUnitPks: [reservationUnit.pk],
+  };
+  return (
+    <ReservationUnitReservationWithReservationProp
+      {...props}
+      fetchedReservation={fetchedReservation}
+    />
   );
 };
 

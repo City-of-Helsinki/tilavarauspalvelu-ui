@@ -25,7 +25,6 @@ type Props = {
   reservationApplicationFields: string[];
   cancelReservation: () => void;
   options: Record<string, OptionType[]>;
-  defaultValues: Record<string, string | number>;
 };
 
 const Form = styled.form`
@@ -65,7 +64,6 @@ const Step0 = ({
   reservationApplicationFields,
   cancelReservation,
   options,
-  defaultValues,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -102,7 +100,6 @@ const Step0 = ({
             />
           ),
         }}
-        defaultValues={defaultValues}
       />
       <InfoDialog
         id="pricing-terms"

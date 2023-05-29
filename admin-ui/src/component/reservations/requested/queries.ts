@@ -71,6 +71,8 @@ export const RESERVATION_QUERY = gql`
       price
       taxPercentageValue
       orderStatus
+      orderUuid
+      refundUuid
       ...ReservationMetaFields
     }
   }
@@ -94,6 +96,17 @@ export const DENY_RESERVATION = gql`
     denyReservation(input: $input) {
       pk
       state
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;
+
+export const REFUND_RESERVATION = gql`
+  mutation refundReservation($input: ReservationRefundMutationInput!) {
+    refundReservation(input: $input) {
       errors {
         field
         messages
