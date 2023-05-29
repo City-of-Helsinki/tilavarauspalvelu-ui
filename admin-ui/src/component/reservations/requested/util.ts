@@ -201,13 +201,14 @@ export const getName = (reservation: ReservationType, t: TFunction) => {
 // recurring format: {weekday(s)} {time}, {duration} | {startDate}-{endDate} | {unit}
 // single format   : {weekday} {date} {time}, {duration} | {unit}
 export const createTagString = (reservation: ReservationType, t: TFunction) => {
-  const recurringTag =
-    reservation.recurringReservation?.beginDate &&
-    reservation.recurringReservation?.endDate
-      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
-          reservation.recurringReservation.endDate
-        )}`
-      : "";
+  const createRecurringTag = (begin?: string, end?: string) =>
+    begin && end ? `${formatDate(begin)}-${formatDate(end)}` : "";
+
+  const recurringTag = createRecurringTag(
+    reservation.recurringReservation?.beginDate ?? undefined,
+    reservation.recurringReservation?.endDate ?? undefined
+  );
+
   const unitTag = reservation?.reservationUnits
     ?.map(reservationUnitName)
     .join(", ");
