@@ -119,7 +119,7 @@ import {
   Wrapper,
 } from "../../components/reservation-unit/ReservationUnitStyles";
 import ReservationInfoContainer from "../../components/reservation-unit/ReservationInfoContainer";
-import { Toast } from "../../styles/util";
+import { Toast } from "../../components/common/Toast";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | null;
@@ -1127,6 +1127,7 @@ const ReservationUnit = ({
           onClose={() => setErrorMsg(null)}
           dismissible
           closeButtonLabelText={t("common:error.closeErrorMsg")}
+          trapFocus
         >
           {errorMsg}
         </Toast>
