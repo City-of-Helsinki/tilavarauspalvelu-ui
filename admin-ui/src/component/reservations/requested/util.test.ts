@@ -78,15 +78,10 @@ describe("pricingDetails", () => {
       ],
     } as ReservationType;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const t1: TFunction = (s: any, a: any) => get(a, "price");
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const t2: TFunction = (s: any, a: any) => get(a, "volume");
+    const t1 = ((s: unknown, a: string) => get(a, "price") ?? "") as TFunction;
+    const t2 = ((s: unknown, a: string) => get(a, "volume") ?? "") as TFunction;
 
     expect(getReservationPriceDetails(reservation, t1)).toEqual("180 €");
-
     expect(getReservationPriceDetails(reservation, t2)).toEqual("1,5");
   });
 });
