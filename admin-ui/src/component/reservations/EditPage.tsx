@@ -175,7 +175,6 @@ const EditReservation = ({
       metadataSetFields
     );
 
-    // NOTE mutation doesn't support changing workingMemo
     const toSubmit = {
       pk: reservation.pk,
       reservationUnitPks: [reservationUnit.pk],
@@ -201,10 +200,7 @@ const EditReservation = ({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid>
-          <ReservationTypeForm
-            reservationUnit={reservationUnit}
-            commentFieldDisabled
-          />
+          <ReservationTypeForm reservationUnit={reservationUnit} />
           <GridHR />
           <ButtonContainer>
             <Button variant="secondary" onClick={onCancel} theme="black">
