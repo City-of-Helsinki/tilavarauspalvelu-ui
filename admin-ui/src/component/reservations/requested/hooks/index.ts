@@ -81,7 +81,7 @@ export const useReservationData = (
 };
 
 export const useReservationEditData = (id?: string) => {
-  const { data, loading } = useQuery<Query, QueryReservationByPkArgs>(
+  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     SINGLE_RESERVATION_QUERY,
     {
       skip: !id,
@@ -97,7 +97,7 @@ export const useReservationEditData = (id?: string) => {
     data?.reservationByPk?.reservationUnits?.find((x) => x != null) ??
     undefined;
 
-  return { reservation, reservationUnit, loading };
+  return { reservation, reservationUnit, loading, refetch };
 };
 
 type OptionsType = {

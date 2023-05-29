@@ -150,3 +150,17 @@ const ReservationFormSchemaRefined = (
 export { ReservationFormSchemaRefined as ReservationFormSchema };
 
 export type ReservationFormType = z.infer<typeof ReservationFormSchema>;
+
+export const ReservationChangeFormSchema = z
+  .object({
+    type: ReservationTypeSchema,
+    comments: z.string().optional(),
+    bufferTimeAfter: z.boolean().optional(),
+    bufferTimeBefore: z.boolean().optional(),
+  })
+  // passthrough since this is combined to the metafields
+  .passthrough();
+
+export type ReservationChangeFormType = z.infer<
+  typeof ReservationChangeFormSchema
+>;

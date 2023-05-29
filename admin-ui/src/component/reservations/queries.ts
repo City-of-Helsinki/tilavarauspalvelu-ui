@@ -59,3 +59,17 @@ export const RESERVATIONS_QUERY = gql`
     }
   }
 `;
+
+export const CHANGE_STAFF_RESERVATION = gql`
+  mutation staffReservationModify(
+    $input: ReservationStaffModifyMutationInput!
+  ) {
+    staffReservationModify(input: $input) {
+      pk
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;

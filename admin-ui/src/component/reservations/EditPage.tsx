@@ -1,23 +1,27 @@
 import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ReservationType, ReservationUnitType } from "common/types/gql-types";
-import { format } from "date-fns";
+import {
+  ReservationStaffModifyMutationInput,
+  ReservationStaffModifyMutationPayload,
+  ReservationType,
+  ReservationUnitType,
+} from "common/types/gql-types";
 import camelCase from "lodash/camelCase";
 import { Button } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   type ReservationFormMeta,
-  ReservationFormSchema,
-  type ReservationFormType,
   reservationTypeSchema,
+  type ReservationChangeFormType,
+  ReservationChangeFormSchema,
 } from "app/schemas";
 import withMainMenu from "../withMainMenu";
 import { useNotification } from "../../context/NotificationContext";
 import { flattenMetadata } from "../my-units/create-reservation/utils";
-import { dateTime } from "../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import {
   Grid,
   Element,
@@ -28,8 +32,9 @@ import { HR } from "../lists/components";
 import { useOptions } from "../my-units/hooks";
 import EditPageWrapper from "./EditPageWrapper";
 import { useReservationEditData } from "./requested/hooks";
+import { CHANGE_STAFF_RESERVATION } from "./queries";
 
-type FormValueType = ReservationFormType & ReservationFormMeta;
+type FormValueType = ReservationChangeFormType & ReservationFormMeta;
 
 type PossibleOptions = {
   ageGroup: Array<{ label: string; value: number }>;
@@ -55,26 +60,20 @@ const EditReservation = ({
   reservation,
   reservationUnit,
   options,
+  onSuccess,
 }: {
   onClose: () => void;
   reservation: ReservationType;
   reservationUnit: ReservationUnitType;
   options: PossibleOptions;
+  onSuccess?: () => void;
 }) => {
   const { t } = useTranslation();
-  const start = new Date(reservation.begin);
-  const end = new Date(reservation.end);
 
   const form = useForm<FormValueType>({
-    resolver: zodResolver(
-      // Don't validate metadata on the admin side (only date / time)
-      ReservationFormSchema(reservationUnit.reservationStartInterval)
-    ),
+    resolver: zodResolver(ReservationChangeFormSchema),
     mode: "onChange",
     defaultValues: {
-      date: start,
-      startTime: format(start, "HH:mm"),
-      endTime: format(end, "HH:mm"),
       bufferTimeBefore: false,
       bufferTimeAfter: false,
       comments: reservation.workingMemo ?? undefined,
@@ -115,15 +114,34 @@ const EditReservation = ({
     },
   });
 
-  const myDateTime = (date: Date, time: string) =>
-    dateTime(format(date, "dd.MM.yyyy"), time);
-
   const { notifyError, notifySuccess } = useNotification();
 
-  // FIXME StaffReservationUpdateMutation is missing from the backend replace this then
+  const [mutation] = useMutation<
+    { staffReservationModify: ReservationStaffModifyMutationPayload },
+    { input: ReservationStaffModifyMutationInput }
+  >(CHANGE_STAFF_RESERVATION);
+
+  const changeStaffReservation = (input: ReservationStaffModifyMutationInput) =>
+    mutation({
+      variables: { input },
+      onCompleted: () => {
+        notifySuccess("Save success");
+        if (onSuccess) {
+          onSuccess();
+        }
+      },
+      onError: () => {
+        notifyError("Save Failed");
+      },
+    });
+
   const onSubmit = async (values: FormValueType) => {
     if (!reservationUnit.pk) {
       notifyError("ERROR: Can't update without reservation unit");
+      return;
+    }
+    if (!reservation.pk) {
+      notifyError("ERROR: Can't update without reservation");
       return;
     }
 
@@ -137,32 +155,33 @@ const EditReservation = ({
       metadataSetFields
     );
 
+    // NOTE mutation doesn't support changing workingMemo
     const toSubmit = {
+      pk: reservation.pk,
       reservationUnitPks: [reservationUnit.pk],
       type: values.type ?? "",
-      begin: myDateTime(new Date(values.date), values.startTime),
-      end: myDateTime(new Date(values.date), values.endTime),
       bufferTimeBefore: values.bufferTimeBefore
-        ? String(reservationUnit.bufferTimeBefore)
+        ? reservationUnit.bufferTimeBefore
         : undefined,
       bufferTimeAfter: values.bufferTimeAfter
-        ? String(reservationUnit.bufferTimeAfter)
+        ? reservationUnit.bufferTimeAfter
         : undefined,
-      workingMemo: values.comments,
       ...flattenedMetadataSetValues,
     };
 
-    // eslint-disable-next-line no-console
-    console.warn("Mutate Staff reservation missing: should input: ", toSubmit);
-
-    notifySuccess("TODO: mutation is not implemented");
+    changeStaffReservation(toSubmit);
   };
+
+  const { handleSubmit } = form;
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid>
-          <ReservationTypeForm reservationUnit={reservationUnit} />
+          <ReservationTypeForm
+            reservationUnit={reservationUnit}
+            commentFieldDisabled
+          />
           <GridHR />
           <ButtonContainer>
             <Button variant="secondary" onClick={onClose} theme="black">
@@ -185,7 +204,8 @@ const EditPage = () => {
   });
   const navigate = useNavigate();
 
-  const { reservation, reservationUnit, loading } = useReservationEditData(id);
+  const { reservation, reservationUnit, loading, refetch } =
+    useReservationEditData(id);
 
   const handleClose = () => {
     navigate(-1);
@@ -207,6 +227,7 @@ const EditPage = () => {
           reservationUnit={reservationUnit}
           onClose={handleClose}
           options={options}
+          onSuccess={refetch}
         />
       )}
     </EditPageWrapper>
