@@ -31,9 +31,6 @@ import {
   reservationQuotaNotification,
   reserveeTypeSelector,
   datePickerModal,
-  notificationContainer,
-  notificationCloseButton,
-  reservationInfoPrice,
 } from "../model/reservation-creation";
 import { reservationInfoCard } from "../model/reservation-detail";
 import {

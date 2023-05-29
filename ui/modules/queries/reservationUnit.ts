@@ -330,6 +330,7 @@ export const OPENING_HOURS = gql`
       ) {
         pk
         state
+        type
         priority
         begin
         end

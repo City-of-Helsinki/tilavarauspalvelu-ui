@@ -756,6 +756,32 @@ describe("doesBuffer(s)Collide", () => {
         reservations
       )
     ).toBe(true);
+
+    expect(
+      doBuffersCollide(
+        {
+          start: new Date("2019-09-22T13:00:00+00:00"),
+          end: new Date("2019-09-22T15:00:00+00:00"),
+          bufferTimeBefore: 3600,
+          bufferTimeAfter: 3660,
+          type: "blocked",
+        },
+        reservations
+      )
+    ).toBe(false);
+
+    expect(
+      doBuffersCollide(
+        {
+          start: new Date("2019-09-22T11:00:00+00:00"),
+          end: new Date("2019-09-22T12:00:00+00:00"),
+          bufferTimeBefore: 3600,
+          bufferTimeAfter: 3660,
+          type: "blocked",
+        },
+        reservations
+      )
+    ).toBe(false);
   });
 });
 
