@@ -17,7 +17,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import {
   type ReservationFormMeta,
-  reservationTypeSchema,
+  ReservationTypeSchema,
   type ReservationChangeFormType,
   ReservationChangeFormSchema,
 } from "app/schemas";
@@ -88,9 +88,9 @@ const EditReservation = ({
       bufferTimeBefore: false,
       bufferTimeAfter: false,
       comments: reservation.workingMemo ?? undefined,
-      type: reservationTypeSchema
-        .optional()
-        .parse(reservation.type?.toUpperCase()),
+      type: ReservationTypeSchema.optional().parse(
+        reservation.type?.toUpperCase()
+      ),
       name: reservation.name ?? "",
       description: reservation.description ?? "",
       ageGroup: options.ageGroup.find(

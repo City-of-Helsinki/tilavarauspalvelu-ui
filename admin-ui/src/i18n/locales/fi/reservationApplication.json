@@ -10,6 +10,7 @@
     "BEHALF": "Asiakkaan puolesta",
     "BLOCKED": "Suljettu"
   },
+  "clientReservationCantBeChanged": "Asiakkaan tekemä varaus",
   "reserveeTypes": {
     "labels": {
       "nonprofit": "järjestön, ryhmän tai yhteisön puolesta",

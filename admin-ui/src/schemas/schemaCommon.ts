@@ -7,5 +7,3 @@ export const OptionSchema = z.object({
   value: z.number(),
   label: z.string(),
 });
-
-export const reservationTypeSchema = z.enum(["STAFF", "BEHALF", "BLOCKED"]);
