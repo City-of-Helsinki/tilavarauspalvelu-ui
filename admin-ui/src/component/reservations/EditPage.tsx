@@ -54,20 +54,29 @@ const GridHR = styled(HR)`
   grid-column: 1 / -1;
 `;
 
+const noSeparateBillingDefined = (reservation: ReservationType): boolean =>
+  !reservation.billingAddressCity &&
+  !reservation.billingAddressStreet &&
+  !reservation.billingAddressZip &&
+  !reservation.billingEmail &&
+  !reservation.billingFirstName &&
+  !reservation.billingLastName &&
+  !reservation.billingPhone;
+
 // TODO this is a copy from CreateReservationModal.tsx combine if possible
 // differences: useEditMutation, No dialog wrappers, form default values, no date / time input section
 const EditReservation = ({
-  onClose,
+  onCancel,
   reservation,
   reservationUnit,
   options,
   onSuccess,
 }: {
-  onClose: () => void;
+  onCancel: () => void;
   reservation: ReservationType;
   reservationUnit: ReservationUnitType;
   options: PossibleOptions;
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }) => {
   const { t } = useTranslation();
 
@@ -87,6 +96,7 @@ const EditReservation = ({
         (x) => x.value === reservation.ageGroup?.pk
       ),
       applyingForFreeOfCharge: reservation.applyingForFreeOfCharge ?? undefined,
+      showBillingAddress: !noSeparateBillingDefined(reservation),
       billingAddressCity: reservation.billingAddressCity ?? "",
       billingAddressStreet: reservation.billingAddressStreet ?? "",
       billingAddressZip: reservation.billingAddressZip ?? "",
@@ -138,13 +148,11 @@ const EditReservation = ({
         },
       },
       onCompleted: () => {
-        notifySuccess("Save success");
-        if (onSuccess) {
-          onSuccess();
-        }
+        notifySuccess(t("Reservation.EditPage.saveSuccess"));
+        onSuccess();
       },
       onError: () => {
-        notifyError("Save Failed");
+        notifyError(t("Reservation.EditPage.saveError"));
       },
     });
 
@@ -184,7 +192,10 @@ const EditReservation = ({
     changeStaffReservation(toSubmit, values.comments);
   };
 
-  const { handleSubmit } = form;
+  const {
+    handleSubmit,
+    formState: { isDirty },
+  } = form;
 
   return (
     <FormProvider {...form}>
@@ -193,10 +204,12 @@ const EditReservation = ({
           <ReservationTypeForm reservationUnit={reservationUnit} />
           <GridHR />
           <ButtonContainer>
-            <Button variant="secondary" onClick={onClose} theme="black">
+            <Button variant="secondary" onClick={onCancel} theme="black">
               {t("common.cancel")}
             </Button>
-            <Button type="submit">{t("Reservation.EditPage.save")}</Button>
+            <Button type="submit" disabled={!isDirty}>
+              {t("Reservation.EditPage.save")}
+            </Button>
           </ButtonContainer>
         </Grid>
       </form>
@@ -216,7 +229,12 @@ const EditPage = () => {
   const { reservation, reservationUnit, loading, refetch } =
     useReservationEditData(id);
 
-  const handleClose = () => {
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
+  const handleSuccess = () => {
+    refetch();
     navigate(-1);
   };
 
@@ -234,9 +252,9 @@ const EditPage = () => {
         <EditReservation
           reservation={reservation}
           reservationUnit={reservationUnit}
-          onClose={handleClose}
+          onCancel={handleCancel}
           options={options}
-          onSuccess={refetch}
+          onSuccess={handleSuccess}
         />
       )}
     </EditPageWrapper>

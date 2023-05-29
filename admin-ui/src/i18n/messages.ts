@@ -815,6 +815,8 @@ const translations: ITranslations = {
       "Reservation failed to load": ["Varausta {{ pk }} ei pystytty latamaan"],
       "Reservation unit failed to load": ["Varausyksikköä ei löytynyt"],
       save: ["Tallenna"],
+      saveSuccess: ["Varauksen muutokset tallennettu"],
+      saveError: ["Varauksen muutos epäonnistui"],
     },
   },
   ReservationUnit: {
