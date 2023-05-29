@@ -8,6 +8,7 @@ import {
   ReservationStaffModifyMutationPayload,
   ReservationType,
   ReservationUnitType,
+  ReservationWorkingMemoMutationInput,
 } from "common/types/gql-types";
 import camelCase from "lodash/camelCase";
 import { Button } from "hds-react";
@@ -118,12 +119,24 @@ const EditReservation = ({
 
   const [mutation] = useMutation<
     { staffReservationModify: ReservationStaffModifyMutationPayload },
-    { input: ReservationStaffModifyMutationInput }
+    {
+      input: ReservationStaffModifyMutationInput;
+      workingMemo: ReservationWorkingMemoMutationInput;
+    }
   >(CHANGE_STAFF_RESERVATION);
 
-  const changeStaffReservation = (input: ReservationStaffModifyMutationInput) =>
+  const changeStaffReservation = (
+    input: ReservationStaffModifyMutationInput,
+    workingMemo?: string
+  ) =>
     mutation({
-      variables: { input },
+      variables: {
+        input,
+        workingMemo: {
+          pk: input.pk,
+          workingMemo,
+        },
+      },
       onCompleted: () => {
         notifySuccess("Save success");
         if (onSuccess) {
@@ -155,7 +168,6 @@ const EditReservation = ({
       metadataSetFields
     );
 
-    // NOTE mutation doesn't support changing workingMemo
     const toSubmit = {
       pk: reservation.pk,
       reservationUnitPks: [reservationUnit.pk],
@@ -169,7 +181,7 @@ const EditReservation = ({
       ...flattenedMetadataSetValues,
     };
 
-    changeStaffReservation(toSubmit);
+    changeStaffReservation(toSubmit, values.comments);
   };
 
   const { handleSubmit } = form;
@@ -178,10 +190,7 @@ const EditReservation = ({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid>
-          <ReservationTypeForm
-            reservationUnit={reservationUnit}
-            commentFieldDisabled
-          />
+          <ReservationTypeForm reservationUnit={reservationUnit} />
           <GridHR />
           <ButtonContainer>
             <Button variant="secondary" onClick={onClose} theme="black">

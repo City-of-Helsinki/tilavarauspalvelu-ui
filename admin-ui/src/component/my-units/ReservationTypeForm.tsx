@@ -43,11 +43,9 @@ const ButtonLikeAccordion = styled(Accordion)`
 const ReservationTypeForm = ({
   reservationUnit,
   children,
-  commentFieldDisabled,
 }: {
   reservationUnit: ReservationUnitType;
   children?: React.ReactNode;
-  commentFieldDisabled?: boolean;
 }) => {
   const { t } = useTranslation();
 
@@ -110,7 +108,6 @@ const ReservationTypeForm = ({
           <CommentsTextArea
             id="reservationApplication:comment"
             label={t("reservationApplication:comment")}
-            disabled={commentFieldDisabled}
             {...register("comments")}
           />
           <HR style={{ gridColumn: "1 / -1" }} />
