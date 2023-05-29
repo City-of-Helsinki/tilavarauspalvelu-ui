@@ -186,45 +186,70 @@ const ReservationSummary = ({
 }) => {
   const { t } = useTranslation();
 
+  const type =
+    reservation.reserveeType != null
+      ? {
+          l: "reserveeType",
+          v: t(
+            getTranslationKeyForType(
+              reservation.reserveeType,
+              reservation.reserveeIsUnregisteredAssociation ?? false
+            )
+          ),
+        }
+      : undefined;
+
+  const numPersons =
+    reservation.numPersons != null
+      ? { l: "numPersons", v: reservation.numPersons }
+      : undefined;
+
+  const ageGroupParams =
+    reservation.ageGroup != null
+      ? {
+          l: "ageGroup",
+          v: `${ageGroup(reservation.ageGroup)} ${t(
+            "RequestedReservation.ageGroupSuffix"
+          )}`,
+        }
+      : undefined;
+
+  const purpose =
+    reservation.purpose?.nameFi != null
+      ? { l: "purpose", v: reservation.purpose.nameFi }
+      : undefined;
+
+  const description = reservation.description
+    ? { l: "description", v: reservation.description }
+    : undefined;
+
+  const price = !isFree
+    ? {
+        l: "price",
+        v: `${reservationPrice(reservation, t)}${
+          reservation.applyingForFreeOfCharge
+            ? `, ${t("RequestedReservation.appliesSubvention")}`
+            : ""
+        }`,
+      }
+    : undefined;
+
+  const summary = [
+    ...(type != null ? [type] : []),
+    ...(numPersons != null ? [numPersons] : []),
+    ...(ageGroupParams != null ? [ageGroupParams] : []),
+    ...(purpose != null ? [purpose] : []),
+    ...(description != null ? [description] : []),
+    ...(price != null ? [price] : []),
+  ];
+
+  if (summary.length === 0) {
+    return null;
+  }
+
   return (
     <Summary>
-      {[
-        {
-          l: "reserveeType",
-          v: reservation.reserveeType
-            ? t(
-                getTranslationKeyForType(
-                  reservation.reserveeType as ReservationsReservationReserveeTypeChoices,
-                  reservation.reserveeIsUnregisteredAssociation ?? false
-                )
-              )
-            : undefined,
-        },
-        { l: "numPersons", v: reservation.numPersons },
-        {
-          l: "ageGroup",
-          v: reservation.ageGroup
-            ? `${ageGroup(reservation.ageGroup)} ${t(
-                "RequestedReservation.ageGroupSuffix"
-              )}`
-            : "",
-        },
-        {
-          l: "purpose",
-          v: reservation.purpose ? `${reservation.purpose.nameFi}` : undefined,
-        },
-        { l: "description", v: reservation.description },
-        {
-          l: "price",
-          v: !isFree
-            ? `${reservationPrice(reservation, t)}${
-                reservation.applyingForFreeOfCharge
-                  ? `, ${t("RequestedReservation.appliesSubvention")}`
-                  : ""
-              }`
-            : undefined,
-        },
-      ].map((e) => (
+      {summary.map((e) => (
         <ApplicationProp
           key={e.l}
           label={t(`RequestedReservation.${e.l}`)}
@@ -332,13 +357,11 @@ const RequestedReservation = (): JSX.Element | null => {
           reservation={reservation}
           tagline={reservationTagline}
         />
-        <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
-          <ButtonsWithPermChecks
-            reservation={reservation}
-            refetch={refetch}
-            isFree={!isNonFree}
-          />
-        </HorisontalFlex>
+        <ButtonsWithPermChecks
+          reservation={reservation}
+          refetch={refetch}
+          isFree={!isNonFree}
+        />
         <ReservationSummary reservation={reservation} isFree={!isNonFree} />
         <div>
           <Accordion

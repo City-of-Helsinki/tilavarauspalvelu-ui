@@ -4,6 +4,7 @@ import {
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import { Button } from "hds-react";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
@@ -32,6 +33,18 @@ const isPossibleToReturn = (
 ): boolean =>
   state === ReservationsReservationStateChoices.Denied ||
   state === ReservationsReservationStateChoices.Confirmed;
+
+const isPossibleToEdit = (
+  state: ReservationsReservationStateChoices
+): boolean => state === ReservationsReservationStateChoices.Confirmed;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2-xs);
+  width: 100%;
+  margin-bottom: var(--spacing-s);
+`;
 
 const ApprovalButtons = ({
   state,
@@ -99,8 +112,12 @@ const ApprovalButtons = ({
     disabled: false,
   } as const;
 
+  /* For now editing recurring is disabled (not implemented) */
+  const isAllowedToModify =
+    !reservation.recurringReservation && isPossibleToEdit(reservation.state);
+
   return (
-    <>
+    <ButtonContainer>
       {endTime > new Date() && isPossibleToApprove(state) && (
         <Button {...btnCommon} onClick={handleApproveClick}>
           {t("RequestedReservation.approve")}
@@ -116,14 +133,13 @@ const ApprovalButtons = ({
           {t("RequestedReservation.returnToHandling")}
         </Button>
       )}
-      {/* For now editing recurring is disabled (not implemented) */}
-      {!reservation.recurringReservation && (
+      {isAllowedToModify && (
         <>
           <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
           <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
         </>
       )}
-    </>
+    </ButtonContainer>
   );
 };
 
