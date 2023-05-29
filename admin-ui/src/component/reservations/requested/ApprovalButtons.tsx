@@ -5,6 +5,7 @@ import {
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { isToday } from "date-fns";
 import { Button } from "hds-react";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
@@ -17,10 +18,16 @@ import { ButtonLikeLink } from "../../../styles/util";
  * Deny if REQUIRES_HANDLING or CONFIRMED
  * Return to handling if DENIED or CONFIRMED
  * Other states (e.g. WAITING_FOR_PAYMENT) are not allowed to be modified
+ *
+ * Allowed to change state (except deny unconfirmed) only till it's ended.
+ * Allowed to modify the reservation after ending as long as it's the same date.
  */
 const isPossibleToApprove = (
-  state: ReservationsReservationStateChoices
-): boolean => state === ReservationsReservationStateChoices.RequiresHandling;
+  state: ReservationsReservationStateChoices,
+  end: Date
+): boolean =>
+  state === ReservationsReservationStateChoices.RequiresHandling &&
+  end > new Date();
 
 const isPossibleToDeny = (
   state: ReservationsReservationStateChoices
@@ -29,14 +36,19 @@ const isPossibleToDeny = (
   state === ReservationsReservationStateChoices.RequiresHandling;
 
 const isPossibleToReturn = (
-  state: ReservationsReservationStateChoices
+  state: ReservationsReservationStateChoices,
+  end: Date
 ): boolean =>
-  state === ReservationsReservationStateChoices.Denied ||
-  state === ReservationsReservationStateChoices.Confirmed;
+  (state === ReservationsReservationStateChoices.Denied ||
+    state === ReservationsReservationStateChoices.Confirmed) &&
+  end > new Date();
 
 const isPossibleToEdit = (
-  state: ReservationsReservationStateChoices
-): boolean => state === ReservationsReservationStateChoices.Confirmed;
+  state: ReservationsReservationStateChoices,
+  end: Date
+): boolean =>
+  state === ReservationsReservationStateChoices.Confirmed &&
+  (end > new Date() || isToday(end));
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -96,14 +108,7 @@ const ApprovalButtons = ({
     );
   };
 
-  // Only Requires handling is allowed to be modified after it has ended
   const endTime = new Date(reservation.end);
-  if (
-    endTime < new Date() &&
-    state !== ReservationsReservationStateChoices.RequiresHandling
-  ) {
-    return <div>{t("RequestedReservation.alreadyEnded")}</div>;
-  }
 
   const btnCommon = {
     theme: "black",
@@ -114,11 +119,11 @@ const ApprovalButtons = ({
 
   /* For now editing recurring is disabled (not implemented) */
   const isAllowedToModify =
-    !reservation.recurringReservation && isPossibleToEdit(reservation.state);
+    !reservation.recurringReservation && isPossibleToEdit(state, endTime);
 
   return (
     <ButtonContainer>
-      {endTime > new Date() && isPossibleToApprove(state) && (
+      {endTime > new Date() && isPossibleToApprove(state, endTime) && (
         <Button {...btnCommon} onClick={handleApproveClick}>
           {t("RequestedReservation.approve")}
         </Button>
@@ -128,7 +133,7 @@ const ApprovalButtons = ({
           {t("RequestedReservation.reject")}
         </Button>
       )}
-      {isPossibleToReturn(state) && (
+      {isPossibleToReturn(state, endTime) && (
         <Button {...btnCommon} onClick={handleReturnToHandlingClick}>
           {t("RequestedReservation.returnToHandling")}
         </Button>
