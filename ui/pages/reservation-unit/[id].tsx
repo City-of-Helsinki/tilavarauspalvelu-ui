@@ -291,6 +291,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
+const Columns = styled(TwoColumnLayout)`
+  > div:first-of-type {
+    order: 1;
+  }
+`;
+
 const eventStyleGetter = (
   { event }: CalendarEvent<Reservation | ReservationType>,
   ownReservations: number[],
@@ -842,7 +848,13 @@ const ReservationUnit = ({
         subventionSuffix={subventionSuffix}
       />
       <Container>
-        <TwoColumnLayout>
+        <Columns>
+          <div>
+            <JustForDesktop customBreakpoint={breakpoints.l}>
+              {quickReservationComponent(calendarRef, "desktop")}
+            </JustForDesktop>
+            <Address reservationUnit={reservationUnit} />
+          </div>
           <Left>
             <JustForMobile customBreakpoint={breakpoints.l}>
               {quickReservationComponent(calendarRef, "mobile")}
@@ -1086,13 +1098,7 @@ const ReservationUnit = ({
               </PaddedContent>
             </Accordion>
           </Left>
-          <div>
-            <JustForDesktop customBreakpoint={breakpoints.l}>
-              {quickReservationComponent(calendarRef, "desktop")}
-            </JustForDesktop>
-            <Address reservationUnit={reservationUnit} />
-          </div>
-        </TwoColumnLayout>
+        </Columns>
         <InfoDialog
           id="pricing-terms"
           heading={t("reservationUnit:pricingTerms")}
