@@ -21,7 +21,7 @@ import {
   RESERVATION_UNIT_QUERY,
 } from "./queries";
 
-export const useApplicatioonFields = (
+export const useApplicationFields = (
   reservationUnit: ReservationUnitType,
   reserveeType?: ReservationsReservationReserveeTypeChoices
 ) => {

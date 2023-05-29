@@ -6,7 +6,7 @@ import {
   ReserverMetaFields,
   ReservationMetaFields,
 } from "common/src/reservation-form/MetaFields";
-import { useApplicatioonFields, useGeneralFields, useOptions } from "./hooks";
+import { useApplicationFields, useGeneralFields, useOptions } from "./hooks";
 
 type Props = {
   reservationUnit: ReservationUnitType;
@@ -38,7 +38,7 @@ export const ReserverMetadataSetForm = ({
   const options = useOptions();
 
   // TODO naming: applicationFields = reserverFields (Varaajan tiedot)
-  const reservationApplicationFields = useApplicatioonFields(
+  const reservationApplicationFields = useApplicationFields(
     reservationUnit,
     watch("reserveeType")
   );
