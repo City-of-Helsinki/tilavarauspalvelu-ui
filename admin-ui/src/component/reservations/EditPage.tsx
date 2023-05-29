@@ -14,6 +14,7 @@ import camelCase from "lodash/camelCase";
 import { Button } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   type ReservationFormMeta,
   reservationTypeSchema,
@@ -249,13 +250,15 @@ const EditPage = () => {
       ) : !reservationUnit ? (
         t("Reservation unit failed to load")
       ) : (
-        <EditReservation
-          reservation={reservation}
-          reservationUnit={reservationUnit}
-          onCancel={handleCancel}
-          options={options}
-          onSuccess={handleSuccess}
-        />
+        <ErrorBoundary fallback={<div>{t("pageThrewError")}</div>}>
+          <EditReservation
+            reservation={reservation}
+            reservationUnit={reservationUnit}
+            onCancel={handleCancel}
+            options={options}
+            onSuccess={handleSuccess}
+          />
+        </ErrorBoundary>
       )}
     </EditPageWrapper>
   );

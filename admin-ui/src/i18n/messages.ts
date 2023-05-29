@@ -817,6 +817,7 @@ const translations: ITranslations = {
       save: ["Tallenna"],
       saveSuccess: ["Varauksen muutokset tallennettu"],
       saveError: ["Varauksen muutos epäonnistui"],
+      pageThrewError: ["Virhe: varausta ei voi muokata"],
     },
   },
   ReservationUnit: {
