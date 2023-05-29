@@ -29,7 +29,7 @@
   --tilavaraus-admin-stack-calendar-buffer: 9;
   --tilavaraus-admin-stack-select-over-calendar: 11;
   --tilavaraus-admin-stack-calendar-title-cells: 10;
-  --tilavaraus-calendar-gutter-zindex: 9;
+  --tilavaraus-stack-order-calendar-gutter: 9;
   --tilavaraus-calendar-selected: var(--color-bus);
   --tilavaraus-calendar-selected-secondary: #ffe977;
   --font-regular: HelsinkiGrotesk, var(--font-default);

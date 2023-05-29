@@ -134,7 +134,8 @@ const StyledCalendar = styled(BigCalendar)<{
   }
 
   .rbc-time-gutter {
-    z-index: var(--tilavaraus-calendar-gutter-zindex);
+    z-index: var(--tilavaraus-stack-order-calendar-gutter);
+
     position: sticky;
     left: 0;
     margin-top: -1px;

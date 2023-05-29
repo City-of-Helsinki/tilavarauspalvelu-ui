@@ -29,8 +29,9 @@ const ContainerHack = styled(Container)`
 `;
 
 const LocationOnlyOnDesktop = styled.p`
-  @media (max-width: ${breakpoints.s}) {
-    display: none;
+  display: none;
+  @media (min-width: ${breakpoints.s}) {
+    display: block;
   }
 `;
 
@@ -41,11 +42,11 @@ const ContainerWithSpacing = styled.div`
   }
 `;
 
-// NOTE overflow-x if the 1st isn't grid and 2nd block
-const TabPanel = styled(HDSTabs.TabPanel)`
+// NOTE overflow-x if the children of the 1st aren't grid and 2nd block
+const UnitCalendarTabPanel = styled(HDSTabs.TabPanel)`
   padding-block: var(--spacing-m);
 `;
-const TabPanel1 = styled(TabPanel)`
+const ReservationTabPanel = styled(UnitCalendarTabPanel)`
   & > div {
     display: grid;
   }
@@ -70,15 +71,13 @@ const MyUnitView = () => {
 
   const unit = unitData?.units?.edges.find(() => true)?.node ?? undefined;
 
-  if (loading || !unit) {
+  if (loading || !unit || !unitId) {
     return <LoadingSpinner />;
   }
 
-  // NOTE This should never happen but the code should be restructured so it can't happen
-  const recurringReservationUrl =
-    unitId != null
-      ? `${myUnitUrl(parseInt(unitId, 10))}/recurring-reservation`
-      : null;
+  const recurringReservationUrl = `${myUnitUrl(
+    parseInt(unitId, 10)
+  )}/recurring-reservation`;
 
   return (
     <>
@@ -108,12 +107,12 @@ const MyUnitView = () => {
           </BasicLink>
         </ContainerWithSpacing>
         <Tabs headers={TabHeaders}>
-          <TabPanel1 key="unit-reservations">
+          <ReservationTabPanel key="unit-reservations">
             <UnitReservationsView />
-          </TabPanel1>
-          <TabPanel key="reservation-unit">
+          </ReservationTabPanel>
+          <UnitCalendarTabPanel key="reservation-unit">
             <ReservationUnitCalendarView />
-          </TabPanel>
+          </UnitCalendarTabPanel>
         </Tabs>
       </ContainerHack>
     </>
