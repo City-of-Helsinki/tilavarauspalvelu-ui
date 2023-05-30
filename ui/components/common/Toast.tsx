@@ -14,6 +14,7 @@ export const Toast = (props: NotificationProps & { trapFocus?: boolean }) => {
       {...(trapFocus && {
         focusTrapOptions: {
           initialFocus: "#toast-wrapper",
+          clickOutsideDeactivates: true,
         },
       })}
     >
