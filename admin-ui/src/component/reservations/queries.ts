@@ -104,8 +104,7 @@ export const RESERVATIONS_QUERY = gql`
           }
           begin
           end
-          reserveeFirstName
-          reserveeLastName
+          reserveeName
           name
           orderStatus
           createdAt

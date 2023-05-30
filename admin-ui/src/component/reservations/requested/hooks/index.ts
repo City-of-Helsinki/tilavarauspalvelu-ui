@@ -53,10 +53,7 @@ export const useReservationData = (
           ].includes(r.state) || r.pk === reservationPk
       )
       .map((r) => ({
-        title: `${
-          r.reserveeOrganisationName ||
-          `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
-        }`,
+        title: r.reserveeName ?? "",
         event: r,
         // TODO use zod for datetime conversions
         start: new Date(r.begin),

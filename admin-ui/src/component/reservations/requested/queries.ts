@@ -73,6 +73,7 @@ export const RESERVATION_QUERY = gql`
       reserveeIsUnregisteredAssociation
       name
       description
+      reserveeName
       reserveeFirstName
       reserveeLastName
       reserveePhone
