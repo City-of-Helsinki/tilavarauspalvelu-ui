@@ -1736,8 +1736,8 @@ const translations: ITranslations = {
   },
 
   ApprovalButtons: {
-    edit: ["Muuta aikaa"],
-    editTime: ["Muuta tietoja"],
+    edit: ["Muuta tietoja"],
+    editTime: ["Muuta aikaa"],
     recurring: {
       rejectAllButton: ["Hylkää kaikki"],
       DenyDialog: {
