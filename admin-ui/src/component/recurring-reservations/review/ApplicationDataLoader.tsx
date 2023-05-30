@@ -91,7 +91,7 @@ const ApplicationDataLoader = ({
   const applications = (data?.applications?.edges || [])
     .map((x) => x?.node)
     .filter((x): x is ApplicationType => x != null)
-    .map((x) => appMapper(applicationRound, x, t));
+    .map((x) => appMapper(x, t));
 
   return (
     <>

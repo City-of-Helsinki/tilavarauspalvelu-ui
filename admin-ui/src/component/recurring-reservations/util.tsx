@@ -54,7 +54,6 @@ const StyledStatusCell = styled(StatusCell)`
 const formatters = getFormatters("fi");
 
 export const appMapper = (
-  round: ApplicationRoundType,
   app: ApplicationType,
   t: TFunction
 ): ApplicationView => {
