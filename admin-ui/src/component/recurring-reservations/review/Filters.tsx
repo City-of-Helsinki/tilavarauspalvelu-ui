@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { Select, TextInput } from "hds-react";
-import { TFunction } from "i18next";
 import {
   ApplicationStatus,
   ApplicationsApplicationApplicantTypeChoices,
@@ -57,30 +56,20 @@ export const mapFilterParams = (params: FilterArguments) => ({
   ),
 });
 
-const getApplicationStateOptions = (t: TFunction) =>
-  POSSIBLE_APPLICATION_STATES.map((x) => ({
-    label: t(`ApplicationStatus.${x.toString()}`),
-    value: x.toString(),
-  }));
-
 // Backend doesn't support multiple states for application event queries
 // so don't allow user to select more than one state at a time.
 const ReviewStateFilter = ({
-  isApplicationEvent,
   ...props
 }: {
   onChange: (status: StringOptionType[]) => void;
   value: StringOptionType[];
-  isApplicationEvent?: boolean;
 }) => {
   const { t } = useTranslation();
 
-  const stateOptions = isApplicationEvent
-    ? getApplicationStateOptions(t)
-    : Object.keys(STATUS_BUCKETS).map((x) => ({
-        value: x,
-        label: t(`ApplicationStatus.${x}`),
-      }));
+  const stateOptions = Object.keys(STATUS_BUCKETS).map((x) => ({
+    value: x,
+    label: t(`ApplicationStatus.${x}`),
+  }));
 
   const commonProps = {
     id: "applications-review-state-filter",
@@ -90,19 +79,12 @@ const ReviewStateFilter = ({
     selectedItemRemoveButtonAriaLabel: t("common.removeValue"),
   };
 
-  return !isApplicationEvent ? (
+  return (
     <Select<StringOptionType>
       multiselect
       {...commonProps}
       {...props}
       options={stateOptions}
-    />
-  ) : (
-    <Select<StringOptionType>
-      {...commonProps}
-      value={props.value.find(() => true) ?? { label: "", value: "" }}
-      options={stateOptions}
-      onChange={(val: StringOptionType) => props.onChange([val])}
     />
   );
 };
@@ -190,7 +172,6 @@ const Filters = ({
         value={state.unit}
       />
       <ReviewStateFilter
-        isApplicationEvent={isApplicationEvent}
         onChange={(e) =>
           dispatch({ type: "set", value: { applicationStatus: e } })
         }

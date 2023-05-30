@@ -30,11 +30,8 @@ type Props = {
 
 const mapFilterParamsOverride = (params: FilterArguments) => ({
   ...mapFilterParams(params),
-  // Using same reducer but queries have String instead of [String] as state
-  // TODO problem with this is that it does not allow the use of buckets
-  // TODO this also doesn't allow us to filter out the Cancelled, Draft, Expired states
-  // undefined returns all events
-  applicationStatus: params.applicationStatus.find(() => true)?.value,
+  // use frontend filtering for status because we need multiselect
+  applicationStatus: undefined,
 });
 
 const updateQuery = (
@@ -86,8 +83,21 @@ const ApplicationEventDataLoader = ({
   const applicationEvents = (data?.applicationEvents?.edges || [])
     .map((x) => x?.node)
     .filter((x): x is ApplicationEventType => x != null)
+    .filter((x) =>
+      filters.applicationStatus.length > 0 && x.application?.status
+        ? filters.applicationStatus.find(
+            (a) => a.value === x.application?.status
+          )
+        : x.application?.status != null
+    )
     .map((x) => appEventMapper(applicationRound, x));
 
+  const totalCount = data?.applicationEvents?.totalCount ?? 0;
+  const queryResultCount = data?.applicationEvents?.edges?.length ?? 0;
+  const frontEndFilteredCount = Math.max(
+    0,
+    queryResultCount - applicationEvents.length
+  );
   return (
     <>
       <ApplicationEventsTable
@@ -97,7 +107,7 @@ const ApplicationEventDataLoader = ({
       />
       <More
         key={applicationEvents.length}
-        totalCount={data?.applicationEvents?.totalCount || 0}
+        totalCount={Math.max(0, totalCount - frontEndFilteredCount)}
         count={applicationEvents.length}
         fetchMore={() =>
           fetchMore({
