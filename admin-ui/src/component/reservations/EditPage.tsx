@@ -64,8 +64,6 @@ const noSeparateBillingDefined = (reservation: ReservationType): boolean =>
   !reservation.billingLastName &&
   !reservation.billingPhone;
 
-// TODO this is a copy from CreateReservationModal.tsx combine if possible
-// differences: useEditMutation, No dialog wrappers, form default values, no date / time input section
 const EditReservation = ({
   onCancel,
   reservation,

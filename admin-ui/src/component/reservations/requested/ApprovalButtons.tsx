@@ -5,7 +5,7 @@ import {
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { isToday } from "date-fns";
+import { addHours, isToday } from "date-fns";
 import { Button } from "hds-react";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
@@ -20,7 +20,7 @@ import { ButtonLikeLink } from "../../../styles/util";
  * Other states (e.g. WAITING_FOR_PAYMENT) are not allowed to be modified
  *
  * Allowed to change state (except deny unconfirmed) only till it's ended.
- * Allowed to modify the reservation after ending as long as it's the same date.
+ * Allowed to modify the reservation after ending as long as it's the same date or within one hour.
  */
 const isPossibleToApprove = (
   state: ReservationsReservationStateChoices,
@@ -30,10 +30,16 @@ const isPossibleToApprove = (
   end > new Date();
 
 const isPossibleToDeny = (
-  state: ReservationsReservationStateChoices
-): boolean =>
-  state === ReservationsReservationStateChoices.Confirmed ||
-  state === ReservationsReservationStateChoices.RequiresHandling;
+  state: ReservationsReservationStateChoices,
+  end: Date
+): boolean => {
+  if (state === ReservationsReservationStateChoices.RequiresHandling) {
+    return true;
+  }
+  return (
+    state === ReservationsReservationStateChoices.Confirmed && end > new Date()
+  );
+};
 
 const isPossibleToReturn = (
   state: ReservationsReservationStateChoices,
@@ -46,9 +52,13 @@ const isPossibleToReturn = (
 const isPossibleToEdit = (
   state: ReservationsReservationStateChoices,
   end: Date
-): boolean =>
-  state === ReservationsReservationStateChoices.Confirmed &&
-  (end > new Date() || isToday(end));
+): boolean => {
+  if (state !== ReservationsReservationStateChoices.Confirmed) {
+    return false;
+  }
+  const now = new Date();
+  return end > addHours(now, -1) || isToday(end);
+};
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -128,7 +138,7 @@ const ApprovalButtons = ({
           {t("RequestedReservation.approve")}
         </Button>
       )}
-      {isPossibleToDeny(state) && (
+      {isPossibleToDeny(state, endTime) && (
         <Button {...btnCommon} onClick={handleDenyClick}>
           {t("RequestedReservation.reject")}
         </Button>
@@ -140,8 +150,10 @@ const ApprovalButtons = ({
       )}
       {isAllowedToModify && (
         <>
-          <ButtonLikeLink to="edit_time">Muuta aikaa</ButtonLikeLink>
-          <ButtonLikeLink to="edit">Muuta tietoja</ButtonLikeLink>
+          <ButtonLikeLink to="edit_time">
+            {t("ApprovalButtons.editTime")}
+          </ButtonLikeLink>
+          <ButtonLikeLink to="edit">{t("ApprovalButtons.edit")}</ButtonLikeLink>
         </>
       )}
     </ButtonContainer>
