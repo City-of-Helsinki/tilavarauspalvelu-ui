@@ -305,9 +305,9 @@ const ReservationFormField = ({
       key={field}
       errorText={
         error?.type === "min"
-          ? t("forms:min")
+          ? t("forms:min") ?? undefined
           : error?.type === "max"
-          ? t("forms:max")
+          ? t("forms:max") ?? undefined
           : errorText
       }
       invalid={!!error}
