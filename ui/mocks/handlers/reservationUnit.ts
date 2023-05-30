@@ -1093,13 +1093,13 @@ const openingHoursQuery = graphql.query<
             state: "CREATED",
             type: "blocked",
             priority: "A_200",
-            begin: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 1), {
+            begin: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 2), {
               hours: 18,
               minutes: 0,
               seconds: 0,
               milliseconds: 0,
             }),
-            end: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 1), {
+            end: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 2), {
               hours: 19,
               minutes: 30,
               seconds: 0,
@@ -1117,13 +1117,13 @@ const openingHoursQuery = graphql.query<
             state: "CREATED",
             type: "normal",
             priority: "A_200",
-            begin: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 2), {
+            begin: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 3), {
               hours: 18,
               minutes: 0,
               seconds: 0,
               milliseconds: 0,
             }),
-            end: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 2), {
+            end: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 3), {
               hours: 19,
               minutes: 30,
               seconds: 0,
