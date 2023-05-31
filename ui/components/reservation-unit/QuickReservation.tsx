@@ -212,12 +212,20 @@ const QuickReservation = ({
 }: Props): JSX.Element => {
   const { t, i18n } = useTranslation();
 
-  const { minReservationDuration, maxReservationDuration } =
-    reservationUnit || {};
+  const {
+    minReservationDuration,
+    maxReservationDuration,
+    reservationStartInterval,
+  } = reservationUnit || {};
 
   const durationOptions = useMemo(
-    () => getDurationOptions(minReservationDuration, maxReservationDuration),
-    [minReservationDuration, maxReservationDuration]
+    () =>
+      getDurationOptions(
+        minReservationDuration,
+        maxReservationDuration,
+        reservationStartInterval
+      ),
+    [minReservationDuration, maxReservationDuration, reservationStartInterval]
   );
 
   const nextHour: Date = useMemo(() => {
@@ -437,7 +445,7 @@ const QuickReservation = ({
           }}
         />
         <StyledSelect
-          key={`durationSelect-${duration.value}`}
+          key={`durationSelect-${duration?.value}`}
           id={`${idPrefix}-quick-reservation-duration`}
           label={t("reservationCalendar:quickReservation.duration")}
           options={durationOptions}

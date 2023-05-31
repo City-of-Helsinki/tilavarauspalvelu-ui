@@ -3,6 +3,7 @@ import {
   addMinutes,
   addSeconds,
   areIntervalsOverlapping,
+  differenceInMinutes,
   differenceInSeconds,
   format,
   getISODay,
@@ -283,6 +284,67 @@ export const isStartTimeWithinInterval = (
   );
 };
 
+export const getIntervalMinutes = (
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
+): number => {
+  switch (reservationStartInterval) {
+    case "INTERVAL_15_MINS":
+      return 15;
+    case "INTERVAL_30_MINS":
+      return 30;
+    case "INTERVAL_60_MINS":
+      return 60;
+    case "INTERVAL_90_MINS":
+      return 90;
+    default:
+      return 0;
+  }
+};
+
+export const getMinReservation = ({
+  begin,
+  minReservationDuration,
+  reservationStartInterval,
+}: {
+  begin: Date;
+  minReservationDuration: number;
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
+}): { begin: Date; end: Date } => {
+  const durationMinutes = minReservationDuration / 60;
+  const intervalMinutes = getIntervalMinutes(reservationStartInterval);
+
+  const minutes =
+    durationMinutes < intervalMinutes ? intervalMinutes : durationMinutes;
+  return { begin, end: addMinutes(begin, minutes) };
+};
+
+export const getValidEndingTime = ({
+  start,
+  end,
+  reservationStartInterval,
+}: {
+  start: Date;
+  end: Date;
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
+}): Date | null => {
+  if (!start || !end || !reservationStartInterval) return null;
+
+  const intervalMinutes = getIntervalMinutes(reservationStartInterval);
+
+  const durationMinutes = differenceInMinutes(end, start);
+  const remainder = durationMinutes % intervalMinutes;
+
+  if (remainder !== 0) {
+    const wholeIntervals = Math.abs(
+      Math.floor(durationMinutes / intervalMinutes)
+    );
+
+    return addMinutes(start, wholeIntervals * intervalMinutes);
+  }
+
+  return end;
+};
+
 export const getSlotPropGetter =
   (
     openingHours: OpeningTimesType[],
@@ -474,15 +536,6 @@ export const parseTimeframeLength = (begin: string, end: string): string => {
   const endDate = new Date(end);
   const diff = differenceInSeconds(endDate, beginDate);
   return formatSecondDuration(diff);
-};
-
-export const getMaxReservation = (
-  begin: Date,
-  duration: number
-): { begin: Date; end: Date } => {
-  const slots = duration / (30 * 60);
-  const end = addMinutes(begin, slots * 30);
-  return { begin, end };
 };
 
 export const getAvailableTimes = (

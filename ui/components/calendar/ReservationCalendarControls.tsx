@@ -74,7 +74,6 @@ type Props<T> = {
     skipLengthCheck?: boolean
   ) => boolean;
   mode: "create" | "edit";
-  minTime: Date;
   customAvailabilityValidation?: (start: Date) => boolean;
   shouldCalendarControlsBeVisible?: boolean;
   setShouldCalendarControlsBeVisible?: (value: boolean) => void;
@@ -292,7 +291,6 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   setErrorMsg,
   handleEventChange,
   mode,
-  minTime,
   customAvailabilityValidation,
   shouldCalendarControlsBeVisible,
   setShouldCalendarControlsBeVisible,
@@ -301,16 +299,23 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   const { t, i18n } = useTranslation();
 
   const { begin, end } = initialReservation || {};
+  const {
+    minReservationDuration,
+    maxReservationDuration,
+    reservationStartInterval,
+  } = reservationUnit;
 
   const durationOptions = useMemo(() => {
     const options = getDurationOptions(
-      reservationUnit.minReservationDuration,
-      reservationUnit.maxReservationDuration
+      minReservationDuration,
+      maxReservationDuration,
+      reservationStartInterval
     );
     return [{ value: "0:00", label: "" }, ...options];
   }, [
-    reservationUnit.minReservationDuration,
-    reservationUnit.maxReservationDuration,
+    minReservationDuration,
+    maxReservationDuration,
+    reservationStartInterval,
   ]);
 
   const [date, setDate] = useState<Date | null>(new Date());
@@ -472,19 +477,14 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     if (!dayStartTime || !dayEndTime) return [];
 
     return getDayIntervals(
-      format(minTime, "HH:mm"),
+      format(new Date(dayStartTime), "HH:mm"),
       format(new Date(dayEndTime), "HH:mm"),
       reservationUnit.reservationStartInterval
     ).map((n) => ({
       label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
       value: trimStart(n.substring(0, 5), "0"),
     }));
-  }, [
-    dayStartTime,
-    dayEndTime,
-    reservationUnit.reservationStartInterval,
-    minTime,
-  ]);
+  }, [dayStartTime, dayEndTime, reservationUnit.reservationStartInterval]);
 
   const isReservable = useMemo(
     () =>

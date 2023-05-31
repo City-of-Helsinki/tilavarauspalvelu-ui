@@ -5,6 +5,7 @@ import {
   ReservationsReservationStateChoices,
   ReservationType,
   ReservationUnitByPkType,
+  ReservationUnitsReservationUnitReservationStartIntervalChoices,
 } from "common/types/gql-types";
 import {
   CanReservationBeChangedProps,
@@ -35,10 +36,28 @@ jest.mock("next/config", () => () => ({
 
 describe("getDurationOptions", () => {
   test("works", () => {
-    expect(getDurationOptions(null, 5400)).toEqual([]);
-    expect(getDurationOptions(5400, null)).toEqual([]);
-    expect(getDurationOptions(null, null)).toEqual([]);
-    expect(getDurationOptions(1800, 5400)).toEqual([
+    expect(
+      getDurationOptions(
+        null,
+        5400,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
+      )
+    ).toEqual([]);
+    expect(getDurationOptions(5400, null, null)).toEqual([]);
+    expect(
+      getDurationOptions(
+        null,
+        null,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
+      )
+    ).toEqual([]);
+    expect(
+      getDurationOptions(
+        1800,
+        5400,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins
+      )
+    ).toEqual([
       {
         label: "0:30",
         value: "0:30",
@@ -60,26 +79,36 @@ describe("getDurationOptions", () => {
         value: "1:30",
       },
     ]);
-    expect(getDurationOptions(1800, 30600, "02:00:00")).toEqual([
+    expect(
+      getDurationOptions(
+        1800,
+        30600,
+        ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
+      )
+    ).toEqual([
       {
         label: "0:30",
         value: "0:30",
       },
       {
-        label: "2:30",
-        value: "2:30",
+        label: "2:00",
+        value: "2:00",
       },
       {
-        label: "4:30",
-        value: "4:30",
+        label: "3:30",
+        value: "3:30",
+      },
+      {
+        label: "5:00",
+        value: "5:00",
       },
       {
         label: "6:30",
         value: "6:30",
       },
       {
-        label: "8:30",
-        value: "8:30",
+        label: "8:00",
+        value: "8:00",
       },
     ]);
   });

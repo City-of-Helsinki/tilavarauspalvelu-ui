@@ -21,7 +21,7 @@ const SingleReservationUnitFilter = ({
   const { t } = useTranslation();
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
     RESERVATION_UNITS_QUERY,
-    { variables: { unit: [unitPk as string] } }
+    { variables: { unit: [unitPk || ""] } }
   );
 
   const options = (data?.reservationUnits?.edges || [])

@@ -12,6 +12,7 @@ import {
   ReservationsReservationStateChoices,
   ReservationType,
   ReservationUnitByPkType,
+  ReservationUnitsReservationUnitReservationStartIntervalChoices,
 } from "common/types/gql-types";
 import {
   areSlotsReservable,
@@ -27,10 +28,25 @@ import { getTranslation } from "./util";
 export const getDurationOptions = (
   minReservationDuration: number,
   maxReservationDuration: number,
-  step = "00:15:00"
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ): OptionType[] => {
-  // const minMinutes = convertHMSToSeconds(minReservationDuration);
-  // const maxMinutes = convertHMSToSeconds(maxReservationDuration);
+  let step: string;
+  switch (reservationStartInterval) {
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_30Mins:
+      step = "00:30:00";
+      break;
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_60Mins:
+      step = "01:00:00";
+      break;
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins:
+      step = "01:30:00";
+      break;
+    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins:
+    default:
+      step = "00:15:00";
+      break;
+  }
+
   const durationStep = convertHMSToSeconds(step);
 
   if (!minReservationDuration || !maxReservationDuration || !durationStep)
@@ -38,12 +54,16 @@ export const getDurationOptions = (
 
   const durationSteps = [];
   for (
-    let i = minReservationDuration;
+    let i =
+      minReservationDuration > durationStep
+        ? minReservationDuration
+        : durationStep;
     i <= maxReservationDuration;
     i += durationStep
   ) {
     durationSteps.push(i);
   }
+
   const timeOptions = durationSteps.map((n) => {
     const hms = secondsToHms(n);
     const minute = String(hms.m).padEnd(2, "0");

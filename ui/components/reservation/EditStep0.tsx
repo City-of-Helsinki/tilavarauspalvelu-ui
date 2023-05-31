@@ -1,10 +1,10 @@
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   getEventBuffers,
-  getMaxReservation,
+  getMinReservation,
   getSlotPropGetter,
   getTimeslots,
-  isReservationShortEnough,
+  getValidEndingTime,
 } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
 import { parseDate } from "common/src/common/util";
@@ -304,36 +304,38 @@ const EditStep0 = ({
 
   const handleEventChange = useCallback(
     (
-      { start, end }: CalendarEvent<ReservationType>,
+      { start, end }: CalendarEvent<Reservation | ReservationType>,
       skipLengthCheck = false
     ): boolean => {
-      const normalizedEnd = roundToNearestMinutes(end);
+      const { minReservationDuration, reservationStartInterval } =
+        reservationUnit;
 
-      const newReservation = {
+      const { end: minEnd } = getMinReservation({
+        begin: start,
+        minReservationDuration,
+        reservationStartInterval,
+      });
+
+      let normalizedEnd = getValidEndingTime({
+        start,
+        end: roundToNearestMinutes(end),
+        reservationStartInterval,
+      });
+
+      if (normalizedEnd < minEnd) {
+        normalizedEnd = minEnd;
+      }
+
+      const newReservation: PendingReservation = {
         begin: start?.toISOString(),
         end: normalizedEnd?.toISOString(),
-      } as PendingReservation;
+      };
 
-      if (
-        !isReservationShortEnough(
-          start,
-          end,
-          reservationUnit.maxReservationDuration
-        )
-      ) {
-        const { end: newEnd } = getMaxReservation(
-          start,
-          reservationUnit.maxReservationDuration
-        );
-        newReservation.end = newEnd?.toISOString();
-      } else if (!isSlotReservable(start, end, skipLengthCheck)) {
+      if (!isSlotReservable(start, end, skipLengthCheck)) {
         return false;
       }
 
-      setInitialReservation({
-        begin: newReservation.begin,
-        end: newReservation.end,
-      } as PendingReservation);
+      setInitialReservation(newReservation);
 
       if (isClientATouchDevice) {
         setShouldCalendarControlsBeVisible(true);
@@ -343,9 +345,9 @@ const EditStep0 = ({
     },
     [
       isClientATouchDevice,
+      setInitialReservation,
       isSlotReservable,
       reservationUnit,
-      setInitialReservation,
     ]
   );
 
@@ -354,6 +356,9 @@ const EditStep0 = ({
       { start: startTime, end: endTime, action },
       skipLengthCheck = false
     ): boolean => {
+      const { minReservationDuration, reservationStartInterval } =
+        reservationUnit;
+
       const isTouchClick = action === "select" && isClientATouchDevice;
 
       if (action === "select" && !isClientATouchDevice) {
@@ -369,7 +374,21 @@ const EditStep0 = ({
             )
           : new Date(endTime);
 
-      const normalizedEnd = roundToNearestMinutes(end);
+      const { end: minEnd } = getMinReservation({
+        begin: startTime,
+        minReservationDuration,
+        reservationStartInterval,
+      });
+
+      let normalizedEnd = getValidEndingTime({
+        start: startTime,
+        end: roundToNearestMinutes(end),
+        reservationStartInterval,
+      });
+
+      if (normalizedEnd < minEnd) {
+        normalizedEnd = minEnd;
+      }
 
       if (!isSlotReservable(startTime, end, skipLengthCheck)) {
         return false;
@@ -378,7 +397,8 @@ const EditStep0 = ({
       setInitialReservation({
         begin: startTime.toISOString(),
         end: normalizedEnd.toISOString(),
-      } as PendingReservation);
+      });
+
       return true;
     },
     [
@@ -461,7 +481,6 @@ const EditStep0 = ({
             setShouldCalendarControlsBeVisible={
               setShouldCalendarControlsBeVisible
             }
-            minTime={dayStartTime}
             isAnimated={isMobile}
           />
         </CalendarFooter>
