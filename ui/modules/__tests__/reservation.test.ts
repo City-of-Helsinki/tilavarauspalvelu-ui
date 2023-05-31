@@ -38,7 +38,7 @@ jest.mock("next/config", () => () => ({
 }));
 
 describe("getDurationOptions", () => {
-  test("works", () => {
+  test("empty inputs", () => {
     expect(
       getDurationOptions(
         null,
@@ -54,6 +54,9 @@ describe("getDurationOptions", () => {
         ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins
       )
     ).toEqual([]);
+  });
+
+  test("with 15 min intervals", () => {
     expect(
       getDurationOptions(
         1800,
@@ -82,6 +85,9 @@ describe("getDurationOptions", () => {
         value: "1:30",
       },
     ]);
+  });
+
+  test("with 90 min intervals", () => {
     expect(
       getDurationOptions(
         1800,
@@ -90,28 +96,24 @@ describe("getDurationOptions", () => {
       )
     ).toEqual([
       {
-        label: "0:30",
-        value: "0:30",
+        label: "1:30",
+        value: "1:30",
       },
       {
-        label: "2:00",
-        value: "2:00",
+        label: "3:00",
+        value: "3:00",
       },
       {
-        label: "3:30",
-        value: "3:30",
+        label: "4:30",
+        value: "4:30",
       },
       {
-        label: "5:00",
-        value: "5:00",
+        label: "6:00",
+        value: "6:00",
       },
       {
-        label: "6:30",
-        value: "6:30",
-      },
-      {
-        label: "8:00",
-        value: "8:00",
+        label: "7:30",
+        value: "7:30",
       },
     ]);
   });
