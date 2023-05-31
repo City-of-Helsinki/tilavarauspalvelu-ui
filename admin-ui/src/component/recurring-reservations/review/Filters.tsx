@@ -46,7 +46,12 @@ const POSSIBLE_APPLICATION_STATES = Object.values(ApplicationStatus).filter(
 );
 
 export const mapFilterParams = (params: FilterArguments) => ({
-  applicationStatus: POSSIBLE_APPLICATION_STATES,
+  applicationStatus:
+    params.applicationStatus && params.applicationStatus.length > 0
+      ? params.applicationStatus
+          .map(({ value }) => STATUS_BUCKETS[value])
+          .reduce((agv, x) => [...agv, ...x], [])
+      : POSSIBLE_APPLICATION_STATES,
   unit: params.unit
     ?.map((u) => u.value)
     ?.filter((x): x is number | string => x != null)

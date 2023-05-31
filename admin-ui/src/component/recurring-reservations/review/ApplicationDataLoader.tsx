@@ -8,7 +8,7 @@ import {
   type QueryApplicationsArgs,
 } from "common/types/gql-types";
 import { APPLICATIONS_QUERY } from "./queries";
-import { FilterArguments, STATUS_BUCKETS, mapFilterParams } from "./Filters";
+import { FilterArguments, mapFilterParams } from "./Filters";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import ApplicationsTable from "./ApplicationsTable";
@@ -21,18 +21,6 @@ export type Sort = {
   field: string;
   sort: boolean;
 };
-
-const mapFilterParamsOverride = (params: FilterArguments) => ({
-  ...mapFilterParams(params),
-  // Override default states only if something is selected, use a bucket to query multiple states
-  ...(params.applicationStatus && params.applicationStatus.length > 0
-    ? {
-        applicationStatus: params.applicationStatus
-          .map(({ value }) => STATUS_BUCKETS[value])
-          .reduce((agv, x) => [...agv, ...x], []),
-      }
-    : {}),
-});
 
 type Props = {
   applicationRound: ApplicationRoundType;
@@ -71,7 +59,7 @@ const ApplicationDataLoader = ({
     {
       skip: !applicationRound.pk,
       variables: {
-        ...mapFilterParamsOverride(filters),
+        ...mapFilterParams(filters),
         applicationRound: String(applicationRound.pk),
         offset: 0,
         first: LIST_PAGE_SIZE,

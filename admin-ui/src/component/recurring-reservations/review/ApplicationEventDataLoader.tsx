@@ -28,12 +28,6 @@ type Props = {
   sortChanged: (field: string) => void;
 };
 
-const mapFilterParamsOverride = (params: FilterArguments) => ({
-  ...mapFilterParams(params),
-  // use frontend filtering for status because we need multiselect
-  applicationStatus: undefined,
-});
-
 const updateQuery = (
   previousResult: Query,
   { fetchMoreResult }: { fetchMoreResult: Query }
@@ -58,13 +52,15 @@ const ApplicationEventDataLoader = ({
     sortString = (sort?.sort ? "" : "-") + sort.field;
   }
 
+  const { applicationStatus, ...queryFilters } = mapFilterParams(filters);
+
   const { fetchMore, loading, data } = useQuery<
     Query,
     QueryApplicationEventsArgs
   >(APPLICATIONS_EVENTS_QUERY, {
     skip: !applicationRound.pk,
     variables: {
-      ...mapFilterParamsOverride(filters),
+      ...queryFilters,
       applicationRound: String(applicationRound.pk),
       offset: 0,
       first: LIST_PAGE_SIZE,
@@ -84,10 +80,8 @@ const ApplicationEventDataLoader = ({
     .map((x) => x?.node)
     .filter((x): x is ApplicationEventType => x != null)
     .filter((x) =>
-      filters.applicationStatus.length > 0 && x.application?.status
-        ? filters.applicationStatus.find(
-            (a) => a.value === x.application?.status
-          )
+      applicationStatus.length > 0 && x.application?.status
+        ? applicationStatus.find((a) => a === x.application?.status)
         : x.application?.status != null
     )
     .map((x) => appEventMapper(applicationRound, x));
