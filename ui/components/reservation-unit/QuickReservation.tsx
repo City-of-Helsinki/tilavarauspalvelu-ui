@@ -416,7 +416,11 @@ const QuickReservation = ({
           onChange={(val, valueAsDate) => {
             if (isValid(valueAsDate) && valueAsDate.getFullYear() > 1970) {
               setSlot(null);
+              const times = availableTimes(valueAsDate, true);
               setDate(valueAsDate);
+              if (times.length > 0) {
+                setTime(times[0]);
+              }
             }
           }}
           value={toUIDate(date)}
@@ -471,6 +475,7 @@ const QuickReservation = ({
               hideCenterControls
               wrapAround={false}
               buttonVariant="small"
+              key={`${date}-${time}-${duration.value}`}
             >
               {timeChunks.map((chunk: string[], index: number) => (
                 <SlotGroup key={chunk[0]}>

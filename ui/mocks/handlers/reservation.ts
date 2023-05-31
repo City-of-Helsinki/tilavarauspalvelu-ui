@@ -195,7 +195,7 @@ const deleteReservation = graphql.mutation<
       deleted = true;
   }
 
-  if (pk === 6666) {
+  if ([23, 6666].includes(pk)) {
     return res(
       ctx.errors([
         {
@@ -355,20 +355,32 @@ const cities = graphql.query<Query, QueryCitiesArgs>(
           edges: [
             {
               node: {
+                id: "Q2l0eTof",
                 pk: 1,
                 name: "Helsinki",
+                nameFi: "Helsinki FI",
+                nameEn: "Helsinki EN",
+                nameSv: "Helsinki Sv",
               },
             },
             {
               node: {
+                id: "Q2l0eTod",
                 pk: 2,
                 name: "Lande",
+                nameFi: "Lande FI",
+                nameEn: "Lande EN",
+                nameSv: "Lande SV",
               },
             },
             {
               node: {
+                id: "Q2l0eToz",
                 pk: 3,
                 name: "Muu",
+                nameFi: "Muu FI",
+                nameEn: "Muu EN",
+                nameSv: "Muu SV",
               },
             },
           ],
@@ -640,6 +652,11 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       };
     }
 
+    if (pk === 22 || pk === 23) {
+      data.state = ReservationsReservationStateChoices.WaitingForPayment;
+      data.orderUuid = "22-1";
+    }
+
     if (pk === 42) {
       data.price = 0;
     }
@@ -656,7 +673,14 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
       data.reserveeAddressStreet = "Katu 13";
       data.reserveeAddressCity = "Helsinki";
       data.reserveeAddressZip = "00100";
-      data.homeCity = { id: "123", name: "Lande", pk: 2 };
+      data.homeCity = {
+        id: "123",
+        name: "Lande",
+        nameFi: "Lande FI",
+        nameEn: "Lande En",
+        nameSv: "Lande Sv",
+        pk: 2,
+      };
     }
 
     if (pk === 702) {
@@ -850,6 +874,7 @@ const listReservations = graphql.query<Query, QueryReservationsArgs>(
           state: ReservationsReservationStateChoices.WaitingForPayment,
           bufferTimeBefore: 3600,
           bufferTimeAfter: 1800,
+          orderUuid: "7777-7777-7777-7777",
           reservationUnits: [
             {
               pk: 4,
@@ -1586,6 +1611,12 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
     let order: PaymentOrderType | null = null;
 
     switch (orderUuid) {
+      case "22-1":
+        order = {
+          ...baseOrder,
+          checkoutUrl: "https://google.com/search?user=123",
+        };
+        break;
       case "2222-2222-2222-2222":
         order = baseOrder;
         break;
@@ -1623,6 +1654,15 @@ const getOrder = graphql.query<Query, QueryOrderArgs>(
           reservationPk: "6666",
           status: "PAID",
           receiptUrl: "https://example.com/receipt.pdf?orderId=123",
+        };
+        break;
+      case "7777-7777-7777-7777":
+        order = {
+          ...baseOrder,
+          reservationPk: "7777",
+          status: "PAID",
+          receiptUrl: "https://example.com/receipt.pdf?orderId=123",
+          checkoutUrl: "https://google.com/search?user=123",
         };
         break;
       default:

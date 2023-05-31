@@ -294,8 +294,8 @@ const translations: ITranslations = {
     ],
     Calendar: {
       Tabs: {
-        byUnit: ["Varaukset varausyksiköittäin"],
-        byReservationUnit: ["Kaikki toimipisteen varaukset"],
+        byUnit: ["Varausyksiköittäin"],
+        byReservationUnit: ["Kaikki varaukset"],
       },
       header: {
         recurringReservation: ["Tee toistuva varaus"],
@@ -307,7 +307,7 @@ const translations: ITranslations = {
         pause: ["Tauko"],
         closed: ["Suljettu"],
         waitingPayment: ["Hyväksytty varaus, Odottaa maksua"],
-        staffReservation: ["Henkilökunnan varaus"],
+        staffReservation: ["Sisäinen varaus"],
         reservationUnitReleased: ["Varausyksikkö julkaistu"],
         reservationUnitDraft: ["Varausyksikkö luonnostilassa"],
       },
@@ -1836,9 +1836,8 @@ const translations: ITranslations = {
   },
   Calendar: {
     legend: {
-      currentRequiresHandling: ["Varaajan toive"],
-      currentConfirmed: ["Varaajan toive (hyväksytty)"],
-      currentDenied: ["Varaajan toive (hylätty)"],
+      confirmed: ["Hyväksytty varaus"],
+      unconfirmed: ["Varaustoive"],
       otherRequiedHandling: ["Muun varaajan toive"],
       rest: ["Varattu"],
     },
@@ -1930,8 +1929,8 @@ const translations: ITranslations = {
     reserveeDetails: ["Varauksen tekijä"],
     reserveeFirstName: ["Etunimi"],
     reserveeLastName: ["Sukunimi"],
-    addressStreet: ["Katuosoite"],
-    addressZipCity: ["Postinumero ja -toimipaikka"],
+    addressStreet: ["Lähiosoite"],
+    addressCity: ["Kotikunta"],
     reserveeEmail: ["Sähköpostiosoite"],
     reserveePhone: ["Puhelin"],
     reserveeType: ["Asiakastyyppi"],
@@ -1946,6 +1945,7 @@ const translations: ITranslations = {
     billingPhone: ["Puhelin (Laskutus)"],
     reservationUser: ["Tilan käyttäjän tiedot"],
     reserveeId: ["Y-tunnus"],
+    noReserveeId: ["Ei y-tunnusta"],
     save: ["Tallenna"],
     appliesSubvention: ["hakee subventiota"],
     applyingForFreeOfCharge: ["Hakee subventiota"],
@@ -1973,6 +1973,17 @@ const translations: ITranslations = {
       handlingDetails: ["Kommentti"],
       handlingDetailsHelper: ["Näytetään vain henkilökunnalle"],
       errorSaving: ["Hylkäys epäonnistui"],
+      refund: {
+        notAllowed: ["Palautus ei mahdollinen"],
+        alreadyRefunded: ["Jo palautettu"],
+        radioLabel: ["Palauta rahat"],
+        returnChoice: ["Palauta maksu {{ price }} €"],
+        noReturnChoice: ["Ei palautusta"],
+        mutationSuccess: ["Varaus peruttu ja rahat palautettu."],
+        mutationFailure: [
+          "Varaus peruttu, mutta rahojen palautus epäonnistui.",
+        ],
+      },
     },
     ApproveDialog: {
       title: ["Hyväksy varaus ja määritä subventoitu hinta"],

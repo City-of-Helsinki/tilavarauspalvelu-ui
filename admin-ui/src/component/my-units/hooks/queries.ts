@@ -80,9 +80,16 @@ export const RESERVATION_UNITS_BY_UNIT = gql`
             from: $from
             to: $to
             includeWithSameComponents: $includeWithSameComponents
+            state: [
+              "CREATED"
+              "CONFIRMED"
+              "REQUIRES_HANDLING"
+              "WAITING_FOR_PAYMENT"
+            ]
           ) {
             pk
             name
+            type
             priority
             begin
             end
