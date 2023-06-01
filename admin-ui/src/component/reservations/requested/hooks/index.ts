@@ -19,8 +19,8 @@ import { useNotification } from "../../../../context/NotificationContext";
 import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
-import { useAuthState } from "../../../../context/AuthStateContext";
-import { CURRENT_USER } from "../../../../context/queries";
+
+export { default as usePermission } from "./usePermission";
 
 /// NOTE only fetches 100 reservations => use pageInfo and fetchMore
 export const useReservationData = (
@@ -223,50 +223,4 @@ export const useDenyReasonOptions = () => {
   );
 
   return { options: denyReasonOptions, loading };
-};
-
-export const usePermission = () => {
-  const { data: user } = useQuery<Query>(CURRENT_USER);
-  const { hasPermission: baseHasPermission } = useAuthState().authState;
-
-  const hasPermission = (
-    reservation: ReservationType,
-    permissionName:
-      | "can_manage_reservations"
-      | "can_comment_reservations"
-      | "can_view_reservations",
-    includeOwn = true
-  ) => {
-    // console.log('has permission check for reservation: ', re)
-    const serviceSectorPks =
-      reservation?.reservationUnits?.[0]?.unit?.serviceSectors
-        ?.map((x) => x?.pk)
-        ?.filter((x): x is number => x != null) ?? [];
-
-    const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
-
-    const permission = baseHasPermission(
-      permissionName,
-      unitPk,
-      serviceSectorPks
-    );
-
-    const isUsersOwnReservation =
-      reservation?.user?.pk === user?.currentUser?.pk;
-
-    const ownPermissions =
-      includeOwn && isUsersOwnReservation
-        ? baseHasPermission(
-            "can_create_staff_reservations",
-            unitPk,
-            serviceSectorPks
-          )
-        : false;
-
-    return permission || ownPermissions;
-  };
-
-  return {
-    hasPermission,
-  };
 };
