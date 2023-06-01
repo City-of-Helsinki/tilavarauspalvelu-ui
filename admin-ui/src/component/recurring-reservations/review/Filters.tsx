@@ -9,6 +9,7 @@ import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
+import { sortBy } from "lodash";
 
 type StringOptionType = { value: string; label: string };
 export type FilterArguments = {
@@ -89,7 +90,7 @@ const ReviewStateFilter = ({
       multiselect
       {...commonProps}
       {...props}
-      options={stateOptions}
+      options={sortBy(stateOptions, (x) => x.label)}
     />
   );
 };
@@ -162,7 +163,7 @@ const Filters = ({
             dispatch({ type: "set", value: { applicantType: e } })
           }
           value={state.applicantType}
-          options={typeOptions}
+          options={sortBy(typeOptions, (x) => x.label)}
           clearButtonAriaLabel={t("common.clearAllSelections")}
           selectedItemRemoveButtonAriaLabel={t("common.removeValue")}
         />
