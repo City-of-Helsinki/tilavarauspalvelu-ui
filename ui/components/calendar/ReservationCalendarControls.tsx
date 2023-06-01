@@ -474,17 +474,39 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
   }, [reservationUnit.openingHours?.openingTimes, date]);
 
   const startingTimesOptions: OptionType[] = useMemo(() => {
-    if (!dayStartTime || !dayEndTime) return [];
+    const durations = durationOptions
+      .filter((n) => n.label !== "")
+      .map((n) => n.value);
+    const durationValue = durations[0]?.toString();
+
+    if (!dayStartTime || !dayEndTime || !durationValue) return [];
+
+    const [endHours, endMinutes] = durationValue.split(":").map(Number);
 
     return getDayIntervals(
       format(new Date(dayStartTime), "HH:mm"),
       format(new Date(dayEndTime), "HH:mm"),
       reservationUnit.reservationStartInterval
-    ).map((n) => ({
-      label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
-      value: trimStart(n.substring(0, 5), "0"),
-    }));
-  }, [dayStartTime, dayEndTime, reservationUnit.reservationStartInterval]);
+    )
+      .filter((n) => {
+        const [hours, minutes] = n.split(":").map(Number);
+        const d = new Date(date);
+        d.setHours(hours, minutes);
+        const e = addMinutes(d, endHours * 60 + endMinutes);
+        return isSlotReservable(d, e);
+      })
+      .map((n) => ({
+        label: trimStart(n.substring(0, 5).replace(":", "."), "0"),
+        value: trimStart(n.substring(0, 5), "0"),
+      }));
+  }, [
+    dayStartTime,
+    dayEndTime,
+    reservationUnit.reservationStartInterval,
+    durationOptions,
+    isSlotReservable,
+    date,
+  ]);
 
   const isReservable = useMemo(
     () =>
