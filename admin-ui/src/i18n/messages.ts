@@ -196,6 +196,7 @@ const translations: ITranslations = {
     authorizationNeeded: ["Oikeudet vaaditaan"],
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
+    noPermission: ["Sinulla ei ole käyttöoikeutta."],
   },
   breadcrumb: {
     frontpage: ["Etusivu"],

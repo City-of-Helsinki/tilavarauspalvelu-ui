@@ -363,37 +363,16 @@ const WorkingMemo = ({
   );
 };
 
-const RequestedReservation = (): JSX.Element | null => {
-  const { id } = useParams() as { id: string };
-  const { notifyError } = useNotification();
-
+const RequestedReservation = ({
+  reservation,
+  refetch,
+}: {
+  reservation: ReservationType;
+  refetch: () => void;
+}): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    RESERVATION_QUERY,
-    {
-      skip: !id || Number.isNaN(Number(id)),
-      fetchPolicy: "no-cache",
-      variables: {
-        pk: Number(id),
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
-    }
-  );
-
   const ref = useRef<HTMLHeadingElement>(null);
-
-  const reservation = data?.reservationByPk;
-
-  if (loading) {
-    return <Loader />;
-  }
-
-  if (!reservation) {
-    return null;
-  }
 
   const pricing = reservation?.reservationUnits?.[0]
     ? getReservatinUnitPricing(
@@ -632,4 +611,47 @@ const RequestedReservation = (): JSX.Element | null => {
   );
 };
 
-export default withMainMenu(RequestedReservation);
+const PermissionWrappedReservation = () => {
+  const { id } = useParams() as { id: string };
+  const { t } = useTranslation();
+  const { notifyError } = useNotification();
+  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
+    RESERVATION_QUERY,
+    {
+      skip: !id || Number.isNaN(Number(id)),
+      fetchPolicy: "no-cache",
+      variables: {
+        pk: Number(id),
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
+  );
+
+  const reservation = data?.reservationByPk;
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (!reservation) {
+    return null;
+  }
+
+  return (
+    <VisibleIfPermission
+      permissionName="can_view_reservations"
+      reservation={reservation}
+      otherwise={
+        <Container>
+          <p>{t("errors.noPermission")}</p>
+        </Container>
+      }
+    >
+      <RequestedReservation reservation={reservation} refetch={refetch} />
+    </VisibleIfPermission>
+  );
+};
+
+export default withMainMenu(PermissionWrappedReservation);

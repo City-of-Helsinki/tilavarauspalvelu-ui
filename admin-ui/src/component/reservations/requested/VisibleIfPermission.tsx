@@ -8,10 +8,15 @@ const VisibleIfOwnOrPermission = ({
   reservation,
   permissionName,
   children,
+  otherwise,
 }: {
   reservation: ReservationType;
-  permissionName: "can_manage_reservations" | "can_comment_reservations";
+  permissionName:
+    | "can_manage_reservations"
+    | "can_comment_reservations"
+    | "can_view_reservations";
   children: React.ReactNode;
+  otherwise?: React.ReactNode;
 }) => {
   const serviceSectorPks =
     reservation?.reservationUnits?.[0]?.unit?.serviceSectors
@@ -31,9 +36,10 @@ const VisibleIfOwnOrPermission = ({
     ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
     : false;
 
-  const userIsAllowToModify = permission || ownPermissions;
-  if (!userIsAllowToModify) {
-    return null;
+  const userHasPermissions = permission || ownPermissions;
+  if (!userHasPermissions) {
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return otherwise ? <>{otherwise}</> : null;
   }
 
   // eslint-disable-next-line react/jsx-no-useless-fragment
