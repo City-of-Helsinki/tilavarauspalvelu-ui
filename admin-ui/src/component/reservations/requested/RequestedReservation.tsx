@@ -299,28 +299,83 @@ const TimeBlock = ({
   );
 };
 
+const WorkingMemo = ({
+  initialValue,
+  reservationPk,
+  refetch,
+}: {
+  initialValue: string;
+  reservationPk: number;
+  refetch: () => void;
+}) => {
+  const [workingMemo, setWorkingMemo] = useState<string>(initialValue);
+  const { notifyError, notifySuccess } = useNotification();
+  const { t } = useTranslation();
+
+  const [updateWorkingMemo] = useMutation<
+    Mutation,
+    ReservationWorkingMemoMutationInput
+  >(UPDATE_WORKING_MEMO, {
+    onCompleted: () => {
+      refetch();
+      notifySuccess(t("RequestedReservation.savedWorkingMemo"));
+    },
+    onError: () => {
+      notifyError(t("RequestedReservation.errorSavingWorkingMemo"));
+    },
+  });
+
+  const updateMemo = (memo: string) =>
+    updateWorkingMemo({
+      variables: { pk: reservationPk, workingMemo: memo },
+    });
+
+  const handleSave = async () => {
+    try {
+      await updateMemo(workingMemo);
+    } catch (ex) {
+      notifyError(t("RequestedReservation.errorSavingWorkingMemo"));
+    }
+  };
+
+  return (
+    <>
+      <TextArea
+        label={t("RequestedReservation.workingMemoLabel")}
+        id="workingMemo"
+        helperText={t("RequestedReservation.workingMemoHelperText")}
+        value={workingMemo}
+        onChange={(e) => setWorkingMemo(e.target.value)}
+      />
+      <HorisontalFlex style={{ justifyContent: "flex-end" }}>
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => setWorkingMemo(initialValue || "")}
+        >
+          {t("common.cancel")}
+        </Button>
+        <Button size="small" onClick={handleSave}>
+          {t("RequestedReservation.save")}
+        </Button>
+      </HorisontalFlex>
+    </>
+  );
+};
+
 const RequestedReservation = (): JSX.Element | null => {
   const { id } = useParams() as { id: string };
-  const [reservation, setReservation] = useState<ReservationType | undefined>(
-    undefined
-  );
-  const [workingMemo, setWorkingMemo] = useState<string>();
-  const { notifyError, notifySuccess } = useNotification();
+  const { notifyError } = useNotification();
 
   const { t } = useTranslation();
 
-  const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
+  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     RESERVATION_QUERY,
     {
+      skip: !id || Number.isNaN(Number(id)),
       fetchPolicy: "no-cache",
       variables: {
         pk: Number(id),
-      },
-      onCompleted: ({ reservationByPk }) => {
-        if (reservationByPk) {
-          setReservation(reservationByPk);
-          setWorkingMemo(reservationByPk.workingMemo || "");
-        }
       },
       onError: () => {
         notifyError(t("RequestedReservation.errorFetchingData"));
@@ -328,12 +383,9 @@ const RequestedReservation = (): JSX.Element | null => {
     }
   );
 
-  const [updateWorkingMemo] = useMutation<Mutation>(UPDATE_WORKING_MEMO);
+  const ref = useRef<HTMLHeadingElement>(null);
 
-  const updateMemo = (input: ReservationWorkingMemoMutationInput) =>
-    updateWorkingMemo({ variables: { input } });
-
-  const ref = useRef<HTMLDivElement>(null);
+  const reservation = data?.reservationByPk;
 
   if (loading) {
     return <Loader />;
@@ -407,50 +459,11 @@ const RequestedReservation = (): JSX.Element | null => {
               heading={t("RequestedReservation.workingMemo")}
               initiallyOpen={get(reservation, "workingMemo.length", 0) > 0}
             >
-              <TextArea
-                label={t("RequestedReservation.workingMemoLabel")}
-                id="workingMemo"
-                helperText={t("RequestedReservation.workingMemoHelperText")}
-                value={workingMemo}
-                onChange={(e) => setWorkingMemo(e.target.value)}
+              <WorkingMemo
+                initialValue={reservation.workingMemo ?? ""}
+                reservationPk={reservation.pk ?? 0}
+                refetch={refetch}
               />
-              <HorisontalFlex style={{ justifyContent: "flex-end" }}>
-                <Button
-                  size="small"
-                  variant="secondary"
-                  onClick={() => setWorkingMemo(reservation.workingMemo || "")}
-                >
-                  {t("common.cancel")}
-                </Button>
-                <Button
-                  size="small"
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    try {
-                      const res = await updateMemo({
-                        pk: reservation.pk,
-                        workingMemo,
-                      });
-                      if (!res.errors) {
-                        refetch();
-                        notifySuccess(
-                          t("RequestedReservation.savedWorkingMemo")
-                        );
-                      } else {
-                        notifyError(
-                          t("RequestedReservation.errorSavingWorkingMemo")
-                        );
-                      }
-                    } catch (ex) {
-                      notifyError(
-                        t("RequestedReservation.errorSavingWorkingMemo")
-                      );
-                    }
-                  }}
-                >
-                  {t("RequestedReservation.save")}
-                </Button>
-              </HorisontalFlex>
             </Accordion>
           </VisibleIfPermission>
           <TimeBlock reservation={reservation} onReservationUpdated={refetch} />
