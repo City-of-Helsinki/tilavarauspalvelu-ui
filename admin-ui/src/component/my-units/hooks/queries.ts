@@ -108,11 +108,18 @@ export const RESERVATION_UNITS_BY_UNIT = gql`
               nameFi
               bufferTimeBefore
               bufferTimeAfter
+              unit {
+                pk
+                serviceSectors {
+                  pk
+                }
+              }
             }
             user {
               firstName
               lastName
               email
+              pk
             }
           }
         }

@@ -7,6 +7,7 @@ import { formatTime } from "../../common/util";
 import { DenseVerticalFlex } from "../../styles/layout";
 import { getReserveeName } from "../reservations/requested/util";
 import { CELL_BORDER } from "./const";
+import VisibleIfPermission from "../reservations/requested/VisibleIfPermission";
 
 const PopupContent = styled.div`
   border: ${CELL_BORDER};
@@ -40,14 +41,19 @@ const ReservationPopupContent = ({
           {formatTime(reservation.begin)} - {formatTime(reservation.end)} /{" "}
           {reservation.reservationUnits?.[0]?.nameFi}
         </Heading>
-        <Reservee>
-          <Link target="_blank" to={reservationUrl(reservation.pk as number)}>
-            {getReserveeName(reservation, 22) || "-"}
-          </Link>
-        </Reservee>
-        {reservation.workingMemo && (
-          <WorkingMemo>{reservation.workingMemo}</WorkingMemo>
-        )}
+        <VisibleIfPermission
+          reservation={reservation}
+          permissionName="can_view_reservations"
+        >
+          <Reservee>
+            <Link target="_blank" to={reservationUrl(reservation.pk as number)}>
+              {getReserveeName(reservation, 22) || "-"}
+            </Link>
+          </Reservee>
+          {reservation.workingMemo && (
+            <WorkingMemo>{reservation.workingMemo}</WorkingMemo>
+          )}
+        </VisibleIfPermission>
       </DenseVerticalFlex>
     </PopupContent>
   );

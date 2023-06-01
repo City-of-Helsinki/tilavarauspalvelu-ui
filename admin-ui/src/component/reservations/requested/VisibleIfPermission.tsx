@@ -1,10 +1,8 @@
 import React from "react";
-import { type Query, type ReservationType } from "common/types/gql-types";
-import { useQuery } from "@apollo/client";
-import { useAuthState } from "../../../context/AuthStateContext";
-import { CURRENT_USER } from "../../../context/queries";
+import { type ReservationType } from "common/types/gql-types";
+import { usePermission } from "./hooks";
 
-const VisibleIfOwnOrPermission = ({
+const VisibleIfPermission = ({
   reservation,
   permissionName,
   children,
@@ -18,26 +16,9 @@ const VisibleIfOwnOrPermission = ({
   children: React.ReactNode;
   otherwise?: React.ReactNode;
 }) => {
-  const serviceSectorPks =
-    reservation?.reservationUnits?.[0]?.unit?.serviceSectors
-      ?.map((x) => x?.pk)
-      ?.filter((x): x is number => x != null) ?? [];
+  const { hasPermission } = usePermission();
 
-  const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
-
-  const { data: user } = useQuery<Query>(CURRENT_USER);
-
-  const { hasPermission } = useAuthState().authState;
-  const permission = hasPermission(permissionName, unitPk, serviceSectorPks);
-
-  const isUsersOwnReservation = reservation?.user?.pk === user?.currentUser?.pk;
-
-  const ownPermissions = isUsersOwnReservation
-    ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
-    : false;
-
-  const userHasPermissions = permission || ownPermissions;
-  if (!userHasPermissions) {
+  if (!hasPermission(reservation, permissionName)) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return otherwise ? <>{otherwise}</> : null;
   }
@@ -46,4 +27,4 @@ const VisibleIfOwnOrPermission = ({
   return <>{children}</>;
 };
 
-export default VisibleIfOwnOrPermission;
+export default VisibleIfPermission;
