@@ -1,6 +1,7 @@
 import React, { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { Select, TextInput } from "hds-react";
+import { sortBy } from "lodash";
 import {
   ApplicationStatus,
   ApplicationsApplicationApplicantTypeChoices,
@@ -9,7 +10,6 @@ import { OptionType } from "../../../common/types";
 import Tags, { getReducer, toTags } from "../../lists/Tags";
 import { AutoGrid, FullRow } from "../../../styles/layout";
 import SortedSelect from "../../ReservationUnits/ReservationUnitEditor/SortedSelect";
-import { sortBy } from "lodash";
 
 type StringOptionType = { value: string; label: string };
 export type FilterArguments = {
