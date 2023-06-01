@@ -60,6 +60,7 @@ export const mapFilterParams = (params: FilterArguments) => ({
   applicantType: params.applicantType.map(({ value }) =>
     value.toLocaleLowerCase()
   ),
+  name: params.name,
 });
 
 // Backend doesn't support multiple states for application event queries
