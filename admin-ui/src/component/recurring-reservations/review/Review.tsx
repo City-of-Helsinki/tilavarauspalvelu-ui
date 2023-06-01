@@ -1,5 +1,5 @@
 import { Button, Tabs } from "hds-react";
-import { debounce } from "lodash";
+import { debounce, uniqBy } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
@@ -63,13 +63,15 @@ function Review({ applicationRound }: IProps): JSX.Element | null {
 
   const { t } = useTranslation();
 
-  const units =
+  const units = uniqBy(
     applicationRound.reservationUnits
       ?.map((x) => x?.unit)
       ?.map((x) =>
         x?.pk && x?.nameFi ? { pk: x.pk, name: x.nameFi } : undefined
       )
-      ?.filter((x): x is { pk: number; name: string } => x != null) ?? [];
+      ?.filter((x): x is { pk: number; name: string } => x != null) ?? [],
+    ({ pk }) => pk
+  );
 
   const roundName = applicationRound.nameFi ?? t("Navigation.noName");
 
