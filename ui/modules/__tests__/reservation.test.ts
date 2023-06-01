@@ -118,9 +118,9 @@ describe("canUserCancelReservation", () => {
     expect(canUserCancelReservation(reservation)).toBe(true);
   });
 
-  test("that does not need handling", () => {
+  test("can cancel if it doesn't need handling", () => {
     const reservation = {
-      begin: new Date().toISOString(),
+      begin: addMinutes(new Date(), 1).toISOString(),
       state: ReservationsReservationStateChoices.Confirmed,
       reservationUnits: [
         {
@@ -133,9 +133,9 @@ describe("canUserCancelReservation", () => {
     expect(canUserCancelReservation(reservation)).toBe(true);
   });
 
-  test("with non-confirmed state", () => {
+  test("can't cancel non-confirmed reservation", () => {
     const reservation = {
-      begin: new Date().toISOString(),
+      begin: addMinutes(new Date(), 1).toISOString(),
       state: ReservationsReservationStateChoices.RequiresHandling,
       reservationUnits: [
         {
@@ -148,9 +148,9 @@ describe("canUserCancelReservation", () => {
     expect(canUserCancelReservation(reservation)).toBe(false);
   });
 
-  test("with 0 secs of buffer time", () => {
+  test("can cancel if there is no buffer time", () => {
     const reservation = {
-      begin: new Date().toISOString(),
+      begin: addMinutes(new Date(), 1).toISOString(),
       state: ReservationsReservationStateChoices.Confirmed,
       reservationUnits: [
         {
@@ -164,14 +164,14 @@ describe("canUserCancelReservation", () => {
     expect(canUserCancelReservation(reservation)).toBe(true);
   });
 
-  test("with 1 sec of buffer time", () => {
+  test("can't cancel if there is a minute buffer ", () => {
     const reservation = {
-      begin: new Date().toISOString(),
+      begin: addMinutes(new Date(), 1).toISOString(),
       reservationUnits: [
         {
           cancellationRule: {
             needsHandling: false,
-            canBeCancelledTimeBefore: 1,
+            canBeCancelledTimeBefore: 60,
           },
         },
       ],
@@ -179,7 +179,7 @@ describe("canUserCancelReservation", () => {
     expect(canUserCancelReservation(reservation)).toBe(false);
   });
 
-  test("without cancellation rule", () => {
+  test("can't cancel without cancellation rule", () => {
     const reservation = {
       begin: new Date().toISOString(),
       reservationUnits: [{}],
