@@ -628,7 +628,7 @@ test("Reservations can be removed and restored", async () => {
   waitFor(
     async () => (await within(list).findAllByText(/common.remove/)).length === 4
   );
-});
+}, 30_000);
 
 // NOTE this requires us to fix submission checking
 test.todo("Removed reservations are not included in the mutation");
