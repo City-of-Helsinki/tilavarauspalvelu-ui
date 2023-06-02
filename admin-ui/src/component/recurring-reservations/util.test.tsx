@@ -5,14 +5,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { appMapper } from "./util";
 
-jest.mock("react-i18next", () => ({
-  useTranslation: () => {
-    return {
-      t: (str: string) => str,
-    };
-  },
-}));
-
 test("Units are ordered according to priority", async () => {
   const { t } = useTranslation();
 
