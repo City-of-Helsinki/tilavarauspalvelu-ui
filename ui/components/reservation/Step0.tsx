@@ -78,6 +78,7 @@ const Step0 = ({
   const termsOfUse = getTranslation(reservationUnit, "termsOfUse");
 
   const {
+    watch,
     formState: { errors, isSubmitted },
   } = useFormContext();
 
@@ -86,6 +87,8 @@ const Step0 = ({
       const fields = [...generalFields, ...reservationApplicationFields];
       return fields.indexOf(a) - fields.indexOf(b);
     }) || [];
+
+  const reserveeType = watch("reserveeType");
 
   if (
     reservationUnit?.metadataSet?.supportedFields?.includes("reservee_type") &&
