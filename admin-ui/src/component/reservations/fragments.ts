@@ -50,6 +50,10 @@ export const RESERVATION_UNIT_FRAGMENT = gql`
     bufferTimeBefore
     bufferTimeAfter
     reservationStartInterval
+    unit {
+      pk
+      nameFi
+    }
     metadataSet {
       name
       supportedFields
