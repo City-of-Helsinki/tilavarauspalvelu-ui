@@ -151,6 +151,7 @@ const ReservationFormField = ({
     register,
     control,
     formState: { errors },
+    trigger,
   } = useFormContext();
 
   const isTextArea = useMemo(
@@ -167,6 +168,8 @@ const ReservationFormField = ({
     (): boolean => ["reserveeEmail", "billingEmail"].includes(field),
     [field]
   );
+
+  const isSelectField = Object.keys(options).includes(field);
 
   const isBreakingColumn = useMemo(
     (): boolean =>
@@ -192,8 +195,55 @@ const ReservationFormField = ({
     `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
   )}`;
 
+  const minValue =
+    get(params, field)?.min != null && !Number.isNaN(get(params, field).min)
+      ? Number(get(params, field)?.min)
+      : 1;
+  const maxValue =
+    get(params, field)?.max != null && !Number.isNaN(get(params, field).max)
+      ? Number(get(params, field)?.max) < 200
+        ? Number(get(params, field)?.max)
+        : 200
+      : undefined;
+
   const error = get(errors, field);
-  const errorText = error && t("forms:requiredField");
+
+  const errorPrefix = useMemo(() => {
+    if (isSelectField) return t("forms:prefix.select");
+
+    return t("forms:prefix.text");
+  }, [isSelectField, t]);
+
+  const errorText = useMemo(() => {
+    if (!error || !field) return "";
+
+    switch (error.type) {
+      case "min":
+        if (field === "numPersons")
+          return t("forms:minNumPersons", { minValue });
+        break;
+      case "max":
+        if (field === "numPersons")
+          return t("forms:maxNumPersons", { maxValue });
+        break;
+      case "minLength":
+        if (field === "reserveeId") return t("forms:invalidReserveeId");
+        return t("forms:minLength");
+      case "maxLength":
+        return t("forms:maxLength");
+      case "pattern":
+        if (error.message === "email") return t("forms:invalidEmail");
+        break;
+      case "required":
+      default:
+        return t("forms:requiredField", {
+          prefix: errorPrefix,
+          fieldName: label.toLocaleLowerCase(),
+        });
+    }
+
+    return "";
+  }, [error, field, label, t, minValue, maxValue, errorPrefix]);
 
   const defaultValue = get(reservation, field);
 
@@ -207,22 +257,11 @@ const ReservationFormField = ({
   };
 
   const emailPattern = {
-    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+    value: /^[A-ZÖÄÅ0-9._%+-]+@[A-ZÖÄÅ0-9.-]+\.[A-ZÖÄÅ]{2,}$/i,
     message: "email",
   };
 
-  const minValue =
-    get(params, field)?.min != null && !Number.isNaN(get(params, field).min)
-      ? Number(get(params, field)?.min)
-      : 1;
-  const maxValue =
-    get(params, field)?.max != null && !Number.isNaN(get(params, field).max)
-      ? Number(get(params, field)?.max) < 200
-        ? Number(get(params, field)?.max)
-        : 200
-      : undefined;
-
-  return Object.keys(options).includes(field) ? (
+  return isSelectField ? (
     <Controller
       name={field}
       control={control}
@@ -230,11 +269,7 @@ const ReservationFormField = ({
       rules={{ required }}
       render={({ field: formField }) => (
         <StyledSelect
-          // TODO some (like this) get the * added by the component
-          // others (so far seems all the others) get it from the label text.
-          label={t(
-            `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
-          )}
+          label={label}
           id={field}
           options={options[field]}
           {...removeRefParam(formField)}
@@ -277,10 +312,7 @@ const ReservationFormField = ({
     </StyledCheckboxWrapper>
   ) : field === "freeOfChargeReason" ? (
     <StyledTextArea
-      // TODO this needs to be separated or use required like all the other components
-      label={t(
-        `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
-      )}
+      label={label}
       id={field}
       key={field}
       {...register(field, { required: isFreeOfChargeReasonRequired })}
@@ -303,13 +335,7 @@ const ReservationFormField = ({
         max: maxValue,
       })}
       key={field}
-      errorText={
-        error?.type === "min"
-          ? t("forms:min") ?? undefined
-          : error?.type === "max"
-          ? t("forms:max") ?? undefined
-          : errorText
-      }
+      errorText={errorText}
       invalid={!!error}
       required={required}
       step={1}
@@ -317,6 +343,10 @@ const ReservationFormField = ({
       plusStepButtonAriaLabel={t("common:increase") || "Increase"}
       min={minValue}
       max={maxValue}
+      onChange={(e) => {
+        trigger(field);
+        register(field).onChange(e);
+      }}
     />
   ) : isTextArea ? (
     <StyledTextArea
@@ -330,16 +360,7 @@ const ReservationFormField = ({
       })}
       key={field}
       defaultValue={defaultValue}
-      errorText={
-        error &&
-        t(
-          `forms:${
-            get(errors, field)?.message === "email"
-              ? "invalidEmail"
-              : "requiredField"
-          }`
-        )
-      }
+      errorText={errorText}
       invalid={!!error}
       required={required}
       $isWide={isWideRow}
@@ -355,6 +376,7 @@ const ReservationFormField = ({
       id={field}
       {...register(field, {
         required: isReserveeIdRequired,
+        minLength: 3,
       })}
       key={field}
       type="text"
@@ -382,18 +404,7 @@ const ReservationFormField = ({
       })}
       key={field}
       type="text"
-      errorText={
-        error &&
-        String(
-          t(
-            `forms:${
-              get(errors, field)?.message === "email"
-                ? "invalidEmail"
-                : "requiredField"
-            }`
-          )
-        )
-      }
+      errorText={errorText}
       defaultValue={defaultValue ? String(defaultValue) : undefined}
       invalid={!!error}
       required={required}

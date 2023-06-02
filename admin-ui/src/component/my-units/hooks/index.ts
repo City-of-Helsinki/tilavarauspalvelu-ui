@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { sortBy } from "lodash";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import { useQuery } from "@apollo/client";
-import { addDays } from "date-fns";
 import type {
   Query,
   QueryReservationUnitsArgs,
@@ -118,7 +117,6 @@ export const useUnitQuery = (pk?: number | string) => {
   return res;
 };
 
-// TODO is this on purpose full DateTime and not set to midnight?
 export const useUnitResources = (
   begin: Date,
   unitPk: string,
@@ -126,8 +124,6 @@ export const useUnitResources = (
 ) => {
   const { notifyError } = useNotification();
 
-  // this queries a single day so it should always have less than 100 edges
-  // in practice should check edge count and have pagination / automatic fetching
   const { data, ...rest } = useQuery<
     Query,
     QueryReservationUnitsArgs & ReservationUnitByPkTypeReservationsArgs
@@ -135,7 +131,7 @@ export const useUnitResources = (
     variables: {
       unit: [unitPk],
       from: toApiDate(begin),
-      to: toApiDate(addDays(begin, 1)),
+      to: toApiDate(begin),
     },
     onError: () => {
       notifyError("Varauksia ei voitu hakea");

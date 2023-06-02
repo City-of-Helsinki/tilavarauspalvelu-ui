@@ -44,6 +44,8 @@ type Props = CommonProps & {
 };
 
 const Container = styled.div`
+  margin-bottom: var(--spacing-m);
+
   label {
     ${fontMedium};
 
@@ -311,7 +313,9 @@ export const ReserverMetaFields = ({
       </ReserverInfoHeading>
       {isTypeSelectable && (
         <>
-          <p>{t("reservationApplication:reserveeTypePrefix")}</p>
+          <p id="reserveeType-label">
+            {t("reservationApplication:reserveeTypePrefix")}
+          </p>
           <ReserveeTypeSelector />
         </>
       )}
