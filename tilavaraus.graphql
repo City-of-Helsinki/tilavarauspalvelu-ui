@@ -2968,9 +2968,6 @@ input ReservationUnitCreateMutationInput {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
@@ -2983,6 +2980,9 @@ input ReservationUnitCreateMutationInput {
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   clientMutationId: String
 }
 
@@ -3092,9 +3092,6 @@ type ReservationUnitCreateMutationPayload {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
@@ -3107,6 +3104,9 @@ type ReservationUnitCreateMutationPayload {
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
@@ -3631,9 +3631,6 @@ input ReservationUnitUpdateMutationInput {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
@@ -3646,6 +3643,9 @@ input ReservationUnitUpdateMutationInput {
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
   clientMutationId: String
 }
 
@@ -3754,9 +3754,6 @@ type ReservationUnitUpdateMutationPayload {
   descriptionFi: String
   descriptionEn: String
   descriptionSv: String
-  nameFi: String
-  nameEn: String
-  nameSv: String
   reservationConfirmedInstructionsFi: String
   reservationConfirmedInstructionsEn: String
   reservationConfirmedInstructionsSv: String
@@ -3769,6 +3766,9 @@ type ReservationUnitUpdateMutationPayload {
   termsOfUseFi: String
   termsOfUseEn: String
   termsOfUseSv: String
+  nameFi: String
+  nameEn: String
+  nameSv: String
 
   """May contain more than one error for same field."""
   errors: [ErrorType]
