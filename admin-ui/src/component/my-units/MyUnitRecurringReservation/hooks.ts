@@ -90,7 +90,7 @@ export const useReservationsInInterval = ({
 
   // NOTE unlike array fetches this fetches a single element with an included array
   // so it doesn't have the 100 limitation of array fetch nor does it have pagination
-  const { loading, data } = useQuery<
+  const { loading, data, refetch } = useQuery<
     Query,
     QueryReservationUnitByPkArgs & ReservationUnitByPkTypeReservationsArgs
   >(GET_RESERVATIONS_IN_INTERVAL, {
@@ -122,7 +122,7 @@ export const useReservationsInInterval = ({
     [data]
   );
 
-  return { reservations, loading };
+  return { reservations, loading, refetch };
 };
 
 export const useFilteredReservationList = ({
@@ -136,7 +136,7 @@ export const useFilteredReservationList = ({
   begin: Date;
   end: Date;
 }) => {
-  const { reservations } = useReservationsInInterval({
+  const { reservations, refetch } = useReservationsInInterval({
     reservationUnitPk,
     begin,
     end,
@@ -160,7 +160,7 @@ export const useFilteredReservationList = ({
     return false;
   };
 
-  return useMemo(() => {
+  const res = useMemo(() => {
     if (reservations.length === 0) {
       return items;
     }
@@ -171,4 +171,6 @@ export const useFilteredReservationList = ({
     );
     return tested;
   }, [items, reservations]);
+
+  return { reservations: res, refetch };
 };

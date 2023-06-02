@@ -80,7 +80,7 @@ const ReservationListEditor = ({
   removedReservations,
   setRemovedReservations,
 }: {
-  items: NewReservationListItem[];
+  items: { reservations: NewReservationListItem[]; refetch: () => void };
   removedReservations: NewReservationListItem[];
   setRemovedReservations: (items: NewReservationListItem[]) => void;
 }) => {
@@ -94,6 +94,7 @@ const ReservationListEditor = ({
   };
 
   const handleRestore = (item: NewReservationListItem) => {
+    items.refetch();
     const fid = removedReservations.findIndex((x) => isReservationEq(item, x));
     if (fid !== -1) {
       setRemovedReservations([
@@ -103,7 +104,7 @@ const ReservationListEditor = ({
     }
   };
 
-  const itemsWithButtons = items.map((x) => {
+  const itemsWithButtons = items.reservations.map((x) => {
     if (x.isOverlapping) {
       return x;
     }
@@ -230,7 +231,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
       return;
     }
     const reservationsToMake = filterOutRemovedReservations(
-      checkedReservations,
+      checkedReservations.reservations,
       removedReservations
     ).filter((x) => !x.isOverlapping);
 
@@ -406,7 +407,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
       : "";
 
   const newReservationsToMake = filterOutRemovedReservations(
-    checkedReservations,
+    checkedReservations.reservations,
     removedReservations
   ).filter((x) => !x.isOverlapping);
 
