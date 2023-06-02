@@ -8,8 +8,6 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { expect, test, jest } from "@jest/globals";
 import userEvent from "@testing-library/user-event";
 import { MockedProvider } from "@apollo/client/testing";
 import { getYear, nextMonday, set } from "date-fns";
