@@ -184,6 +184,10 @@ const StyledSelect = styled(Select)`
     line-height: var(--lineheight-l);
   }
 
+  button > span {
+    white-space: nowrap;
+  }
+
   ul {
     transform: unset;
     bottom: 54px;
@@ -490,6 +494,8 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     )
       .filter((n) => {
         const [hours, minutes] = n.split(":").map(Number);
+        if (hours == null || minutes == null) return false;
+
         const d = new Date(date);
         d.setHours(hours, minutes);
         const e = addMinutes(d, endHours * 60 + endMinutes);

@@ -1,10 +1,9 @@
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   getEventBuffers,
-  getMinReservation,
+  getNewReservation,
   getSlotPropGetter,
   getTimeslots,
-  getValidEndingTime,
 } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
 import { parseDate } from "common/src/common/util";
@@ -18,7 +17,6 @@ import {
   addHours,
   addSeconds,
   differenceInMinutes,
-  roundToNearestMinutes,
   startOfDay,
 } from "date-fns";
 import classNames from "classnames";
@@ -307,29 +305,7 @@ const EditStep0 = ({
       { start, end }: CalendarEvent<Reservation | ReservationType>,
       skipLengthCheck = false
     ): boolean => {
-      const { minReservationDuration, reservationStartInterval } =
-        reservationUnit;
-
-      const { end: minEnd } = getMinReservation({
-        begin: start,
-        minReservationDuration,
-        reservationStartInterval,
-      });
-
-      let normalizedEnd = getValidEndingTime({
-        start,
-        end: roundToNearestMinutes(end),
-        reservationStartInterval,
-      });
-
-      if (normalizedEnd < minEnd) {
-        normalizedEnd = minEnd;
-      }
-
-      const newReservation: PendingReservation = {
-        begin: start?.toISOString(),
-        end: normalizedEnd?.toISOString(),
-      };
+      const newReservation = getNewReservation({ start, end, reservationUnit });
 
       if (!isSlotReservable(start, end, skipLengthCheck)) {
         return false;
@@ -352,52 +328,35 @@ const EditStep0 = ({
   );
 
   const handleSlotClick = useCallback(
-    (
-      { start: startTime, end: endTime, action },
-      skipLengthCheck = false
-    ): boolean => {
-      const { minReservationDuration, reservationStartInterval } =
-        reservationUnit;
-
+    ({ start, end, action }, skipLengthCheck = false): boolean => {
       const isTouchClick = action === "select" && isClientATouchDevice;
 
       if (action === "select" && !isClientATouchDevice) {
         return false;
       }
 
-      const end =
+      const normalizedEnd =
         action === "click" ||
-        (isTouchClick && differenceInMinutes(endTime, startTime) <= 30)
+        (isTouchClick && differenceInMinutes(end, start) <= 30)
           ? addSeconds(
-              new Date(startTime),
+              new Date(start),
               reservationUnit.minReservationDuration || 0
             )
-          : new Date(endTime);
+          : new Date(end);
 
-      const { end: minEnd } = getMinReservation({
-        begin: startTime,
-        minReservationDuration,
-        reservationStartInterval,
+      const newReservation = getNewReservation({
+        start,
+        end: normalizedEnd,
+        reservationUnit,
       });
 
-      let normalizedEnd = getValidEndingTime({
-        start: startTime,
-        end: roundToNearestMinutes(end),
-        reservationStartInterval,
-      });
-
-      if (normalizedEnd < minEnd) {
-        normalizedEnd = minEnd;
-      }
-
-      if (!isSlotReservable(startTime, end, skipLengthCheck)) {
+      if (
+        !isSlotReservable(start, new Date(newReservation.end), skipLengthCheck)
+      ) {
         return false;
       }
 
-      setInitialReservation({
-        begin: startTime.toISOString(),
-        end: normalizedEnd.toISOString(),
-      });
+      setInitialReservation(newReservation);
 
       return true;
     },

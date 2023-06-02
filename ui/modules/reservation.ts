@@ -19,6 +19,7 @@ import {
   areSlotsReservable,
   doBuffersCollide,
   doReservationsCollide,
+  getIntervalMinutes,
   isReservationLongEnough,
   isReservationShortEnough,
   isStartTimeWithinInterval,
@@ -31,24 +32,7 @@ export const getDurationOptions = (
   maxReservationDuration: number,
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ): OptionType[] => {
-  let step: string;
-  switch (reservationStartInterval) {
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_30Mins:
-      step = "00:30:00";
-      break;
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_60Mins:
-      step = "01:00:00";
-      break;
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_90Mins:
-      step = "01:30:00";
-      break;
-    case ReservationUnitsReservationUnitReservationStartIntervalChoices.Interval_15Mins:
-    default:
-      step = "00:15:00";
-      break;
-  }
-
-  const durationStep = convertHMSToSeconds(step);
+  const durationStep = getIntervalMinutes(reservationStartInterval) * 60;
 
   if (!minReservationDuration || !maxReservationDuration || !durationStep)
     return [];

@@ -10,6 +10,7 @@ import {
   isAfter,
   isBefore,
   isWithinInterval,
+  roundToNearestMinutes,
   startOfDay,
 } from "date-fns";
 import { TFunction } from "next-i18next";
@@ -303,18 +304,18 @@ export const getIntervalMinutes = (
 
 export const getMinReservation = ({
   begin,
-  minReservationDuration,
   reservationStartInterval,
+  minReservationDuration = 0,
 }: {
   begin: Date;
-  minReservationDuration: number;
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
+  minReservationDuration?: number;
 }): { begin: Date; end: Date } => {
-  const durationMinutes = minReservationDuration / 60;
+  const minDurationMinutes = minReservationDuration / 60;
   const intervalMinutes = getIntervalMinutes(reservationStartInterval);
 
   const minutes =
-    durationMinutes < intervalMinutes ? intervalMinutes : durationMinutes;
+    minDurationMinutes < intervalMinutes ? intervalMinutes : minDurationMinutes;
   return { begin, end: addMinutes(begin, minutes) };
 };
 
@@ -585,4 +586,38 @@ export const getOpenDays = (
   });
 
   return openDays.sort((a, b) => a.getTime() - b.getTime());
+};
+
+export const getNewReservation = ({
+  start,
+  end,
+  reservationUnit,
+}: {
+  reservationUnit: ReservationUnitByPkType;
+  start: Date;
+  end: Date;
+}): PendingReservation => {
+  const { minReservationDuration, reservationStartInterval } = reservationUnit;
+
+  const { end: minEnd } = getMinReservation({
+    begin: start,
+    minReservationDuration: minReservationDuration || 0,
+    reservationStartInterval,
+  });
+
+  let normalizedEnd =
+    getValidEndingTime({
+      start,
+      end: roundToNearestMinutes(end),
+      reservationStartInterval,
+    }) || roundToNearestMinutes(end);
+
+  if (normalizedEnd < minEnd) {
+    normalizedEnd = minEnd;
+  }
+
+  return {
+    begin: start?.toISOString(),
+    end: normalizedEnd?.toISOString(),
+  };
 };
