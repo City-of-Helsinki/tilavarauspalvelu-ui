@@ -5,7 +5,8 @@ import { CURRENT_USER } from "../../../../context/queries";
 
 const usePermission = () => {
   const { data: user } = useQuery<Query>(CURRENT_USER);
-  const { hasPermission: baseHasPermission } = useAuthState().authState;
+  const { authState } = useAuthState();
+  const { hasPermission: baseHasPermission } = authState;
 
   const hasPermission = (
     reservation: ReservationType,
@@ -15,7 +16,6 @@ const usePermission = () => {
       | "can_view_reservations",
     includeOwn = true
   ) => {
-    // console.log('has permission check for reservation: ', re)
     const serviceSectorPks =
       reservation?.reservationUnits?.[0]?.unit?.serviceSectors
         ?.map((x) => x?.pk)
