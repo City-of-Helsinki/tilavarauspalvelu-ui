@@ -179,28 +179,6 @@ const Content = styled.div<{ $isAnimated: boolean }>`
   }
 `;
 
-const StyledSelect = styled(Select)`
-  & > div:nth-of-type(2) {
-    line-height: var(--lineheight-l);
-  }
-
-  button > span {
-    white-space: nowrap;
-  }
-
-  ul {
-    transform: unset;
-    bottom: 54px;
-    left: -2px;
-    border-top: var(--border-width) solid var(--dropdown-border-color-focus);
-    border-bottom: var(--divider-width) solid var(--menu-divider-color);
-
-    li {
-      white-space: nowrap;
-    }
-  }
-`;
-
 const PriceWrapper = styled.div`
   ${fontMedium};
   align-self: flex-end;
@@ -280,6 +258,28 @@ const SubmitButton = styled(MediumButton)`
 
   @media (min-width: ${breakpoints.m}) {
     order: unset;
+  }
+`;
+
+const StyledSelect = styled(Select)`
+  & > div:nth-of-type(2) {
+    line-height: var(--lineheight-l);
+  }
+
+  button > span {
+    white-space: nowrap;
+  }
+
+  ul {
+    transform: unset;
+    bottom: 54px;
+    left: -2px;
+    border-top: var(--border-width) solid var(--dropdown-border-color-focus);
+    border-bottom: var(--divider-width) solid var(--menu-divider-color);
+
+    li {
+      white-space: nowrap;
+    }
   }
 `;
 
