@@ -19,11 +19,9 @@ const VisibleIfPermission = ({
   const { hasPermission } = usePermission();
 
   if (!hasPermission(reservation, permissionName)) {
-    // eslint-disable-next-line react/jsx-no-useless-fragment
     return otherwise ? <>{otherwise}</> : null;
   }
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment
   return <>{children}</>;
 };
 
