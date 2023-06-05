@@ -12,6 +12,7 @@ import {
   ReservationUnitByPkTypeReservationsArgs,
   QueryReservationUnitByPkArgs,
 } from "common/types/gql-types";
+import { Permission } from "app/context/authStateReducer";
 import { reservationUrl } from "../../common/urls";
 import { combineResults } from "../../common/util";
 import { useNotification } from "../../context/NotificationContext";
@@ -157,7 +158,10 @@ const ReservationUnitCalendar = ({
         begin={startOfISOWeek(new Date(begin))}
         eventStyleGetter={eventStyleGetter(reservationUnitPk)}
         onSelectEvent={(e) => {
-          if (e.event?.pk && hasPermission(e.event, "can_view_reservations")) {
+          if (
+            e.event?.pk &&
+            hasPermission(e.event, Permission.CAN_VIEW_RESERVATIONS)
+          ) {
             window.open(publicUrl + reservationUrl(e.event?.pk), "_blank");
           }
         }}

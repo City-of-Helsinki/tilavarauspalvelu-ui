@@ -1,24 +1,22 @@
 import React from "react";
 import { type ReservationType } from "common/types/gql-types";
+import { Permission } from "app/context/authStateReducer";
 import { usePermission } from "./hooks";
 
 const VisibleIfPermission = ({
   reservation,
-  permissionName,
+  permission,
   children,
   otherwise,
 }: {
   reservation: ReservationType;
-  permissionName:
-    | "can_manage_reservations"
-    | "can_comment_reservations"
-    | "can_view_reservations";
+  permission: Permission;
   children: React.ReactNode;
   otherwise?: React.ReactNode;
 }) => {
   const { hasPermission } = usePermission();
 
-  if (!hasPermission(reservation, permissionName)) {
+  if (!hasPermission(reservation, permission)) {
     return otherwise ? <>{otherwise}</> : null;
   }
 

@@ -17,6 +17,7 @@ import {
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
+import { Permission } from "app/context/authStateReducer";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
@@ -120,7 +121,7 @@ const ButtonsWithPermChecks = ({
   return (
     <VisibleIfPermission
       reservation={reservation}
-      permissionName="can_manage_reservations"
+      permission={Permission.CAN_MANAGE_RESERVATIONS}
     >
       {reservation.recurringReservation ? (
         <ApprovalButtonsRecurring
@@ -431,7 +432,7 @@ const RequestedReservation = ({
         <ReservationSummary reservation={reservation} isFree={!isNonFree} />
         <div>
           <VisibleIfPermission
-            permissionName="can_comment_reservations"
+            permission={Permission.CAN_COMMENT_RESERVATIONS}
             reservation={reservation}
           >
             <Accordion
@@ -641,7 +642,7 @@ const PermissionWrappedReservation = () => {
 
   return (
     <VisibleIfPermission
-      permissionName="can_view_reservations"
+      permission={Permission.CAN_VIEW_RESERVATIONS}
       reservation={reservation}
       otherwise={
         <Container>

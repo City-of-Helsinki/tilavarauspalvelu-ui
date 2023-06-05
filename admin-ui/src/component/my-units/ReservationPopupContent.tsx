@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
+import { Permission } from "app/context/authStateReducer";
 import { reservationUrl } from "../../common/urls";
 import { formatTime } from "../../common/util";
 import { DenseVerticalFlex } from "../../styles/layout";
@@ -44,7 +45,7 @@ const ReservationPopupContent = ({
         </Heading>
         <VisibleIfPermission
           reservation={reservation}
-          permissionName="can_view_reservations"
+          permission={Permission.CAN_VIEW_RESERVATIONS}
         >
           <Reservee>
             {reservation.pk ? (

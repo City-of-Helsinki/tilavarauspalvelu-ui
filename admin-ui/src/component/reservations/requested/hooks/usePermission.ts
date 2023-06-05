@@ -1,4 +1,5 @@
 import { useQuery } from "@apollo/client";
+import { Permission } from "app/context/authStateReducer";
 import { type Query, type ReservationType } from "common/types/gql-types";
 import { useAuthState } from "../../../../context/AuthStateContext";
 import { CURRENT_USER } from "../../../../context/queries";
@@ -10,10 +11,7 @@ const usePermission = () => {
 
   const hasPermission = (
     reservation: ReservationType,
-    permissionName:
-      | "can_manage_reservations"
-      | "can_comment_reservations"
-      | "can_view_reservations",
+    permissionName: Permission,
     includeOwn = true
   ) => {
     const serviceSectorPks =
@@ -35,7 +33,7 @@ const usePermission = () => {
     const ownPermissions =
       includeOwn && isUsersOwnReservation
         ? baseHasPermission(
-            "can_create_staff_reservations",
+            Permission.CAN_CREATE_STAFF_RESERVATIONS,
             unitPk,
             serviceSectorPks
           )
