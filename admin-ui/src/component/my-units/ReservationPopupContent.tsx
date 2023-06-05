@@ -34,6 +34,7 @@ const ReservationPopupContent = ({
 }: {
   reservation: ReservationType;
 }): JSX.Element => {
+  const eventName = getReserveeName(reservation, 22) || "-";
   return (
     <PopupContent>
       <DenseVerticalFlex>
@@ -46,9 +47,13 @@ const ReservationPopupContent = ({
           permissionName="can_view_reservations"
         >
           <Reservee>
-            <Link target="_blank" to={reservationUrl(reservation.pk as number)}>
-              {getReserveeName(reservation, 22) || "-"}
-            </Link>
+            {reservation.pk ? (
+              <Link target="_blank" to={reservationUrl(reservation.pk)}>
+                {eventName}
+              </Link>
+            ) : (
+              <span>{eventName}</span>
+            )}
           </Reservee>
           {reservation.workingMemo && (
             <WorkingMemo>{reservation.workingMemo}</WorkingMemo>
