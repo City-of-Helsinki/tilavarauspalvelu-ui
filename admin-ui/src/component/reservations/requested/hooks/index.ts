@@ -63,12 +63,7 @@ export const useReservationData = (
       }))
       .map((x) => ({
         ...x,
-        title:
-          x.event.type === "blocked"
-            ? "Suljettu"
-            : x.title.trim() !== ""
-            ? x.title
-            : "No title",
+        title: x.event.type === "blocked" ? "Suljettu" : x.title.trim(),
         event: {
           ...x.event,
           name: x.event.name?.trim() !== "" ? x.event.name : "No name",
