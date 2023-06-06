@@ -49,6 +49,8 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
 `;
 
 // TODO do we need user / orderStatus?
+// TODO is it ok to add recurring info to this query? it's already massive
+// can we Fragment it?
 export const SINGLE_RESERVATION_QUERY = gql`
   ${RESERVATION_META_FRAGMENT}
   ${RESERVATION_UNIT_FRAGMENT}
@@ -60,6 +62,12 @@ export const SINGLE_RESERVATION_QUERY = gql`
       workingMemo
       reservationUnits {
         ...ReservationUnit
+      }
+      recurringReservation {
+        pk
+        beginDate
+        endDate
+        weekdays
       }
       user {
         firstName

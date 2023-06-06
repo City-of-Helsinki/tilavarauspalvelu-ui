@@ -81,26 +81,6 @@ export const useReservationData = (
   return { ...rest, events };
 };
 
-export const useReservationEditData = (id?: string) => {
-  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    SINGLE_RESERVATION_QUERY,
-    {
-      skip: !id,
-      fetchPolicy: "no-cache",
-      variables: {
-        pk: Number(id),
-      },
-    }
-  );
-
-  const reservation = data?.reservationByPk ?? undefined;
-  const reservationUnit =
-    data?.reservationByPk?.reservationUnits?.find((x) => x != null) ??
-    undefined;
-
-  return { reservation, reservationUnit, loading, refetch };
-};
-
 type OptionsType = {
   limit: number;
 };
@@ -221,4 +201,65 @@ export const useDenyReasonOptions = () => {
   );
 
   return { options: denyReasonOptions, loading };
+};
+
+/// @param id fetch reservation related to this pk
+/// Overly complex because editing DENIED or past reservations is not allowed
+/// but the UI makes no distinction between past and present instances of a recurrance.
+/// If we don't get the next valid reservation for edits: the mutations work,
+/// but the UI is not updated to show the changes (since it's looking at a past instance).
+/// TODO the queries can be combined into a single massive query, maybe
+/// or we can do a pre query to find the next valid reservation.pk and then query the data
+/// inside the EditPage.
+/// FIXME at least the useRecurringReservations needs to be optimized not to return all reservations
+/// just add a starting date param to it + limit = 1 and it's golden.
+export const useReservationEditData = (id?: string) => {
+  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
+    SINGLE_RESERVATION_QUERY,
+    {
+      skip: !id,
+      fetchPolicy: "no-cache",
+      variables: {
+        pk: Number(id),
+      },
+    }
+  );
+
+  // TODO this could be optimized to query the next valid reservation
+  // i.e. CONFIRMED and in the future
+  const recurringPk =
+    data?.reservationByPk?.recurringReservation?.pk ?? undefined;
+  const { reservations: recurringReservations } = useRecurringReservations(
+    recurringPk,
+    { limit: 100 }
+  );
+
+  const possibleReservations = recurringReservations
+    ?.filter((x) => x.state === ReservationsReservationStateChoices.Confirmed)
+    ?.filter((x) => new Date(x.begin) > new Date());
+
+  const { data: nextRecurrance } = useQuery<Query, QueryReservationByPkArgs>(
+    SINGLE_RESERVATION_QUERY,
+    {
+      skip: !possibleReservations?.at(0)?.pk,
+      fetchPolicy: "no-cache",
+      variables: {
+        pk: possibleReservations?.at(0)?.pk ?? 0,
+      },
+    }
+  );
+
+  const reservation = recurringPk
+    ? nextRecurrance?.reservationByPk
+    : data?.reservationByPk;
+  const reservationUnit =
+    data?.reservationByPk?.reservationUnits?.find((x) => x != null) ??
+    undefined;
+
+  return {
+    reservation: reservation ?? undefined,
+    reservationUnit,
+    loading,
+    refetch,
+  };
 };

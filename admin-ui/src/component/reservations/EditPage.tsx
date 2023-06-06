@@ -33,7 +33,10 @@ import Loader from "../Loader";
 import { HR } from "../lists/components";
 import { useOptions } from "../my-units/hooks";
 import EditPageWrapper from "./EditPageWrapper";
-import { useReservationEditData } from "./requested/hooks";
+import {
+  useRecurringReservations,
+  useReservationEditData,
+} from "./requested/hooks";
 import { CHANGE_STAFF_RESERVATION } from "./queries";
 
 type FormValueType = ReservationChangeFormType & ReservationFormMeta;
@@ -63,6 +66,80 @@ const noSeparateBillingDefined = (reservation: ReservationType): boolean =>
   !reservation.billingFirstName &&
   !reservation.billingLastName &&
   !reservation.billingPhone;
+
+/// Combines regular and recurring reservation change mutation
+const useStaffReservationMutation = ({
+  reservation,
+  onSuccess,
+}: {
+  reservation: ReservationType;
+  onSuccess: () => void;
+}) => {
+  const { t } = useTranslation();
+  const { notifyError, notifySuccess } = useNotification();
+  const [mutation] = useMutation<
+    { staffReservationModify: ReservationStaffModifyMutationPayload },
+    {
+      input: ReservationStaffModifyMutationInput;
+      workingMemo: ReservationWorkingMemoMutationInput;
+    }
+  >(CHANGE_STAFF_RESERVATION);
+
+  const { reservations } = useRecurringReservations(
+    reservation.recurringReservation?.pk ?? undefined
+  );
+
+  const isRecurring = !!reservation.recurringReservation?.pk;
+
+  const editStaffReservation = async (
+    input: ReservationStaffModifyMutationInput,
+    workingMemo?: string
+  ) => {
+    if (isRecurring) {
+      console.warn("should use a special mutation for recurring reservations");
+      // FIXME do we update the workingMemo or the recurring description?
+      const toUpdate = reservations
+        .filter((x) => new Date(x.begin).getTime() >= Date.now())
+        // TODO use enum
+        .filter((x) => x.state === "CONFIRMED")
+        .map((x) => x.pk)
+        .filter((x): x is number => x != null);
+
+      const resolved = toUpdate.map((pk) =>
+        mutation({
+          variables: {
+            input: { ...input, pk },
+            workingMemo: { pk, workingMemo },
+          },
+        })
+      );
+
+      // This is correct (remove the other notify)
+      await Promise.all(resolved).then(onSuccess).catch(notifyError);
+    } else {
+      mutation({
+        variables: {
+          input,
+          workingMemo: {
+            pk: input.pk,
+            workingMemo,
+          },
+        },
+        // FIXME this should be in the mutation call because now it creates X notify when run on recurring
+        onCompleted: () => {
+          notifySuccess(t("Reservation.EditPage.saveSuccess"));
+          // FIXME redirect is correct but we can't debug this
+          // onSuccess();
+        },
+        onError: () => {
+          notifyError(t("Reservation.EditPage.saveError"));
+        },
+      });
+    }
+  };
+
+  return editStaffReservation;
+};
 
 const EditReservation = ({
   onCancel,
@@ -124,36 +201,12 @@ const EditReservation = ({
     },
   });
 
-  const { notifyError, notifySuccess } = useNotification();
+  const { notifyError } = useNotification();
 
-  const [mutation] = useMutation<
-    { staffReservationModify: ReservationStaffModifyMutationPayload },
-    {
-      input: ReservationStaffModifyMutationInput;
-      workingMemo: ReservationWorkingMemoMutationInput;
-    }
-  >(CHANGE_STAFF_RESERVATION);
-
-  const changeStaffReservation = (
-    input: ReservationStaffModifyMutationInput,
-    workingMemo?: string
-  ) =>
-    mutation({
-      variables: {
-        input,
-        workingMemo: {
-          pk: input.pk,
-          workingMemo,
-        },
-      },
-      onCompleted: () => {
-        notifySuccess(t("Reservation.EditPage.saveSuccess"));
-        onSuccess();
-      },
-      onError: () => {
-        notifyError(t("Reservation.EditPage.saveError"));
-      },
-    });
+  const changeStaffReservation = useStaffReservationMutation({
+    reservation,
+    onSuccess,
+  });
 
   const onSubmit = async (values: FormValueType) => {
     if (!reservationUnit.pk) {
