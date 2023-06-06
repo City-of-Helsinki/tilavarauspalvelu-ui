@@ -327,8 +327,9 @@ const translations: ITranslations = {
         removed: ["Poistettu"],
         overlapping: ["Ei saatavilla"],
         title: ["Toistuva varaus tehty"],
-        failedTitle: ["Epäonnistuneet varaukset"],
-        successTitle: ["Varaukset"],
+        allFailedTitle: ["Toistuvaa varausta ei voitu tehdä"],
+        failedSubtitle: ["Epäonnistuneet varaukset"],
+        successSubtitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
         failureInfo: [
           "{{conflicts}} / {{total}} epäonnistui päällekkäisyyksien takia.",

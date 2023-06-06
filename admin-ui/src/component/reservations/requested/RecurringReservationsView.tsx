@@ -16,10 +16,12 @@ import { useModal } from "../../../context/ModalContext";
 const RecurringReservationsView = ({
   recurringPk,
   onSelect,
+  onChange,
   onReservationUpdated,
 }: {
   recurringPk: number;
   onSelect?: (selected: ReservationType) => void;
+  onChange?: () => void;
   onReservationUpdated?: () => void;
 }) => {
   const { t } = useTranslation();
@@ -38,6 +40,9 @@ const RecurringReservationsView = ({
   const handleChange = (_x: ReservationType) => {
     // eslint-disable-next-line no-console
     console.warn("Change NOT Implemented.");
+    if (onChange) {
+      onChange();
+    }
   };
 
   const handleCloseRemoveDialog = () => {
@@ -66,7 +71,7 @@ const RecurringReservationsView = ({
     const now = new Date();
 
     if (x.state !== ReservationsReservationStateChoices.Denied) {
-      if (startDate > now) {
+      if (startDate > now && onChange) {
         buttons.push(
           <ReservationListButton
             key="change"

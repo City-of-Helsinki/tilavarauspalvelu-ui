@@ -77,7 +77,7 @@ const RecurringReservationDone = () => {
 
   return (
     <StyledContainer>
-      <H1 $legacy>{t(`title`)}</H1>
+      <H1 $legacy>{successes.length > 0 ? t(`title`) : t("allFailedTitle")}</H1>
       <InfoSection>
         <span>
           {failed.length === 0
@@ -101,12 +101,12 @@ const RecurringReservationDone = () => {
       )}
       {failed.length > 0 && (
         <StyledH6 as="h2">
-          {t(`failedTitle`)} ({failed.length})
+          {t("failedSubtitle")} ({failed.length})
         </StyledH6>
       )}
       <ReservationList items={failed} hasPadding />
       <StyledH6 as="h2">
-        {t(`successTitle`)} ({successes.length})
+        {t("successSubtitle")} ({successes.length})
       </StyledH6>
       <RecurringReservationsView recurringPk={props.recurringPk} />
       <ActionsWrapper>
