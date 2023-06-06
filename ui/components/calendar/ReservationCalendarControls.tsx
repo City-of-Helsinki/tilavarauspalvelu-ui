@@ -30,10 +30,10 @@ import {
 import { useLocalStorage } from "react-use";
 import { Transition } from "react-transition-group";
 import {
-  areSlotsReservable,
   doBuffersCollide,
   doReservationsCollide,
   getDayIntervals,
+  isRangeReservable,
 } from "common/src/calendar/util";
 import {
   ApplicationRound,
@@ -373,6 +373,16 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
 
   useEffect(() => {
     if (isValid(date) && startTime && duration) {
+      const {
+        bufferTimeBefore,
+        bufferTimeAfter,
+        openingHours,
+        reservationsMinDaysBefore,
+        reservations,
+        reservationBegins,
+        reservationEnds,
+      } = reservationUnit;
+
       setErrorMsg(null);
       const startDate = new Date(date);
       const endDate = new Date(date);
@@ -407,10 +417,10 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           {
             start: startDate,
             end: endDate,
-            bufferTimeBefore: reservationUnit.bufferTimeBefore,
-            bufferTimeAfter: reservationUnit.bufferTimeAfter,
+            bufferTimeBefore,
+            bufferTimeAfter,
           },
-          reservationUnit.reservations
+          reservations
         )
       ) {
         setErrorMsg(t("reservationCalendar:errors.bufferCollision"));
@@ -422,24 +432,24 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             start: startDate,
             end: endDate,
           },
-          reservationUnit.reservations
+          reservations
         )
       ) {
         setErrorMsg(t(`reservationCalendar:errors.collision`));
       } else if (
-        !areSlotsReservable(
-          [startDate, addMinutes(endDate, -1)],
-          reservationUnit.openingHours?.openingTimes,
-          reservationUnit.reservationBegins
-            ? new Date(reservationUnit.reservationBegins)
+        !isRangeReservable({
+          range: [startDate, addMinutes(endDate, -1)],
+          openingHours: openingHours?.openingTimes,
+          reservationBegins: reservationBegins
+            ? new Date(reservationBegins)
             : undefined,
-          reservationUnit.reservationEnds
-            ? new Date(reservationUnit.reservationEnds)
+          reservationEnds: reservationEnds
+            ? new Date(reservationEnds)
             : undefined,
-          reservationUnit.reservationsMinDaysBefore,
+          reservationsMinDaysBefore,
           activeApplicationRounds,
-          true
-        ) ||
+          reservationStartInterval,
+        }) ||
         (customAvailabilityValidation &&
           !customAvailabilityValidation(startDate))
       ) {
@@ -447,7 +457,13 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, startTime, duration?.value, reservationUnit]);
+  }, [
+    date,
+    startTime,
+    duration?.value,
+    reservationUnit,
+    reservationStartInterval,
+  ]);
 
   useEffect(() => {
     setInitialReservation({

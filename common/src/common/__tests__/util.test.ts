@@ -1,6 +1,10 @@
 import { Parameter } from "../../../types/common";
-import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "../../../types/gql-types";
 import {
+  OpeningTimesType,
+  ReservationUnitsReservationUnitReservationStartIntervalChoices,
+} from "../../../types/gql-types";
+import {
+  areOpeningTimesAvailable,
   getIntervalMinutes,
   getMinReservation,
   getValidEndingTime,
@@ -189,5 +193,106 @@ describe("getValidEndingTime", () => {
         reservationStartInterval,
       })
     ).toEqual(new Date("2021-01-01T11:30:00.000Z"));
+  });
+});
+
+describe("areOpeningTimesAvailable", () => {
+  test("should return true if opening times are available", () => {
+    const openingHours: OpeningTimesType[] = [
+      {
+        startTime: "2022-02-02T10:00:00+00:00",
+        endTime: "2022-02-02T12:00:00+00:00",
+        isReservable: true,
+      },
+    ];
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-02T10:00:00+00:00")
+      )
+    ).toBe(true);
+  });
+
+  test("should return true if opening times are available", () => {
+    const openingHours: OpeningTimesType[] = [
+      {
+        startTime: "2022-02-02T10:00:00+00:00",
+        endTime: "2022-02-02T12:00:00+00:00",
+        isReservable: true,
+      },
+    ];
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-02T12:00:00+00:00")
+      )
+    ).toBe(false);
+  });
+
+  test("should return true if opening times are available", () => {
+    const openingHours: OpeningTimesType[] = [
+      {
+        startTime: "2022-02-02T10:00:00+00:00",
+        endTime: "2022-02-02T12:00:00+00:00",
+        isReservable: true,
+      },
+    ];
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-02T12:00:00+00:00"),
+        true
+      )
+    ).toBe(true);
+  });
+
+  test("should work for multiday ", () => {
+    const openingHours: OpeningTimesType[] = [
+      {
+        startTime: "2022-02-02T20:00:00+00:00",
+        endTime: "2022-02-02T22:00:00+00:00",
+        isReservable: true,
+      },
+      {
+        startTime: "2022-02-03T07:00:00+00:00",
+        endTime: "2022-02-03T22:00:00+00:00",
+        isReservable: true,
+      },
+    ];
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-02T22:00:00+00:00"),
+        true
+      )
+    ).toBe(true);
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-02T22:30:00+00:00"),
+        true
+      )
+    ).toBe(false);
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-03T06:30:00+00:00"),
+        true
+      )
+    ).toBe(false);
+
+    expect(
+      areOpeningTimesAvailable(
+        openingHours,
+        new Date("2022-02-03T07:00:00+00:00"),
+        true
+      )
+    ).toBe(true);
   });
 });

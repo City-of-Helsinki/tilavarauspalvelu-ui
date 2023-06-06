@@ -106,7 +106,7 @@ export const isReservationLongEnough = (
   return reservationDuration >= minDuration;
 };
 
-const areOpeningTimesAvailable = (
+export const areOpeningTimesAvailable = (
   openingHours: OpeningTimesType[],
   slotDate: Date,
   validateEnding = false
@@ -166,6 +166,38 @@ const doesSlotCollideWithApplicationRounds = (
   );
 };
 
+export const getIntervalMinutes = (
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
+): number => {
+  switch (reservationStartInterval) {
+    case "INTERVAL_15_MINS":
+      return 15;
+    case "INTERVAL_30_MINS":
+      return 30;
+    case "INTERVAL_60_MINS":
+      return 60;
+    case "INTERVAL_90_MINS":
+      return 90;
+    default:
+      return 0;
+  }
+};
+
+export const generateSlots = (
+  start: Date,
+  end: Date,
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
+): Date[] => {
+  const slots = [];
+  const intervalMinutes = getIntervalMinutes(reservationStartInterval);
+
+  for (let i = new Date(start); i <= end; i = addMinutes(i, intervalMinutes)) {
+    slots.push(i);
+  }
+
+  return slots;
+};
+
 export const areSlotsReservable = (
   slots: Date[],
   openingHours: OpeningTimesType[],
@@ -189,6 +221,42 @@ export const areSlotsReservable = (
       !doesSlotCollideWithApplicationRounds(slot, activeApplicationRounds)
     );
   });
+};
+
+export const isRangeReservable = ({
+  range,
+  openingHours,
+  reservationBegins,
+  reservationEnds,
+  reservationsMinDaysBefore = 0,
+  activeApplicationRounds = [],
+  reservationStartInterval,
+}: {
+  range: Date[];
+  openingHours: OpeningTimesType[];
+  reservationBegins?: Date;
+  reservationEnds?: Date;
+  reservationsMinDaysBefore: number;
+  activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[];
+  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices;
+}): boolean => {
+  const slots = generateSlots(range[0], range[1], reservationStartInterval);
+
+  return (
+    slots.every((slot) =>
+      areOpeningTimesAvailable(openingHours, slot, false)
+    ) &&
+    range.every(
+      (slot) =>
+        isSlotWithinTimeframe(
+          slot,
+          reservationBegins,
+          reservationEnds,
+          reservationsMinDaysBefore
+        ) &&
+        !doesSlotCollideWithApplicationRounds(slot, activeApplicationRounds)
+    )
+  );
 };
 
 export const doReservationsCollide = (
@@ -283,23 +351,6 @@ export const isStartTimeWithinInterval = (
       interval
     ).includes(startHMS)
   );
-};
-
-export const getIntervalMinutes = (
-  reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
-): number => {
-  switch (reservationStartInterval) {
-    case "INTERVAL_15_MINS":
-      return 15;
-    case "INTERVAL_30_MINS":
-      return 30;
-    case "INTERVAL_60_MINS":
-      return 60;
-    case "INTERVAL_90_MINS":
-      return 90;
-    default:
-      return 0;
-  }
 };
 
 export const getMinReservation = ({

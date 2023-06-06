@@ -1,6 +1,6 @@
 import { addMinutes, isAfter, isValid } from "date-fns";
 import camelCase from "lodash/camelCase";
-import { convertHMSToSeconds, secondsToHms } from "common/src/common/util";
+import { secondsToHms } from "common/src/common/util";
 import {
   ApplicationRound,
   OptionType,
@@ -16,10 +16,10 @@ import {
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
 } from "common/types/gql-types";
 import {
-  areSlotsReservable,
   doBuffersCollide,
   doReservationsCollide,
   getIntervalMinutes,
+  isRangeReservable,
   isReservationLongEnough,
   isReservationShortEnough,
   isStartTimeWithinInterval,
@@ -233,15 +233,17 @@ export const isReservationReservable = (
       openingHours?.openingTimes,
       reservationStartInterval
     ) ||
-    !areSlotsReservable(
-      [new Date(start), normalizedEnd],
-      openingHours?.openingTimes,
-      reservationBegins ? new Date(reservationBegins) : undefined,
-      reservationEnds ? new Date(reservationEnds) : undefined,
+    !isRangeReservable({
+      range: [new Date(start), normalizedEnd],
+      openingHours: openingHours?.openingTimes,
+      reservationBegins: reservationBegins
+        ? new Date(reservationBegins)
+        : undefined,
+      reservationEnds: reservationEnds ? new Date(reservationEnds) : undefined,
       reservationsMinDaysBefore,
       activeApplicationRounds,
-      false
-    ) ||
+      reservationStartInterval,
+    }) ||
     (!skipLengthCheck &&
       !isReservationLongEnough(start, end, minReservationDuration)) ||
     !isReservationShortEnough(start, end, maxReservationDuration) ||

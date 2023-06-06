@@ -396,6 +396,8 @@ const QuickReservation = ({
     (n) => n.date
   );
 
+  const dayTimes = useMemo(() => availableTimes(date), [availableTimes, date]);
+
   if (
     !reservationUnit.openingHours ||
     !minReservationDuration ||
@@ -469,7 +471,7 @@ const QuickReservation = ({
         {t("reservationCalendar:quickReservation.subheading")}
       </Subheading>
       <Times>
-        {availableTimes(date).length > 0 ? (
+        {dayTimes.length > 0 ? (
           <Slots>
             <StyledCarousel
               hideCenterControls
@@ -489,7 +491,7 @@ const QuickReservation = ({
                       </SlotButton>
                     </Slot>
                   ))}
-                  {availableTimes(date).length > timeItems &&
+                  {dayTimes.length > timeItems &&
                     index + 1 === timeChunks.length && (
                       <CalendarLink
                         href="#"
