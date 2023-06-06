@@ -198,7 +198,7 @@ const translations: ITranslations = {
     errorSavingData: ["Virhe tallennettaessa tietoja"],
     descriptive: {
       "Overlapping reservations are not allowed.": [
-        "Tila on jo varattu toisen varausyksikön kautta.",
+        "Ajankohdalle on jo varaus toisen varausyksikön kautta.",
       ],
       genericError: [""],
     },
@@ -1114,7 +1114,7 @@ const translations: ITranslations = {
     // dialog specific
     title: ["Varaa {{reservationUnit}}"],
     accept: ["Varaa"],
-    saveFailed: ["Tallennus ei onnistunut: {{error}}"],
+    saveFailed: ["Tallennus ei onnistunut. {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
   },
   ReservationUnits: {
