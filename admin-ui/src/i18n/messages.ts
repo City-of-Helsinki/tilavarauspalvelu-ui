@@ -196,6 +196,12 @@ const translations: ITranslations = {
     authorizationNeeded: ["Oikeudet vaaditaan"],
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
+    descriptive: {
+      "Overlapping reservations are not allowed.": [
+        "Tila on jo varattu toisen varausyksikön kautta.",
+      ],
+      genericError: [""],
+    },
   },
   breadcrumb: {
     frontpage: ["Etusivu"],
