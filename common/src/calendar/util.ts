@@ -188,6 +188,8 @@ export const generateSlots = (
   end: Date,
   reservationStartInterval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ): Date[] => {
+  if (!start || !end || !reservationStartInterval) return [];
+
   const slots = [];
   const intervalMinutes = getIntervalMinutes(reservationStartInterval);
 

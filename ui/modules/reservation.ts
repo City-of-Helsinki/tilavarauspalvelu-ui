@@ -182,24 +182,20 @@ export const getNormalizedReservationOrderStatus = (
   return null;
 };
 
-export type IsReservationReservableProps = {
+export const isReservationReservable = ({
+  reservationUnit,
+  activeApplicationRounds,
+  start,
+  end,
+  skipLengthCheck = false,
+}: {
   reservationUnit: ReservationUnitByPkType;
   activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[];
   start: Date;
   end: Date;
-  skipLengthCheck;
-};
-
-export const isReservationReservable = (
-  props: IsReservationReservableProps
-): boolean => {
-  const {
-    reservationUnit,
-    activeApplicationRounds,
-    start,
-    end,
-    skipLengthCheck = false,
-  } = props;
+  skipLengthCheck: boolean;
+}): boolean => {
+  if (!reservationUnit) return false;
 
   const normalizedEnd = addMinutes(end, -1);
 
@@ -270,18 +266,13 @@ export type CanReservationBeChangedProps = {
   activeApplicationRounds?: ApplicationRoundType[];
 };
 
-export const canReservationTimeBeChanged = (
-  props: CanReservationBeChangedProps
-): [boolean, string?] => {
-  const {
-    reservation,
-    newReservation,
-    reservationUnit,
-    activeApplicationRounds,
-  } = props;
-
+export const canReservationTimeBeChanged = ({
+  reservation,
+  newReservation,
+  reservationUnit,
+  activeApplicationRounds = [],
+}: CanReservationBeChangedProps): [boolean, string?] => {
   if (!reservation) return [false];
-
   // existing reservation state is not CONFIRMED
   if (!isReservationConfirmed(reservation)) {
     return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
