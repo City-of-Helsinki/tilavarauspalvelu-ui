@@ -52,7 +52,9 @@ export type ReservationMade = {
 
 const RecurringReservationDone = () => {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t } = useTranslation("translation", {
+    keyPrefix: "MyUnits.RecurringReservation.Confirmation",
+  });
   const navigate = useNavigate();
 
   const props = RecurringReservationDoneParamsSchema.parse(location.state);
@@ -68,8 +70,6 @@ const RecurringReservationDone = () => {
 
   const successes = props.reservations.filter((x) => x.error == null);
 
-  const locPrefix = "MyUnits.RecurringReservation.Confirmation";
-
   const reservationId = successes.map((x) => x.reservationPk).find(() => true);
 
   // TODO holidays not implemented
@@ -77,19 +77,19 @@ const RecurringReservationDone = () => {
 
   return (
     <StyledContainer>
-      <H1 $legacy>{t(`${locPrefix}.title`)}</H1>
+      <H1 $legacy>{t(`title`)}</H1>
       <InfoSection>
         <span>
           {failed.length === 0
-            ? t(`${locPrefix}.successInfo`)
-            : t(`${locPrefix}.failureInfo`, {
+            ? t(`successInfo`)
+            : t(`failureInfo`, {
                 total: props.reservations.length,
                 conflicts: failed.length,
               })}
         </span>
         {holidays > 0 && (
           <span>
-            {t(`${locPrefix}.holidayInfo`, {
+            {t(`holidayInfo`, {
               total: props.reservations.length,
               holidays: 0,
             })}
@@ -97,18 +97,16 @@ const RecurringReservationDone = () => {
         )}
       </InfoSection>
       {failed.length > 0 && (
-        <InfoSection>
-          {t(`${locPrefix}.failureInfoSecondParagraph`)}
-        </InfoSection>
+        <InfoSection>{t(`failureInfoSecondParagraph`)}</InfoSection>
       )}
       {failed.length > 0 && (
         <StyledH6 as="h2">
-          {t(`${locPrefix}.failedTitle`)} ({failed.length})
+          {t(`failedTitle`)} ({failed.length})
         </StyledH6>
       )}
       <ReservationList items={failed} hasPadding />
       <StyledH6 as="h2">
-        {t(`${locPrefix}.successTitle`)} ({successes.length})
+        {t(`successTitle`)} ({successes.length})
       </StyledH6>
       <RecurringReservationsView recurringPk={props.recurringPk} />
       <ActionsWrapper>
@@ -117,7 +115,7 @@ const RecurringReservationDone = () => {
           onClick={() => navigate("../..", { relative: "path" })}
           theme="black"
         >
-          {t(`${locPrefix}.buttonToUnit`)}
+          {t(`buttonToUnit`)}
         </Button>
         {reservationId != null && (
           <Button
@@ -125,7 +123,7 @@ const RecurringReservationDone = () => {
             onClick={() => handleGoToReservation(reservationId)}
             theme="black"
           >
-            {t(`${locPrefix}.buttonToReservation`)}
+            {t(`buttonToReservation`)}
           </Button>
         )}
       </ActionsWrapper>

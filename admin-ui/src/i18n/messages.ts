@@ -346,6 +346,7 @@ const translations: ITranslations = {
           "ApolloError: Overlapping reservations are not allowed.": [
             "Aika ei saatavilla",
           ],
+          default: ["Aika ei saatavilla"],
         },
         buttonToUnit: ["Palaa toimipisteen sivulle"],
         buttonToReservation: ["Siirry varauksen sivulle"],
