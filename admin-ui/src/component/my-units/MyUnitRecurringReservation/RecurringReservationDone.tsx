@@ -4,12 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Container, Button } from "hds-react";
+import { ErrorBoundary } from "react-error-boundary";
 import { z } from "zod";
 import { H1, H6 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
+import RecurringReservationsView from "app/component/reservations/requested/RecurringReservationsView";
 import { ActionsWrapper } from "./commonStyling";
 import ReservationList from "../../ReservationsList";
-import ReservationListButton from "../../ReservationListButton";
 import withMainMenu from "../../withMainMenu";
 
 const InfoSection = styled.p`
@@ -36,6 +37,11 @@ const ReservationMadeSchema = z.object({
   error: z.string().or(z.array(z.unknown())).optional(), // string | ErrorType[];
 });
 
+const RecurringReservationDoneParamsSchema = z.object({
+  reservations: z.array(ReservationMadeSchema),
+  recurringPk: z.number(),
+});
+
 export type ReservationMade = {
   reservationPk?: number;
   startTime: string;
@@ -44,55 +50,23 @@ export type ReservationMade = {
   error?: string | ErrorType[];
 };
 
-// TODO just for testing the UI; requires another feature to be implemented.
-const btn = [
-  {
-    callback: () => {
-      // eslint-disable-next-line no-console
-      console.log("TODO: NOT IMEPLENETED remove pressed");
-    },
-    type: "remove",
-  },
-  {
-    callback: () => {
-      // eslint-disable-next-line no-console
-      console.log("TODO: NOT IMEPLENETED restore pressed");
-    },
-    type: "restore",
-  },
-] as const;
-
 const RecurringReservationDone = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const props = z.array(ReservationMadeSchema).safeParse(location.state);
+  const props = RecurringReservationDoneParamsSchema.parse(location.state);
 
   const handleGoToReservation = (id: number) => {
     const url = `/reservations/${id}`;
     navigate(url);
   };
 
-  if (!props.success) {
-    return (
-      <div>ERROR: No data in completed reservation: Should not be here</div>
-    );
-  }
-
-  const failed = props.data
+  const failed = props.reservations
     .filter(({ error }) => error != null)
     .map(({ error, ...x }) => ({ ...x, error: String(error) }));
 
-  const successes = props.data
-    .filter((x) => x.error == null)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    .map(({ error, ...x }) => x)
-    // TODO button is temp code till another feature is implemented
-    .map((x, i) => ({
-      ...x,
-      buttons: [ReservationListButton({ ...btn[i % 2], t })],
-    }));
+  const successes = props.reservations.filter((x) => x.error == null);
 
   const locPrefix = "MyUnits.RecurringReservation.Confirmation";
 
@@ -109,14 +83,14 @@ const RecurringReservationDone = () => {
           {failed.length === 0
             ? t(`${locPrefix}.successInfo`)
             : t(`${locPrefix}.failureInfo`, {
-                total: props.data.length,
+                total: props.reservations.length,
                 conflicts: failed.length,
               })}
         </span>
         {holidays > 0 && (
           <span>
             {t(`${locPrefix}.holidayInfo`, {
-              total: props.data.length,
+              total: props.reservations.length,
               holidays: 0,
             })}
           </span>
@@ -136,7 +110,7 @@ const RecurringReservationDone = () => {
       <StyledH6 as="h2">
         {t(`${locPrefix}.successTitle`)} ({successes.length})
       </StyledH6>
-      <ReservationList items={successes} hasPadding />
+      <RecurringReservationsView recurringPk={props.recurringPk} />
       <ActionsWrapper>
         <Button
           variant="secondary"
@@ -159,4 +133,17 @@ const RecurringReservationDone = () => {
   );
 };
 
-export default withMainMenu(RecurringReservationDone);
+const ErrorComponent = () => {
+  const { t } = useTranslation();
+  return <div>{t("errors.errorRecurringReservationsDoneDisplay")}</div>;
+};
+
+const RecurringReservationDoneErrorWrapped = () => {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorComponent}>
+      <RecurringReservationDone />
+    </ErrorBoundary>
+  );
+};
+
+export default withMainMenu(RecurringReservationDoneErrorWrapped);

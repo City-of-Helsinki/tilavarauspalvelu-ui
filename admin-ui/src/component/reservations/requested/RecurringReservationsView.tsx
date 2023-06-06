@@ -14,22 +14,21 @@ import DenyDialog from "./DenyDialog";
 import { useModal } from "../../../context/ModalContext";
 
 const RecurringReservationsView = ({
-  reservation,
+  recurringPk,
   onSelect,
   onReservationUpdated,
 }: {
-  reservation: ReservationType;
-  onSelect: (selected: ReservationType) => void;
-  onReservationUpdated: () => void;
+  recurringPk: number;
+  onSelect?: (selected: ReservationType) => void;
+  onReservationUpdated?: () => void;
 }) => {
   const { t } = useTranslation();
   const { setModalContent } = useModal();
 
   const { loading, reservations, fetchMore, totalCount } =
-    useRecurringReservations(
-      reservation.recurringReservation?.pk ?? undefined,
-      { limit: RECURRING_AUTOMATIC_REFETCH_LIMIT }
-    );
+    useRecurringReservations(recurringPk, {
+      limit: RECURRING_AUTOMATIC_REFETCH_LIMIT,
+    });
 
   if (loading) {
     return <div>Loading</div>;
@@ -50,7 +49,9 @@ const RecurringReservationsView = ({
       <DenyDialog
         reservations={[res]}
         onReject={() => {
-          onReservationUpdated();
+          if (onReservationUpdated) {
+            onReservationUpdated();
+          }
           handleCloseRemoveDialog();
         }}
         onClose={handleCloseRemoveDialog}
@@ -76,14 +77,16 @@ const RecurringReservationsView = ({
         );
       }
 
-      buttons.push(
-        <ReservationListButton
-          key="show"
-          callback={() => onSelect(x)}
-          type="show"
-          t={t}
-        />
-      );
+      if (onSelect) {
+        buttons.push(
+          <ReservationListButton
+            key="show"
+            callback={() => onSelect(x)}
+            type="show"
+            t={t}
+          />
+        );
+      }
       if (startDate > now) {
         buttons.push(
           <ReservationListButton
