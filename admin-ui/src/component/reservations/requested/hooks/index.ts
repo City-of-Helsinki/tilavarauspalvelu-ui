@@ -83,9 +83,15 @@ export const useReservationData = (
 
 type OptionsType = {
   limit: number;
+  begin?: Date;
+  states?: ReservationsReservationStateChoices[];
 };
 const defaultOptions = {
   limit: GQL_MAX_RESULTS_PER_QUERY,
+  states: [
+    ReservationsReservationStateChoices.Confirmed,
+    ReservationsReservationStateChoices.Denied,
+  ],
 };
 
 type CustomQueryParams = {
@@ -113,10 +119,6 @@ export const useRecurringReservations = (
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
-  const states = [
-    ReservationsReservationStateChoices.Confirmed,
-    ReservationsReservationStateChoices.Denied,
-  ];
   const { limit } = { ...defaultOptions, ...options };
   const { data, loading, fetchMore } = useQuery<Query, CustomQueryParams>(
     RECURRING_RESERVATION_QUERY,
@@ -129,7 +131,8 @@ export const useRecurringReservations = (
         pk: recurringPk ?? 0,
         offset: 0,
         count: Math.min(limit, defaultOptions.limit),
-        state: states,
+        begin: options?.begin,
+        state: options?.states ?? defaultOptions.states,
       },
       // do automatic fetching and let the cache manage merging
       onCompleted: (d: Query) => {
@@ -208,11 +211,6 @@ export const useDenyReasonOptions = () => {
 /// but the UI makes no distinction between past and present instances of a recurrance.
 /// If we don't get the next valid reservation for edits: the mutations work,
 /// but the UI is not updated to show the changes (since it's looking at a past instance).
-/// TODO the queries can be combined into a single massive query, maybe
-/// or we can do a pre query to find the next valid reservation.pk and then query the data
-/// inside the EditPage.
-/// FIXME at least the useRecurringReservations needs to be optimized not to return all reservations
-/// just add a starting date param to it + limit = 1 and it's golden.
 export const useReservationEditData = (id?: string) => {
   const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
     SINGLE_RESERVATION_QUERY,
@@ -225,18 +223,19 @@ export const useReservationEditData = (id?: string) => {
     }
   );
 
-  // TODO this could be optimized to query the next valid reservation
-  // i.e. CONFIRMED and in the future
   const recurringPk =
     data?.reservationByPk?.recurringReservation?.pk ?? undefined;
+  const today = new Date();
   const { reservations: recurringReservations } = useRecurringReservations(
     recurringPk,
-    { limit: 100 }
+    {
+      states: [ReservationsReservationStateChoices.Confirmed],
+      begin: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+      limit: 1,
+    }
   );
 
-  const possibleReservations = recurringReservations
-    ?.filter((x) => x.state === ReservationsReservationStateChoices.Confirmed)
-    ?.filter((x) => new Date(x.begin) > new Date());
+  const possibleReservations = recurringReservations;
 
   const { data: nextRecurrance } = useQuery<Query, QueryReservationByPkArgs>(
     SINGLE_RESERVATION_QUERY,

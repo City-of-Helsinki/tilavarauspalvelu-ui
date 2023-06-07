@@ -9,6 +9,7 @@ import {
   ReservationType,
   ReservationUnitType,
   ReservationWorkingMemoMutationInput,
+  ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import camelCase from "lodash/camelCase";
 import { Button } from "hds-react";
@@ -85,9 +86,22 @@ const useStaffReservationMutation = ({
     }
   >(CHANGE_STAFF_RESERVATION);
 
+  const today = new Date();
   const { reservations } = useRecurringReservations(
-    reservation.recurringReservation?.pk ?? undefined
+    reservation.recurringReservation?.pk ?? undefined,
+    {
+      states: [ReservationsReservationStateChoices.Confirmed],
+      begin: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+    }
   );
+
+  const handleSucces = () => {
+    notifySuccess(t("Reservation.EditPage.saveSuccess"));
+    onSuccess();
+  };
+  const handleError = () => {
+    notifyError(t("Reservation.EditPage.saveError"));
+  };
 
   const isRecurring = !!reservation.recurringReservation?.pk;
 
@@ -96,15 +110,11 @@ const useStaffReservationMutation = ({
     workingMemo?: string
   ) => {
     if (isRecurring) {
-      console.warn("should use a special mutation for recurring reservations");
-      // FIXME do we update the workingMemo or the recurring description?
       const toUpdate = reservations
-        .filter((x) => new Date(x.begin).getTime() >= Date.now())
-        // TODO use enum
-        .filter((x) => x.state === "CONFIRMED")
         .map((x) => x.pk)
         .filter((x): x is number => x != null);
 
+      // FIXME do we update the workingMemo or the recurring description?
       const resolved = toUpdate.map((pk) =>
         mutation({
           variables: {
@@ -114,8 +124,7 @@ const useStaffReservationMutation = ({
         })
       );
 
-      // This is correct (remove the other notify)
-      await Promise.all(resolved).then(onSuccess).catch(notifyError);
+      await Promise.all(resolved).then(handleSucces).catch(handleError);
     } else {
       mutation({
         variables: {
@@ -125,15 +134,8 @@ const useStaffReservationMutation = ({
             workingMemo,
           },
         },
-        // FIXME this should be in the mutation call because now it creates X notify when run on recurring
-        onCompleted: () => {
-          notifySuccess(t("Reservation.EditPage.saveSuccess"));
-          // FIXME redirect is correct but we can't debug this
-          // onSuccess();
-        },
-        onError: () => {
-          notifyError(t("Reservation.EditPage.saveError"));
-        },
+        onCompleted: handleSucces,
+        onError: handleError,
       });
     }
   };
@@ -156,6 +158,7 @@ const EditReservation = ({
 }) => {
   const { t } = useTranslation();
 
+  // TODO recurring requires a description and a name box
   const form = useForm<FormValueType>({
     resolver: zodResolver(ReservationChangeFormSchema),
     mode: "onChange",
