@@ -95,14 +95,10 @@ const useStaffReservationMutation = ({
   >(UPDATE_STAFF_RECURRING_RESERVATION);
 
   const handleSucces = (isRecurring: boolean) => {
-    // TODO for recurring this needs to be “Muutokset tallennettu tuleviin varauksiin!”
-    notifySuccess(
-      t(
-        `Reservation.EditPage.${
-          isRecurring ? "saveSuccessRecurring" : "saveSuccess"
-        }`
-      )
-    );
+    const trKey = `Reservation.EditPage.${
+      isRecurring ? "saveSuccessRecurring" : "saveSuccess"
+    }`;
+    notifySuccess(t(trKey));
     onSuccess();
   };
   const handleError = () => {
@@ -120,7 +116,7 @@ const useStaffReservationMutation = ({
     const { seriesName, workingMemo, ...rest } = input;
     if (isRecurring) {
       // NOTE frontend filtering because of cache issues
-      const toUpdate = reservations
+      const pksToUpdate = reservations
         .filter((x) => new Date(x.begin) >= new Date())
         .filter(
           (x) => x.state === ReservationsReservationStateChoices.Confirmed
@@ -133,12 +129,12 @@ const useStaffReservationMutation = ({
           input: {
             name: seriesName,
             pk: reservation.recurringReservation?.pk ?? 0,
+            description: workingMemo,
           },
         },
       });
 
-      // FIXME do we update the workingMemo or the recurring description?
-      const resolved = toUpdate.map((pk) =>
+      const promises = pksToUpdate.map((pk) =>
         mutation({
           variables: {
             input: { ...rest, pk },
@@ -147,8 +143,20 @@ const useStaffReservationMutation = ({
         })
       );
 
-      // TODO early abort if one of the mutations fails
-      await Promise.all(resolved)
+      // NOTE 1000+ mutations takes a long time, do 10 to check if they are valid and early abort on errors.
+      const [firstPass, secondPass] = [
+        promises.slice(0, 10),
+        promises.slice(10),
+      ];
+
+      // TODO
+      // We will face issues when doing 1000 mutations and few of them fail because of server 500.
+      // It's likely that at least 1 / 1000 mutations fails because of network issues.
+      // Retries need to be based on the backend response: a 500 can be retried if some mutations suceeded
+      // regular errors so most throws mean parse errors and should not be retried.
+      // This identical problem is in the createRecurringReservation also.
+      await Promise.all(firstPass)
+        .then(() => Promise.all(secondPass))
         .then(() => handleSucces(true))
         .catch(handleError);
     } else {
