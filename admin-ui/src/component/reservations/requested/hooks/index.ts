@@ -83,15 +83,9 @@ export const useReservationData = (
 
 type OptionsType = {
   limit: number;
-  begin?: Date;
-  states?: ReservationsReservationStateChoices[];
 };
 const defaultOptions = {
   limit: GQL_MAX_RESULTS_PER_QUERY,
-  states: [
-    ReservationsReservationStateChoices.Confirmed,
-    ReservationsReservationStateChoices.Denied,
-  ],
 };
 
 type CustomQueryParams = {
@@ -131,8 +125,10 @@ export const useRecurringReservations = (
         pk: recurringPk ?? 0,
         offset: 0,
         count: Math.min(limit, defaultOptions.limit),
-        begin: options?.begin,
-        state: options?.states ?? defaultOptions.states,
+        state: [
+          ReservationsReservationStateChoices.Confirmed,
+          ReservationsReservationStateChoices.Denied,
+        ],
       },
       // do automatic fetching and let the cache manage merging
       onCompleted: (d: Query) => {
@@ -225,17 +221,15 @@ export const useReservationEditData = (id?: string) => {
 
   const recurringPk =
     data?.reservationByPk?.recurringReservation?.pk ?? undefined;
-  const today = new Date();
-  const { reservations: recurringReservations } = useRecurringReservations(
-    recurringPk,
-    {
-      states: [ReservationsReservationStateChoices.Confirmed],
-      begin: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-      limit: 1,
-    }
-  );
+  const { reservations: recurringReservations } =
+    useRecurringReservations(recurringPk);
 
-  const possibleReservations = recurringReservations;
+  // NOTE have to be done like this instead of query params because of cache
+  // real solution is to fix the cache, but without fixing passing query params
+  // into it will break the reservation queries elsewhere.
+  const possibleReservations = recurringReservations
+    .filter((x) => new Date(x.begin) > new Date())
+    .filter((x) => x.state === ReservationsReservationStateChoices.Confirmed);
 
   const { data: nextRecurrance } = useQuery<Query, QueryReservationByPkArgs>(
     SINGLE_RESERVATION_QUERY,

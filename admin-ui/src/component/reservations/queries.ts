@@ -60,7 +60,7 @@ export const RESERVATIONS_QUERY = gql`
   }
 `;
 
-export const CHANGE_STAFF_RESERVATION = gql`
+export const UPDATE_STAFF_RESERVATION = gql`
   mutation staffReservationModify(
     $input: ReservationStaffModifyMutationInput!
     $workingMemo: ReservationWorkingMemoMutationInput!
@@ -74,6 +74,20 @@ export const CHANGE_STAFF_RESERVATION = gql`
     }
     updateReservationWorkingMemo(input: $workingMemo) {
       workingMemo
+      errors {
+        field
+        messages
+      }
+    }
+  }
+`;
+
+export const UPDATE_STAFF_RECURRING_RESERVATION = gql`
+  mutation updateRecurringReservation(
+    $input: RecurringReservationUpdateMutationInput!
+  ) {
+    updateRecurringReservation(input: $input) {
+      pk
       errors {
         field
         messages

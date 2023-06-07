@@ -3,7 +3,9 @@ import { gql } from "@apollo/client";
 import {
   RESERVATION_COMMON_FRAGMENT,
   RESERVATION_META_FRAGMENT,
+  RESERVATION_RECURRING_FRAGMENT,
   RESERVATION_UNIT_FRAGMENT,
+  RESERVATION_UNIT_PRICING_FRAGMENT,
 } from "../../fragments";
 
 export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
@@ -48,32 +50,38 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
   }
 `;
 
-// TODO do we need user / orderStatus?
-// TODO is it ok to add recurring info to this query? it's already massive
-// can we Fragment it?
+// Possible optmisation: this fragment is only required for some queries.
+const SPECIALISED_SINGLE_RESERVATION_FRAGMENT = gql`
+  fragment ReservationSpecialisation on ReservationType {
+    calendarUrl
+    price
+    taxPercentageValue
+    orderUuid
+    refundUuid
+    user {
+      firstName
+      lastName
+      email
+      pk
+    }
+  }
+`;
+
 export const SINGLE_RESERVATION_QUERY = gql`
   ${RESERVATION_META_FRAGMENT}
   ${RESERVATION_UNIT_FRAGMENT}
+  ${RESERVATION_UNIT_PRICING_FRAGMENT}
   ${RESERVATION_COMMON_FRAGMENT}
+  ${RESERVATION_RECURRING_FRAGMENT}
+  ${SPECIALISED_SINGLE_RESERVATION_FRAGMENT}
   query reservationByPk($pk: Int!) {
     reservationByPk(pk: $pk) {
       ...ReservationCommon
-      type
-      workingMemo
+      ...ReservationRecurring
+      ...ReservationSpecialisation
       reservationUnits {
         ...ReservationUnit
-      }
-      recurringReservation {
-        pk
-        beginDate
-        endDate
-        weekdays
-      }
-      user {
-        firstName
-        lastName
-        email
-        pk
+        ...ReservationUnitPricing
       }
       ...ReservationMetaFields
     }

@@ -4,15 +4,17 @@ import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ReservationStaffModifyMutationInput,
-  ReservationStaffModifyMutationPayload,
-  ReservationType,
-  ReservationUnitType,
-  ReservationWorkingMemoMutationInput,
   ReservationsReservationStateChoices,
+  type RecurringReservationUpdateMutationInput,
+  type RecurringReservationUpdateMutationPayload,
+  type ReservationStaffModifyMutationInput,
+  type ReservationStaffModifyMutationPayload,
+  type ReservationType,
+  type ReservationUnitType,
+  type ReservationWorkingMemoMutationInput,
 } from "common/types/gql-types";
 import camelCase from "lodash/camelCase";
-import { Button } from "hds-react";
+import { Button, TextInput } from "hds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
@@ -25,10 +27,6 @@ import {
 import withMainMenu from "../withMainMenu";
 import { useNotification } from "../../context/NotificationContext";
 import { flattenMetadata } from "../my-units/create-reservation/utils";
-import {
-  Grid,
-  Element,
-} from "../my-units/MyUnitRecurringReservation/commonStyling";
 import ReservationTypeForm from "../my-units/ReservationTypeForm";
 import Loader from "../Loader";
 import { HR } from "../lists/components";
@@ -38,7 +36,10 @@ import {
   useRecurringReservations,
   useReservationEditData,
 } from "./requested/hooks";
-import { CHANGE_STAFF_RESERVATION } from "./queries";
+import {
+  UPDATE_STAFF_RECURRING_RESERVATION,
+  UPDATE_STAFF_RESERVATION,
+} from "./queries";
 
 type FormValueType = ReservationChangeFormType & ReservationFormMeta;
 
@@ -48,15 +49,11 @@ type PossibleOptions = {
   homeCity: Array<{ label: string; value: number }>;
 };
 
-const ButtonContainer = styled(Element)`
-  grid-column-end: -1;
+const ButtonContainer = styled.div`
   gap: 1rem;
   display: flex;
+  justify-content: flex-end;
   border-top-width: 2px;
-`;
-
-const GridHR = styled(HR)`
-  grid-column: 1 / -1;
 `;
 
 const noSeparateBillingDefined = (reservation: ReservationType): boolean =>
@@ -84,19 +81,28 @@ const useStaffReservationMutation = ({
       input: ReservationStaffModifyMutationInput;
       workingMemo: ReservationWorkingMemoMutationInput;
     }
-  >(CHANGE_STAFF_RESERVATION);
+  >(UPDATE_STAFF_RESERVATION);
 
-  const today = new Date();
   const { reservations } = useRecurringReservations(
-    reservation.recurringReservation?.pk ?? undefined,
-    {
-      states: [ReservationsReservationStateChoices.Confirmed],
-      begin: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-    }
+    reservation.recurringReservation?.pk ?? undefined
   );
 
-  const handleSucces = () => {
-    notifySuccess(t("Reservation.EditPage.saveSuccess"));
+  const [recurringMutation] = useMutation<
+    { staffReservationModify: RecurringReservationUpdateMutationPayload },
+    {
+      input: RecurringReservationUpdateMutationInput;
+    }
+  >(UPDATE_STAFF_RECURRING_RESERVATION);
+
+  const handleSucces = (isRecurring: boolean) => {
+    // TODO for recurring this needs to be “Muutokset tallennettu tuleviin varauksiin!”
+    notifySuccess(
+      t(
+        `Reservation.EditPage.${
+          isRecurring ? "saveSuccessRecurring" : "saveSuccess"
+        }`
+      )
+    );
     onSuccess();
   };
   const handleError = () => {
@@ -106,35 +112,55 @@ const useStaffReservationMutation = ({
   const isRecurring = !!reservation.recurringReservation?.pk;
 
   const editStaffReservation = async (
-    input: ReservationStaffModifyMutationInput,
-    workingMemo?: string
+    input: ReservationStaffModifyMutationInput & {
+      seriesName?: string;
+      workingMemo?: string;
+    }
   ) => {
+    const { seriesName, workingMemo, ...rest } = input;
     if (isRecurring) {
+      // NOTE frontend filtering because of cache issues
       const toUpdate = reservations
+        .filter((x) => new Date(x.begin) >= new Date())
+        .filter(
+          (x) => x.state === ReservationsReservationStateChoices.Confirmed
+        )
         .map((x) => x.pk)
         .filter((x): x is number => x != null);
+
+      await recurringMutation({
+        variables: {
+          input: {
+            name: seriesName,
+            pk: reservation.recurringReservation?.pk ?? 0,
+          },
+        },
+      });
 
       // FIXME do we update the workingMemo or the recurring description?
       const resolved = toUpdate.map((pk) =>
         mutation({
           variables: {
-            input: { ...input, pk },
+            input: { ...rest, pk },
             workingMemo: { pk, workingMemo },
           },
         })
       );
 
-      await Promise.all(resolved).then(handleSucces).catch(handleError);
+      // TODO early abort if one of the mutations fails
+      await Promise.all(resolved)
+        .then(() => handleSucces(true))
+        .catch(handleError);
     } else {
       mutation({
         variables: {
-          input,
+          input: rest,
           workingMemo: {
             pk: input.pk,
             workingMemo,
           },
         },
-        onCompleted: handleSucces,
+        onCompleted: () => handleSucces(false),
         onError: handleError,
       });
     }
@@ -142,6 +168,17 @@ const useStaffReservationMutation = ({
 
   return editStaffReservation;
 };
+
+const InnerTextInput = styled(TextInput)`
+  grid-column: 1 / -1;
+  max-width: var(--prose-width);
+`;
+
+const Form = styled.form`
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+`;
 
 const EditReservation = ({
   onCancel,
@@ -165,6 +202,7 @@ const EditReservation = ({
     defaultValues: {
       bufferTimeBefore: false,
       bufferTimeAfter: false,
+      seriesName: reservation.recurringReservation?.name ?? "",
       comments: reservation.workingMemo ?? undefined,
       type: ReservationTypeSchema.optional().parse(
         reservation.type?.toUpperCase()
@@ -234,6 +272,8 @@ const EditReservation = ({
     const toSubmit = {
       pk: reservation.pk,
       reservationUnitPks: [reservationUnit.pk],
+      seriesName: values.seriesName !== "" ? values.seriesName : undefined,
+      workingMemo: values.comments,
       type: values.type ?? "",
       bufferTimeBefore: values.bufferTimeBefore
         ? reservationUnit.bufferTimeBefore
@@ -244,30 +284,42 @@ const EditReservation = ({
       ...flattenedMetadataSetValues,
     };
 
-    changeStaffReservation(toSubmit, values.comments);
+    changeStaffReservation(toSubmit);
   };
 
   const {
     handleSubmit,
+    register,
     formState: { isDirty },
   } = form;
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Grid>
-          <ReservationTypeForm reservationUnit={reservationUnit} />
-          <GridHR />
-          <ButtonContainer>
-            <Button variant="secondary" onClick={onCancel} theme="black">
-              {t("common.cancel")}
-            </Button>
-            <Button type="submit" disabled={!isDirty}>
-              {t("Reservation.EditPage.save")}
-            </Button>
-          </ButtonContainer>
-        </Grid>
-      </form>
+      <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <ReservationTypeForm reservationUnit={reservationUnit}>
+          {reservation.recurringReservation?.pk && (
+            <InnerTextInput
+              id="seriesName"
+              disabled={reservationUnit == null}
+              label={t(`MyUnits.RecurringReservationForm.name`)}
+              required
+              {...register("seriesName")}
+              // FIXME errors? series name needs to !== "" at least
+              // invalid={errors.seriesName != null}
+              // errorText={translateError(errors.seriesName?.message)}
+            />
+          )}
+        </ReservationTypeForm>
+        <HR />
+        <ButtonContainer>
+          <Button variant="secondary" onClick={onCancel} theme="black">
+            {t("common.cancel")}
+          </Button>
+          <Button type="submit" disabled={!isDirty}>
+            {t("Reservation.EditPage.save")}
+          </Button>
+        </ButtonContainer>
+      </Form>
     </FormProvider>
   );
 };

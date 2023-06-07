@@ -30,7 +30,7 @@ import {
   reservationPrice,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
-import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
+import { UPDATE_WORKING_MEMO } from "./queries";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import {
   Container,
@@ -51,6 +51,7 @@ import RecurringReservationsView from "./RecurringReservationsView";
 import { useRecurringReservations } from "./hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
+import { SINGLE_RESERVATION_QUERY } from "./hooks/queries";
 
 const ApplicationDatas = styled.div`
   display: grid;
@@ -341,7 +342,7 @@ const RequestedReservation = (): JSX.Element | null => {
   const { t } = useTranslation();
 
   const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    RESERVATION_QUERY,
+    SINGLE_RESERVATION_QUERY,
     {
       fetchPolicy: "no-cache",
       variables: {
