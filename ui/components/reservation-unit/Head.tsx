@@ -151,7 +151,7 @@ const Head = ({
   return (
     <>
       <BreadcrumbWrapper
-        route={["", searchUrlWithParams, "reservationUnit"]}
+        route={["", searchUrlWithParams, reservationUnitName]}
         aliases={[{ slug: searchUrlWithParams, title: t("breadcrumb:search") }]}
       />
       <TopContainer>
