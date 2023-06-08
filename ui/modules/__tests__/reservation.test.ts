@@ -623,7 +623,12 @@ describe("canReservationBeChanged", () => {
             begin: addHours(startOfToday(), 10).toString(),
             end: addHours(startOfToday(), 12).toString(),
           },
-          reservationUnit: { ...reservationUnit, openingHours: null },
+          reservationUnit: {
+            ...reservationUnit,
+            openingHours: {
+              openingTimes: [],
+            },
+          },
           activeApplicationRounds: [],
         } as CanReservationBeChangedProps)
       ).toStrictEqual([false, "RESERVATION_TIME_INVALID"]);
