@@ -439,7 +439,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
       } else if (
         !isRangeReservable({
           range: [startDate, addMinutes(endDate, -1)],
-          openingHours: openingHours?.openingTimes,
+          openingHours: openingHours.openingTimes,
           reservationBegins: reservationBegins
             ? new Date(reservationBegins)
             : undefined,

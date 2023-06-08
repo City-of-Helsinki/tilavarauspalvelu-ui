@@ -231,7 +231,7 @@ export const isReservationReservable = ({
     ) ||
     !isRangeReservable({
       range: [new Date(start), normalizedEnd],
-      openingHours: openingHours?.openingTimes,
+      openingHours: openingHours.openingTimes,
       reservationBegins: reservationBegins
         ? new Date(reservationBegins)
         : undefined,
