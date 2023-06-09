@@ -47,6 +47,11 @@ const TestComponent = ({
 };
 
 describe("edit mutation hook single reservation", () => {
+  const successCb = jest.fn(() => {});
+  beforeEach(() => {
+    successCb.mockReset();
+  });
+
   const wrappedRender = (pk: number, onSuccess: () => void) => {
     const reservation = { ...mockReservation, pk };
     return render(
@@ -57,18 +62,16 @@ describe("edit mutation hook single reservation", () => {
   };
 
   test("edit mutation hook single reservation", async () => {
-    const successCb = jest.fn(() => {});
     const view = wrappedRender(1, successCb);
     const btn = view.getByRole("button", { name: /mutate/i });
     expect(btn).toBeInTheDocument();
     const user = userEvent.setup();
-    user.click(btn);
+    await user.click(btn);
 
     await waitFor(() => expect(successCb).toHaveBeenCalled());
   });
 
-  test("reservation failing with network error", async () => {
-    const successCb = jest.fn(() => {});
+  test("reservation failing with network error gets retried once", async () => {
     const failCb = jest.fn(() => {});
     jest
       .spyOn(NotificationContext, "useNotification")
@@ -81,15 +84,32 @@ describe("edit mutation hook single reservation", () => {
     const btn = view.getByRole("button", { name: /mutate/i });
     expect(btn).toBeInTheDocument();
     const user = userEvent.setup();
-    user.click(btn);
+    await user.click(btn);
 
-    // TODO should check the error message also
+    await waitFor(() => expect(successCb).toHaveBeenCalled());
+    expect(failCb).not.toHaveBeenCalled();
+  });
+
+  test("reservation failing with network error twice fails", async () => {
+    const failCb = jest.fn(() => {});
+    jest
+      .spyOn(NotificationContext, "useNotification")
+      .mockImplementation(() => ({
+        ...NotificationMock,
+        notifyError: failCb,
+      }));
+
+    const view = wrappedRender(102, successCb);
+    const btn = view.getByRole("button", { name: /mutate/i });
+    expect(btn).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(btn);
+
     await waitFor(() => expect(failCb).toHaveBeenCalled());
     expect(successCb).not.toHaveBeenCalled();
   });
 
   test("reservation failing with GQL error", async () => {
-    const successCb = jest.fn(() => {});
     const failCb = jest.fn(() => {});
     jest
       .spyOn(NotificationContext, "useNotification")
@@ -98,11 +118,11 @@ describe("edit mutation hook single reservation", () => {
         notifyError: failCb,
       }));
 
-    const view = wrappedRender(101, successCb);
+    const view = wrappedRender(111, successCb);
     const btn = view.getByRole("button", { name: /mutate/i });
     expect(btn).toBeInTheDocument();
     const user = userEvent.setup();
-    user.click(btn);
+    await user.click(btn);
 
     // TODO should check the error message also
     await waitFor(() => expect(failCb).toHaveBeenCalled());
@@ -110,7 +130,6 @@ describe("edit mutation hook single reservation", () => {
   });
 
   test("reservation 666 doesn't exist causes an Error", async () => {
-    const successCb = jest.fn(() => {});
     const failCb = jest.fn(() => {});
     jest
       .spyOn(NotificationContext, "useNotification")
@@ -123,7 +142,7 @@ describe("edit mutation hook single reservation", () => {
     const btn = view.getByRole("button", { name: /mutate/i });
     expect(btn).toBeInTheDocument();
     const user = userEvent.setup();
-    user.click(btn);
+    await user.click(btn);
 
     // TODO should check the error message also
     await waitFor(() => expect(failCb).toHaveBeenCalled());
@@ -157,11 +176,15 @@ describe("edit mutation hook recurring reservation", () => {
     );
   };
 
-  // TODO need to increase the count of the reservations
-  test("success mutating 10 linked reservations", async () => {
-    const successCb = jest.fn(() => {});
-    const successNotifyCb = jest.fn(() => {});
-    const failNotifyCb = jest.fn(() => {});
+  const successCb = jest.fn(() => {});
+  const successNotifyCb = jest.fn(() => {});
+  const failNotifyCb = jest.fn(() => {});
+
+  beforeEach(() => {
+    successCb.mockReset();
+    successNotifyCb.mockReset();
+    failNotifyCb.mockReset();
+
     jest
       .spyOn(NotificationContext, "useNotification")
       .mockImplementation(() => ({
@@ -169,41 +192,44 @@ describe("edit mutation hook recurring reservation", () => {
         notifyError: failNotifyCb,
         notifySuccess: successNotifyCb,
       }));
+  });
+
+  test("success mutating recurring reservation", async () => {
     const view = wrappedRender(21, 1, successCb);
     const btn = view.getByRole("button", { name: /mutate/i });
     expect(btn).toBeInTheDocument();
     const user = userEvent.setup();
-    user.click(btn);
+    await user.click(btn);
 
-    // FIXME this gets called even when there is no mock for the pk
     await waitFor(() => expect(successNotifyCb).toHaveBeenCalled());
     expect(successCb).toHaveBeenCalled();
     expect(failNotifyCb).not.toHaveBeenCalled();
   });
 
-  test("fail a single mutation with a network error", async () => {
-    const successCb = jest.fn(() => {});
-    const successNotifyCb = jest.fn(() => {});
-    const failNotifyCb = jest.fn(() => {});
-    jest
-      .spyOn(NotificationContext, "useNotification")
-      .mockImplementation(() => ({
-        ...NotificationMock,
-        notifyError: failNotifyCb,
-        notifySuccess: successNotifyCb,
-      }));
+  test("successful retry if a single mutation fails once with a network error", async () => {
     const view = wrappedRender(31, 2, successCb);
     const btn = view.getByRole("button", { name: /mutate/i });
     expect(btn).toBeInTheDocument();
     const user = userEvent.setup();
-    user.click(btn);
+    await user.click(btn);
+
+    await waitFor(() => expect(successCb).toHaveBeenCalled());
+    expect(failNotifyCb).not.toHaveBeenCalled();
+    expect(successNotifyCb).toHaveBeenCalled();
+  });
+
+  test("fail if a single mutation fails twice with a network error", async () => {
+    const view = wrappedRender(51, 4, successCb);
+    const btn = view.getByRole("button", { name: /mutate/i });
+    expect(btn).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(btn);
 
     await waitFor(() => expect(failNotifyCb).toHaveBeenCalled());
     expect(successCb).not.toHaveBeenCalled();
     expect(successNotifyCb).not.toHaveBeenCalled();
   });
 
-  // TODO are these important test cases?
   test.todo("all already denied should fail mutations");
   test.todo("all in the past should fail mutations");
   test.todo("edit mutation hook recurring reservation failing with GQL error");

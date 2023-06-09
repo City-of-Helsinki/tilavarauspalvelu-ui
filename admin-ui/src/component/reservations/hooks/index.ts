@@ -56,12 +56,12 @@ export const useStaffReservationMutation = ({
     notifyError(t("Reservation.EditPage.saveError"));
   };
 
-  const editStaffReservation = async (
-    input: ReservationStaffModifyMutationInput & {
-      seriesName?: string;
-      workingMemo?: string;
-    }
-  ) => {
+  type MutationInputParams = ReservationStaffModifyMutationInput & {
+    seriesName?: string;
+    workingMemo?: string;
+  };
+
+  const editStaffReservation = async (input: MutationInputParams) => {
     const { seriesName, workingMemo, ...rest } = input;
     const isRecurring = !!reservation.recurringReservation?.pk;
 
@@ -90,12 +90,33 @@ export const useStaffReservationMutation = ({
         return;
       }
 
+      const retryOnce = async (vars: {
+        input: ReservationStaffModifyMutationInput;
+        workingMemo: {
+          pk: number;
+          workingMemo?: string;
+        };
+      }) => {
+        try {
+          const res2 = await mutation({
+            variables: vars,
+          });
+          return res2;
+        } catch (err) {
+          if (err != null && typeof err === "object" && "networkError" in err) {
+            const res3 = await mutation({
+              variables: vars,
+            });
+            return Promise.resolve(res3);
+          }
+          return Promise.reject(err);
+        }
+      };
+
       const promises = pksToUpdate.map((pk) =>
-        mutation({
-          variables: {
-            input: { ...rest, pk },
-            workingMemo: { pk, workingMemo },
-          },
+        retryOnce({
+          input: { ...rest, pk },
+          workingMemo: { pk, workingMemo },
         })
       );
 
@@ -105,12 +126,6 @@ export const useStaffReservationMutation = ({
         promises.slice(10),
       ];
 
-      // TODO
-      // We will face issues when doing 1000 mutations and few of them fail because of server 500.
-      // It's likely that at least 1 / 1000 mutations fails because of network issues.
-      // Retries need to be based on the backend response: a 500 can be retried if some mutations suceeded
-      // regular errors so most throws mean parse errors and should not be retried.
-      // This identical problem is in the createRecurringReservation also.
       await Promise.all(firstPass)
         .then(() => Promise.all(secondPass))
         .then(() => handleSuccess(true))
@@ -123,11 +138,22 @@ export const useStaffReservationMutation = ({
           workingMemo,
         },
       };
-      mutation({
-        variables,
-        onCompleted: () => handleSuccess(false),
-        onError: handleError,
-      });
+
+      // Retry once on network error
+      try {
+        await mutation({
+          variables,
+          onCompleted: () => handleSuccess(false),
+        });
+      } catch (err) {
+        if (err != null && typeof err === "object" && "networkError" in err) {
+          await mutation({
+            variables,
+            onCompleted: () => handleSuccess(false),
+            onError: () => handleError(),
+          });
+        }
+      }
     }
   };
 

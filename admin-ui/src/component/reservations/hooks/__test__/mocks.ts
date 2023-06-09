@@ -15,11 +15,7 @@ import {
 import { RECURRING_RESERVATION_QUERY } from "../../requested/hooks/queries";
 
 export const CHANGED_WORKING_MEMO = "Sisaisen kommentti";
-// FIXME the typical problem with Apollo mocks
-// the mock input data doesn't match the query 100%
-// and sometimes they don't think it's important to tell that to the user
-// another possibility:
-// https://stackoverflow.com/questions/73243978/apollo-mockedprovider-failed-to-match-x-mocks-for-this-query-where-x-is-off-b
+
 export const MUTATION_DATA = {
   input: {
     pk: 1,
@@ -49,49 +45,6 @@ export const MUTATION_DATA = {
     name: "New name",
     description: "",
     numPersons: 10,
-    /*
-    pk: 1,
-    type: "BEHALF",
-    name: "New name",
-    reserveeAddressCity: "TRE",
-    reserveeAddressStreet: "Katuosoite",
-    reserveeAddressZip: "44444",
-    reserveeEmail: "",
-    reserveeFirstName: "Etunimi",
-    reserveeId: "44444444",
-    reserveeIsUnregisteredAssociation: true,
-    reserveeLastName: "Sukunimi",
-    reserveeOrganisationName: "Yhdistys007",
-    reserveePhone: "43434343",
-    taxPercentageValue: "0.00",
-    // ageGroupPk: 4,
-    applyingForFreeOfCharge: false,
-    billingAddressCity: "",
-    billingAddressStreet: "",
-    billingAddressZip: "",
-    billingEmail: "",
-    billingFirstName: "",
-    billingLastName: "",
-    billingPhone: "",
-    // description: "Kuvaus",
-    freeOfChargeReason: "",
-    numPersons: 10,
-    purposePk: 2,
-    reservationUnitPks: [1],
-    */
-    /*
-    reserveeAddressCity: "Helsinki",
-    reserveeAddressStreet: "-",
-    reserveeAddressZip: "44444444",
-    reserveeEmail: "",
-    reserveeFirstName: "Kaupunki",
-    reserveeId: "",
-    reserveeIsUnregisteredAssociation: false,
-    reserveeLastName: "Ei tarvii",
-    reserveeOrganisationName: "",
-    reserveePhone: "",
-    type: "STAFF",
-    */
   },
   workingMemo: {
     pk: 1,
@@ -139,7 +92,8 @@ const correctRecurringReservationQueryResult = (
   startingPk: number,
   recurringPk: number,
   options?: {
-    shouldFail?: boolean;
+    shouldFailAll?: boolean;
+    shouldFailOnce?: boolean;
     allDenied?: boolean;
   }
 ) => [
@@ -209,7 +163,11 @@ const correctRecurringReservationQueryResult = (
       },
     },
   },
-  {
+  // NOTE apollo mocks are consumed on use (unlike MSW which uses functions) so create two of them
+  ...[
+    { fail: (options?.shouldFailAll || options?.shouldFailOnce) ?? false },
+    { fail: options?.shouldFailAll ?? false },
+  ].map(({ fail }) => ({
     request: {
       query: UPDATE_STAFF_RESERVATION,
       variables: {
@@ -217,12 +175,12 @@ const correctRecurringReservationQueryResult = (
         workingMemo: { ...MUTATION_DATA.workingMemo, pk: startingPk + 1 },
       },
     },
-    ...(options?.shouldFail
+    ...(fail
       ? { error: new Error("Error") }
       : {
           result: {
             data: {
-              staffReservationModify: { pk: startingPk, errors: null },
+              staffReservationModify: { pk: startingPk + 1, errors: null },
               updateReservationWorkingMemo: {
                 workingMemo: CHANGED_WORKING_MEMO,
                 errors: null,
@@ -230,7 +188,7 @@ const correctRecurringReservationQueryResult = (
             },
           },
         }),
-  },
+  })),
 ];
 
 export const mocks = [
@@ -250,8 +208,8 @@ export const mocks = [
       },
     },
   },
-  // single reservation Failure mocks
-  {
+  // single reservation Failure mocks: networkError once then succceed
+  ...[{ fail: true }, { fail: false }].map(({ fail }) => ({
     request: {
       query: UPDATE_STAFF_RESERVATION,
       variables: {
@@ -259,9 +217,21 @@ export const mocks = [
         workingMemo: { ...MUTATION_DATA.workingMemo, pk: 101 },
       },
     },
-    error: new Error("Error"),
-  },
-  {
+    error: fail ? new Error("Error") : undefined,
+    result: !fail
+      ? {
+          data: {
+            staffReservationModify: { pk: 101, errors: null },
+            updateReservationWorkingMemo: {
+              workingMemo: CHANGED_WORKING_MEMO,
+              errors: null,
+            },
+          },
+        }
+      : undefined,
+  })),
+  // networkError twice
+  ...[1, 2].map(() => ({
     request: {
       query: UPDATE_STAFF_RESERVATION,
       variables: {
@@ -269,20 +239,25 @@ export const mocks = [
         workingMemo: { ...MUTATION_DATA.workingMemo, pk: 102 },
       },
     },
+    error: new Error("Error"),
+  })),
+  // graphQLError
+  {
+    request: {
+      query: UPDATE_STAFF_RESERVATION,
+      variables: {
+        input: { ...MUTATION_DATA.input, pk: 111 },
+        workingMemo: { ...MUTATION_DATA.workingMemo, pk: 111 },
+      },
+    },
     result: {
       errors: [new GraphQLError("Error")],
     },
   },
   ...correctRecurringReservationQueryResult(21, 1),
-  ...correctRecurringReservationQueryResult(31, 2, { shouldFail: true }),
-  ...correctRecurringReservationQueryResult(41, 3, {
-    shouldFail: false,
-    allDenied: true,
-  }),
-  // TODO add a case for fail one StaffReservationModify with 500 error
-  // but allow the second call to that same mutation to succeed
-  // the way Apollo mocks work is that the endpoint defined here gets called once
-  // unlike MSW where the mock can be a function
+  ...correctRecurringReservationQueryResult(31, 2, { shouldFailOnce: true }),
+  ...correctRecurringReservationQueryResult(41, 3, { allDenied: true }),
+  ...correctRecurringReservationQueryResult(51, 4, { shouldFailAll: true }),
 ];
 
 export const mockReservation: ReservationType = {
