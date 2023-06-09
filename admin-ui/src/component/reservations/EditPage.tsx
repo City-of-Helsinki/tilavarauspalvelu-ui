@@ -79,7 +79,15 @@ const EditReservation = ({
 
   // TODO recurring requires a description and a name box
   const form = useForm<FormValueType>({
-    resolver: zodResolver(ReservationChangeFormSchema),
+    resolver: zodResolver(
+      ReservationChangeFormSchema.refine(
+        (x) => x.seriesName !== "" && reservation.recurringReservation,
+        {
+          path: ["seriesName"],
+          message: "Required",
+        }
+      )
+    ),
     mode: "onChange",
     defaultValues: {
       bufferTimeBefore: false,
@@ -173,8 +181,11 @@ const EditReservation = ({
   const {
     handleSubmit,
     register,
-    formState: { isDirty, isSubmitting },
+    formState: { errors, isDirty, isSubmitting },
   } = form;
+
+  const translateError = (errorMsg?: string) =>
+    errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
   return (
     <FormProvider {...form}>
@@ -187,9 +198,8 @@ const EditReservation = ({
               label={t(`MyUnits.RecurringReservationForm.name`)}
               required
               {...register("seriesName")}
-              // FIXME errors? series name needs to !== "" at least
-              // invalid={errors.seriesName != null}
-              // errorText={translateError(errors.seriesName?.message)}
+              invalid={errors.seriesName != null}
+              errorText={translateError(errors.seriesName?.message)}
             />
           )}
         </ReservationTypeForm>
