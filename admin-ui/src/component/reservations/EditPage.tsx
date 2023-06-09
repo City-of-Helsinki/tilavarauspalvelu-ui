@@ -1,17 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ReservationsReservationStateChoices,
-  type RecurringReservationUpdateMutationInput,
-  type RecurringReservationUpdateMutationPayload,
-  type ReservationStaffModifyMutationInput,
-  type ReservationStaffModifyMutationPayload,
   type ReservationType,
   type ReservationUnitType,
-  type ReservationWorkingMemoMutationInput,
 } from "common/types/gql-types";
 import camelCase from "lodash/camelCase";
 import { Button, TextInput } from "hds-react";
@@ -24,7 +17,6 @@ import {
   type ReservationChangeFormType,
   ReservationChangeFormSchema,
 } from "app/schemas";
-import withMainMenu from "../withMainMenu";
 import { useNotification } from "../../context/NotificationContext";
 import { flattenMetadata } from "../my-units/create-reservation/utils";
 import ReservationTypeForm from "../my-units/ReservationTypeForm";
@@ -32,14 +24,8 @@ import Loader from "../Loader";
 import { HR } from "../lists/components";
 import { useOptions } from "../my-units/hooks";
 import EditPageWrapper from "./EditPageWrapper";
-import {
-  useRecurringReservations,
-  useReservationEditData,
-} from "./requested/hooks";
-import {
-  UPDATE_STAFF_RECURRING_RESERVATION,
-  UPDATE_STAFF_RESERVATION,
-} from "./queries";
+import { useReservationEditData } from "./requested/hooks";
+import { useStaffReservationMutation } from "./hooks";
 
 type FormValueType = ReservationChangeFormType & ReservationFormMeta;
 
@@ -64,118 +50,6 @@ const noSeparateBillingDefined = (reservation: ReservationType): boolean =>
   !reservation.billingFirstName &&
   !reservation.billingLastName &&
   !reservation.billingPhone;
-
-/// Combines regular and recurring reservation change mutation
-const useStaffReservationMutation = ({
-  reservation,
-  onSuccess,
-}: {
-  reservation: ReservationType;
-  onSuccess: () => void;
-}) => {
-  const { t } = useTranslation();
-  const { notifyError, notifySuccess } = useNotification();
-  const [mutation] = useMutation<
-    { staffReservationModify: ReservationStaffModifyMutationPayload },
-    {
-      input: ReservationStaffModifyMutationInput;
-      workingMemo: ReservationWorkingMemoMutationInput;
-    }
-  >(UPDATE_STAFF_RESERVATION);
-
-  const { reservations } = useRecurringReservations(
-    reservation.recurringReservation?.pk ?? undefined
-  );
-
-  const [recurringMutation] = useMutation<
-    { staffReservationModify: RecurringReservationUpdateMutationPayload },
-    {
-      input: RecurringReservationUpdateMutationInput;
-    }
-  >(UPDATE_STAFF_RECURRING_RESERVATION);
-
-  const handleSucces = (isRecurring: boolean) => {
-    const trKey = `Reservation.EditPage.${
-      isRecurring ? "saveSuccessRecurring" : "saveSuccess"
-    }`;
-    notifySuccess(t(trKey));
-    onSuccess();
-  };
-  const handleError = () => {
-    notifyError(t("Reservation.EditPage.saveError"));
-  };
-
-  const isRecurring = !!reservation.recurringReservation?.pk;
-
-  const editStaffReservation = async (
-    input: ReservationStaffModifyMutationInput & {
-      seriesName?: string;
-      workingMemo?: string;
-    }
-  ) => {
-    const { seriesName, workingMemo, ...rest } = input;
-    if (isRecurring) {
-      // NOTE frontend filtering because of cache issues
-      const pksToUpdate = reservations
-        .filter((x) => new Date(x.begin) >= new Date())
-        .filter(
-          (x) => x.state === ReservationsReservationStateChoices.Confirmed
-        )
-        .map((x) => x.pk)
-        .filter((x): x is number => x != null);
-
-      await recurringMutation({
-        variables: {
-          input: {
-            name: seriesName,
-            pk: reservation.recurringReservation?.pk ?? 0,
-            description: workingMemo,
-          },
-        },
-      });
-
-      const promises = pksToUpdate.map((pk) =>
-        mutation({
-          variables: {
-            input: { ...rest, pk },
-            workingMemo: { pk, workingMemo },
-          },
-        })
-      );
-
-      // NOTE 1000+ mutations takes a long time, do 10 to check if they are valid and early abort on errors.
-      const [firstPass, secondPass] = [
-        promises.slice(0, 10),
-        promises.slice(10),
-      ];
-
-      // TODO
-      // We will face issues when doing 1000 mutations and few of them fail because of server 500.
-      // It's likely that at least 1 / 1000 mutations fails because of network issues.
-      // Retries need to be based on the backend response: a 500 can be retried if some mutations suceeded
-      // regular errors so most throws mean parse errors and should not be retried.
-      // This identical problem is in the createRecurringReservation also.
-      await Promise.all(firstPass)
-        .then(() => Promise.all(secondPass))
-        .then(() => handleSucces(true))
-        .catch(handleError);
-    } else {
-      mutation({
-        variables: {
-          input: rest,
-          workingMemo: {
-            pk: input.pk,
-            workingMemo,
-          },
-        },
-        onCompleted: () => handleSucces(false),
-        onError: handleError,
-      });
-    }
-  };
-
-  return editStaffReservation;
-};
 
 const InnerTextInput = styled(TextInput)`
   grid-column: 1 / -1;
@@ -378,4 +252,4 @@ const EditPage = () => {
   );
 };
 
-export default withMainMenu(EditPage);
+export default EditPage;
