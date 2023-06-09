@@ -98,7 +98,6 @@ const extendedMocks = [
     },
     result: {
       data: {
-        // TODO need to extend the mock with all the form field data used by EditPage
         reservationByPk: extendedReservation,
       },
     },
@@ -129,24 +128,20 @@ const wrappedRender = (pk: number) => {
   );
 };
 
+const notifySuccess = jest.fn(() => {});
+const notifyError = jest.fn(() => {});
+beforeEach(() => {
+  notifyError.mockReset();
+  notifySuccess.mockReset();
+  jest.spyOn(NotificationContext, "useNotification").mockImplementation(() => ({
+    ...NotificationMock,
+    notifyError,
+    notifySuccess,
+  }));
+});
+
 describe("EditPage", () => {
-  beforeEach(() => {
-    jest
-      .spyOn(NotificationContext, "useNotification")
-      .mockImplementation(() => NotificationMock);
-  });
-
   test("Render the edit page with the form data", async () => {
-    const notifySuccess = jest.fn(() => {});
-    const notifyError = jest.fn(() => {});
-    jest
-      .spyOn(NotificationContext, "useNotification")
-      .mockImplementation(() => ({
-        ...NotificationMock,
-        notifyError,
-        notifySuccess,
-      }));
-
     const view = wrappedRender(1);
 
     await waitFor(() =>
@@ -173,7 +168,6 @@ describe("EditPage", () => {
       within(typeSelection).getByText(/reserveeTypes.labels.business/i)
     ).toBeInTheDocument();
     // NOTE HDS issue: number field label is not a label
-    // TODO check the value
     expect(view.getByText(/label.common.numPersons/)).toBeInTheDocument();
     expect(view.getByLabelText(/label.common.name/)).toHaveValue(
       extendedReservation.name ?? "FAIL HERE"
@@ -201,8 +195,6 @@ describe("EditPage", () => {
 
     expect(submitBtn).not.toBeDisabled();
     await user.click(submitBtn);
-
-    // TODO expect to get routed
 
     expect(notifySuccess).not.toHaveBeenCalled();
     await waitFor(() => expect(notifySuccess).toHaveBeenCalled());
