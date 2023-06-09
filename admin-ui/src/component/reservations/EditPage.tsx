@@ -166,13 +166,14 @@ const EditReservation = ({
       ...flattenedMetadataSetValues,
     };
 
-    changeStaffReservation(toSubmit);
+    // eslint-disable-next-line consistent-return
+    return changeStaffReservation(toSubmit);
   };
 
   const {
     handleSubmit,
     register,
-    formState: { isDirty },
+    formState: { isDirty, isSubmitting },
   } = form;
 
   return (
@@ -194,10 +195,15 @@ const EditReservation = ({
         </ReservationTypeForm>
         <HR />
         <ButtonContainer>
-          <Button variant="secondary" onClick={onCancel} theme="black">
+          <Button
+            variant="secondary"
+            onClick={onCancel}
+            theme="black"
+            disabled={isSubmitting}
+          >
             {t("common.cancel")}
           </Button>
-          <Button type="submit" disabled={!isDirty}>
+          <Button type="submit" disabled={!isDirty} isLoading={isSubmitting}>
             {t("Reservation.EditPage.save")}
           </Button>
         </ButtonContainer>
