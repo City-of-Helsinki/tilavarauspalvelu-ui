@@ -81,7 +81,7 @@ const EditReservation = ({
   const form = useForm<FormValueType>({
     resolver: zodResolver(
       ReservationChangeFormSchema.refine(
-        (x) => x.seriesName !== "" && reservation.recurringReservation,
+        (x) => x.seriesName || !reservation.recurringReservation,
         {
           path: ["seriesName"],
           message: "Required",

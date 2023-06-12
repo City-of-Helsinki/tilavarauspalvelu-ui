@@ -193,10 +193,10 @@ describe("EditPage", () => {
     await user.clear(memoInput);
     await user.type(memoInput, CHANGED_WORKING_MEMO);
 
+    expect(notifySuccess).not.toHaveBeenCalled();
     expect(submitBtn).not.toBeDisabled();
     await user.click(submitBtn);
 
-    expect(notifySuccess).not.toHaveBeenCalled();
     await waitFor(() => expect(notifySuccess).toHaveBeenCalled());
     expect(notifyError).not.toHaveBeenCalled();
     // TODO check the url
