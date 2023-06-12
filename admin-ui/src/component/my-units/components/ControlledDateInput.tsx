@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   useController,
   UseControllerProps,
@@ -14,11 +14,6 @@ interface ControllerProps<T extends FieldValues> extends UseControllerProps<T> {
   disabled?: boolean;
 }
 
-const isDateValid = (d: Date) => {
-  return d instanceof Date && !Number.isNaN(d.getTime());
-};
-
-// TODO this can't emit Date because it breaks keyboard input
 const ControlledDateInput = <T extends FieldValues>({
   control,
   name,
@@ -28,26 +23,9 @@ const ControlledDateInput = <T extends FieldValues>({
 }: ControllerProps<T>) => {
   const {
     field: { value, onChange },
+    fieldState: { isDirty },
   } = useController({ control, name, rules: { required } });
   const { t } = useTranslation();
-  // There is no default value for DateInput
-  // so we need to control the input from controller
-  // save the string because we can't only update the Date because
-  // keyboard input requires invalid dates (ex 1.1.).
-  const [textValue, setTextValue] = useState(
-    isDateValid(value) ? format(value, "dd.MM.yyyy") : ""
-  );
-
-  // TODO this is problematic
-  // we need to update the text value if another control updates the date value
-  // in the form (e.g. the calendar) but we can't shadow the date value too closely
-  // if the user is writing with keyboard
-  // A solution would be to include the text value in the form and only convert it to Date on validation
-  useEffect(() => {
-    if (isDateValid(value)) {
-      setTextValue(format(value, "dd.MM.yyyy"));
-    }
-  }, [value]);
 
   return (
     <DateInput
@@ -59,12 +37,10 @@ const ControlledDateInput = <T extends FieldValues>({
       language="fi"
       errorText={error}
       disabled={disabled}
-      value={textValue}
+      // hack to deal with defaultValue without breaking keyboard input
+      value={!isDirty && value ? format(value, "dd.MM.yyyy") : undefined}
+      onChange={(_, date) => onChange(date)}
       required={required}
-      onChange={(text, date) => {
-        setTextValue(text);
-        onChange(date);
-      }}
     />
   );
 };
