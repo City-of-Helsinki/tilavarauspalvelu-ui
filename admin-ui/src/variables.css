@@ -44,21 +44,6 @@
   --background-color-focus: var(--color-black-5);
   --focus-outline-color: var(--color-black-80);
 
-  /*
-  calendar
-  */
-  --tilavaraus-event-current-requires_handling-border-color: var(--color-bus);
-  --tilavaraus-event-current-requires_handling-background: #e5e5f9;
-
-  --tilavaraus-event-current-denied-border-color: var(--color-error);
-  --tilavaraus-event-current-denied-background: #f7e6eb;
-
-  --tilavaraus-event-current-confirmed-border-color: var(--color-success);
-  --tilavaraus-event-current-confirmed-background: #e6f2f0;
-
-  --tilavaraus-event-other-requires_handling-border-color: var(--color-bus);
-  --tilavaraus-event-other-requires_handling-background: rgba(0, 0, 191, 0.1);
-
   /* still used in reservation calendar, not my-units */
   --tilavaraus-event-rest-border-color: #1a1a1a;
   --tilavaraus-event-rest-background: rgba(26, 26, 26, 0.1);
