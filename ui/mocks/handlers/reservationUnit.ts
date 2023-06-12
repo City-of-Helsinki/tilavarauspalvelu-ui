@@ -28,6 +28,7 @@ import {
   PurposeTypeConnection,
   ReservationUnitType,
   ReservationUnitState,
+  ReservationState,
 } from "common/types/gql-types";
 
 const getJSONResponse = [
@@ -495,6 +496,7 @@ const selectedReservationUnitQuery = graphql.query<
     reservationBegins: addDays(new Date(), -1).toISOString(),
     reservationEnds: addDays(new Date(), 10).toISOString(),
     state: ReservationUnitState.Published,
+    reservationState: ReservationState.Reservable,
     images: [
       {
         imageUrl: "https://via.placeholder.com/1024x768",
