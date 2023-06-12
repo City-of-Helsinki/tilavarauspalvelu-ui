@@ -27,6 +27,7 @@ import {
   QueryPurposesArgs,
   PurposeTypeConnection,
   ReservationUnitType,
+  ReservationUnitState,
 } from "common/types/gql-types";
 
 const getJSONResponse = [
@@ -493,6 +494,7 @@ const selectedReservationUnitQuery = graphql.query<
     bufferTimeAfter: 1800,
     reservationBegins: addDays(new Date(), -1).toISOString(),
     reservationEnds: addDays(new Date(), 10).toISOString(),
+    state: ReservationUnitState.Published,
     images: [
       {
         imageUrl: "https://via.placeholder.com/1024x768",
@@ -956,23 +958,16 @@ const selectedReservationUnitQuery = graphql.query<
   }
 
   if (req.variables.pk === 905) {
-    reservationUnitByPk.publishBegins = addMinutes(
-      new Date(),
-      10
-    ).toISOString();
+    reservationUnitByPk.state = ReservationUnitState.Draft;
   }
 
   if (req.variables.pk === 906) {
-    reservationUnitByPk.publishEnds = addMinutes(new Date(), -10).toISOString();
+    reservationUnitByPk.state = undefined;
   }
 
   if (req.variables.pk === 907) {
     reservationUnitByPk.isDraft = true;
-    reservationUnitByPk.publishBegins = addMinutes(
-      new Date(),
-      10
-    ).toISOString();
-    reservationUnitByPk.publishEnds = addMinutes(new Date(), 20).toISOString();
+    reservationUnitByPk.state = ReservationUnitState.Draft;
   }
 
   if (req.variables.pk === 908) {
