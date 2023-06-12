@@ -12,6 +12,7 @@ import ApproveDialog from "./ApproveDialog";
 import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
 import { useModal } from "../../../context/ModalContext";
 import { ButtonLikeLink } from "../../../styles/util";
+import EditTimeModal from "../EditTimeModal";
 
 /* Rules
  * Approve only if REQUIRES_HANDLING
@@ -118,6 +119,17 @@ const ApprovalButtons = ({
     );
   };
 
+  const handleEditTimeClick = () => {
+    setModalContent(
+      <EditTimeModal
+        reservation={reservation}
+        onAccept={handleAccept}
+        onClose={handleClose}
+      />,
+      true
+    );
+  };
+
   const endTime = new Date(reservation.end);
 
   const btnCommon = {
@@ -150,9 +162,9 @@ const ApprovalButtons = ({
       )}
       {isAllowedToModify && (
         <>
-          <ButtonLikeLink to="edit_time">
+          <Button {...btnCommon} onClick={handleEditTimeClick}>
             {t("ApprovalButtons.editTime")}
-          </ButtonLikeLink>
+          </Button>
           <ButtonLikeLink to="edit">{t("ApprovalButtons.edit")}</ButtonLikeLink>
         </>
       )}
