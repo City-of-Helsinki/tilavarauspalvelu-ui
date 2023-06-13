@@ -40,9 +40,6 @@ describe("State change rules", () => {
         name: "RequestedReservation.returnToHandling",
       })
     ).toBeInTheDocument();
-    expect(
-      view.getByRole("button", { name: "ApprovalButtons.editTime" })
-    ).toBeInTheDocument();
   });
 
   test("Approve and deny are enabled for future RequiresHandling", async () => {
@@ -126,9 +123,6 @@ describe("Editing allowed", () => {
     const view = wrappedRender(res);
 
     expect(
-      view.getByRole("button", { name: "ApprovalButtons.editTime" })
-    ).toBeInTheDocument();
-    expect(
       view.getByRole("link", { name: "ApprovalButtons.edit" })
     ).toBeInTheDocument();
   });
@@ -175,9 +169,6 @@ describe("Editing allowed", () => {
       recurringReservation: undefined,
     } as ReservationType;
     const view = wrappedRender(res);
-    expect(
-      view.getByRole("button", { name: "ApprovalButtons.editTime" })
-    ).toBeInTheDocument();
     expect(
       view.getByRole("link", { name: "ApprovalButtons.edit" })
     ).toBeInTheDocument();

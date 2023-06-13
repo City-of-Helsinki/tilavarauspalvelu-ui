@@ -324,6 +324,7 @@ const TimeBlock = ({
           reservation={reservation}
           selected={selected}
           focusDate={focusDate}
+          refetch={onReservationUpdated}
         />
       </Accordion>
     </>

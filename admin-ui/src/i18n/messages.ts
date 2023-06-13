@@ -810,6 +810,7 @@ const translations: ITranslations = {
     generatingDocument: ["Dokumenttia luodaan"],
     errorGeneratingDocument: ["Dokumenttia ei pystytty luomaan"],
     EditTime: {
+      buttonName: ["Muuta aikaa"],
       title: ["Muuta varauksen aikaa"],
       newTime: ["Uusi aika"],
       originalTime: ["Muutettava aika"],
@@ -1751,7 +1752,6 @@ const translations: ITranslations = {
 
   ApprovalButtons: {
     edit: ["Muuta tietoja"],
-    editTime: ["Muuta aikaa"],
     recurring: {
       rejectAllButton: ["Hylkää kaikki"],
       DenyDialog: {

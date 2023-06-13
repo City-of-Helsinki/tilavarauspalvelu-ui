@@ -120,7 +120,6 @@ const useCheckCollision = ({
   return { isLoading: loading, collides: collisions.length > 0 };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   const { t } = useTranslation();
   const { notifyError, notifySuccess } = useNotification();

@@ -2,16 +2,21 @@ import React, { useEffect, useState } from "react";
 import CommonCalendar from "common/src/calendar/Calendar";
 import { Toolbar } from "common/src/calendar/Toolbar";
 import { add, startOfISOWeek } from "date-fns";
+import { Button } from "hds-react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { type ReservationType } from "common/types/gql-types";
+import { useModal } from "app/context/ModalContext";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import Legend from "./Legend";
 import { useReservationData } from "./hooks";
+import EditTimeModal from "../EditTimeModal";
+import { isPossibleToEdit } from "./reservationModificationRules";
 
 type Props = {
   reservationUnitPk: string;
   reservation: ReservationType;
+  refetch?: () => void;
   selected?: ReservationType;
   focusDate: Date;
 };
@@ -41,16 +46,18 @@ const Calendar = ({
   reservationUnitPk,
   reservation,
   selected,
+  refetch,
   focusDate: initialFocusDate,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const { setModalContent } = useModal();
   const [focusDate, setFocusDate] = useState(initialFocusDate);
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   // No month view so always query the whole week even if a single day is selected
   // to avoid spamming queries and having to deal with start of day - end of day.
   // focus day can be in the middle of the week.
-  const { events: eventsAll } = useReservationData(
+  const { events: eventsAll, refetch: calendarRefetch } = useReservationData(
     startOfISOWeek(focusDate),
     add(startOfISOWeek(focusDate), { days: 7 }),
     reservationUnitPk,
@@ -72,11 +79,48 @@ const Calendar = ({
     }
   }, [initialFocusDate]);
 
+  const handleAccept = () => {
+    if (refetch) {
+      refetch();
+    }
+    calendarRefetch();
+    setModalContent(null);
+  };
+
+  const handleEditTimeClick = () => {
+    setModalContent(
+      <EditTimeModal
+        reservation={reservation}
+        onAccept={handleAccept}
+        onClose={() => setModalContent(null)}
+      />,
+      true
+    );
+  };
+
+  const isAllowedToModify =
+    !reservation.recurringReservation &&
+    isPossibleToEdit(reservation.state, new Date(reservation.end));
+
   return (
     <Container>
       <CommonCalendar<ReservationType>
         events={events}
-        toolbarComponent={Toolbar}
+        toolbarComponent={(props) => (
+          <Toolbar {...props}>
+            {isAllowedToModify && (
+              <Button
+                className="hds-button"
+                variant="secondary"
+                theme="black"
+                size="small"
+                onClick={handleEditTimeClick}
+              >
+                {t("Reservation.EditTime.buttonName")}
+              </Button>
+            )}
+          </Toolbar>
+        )}
         showToolbar
         begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation, selected)}
