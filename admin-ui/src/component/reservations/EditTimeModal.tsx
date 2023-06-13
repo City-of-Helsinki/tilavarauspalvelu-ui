@@ -33,8 +33,7 @@ import { reservationDateTime, reservationDuration } from "./requested/util";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./requested/hooks/queries";
 
 export const TimeFormSchema = z.object({
-  // TODO this needs to be string and we have to use custom date checker because it's in FI format
-  // string because it can be invalid date while user is typing
+  // NOTE date needs to be string that is not coerced because it uses FI format
   date: z.string(),
   startTime: z.string(),
   endTime: z.string(),
@@ -43,8 +42,7 @@ export const TimeFormSchema = z.object({
 const convertToDate = (date: string): Date =>
   parse(date, "dd.MM.yyyy", new Date());
 
-// No refinement for length since the select doesn't allow invalid values
-// TODO  refine interval
+// NOTE duplicated schema because the new forms use a Date instead of a string
 const TimeChangeFormSchemaRefined = (
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) =>
@@ -73,7 +71,7 @@ const TimeChangeFormSchemaRefined = (
 
 const StyledForm = styled.form`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
   gap: 1rem;
   margin: 1rem;
 `;
@@ -89,7 +87,10 @@ const ActionButtons = styled(Dialog.ActionButtons)`
   grid-column: 1 / -1;
 `;
 
-const StyledContent = styled(Dialog.Content)``;
+const TimeInfoBox = styled.p<{ $isDisabled?: boolean }>`
+  grid-column: 1 / -1;
+  color: ${({ $isDisabled }) => ($isDisabled ? "var(--color-black-40)" : "")};
+`;
 
 const btnCommon = {
   theme: "black",
@@ -100,10 +101,6 @@ const btnCommon = {
 
 type FormValueType = z.infer<typeof TimeFormSchema>;
 
-const TimeInfoBox = styled.p<{ $isDisabled?: boolean }>`
-  grid-column: 1 / -1;
-  color: ${({ $isDisabled }) => ($isDisabled ? "var(--color-black-40)" : "")};
-`;
 const useCheckCollision = ({
   reservationPk,
   reservationUnitPk,
@@ -169,7 +166,6 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
       onAccept();
     },
     onError: (error) => {
-      // TODO handle noOverlapping error separately
       // eslint-disable-next-line no-console
       console.error("Change time mutation failed: ", error);
       notifyError(t("Reservation.EditTime.error.mutation"));
@@ -251,7 +247,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   )}, ${reservationDuration(startDateTime, endDateTime)} t`;
 
   return (
-    <StyledContent>
+    <Dialog.Content>
       <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
         <TimeInfoBox>
           {t("Reservation.EditTime.originalTime")}: <b>{originalTime}</b>
@@ -311,7 +307,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
           </Button>
         </ActionButtons>
       </StyledForm>
-    </StyledContent>
+    </Dialog.Content>
   );
 };
 
