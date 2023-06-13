@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { camelCase, get } from "lodash";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   ReservationFormSchema,
   type ReservationFormType,
@@ -27,7 +28,7 @@ import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 import ControlledTimeInput from "../components/ControlledTimeInput";
-import ControlledDateInput from "../components/ControlledDateInput";
+import ControlledDateInputString from "../components/ControlledDateInputString";
 
 // NOTE HDS forces buttons over each other on mobile, we want them side-by-side
 const ActionButtons = styled(Dialog.ActionButtons)`
@@ -78,7 +79,7 @@ const DialogContent = ({
 
     mode: "onChange",
     defaultValues: {
-      date: start,
+      date: format(start, "dd.MM.yyyy"),
       startTime: format(start, "HH:mm"),
       bufferTimeBefore: false,
       bufferTimeAfter: false,
@@ -88,9 +89,6 @@ const DialogContent = ({
   const {
     formState: { errors },
   } = form;
-
-  const myDateTime = (date: Date, time: string) =>
-    dateTime(format(date, "dd.MM.yyyy"), time);
 
   const { notifyError, notifySuccess } = useNotification();
 
@@ -121,8 +119,8 @@ const DialogContent = ({
       const input: ReservationStaffCreateMutationInput = {
         reservationUnitPks: [reservationUnit.pk],
         type: values.type ?? "",
-        begin: myDateTime(new Date(values.date), values.startTime),
-        end: myDateTime(new Date(values.date), values.endTime),
+        begin: dateTime(values.date, values.startTime),
+        end: dateTime(values.date, values.endTime),
         bufferTimeBefore:
           values.bufferTimeBefore && reservationUnit.bufferTimeBefore
             ? String(reservationUnit.bufferTimeBefore)
@@ -174,7 +172,7 @@ const DialogContent = ({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <GridInsideTheModal>
               <Element>
-                <ControlledDateInput
+                <ControlledDateInputString
                   name="date"
                   control={form.control}
                   error={translateError(errors.date?.message)}
@@ -255,11 +253,13 @@ const CreateReservationModal = ({
         })}
       />
       {reservationUnit != null && (
-        <DialogContent
-          onClose={onClose}
-          reservationUnit={reservationUnit}
-          start={start}
-        />
+        <ErrorBoundary fallback={<div>{t("errors.uncaught")}</div>}>
+          <DialogContent
+            onClose={onClose}
+            reservationUnit={reservationUnit}
+            start={start}
+          />
+        </ErrorBoundary>
       )}
     </FixedDialog>
   );

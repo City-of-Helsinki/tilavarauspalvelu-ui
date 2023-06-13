@@ -196,6 +196,7 @@ const translations: ITranslations = {
     authorizationNeeded: ["Oikeudet vaaditaan"],
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
+    uncaught: ["Odottamaton virhe"],
   },
   breadcrumb: {
     frontpage: ["Etusivu"],

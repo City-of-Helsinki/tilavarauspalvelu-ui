@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { Button, DateInput, Dialog, Notification } from "hds-react";
+import { Button, Dialog, Notification } from "hds-react";
 import { z } from "zod";
 import {
   Mutation,
@@ -13,61 +13,22 @@ import {
 } from "common/types/gql-types";
 import { VerticalFlex } from "app/styles/layout";
 import { useModal } from "app/context/ModalContext";
-import { Controller, useForm } from "react-hook-form";
-import { addYears, format, parse } from "date-fns";
+import { useForm } from "react-hook-form";
+import { format, parse } from "date-fns";
+import { ErrorBoundary } from "react-error-boundary";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@apollo/client";
 import { useNotification } from "app/context/NotificationContext";
-import {
-  checkDate,
-  checkReservationInterval,
-  checkStartEndTime,
-  checkTimeStringFormat,
-} from "app/schemas";
-import { intervalToNumber } from "app/schemas/utils";
+import { TimeChangeFormSchemaRefined, TimeFormSchema } from "app/schemas";
 import { CHANGE_RESERVATION_TIME } from "./queries";
-
 import { setTimeOnDate } from "./utils";
 import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import { reservationDateTime, reservationDuration } from "./requested/util";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./requested/hooks/queries";
-
-export const TimeFormSchema = z.object({
-  // NOTE date needs to be string that is not coerced because it uses FI format
-  date: z.string(),
-  startTime: z.string(),
-  endTime: z.string(),
-});
+import ControlledDateInputString from "../my-units/components/ControlledDateInputString";
 
 const convertToDate = (date: string): Date =>
   parse(date, "dd.MM.yyyy", new Date());
-
-// NOTE duplicated schema because the new forms use a Date instead of a string
-const TimeChangeFormSchemaRefined = (
-  interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
-) =>
-  TimeFormSchema.partial()
-    .superRefine(
-      (val, ctx) => val.date && checkDate(convertToDate(val.date), ctx, "date")
-    )
-    .superRefine((val, ctx) =>
-      checkTimeStringFormat(val.startTime, ctx, "startTime")
-    )
-    .superRefine((val, ctx) =>
-      checkTimeStringFormat(val.endTime, ctx, "endTime")
-    )
-    .superRefine((val, ctx) => checkStartEndTime(val, ctx))
-    .superRefine((val, ctx) =>
-      checkReservationInterval(
-        val.startTime,
-        ctx,
-        "startTime",
-        intervalToNumber(interval)
-      )
-    )
-    .superRefine((val, ctx) =>
-      checkReservationInterval(val.endTime, ctx, "endTime", 15)
-    );
 
 const StyledForm = styled.form`
   display: grid;
@@ -252,23 +213,10 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
         <TimeInfoBox>
           {t("Reservation.EditTime.originalTime")}: <b>{originalTime}</b>
         </TimeInfoBox>
-        <Controller
-          control={control}
+        <ControlledDateInputString
           name="date"
-          render={({ field: { onChange, value } }) => (
-            <DateInput
-              id="reservationDialog.date"
-              label={t(`ReservationDialog.date`)}
-              minDate={new Date()}
-              maxDate={addYears(new Date(), 3)}
-              disableConfirmation
-              language="fi"
-              value={value}
-              errorText={translateError(errors.date?.message)}
-              onChange={(text) => onChange(text)}
-              required
-            />
-          )}
+          control={control}
+          error={translateError(errors.date?.message)}
         />
         <ControlledTimeInput
           name="startTime"
@@ -329,11 +277,13 @@ const EditTimeModal = ({ reservation, onAccept, onClose }: Props) => {
           id="modal-header"
           title={t("Reservation.EditTime.title")}
         />
-        <DialogContent
-          reservation={reservation}
-          onAccept={onAccept}
-          onClose={onClose}
-        />
+        <ErrorBoundary fallback={<div>{t("errors.uncaught")}</div>}>
+          <DialogContent
+            reservation={reservation}
+            onAccept={onAccept}
+            onClose={onClose}
+          />
+        </ErrorBoundary>
       </VerticalFlex>
     </Dialog>
   );
