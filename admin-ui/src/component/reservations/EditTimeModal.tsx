@@ -204,12 +204,11 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     end: end.toISOString(),
   });
 
-  const doMutation = async (begin: Date, end: Date) => {
+  const changeTime = async (begin: Date, end: Date) => {
     return changeTimeMutation({
       variables: {
         input: {
           ...convertToApiFormat(begin, end),
-          // TODO pk can be fixed variable (in the mutation)
           pk: reservation.pk ?? 0,
         },
       },
@@ -232,7 +231,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     if (values.date && values.startTime && values.endTime) {
       const start = setTimeOnDate(convertToDate(values.date), values.startTime);
       const end = setTimeOnDate(convertToDate(values.date), values.endTime);
-      doMutation(start, end);
+      changeTime(start, end);
     }
   };
 
