@@ -32,7 +32,6 @@ describe("State change rules", () => {
 
     const view = wrappedRender(res);
 
-    // expect(view.queryAllByRole("button")).toHaveLength(3);
     expect(
       view.getByRole("button", { name: "RequestedReservation.reject" })
     ).toBeInTheDocument();
