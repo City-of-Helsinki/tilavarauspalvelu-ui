@@ -20,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@apollo/client";
 import { useNotification } from "app/context/NotificationContext";
 import { TimeChangeFormSchemaRefined, TimeFormSchema } from "app/schemas";
+import { breakpoints } from "common/src/common/style";
 import { CHANGE_RESERVATION_TIME } from "./queries";
 import { setTimeOnDate } from "./utils";
 import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
@@ -33,8 +34,7 @@ const convertToDate = (date: string): Date =>
 const StyledForm = styled.form`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: 1rem;
-  margin: 1rem;
+  gap: var(--spacing-s);
 `;
 
 type Props = {
@@ -46,11 +46,17 @@ type Props = {
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
   grid-column: 1 / -1;
+  padding: 0;
+  padding-bottom: var(--spacing-m);
 `;
 
 const TimeInfoBox = styled.p<{ $isDisabled?: boolean }>`
   grid-column: 1 / -1;
   color: ${({ $isDisabled }) => ($isDisabled ? "var(--color-black-40)" : "")};
+`;
+
+const Bold = styled.b`
+  white-space: nowrap;
 `;
 
 const btnCommon = {
@@ -117,13 +123,14 @@ const useCheckCollision = ({
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   const { t } = useTranslation();
-  const { notifyError } = useNotification();
+  const { notifyError, notifySuccess } = useNotification();
 
   const [changeTimeMutation] = useMutation<
     Mutation,
     MutationStaffAdjustReservationTimeArgs
   >(CHANGE_RESERVATION_TIME, {
     onCompleted: () => {
+      notifySuccess(t("Reservation.EditTime.successToast"));
       onAccept();
     },
     onError: (error) => {
@@ -211,7 +218,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     <Dialog.Content>
       <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
         <TimeInfoBox>
-          {t("Reservation.EditTime.originalTime")}: <b>{originalTime}</b>
+          {t("Reservation.EditTime.originalTime")}: <Bold>{originalTime}</Bold>
         </TimeInfoBox>
         <ControlledDateInput
           name="date"
@@ -231,7 +238,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
           required
         />
         <TimeInfoBox $isDisabled={!isDirty || !isValid}>
-          {t("Reservation.EditTime.newTime")}: <b>{newTime}</b>
+          {t("Reservation.EditTime.newTime")}: <Bold>{newTime}</Bold>
         </TimeInfoBox>
         {collides && (
           <Notification
@@ -259,18 +266,40 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   );
 };
 
+const StyledDialog = styled(Dialog)`
+  /* larger than normal HDS modal */
+  && {
+    width: 100%;
+  }
+  max-width: 944px;
+  margin: var(--spacing-s);
+  /* fix HDS modal overdrawing on mobile */
+  top: var(--spacing-l);
+  @media (min-width: ${breakpoints.s}) {
+    margin: var(--spacing-l);
+    top: 0;
+  }
+  /* don't waste space especially on mobile */
+  > div {
+    gap: 0;
+    > div {
+      padding-left: var(--spacing-s);
+      padding-right: var(--spacing-s);
+    }
+  }
+`;
+
 const EditTimeModal = ({ reservation, onAccept, onClose }: Props) => {
   const { isOpen } = useModal();
   const { t } = useTranslation();
 
   return (
-    <Dialog
+    <StyledDialog
       variant="primary"
       id="info-dialog"
       aria-labelledby="modal-header"
       isOpen={isOpen}
       focusAfterCloseRef={undefined}
-      style={{ width: "944px" }}
     >
       <VerticalFlex>
         <Dialog.Header
@@ -285,7 +314,7 @@ const EditTimeModal = ({ reservation, onAccept, onClose }: Props) => {
           />
         </ErrorBoundary>
       </VerticalFlex>
-    </Dialog>
+    </StyledDialog>
   );
 };
 

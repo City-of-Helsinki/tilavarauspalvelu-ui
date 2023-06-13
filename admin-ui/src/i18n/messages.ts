@@ -814,6 +814,7 @@ const translations: ITranslations = {
       newTime: ["Uusi aika"],
       originalTime: ["Muutettava aika"],
       accept: ["Muuta aikaa"],
+      successToast: ["Uusi aika tallennettu"],
       form: {
         startTime: ["Aloitusaika"],
         length: ["Kesto"],
