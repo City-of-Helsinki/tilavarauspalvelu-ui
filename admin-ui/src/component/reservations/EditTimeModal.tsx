@@ -97,6 +97,11 @@ const btnCommon = {
 
 type FormValueType = z.infer<typeof TimeFormSchema>;
 
+const TimeInfoBox = styled.p<{ $isDisabled?: boolean }>`
+  grid-column: 1 / -1;
+  color: ${({ $isDisabled }) => ($isDisabled ? "var(--color-black-40)" : "")};
+`;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   const { t } = useTranslation();
@@ -136,7 +141,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   const {
     handleSubmit,
     control,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, isValid },
     watch,
   } = form;
 
@@ -188,9 +193,9 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   return (
     <StyledContent>
       <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
-        <p style={{ gridColumn: "1 / -1" }}>
+        <TimeInfoBox>
           {t("Reservation.EditTime.originalTime")}: <b>{originalTime}</b>
-        </p>
+        </TimeInfoBox>
         <Controller
           control={control}
           name="date"
@@ -221,14 +226,14 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
           error={translateError(errors.endTime?.message)}
           required
         />
-        <p style={{ gridColumn: "1 / -1", color: isDirty ? "" : "gray" }}>
+        <TimeInfoBox $isDisabled={!isDirty || !isValid}>
           {t("Reservation.EditTime.newTime")}: <b>{newTime}</b>
-        </p>
+        </TimeInfoBox>
         <ActionButtons>
           <Button {...btnCommon} onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button disabled={!isDirty} type="submit">
+          <Button disabled={!isDirty || !isValid} type="submit">
             {t("Reservation.EditTime.accept")}
           </Button>
         </ActionButtons>
