@@ -34,8 +34,7 @@ const getReservationTitle = (r: ReservationType) =>
     `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
   }`;
 
-// TODO move it to utils
-export const convertReservationToCalendarEvent = (r: ReservationType) => ({
+const convertReservationToCalendarEvent = (r: ReservationType) => ({
   title: getEventName(r.type ?? undefined, getReservationTitle(r)),
   event: {
     ...r,
