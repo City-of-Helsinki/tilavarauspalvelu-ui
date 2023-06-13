@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { Button, Dialog } from "hds-react";
+import { Button, DateInput, Dialog } from "hds-react";
 import { z } from "zod";
 import {
   Mutation,
@@ -11,8 +11,8 @@ import {
 } from "common/types/gql-types";
 import { VerticalFlex } from "app/styles/layout";
 import { useModal } from "app/context/ModalContext";
-import { useForm } from "react-hook-form";
-import { format } from "date-fns";
+import { Controller, useForm } from "react-hook-form";
+import { addYears, format, parse } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@apollo/client";
 import { useNotification } from "app/context/NotificationContext";
@@ -26,17 +26,19 @@ import { intervalToNumber } from "app/schemas/utils";
 import { CHANGE_RESERVATION_TIME } from "./queries";
 
 import { setTimeOnDate } from "./utils";
-import ControlledDateInput from "../my-units/components/ControlledDateInput";
 import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import { reservationDateTime, reservationDuration } from "./requested/util";
 
 export const TimeFormSchema = z.object({
   // TODO this needs to be string and we have to use custom date checker because it's in FI format
   // string because it can be invalid date while user is typing
-  date: z.date(),
+  date: z.string(),
   startTime: z.string(),
   endTime: z.string(),
 });
+
+const convertToDate = (date: string): Date =>
+  parse(date, "dd.MM.yyyy", new Date());
 
 // No refinement for length since the select doesn't allow invalid values
 // TODO  refine interval
@@ -44,7 +46,9 @@ const TimeChangeFormSchemaRefined = (
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) =>
   TimeFormSchema.partial()
-    .superRefine((val, ctx) => checkDate(val.date, ctx, "date"))
+    .superRefine(
+      (val, ctx) => val.date && checkDate(convertToDate(val.date), ctx, "date")
+    )
     .superRefine((val, ctx) =>
       checkTimeStringFormat(val.startTime, ctx, "startTime")
     )
@@ -66,7 +70,7 @@ const TimeChangeFormSchemaRefined = (
 
 const StyledForm = styled.form`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 1rem;
   margin: 1rem;
 `;
@@ -124,7 +128,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     resolver: zodResolver(TimeChangeFormSchemaRefined(interval)),
     mode: "onChange",
     defaultValues: {
-      date: startDateTime,
+      date: format(startDateTime, "dd.MM.yyyy"),
       startTime: format(startDateTime, "HH:mm"),
       endTime: format(endDateTime, "HH:mm"),
     },
@@ -133,7 +137,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     handleSubmit,
     control,
     formState: { errors, isDirty },
-    getValues,
+    watch,
   } = form;
 
   const convertToApiFormat = (begin: Date, end: Date) => ({
@@ -155,8 +159,8 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
 
   const onSubmit = (values: FormValueType) => {
     if (values.date && values.startTime && values.endTime) {
-      const start = setTimeOnDate(values.date, values.startTime);
-      const end = setTimeOnDate(values.date, values.endTime);
+      const start = setTimeOnDate(convertToDate(values.date), values.startTime);
+      const end = setTimeOnDate(convertToDate(values.date), values.endTime);
       doMutation(start, end);
     }
   };
@@ -164,14 +168,16 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   const translateError = (errorMsg?: string) =>
     errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
-  const values = getValues();
-  const newStartTime = setTimeOnDate(values.date, values.startTime);
-  const newEndTime = setTimeOnDate(values.date, values.endTime);
+  const formDate = watch("date");
+  const formEndTime = watch("endTime");
+  const formStartTime = watch("startTime");
+  const newStartTime = setTimeOnDate(convertToDate(formDate), formStartTime);
+  const newEndTime = setTimeOnDate(convertToDate(formDate), formEndTime);
   const newTime = `${reservationDateTime(
-    startDateTime,
-    endDateTime,
+    newStartTime,
+    newEndTime,
     t
-  )} ${reservationDuration(newStartTime, newEndTime)} t`;
+  )}, ${reservationDuration(newStartTime, newEndTime)} t`;
 
   const originalTime = `${reservationDateTime(
     startDateTime,
@@ -183,16 +189,26 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     <StyledContent>
       <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
         <p style={{ gridColumn: "1 / -1" }}>
-          Muutettava aika: <b>{originalTime}</b>
+          {t("Reservation.EditTime.originalTime")}: <b>{originalTime}</b>
         </p>
-        <div style={{ gridColumn: "1 / 3" }}>
-          <ControlledDateInput
-            name="date"
-            control={control}
-            error={translateError(errors.date?.message)}
-            required
-          />
-        </div>
+        <Controller
+          control={control}
+          name="date"
+          render={({ field: { onChange, value } }) => (
+            <DateInput
+              id="reservationDialog.date"
+              label={t(`ReservationDialog.date`)}
+              minDate={new Date()}
+              maxDate={addYears(new Date(), 3)}
+              disableConfirmation
+              language="fi"
+              value={value}
+              errorText={translateError(errors.date?.message)}
+              onChange={(text) => onChange(text)}
+              required
+            />
+          )}
+        />
         <ControlledTimeInput
           name="startTime"
           control={control}
@@ -206,7 +222,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
           required
         />
         <p style={{ gridColumn: "1 / -1", color: isDirty ? "" : "gray" }}>
-          Uusi aika: <b>{newTime}</b>
+          {t("Reservation.EditTime.newTime")}: <b>{newTime}</b>
         </p>
         <ActionButtons>
           <Button {...btnCommon} onClick={onClose}>

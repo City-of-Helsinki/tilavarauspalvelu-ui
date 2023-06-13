@@ -809,7 +809,9 @@ const translations: ITranslations = {
     generatingDocument: ["Dokumenttia luodaan"],
     errorGeneratingDocument: ["Dokumenttia ei pystytty luomaan"],
     EditTime: {
-      title: ["Muokkaa varauksen aikaa"],
+      title: ["Muuta varauksen aikaa"],
+      newTime: ["Uusi aika"],
+      originalTime: ["Muutettava aika"],
       accept: ["Muuta aikaa"],
       form: {
         startTime: ["Aloitusaika"],
