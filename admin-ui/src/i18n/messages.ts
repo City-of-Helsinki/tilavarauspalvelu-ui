@@ -197,7 +197,7 @@ const translations: ITranslations = {
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
     errorRecurringReservationsDoneDisplay: [
-      "Virhe tallennus onnistui, mutta sitä ei pystytä näyttämään.",
+      "Virhe varaus tehty, mutta sen näyttäminen epäonnistui.",
     ],
   },
   breadcrumb: {
