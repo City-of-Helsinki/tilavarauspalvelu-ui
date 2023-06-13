@@ -39,7 +39,7 @@ import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
 import ReservationListButton from "../../ReservationListButton";
-import ControlledDateInputString from "../components/ControlledDateInputString";
+import ControlledDateInput from "../components/ControlledDateInput";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -442,7 +442,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           </Element>
 
           <Element $start>
-            <ControlledDateInputString
+            <ControlledDateInput
               name="startingDate"
               control={form.control}
               error={getZodError("startingDate")}
@@ -452,7 +452,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           </Element>
 
           <Element>
-            <ControlledDateInputString
+            <ControlledDateInput
               name="endingDate"
               control={form.control}
               error={getZodError("endingDate")}

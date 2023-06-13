@@ -28,7 +28,7 @@ import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 import ControlledTimeInput from "../components/ControlledTimeInput";
-import ControlledDateInputString from "../components/ControlledDateInputString";
+import ControlledDateInput from "../components/ControlledDateInput";
 
 // NOTE HDS forces buttons over each other on mobile, we want them side-by-side
 const ActionButtons = styled(Dialog.ActionButtons)`
@@ -172,7 +172,7 @@ const DialogContent = ({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <GridInsideTheModal>
               <Element>
-                <ControlledDateInputString
+                <ControlledDateInput
                   name="date"
                   control={form.control}
                   error={translateError(errors.date?.message)}

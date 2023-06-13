@@ -25,7 +25,7 @@ import { setTimeOnDate } from "./utils";
 import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import { reservationDateTime, reservationDuration } from "./requested/util";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./requested/hooks/queries";
-import ControlledDateInputString from "../my-units/components/ControlledDateInputString";
+import ControlledDateInput from "../my-units/components/ControlledDateInput";
 
 const convertToDate = (date: string): Date =>
   parse(date, "dd.MM.yyyy", new Date());
@@ -213,7 +213,7 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
         <TimeInfoBox>
           {t("Reservation.EditTime.originalTime")}: <b>{originalTime}</b>
         </TimeInfoBox>
-        <ControlledDateInputString
+        <ControlledDateInput
           name="date"
           control={control}
           error={translateError(errors.date?.message)}

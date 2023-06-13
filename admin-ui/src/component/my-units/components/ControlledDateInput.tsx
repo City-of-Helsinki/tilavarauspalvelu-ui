@@ -1,6 +1,6 @@
+import React from "react";
 import { addYears } from "date-fns";
 import { DateInput } from "hds-react";
-import React from "react";
 import {
   type FieldValues,
   type UseControllerProps,
@@ -13,8 +13,9 @@ interface ControllerProps<T extends FieldValues> extends UseControllerProps<T> {
   required?: boolean;
   disabled?: boolean;
 }
+
 // NOTE string version because Date breaks keyboard input
-const ControlledDateInputString = <T extends FieldValues>({
+const ControlledDateInput = <T extends FieldValues>({
   control,
   name,
   error,
@@ -43,4 +44,4 @@ const ControlledDateInputString = <T extends FieldValues>({
   );
 };
 
-export default ControlledDateInputString;
+export default ControlledDateInput;
