@@ -261,19 +261,20 @@ const EditStep0 = ({
   const slotPropGetter = useMemo(
     () =>
       reservationUnit &&
-      getSlotPropGetter(
-        reservationUnit.openingHours?.openingTimes,
+      getSlotPropGetter({
+        openingHours: reservationUnit.openingHours?.openingTimes,
         activeApplicationRounds,
-        reservationUnit.reservationBegins
+        reservationBegins: reservationUnit.reservationBegins
           ? new Date(reservationUnit.reservationBegins)
           : undefined,
-        reservationUnit.reservationEnds
+        reservationEnds: reservationUnit.reservationEnds
           ? new Date(reservationUnit.reservationEnds)
           : undefined,
-        reservationUnit.reservationsMinDaysBefore,
-        (date) => isSlotFree(date)
-      ),
-    [activeApplicationRounds, reservationUnit, isSlotFree]
+        reservationsMinDaysBefore: reservationUnit.reservationsMinDaysBefore,
+        currentDate: focusDate,
+        customValidation: (date) => isSlotFree(date),
+      }),
+    [activeApplicationRounds, reservationUnit, isSlotFree, focusDate]
   );
 
   const TouchCellWrapper = ({ children, value, onSelectSlot }): JSX.Element => {

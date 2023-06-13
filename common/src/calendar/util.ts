@@ -400,19 +400,35 @@ export const getValidEndingTime = ({
 };
 
 export const getSlotPropGetter =
-  (
-    openingHours: OpeningTimesType[],
-    activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[],
-    reservationBegins: Date,
-    reservationEnds: Date,
-    reservationsMinDaysBefore?: number,
-    customValidation?: (arg: Date) => boolean
-  ) =>
+  ({
+    openingHours,
+    activeApplicationRounds,
+    reservationBegins,
+    reservationEnds,
+    reservationsMinDaysBefore,
+    currentDate,
+    customValidation,
+  }: {
+    openingHours: OpeningTimesType[];
+    activeApplicationRounds: ApplicationRound[] | ApplicationRoundType[];
+    reservationBegins: Date;
+    reservationEnds: Date;
+    reservationsMinDaysBefore?: number;
+    currentDate: Date;
+    customValidation?: (arg: Date) => boolean;
+  }) =>
   (date: Date): SlotProps => {
+    const hours = openingHours.filter((n) => {
+      if (!n.date) return false;
+      const start = startOfWeek(currentDate);
+      const end = endOfWeek(currentDate);
+      const nDate = new Date(n.date);
+      return nDate >= start && nDate <= end;
+    });
     switch (
       areSlotsReservable(
         [date],
-        openingHours,
+        hours,
         reservationBegins,
         reservationEnds,
         reservationsMinDaysBefore,

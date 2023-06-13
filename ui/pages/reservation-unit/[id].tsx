@@ -458,23 +458,25 @@ const ReservationUnit = ({
 
   const slotPropGetter = useMemo(
     () =>
-      getSlotPropGetter(
-        reservationUnit.openingHours?.openingTimes,
+      getSlotPropGetter({
+        openingHours: reservationUnit.openingHours?.openingTimes,
         activeApplicationRounds,
-        reservationUnit.reservationBegins
+        reservationBegins: reservationUnit.reservationBegins
           ? new Date(reservationUnit.reservationBegins)
           : undefined,
-        reservationUnit.reservationEnds
+        reservationEnds: reservationUnit.reservationEnds
           ? new Date(reservationUnit.reservationEnds)
           : undefined,
-        reservationUnit.reservationsMinDaysBefore
-      ),
+        reservationsMinDaysBefore: reservationUnit.reservationsMinDaysBefore,
+        currentDate: focusDate,
+      }),
     [
       reservationUnit.openingHours?.openingTimes,
       activeApplicationRounds,
       reservationUnit.reservationBegins,
       reservationUnit.reservationEnds,
       reservationUnit.reservationsMinDaysBefore,
+      focusDate,
     ]
   );
 
