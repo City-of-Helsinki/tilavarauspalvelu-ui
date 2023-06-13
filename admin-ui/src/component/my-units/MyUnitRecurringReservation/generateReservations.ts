@@ -1,3 +1,4 @@
+import { parse } from "date-fns";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { timeSelectionSchema } from "app/schemas";
 import { toMondayFirst } from "../../../common/util";
@@ -59,15 +60,16 @@ const generateReservations = (
     repeatOnDays,
   } = vals.data;
 
+  const toDate = (s: string) => parse(s, "dd.MM.yyyy", new Date());
   const utcDate = (d: Date) =>
     Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
   try {
     const min = (a: number, b: number) => (a < b ? a : b);
     const max = (a: number, b: number) => (a > b ? a : b);
-    const sDay = max(utcDate(new Date()), utcDate(startingDate));
+    const sDay = max(utcDate(new Date()), utcDate(toDate(startingDate)));
 
     // end date with time 23:59:59
-    const eDay = utcDate(endingDate) + (MS_IN_DAY - 1);
+    const eDay = utcDate(toDate(endingDate)) + (MS_IN_DAY - 1);
     const firstWeek = eachDayOfInterval(sDay, min(sDay + MS_IN_DAY * 7, eDay));
 
     return {

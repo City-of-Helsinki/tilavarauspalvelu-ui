@@ -12,7 +12,7 @@ import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -38,8 +38,8 @@ import { useFilteredReservationList, useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
-import ControlledDateInput from "../components/ControlledDateInput";
 import ReservationListButton from "../../ReservationListButton";
+import ControlledDateInputString from "../components/ControlledDateInputString";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -215,8 +215,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const checkedReservations = useFilteredReservationList({
     items: newReservations.reservations,
     reservationUnitPk: reservationUnit?.pk ?? undefined,
-    begin: getValues("startingDate"),
-    end: getValues("endingDate"),
+    begin: parse(getValues("startingDate"), "dd.MM.yyyy", new Date()),
+    end: parse(getValues("endingDate"), "dd.MM.yyyy", new Date()),
   });
 
   const navigate = useNavigate();
@@ -256,9 +256,15 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
       const name = data.seriesName || data.type === "BLOCKED" ? "BLOCKED" : "";
       const input: RecurringReservationCreateMutationInput = {
         reservationUnitPk: unitPk,
-        beginDate: format(data.startingDate, "yyyy-MM-dd"),
+        beginDate: format(
+          parse(data.startingDate, "dd.MM.yyyy", new Date()),
+          "yyyy-MM-dd"
+        ),
         beginTime: data.startTime,
-        endDate: format(data.endingDate, "yyyy-MM-dd"),
+        endDate: format(
+          parse(data.endingDate, "dd.MM.yyyy", new Date()),
+          "yyyy-MM-dd"
+        ),
         endTime: data.endTime,
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
@@ -436,7 +442,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           </Element>
 
           <Element $start>
-            <ControlledDateInput
+            <ControlledDateInputString
               name="startingDate"
               control={form.control}
               error={getZodError("startingDate")}
@@ -446,7 +452,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
           </Element>
 
           <Element>
-            <ControlledDateInput
+            <ControlledDateInputString
               name="endingDate"
               control={form.control}
               error={getZodError("endingDate")}
