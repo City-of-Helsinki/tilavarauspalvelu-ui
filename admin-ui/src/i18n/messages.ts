@@ -819,6 +819,7 @@ const translations: ITranslations = {
       },
       error: {
         mutation: ["Ajan muutos epäonnistui."],
+        reservationCollides: ["Toivomasi aika ei ole saatavilla"],
       },
     },
     EditPage: {
