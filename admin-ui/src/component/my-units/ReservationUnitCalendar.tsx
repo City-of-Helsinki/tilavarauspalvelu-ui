@@ -12,6 +12,7 @@ import {
   ReservationUnitByPkTypeReservationsArgs,
   QueryReservationUnitByPkArgs,
 } from "common/types/gql-types";
+import { getEventBuffers } from "common/src/calendar/util";
 import { reservationUrl } from "../../common/urls";
 import { combineResults } from "../../common/util";
 import { useNotification } from "../../context/NotificationContext";
@@ -20,7 +21,6 @@ import { RESERVATIONS_BY_RESERVATIONUNITS } from "./queries";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import { publicUrl } from "../../common/const";
 import { getReserveeName } from "../reservations/requested/util";
-import Loader from "../Loader";
 
 type Props = {
   begin: string;
@@ -96,7 +96,7 @@ const ReservationUnitCalendar = ({
     "RESERVATION_UNIT_DRAFT",
   ];
 
-  const { fetchMore, loading } = useQuery<
+  const { fetchMore } = useQuery<
     Query,
     QueryReservationUnitByPkArgs & ReservationUnitByPkTypeReservationsArgs
   >(RESERVATIONS_BY_RESERVATIONUNITS, {
@@ -105,12 +105,13 @@ const ReservationUnitCalendar = ({
       pk: reservationUnitPk,
       from: toApiDate(startOfISOWeek(new Date(begin))),
       to: toApiDate(addDays(endOfISOWeek(new Date(begin)), 1)),
+      includeWithSameComponents: true,
     },
-    onCompleted: ({ reservationUnitByPk }) => {
+    onCompleted: ({ reservationUnits }) => {
+      const ru = reservationUnits?.edges?.[0]?.node;
       const reservations: ReservationType[] =
-        reservationUnitByPk?.reservations?.filter(
-          (item): item is ReservationType => !!item
-        ) || [];
+        ru?.reservations?.filter((item): item is ReservationType => !!item) ||
+        [];
 
       setEvents(
         reservations.map((reservation) => {
@@ -145,12 +146,18 @@ const ReservationUnitCalendar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, setHasMore]);
 
-  if (loading) return <Loader />;
+  const eventBuffers = events
+    ? getEventBuffers(
+        events
+          .map((e) => e.event)
+          .filter((e): e is ReservationType => e != null)
+      )
+    : [];
 
   return (
     <Container>
       <CommonCalendar
-        events={events}
+        events={[...events, ...eventBuffers]}
         begin={startOfISOWeek(new Date(begin))}
         eventStyleGetter={eventStyleGetter(reservationUnitPk)}
         onSelectEvent={(e) => {
