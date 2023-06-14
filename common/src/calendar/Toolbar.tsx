@@ -62,10 +62,6 @@ const Wrapper = styled.div`
   }
 
   button {
-    & .hds-button {
-      display: inline-flex;
-    }
-
     &.rbc-toolbar-button--borderless {
       border: none;
       color: var(--color-gray-dark);

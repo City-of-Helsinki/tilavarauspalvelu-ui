@@ -11,16 +11,14 @@ import {
   ReservationType,
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
 } from "common/types/gql-types";
-import { VerticalFlex } from "app/styles/layout";
-import { useModal } from "app/context/ModalContext";
 import { useForm } from "react-hook-form";
 import { format, parse } from "date-fns";
 import { ErrorBoundary } from "react-error-boundary";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@apollo/client";
 import { useNotification } from "app/context/NotificationContext";
+import { useModal } from "app/context/ModalContext";
 import { TimeChangeFormSchemaRefined, TimeFormSchema } from "app/schemas";
-import { breakpoints } from "common/src/common/style";
 import { CHANGE_RESERVATION_TIME } from "./queries";
 import { setTimeOnDate } from "./utils";
 import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
@@ -271,21 +269,6 @@ const StyledDialog = styled(Dialog)`
     width: 100%;
   }
   max-width: 944px;
-  margin: var(--spacing-s);
-  /* fix HDS modal overdrawing on mobile */
-  top: var(--spacing-l);
-  @media (min-width: ${breakpoints.s}) {
-    margin: var(--spacing-l);
-    top: 0;
-  }
-  /* don't waste space especially on mobile */
-  > div {
-    gap: 0;
-    > div {
-      padding-left: var(--spacing-s);
-      padding-right: var(--spacing-s);
-    }
-  }
 `;
 
 const EditTimeModal = ({ reservation, onAccept, onClose }: Props) => {
@@ -300,19 +283,17 @@ const EditTimeModal = ({ reservation, onAccept, onClose }: Props) => {
       isOpen={isOpen}
       focusAfterCloseRef={undefined}
     >
-      <VerticalFlex>
-        <Dialog.Header
-          id="modal-header"
-          title={t("Reservation.EditTime.title")}
+      <Dialog.Header
+        id="modal-header"
+        title={t("Reservation.EditTime.title")}
+      />
+      <ErrorBoundary fallback={<div>{t("errors.uncaught")}</div>}>
+        <DialogContent
+          reservation={reservation}
+          onAccept={onAccept}
+          onClose={onClose}
         />
-        <ErrorBoundary fallback={<div>{t("errors.uncaught")}</div>}>
-          <DialogContent
-            reservation={reservation}
-            onAccept={onAccept}
-            onClose={onClose}
-          />
-        </ErrorBoundary>
-      </VerticalFlex>
+      </ErrorBoundary>
     </StyledDialog>
   );
 };

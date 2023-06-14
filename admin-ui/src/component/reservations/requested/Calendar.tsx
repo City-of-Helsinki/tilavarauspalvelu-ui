@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import CommonCalendar from "common/src/calendar/Calendar";
 import { Toolbar } from "common/src/calendar/Toolbar";
 import { add, startOfISOWeek } from "date-fns";
-import { Button } from "hds-react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { type ReservationType } from "common/types/gql-types";
@@ -109,15 +108,10 @@ const Calendar = ({
         toolbarComponent={(props) => (
           <Toolbar {...props}>
             {isAllowedToModify && (
-              <Button
-                className="hds-button"
-                variant="secondary"
-                theme="black"
-                size="small"
-                onClick={handleEditTimeClick}
-              >
+              // NOTE don't use HDS buttons in the toolbar, breaks mobile layout
+              <button type="button" onClick={handleEditTimeClick}>
                 {t("Reservation.EditTime.buttonName")}
-              </Button>
+              </button>
             )}
           </Toolbar>
         )}
