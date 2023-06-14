@@ -63,8 +63,7 @@ const Calendar = ({
     reservation?.pk ?? undefined
   );
 
-  // Because the calendar is fixed to 6 - 24 interval anything outside it causes rendering
-  // artefacts and is not usable. Filter them and note it in console for now.
+  // Because the calendar is fixed to 6 - 24 interval anything outside it causes rendering artefacts.
   // TODO this is common problem in the UI
   // can be removed if and when scroll is added to the Calendar
   const isInsideCalendarRange = (x: { start: Date; end: Date }) =>
@@ -78,7 +77,7 @@ const Calendar = ({
     }
   }, [initialFocusDate]);
 
-  const handleAccept = () => {
+  const handleEditAccept = () => {
     if (refetch) {
       refetch();
     }
@@ -90,7 +89,7 @@ const Calendar = ({
     setModalContent(
       <EditTimeModal
         reservation={reservation}
-        onAccept={handleAccept}
+        onAccept={handleEditAccept}
         onClose={() => setModalContent(null)}
       />,
       true
