@@ -82,6 +82,8 @@ const eventStyleGetter =
 
     const isClosed = event?.type === "blocked";
     const isStaff = event?.type === "staff";
+    // @ts-expect-error: TODO: we are dynamically overriding an enum upstream
+    const isBuffer = event?.state === "BUFFER";
 
     const style = {
       ...EVENT_STYLE,
@@ -95,6 +97,8 @@ const eventStyleGetter =
       Object.assign(style, WAITING_PAYMENT.style);
     } else if (isConfirmed) {
       Object.assign(style, CONFIRMED.style);
+    } else if (isBuffer) {
+      Object.assign(style, { ...POST_PAUSE.style, border: 0 });
     } else {
       Object.assign(style, UNCONFIRMED.style);
     }
