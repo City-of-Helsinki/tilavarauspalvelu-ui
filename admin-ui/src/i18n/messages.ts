@@ -52,12 +52,18 @@ const translations: ITranslations = {
   },
   AuthState: { initializing: ["Alustetaan..."] },
   ReserveeType: {
-    INDIVIDUAL: ["Yksityishenkilö"],
-    BUSINESS: ["Yritys"],
+    INDIVIDUAL: ["yksityishenkilö"],
+    BUSINESS: ["yritys"],
     NONPROFIT: {
-      REGISTERED: ["Yhdistys, rekisteröity"],
-      UNREGISTERED: ["Yhdistys, rekisteröimätön"],
+      REGISTERED: ["yhdistys, rekisteröity"],
+      UNREGISTERED: ["yhdistys, rekisteröimätön"],
     },
+  },
+  ReservationType: {
+    NORMAL: [""],
+    BLOCKED: ["Suljettu"],
+    BEHALF: ["Asiakkaan puolesta"],
+    STAFF: ["Sisäinen varaus"],
   },
   paymentType: {
     INVOICE: ["Laskutus"],
@@ -199,6 +205,13 @@ const translations: ITranslations = {
     errorRecurringReservationsDoneDisplay: [
       "Virhe varaus tehty, mutta sen näyttäminen epäonnistui.",
     ],
+    noPermission: ["Sinulla ei ole käyttöoikeutta."],
+    descriptive: {
+      "Overlapping reservations are not allowed.": [
+        "Ajankohdalle on jo varaus toisen varausyksikön kautta.",
+      ],
+      genericError: [""],
+    },
   },
   breadcrumb: {
     frontpage: ["Etusivu"],
@@ -1113,7 +1126,7 @@ const translations: ITranslations = {
     // dialog specific
     title: ["Varaa {{reservationUnit}}"],
     accept: ["Varaa"],
-    saveFailed: ["Tallennus ei onnistunut: {{error}}"],
+    saveFailed: ["Tallennus ei onnistunut. {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
   },
   ReservationUnits: {

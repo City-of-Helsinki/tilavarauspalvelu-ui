@@ -2,8 +2,10 @@ import { gql } from "@apollo/client";
 import { RESERVATION_META_FRAGMENT } from "../fragments";
 
 export const UPDATE_WORKING_MEMO = gql`
-  mutation updateWorkingMemo($input: ReservationWorkingMemoMutationInput!) {
-    updateReservationWorkingMemo(input: $input) {
+  mutation updateWorkingMemo($pk: Int!, $workingMemo: String!) {
+    updateReservationWorkingMemo(
+      input: { pk: $pk, workingMemo: $workingMemo }
+    ) {
       workingMemo
       errors {
         field
@@ -40,6 +42,7 @@ export const RESERVATION_QUERY = gql`
         pk
       }
       state
+      type
       reservationUnits {
         pk
         nameFi
