@@ -1752,7 +1752,7 @@ const translations: ITranslations = {
   },
 
   ApprovalButtons: {
-    edit: ["Muuta tietoja"],
+    edit: ["Muokkaa"],
     editTime: ["Muuta aikaa"],
     recurring: {
       rejectAllButton: ["Hylkää kaikki"],
