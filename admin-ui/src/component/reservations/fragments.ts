@@ -86,6 +86,7 @@ export const RESERVATION_COMMON_FRAGMENT = gql`
     state
     begin
     end
+    reserveeName
     orderStatus
   }
 `;
@@ -118,19 +119,24 @@ export const RESERVATIONUNIT_RESERVATIONS_FRAGMENT = gql`
       bufferTimeBefore
       bufferTimeAfter
       workingMemo
-      reserveeFirstName
-      reserveeLastName
-      reserveeOrganisationName
+      reserveeName
       reservationUnits {
         pk
         nameFi
         bufferTimeBefore
         bufferTimeAfter
+        unit {
+          pk
+          serviceSectors {
+            pk
+          }
+        }
       }
       user {
         firstName
         lastName
         email
+        pk
       }
     }
   }

@@ -12,6 +12,7 @@ import {
   ReservationUnitByPkTypeReservationsArgs,
   QueryReservationUnitByPkArgs,
 } from "common/types/gql-types";
+import { Permission } from "app/context/authStateReducer";
 import { getEventBuffers } from "common/src/calendar/util";
 import { reservationUrl } from "../../common/urls";
 import { combineResults } from "../../common/util";
@@ -21,6 +22,7 @@ import { RESERVATIONS_BY_RESERVATIONUNITS } from "./queries";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import { publicUrl } from "../../common/const";
 import { getReserveeName } from "../reservations/requested/util";
+import { usePermission } from "../reservations/requested/hooks";
 
 type Props = {
   begin: string;
@@ -146,6 +148,8 @@ const ReservationUnitCalendar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, setHasMore]);
 
+  const { hasPermission } = usePermission();
+
   const eventBuffers = events
     ? getEventBuffers(
         events
@@ -161,10 +165,12 @@ const ReservationUnitCalendar = ({
         begin={startOfISOWeek(new Date(begin))}
         eventStyleGetter={eventStyleGetter(reservationUnitPk)}
         onSelectEvent={(e) => {
-          window.open(
-            publicUrl + reservationUrl(e.event?.pk as number),
-            "_blank"
-          );
+          if (
+            e.event?.pk &&
+            hasPermission(e.event, Permission.CAN_VIEW_RESERVATIONS)
+          ) {
+            window.open(publicUrl + reservationUrl(e.event?.pk), "_blank");
+          }
         }}
         underlineEvents
       />

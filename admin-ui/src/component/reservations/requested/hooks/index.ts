@@ -20,6 +20,8 @@ import { RESERVATION_DENY_REASONS } from "../queries";
 import { OptionType } from "../../../../common/types";
 import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 
+export { default as usePermission } from "./usePermission";
+
 /// NOTE only fetches 100 reservations => use pageInfo and fetchMore
 export const useReservationData = (
   begin: Date,
@@ -55,10 +57,7 @@ export const useReservationData = (
           ].includes(r.state) || r.pk === reservationPk
       )
       .map((r) => ({
-        title: `${
-          r.reserveeOrganisationName ||
-          `${r.reserveeFirstName || ""} ${r.reserveeLastName || ""}`
-        }`,
+        title: r.reserveeName ?? "",
         event: r,
         // TODO use zod for datetime conversions
         start: new Date(r.begin),
@@ -66,12 +65,7 @@ export const useReservationData = (
       }))
       .map((x) => ({
         ...x,
-        title:
-          x.event.type === "blocked"
-            ? "Suljettu"
-            : x.title.trim() !== ""
-            ? x.title
-            : "No title",
+        title: x.event.type === "blocked" ? "Suljettu" : x.title.trim(),
         event: {
           ...x.event,
           name: x.event.name?.trim() !== "" ? x.event.name : "No name",
