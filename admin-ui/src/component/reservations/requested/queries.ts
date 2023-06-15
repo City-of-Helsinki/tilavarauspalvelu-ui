@@ -1,9 +1,10 @@
 import { gql } from "@apollo/client";
-import { RESERVATION_META_FRAGMENT } from "../fragments";
 
 export const UPDATE_WORKING_MEMO = gql`
-  mutation updateWorkingMemo($input: ReservationWorkingMemoMutationInput!) {
-    updateReservationWorkingMemo(input: $input) {
+  mutation updateWorkingMemo($pk: Int!, $workingMemo: String!) {
+    updateReservationWorkingMemo(
+      input: { pk: $pk, workingMemo: $workingMemo }
+    ) {
       workingMemo
       errors {
         field
@@ -19,61 +20,6 @@ export const GET_BIRTHDATE_BY_RESERVATION_PK = gql`
       user {
         dateOfBirth
       }
-    }
-  }
-`;
-
-export const RESERVATION_QUERY = gql`
-  ${RESERVATION_META_FRAGMENT}
-  query reservationByPk($pk: Int!) {
-    reservationByPk(pk: $pk) {
-      pk
-      createdAt
-      workingMemo
-      begin
-      end
-      calendarUrl
-      user {
-        firstName
-        lastName
-        email
-        pk
-      }
-      state
-      reservationUnits {
-        pk
-        nameFi
-        unit {
-          pk
-          nameFi
-          serviceSectors {
-            pk
-          }
-        }
-        pricings {
-          begins
-          pricingType
-          priceUnit
-          lowestPrice
-          highestPrice
-          taxPercentage {
-            value
-          }
-          status
-        }
-      }
-      recurringReservation {
-        pk
-        beginDate
-        endDate
-        weekdays
-      }
-      price
-      taxPercentageValue
-      orderStatus
-      orderUuid
-      refundUuid
-      ...ReservationMetaFields
     }
   }
 `;

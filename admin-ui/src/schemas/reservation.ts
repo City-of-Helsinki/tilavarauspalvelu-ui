@@ -196,6 +196,7 @@ export type ReservationFormType = z.infer<typeof ReservationFormSchema>;
 export const ReservationChangeFormSchema = z
   .object({
     type: ReservationTypeSchema,
+    seriesName: z.string().optional(),
     comments: z.string().optional(),
     bufferTimeAfter: z.boolean().optional(),
     bufferTimeBefore: z.boolean().optional(),

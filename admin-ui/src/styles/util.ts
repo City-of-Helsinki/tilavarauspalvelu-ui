@@ -130,6 +130,7 @@ export const ButtonLikeLink = styled(Link)`
   color: ${(props) => props.theme.fg ?? "var(--color-black)"};
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-width: 80px;
   line-height: 1;
   text-align: center;
