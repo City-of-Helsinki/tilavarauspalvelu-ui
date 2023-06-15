@@ -42,6 +42,7 @@ export const RESERVATION_QUERY = gql`
         pk
       }
       state
+      type
       reservationUnits {
         pk
         nameFi

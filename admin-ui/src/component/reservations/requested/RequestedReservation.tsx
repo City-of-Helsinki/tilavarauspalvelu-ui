@@ -5,6 +5,7 @@ import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { TFunction } from "i18next";
 import { breakpoints } from "common/src/common/style";
 import {
   Maybe,
@@ -18,6 +19,7 @@ import {
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { Permission } from "app/context/authStateReducer";
+import { ReservationTypeSchema } from "app/schemas";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
@@ -26,7 +28,7 @@ import {
   createTagString,
   getName,
   getReservatinUnitPricing,
-  getTranslationKeyForType,
+  getTranslationKeyForReserveeType,
   reservationPrice,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
@@ -148,6 +150,17 @@ const ButtonsWithPermChecks = ({
   );
 };
 
+const translateType = (res: ReservationType, t: TFunction) => {
+  const reservationType = ReservationTypeSchema.optional().parse(res.type);
+
+  const [part1, part2] = getTranslationKeyForReserveeType(
+    reservationType,
+    res.reserveeType ?? undefined,
+    res.reserveeIsUnregisteredAssociation ?? false
+  );
+  return `${t(part1)}${part2 ? `: ${t(part2)}` : ""}`;
+};
+
 const ReservationSummary = ({
   reservation,
   isFree,
@@ -161,12 +174,7 @@ const ReservationSummary = ({
     reservation.reserveeType != null
       ? {
           l: "reserveeType",
-          v: t(
-            getTranslationKeyForType(
-              reservation.reserveeType,
-              reservation.reserveeIsUnregisteredAssociation ?? false
-            )
-          ),
+          v: translateType(reservation, t),
         }
       : undefined;
 
@@ -479,12 +487,7 @@ const RequestedReservation = ({
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.reserveeType")}
-                data={t(
-                  getTranslationKeyForType(
-                    reservation.reserveeType as ReservationsReservationReserveeTypeChoices,
-                    reservation.reserveeIsUnregisteredAssociation ?? false
-                  )
-                )}
+                data={translateType(reservation, t)}
                 wide={
                   reservation.reserveeType ===
                   ReservationsReservationReserveeTypeChoices.Individual
