@@ -13,7 +13,7 @@ export const ActionsWrapper = styled.div`
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1rem 2rem;
+  gap: 2rem;
 `;
 
 export const Element = styled.div<{ $wide?: boolean; $start?: boolean }>`
