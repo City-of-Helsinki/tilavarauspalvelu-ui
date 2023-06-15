@@ -30,9 +30,7 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
             email
           }
           name
-          reserveeFirstName
-          reserveeLastName
-          reserveeOrganisationName
+          reserveeName
           pk
           begin
           end

@@ -120,6 +120,7 @@ export const RESERVATION_COMMON_FRAGMENT = gql`
     state
     type
     workingMemo
+    reserveeName
     orderStatus
   }
 `;
