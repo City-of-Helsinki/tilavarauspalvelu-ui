@@ -1143,6 +1143,15 @@ const translations: ITranslations = {
     accept: ["Varaa"],
     saveFailed: ["Tallennus ei onnistunut. {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
+    errors: {
+      "Reservation overlaps with reservation before due to buffer time.": [
+        "Varaus menee päällekkäin edellisen varauksen kanssa puskuriajan takia.",
+      ],
+      collision: [
+        "Valitsemasi aika ei ole enää vapaana. Ole hyvä ja valitse uusi aika.",
+      ],
+      unkown: ["Tuntematon virhe"],
+    },
   },
   ReservationUnits: {
     reservationUnitListHeading: ["Varausyksiköt"],
