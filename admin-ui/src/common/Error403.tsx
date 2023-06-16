@@ -49,10 +49,48 @@ const ButtonContainer = styled.div`
   margin-top: var(--spacing-s);
 `;
 
-const Error403 = (): JSX.Element => {
+const LogoutSection = (): JSX.Element | null => {
   const { authState } = useAuthState();
   const navigate = useNavigate();
 
+  return (
+    <>
+      <Link external href="/">
+        Siirry Varaamon etusivulle
+      </Link>
+      <Link
+        external
+        href="https://app.helmet-kirjasto.fi/forms/?site=varaamopalaute&ref=https://tilavaraus.hel.fi/"
+      >
+        Anna palautetta
+      </Link>
+
+      {authState.state !== "NotAutenticated" && (
+        <ButtonContainer>
+          <Button
+            onClick={() => {
+              if (authState.logout) {
+                authState.logout();
+                localLogout();
+              } else {
+                localLogout();
+              }
+              navigate("/");
+            }}
+          >
+            Kirjaudu ulos
+          </Button>
+        </ButtonContainer>
+      )}
+    </>
+  );
+};
+
+const Error403 = ({
+  showLogoutSection,
+}: {
+  showLogoutSection?: boolean;
+}): JSX.Element => {
   return (
     <Wrapper>
       <Content>
@@ -64,33 +102,7 @@ const Error403 = (): JSX.Element => {
           sisällön jos kirjaudut sisään ja sinulla on riittävän laajat
           käyttöoikeudet.
         </p>
-        <Link external href="/">
-          Siirry Varaamon etusivulle
-        </Link>
-        <Link
-          external
-          href="https://app.helmet-kirjasto.fi/forms/?site=varaamopalaute&ref=https://tilavaraus.hel.fi/"
-        >
-          Anna palautetta
-        </Link>
-
-        {authState.state !== "NotAutenticated" && (
-          <ButtonContainer>
-            <Button
-              onClick={() => {
-                if (authState.logout) {
-                  authState.logout();
-                  localLogout();
-                } else {
-                  localLogout();
-                }
-                navigate("/");
-              }}
-            >
-              Kirjaudu ulos
-            </Button>
-          </ButtonContainer>
-        )}
+        {showLogoutSection && <LogoutSection />}
       </Content>
       <Image src={`${publicUrl}/403.png`} />
     </Wrapper>

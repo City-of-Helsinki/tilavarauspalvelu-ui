@@ -1,7 +1,7 @@
 import React from "react";
-import { RouteProps } from "react-router-dom";
+import { MainMenuWrapper } from "app/component/withMainMenu";
 import { useAuthState } from "../context/AuthStateContext";
-import { AuthState } from "../context/authStateReducer";
+import { AuthState, Permission } from "../context/authStateReducer";
 
 import Error403 from "./Error403";
 import Error5xx from "./Error5xx";
@@ -12,7 +12,7 @@ const AuthStateError = (state: AuthState) => {
     case "HasPermissions":
       return null;
     case "NoPermissions":
-      return <Error403 />;
+      return <Error403 showLogoutSection />;
     case "NotAutenticated":
       return <ErrorNotLoggedIn />;
     case "ApiKeyAvailable":
@@ -20,20 +20,31 @@ const AuthStateError = (state: AuthState) => {
     case "Authenticated":
       return <span />;
     case "Error":
-    default:
       return <Error5xx />;
   }
+  return <Error5xx />;
 };
 
-type Props = RouteProps;
-
-const PrivateRoute = ({ children }: Props) => {
+const AuthorisationChecker = ({
+  children,
+  permission,
+}: {
+  children: React.ReactNode;
+  permission?: Permission;
+}) => {
   const { authState } = useAuthState();
+  const { hasPermission } = authState;
   const error = AuthStateError(authState.state);
-
   if (error) return error;
 
-  return <> {children} </>;
+  if (permission && !hasPermission(permission)) {
+    return (
+      <MainMenuWrapper>
+        <Error403 />
+      </MainMenuWrapper>
+    );
+  }
+  return <>{children}</>;
 };
 
-export { PrivateRoute };
+export default AuthorisationChecker;
