@@ -18,6 +18,14 @@ export enum Permission {
   CAN_CREATE_STAFF_RESERVATIONS = "can_create_staff_reservations",
   CAN_MANAGE_RESERVATIONS = "can_manage_reservations",
   CAN_VIEW_RESERVATIONS = "can_view_reservations",
+  // Varausyksiköt: oltava jotain kautta
+  CAN_MANAGE_RESERVATION_UNITS = "can_manage_reservation_units",
+  // Tilat: oltava jotain kautta
+  CAN_MANAGE_SPACES = "can_manage_spaces",
+  // Resurssit: oltava jotain kautta
+  CAN_MANAGE_RESOURCES = "can_manage_resources",
+  // Toimipisteet: oltava jotain kautta
+  CAN_MANAGE_UNITS = "can_manage_units",
 }
 
 export type Auth = {
