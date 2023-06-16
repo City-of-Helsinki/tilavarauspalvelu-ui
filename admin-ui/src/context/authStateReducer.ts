@@ -40,6 +40,21 @@ export type Auth = {
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type YesItsAFunction = Function;
 
+export const isValidAuthState = (state: AuthState): boolean => {
+  switch (state) {
+    case "Unknown":
+    case "Authenticated":
+    case "ApiKeyAvailable":
+    case "NoPermissions":
+    case "NotAutenticated":
+    case "Error":
+      return false;
+    case "HasPermissions":
+      return true;
+  }
+  return false;
+};
+
 export type Action =
   | {
       type: "setUser";
