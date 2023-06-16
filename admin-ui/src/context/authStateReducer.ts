@@ -31,6 +31,7 @@ export type Auth = {
   sid?: string;
   login?: () => void;
   logout?: () => void;
+  hasSomePermission: (permission: Permission) => boolean;
   hasPermission: (
     permission: Permission,
     unitPk?: number,
@@ -70,7 +71,31 @@ export type Action =
 export const getInitialState = (): Auth => ({
   state: "Unknown",
   hasPermission: () => false,
+  hasSomePermission: () => false,
 });
+
+const somePermissions = (user: UserType, permission: Permission) => {
+  if (user.isSuperuser) {
+    return true;
+  }
+
+  const someUnitRoles =
+    user?.unitRoles?.some((role) =>
+      role?.permissions?.some((p) => p?.permission === permission)
+    ) ?? false;
+
+  const someSectorRoles =
+    user?.serviceSectorRoles?.some((role) =>
+      role?.permissions?.some((p) => p?.permission === permission)
+    ) ?? false;
+
+  const someGeneralRoles =
+    user?.generalRoles?.some((role) =>
+      role?.permissions?.some((p) => p?.permission === permission)
+    ) ?? false;
+
+  return someUnitRoles || someSectorRoles || someGeneralRoles;
+};
 
 export const authStateReducer = (state: Auth, action: Action): Auth => {
   switch (action.type) {
@@ -131,6 +156,8 @@ export const authStateReducer = (state: Auth, action: Action): Auth => {
       return {
         ...state,
         hasPermission: permissionHelper(currentUser),
+        hasSomePermission: (perm: Permission) =>
+          somePermissions(currentUser, perm),
         user: currentUser,
         state: hasSomePermissions ? "HasPermissions" : "NoPermissions",
       };

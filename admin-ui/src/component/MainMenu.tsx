@@ -295,13 +295,13 @@ function MainMenu({
   const { handlingCount, hasOwnUnits } = useData();
 
   const { authState } = useAuthState();
-  const { hasPermission } = authState;
+  const { hasSomePermission } = authState;
 
   const count = handlingCount ? (
     <HandlingCount>{handlingCount}</HandlingCount>
   ) : undefined;
 
-  const menuItems = getFilteredMenu(hasOwnUnits, hasPermission).filter(
+  const menuItems = getFilteredMenu(hasOwnUnits, hasSomePermission).filter(
     (item) => item.items == null || item.items.length > 0
   );
 
