@@ -152,10 +152,12 @@ const ButtonsWithPermChecks = ({
 };
 
 const translateType = (res: ReservationType, t: TFunction) => {
-  const reservationType = ReservationTypeSchema.optional().parse(res.type);
+  const reservationType = ReservationTypeSchema.optional()
+    .nullable()
+    .parse(res.type);
 
   const [part1, part2] = getTranslationKeyForReserveeType(
-    reservationType,
+    reservationType ?? undefined,
     res.reserveeType ?? undefined,
     res.reserveeIsUnregisteredAssociation ?? false
   );

@@ -203,6 +203,7 @@ const translations: ITranslations = {
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
     uncaught: ["Odottamaton virhe"],
+    missingReservationType: ["Varaustyyppi puuttuu"],
     errorRecurringReservationsDoneDisplay: [
       "Virhe varaus tehty, mutta sen näyttäminen epäonnistui.",
     ],

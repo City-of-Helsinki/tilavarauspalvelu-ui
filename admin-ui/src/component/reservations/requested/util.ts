@@ -189,7 +189,7 @@ export const getTranslationKeyForReserveeType = (
   isUnregisteredAssociation?: boolean
 ): string[] => {
   if (!reservationType) {
-    return ["error.missingReservationType"];
+    return ["errors.missingReservationType"];
   }
   if (reservationType === "BLOCKED") {
     return ["ReservationType.BLOCKED"];
