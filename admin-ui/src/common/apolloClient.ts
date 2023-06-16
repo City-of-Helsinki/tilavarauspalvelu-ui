@@ -75,6 +75,7 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
 
 const headerLink = new ApolloLink((operation, forward) => {
   const CSRFCookie = Cookies.get("csrftoken");
+  console.log("all cookies", Cookies.get());
 
   if (CSRFCookie) {
     operation.setContext(({ headers = {} }) => ({
