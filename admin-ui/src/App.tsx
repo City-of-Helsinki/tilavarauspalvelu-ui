@@ -160,7 +160,9 @@ const App = () => {
           <Route
             path={`${prefixes.applications}/*`}
             element={
-              <AuthorizationChecker>
+              <AuthorizationChecker
+                permission={Permission.CAN_VALIDATE_APPLICATIONS}
+              >
                 <ApplicationRouter />
               </AuthorizationChecker>
             }
@@ -169,7 +171,9 @@ const App = () => {
           <Route
             path={`${prefixes.recurringReservations}/application-rounds/*`}
             element={
-              <AuthorizationChecker>
+              <AuthorizationChecker
+                permission={Permission.CAN_VALIDATE_APPLICATIONS}
+              >
                 <ApplicationRoundsRouter />
               </AuthorizationChecker>
             }

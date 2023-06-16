@@ -22,6 +22,7 @@ export enum Permission {
   CAN_MANAGE_SPACES = "can_manage_spaces",
   CAN_MANAGE_RESOURCES = "can_manage_resources",
   CAN_MANAGE_UNITS = "can_manage_units",
+  CAN_VALIDATE_APPLICATIONS = "can_validate_applications",
 }
 
 export type Auth = {

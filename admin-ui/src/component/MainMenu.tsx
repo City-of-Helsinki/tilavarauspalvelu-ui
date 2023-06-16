@@ -236,17 +236,21 @@ const getFilteredMenu = (
       ]
     : []),
 
-  {
-    title: "MainMenu.recurringReservations",
-    icon: <IconCalendar aria-hidden />,
-    route: "/recurring-reservations",
-    items: [
-      {
-        title: "MainMenu.applicationRounds",
-        route: "/recurring-reservations/application-rounds",
-      },
-    ],
-  },
+  ...(hasPermission(Permission.CAN_VALIDATE_APPLICATIONS)
+    ? [
+        {
+          title: "MainMenu.recurringReservations",
+          icon: <IconCalendar aria-hidden />,
+          route: "/recurring-reservations",
+          items: [
+            {
+              title: "MainMenu.applicationRounds",
+              route: "/recurring-reservations/application-rounds",
+            },
+          ],
+        },
+      ]
+    : []),
   {
     title: "MainMenu.premisesAndSettings",
     icon: <IconLocation aria-hidden />,
