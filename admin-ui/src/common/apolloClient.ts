@@ -9,6 +9,7 @@ import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { set, uniqBy } from "lodash";
 import { ReservationTypeConnection } from "common/types/gql-types";
+import Cookies from "js-cookie";
 
 import { getApiAccessToken, updateApiAccessToken } from "./auth/util";
 import { apiBaseUrl } from "./const";
@@ -72,6 +73,21 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   }
 });
 
+const headerLink = new ApolloLink((operation, forward) => {
+  const CSRFCookie = Cookies.get("csrftoken");
+
+  if (CSRFCookie) {
+    operation.setContext(({ headers = {} }) => ({
+      headers: {
+        ...headers,
+        "X-CSRFToken": CSRFCookie,
+      },
+    }));
+  }
+
+  return forward(operation);
+});
+
 const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
@@ -119,7 +135,7 @@ const client = new ApolloClient({
       },
     },
   }),
-  link: ApolloLink.from([errorLink, authLink, terminatingLink]),
+  link: ApolloLink.from([errorLink, authLink, headerLink, terminatingLink]),
 });
 
 export default client;
