@@ -241,6 +241,17 @@ const translations: ITranslations = {
     ],
   },
 
+  errorPages: {
+    accessForbidden: {
+      title: ["Sinulla ei ole käyttöoikeuksia tälle sivulle"],
+      description: [
+        "Sivu on nähtävillä vain kirjautuneille käyttäjille. Voit nähdä sivun sisällön jos kirjaudut sisään ja sinulla on riittävän laajat käyttöoikeudet.",
+      ],
+      linkToVaraamo: ["Siirry Varaamon etusivulle"],
+      giveFeedback: ["Anna palautetta"],
+    },
+  },
+
   ArchiveReservationUnitDialog: {
     title: ["Oletko varma että haluat arkistoida varausyksikön {{name}}?"],
     description: [
