@@ -7,6 +7,7 @@ import {
   type ReservationDenyReasonType,
   type QueryReservationDenyReasonsArgs,
   type QueryReservationByPkArgs,
+  ReservationsReservationTypeChoices,
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
@@ -24,10 +25,13 @@ import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 export { default as usePermission } from "./usePermission";
 
 const getEventName = (
-  eventType?: string,
+  eventType?: ReservationsReservationTypeChoices,
   title?: string,
   blockedName?: string
-) => (eventType === "blocked" ? blockedName : title?.trim());
+) =>
+  eventType === ReservationsReservationTypeChoices.Blocked
+    ? blockedName
+    : title?.trim();
 
 const getReservationTitle = (r: ReservationType) => r.reserveeName ?? "";
 
