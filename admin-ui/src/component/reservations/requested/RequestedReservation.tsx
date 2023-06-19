@@ -32,7 +32,7 @@ import {
   reservationPrice,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
-import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
+import { UPDATE_WORKING_MEMO } from "./queries";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
 import { Container, HorisontalFlex } from "../../../styles/layout";
 import { publicUrl } from "../../../common/const";
@@ -47,6 +47,7 @@ import RecurringReservationsView from "./RecurringReservationsView";
 import { useRecurringReservations } from "./hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
+import { SINGLE_RESERVATION_QUERY } from "./hooks/queries";
 
 const ApplicationDatas = styled.div`
   display: grid;
@@ -283,10 +284,10 @@ const TimeBlock = ({
 
   return (
     <>
-      {reservation.recurringReservation && (
+      {reservation.recurringReservation?.pk && (
         <Accordion heading={t("RequestedReservation.recurring")}>
           <RecurringReservationsView
-            reservation={reservation}
+            recurringPk={reservation.recurringReservation.pk}
             onSelect={setSelected}
             onReservationUpdated={onReservationUpdated}
           />
@@ -620,7 +621,7 @@ const PermissionWrappedReservation = () => {
   const { t } = useTranslation();
   const { notifyError } = useNotification();
   const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    RESERVATION_QUERY,
+    SINGLE_RESERVATION_QUERY,
     {
       skip: !id || Number.isNaN(Number(id)),
       fetchPolicy: "no-cache",

@@ -1,6 +1,7 @@
 import { CalendarEvent } from "common/src/calendar/Calendar";
 import {
   ReservationsReservationStateChoices,
+  ReservationsReservationTypeChoices,
   ReservationType,
 } from "common/types/gql-types";
 import {
@@ -80,8 +81,8 @@ const eventStyleGetter =
     const isWaitingForPayment =
       event?.state === ReservationsReservationStateChoices.WaitingForPayment;
 
-    const isClosed = event?.type === "blocked";
-    const isStaff = event?.type === "staff";
+    const isClosed = event?.type === ReservationsReservationTypeChoices.Blocked;
+    const isStaff = event?.type === ReservationsReservationTypeChoices.Staff;
     // @ts-expect-error: TODO: we are dynamically overriding an enum upstream
     const isBuffer = event?.state === "BUFFER";
 

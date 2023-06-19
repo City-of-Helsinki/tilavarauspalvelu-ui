@@ -11,6 +11,7 @@ import {
   ReservationType,
   ReservationUnitByPkTypeReservationsArgs,
   QueryReservationUnitByPkArgs,
+  ReservationsReservationTypeChoices,
 } from "common/types/gql-types";
 import { Permission } from "app/context/authStateReducer";
 import { getEventBuffers } from "common/src/calendar/util";
@@ -118,7 +119,7 @@ const ReservationUnitCalendar = ({
       setEvents(
         reservations.map((reservation) => {
           const title =
-            reservation.type !== "blocked"
+            reservation.type !== ReservationsReservationTypeChoices.Blocked
               ? constructEventTitle(reservation, reservationUnitPk)
               : t("MyUnits.Calendar.legend.closed");
           return {
