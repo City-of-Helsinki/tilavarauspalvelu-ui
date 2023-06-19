@@ -518,7 +518,7 @@ const reservationByPk = graphql.query<Query, QueryReservationUnitByPkArgs>(
         maximum: 8,
       },
       numPersons: 18,
-    } as ReservationType;
+    } as unknown as ReservationType;
 
     if (pk === 4) {
       data.price = 0;

@@ -219,7 +219,7 @@ export const isReservationReservable = (
       {
         start,
         end,
-        type: "normal",
+        isBlocked: false,
         bufferTimeBefore,
         bufferTimeAfter,
       },
