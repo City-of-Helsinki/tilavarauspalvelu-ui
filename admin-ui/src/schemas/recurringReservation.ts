@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
-import { parse } from "date-fns";
+import { fromUIDate } from "common/src/common/util";
 import {
   ReservationTypeSchema,
   checkDate,
@@ -59,7 +59,7 @@ export const RecurringReservationFormSchema = z
   );
 
 const convertToDate = (date?: string): Date | undefined =>
-  date ? parse(date, "dd.MM.yyyy", new Date()) : undefined;
+  date ? fromUIDate(date) : undefined;
 
 const dateIsBefore = (date?: Date, other?: Date) =>
   date && other && date.getTime() < other.getTime();

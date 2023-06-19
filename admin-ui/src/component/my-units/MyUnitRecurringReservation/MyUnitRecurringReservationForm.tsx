@@ -12,11 +12,10 @@ import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { format, parse } from "date-fns";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { toApiDate } from "common/src/common/util";
+import { toApiDate, fromUIDate, toApiDateUnsafe } from "common/src/common/util";
 import { removeRefParam } from "common/src/reservation-form/util";
 import {
   RecurringReservationFormSchema,
@@ -210,8 +209,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const checkedReservations = useFilteredReservationList({
     items: newReservations.reservations,
     reservationUnitPk: reservationUnit?.pk ?? undefined,
-    begin: parse(getValues("startingDate"), "dd.MM.yyyy", new Date()),
-    end: parse(getValues("endingDate"), "dd.MM.yyyy", new Date()),
+    begin: fromUIDate(getValues("startingDate")),
+    end: fromUIDate(getValues("endingDate")),
   });
 
   const navigate = useNavigate();
@@ -248,17 +247,12 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
       );
 
       const name = data.type === "BLOCKED" ? "BLOCKED" : data.seriesName ?? "";
+
       const input: RecurringReservationCreateMutationInput = {
         reservationUnitPk: unitPk,
-        beginDate: format(
-          parse(data.startingDate, "dd.MM.yyyy", new Date()),
-          "yyyy-MM-dd"
-        ),
+        beginDate: toApiDateUnsafe(fromUIDate(data.startingDate)),
         beginTime: data.startTime,
-        endDate: format(
-          parse(data.endingDate, "dd.MM.yyyy", new Date()),
-          "yyyy-MM-dd"
-        ),
+        endDate: toApiDateUnsafe(fromUIDate(data.endingDate)),
         endTime: data.endTime,
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,

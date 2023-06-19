@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { parse, subDays } from "date-fns";
+import { fromUIDate } from "common/src/common/util";
+import { subDays } from "date-fns";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { intervalToNumber } from "./utils";
 
@@ -129,15 +130,12 @@ export const checkReservationInterval = (
   }
 };
 
-const convertToDate = (date: string): Date =>
-  parse(date, "dd.MM.yyyy", new Date());
-
 const ReservationFormSchemaRefined = (
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) =>
   ReservationFormSchema.partial()
     .superRefine(
-      (val, ctx) => val.date && checkDate(convertToDate(val.date), ctx, "date")
+      (val, ctx) => val.date && checkDate(fromUIDate(val.date), ctx, "date")
     )
     .superRefine((val, ctx) =>
       checkTimeStringFormat(val.startTime, ctx, "startTime")
@@ -168,7 +166,7 @@ export const TimeChangeFormSchemaRefined = (
 ) =>
   TimeFormSchema.partial()
     .superRefine(
-      (val, ctx) => val.date && checkDate(convertToDate(val.date), ctx, "date")
+      (val, ctx) => val.date && checkDate(fromUIDate(val.date), ctx, "date")
     )
     .superRefine((val, ctx) =>
       checkTimeStringFormat(val.startTime, ctx, "startTime")

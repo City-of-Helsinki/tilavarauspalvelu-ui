@@ -10,7 +10,6 @@ import {
   format,
   getDay,
   isSameDay,
-  parse,
 } from "date-fns";
 import { TFunction } from "i18next";
 import { trim, truncate } from "lodash";
@@ -24,6 +23,7 @@ import {
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
   ReservationUnitsReservationUnitPricingPriceUnitChoices,
 } from "common/types/gql-types";
+import { fromApiDate } from "common/src/common/util";
 import {
   DATE_FORMAT,
   formatDate,
@@ -92,8 +92,6 @@ export const reservationPrice = (
   );
 };
 
-const parseDate = (date: string) => parse(date, "yyyy-MM-dd", new Date());
-
 /** returns reservation unit pricing at given date */
 export const getReservatinUnitPricing = (
   reservationUnit: ReservationUnitType,
@@ -107,14 +105,14 @@ export const getReservatinUnitPricing = (
 
   reservationUnit.pricings.sort((a, b) =>
     a?.begins && b?.begins
-      ? parseDate(a.begins).getTime() - parseDate(b.begins).getTime()
+      ? fromApiDate(a.begins).getTime() - fromApiDate(b.begins).getTime()
       : 1
   );
 
   return (
     (reservationUnit.pricings || []) as ReservationUnitPricingType[]
   ).reduce((prev, current) => {
-    if (parseDate(current?.begins) < reservationDate) {
+    if (fromApiDate(current?.begins) < reservationDate) {
       return current;
     }
     return prev;

@@ -12,10 +12,11 @@ import {
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
 } from "common/types/gql-types";
 import { useForm } from "react-hook-form";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { ErrorBoundary } from "react-error-boundary";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@apollo/client";
+import { fromUIDate } from "common/src/common/util";
 import { useNotification } from "app/context/NotificationContext";
 import { useModal } from "app/context/ModalContext";
 import { TimeChangeFormSchemaRefined, TimeFormSchema } from "app/schemas";
@@ -25,9 +26,6 @@ import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import { reservationDateTime, reservationDuration } from "./requested/util";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./requested/hooks/queries";
 import ControlledDateInput from "../my-units/components/ControlledDateInput";
-
-const convertToDate = (date: string): Date =>
-  parse(date, "dd.MM.yyyy", new Date());
 
 const StyledForm = styled.form`
   display: grid;
@@ -179,8 +177,8 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
   const formDate = watch("date");
   const formEndTime = watch("endTime");
   const formStartTime = watch("startTime");
-  const newStartTime = setTimeOnDate(convertToDate(formDate), formStartTime);
-  const newEndTime = setTimeOnDate(convertToDate(formDate), formEndTime);
+  const newStartTime = setTimeOnDate(fromUIDate(formDate), formStartTime);
+  const newEndTime = setTimeOnDate(fromUIDate(formDate), formEndTime);
   const { collides, isLoading } = useCheckCollision({
     reservationPk: reservation.pk ?? 0,
     reservationUnitPk: reservation.reservationUnits?.find(() => true)?.pk ?? 0,
@@ -190,8 +188,8 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
 
   const onSubmit = (values: FormValueType) => {
     if (values.date && values.startTime && values.endTime) {
-      const start = setTimeOnDate(convertToDate(values.date), values.startTime);
-      const end = setTimeOnDate(convertToDate(values.date), values.endTime);
+      const start = setTimeOnDate(fromUIDate(values.date), values.startTime);
+      const end = setTimeOnDate(fromUIDate(values.date), values.endTime);
       changeTime(start, end);
     }
   };
