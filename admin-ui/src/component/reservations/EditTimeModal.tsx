@@ -8,6 +8,7 @@ import {
   MutationStaffAdjustReservationTimeArgs,
   ReservationType,
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
+  ReservationsReservationTypeChoices,
 } from "common/types/gql-types";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
@@ -63,7 +64,7 @@ const btnCommon = {
 type FormValueType = z.infer<typeof TimeFormSchema>;
 
 const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { notifyError, notifySuccess } = useNotification();
 
   const [changeTimeMutation] = useMutation<
@@ -75,9 +76,14 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
       onAccept();
     },
     onError: (error) => {
-      // eslint-disable-next-line no-console
-      console.error("Change time mutation failed: ", error);
-      notifyError(t("Reservation.EditTime.error.mutation"));
+      const { message } = error;
+
+      const translatedError = i18n.exists(`errors.descriptive.${message}`)
+        ? t(`errors.descriptive.${message}`)
+        : t("errors.descriptive.genericError");
+      notifyError(
+        t("ReservationDialog.saveFailed", { error: translatedError })
+      );
     },
   });
 
@@ -130,6 +136,18 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
     reservationUnitPk: reservation.reservationUnits?.find(() => true)?.pk ?? 0,
     start: newStartTime,
     end: newEndTime,
+    buffers: {
+      before:
+        reservation.type !== ReservationsReservationTypeChoices.Blocked &&
+        reservation.bufferTimeBefore
+          ? reservation.bufferTimeBefore
+          : 0,
+      after:
+        reservation.type !== ReservationsReservationTypeChoices.Blocked &&
+        reservation.bufferTimeAfter
+          ? reservation.bufferTimeAfter
+          : 0,
+    },
   });
 
   const onSubmit = (values: FormValueType) => {

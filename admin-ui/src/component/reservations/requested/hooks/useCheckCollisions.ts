@@ -1,6 +1,10 @@
-import { Query, QueryReservationUnitByPkArgs } from "common/types/gql-types";
+import {
+  Query,
+  QueryReservationUnitByPkArgs,
+  ReservationsReservationTypeChoices,
+} from "common/types/gql-types";
 import { useQuery } from "@apollo/client";
-import { format } from "date-fns";
+import { addSeconds, format } from "date-fns";
 import { useNotification } from "app/context/NotificationContext";
 import { RESERVATIONS_BY_RESERVATIONUNIT } from "./queries";
 
@@ -9,11 +13,16 @@ const useCheckCollisions = ({
   reservationUnitPk,
   start,
   end,
+  buffers,
 }: {
   reservationPk?: number;
   reservationUnitPk: number;
   start?: Date;
   end?: Date;
+  buffers: {
+    before: number;
+    after: number;
+  };
 }) => {
   const { notifyError } = useNotification();
 
@@ -33,27 +42,49 @@ const useCheckCollisions = ({
     },
   });
 
-  type Interval = { start: Date; end: Date };
+  type Interval = {
+    start: Date;
+    end: Date;
+    buffers: { before: number; after: number };
+  };
+
   const collides = (a: Interval, b: Interval): boolean => {
-    if (a.start < b.start && a.end <= b.start) return false;
-    if (a.start >= b.end && a.end > b.end) return false;
+    const aEndBuffer = Math.max(a.buffers.after, b.buffers.before);
+    const bEndBuffer = Math.max(a.buffers.before, b.buffers.after);
+    if (a.start < b.start && addSeconds(a.end, aEndBuffer) <= b.start)
+      return false;
+    if (a.start >= addSeconds(b.end, bEndBuffer) && a.end > b.end) return false;
     return true;
   };
 
   const reservations = data?.reservationUnitByPk?.reservations ?? [];
-  const collisions = reservations
-    .filter((x) => x?.pk !== reservationPk)
-    .filter(
-      (x) =>
-        x?.begin &&
-        x?.end &&
-        end &&
-        start &&
-        collides(
-          { start, end },
-          { start: new Date(x.begin), end: new Date(x.end) }
-        )
-    );
+  const collisions =
+    end && start
+      ? reservations
+          .filter((x) => x?.pk !== reservationPk)
+          .map((x) =>
+            x?.begin && x?.end
+              ? {
+                  start: new Date(x.begin),
+                  end: new Date(x.end),
+                  buffers: {
+                    before:
+                      x.type !== ReservationsReservationTypeChoices.Blocked &&
+                      x.bufferTimeBefore
+                        ? x.bufferTimeBefore
+                        : 0,
+                    after:
+                      x.type !== ReservationsReservationTypeChoices.Blocked &&
+                      x.bufferTimeAfter
+                        ? x.bufferTimeAfter
+                        : 0,
+                  },
+                }
+              : undefined
+          )
+          .filter((x): x is Interval => x != null)
+          .filter((x) => collides({ start, end, buffers }, x))
+      : [];
 
   return { isLoading: loading, hasCollisions: collisions.length > 0 };
 };
