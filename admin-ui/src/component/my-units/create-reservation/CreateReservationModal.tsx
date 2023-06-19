@@ -125,10 +125,10 @@ const CollisionWarning = ({
   return hasCollisions ? (
     <StyledNotification
       size="small"
-      label={t("ReservationDialog.errors.collision")}
+      label={t("errors.descriptive.collision")}
       type="error"
     >
-      {t("ReservationDialog.errors.collision")}
+      {t("errors.descriptive.collision")}
     </StyledNotification>
   ) : null;
 };
