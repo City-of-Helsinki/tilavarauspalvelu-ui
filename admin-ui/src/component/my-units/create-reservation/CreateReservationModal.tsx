@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { camelCase, get } from "lodash";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   ReservationFormSchema,
   type ReservationFormType,
@@ -65,7 +66,7 @@ const DialogContent = ({
   reservationUnit: ReservationUnitType;
   start: Date;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const form = useForm<FormValueType>({
     resolver: zodResolver(
       ReservationFormSchema(reservationUnit.reservationStartInterval)
@@ -78,7 +79,7 @@ const DialogContent = ({
 
     mode: "onChange",
     defaultValues: {
-      date: start,
+      date: format(start, "dd.MM.yyyy"),
       startTime: format(start, "HH:mm"),
       bufferTimeBefore: false,
       bufferTimeAfter: false,
@@ -89,9 +90,6 @@ const DialogContent = ({
     formState: { errors },
   } = form;
 
-  const myDateTime = (date: Date, time: string) =>
-    dateTime(format(date, "dd.MM.yyyy"), time);
-
   const { notifyError, notifySuccess } = useNotification();
 
   const [create] = useMutation<
@@ -101,6 +99,13 @@ const DialogContent = ({
 
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
+
+  const errorHandler = (errorMsg?: string) => {
+    const translatedError = i18n.exists(`errors.descriptive.${errorMsg}`)
+      ? t(`errors.descriptive.${errorMsg}`)
+      : t("errors.descriptive.genericError");
+    notifyError(t("ReservationDialog.saveFailed", { error: translatedError }));
+  };
 
   const onSubmit = async (values: FormValueType) => {
     try {
@@ -121,8 +126,8 @@ const DialogContent = ({
       const input: ReservationStaffCreateMutationInput = {
         reservationUnitPks: [reservationUnit.pk],
         type: values.type ?? "",
-        begin: myDateTime(new Date(values.date), values.startTime),
-        end: myDateTime(new Date(values.date), values.endTime),
+        begin: dateTime(values.date, values.startTime),
+        end: dateTime(values.date, values.endTime),
         bufferTimeBefore:
           values.bufferTimeBefore && reservationUnit.bufferTimeBefore
             ? String(reservationUnit.bufferTimeBefore)
@@ -143,11 +148,8 @@ const DialogContent = ({
       ).find(() => true);
 
       if (firstError) {
-        notifyError(
-          t("ReservationDialog.saveFailed", {
-            error: get(firstError, "messages[0]"),
-          })
-        );
+        const error = get(firstError, "messages[0]");
+        errorHandler(error);
       } else {
         notifySuccess(
           t("ReservationDialog.saveSuccess", {
@@ -157,9 +159,7 @@ const DialogContent = ({
         onClose();
       }
     } catch (e) {
-      notifyError(
-        t("ReservationDialog.saveFailed", { error: get(e, "message") })
-      );
+      errorHandler(get(e, "message"));
     }
   };
 
@@ -255,11 +255,13 @@ const CreateReservationModal = ({
         })}
       />
       {reservationUnit != null && (
-        <DialogContent
-          onClose={onClose}
-          reservationUnit={reservationUnit}
-          start={start}
-        />
+        <ErrorBoundary fallback={<div>{t("errors.uncaught")}</div>}>
+          <DialogContent
+            onClose={onClose}
+            reservationUnit={reservationUnit}
+            start={start}
+          />
+        </ErrorBoundary>
       )}
     </FixedDialog>
   );

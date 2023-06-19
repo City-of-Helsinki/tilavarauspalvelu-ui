@@ -4,9 +4,9 @@ import {
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
 import { addHours, isToday } from "date-fns";
 import { Button } from "hds-react";
+import { ButtonContainer } from "app/styles/layout";
 import DenyDialog from "./DenyDialog";
 import ApproveDialog from "./ApproveDialog";
 import ReturnToRequiredHandlingDialog from "./ReturnToRequiresHandlingDialog";
@@ -59,14 +59,6 @@ const isPossibleToEdit = (
   const now = new Date();
   return end > addHours(now, -1) || isToday(end);
 };
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2-xs);
-  width: 100%;
-  margin-bottom: var(--spacing-s);
-`;
 
 const ApprovalButtons = ({
   state,
@@ -149,12 +141,7 @@ const ApprovalButtons = ({
         </Button>
       )}
       {isAllowedToModify && (
-        <>
-          <ButtonLikeLink to="edit_time">
-            {t("ApprovalButtons.editTime")}
-          </ButtonLikeLink>
-          <ButtonLikeLink to="edit">{t("ApprovalButtons.edit")}</ButtonLikeLink>
-        </>
+        <ButtonLikeLink to="edit">{t("ApprovalButtons.edit")}</ButtonLikeLink>
       )}
     </ButtonContainer>
   );

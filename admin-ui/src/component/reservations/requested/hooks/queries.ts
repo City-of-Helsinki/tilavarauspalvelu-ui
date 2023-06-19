@@ -3,69 +3,75 @@ import { gql } from "@apollo/client";
 import {
   RESERVATION_COMMON_FRAGMENT,
   RESERVATION_META_FRAGMENT,
+  RESERVATION_RECURRING_FRAGMENT,
   RESERVATION_UNIT_FRAGMENT,
+  RESERVATION_UNIT_PRICING_FRAGMENT,
 } from "../../fragments";
 
 export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
-  query reservationsByReservationUnit(
-    $reservationUnit: [ID]
-    $offset: Int
-    $first: Int
-    $begin: DateTime
-    $end: DateTime
-  ) {
-    reservations(
-      begin: $begin
-      end: $end
-      first: $first
-      offset: $offset
-      reservationUnit: $reservationUnit
-      state: ["DENIED", "CONFIRMED", "REQUIRES_HANDLING", "WAITING_FOR_PAYMENT"]
-    ) {
-      edges {
-        node {
-          user {
-            email
-          }
-          name
-          reserveeFirstName
-          reserveeLastName
-          reserveeOrganisationName
-          pk
-          begin
-          end
-          state
-          type
-          recurringReservation {
-            pk
-          }
+  query reservationUnitByPk($pk: Int, $from: Date, $to: Date) {
+    reservationUnitByPk(pk: $pk) {
+      reservations(
+        from: $from
+        to: $to
+        state: [
+          "DENIED"
+          "CONFIRMED"
+          "REQUIRES_HANDLING"
+          "WAITING_FOR_PAYMENT"
+        ]
+        includeWithSameComponents: true
+      ) {
+        user {
+          email
         }
-      }
-      pageInfo {
-        hasNextPage
+        name
+        reserveeName
+        pk
+        begin
+        end
+        state
+        type
+        recurringReservation {
+          pk
+        }
       }
     }
   }
 `;
 
-// TODO do we need user / orderStatus?
+// Possible optmisation: this fragment is only required for some queries.
+const SPECIALISED_SINGLE_RESERVATION_FRAGMENT = gql`
+  fragment ReservationSpecialisation on ReservationType {
+    calendarUrl
+    price
+    taxPercentageValue
+    orderUuid
+    refundUuid
+    user {
+      firstName
+      lastName
+      email
+      pk
+    }
+  }
+`;
+
 export const SINGLE_RESERVATION_QUERY = gql`
   ${RESERVATION_META_FRAGMENT}
   ${RESERVATION_UNIT_FRAGMENT}
+  ${RESERVATION_UNIT_PRICING_FRAGMENT}
   ${RESERVATION_COMMON_FRAGMENT}
+  ${RESERVATION_RECURRING_FRAGMENT}
+  ${SPECIALISED_SINGLE_RESERVATION_FRAGMENT}
   query reservationByPk($pk: Int!) {
     reservationByPk(pk: $pk) {
       ...ReservationCommon
-      type
-      workingMemo
+      ...ReservationRecurring
+      ...ReservationSpecialisation
       reservationUnits {
         ...ReservationUnit
-      }
-      user {
-        firstName
-        lastName
-        email
-        pk
+        ...ReservationUnitPricing
       }
       ...ReservationMetaFields
     }

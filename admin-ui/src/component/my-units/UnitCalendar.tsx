@@ -16,7 +16,10 @@ import React, {
 } from "react";
 import Popup from "reactjs-popup";
 import styled from "styled-components";
-import { ReservationType } from "common/types/gql-types";
+import {
+  ReservationType,
+  ReservationsReservationTypeChoices,
+} from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
@@ -214,7 +217,7 @@ const PreBuffer = ({
   left: string;
   style?: CSSProperties;
 }): JSX.Element | null => {
-  const buffer = event.event?.reservationUnits?.[0]?.bufferTimeBefore;
+  const buffer = event.event?.bufferTimeBefore;
   const { t } = useTranslation();
 
   if (buffer) {
@@ -246,7 +249,7 @@ const PostBuffer = ({
   right: string;
   style?: CSSProperties;
 }): JSX.Element | null => {
-  const buffer = event.event?.reservationUnits?.[0]?.bufferTimeAfter;
+  const buffer = event.event?.bufferTimeAfter;
   const { t } = useTranslation();
 
   if (buffer) {
@@ -274,7 +277,7 @@ const getEventTitle = ({
   reservation: CalendarEvent<ReservationType>;
   t: TFunction;
 }) => {
-  if (event?.type === "blocked") {
+  if (event?.type === ReservationsReservationTypeChoices.Blocked) {
     return t("MyUnits.Calendar.legend.closed");
   }
 

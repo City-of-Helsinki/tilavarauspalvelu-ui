@@ -12,11 +12,10 @@ import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
-import { format } from "date-fns";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { toApiDate } from "common/src/common/util";
+import { toApiDate, fromUIDate, toApiDateUnsafe } from "common/src/common/util";
 import { removeRefParam } from "common/src/reservation-form/util";
 import {
   RecurringReservationFormSchema,
@@ -32,14 +31,14 @@ import { useNotification } from "../../../context/NotificationContext";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
 import { ReservationMade } from "./RecurringReservationDone";
-import { ActionsWrapper, Grid as BaseGrid, Element } from "./commonStyling";
+import { ActionsWrapper, Grid, Element } from "./commonStyling";
 import { flattenMetadata } from "../create-reservation/utils";
 import { useFilteredReservationList, useMultipleReservation } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
-import ControlledDateInput from "../components/ControlledDateInput";
 import ReservationListButton from "../../ReservationListButton";
+import ControlledDateInput from "../components/ControlledDateInput";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);
@@ -49,11 +48,6 @@ const Label = styled.p<{ $bold?: boolean }>`
 const InnerTextInput = styled(TextInput)`
   grid-column: 1 / -1;
   max-width: var(--prose-width);
-`;
-
-// max-width causes grids to overflow (forms should not overflow)
-const Grid = styled(BaseGrid)`
-  max-width: unset;
 `;
 
 const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
@@ -215,8 +209,8 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
   const checkedReservations = useFilteredReservationList({
     items: newReservations.reservations,
     reservationUnitPk: reservationUnit?.pk ?? undefined,
-    begin: getValues("startingDate"),
-    end: getValues("endingDate"),
+    begin: fromUIDate(getValues("startingDate")),
+    end: fromUIDate(getValues("endingDate")),
   });
 
   const navigate = useNavigate();
@@ -252,19 +246,18 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         metadataSetFields
       );
 
-      // Allow blocked reservations without a name
-      const name = data.seriesName || data.type === "BLOCKED" ? "BLOCKED" : "";
+      const name = data.type === "BLOCKED" ? "BLOCKED" : data.seriesName ?? "";
+
       const input: RecurringReservationCreateMutationInput = {
         reservationUnitPk: unitPk,
-        beginDate: format(data.startingDate, "yyyy-MM-dd"),
+        beginDate: toApiDateUnsafe(fromUIDate(data.startingDate)),
         beginTime: data.startTime,
-        endDate: format(data.endingDate, "yyyy-MM-dd"),
+        endDate: toApiDateUnsafe(fromUIDate(data.endingDate)),
         endTime: data.endTime,
         weekdays: data.repeatOnDays,
         recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
         name,
-        // TODO this should not be required based on the API spec but empty fails the mutation
-        description: data.comments || "toistuva varaus",
+        description: data.comments,
 
         // TODO missing fields
         // abilityGroupPk?: InputMaybe<Scalars["Int"]>;
@@ -370,7 +363,12 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
         const result: ReservationMade[] = await Promise.all(rets).then(
           (y) => y
         );
-        navigate("completed", { state: result });
+        navigate("completed", {
+          state: {
+            reservations: result,
+            recurringPk: createResponse.createRecurringReservation.pk,
+          },
+        });
       }
     } catch (e) {
       notifyError(

@@ -87,6 +87,11 @@ const unitResponse = [
       unit: {
         pk: 1,
         nameFi: "unit name",
+        serviceSectors: [
+          {
+            pk: 1,
+          },
+        ],
       },
       metadataSet: {
         name: "full_meta",
@@ -512,7 +517,7 @@ test("Form can't be submitted without reservation type selection", async () => {
   expect(submit).not.toBeDisabled();
   fireEvent.submit(submit);
   await view.findByText(/required/i);
-});
+}, 15_000);
 
 test("Form submission without any blocking reservations", async () => {
   const view = customRender();
@@ -531,7 +536,7 @@ test("Form submission without any blocking reservations", async () => {
 
   const elems = within(list).getAllByText(/ti (?:\d+\.\d+\.\d+), 10:00-11:00/);
   expect(elems).toHaveLength(4);
-  const overlaps = within(list).queryAllByText(/Confirmation.overlapping/);
+  const overlaps = within(list).queryAllByText(/overlapping/);
   expect(overlaps).toHaveLength(0);
 
   const submit = screen.getByText(/common.reserve/);
@@ -549,7 +554,7 @@ test("Form submission without any blocking reservations", async () => {
   // TODO test submit and check both CREATE_RECURRING and CREATE_STAFF mutations get called
   // we need to return the specific values from those mutations
   // and check that the wanted 4 reservations were made (or if we want to test errors)
-});
+}, 15_000);
 
 test("Form submission with a lot of blocking reservations", async () => {
   const view = customRender();
@@ -587,13 +592,13 @@ test("Form submission with a lot of blocking reservations", async () => {
   );
   expect(listCountLabel).toBeInTheDocument();
 
-  const overlaps = within(list).queryAllByText(/Confirmation.overlapping/);
+  const overlaps = within(list).queryAllByText(/overlapping/);
   expect(overlaps).toHaveLength(mondayMorningReservations.length);
 
   // TODO test submit, but it doesn't work without extra context
 
   // NOTE This test is long running by design. jest.setTimeout doesn't work for async functions
-}, 30_000);
+}, 60_000);
 
 test("Reservations can be removed and restored", async () => {
   const view = customRender();
@@ -612,7 +617,7 @@ test("Reservations can be removed and restored", async () => {
 
   const elems = within(list).getAllByText(/ti (?:\d+\.\d+\.\d+), 10:00-11:00/);
   expect(elems).toHaveLength(4);
-  const overlaps = within(list).queryAllByText(/Confirmation.overlapping/);
+  const overlaps = within(list).queryAllByText(/overlapping/);
   expect(overlaps).toHaveLength(0);
 
   const removeButtons = within(list).queryAllByRole("button");

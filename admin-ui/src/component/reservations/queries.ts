@@ -45,8 +45,6 @@ export const RESERVATIONS_QUERY = gql`
               nameFi
             }
           }
-          reserveeFirstName
-          reserveeLastName
           name
         }
       }
@@ -78,6 +76,19 @@ export const CHANGE_STAFF_RESERVATION = gql`
         field
         messages
       }
+    }
+  }
+`;
+
+export const CHANGE_RESERVATION_TIME = gql`
+  mutation staffAdjustReservationTime(
+    $input: ReservationStaffAdjustTimeMutationInput!
+  ) {
+    staffAdjustReservationTime(input: $input) {
+      pk
+      begin
+      end
+      state
     }
   }
 `;

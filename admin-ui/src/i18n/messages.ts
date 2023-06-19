@@ -52,12 +52,18 @@ const translations: ITranslations = {
   },
   AuthState: { initializing: ["Alustetaan..."] },
   ReserveeType: {
-    INDIVIDUAL: ["Yksityishenkilö"],
-    BUSINESS: ["Yritys"],
+    INDIVIDUAL: ["yksityishenkilö"],
+    BUSINESS: ["yritys"],
     NONPROFIT: {
-      REGISTERED: ["Yhdistys, rekisteröity"],
-      UNREGISTERED: ["Yhdistys, rekisteröimätön"],
+      REGISTERED: ["yhdistys, rekisteröity"],
+      UNREGISTERED: ["yhdistys, rekisteröimätön"],
     },
+  },
+  ReservationType: {
+    NORMAL: [""],
+    BLOCKED: ["Suljettu"],
+    BEHALF: ["Asiakkaan puolesta"],
+    STAFF: ["Sisäinen varaus"],
   },
   paymentType: {
     INVOICE: ["Laskutus"],
@@ -196,6 +202,17 @@ const translations: ITranslations = {
     authorizationNeeded: ["Oikeudet vaaditaan"],
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
+    uncaught: ["Odottamaton virhe"],
+    errorRecurringReservationsDoneDisplay: [
+      "Virhe varaus tehty, mutta sen näyttäminen epäonnistui.",
+    ],
+    noPermission: ["Sinulla ei ole käyttöoikeutta."],
+    descriptive: {
+      "Overlapping reservations are not allowed.": [
+        "Ajankohdalle on jo varaus toisen varausyksikön kautta.",
+      ],
+      genericError: [""],
+    },
   },
   breadcrumb: {
     frontpage: ["Etusivu"],
@@ -324,8 +341,9 @@ const translations: ITranslations = {
         removed: ["Poistettu"],
         overlapping: ["Ei saatavilla"],
         title: ["Toistuva varaus tehty"],
-        failedTitle: ["Epäonnistuneet varaukset"],
-        successTitle: ["Varaukset"],
+        allFailedTitle: ["Toistuvaa varausta ei voitu tehdä"],
+        failedSubtitle: ["Epäonnistuneet varaukset"],
+        successSubtitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
         failureInfo: [
           "{{conflicts}} / {{total}} epäonnistui päällekkäisyyksien takia.",
@@ -343,6 +361,7 @@ const translations: ITranslations = {
           "ApolloError: Overlapping reservations are not allowed.": [
             "Aika ei saatavilla",
           ],
+          default: ["Aika ei saatavilla"],
         },
         buttonToUnit: ["Palaa toimipisteen sivulle"],
         buttonToReservation: ["Siirry varauksen sivulle"],
@@ -809,7 +828,20 @@ const translations: ITranslations = {
     generatingDocument: ["Dokumenttia luodaan"],
     errorGeneratingDocument: ["Dokumenttia ei pystytty luomaan"],
     EditTime: {
-      title: ["Muokkaa varauksen aikaa"],
+      buttonName: ["Muuta aikaa"],
+      title: ["Muuta varauksen aikaa"],
+      newTime: ["Uusi aika"],
+      originalTime: ["Muutettava aika"],
+      accept: ["Muuta aikaa"],
+      successToast: ["Uusi aika tallennettu"],
+      form: {
+        startTime: ["Aloitusaika"],
+        length: ["Kesto"],
+      },
+      error: {
+        mutation: ["Ajan muutos epäonnistui."],
+        reservationCollides: ["Toivomasi aika ei ole saatavilla"],
+      },
     },
     EditPage: {
       title: ["Muokkaa varauksen tietoja"],
@@ -817,6 +849,7 @@ const translations: ITranslations = {
       "Reservation unit failed to load": ["Varausyksikköä ei löytynyt"],
       save: ["Tallenna"],
       saveSuccess: ["Varauksen muutokset tallennettu"],
+      saveSuccessRecurring: ["Muutokset tallennettu tuleviin varauksiin!"],
       saveError: ["Varauksen muutos epäonnistui"],
       pageThrewError: ["Virhe: varausta ei voi muokata"],
     },
@@ -1108,7 +1141,7 @@ const translations: ITranslations = {
     // dialog specific
     title: ["Varaa {{reservationUnit}}"],
     accept: ["Varaa"],
-    saveFailed: ["Tallennus ei onnistunut: {{error}}"],
+    saveFailed: ["Tallennus ei onnistunut. {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
   },
   ReservationUnits: {
@@ -1737,7 +1770,7 @@ const translations: ITranslations = {
   },
 
   ApprovalButtons: {
-    edit: ["Muuta tietoja"],
+    edit: ["Muokkaa"],
     editTime: ["Muuta aikaa"],
     recurring: {
       rejectAllButton: ["Hylkää kaikki"],
