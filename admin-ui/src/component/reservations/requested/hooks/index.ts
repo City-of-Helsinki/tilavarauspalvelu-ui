@@ -10,7 +10,7 @@ import {
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@apollo/client";
-import { format } from "date-fns";
+import { toApiDateUnsafe } from "common/src/common/util";
 import {
   RECURRING_RESERVATION_QUERY,
   RESERVATIONS_BY_RESERVATIONUNIT,
@@ -23,13 +23,19 @@ import { GQL_MAX_RESULTS_PER_QUERY } from "../../../../common/const";
 
 export { default as usePermission } from "./usePermission";
 
-const getEventName = (eventType?: string, title?: string) =>
-  eventType === "blocked" ? "Suljettu" : title?.trim();
+const getEventName = (
+  eventType?: string,
+  title?: string,
+  blockedName?: string
+) => (eventType === "blocked" ? blockedName : title?.trim());
 
 const getReservationTitle = (r: ReservationType) => r.reserveeName ?? "";
 
-const convertReservationToCalendarEvent = (r: ReservationType) => ({
-  title: getEventName(r.type ?? undefined, getReservationTitle(r)),
+const convertReservationToCalendarEvent = (
+  r: ReservationType,
+  blockedName: string
+) => ({
+  title: getEventName(r.type ?? undefined, getReservationTitle(r), blockedName),
   event: {
     ...r,
     name: r.name?.trim() !== "" ? r.name : "No name",
@@ -54,6 +60,7 @@ export const useReservationData = (
   reservationPk?: number
 ) => {
   const { notifyError } = useNotification();
+  const { t } = useTranslation();
 
   const { data, ...rest } = useQuery<
     Query,
@@ -62,19 +69,21 @@ export const useReservationData = (
     fetchPolicy: "no-cache",
     variables: {
       pk: Number(reservationUnitPk),
-      from: format(begin, "yyyy-MM-dd"),
-      to: format(end, "yyyy-MM-dd"),
+      from: toApiDateUnsafe(begin, "yyyy-MM-dd"),
+      to: toApiDateUnsafe(end, "yyyy-MM-dd"),
     },
     onError: () => {
       notifyError("Varauksia ei voitu hakea");
     },
   });
 
+  const blockedName = t("ReservationUnits.reservationState.RESERVATION_CLOSED");
+
   const events =
     data?.reservationUnitByPk?.reservations
       ?.filter((r): r is ReservationType => r != null)
       ?.filter((r) => shouldBeShownInTheCalendar(r, reservationPk))
-      ?.map((r) => convertReservationToCalendarEvent(r)) ?? [];
+      ?.map((r) => convertReservationToCalendarEvent(r, blockedName)) ?? [];
 
   return { ...rest, events };
 };
