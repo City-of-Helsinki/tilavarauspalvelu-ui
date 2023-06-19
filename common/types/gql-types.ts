@@ -2613,6 +2613,8 @@ export type ReservationRequiresHandlingMutationPayload = {
 
 export type ReservationStaffAdjustTimeMutationInput = {
   begin: Scalars["DateTime"];
+  bufferTimeAfter?: InputMaybe<Scalars["String"]>;
+  bufferTimeBefore?: InputMaybe<Scalars["String"]>;
   clientMutationId?: InputMaybe<Scalars["String"]>;
   end: Scalars["DateTime"];
   pk: Scalars["Int"];
@@ -2622,6 +2624,8 @@ export type ReservationStaffAdjustTimeMutationInput = {
 export type ReservationStaffAdjustTimeMutationPayload = {
   __typename?: "ReservationStaffAdjustTimeMutationPayload";
   begin?: Maybe<Scalars["DateTime"]>;
+  bufferTimeAfter?: Maybe<Scalars["String"]>;
+  bufferTimeBefore?: Maybe<Scalars["String"]>;
   clientMutationId?: Maybe<Scalars["String"]>;
   end?: Maybe<Scalars["DateTime"]>;
   /** May contain more than one error for same field. */
@@ -2869,6 +2873,7 @@ export type ReservationType = Node & {
   homeCity?: Maybe<CityType>;
   /** The ID of the object */
   id: Scalars["ID"];
+  isBlocked?: Maybe<Scalars["Boolean"]>;
   isHandled?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
   numPersons?: Maybe<Scalars["Int"]>;
@@ -2899,7 +2904,8 @@ export type ReservationType = Node & {
   staffEvent?: Maybe<Scalars["Boolean"]>;
   state: ReservationsReservationStateChoices;
   taxPercentageValue?: Maybe<Scalars["Decimal"]>;
-  type?: Maybe<Scalars["String"]>;
+  /** Type of reservation */
+  type?: Maybe<ReservationsReservationTypeChoices>;
   unitPrice?: Maybe<Scalars["Float"]>;
   user?: Maybe<UserType>;
   /** Working memo for staff users. */
@@ -3953,6 +3959,17 @@ export enum ReservationsReservationStateChoices {
   RequiresHandling = "REQUIRES_HANDLING",
   /** waiting_for_payment */
   WaitingForPayment = "WAITING_FOR_PAYMENT",
+}
+
+export enum ReservationsReservationTypeChoices {
+  /** Behalf */
+  Behalf = "BEHALF",
+  /** Blocked */
+  Blocked = "BLOCKED",
+  /** Normal */
+  Normal = "NORMAL",
+  /** Staff */
+  Staff = "STAFF",
 }
 
 export type ResourceCreateMutationInput = {

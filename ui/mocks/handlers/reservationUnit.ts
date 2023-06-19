@@ -1091,7 +1091,7 @@ const openingHoursQuery = graphql.query<
             id: "fajweoifmaw83rj3w90=",
             pk: 7,
             state: "CREATED",
-            type: "blocked",
+            isBlocked: true,
             priority: "A_200",
             begin: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 2), {
               hours: 18,
@@ -1115,7 +1115,7 @@ const openingHoursQuery = graphql.query<
             id: "aoweifjkiorng849=",
             pk: 7,
             state: "CREATED",
-            type: "normal",
+            isBlocked: false,
             priority: "A_200",
             begin: set(addDays(endOfWeek(new Date(), { weekStartsOn: 1 }), 3), {
               hours: 18,

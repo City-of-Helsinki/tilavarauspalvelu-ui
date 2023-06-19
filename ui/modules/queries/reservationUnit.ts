@@ -330,7 +330,7 @@ export const OPENING_HOURS = gql`
       ) {
         pk
         state
-        type
+        isBlocked
         priority
         begin
         end
