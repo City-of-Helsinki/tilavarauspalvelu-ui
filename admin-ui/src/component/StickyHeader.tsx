@@ -1,9 +1,10 @@
+import { ButtonContainer } from "app/styles/layout";
 import { breakpoints } from "common/src/common/style";
 import React from "react";
 import styled from "styled-components";
 
 const Sticky = styled.div`
-  z-index: 101;
+  z-index: var(--tilavaraus-admin-stack-sticky-reservation-header);
   position: sticky;
   top: 0px;
   width: 100%;
@@ -13,32 +14,30 @@ const Sticky = styled.div`
 
 const StickyContent = styled.div`
   color: var(--color-white);
-  background: var(--color-bus);
-  border-width: 1px 0;
+  background: var(--color-bus-dark);
+  border-width: 0px;
   border-style: solid;
   border-color: var(--color-black-20);
-  padding: var(--spacing-2-xs) var(--spacing-s) var(--spacing-2-xs) 48px;
+  padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   gap: var(--spacing-s);
   line-height: 1.5;
-  button,
-  a {
-    border-color: var(--color-white) !important;
-    color: var(--color-white) !important;
+  && button,
+  && a {
+    border-color: var(--color-white);
+    color: var(--color-white);
+    &:hover,
+    &:focus-within {
+      background-color: unset;
+      color: var(--color-black-10);
+      border-color: var(--color-black-10);
+    }
   }
-  @media (max-width: ${breakpoints.s}) {
-    padding: var(--spacing-xs) var(--spacing-s);
+  @media (max-width: ${breakpoints.l}) {
     flex-direction: column;
   }
-`;
-
-const AlignVertically = styled.div`
-  display: flex;
-  gap: var(--spacing-m);
-  flex-direction: row;
-  align-items: center;
 `;
 
 const Name = styled.div`
@@ -46,6 +45,16 @@ const Name = styled.div`
 `;
 const Tagline = styled.div`
   font-size: var(--fontsize-body-l);
+`;
+
+const StyledButtonContainer = styled(ButtonContainer)`
+  margin: 0;
+  flex-shrink: 1;
+  align-items: center;
+  justify-content: flex-end;
+  @media (max-width: ${breakpoints.s}) {
+    justify-content: space-between;
+  }
 `;
 
 type Props = {
@@ -57,11 +66,11 @@ type Props = {
 const StickyHeader = ({ name, tagline, buttons }: Props): JSX.Element => (
   <Sticky>
     <StickyContent>
-      <div>
+      <div style={{ flexShrink: 1 }}>
         <Name>{name}</Name>
         <Tagline>{tagline}</Tagline>
       </div>
-      <AlignVertically>{buttons}</AlignVertically>
+      <StyledButtonContainer>{buttons}</StyledButtonContainer>
     </StickyContent>
   </Sticky>
 );

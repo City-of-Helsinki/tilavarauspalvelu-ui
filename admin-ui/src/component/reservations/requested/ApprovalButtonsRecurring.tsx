@@ -17,10 +17,12 @@ const ApprovalButtonsRecurring = ({
   recurringReservation,
   handleClose,
   handleAccept,
+  disableNonEssentialButtons,
 }: {
   recurringReservation: RecurringReservationType;
   handleClose: () => void;
   handleAccept: () => void;
+  disableNonEssentialButtons?: boolean;
 }) => {
   const { setModalContent } = useModal();
   const { t } = useTranslation();
@@ -86,7 +88,9 @@ const ApprovalButtonsRecurring = ({
       <Button {...btnCommon} onClick={handleDenyClick}>
         {t("ApprovalButtons.recurring.rejectAllButton")}
       </Button>
-      <ButtonLikeLink to="edit">{t("ApprovalButtons.edit")}</ButtonLikeLink>
+      {!disableNonEssentialButtons && (
+        <ButtonLikeLink to="edit">{t("ApprovalButtons.edit")}</ButtonLikeLink>
+      )}
     </ButtonContainer>
   );
 };
