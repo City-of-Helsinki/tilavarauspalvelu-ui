@@ -44,17 +44,21 @@ export const useMultipleReservation = ({
     interval
   );
 
+  const isBlocked = watch("type") === "BLOCKED";
+
   return {
     ...result,
     reservations: result.reservations.map((item) => ({
       ...item,
       buffers: {
-        before: watch("bufferTimeBefore")
-          ? reservationUnit?.bufferTimeBefore ?? 0
-          : 0,
-        after: watch("bufferTimeAfter")
-          ? reservationUnit?.bufferTimeAfter ?? 0
-          : 0,
+        before:
+          watch("bufferTimeBefore") && !isBlocked
+            ? reservationUnit?.bufferTimeBefore ?? 0
+            : 0,
+        after:
+          watch("bufferTimeAfter") && !isBlocked
+            ? reservationUnit?.bufferTimeAfter ?? 0
+            : 0,
       },
     })),
   };
