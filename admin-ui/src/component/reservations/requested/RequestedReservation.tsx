@@ -294,6 +294,11 @@ const TimeBlock = ({
     reservation?.pk ?? undefined
   );
 
+  const handleChanged = () => {
+    onReservationUpdated();
+    calendarRefetch();
+  };
+
   return (
     <>
       {reservation.recurringReservation?.pk && (
@@ -302,11 +307,8 @@ const TimeBlock = ({
           <RecurringReservationsView
             recurringPk={reservation.recurringReservation.pk}
             onSelect={setSelected}
-            onReservationUpdated={onReservationUpdated}
-            onChange={() => {
-              onReservationUpdated();
-              calendarRefetch();
-            }}
+            onReservationUpdated={handleChanged}
+            onChange={handleChanged}
           />
         </Accordion>
       )}
@@ -321,7 +323,12 @@ const TimeBlock = ({
           focusDate={focusDate}
           refetch={(d) => {
             onReservationUpdated();
-            setFocusDate(d);
+            // NOTE set focus date to refetch calendar data, but don't double refetch
+            if (!d || focusDate === d) {
+              calendarRefetch();
+            } else {
+              setFocusDate(d);
+            }
           }}
           events={eventsAll}
         />

@@ -12,7 +12,7 @@ import { isPossibleToEdit } from "./reservationModificationRules";
 
 type Props = {
   reservation: ReservationType;
-  refetch?: (focusDate: Date) => void;
+  refetch?: (focusDate?: Date) => void;
   selected?: ReservationType;
   focusDate: Date;
   events: Array<{
@@ -48,12 +48,11 @@ const Calendar = ({
   reservation,
   selected,
   refetch,
-  focusDate: initialFocusDate,
+  focusDate,
   events: eventsAll,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { setModalContent } = useModal();
-  const [focusDate, setFocusDate] = useState(initialFocusDate);
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
   // Because the calendar is fixed to 6 - 24 interval anything outside it causes rendering artefacts.
@@ -65,7 +64,7 @@ const Calendar = ({
 
   const handleEditAccept = () => {
     if (refetch) {
-      refetch(focusDate);
+      refetch();
     }
     setModalContent(null);
   };
@@ -103,8 +102,9 @@ const Calendar = ({
         begin={focusDate}
         eventStyleGetter={eventStyleGetter(reservation, selected)}
         onNavigate={(d: Date) => {
-          setFocusDate(d);
-          if (refetch) refetch(d);
+          if (refetch) {
+            refetch(d);
+          }
         }}
         viewType={calendarViewType}
         onView={(n: string) => {

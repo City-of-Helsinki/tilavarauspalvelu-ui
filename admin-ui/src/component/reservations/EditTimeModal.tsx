@@ -9,6 +9,7 @@ import {
   Query,
   QueryReservationUnitByPkArgs,
   ReservationType,
+  ReservationTypeConnection,
   ReservationUnitsReservationUnitReservationStartIntervalChoices,
 } from "common/types/gql-types";
 import { useForm } from "react-hook-form";
@@ -132,6 +133,65 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
       // eslint-disable-next-line no-console
       console.error("Change time mutation failed: ", error);
       notifyError(t("Reservation.EditTime.error.mutation"));
+    },
+    // TODO copy pasta from DenyReservationModal
+    update(cache, { data }) {
+      // Manually update the cache instead of invalidating the whole query
+      // because we can't invalidate single elements in the recurring list.
+      // For a single reservation doing a query invalidation is fine
+      // but doing that to a list of 2000 reservations when a single one of them gets
+      // denied would cause 5s delay and full rerender of the list on every button press.
+      cache.modify({
+        fields: {
+          // find the pk => slice the array => replace the state variable in the slice
+          reservations(existing: ReservationTypeConnection) {
+            const queryRes = data?.staffAdjustReservationTime;
+            if (queryRes?.errors) {
+              // eslint-disable-next-line no-console
+              console.error(
+                "NOT updating cache: mutation failed with: ",
+                queryRes?.errors
+              );
+            } else if (!queryRes?.errors && !queryRes?.pk) {
+              // eslint-disable-next-line no-console
+              console.error(
+                "NOT updating cache: mutation success but PK missing"
+              );
+            } else {
+              const { begin, end, pk } = queryRes;
+              const fid = existing.edges.findIndex((x) => x?.node?.pk === pk);
+              if (fid > -1 && begin && end) {
+                const cpy = structuredClone(existing.edges[fid]);
+                if (cpy?.node && begin && end) {
+                  cpy.node.begin = begin;
+                  cpy.node.end = end;
+                  return {
+                    ...existing,
+                    edges: [
+                      ...existing.edges.slice(0, fid),
+                      cpy,
+                      ...existing.edges.slice(fid + 1),
+                    ],
+                  };
+                }
+                if (!begin || !end) {
+                  // eslint-disable-next-line no-console
+                  console.error(
+                    "Cache update failed reservation found, but no begin or end time in the response"
+                  );
+                } else {
+                  // eslint-disable-next-line no-console
+                  console.error(
+                    "Cache update failed: No reservation found with pk: ",
+                    pk
+                  );
+                }
+              }
+            }
+            return existing;
+          },
+        },
+      });
     },
   });
 
