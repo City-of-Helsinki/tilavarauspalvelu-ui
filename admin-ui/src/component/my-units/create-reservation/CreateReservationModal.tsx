@@ -81,9 +81,6 @@ const StyledNotification = styled(Notification)`
   width: auto;
 `;
 
-// FIXME this doesn't work properly
-// when there exists a reservation with a buffer @ 7:00 (so 6:30 buffer)
-// we can post a reservation at 6:00 - 7:00 in the frontend but it fails on backend
 const useCheckFormCollisions = ({
   form,
   reservationUnit,
