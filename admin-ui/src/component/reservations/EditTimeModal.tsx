@@ -134,13 +134,8 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
       console.error("Change time mutation failed: ", error);
       notifyError(t("Reservation.EditTime.error.mutation"));
     },
-    // TODO copy pasta from DenyReservationModal
     update(cache, { data }) {
-      // Manually update the cache instead of invalidating the whole query
-      // because we can't invalidate single elements in the recurring list.
-      // For a single reservation doing a query invalidation is fine
-      // but doing that to a list of 2000 reservations when a single one of them gets
-      // denied would cause 5s delay and full rerender of the list on every button press.
+      // NOTE: recurring uses a long list of reservations that is cached, manual update needed
       cache.modify({
         fields: {
           // find the pk => slice the array => replace the state variable in the slice

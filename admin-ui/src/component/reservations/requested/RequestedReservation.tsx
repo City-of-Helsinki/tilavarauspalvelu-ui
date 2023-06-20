@@ -303,7 +303,6 @@ const TimeBlock = ({
     <>
       {reservation.recurringReservation?.pk && (
         <Accordion heading={t("RequestedReservation.recurring")}>
-          {/* TODO changes do update the calendar; but what happens if we change an event on another week? */}
           <RecurringReservationsView
             recurringPk={reservation.recurringReservation.pk}
             onSelect={setSelected}
@@ -323,7 +322,7 @@ const TimeBlock = ({
           focusDate={focusDate}
           refetch={(d) => {
             onReservationUpdated();
-            // NOTE set focus date to refetch calendar data, but don't double refetch
+            // NOTE setting focus date refetches calendar data, don't double refetch
             if (!d || focusDate === d) {
               calendarRefetch();
             } else {
