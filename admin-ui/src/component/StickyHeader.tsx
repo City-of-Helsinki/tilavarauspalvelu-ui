@@ -40,21 +40,35 @@ const StickyContent = styled.div`
   }
 `;
 
-const Name = styled.div`
-  font-size: var(--fontsize-body-xl);
+const Name = styled.h2`
+  font-size: var(--fontsize-heading-m);
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: var(--spacing-s);
+  @media (max-width: ${breakpoints.s}) {
+    font-size: var(--fontsize-heading-xs);
+    margin-bottom: var(--spacing-2-xs);
+  }
 `;
 const Tagline = styled.div`
-  font-size: var(--fontsize-body-l);
+  font-size: var(--fontsize-body-m);
 `;
 
 const StyledButtonContainer = styled(ButtonContainer)`
   margin: 0;
-  flex-shrink: 1;
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: auto;
   align-items: center;
   justify-content: flex-end;
   @media (max-width: ${breakpoints.s}) {
     justify-content: space-between;
   }
+`;
+
+const TagContainer = styled.div`
+  flex-grow: 1;
+  flex-shrink: 1;
 `;
 
 type Props = {
@@ -66,10 +80,10 @@ type Props = {
 const StickyHeader = ({ name, tagline, buttons }: Props): JSX.Element => (
   <Sticky>
     <StickyContent>
-      <div style={{ flexShrink: 1 }}>
+      <TagContainer>
         <Name>{name}</Name>
         <Tagline>{tagline}</Tagline>
-      </div>
+      </TagContainer>
       <StyledButtonContainer>{buttons}</StyledButtonContainer>
     </StickyContent>
   </Sticky>
