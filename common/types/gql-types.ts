@@ -737,7 +737,6 @@ export enum ApplicationsOrganisationOrganisationTypeChoices {
 
 export type BuildingType = Node & {
   __typename?: "BuildingType";
-  district?: Maybe<DistrictType>;
   /** The ID of the object */
   id: Scalars["ID"];
   nameEn?: Maybe<Scalars["String"]>;
@@ -775,16 +774,6 @@ export type CityTypeEdge = {
   cursor: Scalars["String"];
   /** The item at the end of the edge */
   node?: Maybe<CityType>;
-};
-
-export type DistrictType = Node & {
-  __typename?: "DistrictType";
-  /** The ID of the object */
-  id: Scalars["ID"];
-  nameEn?: Maybe<Scalars["String"]>;
-  nameFi?: Maybe<Scalars["String"]>;
-  nameSv?: Maybe<Scalars["String"]>;
-  pk?: Maybe<Scalars["Int"]>;
 };
 
 export type EquipmentCategoryCreateMutationInput = {
@@ -2024,7 +2013,6 @@ export type QueryUserArgs = {
 
 export type RealEstateType = Node & {
   __typename?: "RealEstateType";
-  district?: Maybe<DistrictType>;
   /** The ID of the object */
   id: Scalars["ID"];
   nameEn?: Maybe<Scalars["String"]>;
@@ -2950,6 +2938,7 @@ export type ReservationUnitByPkType = Node & {
   nameEn?: Maybe<Scalars["String"]>;
   nameFi?: Maybe<Scalars["String"]>;
   nameSv?: Maybe<Scalars["String"]>;
+  /** @deprecated Old deprecated scalar. Does not yield any return. */
   nextAvailableSlot?: Maybe<Scalars["DateTime"]>;
   openingHours?: Maybe<OpeningHoursType>;
   paymentMerchant?: Maybe<PaymentMerchantType>;
@@ -3165,7 +3154,7 @@ export type ReservationUnitCreateMutationPayload = {
   descriptionSv?: Maybe<Scalars["String"]>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  /** Images of the reservation unit as nested related objects. */
+  /** Images of the reservation unit as nested related objects.  */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
   /** Is reservation unit archived */
   isArchived?: Maybe<Scalars["Boolean"]>;
@@ -3638,7 +3627,7 @@ export type ReservationUnitUpdateMutationPayload = {
   descriptionSv?: Maybe<Scalars["String"]>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  /** Images of the reservation unit as nested related objects. */
+  /** Images of the reservation unit as nested related objects.  */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
   /** Is reservation unit archived */
   isArchived?: Maybe<Scalars["Boolean"]>;
@@ -4176,8 +4165,6 @@ export enum ServicesServiceServiceTypeChoices {
 export type SpaceCreateMutationInput = {
   clientMutationId?: InputMaybe<Scalars["String"]>;
   code?: InputMaybe<Scalars["String"]>;
-  /** PK of the district for this space. */
-  districtPk?: InputMaybe<Scalars["Int"]>;
   maxPersons?: InputMaybe<Scalars["Int"]>;
   nameEn?: InputMaybe<Scalars["String"]>;
   nameFi: Scalars["String"];
@@ -4192,8 +4179,6 @@ export type SpaceCreateMutationPayload = {
   __typename?: "SpaceCreateMutationPayload";
   clientMutationId?: Maybe<Scalars["String"]>;
   code?: Maybe<Scalars["String"]>;
-  /** PK of the district for this space. */
-  districtPk?: Maybe<Scalars["Int"]>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
   maxPersons?: Maybe<Scalars["Int"]>;
@@ -4259,8 +4244,6 @@ export type SpaceTypeEdge = {
 export type SpaceUpdateMutationInput = {
   clientMutationId?: InputMaybe<Scalars["String"]>;
   code?: InputMaybe<Scalars["String"]>;
-  /** PK of the district for this space. */
-  districtPk?: InputMaybe<Scalars["Int"]>;
   maxPersons?: InputMaybe<Scalars["Int"]>;
   nameEn?: InputMaybe<Scalars["String"]>;
   nameFi?: InputMaybe<Scalars["String"]>;
@@ -4276,8 +4259,6 @@ export type SpaceUpdateMutationPayload = {
   __typename?: "SpaceUpdateMutationPayload";
   clientMutationId?: Maybe<Scalars["String"]>;
   code?: Maybe<Scalars["String"]>;
-  /** PK of the district for this space. */
-  districtPk?: Maybe<Scalars["Int"]>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
   maxPersons?: Maybe<Scalars["Int"]>;

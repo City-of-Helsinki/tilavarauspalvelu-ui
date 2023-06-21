@@ -32,6 +32,8 @@ export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
         end
         state
         type
+        bufferTimeBefore
+        bufferTimeAfter
         recurringReservation {
           pk
         }
@@ -54,6 +56,8 @@ const SPECIALISED_SINGLE_RESERVATION_FRAGMENT = gql`
       email
       pk
     }
+    bufferTimeBefore
+    bufferTimeAfter
   }
 `;
 
