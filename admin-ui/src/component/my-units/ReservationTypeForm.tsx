@@ -1,12 +1,6 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import {
-  Accordion,
-  RadioButton,
-  SelectionGroup,
-  TextArea,
-  Tooltip,
-} from "hds-react";
+import { Accordion, RadioButton, SelectionGroup, TextArea } from "hds-react";
 import type { ReservationUnitType } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
