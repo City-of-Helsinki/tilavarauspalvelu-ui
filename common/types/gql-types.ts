@@ -1946,16 +1946,8 @@ export type QueryResourcesArgs = {
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
-  nameEn?: InputMaybe<Scalars["String"]>;
-  nameEn_Icontains?: InputMaybe<Scalars["String"]>;
-  nameEn_Istartswith?: InputMaybe<Scalars["String"]>;
-  nameFi?: InputMaybe<Scalars["String"]>;
-  nameFi_Icontains?: InputMaybe<Scalars["String"]>;
-  nameFi_Istartswith?: InputMaybe<Scalars["String"]>;
-  nameSv?: InputMaybe<Scalars["String"]>;
-  nameSv_Icontains?: InputMaybe<Scalars["String"]>;
-  nameSv_Istartswith?: InputMaybe<Scalars["String"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+  onlyWithPermission?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export type QueryServiceSectorsArgs = {
@@ -1979,16 +1971,8 @@ export type QuerySpacesArgs = {
   before?: InputMaybe<Scalars["String"]>;
   first?: InputMaybe<Scalars["Int"]>;
   last?: InputMaybe<Scalars["Int"]>;
-  nameEn?: InputMaybe<Scalars["String"]>;
-  nameEn_Icontains?: InputMaybe<Scalars["String"]>;
-  nameEn_Istartswith?: InputMaybe<Scalars["String"]>;
-  nameFi?: InputMaybe<Scalars["String"]>;
-  nameFi_Icontains?: InputMaybe<Scalars["String"]>;
-  nameFi_Istartswith?: InputMaybe<Scalars["String"]>;
-  nameSv?: InputMaybe<Scalars["String"]>;
-  nameSv_Icontains?: InputMaybe<Scalars["String"]>;
-  nameSv_Istartswith?: InputMaybe<Scalars["String"]>;
   offset?: InputMaybe<Scalars["Int"]>;
+  onlyWithPermission?: InputMaybe<Scalars["Boolean"]>;
 };
 
 export type QueryTaxPercentagesArgs = {
@@ -2873,6 +2857,7 @@ export type ReservationType = Node & {
   homeCity?: Maybe<CityType>;
   /** The ID of the object */
   id: Scalars["ID"];
+  isBlocked?: Maybe<Scalars["Boolean"]>;
   isHandled?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
   numPersons?: Maybe<Scalars["Int"]>;
@@ -3180,7 +3165,7 @@ export type ReservationUnitCreateMutationPayload = {
   descriptionSv?: Maybe<Scalars["String"]>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  /** Images of the reservation unit as nested related objects.  */
+  /** Images of the reservation unit as nested related objects. */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
   /** Is reservation unit archived */
   isArchived?: Maybe<Scalars["Boolean"]>;
@@ -3653,7 +3638,7 @@ export type ReservationUnitUpdateMutationPayload = {
   descriptionSv?: Maybe<Scalars["String"]>;
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
-  /** Images of the reservation unit as nested related objects.  */
+  /** Images of the reservation unit as nested related objects. */
   images?: Maybe<Array<Maybe<ReservationUnitImageType>>>;
   /** Is reservation unit archived */
   isArchived?: Maybe<Scalars["Boolean"]>;
