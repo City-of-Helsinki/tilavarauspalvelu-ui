@@ -62,6 +62,7 @@ const StyledButtonContainer = styled(ButtonContainer)`
   width: auto;
   align-items: center;
   justify-content: flex-end;
+  flex-direction: row-reverse;
   @media (max-width: ${breakpoints.s}) {
     justify-content: space-between;
   }
