@@ -1,21 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type {
-  ErrorType,
-  RecurringReservationCreateMutationInput,
-  RecurringReservationCreateMutationPayload,
-  ReservationStaffCreateMutationInput,
-  ReservationStaffCreateMutationPayload,
-  ReservationUnitType,
-} from "common/types/gql-types";
+import type { ReservationUnitType } from "common/types/gql-types";
 import { camelCase, get } from "lodash";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useMutation } from "@apollo/client";
 import { Button, TextInput } from "hds-react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { toApiDate, fromUIDate, toApiDateUnsafe } from "common/src/common/util";
+import { fromUIDate } from "common/src/common/util";
 import { removeRefParam } from "common/src/reservation-form/util";
 import {
   RecurringReservationFormSchema,
@@ -26,14 +18,13 @@ import { WeekdaysSelector } from "./WeekdaysSelector";
 import ReservationList, {
   NewReservationListItem,
 } from "../../ReservationsList";
-import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { useNotification } from "../../../context/NotificationContext";
-import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
-import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
-import { ReservationMade } from "./RecurringReservationDone";
 import { ActionsWrapper, Grid, Element } from "./commonStyling";
-import { flattenMetadata } from "../create-reservation/utils";
-import { useFilteredReservationList, useMultipleReservation } from "./hooks";
+import {
+  useCreateRecurringReservation,
+  useFilteredReservationList,
+  useMultipleReservation,
+} from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
@@ -123,168 +114,6 @@ const ReservationListEditor = ({
   return (
     <ReservationList key="list-editor" items={itemsWithButtons} hasPadding />
   );
-};
-
-// TODO this is common with the ReservationForm combine them
-const myDateTime = (date: Date, time: string) => {
-  const maybeDateString = toApiDate(date, "dd.MM.yyyy");
-  return maybeDateString ? dateTime(maybeDateString, time) : undefined;
-};
-
-const useCreateRecurringReservation = () => {
-  const [create] = useMutation<
-    { createRecurringReservation: RecurringReservationCreateMutationPayload },
-    { input: RecurringReservationCreateMutationInput }
-  >(CREATE_RECURRING_RESERVATION);
-
-  const createRecurringReservation = (
-    input: RecurringReservationCreateMutationInput
-  ) => create({ variables: { input } });
-
-  const [createReservationMutation] = useMutation<
-    { createStaffReservation: ReservationStaffCreateMutationPayload },
-    { input: ReservationStaffCreateMutationInput }
-  >(CREATE_STAFF_RESERVATION);
-
-  const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
-    createReservationMutation({ variables: { input } });
-
-  const { t } = useTranslation();
-  const { notifyError } = useNotification();
-  const handleError = (error = "") => {
-    notifyError(t("ReservationDialog.saveFailed", { error }));
-  };
-
-  const makeSingleReservation = async (
-    reservation: NewReservationListItem,
-    input: Omit<ReservationStaffCreateMutationInput, "begin" | "end">
-  ) => {
-    const x = reservation;
-    const common = {
-      startTime: x.startTime,
-      endTime: x.endTime,
-      date: x.date,
-    };
-
-    try {
-      const begin = myDateTime(x.date, x.startTime);
-      const end = myDateTime(x.date, x.endTime);
-
-      if (!begin || !end) {
-        throw new Error("Invalid date selected");
-      }
-      const staffInput = {
-        ...input,
-        begin,
-        end,
-      };
-
-      const { data: staffData } = await createStaffReservation(staffInput);
-
-      if (staffData == null) {
-        return {
-          ...common,
-          reservationPk: undefined,
-          error: "Null error",
-        };
-      }
-
-      const { createStaffReservation: response } = staffData;
-
-      // TODO When does the graphql send errors as data? oposed to exceptions
-      if (response.errors != null) {
-        return {
-          ...common,
-          reservationPk: undefined,
-          error:
-            response.errors.filter((y): y is ErrorType => y != null) ??
-            "unkown error",
-        };
-      }
-      return {
-        ...common,
-        reservationPk: response.pk ?? undefined,
-        error: undefined,
-      };
-    } catch (e) {
-      // This happens at least when the start time is in the past
-      // or if there is a another reservation on that time slot
-      return {
-        ...common,
-        reservationPk: undefined,
-        error: String(e),
-      };
-    }
-  };
-
-  // NOTE unsafe
-  const mutate = async (
-    data: RecurringReservationForm,
-    reservationsToMake: NewReservationListItem[],
-    unitPk: number,
-    metaFields: string[],
-    buffers: { before?: number; after?: number }
-  ) => {
-    const metadataSetFields = metaFields;
-
-    const flattenedMetadataSetValues = flattenMetadata(data, metadataSetFields);
-
-    const name = data.type === "BLOCKED" ? "BLOCKED" : data.seriesName ?? "";
-
-    const input: RecurringReservationCreateMutationInput = {
-      reservationUnitPk: unitPk,
-      beginDate: toApiDateUnsafe(fromUIDate(data.startingDate)),
-      beginTime: data.startTime,
-      endDate: toApiDateUnsafe(fromUIDate(data.endingDate)),
-      endTime: data.endTime,
-      weekdays: data.repeatOnDays,
-      recurrenceInDays: data.repeatPattern.value === "weekly" ? 7 : 14,
-      name,
-      description: data.comments,
-
-      // TODO missing fields
-      // abilityGroupPk?: InputMaybe<Scalars["Int"]>;
-      // ageGroupPk?: InputMaybe<Scalars["Int"]>;
-      // clientMutationId?: InputMaybe<Scalars["String"]>;
-      // user?: InputMaybe<Scalars["String"]>;
-    };
-
-    const { data: createResponse } = await createRecurringReservation(input);
-
-    if (
-      createResponse?.createRecurringReservation == null ||
-      createResponse?.createRecurringReservation.errors != null
-    ) {
-      // Why is this done like this (taken from single reservation)?
-      const firstError = (
-        createResponse?.createRecurringReservation?.errors || []
-      ).find(() => true);
-
-      const errorMessage = get(firstError, "messages[0]");
-      handleError(errorMessage);
-      return [undefined, []] as const;
-    }
-    const staffInput = {
-      reservationUnitPks: [unitPk],
-      recurringReservationPk: createResponse.createRecurringReservation.pk,
-      type: data.type,
-      bufferTimeBefore: buffers.before ? String(buffers.before) : undefined,
-      bufferTimeAfter: buffers.after ? String(buffers.after) : undefined,
-      workingMemo: data.comments,
-      ...flattenedMetadataSetValues,
-    };
-
-    // TODO wrap this in a retryOnce
-    // TODO split the array into two parts fail fast on the first if all requests fail
-    const rets = reservationsToMake.map(async (x) =>
-      makeSingleReservation(x, staffInput)
-    );
-
-    const result: ReservationMade[] = await Promise.all(rets).then((y) => y);
-    return [createResponse.createRecurringReservation.pk ?? undefined, result];
-  };
-
-  return { mutate };
 };
 
 type Props = {
