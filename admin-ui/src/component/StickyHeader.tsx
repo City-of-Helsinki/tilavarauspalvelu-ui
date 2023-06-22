@@ -65,6 +65,13 @@ const StyledButtonContainer = styled(ButtonContainer)`
   flex-direction: row-reverse;
   @media (max-width: ${breakpoints.s}) {
     justify-content: space-between;
+    & > button {
+      flex: 1;
+      max-width: 50%;
+      & > {
+        whitespace: nowrap;
+      }
+    }
   }
 `;
 
