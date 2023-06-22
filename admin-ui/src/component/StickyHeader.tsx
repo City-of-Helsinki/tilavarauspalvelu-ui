@@ -43,6 +43,7 @@ const StickyContent = styled.div`
 const Name = styled.h2`
   font-size: var(--fontsize-heading-m);
   font-weight: 500;
+  font-family: var(--tilavaraus-admin-font-medium);
   margin-top: 0;
   margin-bottom: var(--spacing-s);
   @media (max-width: ${breakpoints.s}) {
