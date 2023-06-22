@@ -1,11 +1,9 @@
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
 import { addDays, addHours, format, setMinutes, subDays } from "date-fns";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { expect, test, describe } from "@jest/globals";
-import { formatDate } from "../../../common/util";
-import { ReservationFormSchema } from "./validator";
+import { ReservationFormSchema } from "./reservation";
 
 const TIME_FORMAT = "HH:mm";
+const DATE_FORMAT = "dd.MM.yyyy";
 
 describe("with schema", () => {
   const futureEndTime = format(addHours(new Date(), 3), "HH:00");
@@ -19,7 +17,7 @@ describe("with schema", () => {
 
     const reservation = {
       type: "BLOCKED",
-      date: tomorrow,
+      date: format(tomorrow, DATE_FORMAT),
       startTime: futureStartTime,
       endTime: futureEndTime,
     };
@@ -30,17 +28,14 @@ describe("with schema", () => {
     expect(res.success).toBeTruthy();
   });
 
-  const yesterday = formatDate(
-    subDays(new Date(), 1).toISOString(),
-    "d.M.yyyy"
-  );
+  const yesterday = subDays(new Date(), 1);
 
   test(`yesterdays date ${yesterday} is not valid`, () => {
     const futureStartTime = format(addHours(new Date(), 1), TIME_FORMAT);
 
     const reservation = {
       type: "BLOCKED",
-      date: yesterday,
+      date: format(yesterday, DATE_FORMAT),
       startTime: futureStartTime,
       endTime: futureEndTime,
     };
@@ -65,7 +60,7 @@ describe("with schema", () => {
 
     const reservation = {
       type: "BLOCKED",
-      date: tomorrow,
+      date: format(tomorrow, DATE_FORMAT),
       startTime: futureStartTime,
       endTime: futureEndTime,
     };
@@ -84,7 +79,7 @@ describe("with schema", () => {
 
     const reservation = {
       type: "BLOCKED",
-      date: tomorrow,
+      date: format(tomorrow, DATE_FORMAT),
       startTime: futureStartTime,
       endTime: futureEndTime,
     };

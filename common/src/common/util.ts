@@ -5,6 +5,7 @@ import {
   format,
   isValid,
   isAfter,
+  parse,
 } from "date-fns";
 import { fi } from "date-fns/locale";
 import { isNumber } from "lodash";
@@ -75,9 +76,29 @@ export const formatSecondDuration = (
   return formatDuration(`${hms.h}:${hms.m}:${hms.s}`, abbreviated);
 };
 
-export const toApiDate = (date: Date, formatStr = "yyyy-MM-dd"): string => {
-  return format(date, formatStr);
+// Don't crash on invalid dates
+export const toApiDate = (
+  date: Date,
+  formatStr = "yyyy-MM-dd"
+): string | undefined => {
+  if (!date || Number.isNaN(date.getTime())) {
+    return undefined;
+  }
+  try {
+    return format(date, formatStr);
+  } catch (e) {
+    return undefined;
+  }
 };
+
+export const toApiDateUnsafe = (date: Date, formatStr = "yyyy-MM-dd") =>
+  format(date, formatStr);
+
+export const fromApiDate = (date: string): Date =>
+  parse(date, "yyyy-MM-dd", new Date());
+
+export const fromUIDate = (date: string): Date =>
+  parse(date, "d.M.yyyy", new Date());
 
 export const isValidDate = (date: Date): boolean =>
   isValid(date) && isAfter(date, new Date("1000-01-01"));

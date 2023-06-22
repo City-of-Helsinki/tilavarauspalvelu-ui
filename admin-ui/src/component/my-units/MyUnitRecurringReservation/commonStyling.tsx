@@ -4,17 +4,16 @@ export const ActionsWrapper = styled.div`
   display: flex;
   grid-column: 1 / -1;
   gap: var(--spacing-m);
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: var(--spacing-l);
+  margin-bottom: var(--spacing-l);
   justify-content: end;
 `;
 
 // Three column grid on desktop and one on small screens.
 export const Grid = styled.div`
-  max-width: var(--container-width-small);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1rem 2rem;
+  gap: var(--spacing-l);
 `;
 
 export const Element = styled.div<{ $wide?: boolean; $start?: boolean }>`

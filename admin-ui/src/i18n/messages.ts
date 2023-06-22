@@ -52,12 +52,18 @@ const translations: ITranslations = {
   },
   AuthState: { initializing: ["Alustetaan..."] },
   ReserveeType: {
-    INDIVIDUAL: ["Yksityishenkilö"],
-    BUSINESS: ["Yritys"],
+    INDIVIDUAL: ["yksityishenkilö"],
+    BUSINESS: ["yritys"],
     NONPROFIT: {
-      REGISTERED: ["Yhdistys, rekisteröity"],
-      UNREGISTERED: ["Yhdistys, rekisteröimätön"],
+      REGISTERED: ["yhdistys, rekisteröity"],
+      UNREGISTERED: ["yhdistys, rekisteröimätön"],
     },
+  },
+  ReservationType: {
+    NORMAL: [""],
+    BLOCKED: ["Suljettu"],
+    BEHALF: ["Asiakkaan puolesta"],
+    STAFF: ["Sisäinen varaus"],
   },
   paymentType: {
     INVOICE: ["Laskutus"],
@@ -196,6 +202,28 @@ const translations: ITranslations = {
     authorizationNeeded: ["Oikeudet vaaditaan"],
     errorStartingAllocation: ["Allokoinnin käynnistys epäonnistui"],
     errorSavingData: ["Virhe tallennettaessa tietoja"],
+    uncaught: ["Odottamaton virhe"],
+    missingReservationType: ["Varaustyyppi puuttuu"],
+    errorRecurringReservationsDoneDisplay: [
+      "Virhe varaus tehty, mutta sen näyttäminen epäonnistui.",
+    ],
+    noPermission: ["Sinulla ei ole käyttöoikeutta."],
+    descriptive: {
+      "Reservation overlaps with reservation before due to buffer time.": [
+        "Varaus menee päällekkäin edellisen varauksen kanssa tauon takia.",
+      ],
+      "Reservation overlaps with reservation after due to buffer time.": [
+        "Varaus menee päällekkäin seuraavan varauksen kanssa tauon takia.",
+      ],
+      collision: [
+        "Valitsemasi aika ei ole enää vapaana. Ole hyvä ja valitse uusi aika.",
+      ],
+      "Overlapping reservations are not allowed.": [
+        "Ajankohdalle on jo varaus toisen varausyksikön kautta.",
+      ],
+      unkown: ["Tuntematon virhe"],
+      genericError: [""],
+    },
   },
   breadcrumb: {
     frontpage: ["Etusivu"],
@@ -221,6 +249,17 @@ const translations: ITranslations = {
     generalTermsTitle: [
       "Helsingin kaupungin tilojen ja laitteiden varaamisen sopimusehdot",
     ],
+  },
+
+  errorPages: {
+    accessForbidden: {
+      title: ["Sinulla ei ole käyttöoikeuksia tälle sivulle"],
+      description: [
+        "Sivu on nähtävillä vain kirjautuneille käyttäjille. Voit nähdä sivun sisällön, jos kirjaudut sisään ja sinulla on riittävän laajat käyttöoikeudet.",
+      ],
+      linkToVaraamo: ["Siirry Varaamon etusivulle"],
+      giveFeedback: ["Anna palautetta"],
+    },
   },
 
   ArchiveReservationUnitDialog: {
@@ -294,8 +333,8 @@ const translations: ITranslations = {
     ],
     Calendar: {
       Tabs: {
-        byUnit: ["Varaukset varausyksiköittäin"],
-        byReservationUnit: ["Kaikki toimipisteen varaukset"],
+        byUnit: ["Varausyksiköittäin"],
+        byReservationUnit: ["Kaikki varaukset"],
       },
       header: {
         recurringReservation: ["Tee toistuva varaus"],
@@ -307,7 +346,7 @@ const translations: ITranslations = {
         pause: ["Tauko"],
         closed: ["Suljettu"],
         waitingPayment: ["Hyväksytty varaus, Odottaa maksua"],
-        staffReservation: ["Henkilökunnan varaus"],
+        staffReservation: ["Sisäinen varaus"],
         reservationUnitReleased: ["Varausyksikkö julkaistu"],
         reservationUnitDraft: ["Varausyksikkö luonnostilassa"],
       },
@@ -322,9 +361,11 @@ const translations: ITranslations = {
       pageTitle: ["Tee toistuva varaus"],
       Confirmation: {
         removed: ["Poistettu"],
+        overlapping: ["Ei saatavilla"],
         title: ["Toistuva varaus tehty"],
-        failedTitle: ["Epäonnistuneet varaukset"],
-        successTitle: ["Varaukset"],
+        allFailedTitle: ["Toistuvaa varausta ei voitu tehdä"],
+        failedSubtitle: ["Epäonnistuneet varaukset"],
+        successSubtitle: ["Varaukset"],
         successInfo: ["Kaikki varaukset tehtiin onnistuneesti."],
         failureInfo: [
           "{{conflicts}} / {{total}} epäonnistui päällekkäisyyksien takia.",
@@ -342,6 +383,7 @@ const translations: ITranslations = {
           "ApolloError: Overlapping reservations are not allowed.": [
             "Aika ei saatavilla",
           ],
+          default: ["Aika ei saatavilla"],
         },
         buttonToUnit: ["Palaa toimipisteen sivulle"],
         buttonToReservation: ["Siirry varauksen sivulle"],
@@ -350,72 +392,15 @@ const translations: ITranslations = {
     ReservationForm: {
       showReserver: ["Näytä varaajan tiedot ja ehdot"],
     },
-    // TODO these are duplicates from ReservationDialog ex. reservationType
     RecurringReservationForm: {
+      // these are unique form elements only for this form
       reservationUnit: ["Varausyksikkö"],
       repeatPattern: ["Varauksen toisto"],
-      startingTime: ["Aloitusaika"],
-      endingTime: ["Lopetusaika"],
       repeatOnDays: ["Toistoviikonpäivät"],
       reservationsList_zero: ["Ei yhtään varausta aikavälille"],
       reservationsList_one: ["Olet tekemässä yhden varauksen"],
       reservationsList_other: ["Olet tekemässä {{count}} varausta"],
-      typeOfReservation: ["Varauksen tyyppi"],
       name: ["Varaussarjan nimi"],
-      comments: ["Kommentit"],
-      bufferTimeBefore: ["Ennen vuoroa ({{minutes}} min)"],
-      bufferTimeAfter: ["Vuoron jälkeen ({{minutes}} min)"],
-      errors: {
-        formNotValid: ["Lomakkeessa vikaa."],
-        noReservations: [
-          "Valittujen viikonpäivien tulee vastata valittuja päivämääriä.",
-        ],
-        "Invalid date": ["Virheellinen päivämäärä."],
-        "endTime can't be more than 24 hours.": [
-          "Lopetusaika ei voi olla yli 24 tuntia.",
-        ],
-        "startTime can't be more than 24 hours.": [
-          "Aloitusaika ei voi olla yli 24 tuntia.",
-        ],
-        "startTime has to be in 15 minutes increments.": [
-          "Aloitusajan pitää olla 15 minuutin välein.",
-        ],
-        "startTime has to be in 30 minutes increments.": [
-          "Aloitusajan pitää olla 30 minuutin välein.",
-        ],
-        "startTime has to be in 60 minutes increments.": [
-          "Aloitusajan pitää olla 60 minuutin välein.",
-        ],
-        "startTime has to be in 90 minutes increments.": [
-          "Aloitusajan pitää olla 90 minuutin välein.",
-        ],
-        "endTime has to be in 15 minutes increments.": [
-          "Lopetusaika pitää olla 15 minuutin välein.",
-        ],
-        "startTime is not in time format.": [
-          "Aloitusaika tulee olla muodossa tt:mm",
-        ],
-        "endTime is not in time format.": [
-          "Lopetusaika tulee olla muodossa tt:mm",
-        ],
-        "Date can't be in the past": ["Päivä ei voi olla menneisyydessä."],
-        "Date needs to be within three years.": [
-          "Päivän pitää olla kolmen vuoden sisällä.",
-        ],
-        "End time needs to be after start time.": [
-          "Lopetusaika pitää olla aloitusajan jälkeen.",
-        ],
-        "Start date can't be after end date.": [
-          "Aloituspäivän tulee olla ennen päättymispäivää",
-        ],
-        "Array must contain at least 1 element(s)": [
-          "Valitse vähintään yksi päivä.",
-        ],
-        "Start and end time needs to be within a decade.": [
-          "Aikaväli pitää olla alle kymmenen vuotta.",
-        ],
-        Required: ["Pakollinen"],
-      },
     },
   },
   Application: {
@@ -864,6 +849,32 @@ const translations: ITranslations = {
     noReservations: ["Ei varauksia"],
     generatingDocument: ["Dokumenttia luodaan"],
     errorGeneratingDocument: ["Dokumenttia ei pystytty luomaan"],
+    EditTime: {
+      buttonName: ["Muuta aikaa"],
+      title: ["Muuta varauksen aikaa"],
+      newTime: ["Uusi aika"],
+      originalTime: ["Muutettava aika"],
+      accept: ["Muuta aikaa"],
+      successToast: ["Uusi aika tallennettu"],
+      form: {
+        startTime: ["Aloitusaika"],
+        length: ["Kesto"],
+      },
+      error: {
+        mutation: ["Ajan muutos epäonnistui."],
+        reservationCollides: ["Toivomasi aika ei ole saatavilla"],
+      },
+    },
+    EditPage: {
+      title: ["Muokkaa varauksen tietoja"],
+      "Reservation failed to load": ["Varausta {{ pk }} ei pystytty latamaan"],
+      "Reservation unit failed to load": ["Varausyksikköä ei löytynyt"],
+      save: ["Tallenna"],
+      saveSuccess: ["Varauksen muutokset tallennettu"],
+      saveSuccessRecurring: ["Muutokset tallennettu tuleviin varauksiin!"],
+      saveError: ["Varauksen muutos epäonnistui"],
+      pageThrewError: ["Virhe: varausta ei voi muokata"],
+    },
   },
   ReservationUnit: {
     reservationStatus: ["Varaustilanne"],
@@ -1143,122 +1154,16 @@ const translations: ITranslations = {
     removeFailed: ["Tilan poistaminen ei onnistunut."],
   },
   ReservationDialog: {
-    title: ["Varaa {{reservationUnit}}"],
+    // field names (for input controls) => should be moved (not dialog specific)
     date: ["Päivämäärä"],
     startingDate: ["Aloituspäivä"],
     endingDate: ["Päättymispäivä"],
     startTime: ["Aloitusaika"],
     endTime: ["Lopetusaika"],
-    type: ["Varauksen tyyppi"],
-    typeInfo: ["Lorem ipsum dolor sit amet, consectetur adipisicing elit."],
-    increase: ["lisää"],
-    decrease: ["vähennä"],
-    reservationType: {
-      STAFF: [
-        "Kaupungin oma käyttö, ulkoinen yhteistyötapahtuma tai toimipisteen sisäinen varaus",
-      ],
-      BEHALF: ["Asiakkaan puolesta"],
-      BLOCKED: ["Suljettu"],
-    },
-    buffers: ["Varauksen tauko"],
-    bufferTimeBefore: ["Ennen vuoroa ({{minutes}} min)"],
-    bufferTimeAfter: ["Vuoron jälkeen ({{minutes}} min)"],
-    comment: ["Kommentit"],
-    reservationInfo: ["Varauksen tiedot"],
-    reserverInfo: ["Varaajan tiedot"],
-    reserveeTypePrefix: ["Varaan"],
-    reserveeTypes: {
-      labels: {
-        nonprofit: ["järjestön, ryhmän tai yhteisön puolesta"],
-        business: ["yrityksen puolesta"],
-        individual: ["yksityishenkilönä"],
-      },
-    },
-    label: {
-      headings: {
-        companyInfo: ["Yrityksen tiedot"],
-        nonprofitInfo: ["Yhdistyksen tiedot"],
-        contactInfo: ["Yhteyshenkilön tiedot"],
-      },
-      subHeadings: {
-        subvention: ["Hinnan alennuksen hakeminen"],
-      },
-      common: {
-        name: ["Varauksen nimi (julkinen)"],
-        description: ["Varauksen kuvaus"],
-        purpose: ["Varauksen käyttötarkoitus"],
-        numPersons: ["Osallistujamäärä"],
-        ageGroup: ["Ikäryhmä"],
-        applyingForFreeOfChargeButton: [
-          "Lue lisää <button>alennusperusteista</button>.",
-        ],
-        applyingForFreeOfCharge: [
-          "Haen maksuttomuutta tai hinnan alennusta ja olen tutustunut alennusperusteisiin",
-        ],
-        freeOfChargeReason: ["Perustelut maksuttomaan varaukseen"],
-      },
-      nonprofit: {
-        reserveeFirstName: ["Yhteyshenkilön etunimi"],
-        reserveeLastName: ["Yhteyshenkilön sukunimi"],
-        reserveeAddressStreet: ["Katuosoite"],
-        reserveeAddressZip: ["Postinumero"],
-        reserveeAddressCity: ["Postitoimipaikka"],
-        reserveeEmail: ["Yhteyshenkilön sähköpostiosoite"],
-        reserveePhone: ["Yhteyshenkilön puhelinnumero"],
-        reserveeOrganisationName: ["Virallinen nimi"],
-        reserveeId: ["Y-tunnus"],
-        reserveeIsUnregisteredAssociation: ["Yhdistystä ei ole rekisteröity"],
-        homeCity: ["Kotipaikka"],
-        showBillingAddress: ["Erillinen laskutusosoite"],
-        billingFirstName: ["Varaajan etunimi"],
-        billingLastName: ["Varaajan sukunimi"],
-        billingPhone: ["Puhelinnumero"],
-        billingEmail: ["Sähköpostiosoite"],
-        billingAddressStreet: ["Katuosoite"],
-        billingAddressZip: ["Postinumero"],
-        billingAddressCity: ["Postitoimipaikka"],
-      },
-      individual: {
-        reserveeFirstName: ["Etunimi"],
-        reserveeLastName: ["Sukunimi"],
-        reserveeAddressStreet: ["Katuosoite"],
-        reserveeAddressZip: ["Postinumero"],
-        reserveeAddressCity: ["Postitoimipaikka"],
-        reserveeEmail: ["Sähköpostiosoite"],
-        reserveePhone: ["Puhelinnumero"],
-        homeCity: ["Kotipaikka"],
-        showBillingAddress: ["Erillinen laskutusosoite"],
-        billingFirstName: ["Varaajan etunimi"],
-        billingLastName: ["Varaajan sukunimi"],
-        billingPhone: ["Puhelinnumero"],
-        billingEmail: ["Sähköpostiosoite"],
-        billingAddressStreet: ["Katuosoite"],
-        billingAddressZip: ["Postinumero"],
-        billingAddressCity: ["Postitoimipaikka"],
-      },
-      business: {
-        reserveeFirstName: ["Yhteyshenkilön etunimi"],
-        reserveeLastName: ["Yhteyshenkilön sukunimi"],
-        reserveeAddressStreet: ["Katuosoite"],
-        reserveeAddressZip: ["Postinumero"],
-        reserveeAddressCity: ["Postitoimipaikka"],
-        reserveeEmail: ["Yhteyshenkilön sähköpostiosoite"],
-        reserveePhone: ["Yhteyshenkilön puhelinnumero"],
-        reserveeOrganisationName: ["Virallinen nimi"],
-        reserveeId: ["Y-tunnus"],
-        homeCity: ["Kotipaikka"],
-        showBillingAddress: ["Erillinen laskutusosoite"],
-        billingFirstName: ["Varaajan etunimi"],
-        billingLastName: ["Varaajan sukunimi"],
-        billingPhone: ["Puhelinnumero"],
-        billingEmail: ["Sähköpostiosoite"],
-        billingAddressStreet: ["Katuosoite"],
-        billingAddressZip: ["Postinumero"],
-        billingAddressCity: ["Postitoimipaikka"],
-      },
-    },
+    // dialog specific
+    title: ["Varaa {{reservationUnit}}"],
     accept: ["Varaa"],
-    saveFailed: ["Tallennus ei onnistunut: {{error}}"],
+    saveFailed: ["Tallennus ei onnistunut. {{error}}"],
     saveSuccess: ["Varaus tehty kohteeseen {{reservationUnit}}"],
   },
   ReservationUnits: {
@@ -1836,9 +1741,8 @@ const translations: ITranslations = {
   },
   Calendar: {
     legend: {
-      currentRequiresHandling: ["Varaajan toive"],
-      currentConfirmed: ["Varaajan toive (hyväksytty)"],
-      currentDenied: ["Varaajan toive (hylätty)"],
+      confirmed: ["Hyväksytty varaus"],
+      unconfirmed: ["Varaustoive"],
       otherRequiedHandling: ["Muun varaajan toive"],
       rest: ["Varattu"],
     },
@@ -1888,6 +1792,8 @@ const translations: ITranslations = {
   },
 
   ApprovalButtons: {
+    edit: ["Muokkaa"],
+    editTime: ["Muuta aikaa"],
     recurring: {
       rejectAllButton: ["Hylkää kaikki"],
       DenyDialog: {

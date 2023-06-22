@@ -1,6 +1,6 @@
 import React from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { Button, Dialog } from "hds-react";
+import { useForm, FormProvider, UseFormReturn } from "react-hook-form";
+import { Button, Dialog, Notification } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@apollo/client";
 import type {
@@ -12,13 +12,21 @@ import styled from "styled-components";
 import { camelCase, get } from "lodash";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ErrorBoundary } from "react-error-boundary";
+import {
+  ReservationFormSchema,
+  type ReservationFormType,
+  type ReservationFormMeta,
+} from "app/schemas";
+import { breakpoints } from "common/src/common/style";
+import { fromUIDate } from "common/src/common/util";
+import { setTimeOnDate } from "app/component/reservations/utils";
+import { useCheckCollisions } from "app/component/reservations/requested/hooks";
 import { dateTime } from "../../ReservationUnits/ReservationUnitEditor/DateTimeInput";
 import { useModal } from "../../../context/ModalContext";
 import { CREATE_STAFF_RESERVATION } from "./queries";
 import Loader from "../../Loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { ReservationFormSchema } from "./validator";
-import type { ReservationFormType } from "./validator";
 import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
@@ -26,8 +34,20 @@ import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
 import ControlledTimeInput from "../components/ControlledTimeInput";
 import ControlledDateInput from "../components/ControlledDateInput";
 
+// NOTE HDS forces buttons over each other on mobile, we want them side-by-side
 const ActionButtons = styled(Dialog.ActionButtons)`
+  display: flex;
+  flex-wrap: wrap;
   justify-content: end;
+  align-items: center;
+  gap: var(--spacing-s);
+  padding: var(--spacing-s);
+  @media (max-width: ${breakpoints.m}) {
+    > button {
+      margin: 0;
+      flex-basis: 47%;
+    }
+  }
 `;
 
 const GridInsideTheModal = styled(Grid)`
@@ -40,9 +60,131 @@ const FixedDialog = styled(Dialog)`
   width: min(calc(100vw - 2rem), var(--container-width-l)) !important;
   & > div:nth-child(2) {
     /* don't layout shift when the modal content changes */
-    height: min(95vh, 1024px);
+    height: min(80vh, 1024px);
+    > div:nth-child(1) {
+      height: 100%;
+    }
   }
 `;
+
+type FormValueType = ReservationFormType & ReservationFormMeta;
+
+const Form = styled.form`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  height: 100%;
+`;
+
+const StyledNotification = styled(Notification)`
+  margin-right: auto;
+  width: auto;
+`;
+
+const useCheckFormCollisions = ({
+  form,
+  reservationUnit,
+}: {
+  form: UseFormReturn<FormValueType>;
+  reservationUnit: ReservationUnitType;
+}) => {
+  const { watch } = form;
+
+  const formDate = watch("date");
+  const formEndTime = watch("endTime");
+  const formStartTime = watch("startTime");
+  const bufferTimeAfter = watch("bufferTimeAfter");
+  const bufferTimeBefore = watch("bufferTimeBefore");
+  const type = watch("type");
+
+  const bufferBeforeSeconds =
+    type !== "BLOCKED" && bufferTimeBefore && reservationUnit.bufferTimeBefore
+      ? reservationUnit.bufferTimeBefore
+      : 0;
+  const bufferAfterSeconds =
+    type !== "BLOCKED" && bufferTimeAfter && reservationUnit.bufferTimeAfter
+      ? reservationUnit.bufferTimeAfter
+      : 0;
+
+  const { hasCollisions } = useCheckCollisions({
+    reservationPk: undefined,
+    reservationUnitPk: reservationUnit?.pk ?? 0,
+    start:
+      formDate && formStartTime
+        ? setTimeOnDate(fromUIDate(formDate), formStartTime)
+        : undefined,
+    end:
+      formDate && formEndTime
+        ? setTimeOnDate(fromUIDate(formDate), formEndTime)
+        : undefined,
+    buffers: {
+      before: bufferBeforeSeconds,
+      after: bufferAfterSeconds,
+    },
+  });
+
+  return { hasCollisions };
+};
+
+const CollisionWarning = ({
+  form,
+  reservationUnit,
+}: {
+  form: UseFormReturn<FormValueType>;
+  reservationUnit: ReservationUnitType;
+}) => {
+  const { t } = useTranslation();
+  const { hasCollisions } = useCheckFormCollisions({ form, reservationUnit });
+
+  return hasCollisions ? (
+    <StyledNotification
+      size="small"
+      label={t("errors.descriptive.collision")}
+      type="error"
+    >
+      {t("errors.descriptive.collision")}
+    </StyledNotification>
+  ) : null;
+};
+
+const ActionContainer = ({
+  form,
+  reservationUnit,
+  onCancel,
+  onSubmit,
+}: {
+  form: UseFormReturn<FormValueType>;
+  reservationUnit: ReservationUnitType;
+  onCancel: () => void;
+  onSubmit: (values: FormValueType) => void;
+}) => {
+  const { t } = useTranslation();
+  const {
+    handleSubmit,
+    formState: { isDirty, isSubmitting, isValid },
+  } = form;
+
+  const { hasCollisions } = useCheckFormCollisions({ form, reservationUnit });
+
+  return (
+    <ActionButtons>
+      <CollisionWarning form={form} reservationUnit={reservationUnit} />
+      <Button size="small" variant="secondary" onClick={onCancel} theme="black">
+        {t("common.cancel")}
+      </Button>
+      <Button
+        type="button"
+        size="small"
+        disabled={!isDirty || isSubmitting || !isValid || hasCollisions}
+        onClick={() => {
+          handleSubmit(onSubmit)();
+        }}
+      >
+        {t("ReservationDialog.accept")}
+      </Button>
+    </ActionButtons>
+  );
+};
 
 const DialogContent = ({
   onClose,
@@ -53,8 +195,8 @@ const DialogContent = ({
   reservationUnit: ReservationUnitType;
   start: Date;
 }) => {
-  const { t } = useTranslation();
-  const form = useForm<ReservationFormType>({
+  const { t, i18n } = useTranslation();
+  const form = useForm<FormValueType>({
     resolver: zodResolver(
       ReservationFormSchema(reservationUnit.reservationStartInterval)
     ),
@@ -66,7 +208,7 @@ const DialogContent = ({
 
     mode: "onChange",
     defaultValues: {
-      date: start,
+      date: format(start, "dd.MM.yyyy"),
       startTime: format(start, "HH:mm"),
       bufferTimeBefore: false,
       bufferTimeAfter: false,
@@ -74,11 +216,9 @@ const DialogContent = ({
   });
 
   const {
+    handleSubmit,
     formState: { errors },
   } = form;
-
-  const myDateTime = (date: Date, time: string) =>
-    dateTime(format(date, "dd.MM.yyyy"), time);
 
   const { notifyError, notifySuccess } = useNotification();
 
@@ -90,7 +230,14 @@ const DialogContent = ({
   const createStaffReservation = (input: ReservationStaffCreateMutationInput) =>
     create({ variables: { input } });
 
-  const onSubmit = async (values: ReservationFormType) => {
+  const errorHandler = (errorMsg?: string) => {
+    const translatedError = i18n.exists(`errors.descriptive.${errorMsg}`)
+      ? t(`errors.descriptive.${errorMsg}`)
+      : t("errors.descriptive.genericError");
+    notifyError(t("ReservationDialog.saveFailed", { error: translatedError }));
+  };
+
+  const onSubmit = async (values: FormValueType) => {
     try {
       if (!reservationUnit.pk) {
         throw new Error("Missing reservation unit");
@@ -109,16 +256,19 @@ const DialogContent = ({
       const input: ReservationStaffCreateMutationInput = {
         reservationUnitPks: [reservationUnit.pk],
         type: values.type ?? "",
-        begin: myDateTime(new Date(values.date), values.startTime),
-        end: myDateTime(new Date(values.date), values.endTime),
-        bufferTimeBefore: values.bufferTimeBefore
-          ? String(reservationUnit.bufferTimeBefore)
-          : undefined,
-        bufferTimeAfter: values.bufferTimeAfter
-          ? String(reservationUnit.bufferTimeAfter)
-          : undefined,
+        begin: dateTime(values.date, values.startTime),
+        end: dateTime(values.date, values.endTime),
+        bufferTimeBefore:
+          values.bufferTimeBefore && reservationUnit.bufferTimeBefore
+            ? String(reservationUnit.bufferTimeBefore)
+            : undefined,
+        bufferTimeAfter:
+          values.bufferTimeAfter && reservationUnit.bufferTimeAfter
+            ? String(reservationUnit.bufferTimeAfter)
+            : undefined,
         workingMemo: values.comments,
         ...flattenedMetadataSetValues,
+        reserveeType: values.reserveeType,
       };
 
       const { data: createResponse } = await createStaffReservation(input);
@@ -128,11 +278,8 @@ const DialogContent = ({
       ).find(() => true);
 
       if (firstError) {
-        notifyError(
-          t("ReservationDialog.saveFailed", {
-            error: get(firstError, "messages[0]"),
-          })
-        );
+        const error = get(firstError, "messages[0]");
+        errorHandler(error);
       } else {
         notifySuccess(
           t("ReservationDialog.saveSuccess", {
@@ -142,22 +289,18 @@ const DialogContent = ({
         onClose();
       }
     } catch (e) {
-      notifyError(
-        t("ReservationDialog.saveFailed", { error: get(e, "message") })
-      );
+      errorHandler(get(e, "message"));
     }
   };
 
-  const TRANS_PREFIX = "MyUnits.RecurringReservationForm";
   const translateError = (errorMsg?: string) =>
-    errorMsg ? t(`${TRANS_PREFIX}.errors.${errorMsg}`) : "";
+    errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
-  // TODO refactor the form part of this outside the dialog
   return (
     <>
       <Dialog.Content>
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
             <GridInsideTheModal>
               <Element>
                 <ControlledDateInput
@@ -185,22 +328,15 @@ const DialogContent = ({
               </Element>
               <ReservationTypeForm reservationUnit={reservationUnit} />
             </GridInsideTheModal>
-          </form>
+          </Form>
         </FormProvider>
       </Dialog.Content>
-      <ActionButtons>
-        <Button variant="secondary" onClick={onClose} theme="black">
-          {t("common.cancel")}
-        </Button>
-        <Button
-          type="submit"
-          onClick={() => {
-            form.handleSubmit(onSubmit)();
-          }}
-        >
-          {t("ReservationDialog.accept")}
-        </Button>
-      </ActionButtons>
+      <ActionContainer
+        form={form}
+        reservationUnit={reservationUnit}
+        onCancel={onClose}
+        onSubmit={onSubmit}
+      />
     </>
   );
 };
@@ -241,11 +377,13 @@ const CreateReservationModal = ({
         })}
       />
       {reservationUnit != null && (
-        <DialogContent
-          onClose={onClose}
-          reservationUnit={reservationUnit}
-          start={start}
-        />
+        <ErrorBoundary fallback={<div>{t("errors.uncaught")}</div>}>
+          <DialogContent
+            onClose={onClose}
+            reservationUnit={reservationUnit}
+            start={start}
+          />
+        </ErrorBoundary>
       )}
     </FixedDialog>
   );

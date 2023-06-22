@@ -303,7 +303,7 @@ export const canReservationTimeBeChanged = (
   }
 
   // existing reservation has been handled
-  if (reservation.handledAt) {
+  if (reservation.isHandled) {
     return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
   }
 

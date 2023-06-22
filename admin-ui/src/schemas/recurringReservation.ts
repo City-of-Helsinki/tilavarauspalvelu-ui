@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
+import { fromUIDate } from "common/src/common/util";
 import {
   ReservationTypeSchema,
   checkDate,
   checkReservationInterval,
   checkStartEndTime,
   checkTimeStringFormat,
-} from "../create-reservation/validator";
-import { intervalToNumber } from "../create-reservation/utils";
+} from "./reservation";
+import { intervalToNumber } from "./utils";
+import { OptionSchema } from "./schemaCommon";
 
 // TODO handle metadata (variable form fields) instead of using .passthrough
 // It should be it's own schema object that is included in both forms
@@ -20,14 +22,10 @@ import { intervalToNumber } from "../create-reservation/utils";
 // NOTE zod doesn't run refinements if part of the required data is missing
 // i.e. the core zod schema is run first if it passes then refinements are run
 // solutions to that are either use partial schemas or split schemas and check the parts.
-const Option = z.object({
-  label: z.string(),
-  value: z.string(),
-});
 
 const timeSelectionSchemaBase = z.object({
-  startingDate: z.coerce.date(),
-  endingDate: z.coerce.date(),
+  startingDate: z.string(),
+  endingDate: z.string(),
   startTime: z.string(),
   endTime: z.string(),
   repeatOnDays: z.array(z.number()).min(1).max(7),
@@ -39,7 +37,7 @@ const timeSelectionSchemaBase = z.object({
 
 export const RecurringReservationFormSchema = z
   .object({
-    reservationUnit: Option,
+    reservationUnit: OptionSchema,
     type: ReservationTypeSchema,
     seriesName: z.string().optional(),
     comments: z.string().max(500).optional(),
@@ -60,18 +58,29 @@ export const RecurringReservationFormSchema = z
     }
   );
 
+const convertToDate = (date?: string): Date | undefined =>
+  date ? fromUIDate(date) : undefined;
+
+const dateIsBefore = (date?: Date, other?: Date) =>
+  date && other && date.getTime() < other.getTime();
+
 export const timeSelectionSchema = (
   interval: ReservationUnitsReservationUnitReservationStartIntervalChoices
 ) =>
   timeSelectionSchemaBase
     .partial()
-    .superRefine((val, ctx) => checkDate(val.startingDate, ctx, "startingDate"))
-    .superRefine((val, ctx) => checkDate(val.endingDate, ctx, "endingDate"))
+    .superRefine((val, ctx) =>
+      checkDate(convertToDate(val.startingDate), ctx, "startingDate")
+    )
+    .superRefine((val, ctx) =>
+      checkDate(convertToDate(val.endingDate), ctx, "endingDate")
+    )
     .refine(
       (s) =>
-        s.startingDate &&
-        s.endingDate &&
-        s.startingDate.getTime() < s.endingDate.getTime(),
+        dateIsBefore(
+          convertToDate(s.startingDate),
+          convertToDate(s.endingDate)
+        ),
       {
         path: ["endingDate"],
         message: "Start date can't be after end date.",

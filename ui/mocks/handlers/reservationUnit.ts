@@ -27,6 +27,8 @@ import {
   QueryPurposesArgs,
   PurposeTypeConnection,
   ReservationUnitType,
+  ReservationUnitState,
+  ReservationState,
 } from "common/types/gql-types";
 
 const getJSONResponse = [
@@ -42,7 +44,6 @@ const getJSONResponse = [
         parent_id: 2,
         building_id: 2,
         surface_area: null,
-        district_id: null,
       },
     ],
     resources: [],
@@ -67,7 +68,6 @@ const getJSONResponse = [
     building: {
       id: 2,
       name: "Töölön kirjasto",
-      district: 1,
       real_estate: null,
       surface_area: null,
     },
@@ -89,7 +89,6 @@ const getJSONResponse = [
         parent_id: null,
         building_id: 18,
         surface_area: "50.00",
-        district_id: 8,
       },
     ],
     resources: [],
@@ -108,7 +107,6 @@ const getJSONResponse = [
     building: {
       id: 18,
       name: "Ympyrätalo",
-      district: 8,
       real_estate: null,
       surface_area: "2000.00",
     },
@@ -130,7 +128,6 @@ const getJSONResponse = [
         parent_id: 3,
         building_id: 1,
         surface_area: null,
-        district_id: null,
       },
     ],
     resources: [],
@@ -152,7 +149,6 @@ const getJSONResponse = [
     building: {
       id: 1,
       name: "Fredriksbergin 2-talo",
-      district: null,
       real_estate: null,
       surface_area: null,
     },
@@ -174,7 +170,6 @@ const getJSONResponse = [
         parent_id: null,
         building_id: 2,
         surface_area: null,
-        district_id: null,
       },
     ],
     resources: [],
@@ -196,7 +191,6 @@ const getJSONResponse = [
     building: {
       id: 2,
       name: "Töölön kirjasto",
-      district: 1,
       real_estate: null,
       surface_area: null,
     },
@@ -219,7 +213,6 @@ const getJSONResponse = [
         parent_id: 2,
         building_id: 2,
         surface_area: null,
-        district_id: null,
       },
     ],
     resources: [],
@@ -244,7 +237,6 @@ const getJSONResponse = [
     building: {
       id: 2,
       name: "Töölön kirjasto",
-      district: 1,
       real_estate: null,
       surface_area: null,
     },
@@ -267,7 +259,6 @@ const getJSONResponse = [
         parent_id: 1,
         building_id: 3,
         surface_area: null,
-        district_id: null,
       },
     ],
     resources: [
@@ -310,7 +301,6 @@ const getJSONResponse = [
     building: {
       id: 3,
       name: "Oodin kirjasto",
-      district: 2,
       real_estate: null,
       surface_area: null,
     },
@@ -333,7 +323,6 @@ const getJSONResponse = [
         parent_id: 2,
         building_id: 2,
         surface_area: null,
-        district_id: null,
       },
     ],
     resources: [],
@@ -355,7 +344,6 @@ const getJSONResponse = [
     building: {
       id: 2,
       name: "Töölön kirjasto",
-      district: 1,
       real_estate: null,
       surface_area: null,
     },
@@ -378,7 +366,6 @@ const getJSONResponse = [
         parent_id: null,
         building_id: 3,
         surface_area: null,
-        district_id: 2,
       },
     ],
     resources: [],
@@ -409,7 +396,6 @@ const getJSONResponse = [
     building: {
       id: 3,
       name: "Oodin kirjasto",
-      district: 2,
       real_estate: null,
       surface_area: null,
     },
@@ -493,6 +479,8 @@ const selectedReservationUnitQuery = graphql.query<
     bufferTimeAfter: 1800,
     reservationBegins: addDays(new Date(), -1).toISOString(),
     reservationEnds: addDays(new Date(), 10).toISOString(),
+    state: ReservationUnitState.Published,
+    reservationState: ReservationState.Reservable,
     images: [
       {
         imageUrl: "https://via.placeholder.com/1024x768",
@@ -956,23 +944,16 @@ const selectedReservationUnitQuery = graphql.query<
   }
 
   if (req.variables.pk === 905) {
-    reservationUnitByPk.publishBegins = addMinutes(
-      new Date(),
-      10
-    ).toISOString();
+    reservationUnitByPk.state = ReservationUnitState.Draft;
   }
 
   if (req.variables.pk === 906) {
-    reservationUnitByPk.publishEnds = addMinutes(new Date(), -10).toISOString();
+    reservationUnitByPk.state = undefined;
   }
 
   if (req.variables.pk === 907) {
     reservationUnitByPk.isDraft = true;
-    reservationUnitByPk.publishBegins = addMinutes(
-      new Date(),
-      10
-    ).toISOString();
-    reservationUnitByPk.publishEnds = addMinutes(new Date(), 20).toISOString();
+    reservationUnitByPk.state = ReservationUnitState.Draft;
   }
 
   if (req.variables.pk === 908) {

@@ -322,7 +322,7 @@ export const GET_RESERVATION = gql`
         name
       }
       numPersons
-      handledAt
+      isHandled
     }
   }
 `;

@@ -1,13 +1,12 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { get, trim } from "lodash";
-import { Button, Tag, TextArea } from "hds-react";
+import { Button, TextArea } from "hds-react";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import { TFunction } from "i18next";
 import { breakpoints } from "common/src/common/style";
-import { H1 } from "common/src/common/typography";
 import {
   Maybe,
   Mutation,
@@ -17,67 +16,37 @@ import {
   ReservationWorkingMemoMutationInput,
   ReservationsReservationReserveeTypeChoices,
   ReservationUnitsReservationUnitPricingPricingTypeChoices,
-  ServiceSectorType,
   ReservationsReservationStateChoices,
 } from "common/types/gql-types";
+import { Permission } from "app/context/authStateReducer";
 import { useNotification } from "../../../context/NotificationContext";
 import Loader from "../../Loader";
 import withMainMenu from "../../withMainMenu";
 import {
   ageGroup,
+  createTagString,
+  getName,
   getReservatinUnitPricing,
-  getReserveeName,
-  getTranslationKeyForType,
-  reservationDateTime,
-  reservationDuration,
+  getTranslationKeyForReserveeType,
   reservationPrice,
-  reservationUnitName,
 } from "./util";
 import { useModal } from "../../../context/ModalContext";
-import { RESERVATION_QUERY, UPDATE_WORKING_MEMO } from "./queries";
+import { UPDATE_WORKING_MEMO } from "./queries";
 import BreadcrumbWrapper from "../../BreadcrumbWrapper";
-import {
-  Container,
-  HorisontalFlex,
-  VerticalFlex,
-} from "../../../styles/layout";
+import { Container, HorisontalFlex } from "../../../styles/layout";
 import { publicUrl } from "../../../common/const";
 import ShowWhenTargetInvisible from "../../ShowWhenTargetInvisible";
 import StickyHeader from "../../StickyHeader";
-import { formatDate, formatDateTime, formatTime } from "../../../common/util";
 import Calendar from "./Calendar";
 import ReservationUserBirthDate from "./ReservationUserBirthDate";
 import VisibleIfPermission from "./VisibleIfPermission";
 import { Accordion } from "../../../common/hds-fork/Accordion";
 import ApprovalButtons from "./ApprovalButtons";
-import { CURRENT_USER } from "../../../context/queries";
-import { useAuthState } from "../../../context/AuthStateContext";
 import RecurringReservationsView from "./RecurringReservationsView";
 import { useRecurringReservations } from "./hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
-
-const Dot = styled.div`
-  display: inline-block;
-  border-radius: 50%;
-  background: var(--tilavaraus-admin-status-not-handled);
-  height: 1.6em;
-  text-align: center;
-  line-height: 1.6;
-  aspect-ratio: 1;
-  font-size: 0.6em;
-  color: white;
-  font-weight: 600;
-  @media (min-width: ${breakpoints.m}) {
-    flex-direction: row;
-  }
-`;
-
-const AlignVertically = styled.div`
-  display: flex;
-  gap: var(--spacing-m);
-  flex-direction: row;
-  align-items: center;
-`;
+import ReservationTitleSection from "./ReservationTitleSection";
+import { SINGLE_RESERVATION_QUERY } from "./hooks/queries";
 
 const ApplicationDatas = styled.div`
   display: grid;
@@ -99,40 +68,6 @@ const Summary = styled(ApplicationDatas)`
     grid-template-columns: 1fr 1fr;
   }
 `;
-
-const NameState = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-xs);
-
-  @media (min-width: ${breakpoints.m}) {
-    flex-direction: row;
-    margin-bottom: 0;
-  }
-`;
-
-const Tagline = styled.div`
-  font-size: var(--fontsize-body-xl);
-  margin-bottom: var(--spacing-xs);
-`;
-
-const DateTime = styled.div`
-  margin-bottom: var(--spacing-s);
-  font-size: var(--fontsize-body-s);
-`;
-
-const getName = (reservation: ReservationType, t: TFunction) => {
-  if (reservation.name) {
-    return trim(`${reservation.pk}, ${reservation.name}`);
-  }
-
-  return trim(
-    `${reservation.pk}, ${
-      getReserveeName(reservation) || t("RequestedReservation.noName")
-    }`.trim()
-  );
-};
 
 const ApplicationProp = ({
   label,
@@ -181,62 +116,47 @@ const ButtonsWithPermChecks = ({
 }) => {
   const { setModalContent } = useModal();
 
-  const serviceSectorPks =
-    reservation?.reservationUnits?.[0]?.unit?.serviceSectors
-      ?.map((x) => x?.pk)
-      ?.filter((x): x is number => x != null) ?? [];
-
-  const unitPk = reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined;
-
-  const { data: user } = useQuery<Query>(CURRENT_USER);
-
-  const isUsersOwnReservation = reservation?.user?.pk === user?.currentUser?.pk;
-
   const closeDialog = () => {
     setModalContent(null);
   };
 
-  const { hasPermission } = useAuthState().authState;
-  const permission = hasPermission(
-    "can_manage_reservations",
-    unitPk,
-    serviceSectorPks
-  );
-
-  const ownPermissions = isUsersOwnReservation
-    ? hasPermission("can_create_staff_reservations", unitPk, serviceSectorPks)
-    : false;
-
-  const userIsAllowToModify = permission || ownPermissions;
-  if (!userIsAllowToModify) {
-    return null;
-  }
-
-  if (reservation.recurringReservation) {
-    return (
-      <ApprovalButtonsRecurring
-        recurringReservation={reservation.recurringReservation}
-        handleClose={closeDialog}
-        handleAccept={() => {
-          onReservationUpdated();
-          closeDialog();
-        }}
-      />
-    );
-  }
-
   return (
-    <ApprovalButtons
-      state={reservation.state}
-      isFree={isFree}
+    <VisibleIfPermission
       reservation={reservation}
-      handleClose={closeDialog}
-      handleAccept={() => {
-        onReservationUpdated();
-        closeDialog();
-      }}
-    />
+      permission={Permission.CAN_MANAGE_RESERVATIONS}
+    >
+      {reservation.recurringReservation ? (
+        <ApprovalButtonsRecurring
+          recurringReservation={reservation.recurringReservation}
+          handleClose={closeDialog}
+          handleAccept={() => {
+            onReservationUpdated();
+            closeDialog();
+          }}
+        />
+      ) : (
+        <ApprovalButtons
+          state={reservation.state}
+          isFree={isFree}
+          reservation={reservation}
+          handleClose={closeDialog}
+          handleAccept={() => {
+            onReservationUpdated();
+            closeDialog();
+          }}
+        />
+      )}
+    </VisibleIfPermission>
   );
+};
+
+const translateType = (res: ReservationType, t: TFunction) => {
+  const [part1, part2] = getTranslationKeyForReserveeType(
+    res.type ?? undefined,
+    res.reserveeType ?? undefined,
+    res.reserveeIsUnregisteredAssociation ?? false
+  );
+  return `${t(part1)}${part2 ? `: ${t(part2)}` : ""}`;
 };
 
 const ReservationSummary = ({
@@ -248,45 +168,65 @@ const ReservationSummary = ({
 }) => {
   const { t } = useTranslation();
 
+  const type =
+    reservation.reserveeType != null
+      ? {
+          l: "reserveeType",
+          v: translateType(reservation, t),
+        }
+      : undefined;
+
+  const numPersons =
+    reservation.numPersons != null
+      ? { l: "numPersons", v: reservation.numPersons }
+      : undefined;
+
+  const ageGroupParams =
+    reservation.ageGroup != null
+      ? {
+          l: "ageGroup",
+          v: `${ageGroup(reservation.ageGroup)} ${t(
+            "RequestedReservation.ageGroupSuffix"
+          )}`,
+        }
+      : undefined;
+
+  const purpose =
+    reservation.purpose?.nameFi != null
+      ? { l: "purpose", v: reservation.purpose.nameFi }
+      : undefined;
+
+  const description = reservation.description
+    ? { l: "description", v: reservation.description }
+    : undefined;
+
+  const price = !isFree
+    ? {
+        l: "price",
+        v: `${reservationPrice(reservation, t)}${
+          reservation.applyingForFreeOfCharge
+            ? `, ${t("RequestedReservation.appliesSubvention")}`
+            : ""
+        }`,
+      }
+    : undefined;
+
+  const summary = [
+    ...(type != null ? [type] : []),
+    ...(numPersons != null ? [numPersons] : []),
+    ...(ageGroupParams != null ? [ageGroupParams] : []),
+    ...(purpose != null ? [purpose] : []),
+    ...(description != null ? [description] : []),
+    ...(price != null ? [price] : []),
+  ];
+
+  if (summary.length === 0) {
+    return null;
+  }
+
   return (
     <Summary>
-      {[
-        {
-          l: "reserveeType",
-          v: reservation.reserveeType
-            ? t(
-                getTranslationKeyForType(
-                  reservation.reserveeType as ReservationsReservationReserveeTypeChoices,
-                  Boolean(reservation.reserveeIsUnregisteredAssociation)
-                )
-              )
-            : undefined,
-        },
-        { l: "numPersons", v: reservation.numPersons },
-        {
-          l: "ageGroup",
-          v: reservation.ageGroup
-            ? `${ageGroup(reservation.ageGroup)} ${t(
-                "RequestedReservation.ageGroupSuffix"
-              )}`
-            : "",
-        },
-        {
-          l: "purpose",
-          v: reservation.purpose ? `${reservation.purpose.nameFi}` : undefined,
-        },
-        { l: "description", v: reservation.description },
-        {
-          l: "price",
-          v: !isFree
-            ? `${reservationPrice(reservation, t)}${
-                reservation.applyingForFreeOfCharge
-                  ? `, ${t("RequestedReservation.appliesSubvention")}`
-                  : ""
-              }`
-            : undefined,
-        },
-      ].map((e) => (
+      {summary.map((e) => (
         <ApplicationProp
           key={e.l}
           label={t(`RequestedReservation.${e.l}`)}
@@ -295,53 +235,6 @@ const ReservationSummary = ({
       ))}
     </Summary>
   );
-};
-
-// recurring format: {weekday(s)} {time}, {duration} | {startDate}-{endDate} | {unit}
-// single format   : {weekday} {date} {time}, {duration} | {unit}
-const createTagString = (reservation: ReservationType, t: TFunction) => {
-  const recurringTag =
-    reservation.recurringReservation?.beginDate &&
-    reservation.recurringReservation?.endDate
-      ? `${formatDate(reservation.recurringReservation.beginDate)}-${formatDate(
-          reservation.recurringReservation.endDate
-        )}`
-      : "";
-  const unitTag = reservation?.reservationUnits
-    ?.map(reservationUnitName)
-    .join(", ");
-
-  const singleDateTimeTag = `${reservationDateTime(
-    reservation.begin,
-    reservation.end,
-    t
-  )}`;
-
-  const weekDayTag = reservation.recurringReservation?.weekdays
-    ?.sort()
-    ?.map((x) => t(`dayShort.${x}`))
-    ?.reduce((agv, x) => `${agv}${agv.length > 0 ? "," : ""} ${x}`, "");
-
-  const recurringDateTag =
-    reservation.begin && reservation.end
-      ? `${weekDayTag} ${formatTime(reservation.begin, "HH:mm")}-${formatTime(
-          reservation.end,
-          "HH:mm"
-        )}`
-      : "";
-
-  const durationTag = `${reservationDuration(
-    reservation.begin,
-    reservation.end
-  )}`;
-
-  const reservationTagline = `${
-    reservation.recurringReservation ? recurringDateTag : singleDateTimeTag
-  }, ${durationTag}t ${
-    recurringTag.length > 0 ? " | " : ""
-  } ${recurringTag} | ${unitTag}`;
-
-  return reservationTagline;
 };
 
 const maybeStringToDate: (s?: string) => Date | undefined = (str) =>
@@ -388,10 +281,10 @@ const TimeBlock = ({
 
   return (
     <>
-      {reservation.recurringReservation && (
+      {reservation.recurringReservation?.pk && (
         <Accordion heading={t("RequestedReservation.recurring")}>
           <RecurringReservationsView
-            reservation={reservation}
+            recurringPk={reservation.recurringReservation.pk}
             onSelect={setSelected}
             onReservationUpdated={onReservationUpdated}
           />
@@ -407,55 +300,87 @@ const TimeBlock = ({
           reservation={reservation}
           selected={selected}
           focusDate={focusDate}
+          refetch={onReservationUpdated}
         />
       </Accordion>
     </>
   );
 };
 
-const RequestedReservation = (): JSX.Element | null => {
-  const { id } = useParams() as { id: string };
-  const [reservation, setReservation] = useState<ReservationType | undefined>(
-    undefined
-  );
-  const [workingMemo, setWorkingMemo] = useState<string>();
+const WorkingMemo = ({
+  initialValue,
+  reservationPk,
+  refetch,
+}: {
+  initialValue: string;
+  reservationPk: number;
+  refetch: () => void;
+}) => {
+  const [workingMemo, setWorkingMemo] = useState<string>(initialValue);
   const { notifyError, notifySuccess } = useNotification();
-
   const { t } = useTranslation();
 
-  const { loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
-    RESERVATION_QUERY,
-    {
-      fetchPolicy: "no-cache",
-      variables: {
-        pk: Number(id),
-      },
-      onCompleted: ({ reservationByPk }) => {
-        if (reservationByPk) {
-          setReservation(reservationByPk);
-          setWorkingMemo(reservationByPk.workingMemo || "");
-        }
-      },
-      onError: () => {
-        notifyError(t("RequestedReservation.errorFetchingData"));
-      },
+  const [updateWorkingMemo] = useMutation<
+    Mutation,
+    ReservationWorkingMemoMutationInput
+  >(UPDATE_WORKING_MEMO, {
+    onCompleted: () => {
+      refetch();
+      notifySuccess(t("RequestedReservation.savedWorkingMemo"));
+    },
+    onError: () => {
+      notifyError(t("RequestedReservation.errorSavingWorkingMemo"));
+    },
+  });
+
+  const updateMemo = (memo: string) =>
+    updateWorkingMemo({
+      variables: { pk: reservationPk, workingMemo: memo },
+    });
+
+  const handleSave = async () => {
+    try {
+      await updateMemo(workingMemo);
+    } catch (ex) {
+      notifyError(t("RequestedReservation.errorSavingWorkingMemo"));
     }
+  };
+
+  return (
+    <>
+      <TextArea
+        label={t("RequestedReservation.workingMemoLabel")}
+        id="workingMemo"
+        helperText={t("RequestedReservation.workingMemoHelperText")}
+        value={workingMemo}
+        onChange={(e) => setWorkingMemo(e.target.value)}
+      />
+      <HorisontalFlex style={{ justifyContent: "flex-end" }}>
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => setWorkingMemo(initialValue || "")}
+        >
+          {t("common.cancel")}
+        </Button>
+        <Button size="small" onClick={handleSave}>
+          {t("RequestedReservation.save")}
+        </Button>
+      </HorisontalFlex>
+    </>
   );
+};
 
-  const [updateWorkingMemo] = useMutation<Mutation>(UPDATE_WORKING_MEMO);
-
-  const updateMemo = (input: ReservationWorkingMemoMutationInput) =>
-    updateWorkingMemo({ variables: { input } });
+const RequestedReservation = ({
+  reservation,
+  refetch,
+}: {
+  reservation: ReservationType;
+  refetch: () => void;
+}): JSX.Element | null => {
+  const { t } = useTranslation();
 
   const ref = useRef<HTMLHeadingElement>(null);
-
-  if (loading) {
-    return <Loader />;
-  }
-
-  if (!reservation) {
-    return null;
-  }
 
   const pricing = reservation?.reservationUnits?.[0]
     ? getReservatinUnitPricing(
@@ -501,111 +426,33 @@ const RequestedReservation = (): JSX.Element | null => {
         />
       </ShowWhenTargetInvisible>
       <Container>
-        <div>
-          <NameState ref={ref}>
-            <H1 $legacy>{getName(reservation, t)}</H1>
-
-            <HorisontalFlex>
-              <AlignVertically>
-                {reservation.orderStatus && (
-                  <Tag
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    theme={{ "--tag-background": "var(--color-engel-light)" }}
-                    id="orderStatus"
-                  >
-                    {t(`Payment.status.${reservation.orderStatus}`)}
-                  </Tag>
-                )}
-              </AlignVertically>
-              <AlignVertically style={{ gap: "var(--spacing-xs)" }}>
-                <Dot />
-                {t(`RequestedReservation.state.${reservation.state}`)}
-              </AlignVertically>
-            </HorisontalFlex>
-          </NameState>
-          <Tagline>{reservationTagline}</Tagline>
-          <DateTime>
-            {t("RequestedReservation.createdAt")}{" "}
-            {formatDateTime(reservation.createdAt ?? "")}
-          </DateTime>
-        </div>
-        <HorisontalFlex style={{ marginBottom: "var(--spacing-s)" }}>
-          <ButtonsWithPermChecks
-            reservation={reservation}
-            isFree={!isNonFree}
-            onReservationUpdated={refetch}
-          />
-        </HorisontalFlex>
+        <ReservationTitleSection
+          ref={ref}
+          reservation={reservation}
+          tagline={reservationTagline}
+        />
+        <ButtonsWithPermChecks
+          reservation={reservation}
+          onReservationUpdated={refetch}
+          isFree={!isNonFree}
+        />
         <ReservationSummary reservation={reservation} isFree={!isNonFree} />
         <div>
-          <Accordion
-            heading={t("RequestedReservation.workingMemo")}
-            initiallyOpen={get(reservation, "workingMemo.length", 0) > 0}
+          <VisibleIfPermission
+            permission={Permission.CAN_COMMENT_RESERVATIONS}
+            reservation={reservation}
           >
-            <VerticalFlex>
-              <VisibleIfPermission
-                permissionName="can_comment_reservations"
-                unitPk={
-                  reservation?.reservationUnits?.[0]?.unit?.pk ?? undefined
-                }
-                serviceSectorPks={
-                  reservation?.reservationUnits?.[0]?.unit?.serviceSectors
-                    ?.filter((x): x is ServiceSectorType => x != null)
-                    ?.map((x) => x.pk)
-                    ?.filter((x): x is number => x != null) ?? []
-                }
-                otherwise={<span>{workingMemo || ""}</span>}
-              >
-                <TextArea
-                  label={t("RequestedReservation.workingMemoLabel")}
-                  id="workingMemo"
-                  helperText={t("RequestedReservation.workingMemoHelperText")}
-                  value={workingMemo}
-                  onChange={(e) => setWorkingMemo(e.target.value)}
-                />
-                <HorisontalFlex style={{ justifyContent: "flex-end" }}>
-                  <Button
-                    size="small"
-                    variant="secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setWorkingMemo(reservation.workingMemo || "");
-                    }}
-                  >
-                    {t("common.cancel")}
-                  </Button>
-                  <Button
-                    size="small"
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      try {
-                        const res = await updateMemo({
-                          pk: reservation.pk,
-                          workingMemo,
-                        });
-                        if (!res.errors) {
-                          refetch();
-                          notifySuccess(
-                            t("RequestedReservation.savedWorkingMemo")
-                          );
-                        } else {
-                          notifyError(
-                            t("RequestedReservation.errorSavingWorkingMemo")
-                          );
-                        }
-                      } catch (ex) {
-                        notifyError(
-                          t("RequestedReservation.errorSavingWorkingMemo")
-                        );
-                      }
-                    }}
-                  >
-                    {t("RequestedReservation.save")}
-                  </Button>
-                </HorisontalFlex>
-              </VisibleIfPermission>
-            </VerticalFlex>
-          </Accordion>
+            <Accordion
+              heading={t("RequestedReservation.workingMemo")}
+              initiallyOpen={get(reservation, "workingMemo.length", 0) > 0}
+            >
+              <WorkingMemo
+                initialValue={reservation.workingMemo ?? ""}
+                reservationPk={reservation.pk ?? 0}
+                refetch={refetch}
+              />
+            </Accordion>
+          </VisibleIfPermission>
           <TimeBlock reservation={reservation} onReservationUpdated={refetch} />
           <Accordion heading={t("RequestedReservation.reservationDetails")}>
             <ApplicationDatas>
@@ -639,12 +486,7 @@ const RequestedReservation = (): JSX.Element | null => {
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.reserveeType")}
-                data={t(
-                  getTranslationKeyForType(
-                    reservation.reserveeType as ReservationsReservationReserveeTypeChoices,
-                    Boolean(reservation.reserveeIsUnregisteredAssociation)
-                  )
-                )}
+                data={translateType(reservation, t)}
                 wide={
                   reservation.reserveeType ===
                   ReservationsReservationReserveeTypeChoices.Individual
@@ -772,4 +614,47 @@ const RequestedReservation = (): JSX.Element | null => {
   );
 };
 
-export default withMainMenu(RequestedReservation);
+const PermissionWrappedReservation = () => {
+  const { id } = useParams() as { id: string };
+  const { t } = useTranslation();
+  const { notifyError } = useNotification();
+  const { data, loading, refetch } = useQuery<Query, QueryReservationByPkArgs>(
+    SINGLE_RESERVATION_QUERY,
+    {
+      skip: !id || Number.isNaN(Number(id)),
+      fetchPolicy: "no-cache",
+      variables: {
+        pk: Number(id),
+      },
+      onError: () => {
+        notifyError(t("RequestedReservation.errorFetchingData"));
+      },
+    }
+  );
+
+  const reservation = data?.reservationByPk;
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (!reservation) {
+    return null;
+  }
+
+  return (
+    <VisibleIfPermission
+      permission={Permission.CAN_VIEW_RESERVATIONS}
+      reservation={reservation}
+      otherwise={
+        <Container>
+          <p>{t("errors.noPermission")}</p>
+        </Container>
+      }
+    >
+      <RequestedReservation reservation={reservation} refetch={refetch} />
+    </VisibleIfPermission>
+  );
+};
+
+export default withMainMenu(PermissionWrappedReservation);

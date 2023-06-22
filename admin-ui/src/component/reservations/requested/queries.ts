@@ -1,8 +1,10 @@
 import { gql } from "@apollo/client";
 
 export const UPDATE_WORKING_MEMO = gql`
-  mutation updateWorkingMemo($input: ReservationWorkingMemoMutationInput!) {
-    updateReservationWorkingMemo(input: $input) {
+  mutation updateWorkingMemo($pk: Int!, $workingMemo: String!) {
+    updateReservationWorkingMemo(
+      input: { pk: $pk, workingMemo: $workingMemo }
+    ) {
       workingMemo
       errors {
         field
@@ -18,93 +20,6 @@ export const GET_BIRTHDATE_BY_RESERVATION_PK = gql`
       user {
         dateOfBirth
       }
-    }
-  }
-`;
-
-export const RESERVATION_QUERY = gql`
-  query reservationByPk($pk: Int!) {
-    reservationByPk(pk: $pk) {
-      pk
-      createdAt
-      workingMemo
-      reservationUnits {
-        pk
-        nameFi
-        unit {
-          pk
-          nameFi
-          serviceSectors {
-            pk
-          }
-        }
-        pricings {
-          begins
-          pricingType
-          priceUnit
-          lowestPrice
-          highestPrice
-          taxPercentage {
-            value
-          }
-          status
-        }
-      }
-      recurringReservation {
-        pk
-        beginDate
-        endDate
-        weekdays
-      }
-      ageGroup {
-        minimum
-        maximum
-      }
-      purpose {
-        nameFi
-      }
-      homeCity {
-        nameFi
-      }
-      price
-      taxPercentageValue
-      numPersons
-      reserveeType
-      reserveeIsUnregisteredAssociation
-      name
-      description
-      reserveeFirstName
-      reserveeLastName
-      reserveePhone
-      begin
-      end
-      calendarUrl
-      user {
-        firstName
-        lastName
-        email
-        pk
-      }
-      state
-      reserveeOrganisationName
-      reserveeEmail
-      reserveeId
-      reserveeIsUnregisteredAssociation
-      reserveeAddressStreet
-      reserveeAddressCity
-      reserveeAddressZip
-      billingFirstName
-      billingLastName
-      billingPhone
-      billingEmail
-      billingAddressStreet
-      billingAddressCity
-      billingAddressZip
-      freeOfChargeReason
-      applyingForFreeOfCharge
-      orderUuid
-      orderStatus
-      refundUuid
     }
   }
 `;

@@ -9,7 +9,6 @@ import {
 import { error404Body, error404Title } from "../model/error";
 import {
   errorNotificationBody,
-  errorNotificationCloseButton,
   errorNotificationTitle,
 } from "../model/notification";
 import {
@@ -691,11 +690,12 @@ describe("with metadataset", () => {
     cy.get('button[type="submit"]').click();
     cy.get("#reserveeEmail-error").should(
       "contain.text",
-      "Virheellinen sähköpostiosoite"
+      "Sähköpostin tulee olla oikeassa muodossa (sisältäen @-merkin)"
     );
 
     cy.get("#reserveeFirstName").clear().type("Forename");
     cy.get("#reserveeEmail").type("@bar.baz");
+    cy.get("#reserveeId").type("123456-7");
 
     cy.checkA11y(undefined, undefined, undefined, true);
 
@@ -711,6 +711,8 @@ describe("with metadataset", () => {
       "contain.text",
       "Haen maksutonta käyttöä tai hinnan alennusta ja olen tutustunut alennusryhmiin."
     );
+    cy.get("main#main").should("contain.text", "Y-tunnus");
+    cy.get("main#main").should("contain.text", "123456-7");
 
     cancelButton().click();
     cy.get("#applyingForFreeOfCharge").click();
@@ -720,29 +722,21 @@ describe("with metadataset", () => {
 
     cy.get('button[type="submit"]').click();
 
-    errorNotificationTitle().should(
-      "contain.text",
-      "Varauksen päivitys epäonnistui"
-    );
+    errorNotificationTitle().should("contain.text", "Täytä puuttuvat tiedot");
     errorNotificationBody().should(
       "contain.text",
-      "Hyväksy sopimusehdot jatkaaksesi varausta."
+      "Täytä seuraavat kohdat tehdäksesi varauksen:PeruutusehdotSopimusehdot"
     );
-    errorNotificationCloseButton().click();
 
     cy.get("#generic-and-service-specific-terms-terms-accepted").click();
 
     cy.get('button[type="submit"]').click();
 
-    errorNotificationTitle().should(
-      "contain.text",
-      "Varauksen päivitys epäonnistui"
-    );
+    errorNotificationTitle().should("contain.text", "Täytä puuttuvat tiedot");
     errorNotificationBody().should(
       "contain.text",
-      "Hyväksy sopimusehdot jatkaaksesi varausta."
+      "Täytä seuraavat kohdat tehdäksesi varauksen:Peruutusehdot"
     );
-    errorNotificationCloseButton().click();
 
     cy.get("#cancellation-and-payment-terms-terms-accepted").click();
 

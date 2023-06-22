@@ -1,5 +1,6 @@
+import { fromUIDate } from "common/src/common/util";
 import { ReservationUnitsReservationUnitReservationStartIntervalChoices } from "common/types/gql-types";
-import { timeSelectionSchema } from "./RecurringReservationSchema";
+import { timeSelectionSchema } from "app/schemas";
 import { toMondayFirst } from "../../../common/util";
 
 // NOTE Custom UTC date code because taking only the date part of Date results
@@ -64,10 +65,10 @@ const generateReservations = (
   try {
     const min = (a: number, b: number) => (a < b ? a : b);
     const max = (a: number, b: number) => (a > b ? a : b);
-    const sDay = max(utcDate(new Date()), utcDate(startingDate));
+    const sDay = max(utcDate(new Date()), utcDate(fromUIDate(startingDate)));
 
     // end date with time 23:59:59
-    const eDay = utcDate(endingDate) + (MS_IN_DAY - 1);
+    const eDay = utcDate(fromUIDate(endingDate)) + (MS_IN_DAY - 1);
     const firstWeek = eachDayOfInterval(sDay, min(sDay + MS_IN_DAY * 7, eDay));
 
     return {
