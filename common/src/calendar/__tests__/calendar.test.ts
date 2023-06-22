@@ -765,7 +765,7 @@ describe("doesBuffer(s)Collide", () => {
           end: new Date("2019-09-22T15:00:00+00:00"),
           bufferTimeBefore: 3600,
           bufferTimeAfter: 3660,
-          type: "blocked",
+          isBlocked: true,
         },
         reservations
       )
@@ -778,7 +778,7 @@ describe("doesBuffer(s)Collide", () => {
           end: new Date("2019-09-22T12:00:00+00:00"),
           bufferTimeBefore: 3600,
           bufferTimeAfter: 3660,
-          type: "blocked",
+          isBlocked: true,
         },
         reservations
       )
