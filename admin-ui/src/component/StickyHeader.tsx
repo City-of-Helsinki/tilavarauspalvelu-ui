@@ -20,7 +20,6 @@ const StickyContent = styled.div`
   border-color: var(--color-black-20);
   padding: 10px;
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   gap: var(--spacing-s);
   line-height: 1.5;
@@ -35,20 +34,22 @@ const StickyContent = styled.div`
       border-color: var(--color-black-10);
     }
   }
-  @media (max-width: ${breakpoints.l}) {
-    flex-direction: column;
+  flex-direction: column;
+  @media (min-width: ${breakpoints.l}) {
+    flex-direction: row;
   }
 `;
 
 const Name = styled.h2`
-  font-size: var(--fontsize-heading-m);
   font-weight: 500;
   font-family: var(--tilavaraus-admin-font-medium);
   margin-top: 0;
-  margin-bottom: var(--spacing-s);
-  @media (max-width: ${breakpoints.s}) {
-    font-size: var(--fontsize-heading-xs);
-    margin-bottom: var(--spacing-2-xs);
+
+  font-size: var(--fontsize-heading-xs);
+  margin-bottom: var(--spacing-2-xs);
+  @media (min-width: ${breakpoints.s}) {
+    font-size: var(--fontsize-heading-m);
+    margin-bottom: var(--spacing-s);
   }
 `;
 const Tagline = styled.div`
@@ -61,16 +62,18 @@ const StyledButtonContainer = styled(ButtonContainer)`
   flex-shrink: 0;
   width: auto;
   align-items: center;
-  justify-content: flex-end;
   flex-direction: row-reverse;
-  @media (max-width: ${breakpoints.s}) {
-    justify-content: space-between;
+
+  justify-content: space-between;
+  & > button {
+    flex: 1;
+    max-width: 50%;
+  }
+  @media (min-width: ${breakpoints.s}) {
+    justify-content: flex-end;
     & > button {
-      flex: 1;
-      max-width: 50%;
-      & > {
-        whitespace: nowrap;
-      }
+      flex: unset;
+      max-width: unset;
     }
   }
 `;
