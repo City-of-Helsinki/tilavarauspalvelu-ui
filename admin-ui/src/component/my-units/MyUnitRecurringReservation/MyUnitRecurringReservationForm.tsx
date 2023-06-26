@@ -212,8 +212,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     }
     const unitPk = reservationUnit?.pk;
     if (unitPk == null) {
-      // TODO unspecified error
-      notifyError(t(translateError("noReservations")));
+      notifyError(t(translateError("formNotValid")));
       return;
     }
 

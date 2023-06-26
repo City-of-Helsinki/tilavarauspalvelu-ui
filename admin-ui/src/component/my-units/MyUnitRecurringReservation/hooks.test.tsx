@@ -2,48 +2,14 @@ import React from "react";
 import { render, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import { add, format, set } from "date-fns";
+import userEvent from "@testing-library/user-event";
 import { RecurringReservationForm } from "app/schemas";
 import { NewReservationListItem } from "app/component/ReservationsList";
 import { useCreateRecurringReservation } from "./hooks";
 import { mocks } from "./__test__/mocks";
 import { ReservationMade } from "./RecurringReservationDone";
-import userEvent from "@testing-library/user-event";
 import { CREATE_RECURRING_RESERVATION } from "./queries";
 import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
-
-export const MUTATION_DATA = {
-  input: {
-    // pk: 1,
-    // reservationUnitPks: [1],
-    type: "BEHALF",
-    /*
-    bufferTimeBefore: undefined,
-    bufferTimeAfter: undefined,
-    reserveeType: "BUSINESS",
-    reserveeFirstName: "Etunimi",
-    reserveeLastName: "Sukunimi",
-    reserveeOrganisationName: "Yhdistys007",
-    reserveePhone: "43434343",
-    reserveeEmail: "",
-    reserveeId: "44444444",
-    reserveeIsUnregisteredAssociation: false,
-    reserveeAddressStreet: "Katuosoite",
-    reserveeAddressCity: "TRE",
-    reserveeAddressZip: "44444",
-    billingFirstName: "",
-    billingLastName: "",
-    billingPhone: "",
-    billingEmail: "",
-    billingAddressStreet: "",
-    billingAddressCity: "",
-    billingAddressZip: "",
-    freeOfChargeReason: "",
-    */
-    name: "New name",
-    description: "",
-    numPersons: 10,
-  },
-};
 
 const N_DAYS = 10;
 const today = new Date();
@@ -60,7 +26,6 @@ const endingDate = add(startingDate, { days: N_DAYS });
 
 const FAIL_INDEX = 2;
 
-// TODO make the requests more generic
 const createRecurringMock = (
   pk: number,
   unitPk: number,
@@ -93,50 +58,28 @@ const createRecurringMock = (
     },
   },
   // Individual staff reservation calls can fail, define them here
-  ...(shouldFail === "once" || shouldFail === "twice"
-    ? [
-        {
-          request: {
-            query: CREATE_STAFF_RESERVATION,
-            variables: {
-              input: {
-                begin: add(startingDate, { days: FAIL_INDEX }).toISOString(),
-                end: set(add(startingDate, { days: FAIL_INDEX }), {
-                  hours: 12,
-                }).toISOString(),
-                recurringReservationPk: pk,
-                reservationUnitPks: [unitPk],
-                type: "BEHALF",
-                workingMemo: "",
-              },
-            },
-          },
-          error: new Error("Error"),
+  // FAIL should be first since it's consumed by the mock
+  ...Array.from(
+    { length: shouldFail === "once" ? 1 : shouldFail === "twice" ? 2 : 0 },
+    (_, i) => i
+  ).map(() => ({
+    request: {
+      query: CREATE_STAFF_RESERVATION,
+      variables: {
+        input: {
+          begin: add(startingDate, { days: FAIL_INDEX }).toISOString(),
+          end: set(add(startingDate, { days: FAIL_INDEX }), {
+            hours: 12,
+          }).toISOString(),
+          recurringReservationPk: pk,
+          reservationUnitPks: [unitPk],
+          type: "BEHALF",
+          workingMemo: "",
         },
-      ]
-    : []),
-  ...(shouldFail === "twice"
-    ? [
-        {
-          request: {
-            query: CREATE_STAFF_RESERVATION,
-            variables: {
-              input: {
-                begin: add(startingDate, { days: FAIL_INDEX }).toISOString(),
-                end: set(add(startingDate, { days: FAIL_INDEX }), {
-                  hours: 12,
-                }).toISOString(),
-                recurringReservationPk: pk,
-                reservationUnitPks: [unitPk],
-                type: "BEHALF",
-                workingMemo: "",
-              },
-            },
-          },
-          error: new Error("Error"),
-        },
-      ]
-    : []),
+      },
+    },
+    error: new Error("Error"),
+  })),
   ...Array.from({ length: N_DAYS }, (_, i) => i).map((i) => ({
     request: {
       query: CREATE_STAFF_RESERVATION,
@@ -237,7 +180,7 @@ const successRetVal = Array.from({ length: N_DAYS }, (_, i) => ({
   error: undefined,
 }));
 
-it("mutation succeeds if single reservation fails once", async () => {
+it("success if single reservation fails once and then succeeds", async () => {
   const cb = jest.fn();
   const view = wrappedRender(46, cb);
 
@@ -254,11 +197,11 @@ const failureRetVal = Array.from({ length: N_DAYS }, (_, i) => ({
   startTime: "10:00",
   endTime: "12:00",
   date: add(startingDate, { days: i }),
-  reservationPk: i === 2 ? undefined : 1000 + 200 + i,
-  error: i === 2 ? "ApolloError: Error" : undefined,
+  reservationPk: i === FAIL_INDEX ? undefined : 1000 + 200 + i,
+  error: i === FAIL_INDEX ? "ApolloError: Error" : undefined,
 }));
 
-it("mutation fails if single reservation fails twice", async () => {
+it("report a single failure if single reservation fails twice", async () => {
   const cb = jest.fn();
   const view = wrappedRender(102, cb);
   const btn = view.getByRole("button", { name: /mutate/i });
