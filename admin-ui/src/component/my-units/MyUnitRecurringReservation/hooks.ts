@@ -341,7 +341,7 @@ export const useCreateRecurringReservation = () => {
     unitPk: number,
     metaFields: string[],
     buffers: { before?: number; after?: number }
-  ) => {
+  ): Promise<[number | undefined, ReservationMade[]]> => {
     const metadataSetFields = metaFields;
 
     const flattenedMetadataSetValues = flattenMetadata(data, metadataSetFields);
@@ -378,7 +378,7 @@ export const useCreateRecurringReservation = () => {
 
       const errorMessage = get(firstError, "messages[0]");
       handleError(errorMessage);
-      return [undefined, []] as const;
+      return [undefined, []];
     }
     const staffInput = {
       reservationUnitPks: [unitPk],
@@ -398,5 +398,5 @@ export const useCreateRecurringReservation = () => {
     return [createResponse.createRecurringReservation.pk ?? undefined, result];
   };
 
-  return { mutate };
+  return [mutate];
 };

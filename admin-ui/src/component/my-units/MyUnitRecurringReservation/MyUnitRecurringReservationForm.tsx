@@ -152,7 +152,7 @@ const MyUnitRecurringReservationForm = ({ reservationUnits }: Props) => {
     { value: "biweekly", label: t("common.biweekly") },
   ] as const;
 
-  const { mutate } = useCreateRecurringReservation();
+  const [mutate] = useCreateRecurringReservation();
 
   const [removedReservations, setRemovedReservations] = useState<
     NewReservationListItem[]
