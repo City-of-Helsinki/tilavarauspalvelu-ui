@@ -78,7 +78,10 @@ const recurringReservationInfoText = ({
   t: TFunction;
 }) => {
   return `${t("Reservation.EditTime.recurringInfoTimes", {
-    weekdays: weekdays.map((weekday) => t(`dayShort.${weekday}`)).join(", "),
+    weekdays: weekdays
+      .sort((a, b) => a - b)
+      .map((weekday) => t(`dayShort.${weekday}`))
+      .join(", "),
     begin: begin && format(begin, "d.M.yyyy"),
     end: end && format(end, "d.M.yyyy"),
   })}`;
