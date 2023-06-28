@@ -17,7 +17,7 @@ import { format } from "date-fns";
 import { ErrorBoundary } from "react-error-boundary";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@apollo/client";
-import { fromUIDate } from "common/src/common/util";
+import { fromUIDate, toUIDate } from "common/src/common/util";
 import { useNotification } from "app/context/NotificationContext";
 import { useModal } from "app/context/ModalContext";
 import { TimeChangeFormSchemaRefined, TimeFormSchema } from "app/schemas";
@@ -82,8 +82,8 @@ const recurringReservationInfoText = ({
       .sort((a, b) => a - b)
       .map((weekday) => t(`dayShort.${weekday}`))
       .join(", "),
-    begin: begin && format(begin, "d.M.yyyy"),
-    end: end && format(end, "d.M.yyyy"),
+    begin: begin && toUIDate(begin),
+    end: end && toUIDate(end),
   })}`;
 };
 
