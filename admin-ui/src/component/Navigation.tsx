@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { UserInfo } from "common";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { breakpoints } from "common/src/common/style";
-import { useNavigate } from "react-router-dom";
 import { publicUrl } from "app/common/const";
 import usePermission from "app/hooks/usePermission";
 import MainMenu from "./MainMenu";
@@ -100,10 +99,11 @@ const Navigation = ({ onLogoClick = () => {}, disabledRouter = false }) => {
   );
 };
 
-// NOTE requires both client and react-router context
 const NavigationWithRouter = () => {
-  const history = useNavigate();
-  return <Navigation onLogoClick={() => history("/")} />;
+  // TODO use next link instead
+  return (
+    <Navigation onLogoClick={() => window.location.assign(publicUrl ?? "/")} />
+  );
 };
 
 // NOTE this is a workaround for SSR and react-router. Checking for window is not enough because of context.

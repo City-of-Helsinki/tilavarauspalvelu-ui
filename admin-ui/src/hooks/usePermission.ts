@@ -1,5 +1,4 @@
-// TODO move this hook up
-import { useQuery } from "@apollo/client";
+import { useSuspenseQuery, useQuery } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { type Query, type ReservationType } from "common/types/gql-types";
 import {
@@ -10,21 +9,34 @@ import {
 } from "app/modules/permissionHelper";
 import { CURRENT_USER } from "app/context/queries";
 
-const usePermission = () => {
+/// @param enableSuspense - if true, the apollo query allows wrapping inside a Suspense component.
+/// Don't suspend unless you need to, because it breaks some things.
+/// @returns {user, hasPermission, hasSomePermission, hasAnyPermission}
+const usePermission = (enableSuspense = false) => {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
-  const { data: user } = useQuery<Query>(CURRENT_USER, {
-    skip: !isAuthenticated,
-    fetchPolicy: "no-cache",
+  const { data, error: qError } = useQuery<Query>(CURRENT_USER, {
+    skip: !isAuthenticated && enableSuspense,
+    fetchPolicy: "cache-and-network",
+    errorPolicy: "none",
   });
+  const { data: suspendedData, error: suspendedError } =
+    useSuspenseQuery<Query>(CURRENT_USER, {
+      skip: !isAuthenticated && !enableSuspense,
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "none",
+    });
+
+  const user = enableSuspense ? suspendedData : data;
+  const error = enableSuspense ? suspendedError : qError;
 
   const hasSomePermission = (permissionName: Permission) => {
-    if (!isAuthenticated || !user?.currentUser) return false;
+    if (!isAuthenticated || error || !user?.currentUser) return false;
     return baseHasSomePermission(user?.currentUser, permissionName);
   };
 
   const hasAnyPermission = () => {
-    if (!isAuthenticated || !user?.currentUser) return false;
+    if (!isAuthenticated || error || !user?.currentUser) return false;
     return baseHasAnyPermission(user?.currentUser);
   };
 
@@ -33,7 +45,7 @@ const usePermission = () => {
     permissionName: Permission,
     includeOwn = true
   ) => {
-    if (!isAuthenticated || !user?.currentUser) return false;
+    if (!isAuthenticated || error || !user?.currentUser) return false;
 
     const serviceSectorPks =
       reservation?.reservationUnits?.[0]?.unit?.serviceSectors

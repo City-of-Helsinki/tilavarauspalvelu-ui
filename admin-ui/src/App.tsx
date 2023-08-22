@@ -1,12 +1,10 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import dynamic from "next/dynamic";
 
 import { Permission } from "app/modules/permissionHelper";
 import ApplicationRound from "./component/recurring-reservations/ApplicationRound";
-import PageWrapper from "./component/PageWrapper";
 import "./i18n";
-import { publicUrl } from "./common/const";
 import { GlobalContext } from "./context/GlobalContexts";
 import { prefixes } from "./common/urls";
 import AuthorizationChecker from "./common/AuthorizationChecker";
@@ -189,46 +187,38 @@ const PremisesRouter = () => (
   </Routes>
 );
 
-const App = () => {
+const AppRoutes = () => {
   return (
-    <BrowserRouter basename={publicUrl}>
-      <PageWrapper>
-        <Routes>
-          <Route path="/" element={withAuthorization(<ApplicationRounds />)} />
-
-          <Route
-            path={`${prefixes.applications}/*`}
-            element={withAuthorization(
-              <ApplicationRouter />,
-              Permission.CAN_VALIDATE_APPLICATIONS
-            )}
-          />
-
-          <Route
-            path={`${prefixes.recurringReservations}/application-rounds/*`}
-            element={withAuthorization(
-              <ApplicationRoundsRouter />,
-              Permission.CAN_VALIDATE_APPLICATIONS
-            )}
-          />
-
-          <Route
-            path="/premises-and-settings/*"
-            element={withAuthorization(<PremisesRouter />)}
-          />
-
-          <Route path="/unit/*" element={withAuthorization(<UnitsRouter />)} />
-          <Route
-            path="/reservations/*"
-            element={withAuthorization(<ReservationsRouter />)}
-          />
-          <Route
-            path="/my-units/*"
-            element={withAuthorization(<MyUnitsRouter />)}
-          />
-        </Routes>
-      </PageWrapper>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={withAuthorization(<ApplicationRounds />)} />
+      <Route
+        path={`${prefixes.applications}/*`}
+        element={withAuthorization(
+          <ApplicationRouter />,
+          Permission.CAN_VALIDATE_APPLICATIONS
+        )}
+      />
+      <Route
+        path={`${prefixes.recurringReservations}/application-rounds/*`}
+        element={withAuthorization(
+          <ApplicationRoundsRouter />,
+          Permission.CAN_VALIDATE_APPLICATIONS
+        )}
+      />
+      <Route
+        path="/premises-and-settings/*"
+        element={withAuthorization(<PremisesRouter />)}
+      />
+      <Route path="/unit/*" element={withAuthorization(<UnitsRouter />)} />
+      <Route
+        path="/reservations/*"
+        element={withAuthorization(<ReservationsRouter />)}
+      />
+      <Route
+        path="/my-units/*"
+        element={withAuthorization(<MyUnitsRouter />)}
+      />
+    </Routes>
   );
 };
 
@@ -238,7 +228,7 @@ const AppWrapper = () => {
   }
   return (
     <GlobalContext>
-      <App />
+      <AppRoutes />
     </GlobalContext>
   );
 };

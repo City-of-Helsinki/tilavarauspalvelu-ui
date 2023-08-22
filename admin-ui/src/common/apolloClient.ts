@@ -1,4 +1,10 @@
-import { ApolloClient, HttpLink, InMemoryCache, from } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloLink,
+  HttpLink,
+  InMemoryCache,
+  from,
+} from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
@@ -20,30 +26,35 @@ const uploadLinkOptions = {
   FormData: CustomFormData,
 };
 
+// NOTE upload link typing is broken when updating apollo to 3.8
 // FIXME upload link is broken locally (it succeeds but no new image is available)
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error FIXME
-const uploadLink = createUploadLink(uploadLinkOptions);
+const uploadLink = createUploadLink(uploadLinkOptions) as unknown as ApolloLink;
+// FIXME uploadLink broke with Apollo upgrade
 const httpLink = new HttpLink({ uri: `${apiBaseUrl}/graphql/` });
 
-const authLink = setContext(async (request, previousContext) => {
+const authLink = setContext(async (_request, previousContext) => {
   const headers = previousContext.headers ?? {};
   const session = await getSession();
 
+  if (!session?.apiTokens?.tilavaraus) {
+    return;
+  }
   return {
     headers: {
       ...headers,
-      authorization: session?.apiTokens?.tilavaraus
-        ? `Bearer ${session.apiTokens.tilavaraus}`
-        : "",
+      authorization: `Bearer ${session.apiTokens.tilavaraus}`,
       [PROFILE_TOKEN_HEADER]: session?.apiTokens?.profile ?? "",
     },
+    errorPolicy: "none",
   };
 });
 
 // eslint-disable-next-line consistent-return
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
+    console.log("graphQLErrors", graphQLErrors);
     const isSessionExpired = graphQLErrors.some((error) =>
       error.message.includes(SESSION_EXPIRED_ERROR)
     );
@@ -113,7 +124,9 @@ const client = new ApolloClient({
       },
     },
   }),
-  link: isBrowser ? from([errorLink, authLink, uploadLink]) : from([httpLink]),
+  link: isBrowser
+    ? from([authLink, errorLink, uploadLink])
+    : from([authLink, errorLink, httpLink]),
   ssrMode: !isBrowser,
 });
 

@@ -6,14 +6,13 @@ import ClientOnly from "common/src/ClientOnly";
 import KorosHeading, { Heading } from "app/component/KorosHeading";
 import { HERO_IMAGE_URL } from "app/common/const";
 import Footer from "app/component/Footer";
-import Navigation from "app/component/Navigation";
 import { env } from "app/env.mjs";
 import BaseLayout from "../../layout";
 
 // NOTE not using App.tsx so need to import i18n here also
 import "app/i18n";
 
-// TODO move these to a common layout (PageWrapper, copies from)
+// TODO use layout.tsx instead (it has these same)
 const Wrapper = styled.main`
   width: 100%;
   height: 100%;
@@ -45,7 +44,6 @@ const LogoutPage = () => {
   return (
     <Layout>
       <ClientOnly>
-        <Navigation disabledRouter />
         <KorosHeading heroImage={HERO_IMAGE_URL}>
           <Heading>{t("common:applicationName")}</Heading>
           <p style={{ fontSize: "1.8rem" }}>{t("logout:message")}</p>
