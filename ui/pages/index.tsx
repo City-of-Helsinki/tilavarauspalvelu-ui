@@ -11,7 +11,7 @@ import {
 } from "common/types/gql-types";
 import { Container } from "common";
 import { useRouter } from "next/router";
-import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import Header from "../components/index/Header";
 import SearchGuides from "../components/index/SearchGuides";
@@ -22,6 +22,7 @@ import {
   RESERVATION_UNIT_PURPOSES,
   SEARCH_FORM_PARAMS_UNIT,
 } from "../modules/queries/params";
+import { signOut } from "../modules/auth";
 
 type Props = {
   purposes: PurposeType[];
@@ -34,17 +35,18 @@ type Props = {
 /// Without this the session goes into a permanent error state
 /// where it tries to signIn the invalid session and that returns always an error.
 const useRedirectOnLoginError = () => {
+  const { data: session } = useSession();
   const r = useRouter();
   useEffect(() => {
     if (r.query.error) {
       // eslint-disable-next-line no-console
-      console.log('Login failed with: ', r.query.error);
-      signOut({ callbackUrl: "/", redirect: false }).then(() => {
-        r.push("/")
+      console.warn("Login failed with: ", r.query.error);
+      signOut({ session }).then(() => {
+        r.push("/");
       });
     }
-  }, [r]);
-}
+  }, [r, session]);
+};
 
 const Home = ({ purposes, units }: Props): JSX.Element => {
   const { t } = useTranslation(["home", "common"]);

@@ -106,9 +106,10 @@ const NavigationUserMenu = () => {
     .includes(router.pathname);
 
   const handleSignIn = () => {
-    signIn(authenticationIssuer, {
-      callbackUrl: window.location.href,
-    });
+    const callbackUrl = window.location.href.match(/\/logout/)
+      ? "/"
+      : window.location.href;
+    signIn(authenticationIssuer, { callbackUrl });
   };
 
   const handleSignOut = () => {

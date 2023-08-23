@@ -24,6 +24,7 @@ const nextConfig = {
     apiBaseUrl: process.env.TILAVARAUS_API_URL,
     authEnabled: process.env.DISABLE_AUTH !== "true",
     oidcEndSessionUrl: process.env.NEXT_PUBLIC_OIDC_END_SESSION,
+    tunnistamoUrl: process.env.NEXT_PUBLIC_TUNNISTAMO_URL,
     sentryDSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
     sentryEnvironment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
     cookiehubEnabled: process.env.NEXT_PUBLIC_COOKIEHUB_ENABLED === "true",

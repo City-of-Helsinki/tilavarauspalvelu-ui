@@ -81,6 +81,11 @@ const options = (): NextAuthOptions => {
     session: {
       strategy: "jwt",
     },
+    // If we want federated signout this is the place to add it (events callbacks)
+    // https://next-auth.js.org/configuration/events
+    // just calling the Tunnistamo end-session endpoint with fetch doesn't work
+    // doing it manually with the browser does (so probably missing some headers or cookies)
+    // of course this is a server call so there is no cookies.
     callbacks: {
       async jwt({ token, user, account }): Promise<JWT> {
         // Initial sign in
@@ -157,9 +162,22 @@ const options = (): NextAuthOptions => {
         return { ...session, accessToken, accessTokenExpires, user, apiTokens };
       },
       async redirect({ url, baseUrl }) {
-        return url.startsWith(baseUrl)
-          ? Promise.resolve(url)
-          : Promise.resolve(baseUrl);
+        // Allows relative callback URLs
+        if (url.startsWith("/")) return `${baseUrl}${url}`;
+        // Allows callback URLs on the same origin
+        if (new URL(url).origin === baseUrl) return url;
+        return baseUrl;
+      },
+    },
+    logger: {
+      error: console.error,
+      warn: console.warn,
+      debug: (code, metadata) => {
+        // Our cookies are too large and split into two, don't need to flood the logs with warnings
+        if (code === "CHUNKING_SESSION_COOKIE") {
+          return;
+        }
+        console.log(`[NEXT_AUTH]: [${code}]`, metadata);
       },
     },
     pages: {
