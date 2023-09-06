@@ -19,7 +19,7 @@ import {
 } from "../../modules/api";
 import { ApiData, useApiData } from "../../hooks/useApiData";
 import { SubHeading } from "../../modules/style/typography";
-import { parseDate } from "../../modules/util";
+import { parseDate } from "../../../common/modules/util";
 import Back from "../../components/common/Back";
 import Loader from "../../components/common/Loader";
 import { TwoColumnContainer } from "../../components/common/common";

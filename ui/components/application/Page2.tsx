@@ -9,7 +9,7 @@ import {
   deepCopy,
   cellsToApplicationEventSchedules,
   applicationEventSchedulesToCells,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { AccordionWithState as Accordion } from "../common/Accordion";
 import { MediumButton } from "../../styles/util";
 import { ButtonContainer } from "../common/common";

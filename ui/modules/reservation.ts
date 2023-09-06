@@ -25,7 +25,7 @@ import {
   isStartTimeWithinInterval,
 } from "common/src/calendar/util";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
-import { getTranslation } from "./util";
+import { getTranslation } from "../../common/modules/util";
 
 export const getDurationOptions = (
   minReservationDuration: number,

@@ -5,7 +5,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { parseTimeframeLength } from "common/src/calendar/util";
 import { fontMedium } from "common/src/common/typography";
-import { formatDate } from "../../modules/util";
+import { formatDate } from "../../../common/modules/util";
 
 type EventEvent = {
   event: {

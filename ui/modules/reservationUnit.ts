@@ -20,7 +20,7 @@ import {
   ReservationUnitType,
   UnitType,
 } from "common/types/gql-types";
-import { capitalize, getTranslation, localizedValue } from "./util";
+import { capitalize, getTranslation, localizedValue } from "../../common/modules/util";
 
 export const isReservationUnitPublished = (
   reservationUnit: ReservationUnitType | ReservationUnitByPkType

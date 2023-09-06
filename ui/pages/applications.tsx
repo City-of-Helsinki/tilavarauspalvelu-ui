@@ -21,7 +21,7 @@ import ApplicationsGroup from "../components/applications/ApplicationsGroup";
 import { CenterSpinner } from "../components/common/common";
 import { APPLICATIONS } from "../modules/queries/application";
 import { APPLICATION_ROUNDS } from "../modules/queries/applicationRound";
-import { getReducedApplicationStatus } from "../modules/util";
+import { getReducedApplicationStatus } from "../../common/modules/util";
 import { CURRENT_USER } from "../modules/queries/user";
 import { authEnabled, authenticationIssuer } from "../modules/const";
 

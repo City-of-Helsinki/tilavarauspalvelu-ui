@@ -3,7 +3,7 @@ import { useTranslation, TFunction } from "next-i18next";
 import styled from "styled-components";
 import { Reservation } from "common/types/common";
 import { Strong } from "common/src/common/typography";
-import { parseDate } from "../../modules/util";
+import { parseDate } from "../../../common/modules/util";
 
 type Props = {
   reservations?: Reservation[];

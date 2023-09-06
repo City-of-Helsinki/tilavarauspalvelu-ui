@@ -29,7 +29,7 @@ import {
   applicationRoundState,
   capitalize,
   searchUrl,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { isBrowser } from "../../modules/const";
 import { HeroSubheading } from "../../modules/style/typography";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";

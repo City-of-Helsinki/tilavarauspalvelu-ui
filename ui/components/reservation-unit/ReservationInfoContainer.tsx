@@ -4,7 +4,7 @@ import ClientOnly from "common/src/ClientOnly";
 import React, { useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { daysByMonths } from "../../modules/const";
-import { formatDate } from "../../modules/util";
+import { formatDate } from "../../../common/modules/util";
 import { Content, Subheading } from "./ReservationUnitStyles";
 
 type Props = {

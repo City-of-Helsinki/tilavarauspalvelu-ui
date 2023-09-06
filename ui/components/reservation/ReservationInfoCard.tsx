@@ -18,7 +18,7 @@ import {
   formatDurationMinutes,
   getMainImage,
   getTranslation,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { reservationUnitPath } from "../../modules/const";
 
 type Type = "pending" | "confirmed" | "complete";

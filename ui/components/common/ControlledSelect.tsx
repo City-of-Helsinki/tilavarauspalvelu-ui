@@ -3,7 +3,7 @@ import { Select } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { Controller, useForm } from "react-hook-form";
 import { OptionType } from "common/types/common";
-import { getSelectedOption } from "../../modules/util";
+import { getSelectedOption } from "../../../common/modules/util";
 
 type Props = {
   name: string;

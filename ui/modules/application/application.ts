@@ -1,6 +1,6 @@
 import { convertHMSToSeconds } from "common/src/common/util";
 import { ApplicationEvent, Cell } from "common/types/common";
-import { cellsToApplicationEventSchedules, getReadableList } from "../util";
+import { cellsToApplicationEventSchedules, getReadableList } from "../../../common/modules/util";
 
 export const getLongestChunks = (selectorData: Cell[][][]): number[] =>
   selectorData.map((n) => {

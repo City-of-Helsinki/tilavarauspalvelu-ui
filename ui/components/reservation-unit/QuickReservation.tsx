@@ -23,7 +23,7 @@ import { ReservationUnitByPkType } from "common/types/gql-types";
 import { ReservationProps } from "../../context/DataContext";
 import { getDurationOptions } from "../../modules/reservation";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
-import { formatDate } from "../../modules/util";
+import { formatDate } from "../../../common/modules/util";
 import { MediumButton } from "../../styles/util";
 import Carousel from "../Carousel";
 import LoginFragment from "../LoginFragment";

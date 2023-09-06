@@ -13,7 +13,7 @@ import {
 } from "common/types/gql-types";
 import { HeroSubheading } from "../../modules/style/typography";
 import ApplicationRoundCard from "../../components/index/ApplicationRoundCard";
-import { applicationRoundState } from "../../modules/util";
+import { applicationRoundState } from "../../../common/modules/util";
 import KorosDefault from "../../components/common/KorosDefault";
 import apolloClient from "../../modules/apolloClient";
 import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";

@@ -16,7 +16,7 @@ import {
   getMainImage,
   getTranslation,
   reservationsUrl,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import IconWithText from "../common/IconWithText";
 import { BlackButton } from "../../styles/util";
 import {

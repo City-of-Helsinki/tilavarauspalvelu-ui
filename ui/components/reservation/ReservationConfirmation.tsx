@@ -23,7 +23,7 @@ import { Subheading } from "common/src/reservation-form/styles";
 import { breakpoints } from "common/src/common/style";
 import { IconButton } from "common/src/components";
 import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
-import { getTranslation, reservationsUrl } from "../../modules/util";
+import { getTranslation, reservationsUrl } from "../../../common/modules/util";
 import { BlackButton } from "../../styles/util";
 import { Paragraph } from "./styles";
 import { reservationUnitPath } from "../../modules/const";

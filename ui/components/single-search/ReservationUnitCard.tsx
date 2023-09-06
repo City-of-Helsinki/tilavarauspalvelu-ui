@@ -12,7 +12,7 @@ import {
   getAddressAlt,
   getMainImage,
   getTranslation,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import IconWithText from "../common/IconWithText";
 import { MediumButton, pixel, truncatedText } from "../../styles/util";
 import {

@@ -20,7 +20,7 @@ import {
 import Back from "../../components/common/Back";
 import { CenterSpinner, HorisontalRule } from "../../components/common/common";
 import IconWithText from "../../components/common/IconWithText";
-import { localizedValue } from "../../modules/util";
+import { localizedValue } from "../../../common/modules/util";
 import ReservationList from "../../components/applications/ReservationList";
 import { isBrowser } from "../../modules/const";
 

@@ -22,7 +22,7 @@ import {
   getTranslation,
   localizedValue,
   mapOptions,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { getParameters, getReservationUnit } from "../../modules/api";
 import LabelValue from "../common/LabelValue";
 import TimePreview from "../common/TimePreview";

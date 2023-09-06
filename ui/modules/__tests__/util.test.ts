@@ -12,7 +12,7 @@ import {
   getComboboxValues,
   getReadableList,
   printErrorMessages,
-} from "../util";
+} from "../../../common/modules/util";
 
 jest.mock("next/config", () => () => ({
   serverRuntimeConfig: {},

@@ -14,7 +14,7 @@ import { Container } from "common";
 
 import apolloClient from "../../../modules/apolloClient";
 import Sanitize from "../../../components/common/Sanitize";
-import { getTranslation } from "../../../modules/util";
+import { getTranslation } from "../../../../common/modules/util";
 import { TERMS_OF_USE } from "../../../modules/queries/reservationUnit";
 
 type Props = {

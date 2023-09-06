@@ -34,7 +34,7 @@ import {
   deepCopy,
   getTranslation,
   uiDateToApiDate,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
 import apolloClient from "../../modules/apolloClient";
 import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";

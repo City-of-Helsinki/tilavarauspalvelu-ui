@@ -22,7 +22,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import TermsBox from "common/src/termsbox/TermsBox";
 import { TERMS_OF_USE } from "../../modules/queries/reservationUnit";
-import { capitalize, getTranslation } from "../../modules/util";
+import { capitalize, getTranslation } from "../../../common/modules/util";
 import Sanitize from "../common/Sanitize";
 import { BlackButton, MediumButton } from "../../styles/util";
 import { reservationsPrefix } from "../../modules/const";

@@ -8,7 +8,7 @@ import { fontMedium, H3 } from "common/src/common/typography";
 import { UnitType } from "common/types/gql-types";
 import { IconButton } from "common/src/components";
 import { singleSearchPrefix } from "../../modules/const";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 
 type Props = {
   units: UnitType[];

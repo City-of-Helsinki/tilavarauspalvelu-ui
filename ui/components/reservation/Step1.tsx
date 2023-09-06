@@ -16,7 +16,7 @@ import {
   TwoColumnContainer,
 } from "common/src/reservation-form/styles";
 import { ReservationStep } from "../../modules/types";
-import { capitalize, getTranslation } from "../../modules/util";
+import { capitalize, getTranslation } from "../../../common/modules/util";
 import { ActionContainer } from "./styles";
 import Sanitize from "../common/Sanitize";
 import { MediumButton } from "../../styles/util";

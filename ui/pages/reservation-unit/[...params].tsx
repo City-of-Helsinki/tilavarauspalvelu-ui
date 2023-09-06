@@ -47,7 +47,7 @@ import {
   reservationUnitPath,
   reservationUnitPrefix,
 } from "../../modules/const";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 import {
   RESERVATION_UNIT,
   TERMS_OF_USE,

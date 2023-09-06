@@ -25,7 +25,7 @@ import {
   deepCopy,
   getTranslation,
   mapOptions,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { getParameters } from "../../modules/api";
 import { participantCountOptions } from "../../modules/const";
 import { ButtonContainer, CenterSpinner } from "../common/common";

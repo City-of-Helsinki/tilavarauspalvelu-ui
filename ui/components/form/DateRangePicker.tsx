@@ -7,7 +7,7 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { toUIDate } from "common/src/common/util";
 import { Language } from "common/types/common";
-import { isValidDateString } from "../../modules/util";
+import { isValidDateString } from "../../../common/modules/util";
 
 const initDate = (date: Date | null): string => {
   return date ? toUIDate(date) : "";

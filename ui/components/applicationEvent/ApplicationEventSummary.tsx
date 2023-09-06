@@ -5,7 +5,7 @@ import { Trans, useTranslation, TFunction } from "next-i18next";
 import styled from "styled-components";
 import { ApplicationEvent } from "common/types/common";
 import { H5 } from "common/src/common/typography";
-import { apiDurationToMinutes, fromUIDate } from "../../modules/util";
+import { apiDurationToMinutes, fromUIDate } from "../../../common/modules/util";
 import IconWithText from "../common/IconWithText";
 
 type Props = {

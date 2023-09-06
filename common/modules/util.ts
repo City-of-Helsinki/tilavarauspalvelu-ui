@@ -3,7 +3,7 @@ import { i18n, TFunction } from "next-i18next";
 import queryString from "query-string";
 import { trim } from "lodash";
 import { ApolloError } from "@apollo/client";
-import { toApiDate, toUIDate, isValidDate } from "common/src/common/util";
+import { toApiDate, toUIDate, isValidDate } from "../src/common/util";
 import {
   ApplicationEventSchedule,
   Cell,
@@ -16,13 +16,13 @@ import {
   ReducedApplicationStatus,
   StringParameter,
   ApplicationEventSchedulePriority,
-} from "common/types/common";
+} from "../types/common";
 import {
   ReservationUnitImageType,
   ReservationUnitType,
   ApplicationStatus,
   ReservationUnitByPkType,
-} from "common/types/gql-types";
+} from "../types/gql-types";
 import {
   searchPrefix,
   emptyOption,
@@ -30,7 +30,7 @@ import {
   singleSearchPrefix,
   reservationsPrefix,
   isBrowser,
-} from "./const";
+} from "ui/modules/const";
 
 export const isActive = (startDate: string, endDate: string): boolean => {
   const now = new Date().getTime();

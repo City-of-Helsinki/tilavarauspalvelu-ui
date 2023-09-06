@@ -32,7 +32,7 @@ import {
   LIST_RESERVATIONS,
 } from "../../modules/queries/reservation";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 import Sanitize from "../common/Sanitize";
 import ReservationInfoCard from "./ReservationInfoCard";
 import { CURRENT_USER } from "../../modules/queries/user";

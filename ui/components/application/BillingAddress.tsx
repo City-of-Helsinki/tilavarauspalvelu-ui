@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "next-i18next";
 import { TextInput } from "hds-react";
 import { useFormContext } from "react-hook-form";
-import { applicationErrorText } from "../../modules/util";
+import { applicationErrorText } from "../../../common/modules/util";
 import { FormSubHeading } from "../common/common";
 import ApplicationForm from "./ApplicationForm";
 

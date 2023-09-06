@@ -13,7 +13,7 @@ import { FormSubHeading, TwoColumnContainer } from "../common/common";
 import EmailInput from "./EmailInput";
 import BillingAddress from "./BillingAddress";
 import Buttons from "./Buttons";
-import { deepCopy, applicationErrorText } from "../../modules/util";
+import { deepCopy, applicationErrorText } from "../../../common/modules/util";
 import ApplicationForm from "./ApplicationForm";
 
 type Props = {

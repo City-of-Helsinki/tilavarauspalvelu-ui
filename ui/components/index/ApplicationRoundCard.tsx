@@ -10,7 +10,7 @@ import ClientOnly from "common/src/ClientOnly";
 import { ApplicationRoundType } from "common/types/gql-types";
 import { IconButton } from "common/src/components";
 import Card from "../common/Card";
-import { applicationRoundState, searchUrl } from "../../modules/util";
+import { applicationRoundState, searchUrl } from "../../../common/modules/util";
 import { MediumButton } from "../../styles/util";
 import { getApplicationRoundName } from "../../modules/applicationRound";
 

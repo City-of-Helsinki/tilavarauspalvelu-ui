@@ -24,7 +24,7 @@ import {
   applicationEventCalendarFeedUrl,
   getParameters,
 } from "../../modules/api";
-import { parseDate, formatDurationMinutes } from "../../modules/util";
+import { parseDate, formatDurationMinutes } from "../../../common/modules/util";
 import { MediumButton } from "../../styles/util";
 import { HorisontalRule, SpanTwoColumns } from "../common/common";
 import DefaultIconWithText from "../common/IconWithText";

@@ -28,7 +28,7 @@ import { Container } from "common";
 
 import apolloClient from "../../modules/apolloClient";
 import { JustForDesktop, JustForMobile } from "../../modules/style/layout";
-import { getTranslation, reservationsUrl } from "../../modules/util";
+import { getTranslation, reservationsUrl } from "../../../common/modules/util";
 import { CenterSpinner } from "../../components/common/common";
 import { BlackButton, Toast } from "../../styles/util";
 import Sanitize from "../../components/common/Sanitize";

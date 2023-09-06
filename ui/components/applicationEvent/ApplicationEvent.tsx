@@ -34,7 +34,7 @@ import {
   formatApiDate,
   formatDate,
   uiDateToApiDate,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import ApplicationEventSummary from "./ApplicationEventSummary";
 import ControlledSelect from "../common/ControlledSelect";
 import Accordion from "../common/Accordion";

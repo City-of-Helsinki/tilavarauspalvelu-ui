@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { Container } from "common";
 import { Paragraph } from "./styles";
 import { LinkButton } from "../../styles/util";
-import { singleSearchUrl } from "../../modules/util";
+import { singleSearchUrl } from "../../../common/modules/util";
 import { signOut } from "../../modules/auth";
 
 type Props = {

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import { Container } from "common";
 
-import { applicationsUrl } from "../../modules/util";
+import { applicationsUrl } from "../../../common/modules/util";
 import Head from "./Head";
 
 const Paragraph = styled.p`

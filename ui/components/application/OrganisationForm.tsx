@@ -16,7 +16,7 @@ import { TwoColumnContainer, FormSubHeading } from "../common/common";
 import EmailInput from "./EmailInput";
 import BillingAddress from "./BillingAddress";
 import Buttons from "./Buttons";
-import { deepCopy, applicationErrorText } from "../../modules/util";
+import { deepCopy, applicationErrorText } from "../../../common/modules/util";
 import ControlledSelect from "../common/ControlledSelect";
 import ApplicationForm from "./ApplicationForm";
 

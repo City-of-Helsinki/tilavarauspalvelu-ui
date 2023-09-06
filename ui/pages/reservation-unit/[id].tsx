@@ -75,7 +75,7 @@ import {
   isTouchDevice,
   parseDate,
   printErrorMessages,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import {
   OPENING_HOURS,
   RELATED_RESERVATION_UNITS,

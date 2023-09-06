@@ -16,7 +16,7 @@ import {
   isActive,
   applicationUrl,
   getReducedApplicationStatus,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import ConfirmationModal, { ModalRef } from "../common/ConfirmationModal";
 import { CenterSpinner } from "../common/common";
 import { cancelApplication } from "../../modules/api";

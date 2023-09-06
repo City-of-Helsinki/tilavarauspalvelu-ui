@@ -21,7 +21,7 @@ import {
   getTranslation,
   orderImages,
   singleSearchUrl,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import IconWithText from "../common/IconWithText";
 import Images from "./Images";
 import {

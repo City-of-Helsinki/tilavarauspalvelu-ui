@@ -11,7 +11,7 @@ import { Application, OptionType } from "common/types/common";
 import { breakpoints } from "common/src/common/style";
 import { Query, QueryApplicationRoundsArgs } from "common/types/gql-types";
 import { saveApplication } from "../modules/api";
-import { applicationRoundState, deepCopy } from "../modules/util";
+import { applicationRoundState, deepCopy } from "../../common/modules/util";
 import { minimalApplicationForInitialSave } from "../modules/application/applicationInitializer";
 import { MediumButton } from "../styles/util";
 import Head from "../components/application/Head";

@@ -15,7 +15,7 @@ import {
 import { fontRegular } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { Query, TermsOfUseType } from "common/types/gql-types";
-import { getTranslation, mapOptions } from "../../modules/util";
+import { getTranslation, mapOptions } from "../../../common/modules/util";
 import { getParameters } from "../../modules/api";
 import LabelValue from "../common/LabelValue";
 import TimePreview from "../common/TimePreview";

@@ -24,7 +24,7 @@ import {
   mapOptions,
   getSelectedOption,
   getTranslation,
-} from "../../modules/util";
+} from "../../../common/modules/util";
 import { emptyOption, participantCountOptions } from "../../modules/const";
 import { MediumButton, truncatedText } from "../../styles/util";
 import MultiSelectDropdown from "../form/MultiselectDropdown";

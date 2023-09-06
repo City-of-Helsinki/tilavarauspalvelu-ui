@@ -7,7 +7,7 @@ import {
   EditorState,
 } from "common/types/common";
 import { defaultDuration } from "../const";
-import { deepCopy } from "../util";
+import { deepCopy } from "../../../common/modules/util";
 
 const applicationEvent = (
   applicationId?: number,

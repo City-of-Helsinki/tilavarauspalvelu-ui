@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { Container } from "common";
 
 import { Paragraph } from "./styles";
-import { singleSearchUrl } from "../../modules/util";
+import { singleSearchUrl } from "../../../common/modules/util";
 import { LinkButton } from "../../styles/util";
 import { signOut } from "../../modules/auth";
 

@@ -3,7 +3,7 @@ import { useTranslation } from "next-i18next";
 import { useFormContext } from "react-hook-form";
 import { Notification, TextInput } from "hds-react";
 import { SpanTwoColumns } from "../common/common";
-import { applicationErrorText } from "../../modules/util";
+import { applicationErrorText } from "../../../common/modules/util";
 import ApplicationForm from "./ApplicationForm";
 
 const EmailInput = () => {

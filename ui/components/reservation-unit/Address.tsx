@@ -10,7 +10,7 @@ import {
 } from "common/types/gql-types";
 import { IconLinkExternal } from "hds-react";
 import { IconButton } from "common/src/components";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 
 type Props = {
   reservationUnit: ReservationUnitByPkType | ReservationUnitType;

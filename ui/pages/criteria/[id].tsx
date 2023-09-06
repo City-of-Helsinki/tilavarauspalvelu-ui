@@ -13,7 +13,7 @@ import { Container } from "common";
 import apolloClient from "../../modules/apolloClient";
 import Sanitize from "../../components/common/Sanitize";
 import KorosDefault from "../../components/common/KorosDefault";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 import { APPLICATION_ROUNDS } from "../../modules/queries/applicationRound";
 import BreadcrumbWrapper from "../../components/common/BreadcrumbWrapper";
 import { getApplicationRoundName } from "../../modules/applicationRound";

@@ -9,7 +9,7 @@ import { H3 } from "common/src/common/typography";
 import { PurposeType } from "common/types/gql-types";
 import { ShowAllContainer } from "common/src/components";
 import { singleSearchPrefix } from "../../modules/const";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 import ReservationUnitSearch from "./ReservationUnitSearch";
 
 type Props = {

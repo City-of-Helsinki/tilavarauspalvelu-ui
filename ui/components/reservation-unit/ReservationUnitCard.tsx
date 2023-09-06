@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { fontBold, H6 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ReservationUnitType } from "common/types/gql-types";
-import { getMainImage, getTranslation } from "../../modules/util";
+import { getMainImage, getTranslation } from "../../../common/modules/util";
 import { MediumButton } from "../../styles/util";
 import { getReservationUnitName } from "../../modules/reservationUnit";
 

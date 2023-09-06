@@ -23,7 +23,7 @@ import {
 import { Container } from "common";
 
 import SearchForm from "../../components/single-search/SearchForm";
-import { capitalize, singleSearchUrl } from "../../modules/util";
+import { capitalize, singleSearchUrl } from "../../../common/modules/util";
 import { isBrowser } from "../../modules/const";
 import { RESERVATION_UNITS } from "../../modules/queries/reservationUnit";
 import Sorting from "../../components/form/Sorting";

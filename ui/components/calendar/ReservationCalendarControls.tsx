@@ -57,7 +57,7 @@ import { getDurationOptions } from "../../modules/reservation";
 import { getReservationUnitPrice } from "../../modules/reservationUnit";
 import LoginFragment from "../LoginFragment";
 import { useDebounce } from "../../hooks/useDebounce";
-import { capitalize, formatDurationMinutes } from "../../modules/util";
+import { capitalize, formatDurationMinutes } from "../../../common/modules/util";
 
 type Props<T> = {
   reservationUnit: ReservationUnitByPkType;

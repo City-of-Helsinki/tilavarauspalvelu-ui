@@ -13,7 +13,7 @@ import MetaFields from "common/src/reservation-form/MetaFields";
 import { ReservationUnitType } from "common/types/gql-types";
 import { MediumButton } from "../../styles/util";
 import { ActionContainer } from "./styles";
-import { getTranslation } from "../../modules/util";
+import { getTranslation } from "../../../common/modules/util";
 import InfoDialog from "../common/InfoDialog";
 import { JustForMobile } from "../../modules/style/layout";
 import {
