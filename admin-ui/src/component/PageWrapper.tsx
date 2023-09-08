@@ -6,13 +6,13 @@ import styled from "styled-components";
 import ClientOnly from "common/src/ClientOnly";
 import Error5xx from "app/common/Error5xx";
 import usePermission from "app/hooks/usePermission";
+import { NotificationsList } from "common/src/components";
 import ScrollToTop from "../common/ScrollToTop";
 import GlobalElements from "./GlobalElements";
 import Navigation from "./Navigation";
 import MainMenu from "./MainMenu";
 import Loader from "./Loader";
 import MainLander from "./MainLander";
-import {NotificationsList} from "common/src/components";
 
 type Props = {
   children: React.ReactNode;
