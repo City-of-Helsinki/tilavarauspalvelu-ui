@@ -12,6 +12,7 @@ import Navigation from "./Navigation";
 import MainMenu from "./MainMenu";
 import Loader from "./Loader";
 import MainLander from "./MainLander";
+import {NotificationsList} from "common/src/components";
 
 type Props = {
   children: React.ReactNode;
@@ -43,6 +44,7 @@ export default function PageWrapper({ children }: Props): JSX.Element {
     <ErrorBoundary FallbackComponent={FallbackComponent}>
       <ClientOnly>
         <Navigation />
+        <NotificationsList target="STAFF" />
         <Wrapper>
           {hasAccess && <MainMenu placement="default" />}
           <Suspense fallback={<Loader />}>
