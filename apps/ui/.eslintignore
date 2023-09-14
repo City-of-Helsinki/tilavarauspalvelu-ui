@@ -9,5 +9,5 @@ setupTests.ts
 *.test.*
 *.spec.*
 # ignore the two js files till we confirm that ts compiler can be run on js files
-_document.js
+_document.cjs
 _error.js

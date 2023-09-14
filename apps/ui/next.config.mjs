@@ -1,7 +1,10 @@
-import i18nconfig from "./next-i18next.config.js";
+import i18nconfig from "./next-i18next.config.cjs";
 import { withSentryConfig } from "@sentry/nextjs"
 
 const { i18n } = i18nconfig;
+
+// i18next can't automatically pick up cjs or mjs
+process.env.I18NEXT_DEFAULT_CONFIG_PATH = './next-i18next.config.cjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

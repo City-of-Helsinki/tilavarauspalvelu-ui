@@ -2,9 +2,10 @@
   "name": "ui",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "preinstall": "npx -y only-allow pnpm",
-    "dev": "node server.js",
+    "dev": "node server.cjs",
     "dev:test": "NODE_OPTIONS='--no-experimental-fetch' NEXT_PUBLIC_MOCK_REQUESTS=true PORT=4000 DISABLE_AUTH=true NEXT_PUBLIC_BASE_URL=http://127.0.0.1:4000 NEXT_PUBLIC_TILAVARAUS_API_URL=http://127.0.0.1:4000 next dev",
     "build": "next build",
     "start": "next start",
