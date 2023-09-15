@@ -10,10 +10,8 @@ import { fontBold } from "../common/typography";
 import { BannerNotificationType, Query } from "../../types/gql-types";
 import { BANNER_NOTIFICATIONS_LIST } from "./BannerNotificationsQuery";
 
-type BannerNotificationTarget = "USER" | "STAFF" | "ALL";
 type BannerNotificationListProps = {
   displayAmount?: number;
-  targetList: BannerNotificationTarget[];
   centered?: boolean;
 };
 
@@ -114,12 +112,17 @@ const NotificationsListItem = ({
 /// @param centered {boolean} - whether the notification should be centered when page width exceeds xl-breakpoint
 /// @return A list of banner notifications targeted to the specified targets, ordered by level (EXCEPTION, WARNING, NORMAL)
 /// @desc A component which returns a list of styled banner notifications, clipped at the specified amount, targeted to the specified targets and ordered by level
+/// TODO under testing: can't do target checks to the query because backend doesn't allow querying target without can_manage_notifications permission
 const BannerNotificationsList = ({
   displayAmount = 2,
-  targetList = ["ALL"],
   centered,
 }: BannerNotificationListProps) => {
-  const { data: notificationData } = useQuery<Query>(BANNER_NOTIFICATIONS_LIST);
+  // no-cache is required because admin is caching bannerNotifications query and
+  // there is no key setup for this so this query returns garbage from the admin cache.
+  const { data: notificationData } = useQuery<Query>(
+    BANNER_NOTIFICATIONS_LIST,
+    { fetchPolicy: "no-cache" }
+  );
   const notificationsList =
     notificationData?.bannerNotifications?.edges
       .map((edge) => edge?.node)
@@ -145,12 +148,11 @@ const BannerNotificationsList = ({
     ...alertNotificationsList,
     ...infoNotificationsList,
   ];
-  // Filter out notifications that have been closed by the user, or aren't targeted to them
+  // Filter out notifications that have been closed by the user
   const displayedNotificationsList = groupedNotificationsList.filter(
     (item) =>
       closedNotificationsList != null &&
-      !closedNotificationsList.includes(String(item?.id ?? 0)) &&
-      targetList.map((t) => t === item?.target).includes(true)
+      !closedNotificationsList.includes(String(item?.id ?? 0))
   );
 
   return (
