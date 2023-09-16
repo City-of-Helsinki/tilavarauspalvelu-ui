@@ -142,7 +142,7 @@ const DialogContent = ({
         fields: {
           // find the pk => slice the array => replace the state variable in the slice
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore; TODO: typecheck broke after updating Apollo or Typescript
+          // @ts-expect-error; TODO: typecheck broke after updating Apollo or Typescript
           reservations(existing: ReservationTypeConnection) {
             const queryRes = data?.denyReservation;
             if (queryRes?.errors) {
