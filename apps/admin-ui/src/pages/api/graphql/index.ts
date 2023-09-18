@@ -6,7 +6,6 @@ import { authOptions } from "app/pages/api/auth/[...nextauth]";
 
 /// Mask graphql endpoint for the client so we can drop cookies
 /// otherwise the large request size causes a 502
-/// TODO we can move authentication here using server getSession
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -16,16 +15,19 @@ export default async function handler(
     return res.status(405).send("Only POST is allowed");
   }
 
+  const contentType = req.headers["content-type"];
+
   const uri = `${apiBaseUrl}/graphql/`;
   const response = await fetch(uri, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": contentType || "application/json",
       ...(session?.apiTokens?.tilavaraus
         ? { authorization: `Bearer ${session.apiTokens.tilavaraus}` }
         : {}),
     },
-    body: JSON.stringify(req.body),
+    body:
+      contentType === "application/json" ? JSON.stringify(req.body) : req.body,
   });
 
   return res.status(response.status).json(await response.json());
