@@ -460,6 +460,7 @@ const ReservationUnit = ({
         user: currentUser?.pk?.toString(),
         reservationUnit: [reservationUnit?.pk?.toString() ?? ""],
         state: allowedReservationStates,
+        type: ReservationsReservationTypeChoices.Normal,
       },
     }
   );
