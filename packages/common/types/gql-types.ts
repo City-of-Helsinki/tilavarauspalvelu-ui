@@ -51,6 +51,8 @@ export type Scalars = {
    * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
    */
   Time: { input: string; output: string };
+  /** Time scalar that can parse time-strings from database. */
+  TimeString: { input: unknown; output: unknown };
   /**
    * Leverages the internal Python implementation of UUID (uuid.UUID) to provide native UUID objects
    * in fields, resolvers and input.
@@ -397,14 +399,14 @@ export type ApplicationEventScheduleInEventSerializerInput = {
 
 export type ApplicationEventScheduleNode = Node & {
   __typename?: "ApplicationEventScheduleNode";
-  allocatedBegin?: Maybe<Scalars["Time"]["output"]>;
+  allocatedBegin?: Maybe<Scalars["TimeString"]["output"]>;
   allocatedDay?: Maybe<Scalars["Int"]["output"]>;
-  allocatedEnd?: Maybe<Scalars["Time"]["output"]>;
+  allocatedEnd?: Maybe<Scalars["TimeString"]["output"]>;
   allocatedReservationUnit?: Maybe<ReservationUnitType>;
-  begin: Scalars["Time"]["output"];
+  begin: Scalars["TimeString"]["output"];
   day: Scalars["Int"]["output"];
   declined: Scalars["Boolean"]["output"];
-  end: Scalars["Time"]["output"];
+  end: Scalars["TimeString"]["output"];
   /** May contain more than one error for same field. */
   errors?: Maybe<Array<Maybe<ErrorType>>>;
   /** The ID of the object */
@@ -492,6 +494,7 @@ export type ApplicationNode = Node & {
   organisation?: Maybe<OrganisationNode>;
   pk?: Maybe<Scalars["Int"]["output"]>;
   status?: Maybe<ApplicationStatusChoice>;
+  workingMemo: Scalars["String"]["output"];
 };
 
 export type ApplicationNodeConnection = {
@@ -572,6 +575,24 @@ export enum ApplicationRoundStatusChoice {
   Upcoming = "UPCOMING",
 }
 
+export type ApplicationRoundTimeSlotNode = Node & {
+  __typename?: "ApplicationRoundTimeSlotNode";
+  closed: Scalars["Boolean"]["output"];
+  /** May contain more than one error for same field. */
+  errors?: Maybe<Array<Maybe<ErrorType>>>;
+  /** The ID of the object */
+  id: Scalars["ID"]["output"];
+  pk?: Maybe<Scalars["Int"]["output"]>;
+  reservableTimes?: Maybe<Array<Maybe<TimeSlotType>>>;
+  weekday: Scalars["Int"]["output"];
+};
+
+export type ApplicationRoundTimeSlotSerializerInput = {
+  closed?: InputMaybe<Scalars["Boolean"]["input"]>;
+  reservableTimes?: InputMaybe<Array<InputMaybe<TimeSlotSerializerInput>>>;
+  weekday: Scalars["Int"]["input"];
+};
+
 export type ApplicationSendMutationInput = {
   clientMutationId?: InputMaybe<Scalars["String"]["input"]>;
   pk: Scalars["Int"]["input"];
@@ -609,6 +630,7 @@ export type ApplicationUpdateMutationInput = {
   homeCity?: InputMaybe<Scalars["Int"]["input"]>;
   organisation?: InputMaybe<UpdateOrganisationSerializerInput>;
   pk: Scalars["Int"]["input"];
+  workingMemo?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type ApplicationUpdateMutationPayload = {
@@ -628,6 +650,7 @@ export type ApplicationUpdateMutationPayload = {
   organisation?: Maybe<OrganisationNode>;
   pk?: Maybe<Scalars["Int"]["output"]>;
   status?: Maybe<Scalars["String"]["output"]>;
+  workingMemo?: Maybe<Scalars["String"]["output"]>;
 };
 
 /** An enumeration. */
@@ -2042,6 +2065,7 @@ export type QueryReservationsArgs = {
   priceLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   recurringReservation?: InputMaybe<Scalars["ID"]["input"]>;
   requested?: InputMaybe<Scalars["Boolean"]["input"]>;
+  reservationType?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
   reservationUnit?: InputMaybe<Array<InputMaybe<Scalars["ID"]["input"]>>>;
   reservationUnitNameEn?: InputMaybe<Scalars["String"]["input"]>;
   reservationUnitNameFi?: InputMaybe<Scalars["String"]["input"]>;
@@ -2207,11 +2231,11 @@ export type RecurringReservationType = Node & {
   ageGroup?: Maybe<AgeGroupType>;
   applicationEventSchedule?: Maybe<Scalars["Int"]["output"]>;
   beginDate?: Maybe<Scalars["Date"]["output"]>;
-  beginTime?: Maybe<Scalars["Time"]["output"]>;
+  beginTime?: Maybe<Scalars["TimeString"]["output"]>;
   created: Scalars["DateTime"]["output"];
   description: Scalars["String"]["output"];
   endDate?: Maybe<Scalars["Date"]["output"]>;
-  endTime?: Maybe<Scalars["Time"]["output"]>;
+  endTime?: Maybe<Scalars["TimeString"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
   name: Scalars["String"]["output"];
@@ -3055,6 +3079,7 @@ export type ReservationUnitByPkType = Node & {
   __typename?: "ReservationUnitByPkType";
   /** Is it possible to reserve this reservation unit when opening hours are not defined. */
   allowReservationsWithoutOpeningHours: Scalars["Boolean"]["output"];
+  applicationRoundTimeSlots?: Maybe<Array<ApplicationRoundTimeSlotNode>>;
   applicationRounds?: Maybe<Array<Maybe<ApplicationRoundNode>>>;
   /** Authentication required for reserving this reservation unit. */
   authentication: ReservationUnitsReservationUnitAuthenticationChoices;
@@ -3202,6 +3227,9 @@ export type ReservationUnitCreateMutationInput = {
   allowReservationsWithoutOpeningHours?: InputMaybe<
     Scalars["Boolean"]["input"]
   >;
+  applicationRoundTimeSlots?: InputMaybe<
+    Array<InputMaybe<ApplicationRoundTimeSlotSerializerInput>>
+  >;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: InputMaybe<Scalars["String"]["input"]>;
   bufferTimeAfter?: InputMaybe<Scalars["Int"]["input"]>;
@@ -3289,6 +3317,7 @@ export type ReservationUnitCreateMutationPayload = {
   __typename?: "ReservationUnitCreateMutationPayload";
   /** Allow reservations without opening hours. Used for testing. */
   allowReservationsWithoutOpeningHours?: Maybe<Scalars["Boolean"]["output"]>;
+  applicationRoundTimeSlots?: Maybe<Array<Maybe<ApplicationRoundTimeSlotNode>>>;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: Maybe<Scalars["String"]["output"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]["output"]>;
@@ -3526,6 +3555,7 @@ export type ReservationUnitType = Node & {
   __typename?: "ReservationUnitType";
   /** Is it possible to reserve this reservation unit when opening hours are not defined. */
   allowReservationsWithoutOpeningHours: Scalars["Boolean"]["output"];
+  applicationRoundTimeSlots?: Maybe<Array<ApplicationRoundTimeSlotNode>>;
   applicationRounds?: Maybe<Array<Maybe<ApplicationRoundNode>>>;
   /** Authentication required for reserving this reservation unit. */
   authentication: ReservationUnitsReservationUnitAuthenticationChoices;
@@ -3679,6 +3709,9 @@ export type ReservationUnitUpdateMutationInput = {
   allowReservationsWithoutOpeningHours?: InputMaybe<
     Scalars["Boolean"]["input"]
   >;
+  applicationRoundTimeSlots?: InputMaybe<
+    Array<InputMaybe<ApplicationRoundTimeSlotSerializerInput>>
+  >;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: InputMaybe<Scalars["String"]["input"]>;
   bufferTimeAfter?: InputMaybe<Scalars["Int"]["input"]>;
@@ -3765,6 +3798,7 @@ export type ReservationUnitUpdateMutationPayload = {
   __typename?: "ReservationUnitUpdateMutationPayload";
   /** Allow reservations without opening hours. Used for testing. */
   allowReservationsWithoutOpeningHours?: Maybe<Scalars["Boolean"]["output"]>;
+  applicationRoundTimeSlots?: Maybe<Array<Maybe<ApplicationRoundTimeSlotNode>>>;
   /** Authentication required for reserving this reservation unit. Possible values are WEAK, STRONG. */
   authentication?: Maybe<Scalars["String"]["output"]>;
   bufferTimeAfter?: Maybe<Scalars["Int"]["output"]>;
@@ -4509,6 +4543,17 @@ export type TermsOfUseTypeEdge = {
   cursor: Scalars["String"]["output"];
   /** The item at the end of the edge */
   node?: Maybe<TermsOfUseType>;
+};
+
+export type TimeSlotSerializerInput = {
+  begin: Scalars["Time"]["input"];
+  end: Scalars["Time"]["input"];
+};
+
+export type TimeSlotType = {
+  __typename?: "TimeSlotType";
+  begin: Scalars["TimeString"]["output"];
+  end: Scalars["TimeString"]["output"];
 };
 
 export type TimeSpanType = {

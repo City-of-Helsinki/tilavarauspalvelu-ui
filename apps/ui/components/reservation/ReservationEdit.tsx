@@ -256,6 +256,7 @@ const ReservationEdit = ({ id }: Props): JSX.Element => {
         user: currentUser?.pk?.toString(),
         reservationUnit: [reservationUnit?.pk?.toString() ?? ""],
         state: allowedReservationStates,
+        reservationType: ["normal"],
       },
     }
   );

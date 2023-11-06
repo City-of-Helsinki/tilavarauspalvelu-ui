@@ -112,6 +112,7 @@ const Reservations = (): JSX.Element | null => {
         ReservationsReservationStateChoices.WaitingForPayment,
         ReservationsReservationStateChoices.Denied,
       ],
+      reservationType: ["normal"],
       orderBy: "-begin",
       user: currentUser?.pk?.toString(),
     },

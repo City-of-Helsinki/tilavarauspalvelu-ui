@@ -119,6 +119,7 @@ export const LIST_RESERVATIONS = gql`
     $user: ID
     $reservationUnit: [ID]
     $orderBy: String
+    $reservationType: [String]
   ) {
     reservations(
       before: $before
@@ -130,6 +131,7 @@ export const LIST_RESERVATIONS = gql`
       state: $state
       user: $user
       reservationUnit: $reservationUnit
+      reservationType: $reservationType
       orderBy: $orderBy
     ) {
       edges {
