@@ -25,7 +25,7 @@
     "@apollo/client": "^3.8.1",
     "@hookform/resolvers": "^2.9.10",
     "@react-pdf/renderer": "^3.1.12",
-    "@sentry/nextjs": "^7.66.0",
+    "@sentry/nextjs": "^7.77.0",
     "classnames": "^2.3.2",
     "common": "workspace:*",
     "date-fns": "^2.30.0",
