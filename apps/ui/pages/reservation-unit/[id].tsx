@@ -124,6 +124,7 @@ type Props = {
   relatedReservationUnits: ReservationUnitType[];
   activeApplicationRounds: RoundPeriod[];
   termsOfUse: Record<string, TermsOfUseType>;
+  isPostLogin?: boolean;
 };
 
 type WeekOptions = "day" | "week" | "month";
@@ -432,6 +433,7 @@ const ReservationUnit = ({
   relatedReservationUnits,
   activeApplicationRounds,
   termsOfUse,
+  isPostLogin,
 }: Props): JSX.Element | null => {
   const { t, i18n } = useTranslation();
 
@@ -836,6 +838,23 @@ const ReservationUnit = ({
     useState<QuickReservationSlotProps | null>(null);
 
   const [cookiehubBannerHeight, setCookiehubBannerHeight] = useState<number>(0);
+
+  useEffect(() => {
+    if (!!isPostLogin && storedReservation && reservationUnit?.pk) {
+      const { begin, end } = storedReservation;
+      const input: ReservationCreateMutationInput = {
+        begin,
+        end,
+        reservationUnitPks: [reservationUnit.pk],
+      };
+      addReservation({
+        variables: {
+          input,
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onScroll = () => {
     const banner: HTMLElement | null = window.document.querySelector(

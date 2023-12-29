@@ -1,10 +1,11 @@
 import { getSignOutUrl, getSignInUrl } from "~/modules/const";
 import { useCurrentUser } from "../user";
 
-// Redirect the user to the sign in dialog and return to the current url after sign in
-export function signIn() {
-  const currentUrl = window.location.href;
-  const url = getSignInUrl(currentUrl);
+// Redirect the user to the sign in dialog and return to returnUrl (or
+// current url if none is provided) after sign in
+export function signIn(returnUrl?: string) {
+  const returnTo = returnUrl ?? window.location.href;
+  const url = getSignInUrl(returnTo);
   window.location.href = url;
 }
 

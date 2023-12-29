@@ -56,6 +56,8 @@ import {
 import LoginFragment from "../LoginFragment";
 import { useDebounce } from "@/hooks/useDebounce";
 import { capitalize, formatDurationMinutes } from "@/modules/util";
+import { NEXT_URL } from "next/dist/client/components/app-router-headers";
+import { isBrowser } from "@/modules/const";
 
 type Props<T> = {
   reservationUnit: ReservationUnitByPkType;
@@ -603,6 +605,9 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     (n) => n?.endDatetime
   );
 
+  let loc;
+  if (isBrowser) loc = window.location;
+
   const submitButton = createReservation ? (
     <SubmitButtonWrapper>
       <LoginFragment
@@ -633,6 +638,13 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
           >
             {t("reservationCalendar:makeReservation")}
           </SubmitButton>
+        }
+        returnUrl={
+          loc
+            ? `${loc.protocol}//${loc.hostname}${
+                loc.port ? `:${loc.port}` : ""
+              }/reservation-unit/${reservationUnit.pk}?isPostLogin=true`
+            : undefined
         }
       />
     </SubmitButtonWrapper>
