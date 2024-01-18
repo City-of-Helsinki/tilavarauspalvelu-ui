@@ -278,6 +278,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         relatedReservationUnits,
         activeApplicationRounds,
         termsOfUse: { genericTerms: bookingTerms },
+        isPostLogin: query?.isPostLogin === "true",
       },
     };
   }
