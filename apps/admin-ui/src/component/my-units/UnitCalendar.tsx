@@ -396,6 +396,7 @@ const Events = ({
             >
               <EventContent style={{ ...eventStyleGetter(e).style }}>
                 <p>{title}</p>
+                {/* FIXME Popup breaks HDS Select close on click */}
                 {/* NOTE don't set position on Popup it breaks responsiveness */}
                 <Popup trigger={EventTriggerButton}>
                   {e.event && <ReservationPopupContent reservation={e.event} />}

@@ -49,6 +49,7 @@ const UnitReservationsView = (): JSX.Element => {
   const onDateChange = ({ date }: { date: Date }) => {
     setBegin(formatISO(date));
 
+    // TODO this should change query Params, not navigate
     history({
       hash,
       search: `?date=${toUIDate(date)}`,
