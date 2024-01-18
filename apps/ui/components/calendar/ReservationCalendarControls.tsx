@@ -604,7 +604,15 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     (n) => n?.endDatetime
   );
 
-  const loc = isBrowser ? window.location : undefined;
+  const getPostLoginUrl = () => {
+    if (!isBrowser) {
+      return undefined;
+    }
+    const { origin, pathname, searchParams } = new URL(window.location.href);
+    const params = new URLSearchParams(searchParams);
+    searchParams.set("isPostLogin", "true");
+    return `${origin}${pathname}?${params.toString()}`;
+  };
 
   const submitButton = createReservation ? (
     <SubmitButtonWrapper>
@@ -637,13 +645,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
             {t("reservationCalendar:makeReservation")}
           </SubmitButton>
         }
-        returnUrl={
-          loc
-            ? `${loc.protocol}//${loc.hostname}${
-                loc.port ? `:${loc.port}` : ""
-              }/reservation-unit/${reservationUnit.pk}?isPostLogin=true`
-            : undefined
-        }
+        returnUrl={getPostLoginUrl()}
       />
     </SubmitButtonWrapper>
   ) : null;
