@@ -56,7 +56,6 @@ import {
 import LoginFragment from "../LoginFragment";
 import { useDebounce } from "@/hooks/useDebounce";
 import { capitalize, formatDurationMinutes } from "@/modules/util";
-import { NEXT_URL } from "next/dist/client/components/app-router-headers";
 import { isBrowser } from "@/modules/const";
 
 type Props<T> = {
@@ -605,8 +604,7 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     (n) => n?.endDatetime
   );
 
-  let loc;
-  if (isBrowser) loc = window.location;
+  const loc = isBrowser ? window.location : undefined;
 
   const submitButton = createReservation ? (
     <SubmitButtonWrapper>
