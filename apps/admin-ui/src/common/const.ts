@@ -93,3 +93,11 @@ export const VALID_ALLOCATED_APPLICATION_STATUSES = [
   ApplicationStatusChoice.Handled,
   ApplicationStatusChoice.ResultsSent,
 ];
+
+// TODO: links should be constructed from environment variables
+export function getServicePointEditUrl(tprekId: string) {
+  return `https://asiointi.hel.fi/tprperhe/TPR/UI/ServicePoint/ServicePointEdit/${tprekId}`;
+}
+
+export const UNIT_PROFILE_IMAGE_URL =
+  "https://tilavaraus.hel.fi/v1/media/reservation_unit_images/liikumistila2.jfif.250x250_q85_crop.jpg";

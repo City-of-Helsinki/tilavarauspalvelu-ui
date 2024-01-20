@@ -112,6 +112,7 @@ const ApplyButton = styled(Button)`
   height: 44px;
 `;
 
+/// @deprecated only used by the old tables (Spaces and Resources)
 function FilterControls({
   filters,
   visible,

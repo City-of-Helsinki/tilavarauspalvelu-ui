@@ -417,6 +417,7 @@ const processData = (
   });
 };
 
+/// @deprecated only used by the old tables (Spaces and Resources)
 function DataTable({
   groups,
   setSelections,

@@ -14,12 +14,13 @@ import {
 } from "common/types/gql-types";
 import { UNIT_QUERY } from "@/common/queries";
 import { parseAddress } from "@/common/util";
+import { UNIT_PROFILE_IMAGE_URL, getServicePointEditUrl } from "@common/const";
 import { useNotification } from "@/context/NotificationContext";
 import { Container } from "@/styles/layout";
 import { BasicLink } from "@/styles/util";
 import Loader from "../Loader";
-import ReservationUnitList from "./ReservationUnitList";
-import ExternalLink from "./ExternalLink";
+import { ReservationUnitList } from "./ReservationUnitList";
+import { ExternalLink } from "./ExternalLink";
 import BreadcrumbWrapper from "../BreadcrumbWrapper";
 
 interface IProps {
@@ -171,12 +172,13 @@ const Unit = (): JSX.Element | null => {
       <BreadcrumbWrapper route={route} />
       <Container>
         <Links>
+          {/* TODO urls should be constructed with functions (easier to change) */}
           <BasicLink to={`/unit/${unitPk}/spacesResources`}>
             {t("Unit.showSpacesAndResources")}
           </BasicLink>
         </Links>
         <Ingress>
-          <Image src="https://tilavaraus.hel.fi/v1/media/reservation_unit_images/liikumistila2.jfif.250x250_q85_crop.jpg" />
+          <Image src={UNIT_PROFILE_IMAGE_URL} alt="" />
           <div>
             <Name>{unit?.nameFi}</Name>
             {unit?.location ? (
@@ -193,17 +195,18 @@ const Unit = (): JSX.Element | null => {
             size="large"
           >
             {t("Unit.noSpacesResources")}{" "}
+            {/* TODO urls should be constructed with functions (easier to change) */}
             <BasicLink to={`/unit/${unit.pk}/spacesResources`}>
               {t("Unit.createSpaces")}
             </BasicLink>
           </Notification>
         ) : null}
         <div style={{ margin: "var(--spacing-s) 0" }}>
-          <ExternalLink
-            to={`https://asiointi.hel.fi/tprperhe/TPR/UI/ServicePoint/ServicePointEdit/${unit.tprekId}`}
-          >
-            {t("Unit.maintainOpeningHours")}
-          </ExternalLink>
+          {unit.tprekId != null && (
+            <ExternalLink href={getServicePointEditUrl(unit.tprekId)}>
+              {t("Unit.maintainOpeningHours")}
+            </ExternalLink>
+          )}
         </div>
         <HeadingLarge>{t("Unit.reservationUnitTitle")}</HeadingLarge>
         <Info>
@@ -216,11 +219,13 @@ const Unit = (): JSX.Element | null => {
               </ResourceUnitCount>
             ) : null}
           </div>
+          {/* TODO replace with link like button */}
           <StyledBoldButton
             disabled={!hasSpacesResources}
             variant="supplementary"
             iconLeft={<IconPlusCircleFill />}
             onClick={() => {
+              // TODO add construction functions
               history(`/unit/${unitPk}/reservationUnit/edit/`);
             }}
           >
