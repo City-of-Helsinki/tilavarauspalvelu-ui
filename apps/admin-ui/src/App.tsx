@@ -28,7 +28,7 @@ const ApplicationDetails = dynamic(
 
 const ReservationUnits = dynamic(() => import("./spa/reservation-units"));
 const ReservationUnitEditor = dynamic(
-  () => import("./spa/ReservationUnit/edit/index")
+  () => import("./spa/reservation-units/[id]")
 );
 
 const HomePage = dynamic(() => import("./spa/HomePage"));
