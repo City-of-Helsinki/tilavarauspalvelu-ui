@@ -11,7 +11,7 @@ import ReservationList from "@component/ReservationsList";
 import ReservationListButton from "@component/ReservationListButton";
 import { useModal } from "@context/ModalContext";
 import DenyDialog from "./DenyDialog";
-import { useRecurringReservations } from "./hooks";
+import { useRecurringReservations } from "@hooks/reservations";
 import EditTimeModal from "../EditTimeModal";
 
 export function RecurringReservationsView({

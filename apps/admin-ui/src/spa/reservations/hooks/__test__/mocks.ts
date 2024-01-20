@@ -12,7 +12,7 @@ import {
   UPDATE_STAFF_RECURRING_RESERVATION,
   UPDATE_STAFF_RESERVATION,
 } from "../queries";
-import { RECURRING_RESERVATION_QUERY } from "../../requested/hooks/queries";
+import { RECURRING_RESERVATION_QUERY } from "@hooks/reservations/queries";
 
 export const CHANGED_WORKING_MEMO = "Sisaisen kommentti";
 

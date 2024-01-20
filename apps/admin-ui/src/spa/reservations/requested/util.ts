@@ -13,7 +13,6 @@ import {
   getUnRoundedReservationVolume,
 } from "common";
 import {
-  AgeGroupType,
   Maybe,
   ReservationsReservationReserveeTypeChoices,
   ReservationType,
@@ -169,10 +168,6 @@ export const getReservationPriceDetails = (
         ),
       });
 };
-
-export const ageGroup = (
-  group: Maybe<AgeGroupType> | undefined
-): string | null => (group ? `${group.minimum}-${group.maximum || ""}` : null);
 
 const reserveeTypeToTranslationKey = (
   reserveeType: ReservationsReservationReserveeTypeChoices,

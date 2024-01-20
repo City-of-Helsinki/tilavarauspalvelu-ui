@@ -2,12 +2,14 @@ import { debounce } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { H1 } from "common/src/common/typography";
-import Filters, { FilterArguments, emptyState } from "./Filters";
-import ReservationUnitsDataReader, { Sort } from "./ReservationsDataLoader";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
-import { HR } from "@/component/Table";
-import { Container } from "@/styles/layout";
-import { DATE_FORMAT, formatDate } from "@/common/util";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { HR } from "@component/Table";
+import { Container } from "@styles/layout";
+import { DATE_FORMAT, formatDate } from "@common/util";
+import Filters, { type FilterArguments, emptyState } from "./Filters";
+import ReservationUnitsDataReader, {
+  type Sort,
+} from "./ReservationsDataLoader";
 
 const Reservations = (): JSX.Element => {
   const [search, setSearch] = useState<FilterArguments>(emptyState);

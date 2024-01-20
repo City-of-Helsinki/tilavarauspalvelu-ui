@@ -1,7 +1,12 @@
-import { format, parseISO } from "date-fns";
+import { format, parseISO, set as setTime } from "date-fns";
 import i18next from "i18next";
 import { groupBy, set, get, trim } from "lodash";
-import { LocationType, Query } from "common/types/gql-types";
+import {
+  AgeGroupType,
+  LocationType,
+  Maybe,
+  Query,
+} from "common/types/gql-types";
 import { DataFilterOption } from "./types";
 import { NUMBER_OF_DECIMALS } from "./const";
 
@@ -258,3 +263,26 @@ export const combineResults = (
 
 export const sortByName = (a?: string, b?: string): number =>
   a && b ? a.toLowerCase().localeCompare(b.toLowerCase()) : !a ? 1 : -1;
+
+// TODO rename
+export const ageGroup = (
+  group: Maybe<AgeGroupType> | undefined
+): string | null => (group ? `${group.minimum}-${group.maximum || ""}` : null);
+
+function timeToDuration(time: string) {
+  const dindex = time.indexOf(":");
+  if (dindex > 0) {
+    const hours = Number(time.substring(0, dindex) ?? "0");
+    const minutes = Number(time.substring(dindex + 1) ?? "0");
+    return { hours, minutes };
+  }
+  return undefined;
+}
+
+export function setTimeOnDate(date: Date, time: string): Date {
+  const duration = timeToDuration(time);
+  if (duration) {
+    return setTime(date, duration);
+  }
+  return date;
+}

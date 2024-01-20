@@ -19,13 +19,11 @@ const Box = styled.div`
   min-width: 3em;
 `;
 
-const Legend = ({ label, style }: Props): JSX.Element => {
+export function Legend({ label, style }: Props): JSX.Element {
   return (
     <Container>
       <Box style={style} />
       {label}
     </Container>
   );
-};
-
-export default Legend;
+}

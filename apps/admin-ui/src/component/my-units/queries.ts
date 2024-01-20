@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { RESERVATIONUNIT_RESERVATIONS_FRAGMENT } from "../reservations/fragments";
+import { RESERVATIONUNIT_RESERVATIONS_FRAGMENT } from "@common/fragments";
 
 // NOTE old pk: ID type
 export const RECURRING_RESERVATION_UNIT_QUERY = gql`

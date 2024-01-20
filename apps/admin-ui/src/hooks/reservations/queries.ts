@@ -1,12 +1,11 @@
 import { gql } from "@apollo/client";
-
 import {
   RESERVATION_COMMON_FRAGMENT,
   RESERVATION_META_FRAGMENT,
   RESERVATION_RECURRING_FRAGMENT,
   RESERVATION_UNIT_FRAGMENT,
   RESERVATION_UNIT_PRICING_FRAGMENT,
-} from "../../fragments";
+} from "@common/fragments";
 
 export const RESERVATIONS_BY_RESERVATIONUNIT = gql`
   query reservationUnitByPk($pk: Int, $from: Date, $to: Date) {

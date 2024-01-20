@@ -28,7 +28,7 @@ import Loader from "@/component/Loader";
 import { Select } from "@/component/Select";
 import { VerticalFlex } from "@/styles/layout";
 import { CustomDialogHeader } from "@/component/CustomDialogHeader";
-import { useDenyReasonOptions } from "./hooks";
+import { useDenyReasonOptions } from "@hooks/reservations";
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;

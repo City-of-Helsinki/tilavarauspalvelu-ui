@@ -22,7 +22,7 @@ import {
 import { addDays, format } from "date-fns";
 import { z } from "zod";
 import { TFunction } from "i18next";
-import { setTimeOnDate } from "@/component/reservations/utils";
+import { setTimeOnDate } from "@common/util";
 import { checkLengthWithoutHtml, checkTimeStringFormat } from "@/schemas";
 
 export const PaymentTypes = ["ONLINE", "INVOICE", "ON_SITE"] as const;

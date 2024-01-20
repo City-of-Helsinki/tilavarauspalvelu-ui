@@ -23,11 +23,11 @@ import { useModal } from "@context/ModalContext";
 import { TimeChangeFormSchemaRefined, TimeFormSchema } from "@/schemas";
 import { ControlledTimeInput } from "@component/ControlledTimeInput";
 import { ControlledDateInput } from "@component/ControlledDateInput";
+import BufferToggles from "@component/my-units/BufferToggles";
+import { useCheckCollisions } from "@hooks/reservations";
 import { CHANGE_RESERVATION_TIME } from "./queries";
-import { setTimeOnDate } from "./utils";
+import { setTimeOnDate } from "@common/util";
 import { reservationDateTime, reservationDuration } from "./requested/util";
-import BufferToggles from "../my-units/BufferToggles";
-import { useCheckCollisions } from "./requested/hooks";
 
 const StyledForm = styled.form`
   margin-top: var(--spacing-m);

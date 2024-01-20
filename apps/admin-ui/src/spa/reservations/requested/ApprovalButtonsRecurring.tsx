@@ -5,11 +5,11 @@ import {
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { Button } from "hds-react";
-import { ButtonLikeLink } from "app/component/ButtonLikeLink";
+import { ButtonLikeLink } from "@component/ButtonLikeLink";
+import { useModal } from "@context/ModalContext";
+import { useRecurringReservations } from "@hooks/reservations";
+import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "@common/const";
 import DenyDialog from "./DenyDialog";
-import { useModal } from "../../../context/ModalContext";
-import { useRecurringReservations } from "./hooks";
-import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "../../../common/const";
 
 // NOTE some copy paste from ApprovalButtons
 const ApprovalButtonsRecurring = ({

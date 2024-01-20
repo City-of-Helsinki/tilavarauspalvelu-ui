@@ -6,14 +6,14 @@ import {
   QueryReservationsArgs,
   ReservationType,
 } from "common/types/gql-types";
-import { More } from "@/component/More";
-import { LIST_PAGE_SIZE } from "../../common/const";
-import { useNotification } from "../../context/NotificationContext";
-import Loader from "../Loader";
-import { FilterArguments } from "./Filters";
+import { fromUIDate } from "common/src/common/util";
+import { More } from "@component/More";
+import { LIST_PAGE_SIZE } from "@common/const";
+import { useNotification } from "@context/NotificationContext";
+import Loader from "@component/Loader";
+import { type FilterArguments } from "./Filters";
 import { RESERVATIONS_QUERY } from "./queries";
 import ReservationsTable from "./ReservationsTable";
-import { fromUIDate } from "common/src/common/util";
 
 export type Sort = {
   field: string;

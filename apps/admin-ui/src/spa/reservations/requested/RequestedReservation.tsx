@@ -28,7 +28,6 @@ import { ReservationWorkingMemo } from "@/component/WorkingMemo";
 import { Accordion } from "hds-react";
 import { BirthDate } from "@/component/BirthDate";
 import {
-  ageGroup,
   createTagString,
   getName,
   getReservatinUnitPricing,
@@ -36,13 +35,17 @@ import {
   reservationPrice,
 } from "./util";
 import Calendar from "./Calendar";
-import VisibleIfPermission from "./VisibleIfPermission";
+import VisibleIfPermission from "@component/VisibleIfPermission";
 import ApprovalButtons from "./ApprovalButtons";
 import { RecurringReservationsView } from "./RecurringReservationsView";
-import { useRecurringReservations, useReservationData } from "./hooks";
+import {
+  useRecurringReservations,
+  useReservationData,
+} from "@hooks/reservations";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
-import { SINGLE_RESERVATION_QUERY } from "./hooks/queries";
+import { SINGLE_RESERVATION_QUERY } from "@/hooks/reservations/queries";
+import { ageGroup } from "@common/util";
 
 const ApplicationDatas = styled.div`
   display: grid;

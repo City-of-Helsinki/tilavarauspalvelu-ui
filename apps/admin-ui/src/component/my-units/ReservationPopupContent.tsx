@@ -2,13 +2,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { ReservationType } from "common/types/gql-types";
-import { Permission } from "app/modules/permissionHelper";
-import { reservationUrl } from "../../common/urls";
-import { formatTime } from "../../common/util";
-import { DenseVerticalFlex } from "../../styles/layout";
-import { getReserveeName } from "../reservations/requested/util";
+import { Permission } from "@modules/permissionHelper";
+import { reservationUrl } from "@common/urls";
+import { formatTime } from "@common/util";
+import { DenseVerticalFlex } from "@styles/layout";
 import { CELL_BORDER } from "./const";
-import VisibleIfPermission from "../reservations/requested/VisibleIfPermission";
+import VisibleIfPermission from "@component/VisibleIfPermission";
+// TODO this is imported from incorrect place (move them to common)
+import { getReserveeName } from "@/spa/reservations/requested/util";
 
 const PopupContent = styled.div`
   border: ${CELL_BORDER};

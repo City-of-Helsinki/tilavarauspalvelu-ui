@@ -2,8 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { ReservationType } from "common/types/gql-types";
 import styled from "styled-components";
-import LinkPrev from "../LinkPrev";
-import { Container } from "../../styles/layout";
+import LinkPrev from "@component/LinkPrev";
+import { Container } from "@styles/layout";
 import ReservationTitleSection from "./requested/ReservationTitleSection";
 import { createTagString } from "./requested/util";
 

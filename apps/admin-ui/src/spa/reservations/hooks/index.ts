@@ -10,7 +10,7 @@ import {
   type ReservationType,
   type ReservationWorkingMemoMutationInput,
 } from "common/types/gql-types";
-import { useRecurringReservations } from "../requested/hooks";
+import { useRecurringReservations } from "@hooks/reservations";
 import {
   UPDATE_STAFF_RECURRING_RESERVATION,
   UPDATE_STAFF_RESERVATION,

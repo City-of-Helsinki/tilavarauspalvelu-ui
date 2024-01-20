@@ -16,15 +16,16 @@ import {
   ReservationTypeSchema,
   type ReservationChangeFormType,
   ReservationChangeFormSchema,
-} from "app/schemas";
-import { useNotification } from "../../context/NotificationContext";
-import { flattenMetadata } from "../my-units/create-reservation/utils";
-import ReservationTypeForm from "../my-units/ReservationTypeForm";
-import Loader from "../Loader";
+} from "@/schemas";
+import { useNotification } from "@context/NotificationContext";
+// TODO this are imported from incorrect location (they are not components)
+import { flattenMetadata } from "@component/my-units/create-reservation/utils";
+import ReservationTypeForm from "@component/my-units/ReservationTypeForm";
+import { useOptions } from "@component/my-units/hooks";
+import Loader from "@component/Loader";
 import { HR } from "@/component/Table";
-import { useOptions } from "../my-units/hooks";
+import { useReservationEditData } from "@hooks/reservations";
 import EditPageWrapper from "./EditPageWrapper";
-import { useReservationEditData } from "./requested/hooks";
 import { useStaffReservationMutation } from "./hooks";
 
 type FormValueType = ReservationChangeFormType & ReservationFormMeta;

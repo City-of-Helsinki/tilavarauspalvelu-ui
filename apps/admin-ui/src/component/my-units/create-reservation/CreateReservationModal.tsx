@@ -19,11 +19,11 @@ import {
   ReservationFormSchema,
   type ReservationFormType,
   type ReservationFormMeta,
-} from "app/schemas";
+} from "@/schemas";
 import { breakpoints } from "common/src/common/style";
 import { fromUIDate } from "common/src/common/util";
-import { setTimeOnDate } from "@component/reservations/utils";
-import { useCheckCollisions } from "@component/reservations/requested/hooks";
+import { setTimeOnDate } from "@common/util";
+import { useCheckCollisions } from "@hooks/reservations";
 import { dateTime } from "@/helpers";
 import { ControlledTimeInput } from "@component/ControlledTimeInput";
 import { ControlledDateInput } from "@component/ControlledDateInput";
