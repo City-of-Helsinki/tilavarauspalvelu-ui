@@ -8,7 +8,7 @@ import {
 } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { UnitByPkType } from "common/types/gql-types";
-import { CustomDialogHeader } from "../../../CustomDialogHeader";
+import { CustomDialogHeader } from "@component/CustomDialogHeader";
 import ParentSelector from "../ParentSelector";
 import {
   Action,
@@ -22,7 +22,7 @@ import {
   Title,
   UnitInfo,
 } from "./modules/newSpaceModal";
-import { parseAddress } from "../../../../common/util";
+import { parseAddress } from "@common/util";
 
 const Page1 = ({
   editorState,

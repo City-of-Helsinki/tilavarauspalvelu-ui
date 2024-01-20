@@ -18,14 +18,14 @@ import {
   IngressContainer,
   WideContainer,
 } from "@/styles/layout";
-import Loader from "../Loader";
+import Loader from "@component/Loader";
+import { NewResourceModal } from "@component/Resources/NewResourceModal";
+import { UNIT_QUERY } from "@common/queries";
 import ResourcesTable from "./ResourcesTable";
 import SpacesTable from "./SpacesTable";
 import SubPageHead from "./SubPageHead";
 import Modal, { useModal as useHDSModal } from "../HDSModal";
-import NewSpaceModal from "../Spaces/space-editor/new-space-modal/NewSpaceModal";
-import NewResourceModal from "../Resources/resource-editor/NewResourceModal";
-import { UNIT_QUERY } from "../../common/queries";
+import NewSpaceModal from "../Spaces/new-space-modal/NewSpaceModal";
 
 interface IProps {
   [key: string]: string;

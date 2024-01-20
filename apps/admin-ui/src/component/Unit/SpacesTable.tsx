@@ -3,22 +3,22 @@ import { IconGroup } from "hds-react";
 import { clone, set, trim } from "lodash";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { FetchResult, useMutation } from "@apollo/client";
+import { type FetchResult, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import {
+import type {
   SpaceDeleteMutationInput,
   SpaceDeleteMutationPayload,
   SpaceType,
   UnitByPkType,
 } from "common/types/gql-types";
-import { DELETE_SPACE } from "../../common/queries";
+import { useNotification } from "@context/NotificationContext";
+import { DELETE_SPACE } from "@common/queries";
 import DataTable, { CellConfig } from "../DataTable";
 import PopupMenu from "./PopupMenu";
 import Modal, { useModal as useHDSModal } from "../HDSModal";
-import NewSpaceModal from "../Spaces/space-editor/new-space-modal/NewSpaceModal";
-import ConfirmationDialog, { ModalRef } from "../ConfirmationDialog";
+import NewSpaceModal from "../Spaces/new-space-modal/NewSpaceModal";
+import ConfirmationDialog, { type ModalRef } from "../ConfirmationDialog";
 import SpaceTreeDataTableGroup from "./SpaceTreeDataTableGroup";
-import { useNotification } from "../../context/NotificationContext";
 
 interface IProps {
   spaces: SpaceType[];

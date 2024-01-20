@@ -13,7 +13,7 @@ import {
 import { parseAddress } from "@common/util";
 import { CustomDialogHeader } from "@component/CustomDialogHeader";
 import { languages } from "@common/const";
-import ParentSelector from "@component/Spaces/space-editor/ParentSelector";
+import ParentSelector from "@component/Spaces/ParentSelector";
 import { useNotification } from "@context/NotificationContext";
 import { FormErrorSummary } from "@component/FormErrorSummary";
 import {
@@ -87,12 +87,12 @@ const Address = styled.span`
 
 const getInitialState = (): State => initialState;
 
-const NewResourceModal = ({
+export function NewResourceModal({
   unit,
   closeModal,
   onSave,
   spacePk,
-}: IProps): JSX.Element | null => {
+}: IProps): JSX.Element | null {
   const [state, dispatch] = useReducer(reducer, getInitialState());
   const { t } = useTranslation();
 
@@ -227,6 +227,4 @@ const NewResourceModal = ({
       </Buttons>
     </>
   );
-};
-
-export default NewResourceModal;
+}

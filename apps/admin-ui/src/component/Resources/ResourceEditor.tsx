@@ -21,7 +21,7 @@ import Loader from "@component/Loader";
 import { ContentContainer, IngressContainer } from "@styles/layout";
 import SubPageHead from "@component/Unit/SubPageHead";
 import { useNotification } from "@context/NotificationContext";
-import ParentSelector from "@component/Spaces/space-editor/ParentSelector";
+import ParentSelector from "@component/Spaces/ParentSelector";
 import { RESOURCE_QUERY, UPDATE_RESOURCE } from "./queries";
 import {
   Buttons,
@@ -127,7 +127,7 @@ type Props = {
   unitPk: number;
 };
 
-const ResourceEditor = ({ resourcePk, unitPk }: Props) => {
+export function ResourceEditor({ resourcePk, unitPk }: Props) {
   const history = useNavigate();
   const { t } = useTranslation();
   const { notifySuccess, notifyError } = useNotification();
@@ -276,6 +276,4 @@ const ResourceEditor = ({ resourcePk, unitPk }: Props) => {
       </EditorContainer>
     </ContentContainer>
   );
-};
-
-export default ResourceEditor;
+}

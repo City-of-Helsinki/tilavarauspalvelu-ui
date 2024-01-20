@@ -7,17 +7,17 @@ import styled from "styled-components";
 import { H1, Strong } from "common/src/common/typography";
 import { useDebounce } from "react-use";
 import { useQuery, ApolloError } from "@apollo/client";
-import { Query, SpaceType } from "common/types/gql-types";
-import { DataFilterConfig } from "../../common/types";
-import Loader from "../Loader";
-import DataTable, { CellConfig } from "../DataTable";
-import ClearButton from "../ClearButton";
-import { SPACES_QUERY } from "../../common/queries";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
-import { useNotification } from "../../context/NotificationContext";
-import { spaceUrl } from "../../common/urls";
-import { Container } from "../../styles/layout";
-import SearchContainer from "../SearchContainer";
+import type { Query, SpaceType } from "common/types/gql-types";
+import type { DataFilterConfig } from "@common/types";
+import Loader from "@component/Loader";
+import DataTable, { type CellConfig } from "@component/DataTable";
+import ClearButton from "@component/ClearButton";
+import { SPACES_QUERY } from "@common/queries";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { useNotification } from "@context/NotificationContext";
+import { spaceUrl } from "@common/urls";
+import { Container } from "@styles/layout";
+import { SearchContainer } from "@component/SearchContainer";
 
 const StyledInput = styled(TextInput).attrs({
   style: {
