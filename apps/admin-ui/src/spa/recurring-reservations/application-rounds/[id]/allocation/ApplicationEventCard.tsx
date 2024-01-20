@@ -9,7 +9,7 @@ import type {
 import { SemiBold, type ReservationUnitNode, fontMedium } from "common";
 import { publicUrl } from "@/common/const";
 import { formatDuration } from "@/common/util";
-import { getApplicantName } from "@/component/applications/util";
+import { getApplicantName } from "@/modules/application";
 import { ageGroup } from "@/component/reservations/requested/util";
 import { filterNonNullable } from "common/src/helpers";
 import { formatTime } from "./modules/applicationRoundAllocation";

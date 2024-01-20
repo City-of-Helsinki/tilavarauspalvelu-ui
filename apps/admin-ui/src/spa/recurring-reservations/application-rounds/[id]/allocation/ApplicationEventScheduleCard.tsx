@@ -13,7 +13,7 @@ import type {
 } from "common/types/gql-types";
 import { filterNonNullable } from "common/src/helpers";
 import { SemiBold, type ReservationUnitNode } from "common";
-import { getApplicantName } from "@/component/applications/util";
+import { getApplicantName } from "@modules/application";
 import { formatDuration } from "@/common/util";
 import { useNotification } from "@/context/NotificationContext";
 import { useAllocationContext } from "@/context/AllocationContext";

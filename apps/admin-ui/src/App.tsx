@@ -22,9 +22,7 @@ const SpaceEditorView = dynamic(() => import("./spa/spaces/[id]"));
 const ResourcesList = dynamic(() => import("./spa/resources"));
 const ResourceEditorView = dynamic(() => import("./spa/resources/[id]"));
 
-const ApplicationDetails = dynamic(
-  () => import("./component/applications/ApplicationDetails")
-);
+const ApplicationDetails = dynamic(() => import("./spa/applications"));
 
 const ReservationUnits = dynamic(() => import("./spa/reservation-units"));
 const ReservationUnitEditor = dynamic(

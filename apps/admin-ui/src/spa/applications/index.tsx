@@ -29,23 +29,26 @@ import {
   parseAgeGroups,
   formatDurationShort,
   secondsToHms,
-} from "@/common/util";
-import { weekdays } from "@/common/const";
-import { useNotification } from "@/context/NotificationContext";
-import { ScrollIntoView } from "@/component/ScrollIntoView";
-import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
-import { Accordion } from "@/component/Accordion";
-import Loader from "@/component/Loader";
-import { ApplicationWorkingMemo } from "@/component/WorkingMemo";
-import ShowWhenTargetInvisible from "@/component/ShowWhenTargetInvisible";
-import { Container } from "@/styles/layout";
-import { ValueBox } from "./ValueBox";
-import { getApplicantName, getApplicationStatusColor } from "./util";
-import { TimeSelector } from "./TimeSelector";
-import StickyHeader from "../StickyHeader";
-import StatusBlock from "../StatusBlock";
+} from "@common/util";
+import { weekdays } from "@common/const";
+import { useNotification } from "@context/NotificationContext";
+import { ScrollIntoView } from "@component/ScrollIntoView";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { Accordion } from "@component/Accordion";
+import Loader from "@component/Loader";
+import { ApplicationWorkingMemo } from "@component/WorkingMemo";
+import ShowWhenTargetInvisible from "@component/ShowWhenTargetInvisible";
+import { Container } from "@styles/layout";
+import StickyHeader from "@component/StickyHeader";
+import StatusBlock from "@component/StatusBlock";
+import { BirthDate } from "@component/BirthDate";
+import {
+  getApplicantName,
+  getApplicationStatusColor,
+} from "@modules/application";
 import { APPLICATION_ADMIN_QUERY } from "./queries";
-import { BirthDate } from "../BirthDate";
+import { TimeSelector } from "./TimeSelector";
+import { ValueBox } from "./ValueBox";
 
 const parseApplicationEventSchedules = (
   applicationEventSchedules: ApplicationEventScheduleNode[],
