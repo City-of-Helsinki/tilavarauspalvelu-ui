@@ -21,11 +21,11 @@ import {
 import Loader from "@component/Loader";
 import { NewResourceModal } from "@component/Resources/NewResourceModal";
 import { UNIT_QUERY } from "@common/queries";
-import ResourcesTable from "./ResourcesTable";
-import SpacesTable from "./SpacesTable";
-import SubPageHead from "./SubPageHead";
-import Modal, { useModal as useHDSModal } from "../HDSModal";
-import NewSpaceModal from "../Spaces/new-space-modal/NewSpaceModal";
+import ResourcesTable from "@component/Unit/ResourcesTable";
+import SpacesTable from "@component/Unit/SpacesTable";
+import SubPageHead from "@component/Unit/SubPageHead";
+import Modal, { useModal as useHDSModal } from "@component/HDSModal";
+import NewSpaceModal from "@component/Spaces/new-space-modal/NewSpaceModal";
 
 interface IProps {
   [key: string]: string;

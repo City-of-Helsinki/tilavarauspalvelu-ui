@@ -8,21 +8,18 @@ import { publicUrl } from "@common/const";
 import { GlobalContext } from "@context/GlobalContexts";
 import { prefixes } from "@common/urls";
 import { AuthorisationChecker } from "@component/AuthorisationChecker";
+import { Error404 } from "@component/error";
 import MyUnitsRouter from "@component/my-units/MyUnitsRouter";
 import ReservationsRouter from "@component/reservations/ReservationRouter";
 import NotificationsRouter from "@/spa/notifications/router";
-import { Error404 } from "@component/error";
-import ApplicationRound from "./spa/recurring-reservations/application-rounds/[id]";
+import ApplicationRound from "@/spa/recurring-reservations/application-rounds/[id]";
 
-const UNIT_PATH = "./component/Unit";
-const Units = dynamic(() => import(`${UNIT_PATH}/Units`));
-const Unit = dynamic(() => import(`${UNIT_PATH}/Unit`));
-const SpacesResources = dynamic(import(`${UNIT_PATH}/SpacesResources`));
-
-const SpacesList = dynamic(() => import("./spa/spaces/index"));
+const Units = dynamic(() => import(`./spa/units`));
+const Unit = dynamic(() => import(`./spa/units/[id]`));
+const SpacesResources = dynamic(import(`./spa/units/[id]/spaces/index`));
+const SpacesList = dynamic(() => import("./spa/spaces"));
 const SpaceEditorView = dynamic(() => import("./spa/spaces/[id]"));
-
-const ResourcesList = dynamic(() => import("./spa/resources/index"));
+const ResourcesList = dynamic(() => import("./spa/resources"));
 const ResourceEditorView = dynamic(() => import("./spa/resources/[id]"));
 
 const ApplicationDetails = dynamic(

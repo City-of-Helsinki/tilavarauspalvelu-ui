@@ -18,10 +18,10 @@ import { UNIT_PROFILE_IMAGE_URL, getServicePointEditUrl } from "@common/const";
 import { useNotification } from "@/context/NotificationContext";
 import { Container } from "@/styles/layout";
 import { BasicLink } from "@/styles/util";
-import Loader from "../Loader";
-import { ReservationUnitList } from "./ReservationUnitList";
-import { ExternalLink } from "./ExternalLink";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
+import Loader from "@component/Loader";
+import { ReservationUnitList } from "@component/Unit/ReservationUnitList";
+import { ExternalLink } from "@component/Unit/ExternalLink";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
 
 interface IProps {
   [key: string]: string;

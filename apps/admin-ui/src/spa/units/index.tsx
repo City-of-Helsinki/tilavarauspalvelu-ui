@@ -3,11 +3,14 @@ import { Link } from "hds-react";
 import { H1 } from "common/src/common/typography";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
-import { Container } from "../../styles/layout";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
-import Filters, { emptyFilterState, FilterArguments } from "./Filters";
-import UnitsDataLoader from "./UnitsDataLoader";
-import { Sort } from "./UnitsTable";
+import { Container } from "@styles/layout";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import Filters, {
+  emptyFilterState,
+  FilterArguments,
+} from "@component/Unit/Filters";
+import UnitsDataLoader from "@component/Unit/UnitsDataLoader";
+import { Sort } from "@component/Unit/UnitsTable";
 import { HR } from "@/component/Table";
 
 const Units = (): JSX.Element => {
