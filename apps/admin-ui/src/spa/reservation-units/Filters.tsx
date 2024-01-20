@@ -6,12 +6,14 @@ import i18next from "i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import ShowAllContainer from "common/src/components/ShowAllContainer";
-import { OptionType } from "../../common/types";
-import UnitFilter from "../filters/UnitFilter";
-import Tags, { Action, getReducer, toTags } from "../lists/Tags";
-import { Grid, Span3 } from "../../styles/layout";
-import ReservationUnitStateFilter from "../filters/ReservationUnitStateFilter";
-import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
+import { OptionType } from "@common/types";
+import Tags, { Action, getReducer, toTags } from "@component/lists/Tags";
+import { Grid, Span3 } from "@styles/layout";
+import {
+  UnitFilter,
+  ReservationUnitStateFilter,
+  ReservationUnitTypeFilter,
+} from "@component/filters";
 
 export type FilterArguments = {
   nameFi?: string;

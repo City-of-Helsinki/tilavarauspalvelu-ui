@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import { H1 } from "common";
 import { HR } from "@/component/Table";
 import { Container } from "@/styles/layout";
-import Filters, { FilterArguments, emptyState } from "./Filters";
-import ReservationUnitsDataReader, { Sort } from "./ReservationUnitsDataLoader";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import Filters, { type FilterArguments, emptyState } from "./Filters";
+import ReservationUnitsDataReader, { Sort } from "./DataLoader";
 
 const ReservationUnits = (): JSX.Element => {
   const [search, setSearch] = useState<FilterArguments>(emptyState);

@@ -17,11 +17,12 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-const ReservationUnitTypeFilter = ({
+/// @deprecated : use custom filters that don't do extra gql-queries instead
+export function ReservationUnitTypeFilter({
   onChange,
   value,
   style,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { t } = useTranslation();
   const [resUnitTypes, setResUnitTypes] = useState<ReservationUnitTypeType[]>(
     []
@@ -70,6 +71,4 @@ const ReservationUnitTypeFilter = ({
       value={value}
     />
   );
-};
-
-export default ReservationUnitTypeFilter;
+}

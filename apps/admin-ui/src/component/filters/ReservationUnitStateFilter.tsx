@@ -9,10 +9,11 @@ type Props = {
   value: OptionType[];
 };
 
-const ReservationUnitStateFilter = ({
+/// @deprecated : not the worst, but SortedSelect and OptionType are bad
+export function ReservationUnitStateFilter({
   onChange,
   value,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { t } = useTranslation();
 
   const opts: OptionType[] = Object.values(ReservationUnitState).map((s) => ({
@@ -32,6 +33,4 @@ const ReservationUnitStateFilter = ({
       id="reservation-unit-combobox"
     />
   );
-};
-
-export default ReservationUnitStateFilter;
+}

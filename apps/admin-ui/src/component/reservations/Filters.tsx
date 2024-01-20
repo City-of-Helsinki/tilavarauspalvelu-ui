@@ -4,14 +4,16 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import i18next from "i18next";
 import ShowAllContainer from "common/src/components/ShowAllContainer";
-import { OptionType } from "../../common/types";
-import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
-import Tags, { Action, getReducer, toTags } from "../lists/Tags";
-import UnitFilter from "../filters/UnitFilter";
-import ReservationUnitFilter from "../filters/ReservationUnitFilter";
-import ReservationStateFilter from "../filters/ReservationStateFilter";
+import { OptionType } from "@common/types";
+import Tags, { Action, getReducer, toTags } from "@component/lists/Tags";
+import {
+  ReservationUnitTypeFilter,
+  UnitFilter,
+  ReservationUnitFilter,
+  ReservationStateFilter,
+} from "@component/filters";
+import { AutoGrid } from "@styles/layout";
 import PaymentStatusFilter from "./PaymentStatusFilter";
-import { AutoGrid } from "../../styles/layout";
 
 export type FilterArguments = {
   reservationUnitType: OptionType[];

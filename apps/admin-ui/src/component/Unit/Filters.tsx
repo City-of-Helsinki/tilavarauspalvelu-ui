@@ -4,8 +4,8 @@ import { TextInput } from "hds-react";
 import { useTranslation } from "react-i18next";
 import { OptionType } from "@/common/types";
 import { Grid, Span4 as DefaultSpan4 } from "@/styles/layout";
-import ServiceSectorFilter from "../filters/ServiceSectorFilter";
-import Tags, { getReducer, toTags } from "../lists/Tags";
+import { ServiceSectorFilter } from "@component/filters";
+import Tags, { getReducer, toTags } from "@component/lists/Tags";
 
 const Span4 = styled(DefaultSpan4)`
   label {

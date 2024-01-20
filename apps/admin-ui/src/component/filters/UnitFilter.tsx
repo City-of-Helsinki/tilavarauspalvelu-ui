@@ -25,7 +25,8 @@ type Props = {
   value: OptionType[];
 };
 
-const UnitFilter = ({ onChange, value }: Props): JSX.Element => {
+/// @deprecated : use custom filters that don't do extra gql-queries instead
+export function UnitFilter({ onChange, value }: Props): JSX.Element {
   const { t } = useTranslation();
   const [units, setUnits] = useState<UnitType[]>([]);
 
@@ -62,6 +63,4 @@ const UnitFilter = ({ onChange, value }: Props): JSX.Element => {
       id="reservation-unit-combobox"
     />
   );
-};
-
-export default UnitFilter;
+}

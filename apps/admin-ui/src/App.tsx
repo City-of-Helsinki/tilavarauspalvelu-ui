@@ -26,9 +26,7 @@ const ApplicationDetails = dynamic(
   () => import("./component/applications/ApplicationDetails")
 );
 
-const ReservationUnits = dynamic(
-  () => import("./component/reservation-units/ReservationUnits")
-);
+const ReservationUnits = dynamic(() => import("./spa/reservation-units"));
 const ReservationUnitEditor = dynamic(
   () => import("./spa/ReservationUnit/edit/index")
 );
