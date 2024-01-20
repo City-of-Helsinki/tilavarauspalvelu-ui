@@ -5,7 +5,13 @@
     "paths": {
       // old version
       "app/*": ["./src/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@component/*": ["./src/component/*"],
+      "@common/*": ["./src/common/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@context/*": ["./src/context/*"],
+      "@hooks/*": ["./src/hooks/*"]
     }
   },
   "exclude": ["node_modules"],

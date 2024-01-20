@@ -1,7 +1,6 @@
 import React, { memo, useReducer, useState } from "react";
 import { Button, Notification } from "hds-react";
 import { isEqual, omitBy, pick } from "lodash";
-
 import { FetchResult, useMutation, useQuery } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,7 @@ import styled from "styled-components";
 import Joi from "joi";
 import { H1 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import {
+import type {
   Query,
   QuerySpaceByPkArgs,
   SpaceType,
@@ -18,13 +17,13 @@ import {
   UnitType,
 } from "common/types/gql-types";
 import { StyledNotification } from "@/styles/util";
-import { schema } from "./util";
-import { useNotification } from "../../../context/NotificationContext";
+import { useNotification } from "@context/NotificationContext";
+import Loader from "@component/Loader";
+import { FormErrorSummary } from "@component/FormErrorSummary";
+import { ContentContainer, IngressContainer } from "@styles/layout";
 import { SPACE_QUERY, UPDATE_SPACE } from "./queries";
-import Loader from "../../Loader";
+import { schema } from "./util";
 import Head from "./Head";
-import { ContentContainer, IngressContainer } from "../../../styles/layout";
-import FormErrorSummary from "../../../common/FormErrorSummary";
 import SpaceHierarchy from "./SpaceHierarchy";
 import ParentSelector from "./ParentSelector";
 import SpaceForm from "./SpaceForm";

@@ -29,12 +29,12 @@ const Wrapper = styled.div`
   margin: var(--spacing-m) 0;
 `;
 
-const FormErrorSummary = ({
+export function FormErrorSummary({
   validationErrors,
   linkToError = true,
   fieldNamePrefix = "",
   useDerivedIdsFor = [],
-}: Props): JSX.Element | null => {
+}: Props): JSX.Element | null {
   const { t } = useTranslation();
 
   if (!validationErrors || !validationErrors.error) {
@@ -71,23 +71,4 @@ const FormErrorSummary = ({
       </ErrorSummary>
     </Wrapper>
   );
-};
-
-export const validationErrorResolver =
-  (validationErrors: Joi.ValidationResult | null, labelPrefix = "") =>
-  (name: string): string | undefined => {
-    const error = validationErrors?.error?.details.find(
-      (errorDetail) =>
-        errorDetail.path.find((path) => path === name) ||
-        name === errorDetail.path.join(",")
-    );
-    if (!error) {
-      return undefined;
-    }
-
-    return i18next.t(`validation.${error.type}`, {
-      ...getErrorContext(error.context, labelPrefix),
-    });
-  };
-
-export default FormErrorSummary;
+}

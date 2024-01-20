@@ -24,7 +24,7 @@ const Btn = styled(Button).attrs({
 
 const breakpoint = breakpoints.m;
 
-function ScrollToTop(): JSX.Element | null {
+export function ScrollToTop(): JSX.Element | null {
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
@@ -60,5 +60,3 @@ function ScrollToTop(): JSX.Element | null {
     </Btn>
   ) : null;
 }
-
-export default ScrollToTop;

@@ -14,7 +14,9 @@ import {
   SpaceCreateMutationPayload,
   UnitByPkType,
 } from "common/types/gql-types";
-import { CustomDialogHeader } from "../../../CustomDialogHeader";
+import { parseAddress } from "@common/util";
+import { FormErrorSummary } from "@component/FormErrorSummary";
+import { CustomDialogHeader } from "@component/CustomDialogHeader";
 import {
   Action,
   ActionButtons,
@@ -29,11 +31,8 @@ import {
   State,
   UnitInfo,
 } from "./modules/newSpaceModal";
-import { parseAddress } from "../../../../common/util";
-
 import SpaceForm from "../SpaceForm";
 import { schema } from "../util";
-import FormErrorSummary from "../../../../common/FormErrorSummary";
 
 const SpaceEditor = ({
   space,

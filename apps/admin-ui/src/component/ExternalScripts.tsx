@@ -1,13 +1,12 @@
 import React from "react";
 import Script from "next/script";
-
-import { env } from "app/env.mjs";
-import { isBrowser } from "app/common/const";
+import { env } from "@/env.mjs";
+import { isBrowser } from "@common/const";
 
 const isCookiehubEnabled = env.NEXT_PUBLIC_COOKIEHUB_ENABLED;
 const isHotjarEnabled = env.NEXT_PUBLIC_HOTJAR_ENABLED;
 
-const ExternalScripts = (): JSX.Element | null => {
+export function ExternalScripts(): JSX.Element | null {
   if (!isBrowser) {
     return null;
   }
@@ -58,6 +57,4 @@ const ExternalScripts = (): JSX.Element | null => {
       )}
     </>
   );
-};
-
-export default ExternalScripts;
+}

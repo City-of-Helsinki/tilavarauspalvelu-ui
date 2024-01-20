@@ -10,12 +10,12 @@ import {
   ResourceCreateMutationInput,
   UnitType,
 } from "common/types/gql-types";
-import { parseAddress } from "../../../common/util";
-import { CustomDialogHeader } from "../../CustomDialogHeader";
-import { languages } from "../../../common/const";
-import { CREATE_RESOURCE } from "./queries";
-import ParentSelector from "../../Spaces/space-editor/ParentSelector";
-import { useNotification } from "../../../context/NotificationContext";
+import { parseAddress } from "@common/util";
+import { CustomDialogHeader } from "@component/CustomDialogHeader";
+import { languages } from "@common/const";
+import ParentSelector from "@component/Spaces/space-editor/ParentSelector";
+import { useNotification } from "@context/NotificationContext";
+import { FormErrorSummary } from "@component/FormErrorSummary";
 import {
   Buttons,
   Editor,
@@ -24,7 +24,7 @@ import {
   SaveButton,
   schema,
 } from "./modules/resourceEditor";
-import FormErrorSummary from "../../../common/FormErrorSummary";
+import { CREATE_RESOURCE } from "./queries";
 
 // eslint-disable-next-line
 type EditorProp = any;

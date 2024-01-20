@@ -66,7 +66,7 @@ import Loader from "@/component/Loader";
 import { useNotification } from "@/context/NotificationContext";
 import { useModal } from "@/context/ModalContext";
 import { parseAddress } from "@/common/util";
-import Error404 from "@/common/Error404";
+import { Error404 } from "@/component/error";
 import { Accordion } from "@/component/Accordion";
 import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
 import {

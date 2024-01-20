@@ -5,7 +5,7 @@ import React from "react";
 import styled from "styled-components";
 import { H1 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { publicUrl } from "./const";
+import { publicUrl } from "@common/const";
 
 const Wrapper = styled.div`
   margin: 0 var(--spacing-s);
@@ -37,7 +37,7 @@ const Content = styled.div`
 `;
 
 // TODO should there be an image here?
-function Error404({ message }: { message?: string }): JSX.Element {
+export function Error404({ message }: { message?: string }): JSX.Element {
   return (
     <Wrapper>
       <Content>
@@ -48,5 +48,3 @@ function Error404({ message }: { message?: string }): JSX.Element {
     </Wrapper>
   );
 }
-
-export default Error404;

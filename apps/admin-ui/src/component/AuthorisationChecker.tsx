@@ -1,19 +1,18 @@
 import React, { Suspense } from "react";
-import { useSession } from "app/hooks/auth";
-import { Permission } from "app/modules/permissionHelper";
-import { usePermissionSuspended } from "app/hooks/usePermission";
-import MainLander from "app/component/MainLander";
-import Loader from "app/component/Loader";
+import { useSession } from "@hooks/auth";
+import { Permission } from "@modules/permissionHelper";
+import { usePermissionSuspended } from "@hooks/usePermission";
+import MainLander from "@component/MainLander";
+import Loader from "@component/Loader";
+import { Error403 } from "@component/error";
 
-import Error403 from "./Error403";
-
-const AuthorisationChecker = ({
+export function AuthorisationChecker({
   children,
   permission,
 }: {
   children: React.ReactNode;
   permission?: Permission;
-}) => {
+}) {
   const { hasAnyPermission, hasSomePermission } = usePermissionSuspended();
 
   const { isAuthenticated } = useSession();
@@ -31,6 +30,4 @@ const AuthorisationChecker = ({
       {hasAccess ? children : <Error403 />}
     </Suspense>
   );
-};
-
-export default AuthorisationChecker;
+}

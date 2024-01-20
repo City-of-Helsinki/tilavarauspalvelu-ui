@@ -14,14 +14,15 @@ import {
   UnitByPkType,
   ResourceType,
 } from "common/types/gql-types";
-import { UNIT_WITH_SPACES_AND_RESOURCES } from "../../../common/queries";
-import { languages } from "../../../common/const";
-import Loader from "../../Loader";
-import { ContentContainer, IngressContainer } from "../../../styles/layout";
-import SubPageHead from "../../Unit/SubPageHead";
+import { FormErrorSummary } from "@component/FormErrorSummary";
+import { UNIT_WITH_SPACES_AND_RESOURCES } from "@common/queries";
+import { languages } from "@common/const";
+import Loader from "@component/Loader";
+import { ContentContainer, IngressContainer } from "@styles/layout";
+import SubPageHead from "@component/Unit/SubPageHead";
+import { useNotification } from "@context/NotificationContext";
+import ParentSelector from "@component/Spaces/space-editor/ParentSelector";
 import { RESOURCE_QUERY, UPDATE_RESOURCE } from "./queries";
-import { useNotification } from "../../../context/NotificationContext";
-import ParentSelector from "../../Spaces/space-editor/ParentSelector";
 import {
   Buttons,
   Editor,
@@ -30,8 +31,6 @@ import {
   SaveButton,
   schema,
 } from "./modules/resourceEditor";
-
-import FormErrorSummary from "../../../common/FormErrorSummary";
 
 type State = {
   resourceEdit: ResourceUpdateMutationInput;

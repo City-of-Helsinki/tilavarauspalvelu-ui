@@ -25,7 +25,7 @@ import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
 import ShowWhenTargetInvisible from "@/component/ShowWhenTargetInvisible";
 import StickyHeader from "@/component/StickyHeader";
 import { ReservationWorkingMemo } from "@/component/WorkingMemo";
-import { Accordion } from "@/common/hds-fork/Accordion";
+import { Accordion } from "hds-react";
 import { BirthDate } from "@/component/BirthDate";
 import {
   ageGroup,
@@ -558,7 +558,10 @@ const RequestedReservation = ({
               </ApplicationDatas>
             </Accordion>
           )}
-          <Accordion heading={t("RequestedReservation.reserveeDetails")}>
+          <Accordion
+            heading={t("RequestedReservation.reserveeDetails")}
+            closeButton={false}
+          >
             <ApplicationDatas>
               <ApplicationData
                 label={t("RequestedReservation.user")}

@@ -2,7 +2,13 @@ import React, { useRef, type ReactNode } from "react";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { Card, Table, IconCheck, IconEnvelope } from "hds-react";
+import {
+  Card,
+  Table,
+  IconCheck,
+  IconEnvelope,
+  Accordion as HDSAccordion,
+} from "hds-react";
 import { isEqual, trim, orderBy } from "lodash";
 import { useQuery } from "@apollo/client";
 import { TFunction } from "i18next";
@@ -26,10 +32,9 @@ import {
 } from "@/common/util";
 import { weekdays } from "@/common/const";
 import { useNotification } from "@/context/NotificationContext";
-import ScrollIntoView from "@/common/ScrollIntoView";
+import { ScrollIntoView } from "@/component/ScrollIntoView";
 import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
 import { Accordion } from "@/component/Accordion";
-import { Accordion as HDSAccordion } from "@/common/hds-fork/Accordion";
 import Loader from "@/component/Loader";
 import { ApplicationWorkingMemo } from "@/component/WorkingMemo";
 import ShowWhenTargetInvisible from "@/component/ShowWhenTargetInvisible";
@@ -503,6 +508,7 @@ function ApplicationDetails({
         <HDSAccordion
           heading={t("RequestedReservation.workingMemo")}
           initiallyOpen={application.workingMemo.length > 0}
+          closeButton={false}
         >
           <ApplicationWorkingMemo
             applicationPk={applicationPk}

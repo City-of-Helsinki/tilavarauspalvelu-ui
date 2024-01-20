@@ -5,7 +5,7 @@ import { signOut, useSession } from "app/hooks/auth";
 import styled from "styled-components";
 import { H1 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { publicUrl } from "./const";
+import { publicUrl } from "@common/const";
 
 const Wrapper = styled.div`
   margin: var(--spacing-layout-s);
@@ -35,7 +35,7 @@ const ButtonContainer = styled.div`
   margin-top: var(--spacing-s);
 `;
 
-const LogoutSection = (): JSX.Element => {
+function LogoutSection(): JSX.Element {
   const { isAuthenticated } = useSession();
 
   const { t } = useTranslation();
@@ -58,13 +58,13 @@ const LogoutSection = (): JSX.Element => {
       )}
     </>
   );
-};
+}
 
-const Error403 = ({
+export function Error403({
   showLogoutSection,
 }: {
   showLogoutSection?: boolean;
-}): JSX.Element => {
+}): JSX.Element {
   const { t } = useTranslation();
 
   return (
@@ -77,6 +77,4 @@ const Error403 = ({
       <Image src={`${publicUrl}/403.png`} />
     </Wrapper>
   );
-};
-
-export default Error403;
+}

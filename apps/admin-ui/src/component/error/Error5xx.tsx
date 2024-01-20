@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { H1 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { publicUrl } from "./const";
+import { publicUrl } from "@common/const";
 
 const Wrapper = styled.div`
   margin: 0 var(--spacing-s);
@@ -42,7 +42,7 @@ const Image = styled.img`
   }
 `;
 
-const Error5xx = (): JSX.Element => {
+export function Error5xx(): JSX.Element {
   return (
     <Wrapper>
       <Content>
@@ -64,6 +64,4 @@ const Error5xx = (): JSX.Element => {
       <Image src={`${publicUrl}/5xx.png`} />
     </Wrapper>
   );
-};
-
-export default Error5xx;
+}
