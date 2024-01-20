@@ -14,6 +14,7 @@ import { MyUnitsRouter } from "@/spa/my-units/MyUnitsRouter";
 import NotificationsRouter from "@/spa/notifications/router";
 import ApplicationRound from "@/spa/recurring-reservations/application-rounds/[id]";
 
+const HomePage = dynamic(() => import("./spa"));
 const Units = dynamic(() => import(`./spa/units`));
 const Unit = dynamic(() => import(`./spa/units/[id]`));
 const SpacesResources = dynamic(import(`./spa/units/[id]/spaces/index`));
@@ -21,18 +22,13 @@ const SpacesList = dynamic(() => import("./spa/spaces"));
 const SpaceEditorView = dynamic(() => import("./spa/spaces/[id]"));
 const ResourcesList = dynamic(() => import("./spa/resources"));
 const ResourceEditorView = dynamic(() => import("./spa/resources/[id]"));
-
 const ApplicationDetails = dynamic(() => import("./spa/applications"));
-
 const ReservationUnits = dynamic(() => import("./spa/reservation-units"));
 const ReservationUnitEditor = dynamic(
   () => import("./spa/reservation-units/[id]")
 );
-
-const HomePage = dynamic(() => import("./spa/HomePage"));
-
 const AllApplicationRounds = dynamic(
-  () => import(`./spa/recurring-reservations/application-rounds/index`)
+  () => import(`./spa/recurring-reservations/application-rounds`)
 );
 const Criteria = dynamic(
   () => import(`./spa/recurring-reservations/application-rounds/[id]/criteria`)

@@ -25,8 +25,9 @@ import { useOptions } from "@component/my-units/hooks";
 import Loader from "@component/Loader";
 import { HR } from "@/component/Table";
 import { useReservationEditData } from "@hooks/reservations";
-import EditPageWrapper from "./EditPageWrapper";
-import { useStaffReservationMutation } from "./hooks";
+import { EditPageLayout } from "./EditPageWrapper";
+// TODO move
+import { useStaffReservationMutation } from "../../hooks";
 
 type FormValueType = ReservationChangeFormType & ReservationFormMeta;
 
@@ -249,7 +250,7 @@ const EditPage = () => {
   const options = useOptions();
 
   return (
-    <EditPageWrapper reservation={reservation} title={t("title")}>
+    <EditPageLayout reservation={reservation} title={t("title")}>
       {loading ? (
         <Loader />
       ) : !reservation ? (
@@ -267,7 +268,7 @@ const EditPage = () => {
           />
         </ErrorBoundary>
       )}
-    </EditPageWrapper>
+    </EditPageLayout>
   );
 };
 

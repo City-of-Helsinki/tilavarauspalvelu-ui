@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import RequestedReservations from "./list";
 import AllReservations from ".";
 import RequestedReservation from "./[id]";
-import EditPage from "./EditPage";
+import EditPage from "./[id]/edit";
 
 // TODO there is no index? (all and requested works like index but not really)
 const ReservationsRouter = (): JSX.Element => (

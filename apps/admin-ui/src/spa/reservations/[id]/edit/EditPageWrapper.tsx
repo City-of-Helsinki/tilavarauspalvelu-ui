@@ -4,14 +4,14 @@ import { ReservationType } from "common/types/gql-types";
 import styled from "styled-components";
 import LinkPrev from "@component/LinkPrev";
 import { Container } from "@styles/layout";
-import ReservationTitleSection from "./[id]/ReservationTitleSection";
-import { createTagString } from "./[id]/util";
+import ReservationTitleSection from "../ReservationTitleSection";
+import { createTagString } from "../util";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-s);
 `;
 
-const EditPageWrapper = ({
+export function EditPageLayout({
   children,
   reservation,
   title,
@@ -19,7 +19,7 @@ const EditPageWrapper = ({
   children: React.ReactNode;
   title: string;
   reservation?: ReservationType;
-}) => {
+}) {
   const { t } = useTranslation();
   const tagline = reservation ? createTagString(reservation, t) : "";
 
@@ -40,6 +40,4 @@ const EditPageWrapper = ({
       </Container>
     </>
   );
-};
-
-export default EditPageWrapper;
+}

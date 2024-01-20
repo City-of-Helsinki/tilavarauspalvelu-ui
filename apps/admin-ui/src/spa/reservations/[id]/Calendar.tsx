@@ -7,7 +7,7 @@ import { type ReservationType } from "common/types/gql-types";
 import { useModal } from "app/context/ModalContext";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import { Legend } from "@component/Legend";
-import EditTimeModal from "../EditTimeModal";
+import EditTimeModal from "./edit/EditTimeModal";
 import { isPossibleToEdit } from "./reservationModificationRules";
 
 type Props = {
