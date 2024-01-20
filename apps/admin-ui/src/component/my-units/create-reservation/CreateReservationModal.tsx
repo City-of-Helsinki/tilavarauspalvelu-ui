@@ -22,19 +22,19 @@ import {
 } from "app/schemas";
 import { breakpoints } from "common/src/common/style";
 import { fromUIDate } from "common/src/common/util";
-import { setTimeOnDate } from "app/component/reservations/utils";
-import { useCheckCollisions } from "app/component/reservations/requested/hooks";
-import { dateTime } from "app/helpers";
-import { useModal } from "../../../context/ModalContext";
+import { setTimeOnDate } from "@component/reservations/utils";
+import { useCheckCollisions } from "@component/reservations/requested/hooks";
+import { dateTime } from "@/helpers";
+import { ControlledTimeInput } from "@component/ControlledTimeInput";
+import { ControlledDateInput } from "@component/ControlledDateInput";
+import Loader from "@component/Loader";
+import { useModal } from "@context/ModalContext";
+import { useNotification } from "@context/NotificationContext";
 import { CREATE_STAFF_RESERVATION } from "./queries";
-import Loader from "../../Loader";
-import { useNotification } from "../../../context/NotificationContext";
 import { flattenMetadata } from "./utils";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
 import { Grid, Element } from "../MyUnitRecurringReservation/commonStyling";
-import ControlledTimeInput from "../components/ControlledTimeInput";
-import ControlledDateInput from "../components/ControlledDateInput";
 
 // NOTE HDS forces buttons over each other on mobile, we want them side-by-side
 const ActionButtons = styled(Dialog.ActionButtons)`

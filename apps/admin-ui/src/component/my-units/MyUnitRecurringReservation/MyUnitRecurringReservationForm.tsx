@@ -17,11 +17,13 @@ import {
   RecurringReservationFormSchema,
   type RecurringReservationForm,
 } from "@/schemas";
-import { SortedSelect } from "@/component/SortedSelect";
+import { SortedSelect } from "@component/SortedSelect";
 import ReservationList, {
-  NewReservationListItem,
-} from "@/component/ReservationsList";
-import { useNotification } from "@/context/NotificationContext";
+  type NewReservationListItem,
+} from "@component/ReservationsList";
+import { useNotification } from "@context/NotificationContext";
+import { ControlledTimeInput } from "@component/ControlledTimeInput";
+import { ControlledDateInput } from "@component/ControlledDateInput";
 import { ActionsWrapper, Grid, Element } from "./commonStyling";
 import { WeekdaysSelector } from "./WeekdaysSelector";
 import {
@@ -31,9 +33,7 @@ import {
 } from "./hooks";
 import { useReservationUnitQuery } from "../hooks";
 import ReservationTypeForm from "../ReservationTypeForm";
-import ControlledTimeInput from "../components/ControlledTimeInput";
 import ReservationListButton from "../../ReservationListButton";
-import ControlledDateInput from "../components/ControlledDateInput";
 
 const Label = styled.p<{ $bold?: boolean }>`
   font-family: var(--fontsize-body-m);

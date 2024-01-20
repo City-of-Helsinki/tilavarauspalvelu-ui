@@ -33,26 +33,26 @@ import { BANNER_NOTIFICATIONS_ADMIN } from "common/src/components/BannerNotifica
 import { H1 } from "common/src/common/typography";
 import { fromUIDate } from "common/src/common/util";
 import { breakpoints } from "common";
-import { Container } from "app/styles/layout";
-import BreadcrumbWrapper from "app/component/BreadcrumbWrapper";
-import Loader from "app/component/Loader";
-import { useNotification } from "app/context/NotificationContext";
-import { ButtonLikeLink } from "app/component/ButtonLikeLink";
+import { Container } from "@styles/layout";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import Loader from "@component/Loader";
+import { useNotification } from "@context/NotificationContext";
+import { ButtonLikeLink } from "@component/ButtonLikeLink";
 import {
   checkValidDate,
   checkValidFutureDate,
   checkTimeStringFormat,
   checkLengthWithoutHtml,
-} from "app/schemas";
+} from "@/schemas";
 import {
   valueForDateInput,
   valueForTimeInput,
   dateTime,
   parseDateTimeSafe,
-} from "app/helpers";
-import { TFunction } from "i18next";
-import ControlledDateInput from "../my-units/components/ControlledDateInput";
-import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
+} from "@/helpers";
+import type { TFunction } from "i18next";
+import { ControlledDateInput } from "@component/ControlledDateInput";
+import { ControlledTimeInput } from "@component/ControlledTimeInput";
 
 const RichTextInput = dynamic(() => import("app/component/RichTextInput"), {
   ssr: false,

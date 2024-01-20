@@ -10,7 +10,7 @@ import { prefixes } from "@common/urls";
 import { AuthorisationChecker } from "@component/AuthorisationChecker";
 import MyUnitsRouter from "@component/my-units/MyUnitsRouter";
 import ReservationsRouter from "@component/reservations/ReservationRouter";
-import NotificationsRouter from "@component/notifications/router";
+import NotificationsRouter from "@/spa/notifications/router";
 import { Error404 } from "@component/error";
 import ApplicationRound from "./spa/recurring-reservations/application-rounds/[id]";
 
