@@ -3,11 +3,11 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { Container } from "../../../styles/layout";
-import Loader from "../../Loader";
-import MyUnitRecurringReservationForm from "./MyUnitRecurringReservationForm";
-import { useRecurringReservationsUnits } from "./hooks";
-import LinkPrev from "../../LinkPrev";
+import { Container } from "@styles/layout";
+import Loader from "@component/Loader";
+import MyUnitRecurringReservationForm from "@component/my-units/MyUnitRecurringReservation/MyUnitRecurringReservationForm";
+import { useRecurringReservationsUnits } from "@component/my-units/MyUnitRecurringReservation/hooks";
+import LinkPrev from "@component/LinkPrev";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-s);

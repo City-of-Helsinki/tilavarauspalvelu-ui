@@ -27,7 +27,7 @@ import {
 } from "common/src/common/util";
 import { addDays } from "date-fns";
 import {
-  CollisionInterval,
+  type CollisionInterval,
   doesIntervalCollide,
   reservationToInterval,
   dateTime,
@@ -42,7 +42,7 @@ import {
 import { NewReservationListItem } from "../../ReservationsList";
 import { convertToDate } from "./utils";
 import { CREATE_STAFF_RESERVATION } from "../create-reservation/queries";
-import { ReservationMade } from "./RecurringReservationDone";
+import type { ReservationMade } from "../schemas";
 import { flattenMetadata } from "../create-reservation/utils";
 
 export const useMultipleReservation = ({

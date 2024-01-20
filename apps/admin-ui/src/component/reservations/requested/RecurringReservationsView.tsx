@@ -6,15 +6,15 @@ import {
   ReservationsReservationStateChoices,
   type ReservationType,
 } from "common/types/gql-types";
-import { useRecurringReservations } from "./hooks";
-import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "../../../common/const";
-import ReservationList from "../../ReservationsList";
-import ReservationListButton from "../../ReservationListButton";
+import { RECURRING_AUTOMATIC_REFETCH_LIMIT } from "@common/const";
+import ReservationList from "@component/ReservationsList";
+import ReservationListButton from "@component/ReservationListButton";
+import { useModal } from "@context/ModalContext";
 import DenyDialog from "./DenyDialog";
-import { useModal } from "../../../context/ModalContext";
+import { useRecurringReservations } from "./hooks";
 import EditTimeModal from "../EditTimeModal";
 
-const RecurringReservationsView = ({
+export function RecurringReservationsView({
   recurringPk,
   onSelect,
   onChange,
@@ -24,7 +24,7 @@ const RecurringReservationsView = ({
   onSelect?: (selected: ReservationType) => void;
   onChange?: () => void;
   onReservationUpdated?: () => void;
-}) => {
+}) {
   const { t } = useTranslation();
   const { setModalContent } = useModal();
 
@@ -136,6 +136,4 @@ const RecurringReservationsView = ({
       hasMore={hasMore}
     />
   );
-};
-
-export default RecurringReservationsView;
+}

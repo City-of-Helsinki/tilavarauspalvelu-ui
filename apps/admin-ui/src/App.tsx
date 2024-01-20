@@ -9,8 +9,8 @@ import { GlobalContext } from "@context/GlobalContexts";
 import { prefixes } from "@common/urls";
 import { AuthorisationChecker } from "@component/AuthorisationChecker";
 import { Error404 } from "@component/error";
-import MyUnitsRouter from "@component/my-units/MyUnitsRouter";
 import ReservationsRouter from "@component/reservations/ReservationRouter";
+import { MyUnitsRouter } from "@/spa/my-units/MyUnitsRouter";
 import NotificationsRouter from "@/spa/notifications/router";
 import ApplicationRound from "@/spa/recurring-reservations/application-rounds/[id]";
 

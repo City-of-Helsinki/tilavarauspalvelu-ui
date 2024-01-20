@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
 import { H1 } from "common/src/common/typography";
-import { Container } from "../../styles/layout";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
-import { Sort } from "../Unit/UnitsTable";
-import Filters, { FilterArguments, emptyFilterState } from "../Unit/Filters";
+import { Container } from "@styles/layout";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { Sort } from "@component/Unit/UnitsTable";
+import Filters, {
+  FilterArguments,
+  emptyFilterState,
+} from "@component/Unit/Filters";
 import { HR } from "@/component/Table";
-import UnitsDataLoader from "../Unit/UnitsDataLoader";
+import UnitsDataLoader from "@component/Unit/UnitsDataLoader";
 
 // NOTE copy pasta from Unit/Units.tsx
 const MyUnits = () => {

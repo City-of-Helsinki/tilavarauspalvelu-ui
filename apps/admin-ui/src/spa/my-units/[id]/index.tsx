@@ -5,16 +5,16 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { Button, Tabs as HDSTabs } from "hds-react";
 import { breakpoints } from "common/src/common/style";
-import { parseAddress } from "../../common/util";
-import { Container } from "../../styles/layout";
-import BreadcrumbWrapper from "../BreadcrumbWrapper";
-import { myUnitUrl } from "../../common/urls";
-import { BasicLink } from "../../styles/util";
-import ReservationUnitCalendarView from "./ReservationUnitCalendarView";
-import UnitReservationsView from "./UnitReservationsView";
-import { TabHeader, Tabs } from "../Tabs";
-import { useUnitQuery } from "./hooks";
-import Loader from "../Loader";
+import { parseAddress } from "@common/util";
+import { Container } from "@styles/layout";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { myUnitUrl } from "@common/urls";
+import { BasicLink } from "@styles/util";
+import ReservationUnitCalendarView from "@component/my-units/ReservationUnitCalendarView";
+import UnitReservationsView from "@component/my-units/UnitReservationsView";
+import { TabHeader, Tabs } from "@component/Tabs";
+import { useUnitQuery } from "@component/my-units/hooks";
+import Loader from "@component/Loader";
 
 type Params = {
   unitId: string;

@@ -4,12 +4,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Container, Button } from "hds-react";
 import { ErrorBoundary } from "react-error-boundary";
-import { z } from "zod";
 import { H1, H6 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import RecurringReservationsView from "app/component/reservations/requested/RecurringReservationsView";
-import { ActionsWrapper } from "./commonStyling";
-import ReservationList from "../../ReservationsList";
+import { RecurringReservationsView } from "@component/reservations/requested/RecurringReservationsView";
+import { ActionsWrapper } from "@component/my-units/MyUnitRecurringReservation/commonStyling";
+import ReservationList from "@component/ReservationsList";
+import { RecurringReservationDoneParamsSchema } from "@component/my-units/schemas";
 
 const InfoSection = styled.p`
   margin: var(--spacing-l) 0;
@@ -26,20 +26,6 @@ const StyledContainer = styled(Container)`
     padding-right: var(--spacing-2-xl) !important;
   }
 `;
-
-const ReservationMadeSchema = z.object({
-  reservationPk: z.number().optional(),
-  startTime: z.string(),
-  endTime: z.string(),
-  date: z.date(),
-  error: z.string().or(z.unknown()).optional(),
-});
-export type ReservationMade = z.infer<typeof ReservationMadeSchema>;
-
-const RecurringReservationDoneParamsSchema = z.object({
-  reservations: z.array(ReservationMadeSchema),
-  recurringPk: z.number(),
-});
 
 const RecurringReservationDone = () => {
   const location = useLocation();
