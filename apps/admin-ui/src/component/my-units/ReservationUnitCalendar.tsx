@@ -17,14 +17,12 @@ import { Permission } from "app/modules/permissionHelper";
 import usePermission from "app/hooks/usePermission";
 import { getEventBuffers } from "common/src/calendar/util";
 import { reservationUrl } from "@common/urls";
-import { combineResults } from "@common/util";
+import { combineResults, getReserveeName } from "@common/util";
 import { useNotification } from "@context/NotificationContext";
 import { RESERVATIONS_BY_RESERVATIONUNITS } from "./queries";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import { publicUrl } from "@common/const";
 import { Legend } from "@component/Legend";
-// TODO this is imported from incorrect place (move them to common)
-import { getReserveeName } from "@/spa/reservations/requested/util";
 
 type Props = {
   begin: string;

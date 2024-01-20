@@ -7,7 +7,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { H1, H6 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 // TODO move to common components
-import { RecurringReservationsView } from "@/spa/reservations/requested/RecurringReservationsView";
+import { RecurringReservationsView } from "@/spa/reservations/[id]/RecurringReservationsView";
 import { ActionsWrapper } from "@component/my-units/MyUnitRecurringReservation/commonStyling";
 import ReservationList from "@component/ReservationsList";
 import { RecurringReservationDoneParamsSchema } from "@component/my-units/schemas";

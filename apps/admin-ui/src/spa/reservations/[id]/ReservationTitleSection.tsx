@@ -6,8 +6,8 @@ import { H1 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { ReservationType } from "common/types/gql-types";
 import { getName } from "./util";
-import { HorisontalFlex } from "../../../styles/layout";
-import { formatDateTime } from "../../../common/util";
+import { HorisontalFlex } from "@styles/layout";
+import { formatDateTime } from "@/helpers";
 
 const Dot = styled.div`
   display: inline-block;

@@ -1,16 +1,16 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { memoize } from "lodash";
 import {
   ReservationsReservationTypeChoices,
-  ReservationType,
+  type ReservationType,
 } from "common/types/gql-types";
-import { truncate } from "@/helpers";
+import { truncate, formatDateTime } from "@/helpers";
 import { reservationUrl } from "@/common/urls";
-import { formatDateTime } from "@/common/util";
+import { getReserveeName } from "@/common/util";
 import { CustomTable, TableLink } from "@/component/Table";
-import { getReserveeName, reservationDateTimeString } from "./requested/util";
+import { reservationDateTimeString } from "./[id]/util";
 
 export type Sort = {
   field: string;

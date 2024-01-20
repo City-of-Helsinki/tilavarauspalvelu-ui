@@ -1,8 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import RequestedReservations from "./RequestedReservations";
-import AllReservations from "./AllReservations";
-import RequestedReservation from "./requested/RequestedReservation";
+import RequestedReservations from "./list";
+import AllReservations from ".";
+import RequestedReservation from "./[id]";
 import EditPage from "./EditPage";
 
 // TODO there is no index? (all and requested works like index but not really)

@@ -27,7 +27,7 @@ import BufferToggles from "@component/my-units/BufferToggles";
 import { useCheckCollisions } from "@hooks/reservations";
 import { CHANGE_RESERVATION_TIME } from "./queries";
 import { setTimeOnDate } from "@common/util";
-import { reservationDateTime, reservationDuration } from "./requested/util";
+import { reservationDateTime, reservationDuration } from "./[id]/util";
 
 const StyledForm = styled.form`
   margin-top: var(--spacing-m);

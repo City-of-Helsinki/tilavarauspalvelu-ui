@@ -23,10 +23,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import { POST_PAUSE, PRE_PAUSE } from "@common/calendarStyling";
-import { sortByName } from "@common/util";
+import { sortByName, getReserveeName } from "@common/util";
 import { useModal } from "@context/ModalContext";
-// TODO move to common
-import { getReserveeName } from "@/spa/reservations/requested/util";
 import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
 import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter from "./eventStyleGetter";

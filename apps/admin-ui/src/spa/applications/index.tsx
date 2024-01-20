@@ -25,11 +25,11 @@ import {
 } from "common/types/gql-types";
 import {
   formatNumber,
-  formatDate,
   parseAgeGroups,
   formatDurationShort,
   secondsToHms,
 } from "@common/util";
+import { formatDate } from "@/helpers";
 import { weekdays } from "@common/const";
 import { useNotification } from "@context/NotificationContext";
 import { ScrollIntoView } from "@component/ScrollIntoView";

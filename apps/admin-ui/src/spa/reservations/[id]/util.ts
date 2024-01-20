@@ -24,8 +24,8 @@ import {
 } from "common/types/gql-types";
 import { fromApiDate } from "common/src/common/util";
 import { toMondayFirst } from "common/src/helpers";
-import { truncate } from "@/helpers";
-import { DATE_FORMAT, formatDate, formatTime } from "@/common/util";
+import { DATE_FORMAT, formatDate, formatTime } from "@/helpers";
+import { getReserveeName } from "@common/util";
 
 export const reservationDateTime = (
   start: Date,
@@ -206,12 +206,6 @@ export const getTranslationKeyForReserveeType = (
     : "";
   return [`ReservationType.${reservationType}`, reserveeTypeTranslationKey];
 };
-
-export const getReserveeName = (
-  reservation: ReservationType,
-  length = 50,
-  prefix = ""
-): string => truncate(prefix + reservation.reserveeName?.trim() ?? "-", length);
 
 export const getName = (reservation: ReservationType, t: TFunction) => {
   if (reservation.name) {

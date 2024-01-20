@@ -3,7 +3,7 @@ import { Button, IconAngleLeft, IconAngleRight } from "hds-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { DATE_FORMAT, DATE_FORMAT_SHORT } from "@/common/util";
+import { DATE_FORMAT, DATE_FORMAT_SHORT } from "@/helpers";
 import { HorisontalFlex } from "@/styles/layout";
 
 type Props = {

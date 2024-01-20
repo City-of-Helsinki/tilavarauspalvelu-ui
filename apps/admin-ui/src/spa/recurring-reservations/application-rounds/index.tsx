@@ -11,11 +11,10 @@ import {
 } from "common/types/gql-types";
 import { filterNonNullable } from "common/src/helpers";
 import { applicationRoundUrl } from "@/common/urls";
-import { formatDate } from "@/common/util";
+import { formatDate, truncate } from "@/helpers";
 import { Accordion } from "hds-react";
 import { useNotification } from "@/context/NotificationContext";
 import { Container } from "@/styles/layout";
-import { truncate } from "@/helpers";
 import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
 import Loader from "@/component/Loader";
 import { ApplicationRoundCard } from "./ApplicationRoundCard";

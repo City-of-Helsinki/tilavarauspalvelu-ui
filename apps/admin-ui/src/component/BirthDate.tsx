@@ -3,7 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 import styled from "styled-components";
 import { useTranslation } from "next-i18next";
 import type { Query, QueryUserArgs } from "common/types/gql-types";
-import { formatDate } from "@/common/util";
+import { formatDate } from "@/helpers";
 import { HorisontalFlex } from "@/styles/layout";
 
 type Props = {

@@ -21,7 +21,7 @@ import { useNotification } from "@context/NotificationContext";
 import { OptionType } from "@common/types";
 import { GQL_MAX_RESULTS_PER_QUERY } from "@common/const";
 // TODO move to common queries
-import { RESERVATION_DENY_REASONS } from "@/spa/reservations/requested/queries";
+import { RESERVATION_DENY_REASONS } from "@/spa/reservations/[id]/queries";
 
 export { default as useCheckCollisions } from "./useCheckCollisions";
 

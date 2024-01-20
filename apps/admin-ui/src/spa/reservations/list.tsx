@@ -2,14 +2,16 @@ import { debounce } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { H1 } from "common/src/common/typography";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { HR } from "@component/Table";
+import { Container } from "@styles/layout";
+import { DATE_FORMAT, formatDate } from "@/helpers";
 import Filters, { type FilterArguments, emptyState } from "./Filters";
-import ReservationsDataLoader, { type Sort } from "./ReservationsDataLoader";
-import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
-import { HR } from "@/component/Table";
-import { Container } from "@/styles/layout";
-import { DATE_FORMAT, formatDate } from "@/common/util";
+import ReservationUnitsDataReader, {
+  type Sort,
+} from "./ReservationsDataLoader";
 
-const AllReservations = (): JSX.Element => {
+const Reservations = (): JSX.Element => {
   const [search, setSearch] = useState<FilterArguments>(emptyState);
   const [sort, setSort] = useState<Sort>({ field: "state", asc: false });
   const debouncedSearch = debounce((value) => setSearch(value), 300);
@@ -25,11 +27,11 @@ const AllReservations = (): JSX.Element => {
 
   return (
     <>
-      <BreadcrumbWrapper route={["reservations", "all-reservations"]} />
+      <BreadcrumbWrapper route={["reservations", "requested-reservations"]} />
       <Container>
         <div>
-          <H1 $legacy>{t("Reservations.allReservationListHeading")}</H1>
-          <p>{t("Reservations.allReservationListDescription")}</p>
+          <H1 $legacy>{t("Reservations.reservationListHeading")}</H1>
+          <p>{t("Reservations.reservationListDescription")}</p>
         </div>
         <Filters
           onSearch={debouncedSearch}
@@ -38,8 +40,10 @@ const AllReservations = (): JSX.Element => {
           }}
         />
         <HR />
-        <ReservationsDataLoader
-          defaultFiltering={{}}
+        <ReservationUnitsDataReader
+          defaultFiltering={{
+            state: ["DENIED", "CONFIRMED", "REQUIRES_HANDLING"],
+          }}
           filters={search}
           sort={sort}
           sortChanged={onSortChanged}
@@ -49,4 +53,4 @@ const AllReservations = (): JSX.Element => {
   );
 };
 
-export default AllReservations;
+export default Reservations;

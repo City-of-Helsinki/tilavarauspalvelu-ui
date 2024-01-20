@@ -1,36 +1,16 @@
-import { format, parseISO, set as setTime } from "date-fns";
+import { set as setTime } from "date-fns";
 import i18next from "i18next";
 import { groupBy, set, get, trim } from "lodash";
-import {
+import type {
   AgeGroupType,
   LocationType,
   Maybe,
   Query,
+  ReservationType,
 } from "common/types/gql-types";
 import { DataFilterOption } from "./types";
 import { NUMBER_OF_DECIMALS } from "./const";
-
-export const DATE_FORMAT = "d.M.yyyy";
-export const DATE_FORMAT_SHORT = "d.M.";
-
-/// @deprecated use format directly
-/// why convert date -> string -> date?
-export const formatDate = (
-  date: string | null,
-  outputFormat = DATE_FORMAT
-): string | null => {
-  return date ? format(parseISO(date), outputFormat) : null;
-};
-
-export const formatTime = (
-  date: string | null,
-  outputFormat = "HH:mm"
-): string | null => {
-  return date ? format(parseISO(date), outputFormat) : null;
-};
-
-export const formatDateTime = (date: string): string =>
-  `${formatDate(date)} ${formatTime(date)}`;
+import { truncate } from "@/helpers";
 
 export const formatNumber = (
   input?: number | null,
@@ -286,3 +266,9 @@ export function setTimeOnDate(date: Date, time: string): Date {
   }
   return date;
 }
+
+export const getReserveeName = (
+  reservation: ReservationType,
+  length = 50,
+  prefix = ""
+): string => truncate(prefix + reservation.reserveeName?.trim() ?? "-", length);

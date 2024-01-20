@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { Card, IconArrowRight, IconCalendar } from "hds-react";
 import { ApplicationRoundNode } from "common/types/gql-types";
 import { breakpoints } from "common/src/common/style";
-import { formatDate } from "@/common/util";
+import { formatDate } from "@/helpers";
 import { applicationRoundUrl } from "@/common/urls";
 import { ApplicationRoundStatusTag } from "./ApplicationRoundStatusTag";
 import TimeframeStatus from "./TimeframeStatus";

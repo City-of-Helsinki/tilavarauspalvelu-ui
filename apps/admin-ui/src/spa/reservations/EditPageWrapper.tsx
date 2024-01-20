@@ -4,8 +4,8 @@ import { ReservationType } from "common/types/gql-types";
 import styled from "styled-components";
 import LinkPrev from "@component/LinkPrev";
 import { Container } from "@styles/layout";
-import ReservationTitleSection from "./requested/ReservationTitleSection";
-import { createTagString } from "./requested/util";
+import ReservationTitleSection from "./[id]/ReservationTitleSection";
+import { createTagString } from "./[id]/util";
 
 const PreviousLinkWrapper = styled.div`
   padding: var(--spacing-s);

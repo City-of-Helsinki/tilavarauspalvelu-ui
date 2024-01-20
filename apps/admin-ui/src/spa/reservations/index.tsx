@@ -2,16 +2,14 @@ import { debounce } from "lodash";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { H1 } from "common/src/common/typography";
-import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
-import { HR } from "@component/Table";
-import { Container } from "@styles/layout";
-import { DATE_FORMAT, formatDate } from "@common/util";
 import Filters, { type FilterArguments, emptyState } from "./Filters";
-import ReservationUnitsDataReader, {
-  type Sort,
-} from "./ReservationsDataLoader";
+import ReservationsDataLoader, { type Sort } from "./ReservationsDataLoader";
+import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
+import { HR } from "@/component/Table";
+import { Container } from "@/styles/layout";
+import { DATE_FORMAT, formatDate } from "@/helpers";
 
-const Reservations = (): JSX.Element => {
+const AllReservations = (): JSX.Element => {
   const [search, setSearch] = useState<FilterArguments>(emptyState);
   const [sort, setSort] = useState<Sort>({ field: "state", asc: false });
   const debouncedSearch = debounce((value) => setSearch(value), 300);
@@ -27,11 +25,11 @@ const Reservations = (): JSX.Element => {
 
   return (
     <>
-      <BreadcrumbWrapper route={["reservations", "requested-reservations"]} />
+      <BreadcrumbWrapper route={["reservations", "all-reservations"]} />
       <Container>
         <div>
-          <H1 $legacy>{t("Reservations.reservationListHeading")}</H1>
-          <p>{t("Reservations.reservationListDescription")}</p>
+          <H1 $legacy>{t("Reservations.allReservationListHeading")}</H1>
+          <p>{t("Reservations.allReservationListDescription")}</p>
         </div>
         <Filters
           onSearch={debouncedSearch}
@@ -40,10 +38,8 @@ const Reservations = (): JSX.Element => {
           }}
         />
         <HR />
-        <ReservationUnitsDataReader
-          defaultFiltering={{
-            state: ["DENIED", "CONFIRMED", "REQUIRES_HANDLING"],
-          }}
+        <ReservationsDataLoader
+          defaultFiltering={{}}
           filters={search}
           sort={sort}
           sortChanged={onSortChanged}
@@ -53,4 +49,4 @@ const Reservations = (): JSX.Element => {
   );
 };
 
-export default Reservations;
+export default AllReservations;
