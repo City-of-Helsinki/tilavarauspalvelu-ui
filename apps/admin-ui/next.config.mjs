@@ -50,6 +50,10 @@ const config = {
         source: "/logout/:any*",
         destination: "/logout/:any*",
       },
+      {
+        source: "/failure/:any*",
+        destination: "/failure/:any*",
+      },
       // Rewrite everything else to use `pages/index`
       {
         source: "/:any*",

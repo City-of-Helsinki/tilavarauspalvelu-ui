@@ -17,6 +17,7 @@ export function getCommonServerSideProps() {
   const profileLink = env.PROFILE_UI_URL ?? "";
   const apiBaseUrl = env.TILAVARAUS_API_URL ?? "";
   const feedbackUrl = env.EMAIL_VARAAMO_EXT_LINK ?? "";
+  const sentryDsn = env.SENTRY_DSN ?? "";
 
   return {
     cookiehubEnabled,
@@ -25,6 +26,7 @@ export function getCommonServerSideProps() {
     profileLink,
     apiBaseUrl,
     feedbackUrl,
+    sentryDsn,
   };
 }
 

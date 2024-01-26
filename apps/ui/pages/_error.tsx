@@ -1,3 +1,32 @@
+import * as Sentry from "@sentry/nextjs";
+import type { NextPage } from "next";
+import type { ErrorProps } from "next/error";
+import Error from "next/error";
+
+// TODO to test this we need to build a release bundle
+// it doesn't work in development mode
+// doesn't seem to run in production bundle either
+// at least not for 404 nor client thrown errors
+const CustomErrorComponent: NextPage<ErrorProps> = (props) => {
+  console.log('client side error component', props);
+  return <Error statusCode={props.statusCode} />;
+};
+
+CustomErrorComponent.getInitialProps = async (contextData) => {
+  const { res, err } = contextData;
+  console.log("CustomErrorComponent.getInitialProps", { res, err });
+  // In case this is running in a serverless function, await this in order to give Sentry
+  // time to send the error before the lambda exits
+  Sentry.captureException
+  await Sentry.captureUnderscoreErrorException(contextData);
+
+  // This will contain the status code of the response
+  return Error.getInitialProps(contextData);
+};
+
+export default CustomErrorComponent;
+
+/*
 import NextErrorComponent from "next/error";
 import * as Sentry from "@sentry/nextjs";
 
@@ -62,3 +91,4 @@ MyError.getInitialProps = async (context) => {
 };
 
 export default MyError;
+*/

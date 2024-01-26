@@ -1,4 +1,4 @@
-import React, { type FC } from "react";
+import React, { useEffect, type FC } from "react";
 import { ApolloProvider } from "@apollo/client";
 import { appWithTranslation } from "next-i18next";
 import type { AppProps } from "next/app";
@@ -14,11 +14,21 @@ import { TrackingWrapper } from "../modules/tracking";
 import nextI18NextConfig from "../next-i18next.config";
 import "common/styles/variables.css";
 import "../styles/global.scss";
+import { updateSentryConfig } from "@/sentry.client.config";
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-  const { hotjarEnabled, matomoEnabled, cookiehubEnabled, apiBaseUrl } =
+  const { hotjarEnabled, matomoEnabled, cookiehubEnabled, apiBaseUrl, sentryDsn, sentryEnvironment } =
     pageProps;
+  useEffect(() => {
+    if (sentryDsn) {
+      updateSentryConfig(sentryDsn, sentryEnvironment);
+    } else {
+      console.warn("No sentryDsn provided, Sentry will not be initialized");
+    }
+  }, [sentryDsn, sentryEnvironment])
+
   const client = createApolloClient(apiBaseUrl ?? "", undefined);
+
   return (
     <>
       <DataContextProvider>

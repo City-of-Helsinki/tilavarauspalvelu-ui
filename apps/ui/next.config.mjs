@@ -37,6 +37,10 @@ const nextConfig = {
       displayName: true,
     },
   },
+  sentry: {
+    disableServerWebpackPlugin: true,
+    disableClientWebpackPlugin: true,
+  },
   // NOTE webpack.experimental.topLevelAwait breaks middleware (it hangs forever)
 };
 
@@ -46,16 +50,16 @@ const sentryWebpackPluginOptions = {
   // recommended:
   //   release, url, org, project, authToken, configFile, stripPrefix,
   //   urlPrefix, include, ignore
-
   hideSourceMaps: true,
-  dryRun: env.SENTRY_AUTH_TOKEN === undefined,
-  silent: true, // Suppresses all logs
+  // no auth token so can't upload source maps
+  // dryRun: env.SENTRY_AUTH_TOKEN === undefined,
+  // silent: true, // Suppresses all logs
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 // Make sure adding Sentry options is the last code to run before exporting, to
 // ensure that your source maps include changes from all other Webpack plugins
-export default env.SENTRY_ENVIRONMENT
-  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
+export default env.SENTRY_DSN
+  ? withSentryConfig(nextConfig) //, sentryWebpackPluginOptions)
   : nextConfig;
