@@ -1,0 +1,51 @@
+import React, { useState } from "react";
+import { debounce } from "lodash";
+import { useTranslation } from "react-i18next";
+import { H1 } from "common/src/common/typography";
+import { Container } from "@styles/layout";
+import BreadcrumbWrapper from "@component/BreadcrumbWrapper";
+import { Sort } from "@component/Unit/UnitsTable";
+import Filters, {
+  FilterArguments,
+  emptyFilterState,
+} from "@component/Unit/Filters";
+import { HR } from "@/component/Table";
+import UnitsDataLoader from "@component/Unit/UnitsDataLoader";
+
+// NOTE copy pasta from Unit/Units.tsx
+const MyUnits = () => {
+  const [search, setSearch] = useState<FilterArguments>(emptyFilterState);
+  const [sort, setSort] = useState<Sort>();
+  const debouncedSearch = debounce((value) => setSearch(value), 300);
+
+  const { t } = useTranslation();
+
+  const handleSortChanged = (sortField: string) => {
+    setSort({
+      field: sortField,
+      sort: sort?.field === sortField ? !sort?.sort : true,
+    });
+  };
+
+  return (
+    <>
+      <BreadcrumbWrapper route={["my-units"]} />
+      <Container>
+        <div>
+          <H1 $legacy>{t("MyUnits.heading")}</H1>
+          <p>{t("MyUnits.description")}</p>
+        </div>
+        <Filters onSearch={debouncedSearch} />
+        <HR />
+        <UnitsDataLoader
+          filters={search}
+          sort={sort}
+          onSortChanged={handleSortChanged}
+          isMyUnits
+        />
+      </Container>
+    </>
+  );
+};
+
+export default MyUnits;

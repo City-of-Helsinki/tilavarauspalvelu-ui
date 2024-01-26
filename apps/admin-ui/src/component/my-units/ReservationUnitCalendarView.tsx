@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { addDays, formatISO, startOfDay, subDays } from "date-fns";
-
-import SingleReservationUnitFilter from "../filters/SingleReservationUnitFilter";
-import { AutoGrid, HorisontalFlex } from "../../styles/layout";
+import { SingleReservationUnitFilter } from "@component/filters";
+import { AutoGrid, HorisontalFlex } from "@styles/layout";
 import ReservationUnitCalendar from "./ReservationUnitCalendar";
 import WeekNavigation from "./WeekNavigation";
 

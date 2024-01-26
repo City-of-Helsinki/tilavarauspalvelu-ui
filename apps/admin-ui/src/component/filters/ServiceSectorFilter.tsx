@@ -25,7 +25,8 @@ type Props = {
   value?: OptionType;
 };
 
-const ServiceSectorFilter = ({ onChange, value }: Props): JSX.Element => {
+/// @deprecated : use custom filters that don't do extra gql-queries instead
+export function ServiceSectorFilter({ onChange, value }: Props): JSX.Element {
   const { t } = useTranslation();
   const [serviceSectors, setServiceSectors] = useState<ServiceSectorType[]>([]);
 
@@ -67,6 +68,4 @@ const ServiceSectorFilter = ({ onChange, value }: Props): JSX.Element => {
       id="service-sector-combobox"
     />
   );
-};
-
-export default ServiceSectorFilter;
+}

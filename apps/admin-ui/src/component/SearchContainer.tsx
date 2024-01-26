@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 
-const SearchContainer = styled.div`
+/// @deprecated only used by old Spaces / Resources pages
+export const SearchContainer = styled.div`
   display: grid;
   align-items: center;
   margin-bottom: var(--spacing-layout-xs);
@@ -23,5 +24,3 @@ const SearchContainer = styled.div`
     width: 20rem;
   }
 `;
-
-export default SearchContainer;

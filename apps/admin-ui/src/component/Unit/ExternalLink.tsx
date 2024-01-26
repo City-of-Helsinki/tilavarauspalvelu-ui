@@ -3,7 +3,7 @@ import { IconLinkExternal } from "hds-react";
 import styled from "styled-components";
 
 type Props = {
-  to: string | null;
+  href: string;
   children: string | null;
 };
 
@@ -21,14 +21,13 @@ const Name = styled.span`
   flex-direction: rows;
 `;
 
-const ExternalLink = ({ children, to }: Props): JSX.Element | null =>
-  children && to ? (
-    <a href={to} target="_blank" rel="noopener noreferrer">
+export function ExternalLink({ children, href }: Props): JSX.Element {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer">
       <Container>
         <Name>{children}</Name>
         <IconLinkExternal aria-hidden />
       </Container>
     </a>
-  ) : null;
-
-export default ExternalLink;
+  );
+}

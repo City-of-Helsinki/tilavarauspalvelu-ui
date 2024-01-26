@@ -19,7 +19,8 @@ type Props = {
 // - the fetch (that could include 100s of gql queries) is run for every component
 // i.e. create dummy data of 10k ReservationUnits, add 100 filter components to the page and
 // watch the backend break.
-const ReservationUnitFilter = ({ onChange, value }: Props): JSX.Element => {
+/// @deprecated : use custom filters that don't do extra gql-queries instead
+export function ReservationUnitFilter({ onChange, value }: Props): JSX.Element {
   const { t } = useTranslation();
   const [resUnits, setResUnits] = useState<ReservationUnitType[]>([]);
 
@@ -58,6 +59,4 @@ const ReservationUnitFilter = ({ onChange, value }: Props): JSX.Element => {
       id="reservation-unit"
     />
   );
-};
-
-export default ReservationUnitFilter;
+}

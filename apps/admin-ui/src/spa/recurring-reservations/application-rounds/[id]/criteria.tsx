@@ -8,7 +8,7 @@ import { breakpoints } from "common/src/common/style";
 import { type Query } from "common/types/gql-types";
 import { filterNonNullable } from "common/src/helpers";
 import { Container } from "@/styles/layout";
-import { formatDate } from "@/common/util";
+import { formatDate } from "@/helpers";
 import { useNotification } from "@/context/NotificationContext";
 import Loader from "@/component/Loader";
 import { Accordion } from "@/component/Accordion";

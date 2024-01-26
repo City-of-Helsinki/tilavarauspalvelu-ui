@@ -22,14 +22,13 @@ import {
 } from "common/types/gql-types";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { POST_PAUSE, PRE_PAUSE } from "@common/calendarStyling";
+import { sortByName, getReserveeName } from "@common/util";
+import { useModal } from "@context/ModalContext";
 import { CELL_BORDER, CELL_BORDER_LEFT, CELL_BORDER_LEFT_ALERT } from "./const";
 import ReservationPopupContent from "./ReservationPopupContent";
 import resourceEventStyleGetter from "./eventStyleGetter";
-import { POST_PAUSE, PRE_PAUSE } from "../../common/calendarStyling";
-import { getReserveeName } from "../reservations/requested/util";
-import { sortByName } from "../../common/util";
 import CreateReservationModal from "./create-reservation/CreateReservationModal";
-import { useModal } from "../../context/ModalContext";
 
 export type Resource = {
   title: string;

@@ -1,31 +1,16 @@
-import { format, parseISO } from "date-fns";
+import { set as setTime } from "date-fns";
 import i18next from "i18next";
 import { groupBy, set, get, trim } from "lodash";
-import { LocationType, Query } from "common/types/gql-types";
+import type {
+  AgeGroupType,
+  LocationType,
+  Maybe,
+  Query,
+  ReservationType,
+} from "common/types/gql-types";
 import { DataFilterOption } from "./types";
 import { NUMBER_OF_DECIMALS } from "./const";
-
-export const DATE_FORMAT = "d.M.yyyy";
-export const DATE_FORMAT_SHORT = "d.M.";
-
-/// @deprecated use format directly
-/// why convert date -> string -> date?
-export const formatDate = (
-  date: string | null,
-  outputFormat = DATE_FORMAT
-): string | null => {
-  return date ? format(parseISO(date), outputFormat) : null;
-};
-
-export const formatTime = (
-  date: string | null,
-  outputFormat = "HH:mm"
-): string | null => {
-  return date ? format(parseISO(date), outputFormat) : null;
-};
-
-export const formatDateTime = (date: string): string =>
-  `${formatDate(date)} ${formatTime(date)}`;
+import { truncate } from "@/helpers";
 
 export const formatNumber = (
   input?: number | null,
@@ -258,3 +243,32 @@ export const combineResults = (
 
 export const sortByName = (a?: string, b?: string): number =>
   a && b ? a.toLowerCase().localeCompare(b.toLowerCase()) : !a ? 1 : -1;
+
+// TODO rename
+export const ageGroup = (
+  group: Maybe<AgeGroupType> | undefined
+): string | null => (group ? `${group.minimum}-${group.maximum || ""}` : null);
+
+function timeToDuration(time: string) {
+  const dindex = time.indexOf(":");
+  if (dindex > 0) {
+    const hours = Number(time.substring(0, dindex) ?? "0");
+    const minutes = Number(time.substring(dindex + 1) ?? "0");
+    return { hours, minutes };
+  }
+  return undefined;
+}
+
+export function setTimeOnDate(date: Date, time: string): Date {
+  const duration = timeToDuration(time);
+  if (duration) {
+    return setTime(date, duration);
+  }
+  return date;
+}
+
+export const getReserveeName = (
+  reservation: ReservationType,
+  length = 50,
+  prefix = ""
+): string => truncate(prefix + reservation.reserveeName?.trim() ?? "-", length);

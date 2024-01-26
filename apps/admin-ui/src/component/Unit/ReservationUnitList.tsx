@@ -44,10 +44,11 @@ const getFilterConfig = (units: ReservationUnitType[]): DataFilterConfig[] => {
   ];
 };
 
-const ReservationUnitList = ({
+/// @deprecated old table / filtering styling only used in Unit
+export function ReservationUnitList({
   reservationUnits,
   unitId,
-}: IProps): JSX.Element => {
+}: IProps): JSX.Element {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<DataFilterOption[]>([]);
   const filterConfig = getFilterConfig(reservationUnits);
@@ -94,6 +95,4 @@ const ReservationUnitList = ({
       ))}
     </>
   );
-};
-
-export default ReservationUnitList;
+}

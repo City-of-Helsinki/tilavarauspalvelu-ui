@@ -1,53 +1,34 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import dynamic from "next/dynamic";
-
-import { Permission } from "app/modules/permissionHelper";
-import ApplicationRound from "./spa/recurring-reservations/application-rounds/[id]";
-import PageWrapper from "./component/PageWrapper";
+import { Permission } from "@modules/permissionHelper";
+import PageWrapper from "@component/PageWrapper";
 import "./i18n";
-import { publicUrl } from "./common/const";
-import { GlobalContext } from "./context/GlobalContexts";
-import { prefixes } from "./common/urls";
-import AuthorizationChecker from "./common/AuthorizationChecker";
+import { publicUrl } from "@common/const";
+import { GlobalContext } from "@context/GlobalContexts";
+import { prefixes } from "@common/urls";
+import { AuthorisationChecker } from "@component/AuthorisationChecker";
+import { Error404 } from "@component/error";
+import ReservationsRouter from "@/spa/reservations/ReservationRouter";
+import { MyUnitsRouter } from "@/spa/my-units/MyUnitsRouter";
+import NotificationsRouter from "@/spa/notifications/router";
+import ApplicationRound from "@/spa/recurring-reservations/application-rounds/[id]";
 
-import MyUnitsRouter from "./component/my-units/MyUnitsRouter";
-import ReservationsRouter from "./component/reservations/ReservationRouter";
-import NotificationsRouter from "./component/notifications/router";
-import Error404 from "./common/Error404";
-
-const UNIT_PATH = "./component/Unit";
-const Units = dynamic(() => import(`${UNIT_PATH}/Units`));
-const Unit = dynamic(() => import(`${UNIT_PATH}/Unit`));
-const SpacesResources = dynamic(import(`${UNIT_PATH}/SpacesResources`));
-
-const SpacesList = dynamic(() => import("./component/Spaces/SpacesList"));
-const SpaceEditorView = dynamic(
-  () => import("./component/Spaces/space-editor/SpaceEditorView")
-);
-
-const ResourcesList = dynamic(
-  () => import("./component/Resources/ResourcesList")
-);
-const ResourceEditorView = dynamic(
-  () => import("./component/Resources/resource-editor/ResourceEditorView")
-);
-
-const ApplicationDetails = dynamic(
-  () => import("./component/applications/ApplicationDetails")
-);
-
-const ReservationUnits = dynamic(
-  () => import("./component/reservation-units/ReservationUnits")
-);
+const HomePage = dynamic(() => import("./spa"));
+const Units = dynamic(() => import(`./spa/units`));
+const Unit = dynamic(() => import(`./spa/units/[id]`));
+const SpacesResources = dynamic(import(`./spa/units/[id]/spaces/index`));
+const SpacesList = dynamic(() => import("./spa/spaces"));
+const SpaceEditorView = dynamic(() => import("./spa/spaces/[id]"));
+const ResourcesList = dynamic(() => import("./spa/resources"));
+const ResourceEditorView = dynamic(() => import("./spa/resources/[id]"));
+const ApplicationDetails = dynamic(() => import("./spa/applications"));
+const ReservationUnits = dynamic(() => import("./spa/reservation-units"));
 const ReservationUnitEditor = dynamic(
-  () => import("./spa/ReservationUnit/edit/index")
+  () => import("./spa/reservation-units/[id]")
 );
-
-const HomePage = dynamic(() => import("./spa/HomePage"));
-
 const AllApplicationRounds = dynamic(
-  () => import(`./spa/recurring-reservations/application-rounds/index`)
+  () => import(`./spa/recurring-reservations/application-rounds`)
 );
 const Criteria = dynamic(
   () => import(`./spa/recurring-reservations/application-rounds/[id]/criteria`)
@@ -58,9 +39,9 @@ const ApplicationRoundAllocation = dynamic(
 );
 
 const withAuthorization = (component: JSX.Element, permission?: Permission) => (
-  <AuthorizationChecker permission={permission}>
+  <AuthorisationChecker permission={permission}>
     {component}
-  </AuthorizationChecker>
+  </AuthorisationChecker>
 );
 
 const UnitsRouter = () => (

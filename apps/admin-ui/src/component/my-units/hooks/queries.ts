@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 import {
   RESERVATIONUNIT_RESERVATIONS_FRAGMENT,
   RESERVATION_UNIT_FRAGMENT,
-} from "../../reservations/fragments";
+} from "@common/fragments";
 
 export const OPTIONS_QUERY = gql`
   query options {

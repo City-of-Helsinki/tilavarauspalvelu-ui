@@ -12,11 +12,12 @@ type Props = {
   unitPk?: string;
 };
 
-const SingleReservationUnitFilter = ({
+/// @deprecated : use custom filters that don't do extra gql-queries instead
+export function SingleReservationUnitFilter({
   onChange,
   value,
   unitPk,
-}: Props): JSX.Element => {
+}: Props): JSX.Element {
   const { t } = useTranslation();
   const { data, loading } = useQuery<Query, QueryReservationUnitsArgs>(
     RESERVATION_UNITS_QUERY,
@@ -54,6 +55,4 @@ const SingleReservationUnitFilter = ({
       id="reservation-unit"
     />
   );
-};
-
-export default SingleReservationUnitFilter;
+}

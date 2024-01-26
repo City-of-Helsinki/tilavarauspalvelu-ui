@@ -11,11 +11,10 @@ import {
 } from "common/types/gql-types";
 import { filterNonNullable } from "common/src/helpers";
 import { applicationRoundUrl } from "@/common/urls";
-import { formatDate } from "@/common/util";
-import { Accordion } from "@/common/hds-fork/Accordion";
+import { formatDate, truncate } from "@/helpers";
+import { Accordion } from "hds-react";
 import { useNotification } from "@/context/NotificationContext";
 import { Container } from "@/styles/layout";
-import { truncate } from "@/helpers";
 import BreadcrumbWrapper from "@/component/BreadcrumbWrapper";
 import Loader from "@/component/Loader";
 import { ApplicationRoundCard } from "./ApplicationRoundCard";
@@ -56,7 +55,7 @@ const RoundsAccordion = ({
   }
 
   return (
-    <Accordion heading={name} initiallyOpen={initiallyOpen}>
+    <Accordion heading={name} initiallyOpen={initiallyOpen} closeButton={false}>
       <AccordionContainer>
         {!rounds || rounds.length === 0
           ? emptyContent || <span>no data {name}</span>

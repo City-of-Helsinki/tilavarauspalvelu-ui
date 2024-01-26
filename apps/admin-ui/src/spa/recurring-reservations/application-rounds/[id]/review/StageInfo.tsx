@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { H1, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { formatDate } from "@/common/util";
+import { formatDate } from "@/helpers";
 
 interface Stage {
   id: number;

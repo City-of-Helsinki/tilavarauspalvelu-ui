@@ -1,5 +1,26 @@
-import { parse } from "date-fns";
-import { formatDate } from "../common/util";
+import { parse, format, parseISO } from "date-fns";
+
+export const DATE_FORMAT = "d.M.yyyy";
+export const DATE_FORMAT_SHORT = "d.M.";
+
+/// @deprecated use format directly
+/// why convert date -> string -> date?
+export const formatDate = (
+  date: string | null,
+  outputFormat = DATE_FORMAT
+): string | null => {
+  return date ? format(parseISO(date), outputFormat) : null;
+};
+
+export const formatTime = (
+  date: string | null,
+  outputFormat = "HH:mm"
+): string | null => {
+  return date ? format(parseISO(date), outputFormat) : null;
+};
+
+export const formatDateTime = (date: string): string =>
+  `${formatDate(date)} ${formatTime(date)}`;
 
 /* Convert api datetime to date required by date input, defaults to current date */
 export const valueForDateInput = (from: string): string => {

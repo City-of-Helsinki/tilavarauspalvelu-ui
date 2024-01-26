@@ -16,14 +16,13 @@ import {
 import { Permission } from "app/modules/permissionHelper";
 import usePermission from "app/hooks/usePermission";
 import { getEventBuffers } from "common/src/calendar/util";
-import { reservationUrl } from "../../common/urls";
-import { combineResults } from "../../common/util";
-import { useNotification } from "../../context/NotificationContext";
-import Legend from "../reservations/requested/Legend";
+import { reservationUrl } from "@common/urls";
+import { combineResults, getReserveeName } from "@common/util";
+import { useNotification } from "@context/NotificationContext";
 import { RESERVATIONS_BY_RESERVATIONUNITS } from "./queries";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
-import { publicUrl } from "../../common/const";
-import { getReserveeName } from "../reservations/requested/util";
+import { publicUrl } from "@common/const";
+import { Legend } from "@component/Legend";
 
 type Props = {
   begin: string;

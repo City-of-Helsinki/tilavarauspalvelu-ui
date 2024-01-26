@@ -8,9 +8,8 @@ import type {
 } from "common/types/gql-types";
 import { SemiBold, type ReservationUnitNode, fontMedium } from "common";
 import { publicUrl } from "@/common/const";
-import { formatDuration } from "@/common/util";
-import { getApplicantName } from "@/component/applications/util";
-import { ageGroup } from "@/component/reservations/requested/util";
+import { formatDuration, ageGroup } from "@/common/util";
+import { getApplicantName } from "@/modules/application";
 import { filterNonNullable } from "common/src/helpers";
 import { formatTime } from "./modules/applicationRoundAllocation";
 
