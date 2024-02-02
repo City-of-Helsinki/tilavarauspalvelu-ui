@@ -52,8 +52,8 @@ const BufferToggles = ({
   before,
   after,
 }: {
-  before?: number;
-  after?: number;
+  before: number;
+  after: number;
 }) => {
   const { t } = useTranslation();
   return (

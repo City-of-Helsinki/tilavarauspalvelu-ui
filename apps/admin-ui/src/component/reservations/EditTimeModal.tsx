@@ -254,11 +254,9 @@ const DialogContent = ({ reservation, onAccept, onClose }: Props) => {
 
   // NOTE 0 => buffer disabled for this reservation, undefined => no buffers selected
   const bufferBefore =
-    (reservation.bufferTimeBefore || reservationUnit?.bufferTimeBefore) ??
-    undefined;
+    (reservation.bufferTimeBefore || reservationUnit?.bufferTimeBefore) ?? 0;
   const bufferAfter =
-    (reservation.bufferTimeAfter || reservationUnit?.bufferTimeAfter) ??
-    undefined;
+    (reservation.bufferTimeAfter || reservationUnit?.bufferTimeAfter) ?? 0;
 
   const onSubmit = (values: FormValueType) => {
     if (values.date && values.startTime && values.endTime) {
