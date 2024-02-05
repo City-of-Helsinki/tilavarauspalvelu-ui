@@ -1,6 +1,9 @@
 import { gql } from "@apollo/client";
+import { RESERVEE_NAME_FRAGMENT, RESERVEE_BILLING_FRAGMENT } from "common/src/queries/fragments";
 
 export const RESERVATION_META_FRAGMENT = gql`
+  ${RESERVEE_NAME_FRAGMENT}
+  ${RESERVEE_BILLING_FRAGMENT}
   fragment ReservationMetaFields on ReservationType {
     ageGroup {
       minimum
@@ -16,27 +19,10 @@ export const RESERVATION_META_FRAGMENT = gql`
       pk
     }
     numPersons
-    reserveeType
-    reserveeIsUnregisteredAssociation
     name
     description
-    reserveeFirstName
-    reserveeLastName
-    reserveePhone
-    reserveeOrganisationName
-    reserveeEmail
-    reserveeId
-    reserveeIsUnregisteredAssociation
-    reserveeAddressStreet
-    reserveeAddressCity
-    reserveeAddressZip
-    billingFirstName
-    billingLastName
-    billingPhone
-    billingEmail
-    billingAddressStreet
-    billingAddressCity
-    billingAddressZip
+    ...ReserveeNameFields
+    ...ReserveeBillingFields
     freeOfChargeReason
     applyingForFreeOfCharge
   }

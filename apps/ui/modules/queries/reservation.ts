@@ -1,22 +1,12 @@
 import { gql } from "@apollo/client";
 import { IMAGE_FRAGMENT } from "common/src/queries/fragments";
 import { Type } from "common/types/gql-types";
+import { RESERVEE_NAME_FRAGMENT, RESERVEE_BILLING_FRAGMENT } from "common/src/queries/fragments";
 import {
   PRICING_FRAGMENT,
   RESERVATION_UNIT_FRAGMENT,
   UNIT_NAME_FRAGMENT,
 } from "./fragments";
-
-const RESERVEE_NAME_FRAGMENT = gql`
-  fragment ReserveeNameFields on ReservationType {
-    reserveeFirstName
-    reserveeLastName
-    reserveeEmail
-    reserveePhone
-    reserveeType
-    reserveeOrganisationName
-  }
-`;
 
 export const CREATE_RESERVATION = gql`
   mutation createReservation($input: ReservationCreateMutationInput!) {
@@ -33,6 +23,7 @@ export const CREATE_RESERVATION = gql`
 
 export const UPDATE_RESERVATION = gql`
   ${RESERVEE_NAME_FRAGMENT}
+  ${RESERVEE_BILLING_FRAGMENT}
   mutation updateReservation($input: ReservationUpdateMutationInput!) {
     updateReservation(input: $input) {
       reservation {
@@ -52,18 +43,7 @@ export const UPDATE_RESERVATION = gql`
           pk
         }
         ...ReserveeNameFields
-        reserveeId
-        reserveeIsUnregisteredAssociation
-        reserveeAddressStreet
-        reserveeAddressCity
-        reserveeAddressZip
-        billingFirstName
-        billingLastName
-        billingPhone
-        billingEmail
-        billingAddressStreet
-        billingAddressCity
-        billingAddressZip
+        ...ReserveeBillingFields
         homeCity {
           pk
         }
@@ -206,8 +186,8 @@ export const GET_RESERVATION = gql`
   ${RESERVATION_UNIT_FRAGMENT}
   ${CANCELLATION_RULE_FRAGMENT}
   ${RESERVEE_NAME_FRAGMENT}
-  query reservationByPk($pk: Int!) {
-    reservationByPk(pk: $pk) {
+  query reservation($id: ID!) {
+    reservation(id: $id) {
       pk
       name
       ...ReserveeNameFields
@@ -345,6 +325,8 @@ export const GET_RESERVATION = gql`
   }
 `;
 
+// TODO combine these into params query (similarly to as in admin-ui)
+// where are they even used?
 export const GET_RESERVATION_CANCEL_REASONS = gql`
   query getReservationCancelReasons {
     reservationCancelReasons {

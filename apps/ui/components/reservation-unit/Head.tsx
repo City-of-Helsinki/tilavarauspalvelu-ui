@@ -8,8 +8,8 @@ import { formatDuration } from "common/src/common/util";
 import { fontRegular, H2, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
-  type ReservationUnitByPkType,
   ReservationKind,
+  ReservationUnitType,
 } from "common/types/gql-types";
 import { omit } from "lodash";
 import { useLocalStorage } from "react-use";
@@ -31,7 +31,7 @@ import {
 import BreadcrumbWrapper from "../common/BreadcrumbWrapper";
 
 interface PropsType {
-  reservationUnit: ReservationUnitByPkType;
+  reservationUnit: ReservationUnitType;
   isReservable?: boolean;
   subventionSuffix?: JSX.Element;
 }
@@ -116,7 +116,7 @@ const UnitName = styled(H3).attrs({ as: "h2" })`
 const NonReservableNotification = ({
   reservationUnit,
 }: {
-  reservationUnit: ReservationUnitByPkType;
+  reservationUnit: ReservationUnitType;
 }) => {
   const { t } = useTranslation();
   let returnText = t("reservationUnit:notifications.notReservable");

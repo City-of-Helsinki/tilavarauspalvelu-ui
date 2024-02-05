@@ -19,7 +19,7 @@ import {
   type ReservableTimeSpanType,
   ReservationState,
   type ReservationType,
-  type ReservationUnitByPkType,
+  type ReservationUnitType,
   ReservationKind,
   type ReservationStartInterval,
 } from "../../types/gql-types";
@@ -600,7 +600,7 @@ export const getEventBuffers = (
 };
 
 export const isReservationUnitReservable = (
-  reservationUnit?: ReservationUnitByPkType | null
+  reservationUnit?: ReservationUnitType | null
 ): [false, string] | [true] => {
   if (!reservationUnit) {
     return [false, "reservationUnit is null"];
@@ -673,7 +673,7 @@ export const getNormalizedReservationBeginTime = (
 };
 
 export const getOpenDays = (
-  reservationUnit: ReservationUnitByPkType
+  reservationUnit: ReservationUnitType
 ): Date[] => {
   const { reservableTimeSpans } = reservationUnit;
 

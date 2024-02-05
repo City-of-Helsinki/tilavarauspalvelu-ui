@@ -1,14 +1,8 @@
 import { gql } from "@apollo/client";
+import { TERMS_OF_USE_NAME_FRAGMENT, TERMS_OF_USE_TEXT_FRAGMENT } from "common/src/queries/fragments";
 
 // TODO improve naming of the fragments to match the purpose or use case
 
-export const TERMS_OF_USE_TEXT_FRAGMENT = gql`
-  fragment TermsOfUseTextFields on TermsOfUseType {
-    textFi
-    textEn
-    textSv
-  }
-`;
 
 // TODO refactor admin-ui and common to use this fragment where ever images are used
 // could also split it into MEDIUM, LARGE, SMALL fragments (the imageUrl is required for all)
@@ -80,6 +74,7 @@ export const RESERVATION_UNIT_FRAGMENT = gql`
   ${UNIT_FRAGMENT}
   ${IMAGE_FRAGMENT}
   ${TERMS_OF_USE_TEXT_FRAGMENT}
+  ${TERMS_OF_USE_NAME_FRAGMENT}
   ${PRICING_FRAGMENT}
   fragment ReservationUnitFields on ReservationUnitType {
     unit {
@@ -112,10 +107,8 @@ export const RESERVATION_UNIT_FRAGMENT = gql`
       ...TermsOfUseTextFields
     }
     pricingTerms {
+      ...TermsOfUseNameFields
       ...TermsOfUseTextFields
-      nameFi
-      nameEn
-      nameSv
     }
     pricings {
       ...PricingFields

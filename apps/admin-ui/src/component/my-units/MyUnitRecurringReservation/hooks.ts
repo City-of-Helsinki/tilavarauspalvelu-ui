@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import get from "lodash/get";
 import type {
   Query,
-  QueryReservationUnitByPkArgs,
+  QueryReservationUnitArgs,
   QueryUnitsArgs,
-  ReservationUnitByPkTypeReservationsArgs,
+  ReservationUnitTypeReservationsArgs,
   ReservationUnitType,
   ErrorType,
   RecurringReservationCreateMutationInput,
@@ -130,9 +130,10 @@ const useReservationsInInterval = ({
 
   // NOTE unlike array fetches this fetches a single element with an included array
   // so it doesn't have the 100 limitation of array fetch nor does it have pagination
+  // FIXME relay query
   const { loading, data, refetch } = useQuery<
     Query,
-    QueryReservationUnitByPkArgs & ReservationUnitByPkTypeReservationsArgs
+    QueryReservationUnitArgs & ReservationUnitTypeReservationsArgs
   >(GET_RESERVATIONS_IN_INTERVAL, {
     skip:
       !reservationUnitPk ||
@@ -150,7 +151,7 @@ const useReservationsInInterval = ({
     },
   });
 
-  const reservations = (data?.reservationUnitByPk?.reservations ?? [])
+  const reservations = (data?.reservationUnit?.reservations ?? [])
     .map((x) => (x ? reservationToInterval(x, reservationType) : undefined))
     .filter((x): x is CollisionInterval => x != null);
 

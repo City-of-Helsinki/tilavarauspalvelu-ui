@@ -5,14 +5,13 @@ import {
   RESERVATION_UNIT_FRAGMENT,
   UNIT_NAME_FRAGMENT,
 } from "./fragments";
+export { TERMS_OF_USE_QUERY as TERMS_OF_USE } from "common/src/queries/queries";
 
-export { TERMS_OF_USE } from "common/src/queries/terms";
-
-export const RESERVATION_UNIT = gql`
+export const RESERVATION_UNIT_QUERY = gql`
   ${IMAGE_FRAGMENT}
   ${RESERVATION_UNIT_FRAGMENT}
-  query ReservationUnit($pk: Int!) {
-    reservationUnitByPk(pk: $pk) {
+  query ReservationUnit($id: ID!) {
+    reservationUnit(id: $id) {
       ...ReservationUnitFields
       id
       isDraft
@@ -72,6 +71,7 @@ export const RESERVATION_UNIT = gql`
 export const RESERVATION_UNITS = gql`
   ${PRICING_FRAGMENT}
   ${IMAGE_FRAGMENT}
+  ${UNIT_NAME_FRAGMENT}
   query SearchReservationUnits(
     $textSearch: String
     $pk: [Int]
@@ -205,7 +205,7 @@ export const RELATED_RESERVATION_UNITS = gql`
 
 export const OPENING_HOURS = gql`
   query ReservationUnitOpeningHours(
-    $pk: Int
+    $id: ID!
     $startDate: Date!
     $endDate: Date!
     $from: Date
@@ -213,7 +213,7 @@ export const OPENING_HOURS = gql`
     $state: [String]
     $includeWithSameComponents: Boolean
   ) {
-    reservationUnitByPk(pk: $pk) {
+    reservationUnit(id: $id) {
       reservableTimeSpans(startDate: $startDate, endDate: $endDate) {
         startDatetime
         endDatetime
