@@ -1011,13 +1011,13 @@ describe("getOpenDays", () => {
       },
     ] as ReservableTimeSpanType[];
 
-    expect(
-      getOpenDays({ reservableTimeSpans } as ReservationUnitType)
-    ).toEqual([
-      new Date("2022-08-10T00:00:00.000Z"),
-      new Date("2022-08-12T00:00:00.000Z"),
-      new Date("2022-08-14T00:00:00.000Z"),
-      new Date("2022-09-14T00:00:00.000Z"),
-    ]);
+    expect(getOpenDays({ reservableTimeSpans } as ReservationUnitType)).toEqual(
+      [
+        new Date("2022-08-10T00:00:00.000Z"),
+        new Date("2022-08-12T00:00:00.000Z"),
+        new Date("2022-08-14T00:00:00.000Z"),
+        new Date("2022-09-14T00:00:00.000Z"),
+      ]
+    );
   });
 });

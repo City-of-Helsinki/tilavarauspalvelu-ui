@@ -672,9 +672,7 @@ export const getNormalizedReservationBeginTime = (
   ).toISOString();
 };
 
-export const getOpenDays = (
-  reservationUnit: ReservationUnitType
-): Date[] => {
+export const getOpenDays = (reservationUnit: ReservationUnitType): Date[] => {
   const { reservableTimeSpans } = reservationUnit;
 
   const openDays: Date[] = [];

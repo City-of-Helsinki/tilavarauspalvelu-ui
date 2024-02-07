@@ -13,12 +13,13 @@ import {
   type Query,
   type QueryReservationsArgs,
   State,
-  type ReservationType,
   Type,
-  QueryReservationUnitArgs,
-  ReservationUnitType,
-  ReservationUnitTypeReservableTimeSpansArgs,
-  ReservationUnitTypeReservationsArgs,
+  type ReservationType,
+  type ReservationUnitType,
+  type ReservationUnitTypeReservableTimeSpansArgs,
+  type ReservationUnitTypeReservationsArgs,
+  type QueryReservationUnitArgs,
+  type QueryReservationArgs,
 } from "common/types/gql-types";
 import { pick } from "lodash";
 import { useRouter } from "next/router";
@@ -189,14 +190,18 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
   const now = useMemo(() => new Date(), []);
   const { currentUser } = useCurrentUser();
 
+  const resTypename = "ReservationType";
+  const resId = resPk ? base64encode(`${resTypename}:${resPk}`) : undefined;
   // TODO why are we doing two separate queries? the linked reservationUnit should be part of the reservation query
-  const { data } = useQuery<Query>(GET_RESERVATION, {
+  // FIXME replace with relay query
+  const { data } = useQuery<Query, QueryReservationArgs>(GET_RESERVATION, {
     fetchPolicy: "no-cache",
+    skip: resId == null,
     variables: {
-      pk: resPk,
+      id: resId ?? "",
     },
   });
-  const reservation = data?.reservationByPk ?? undefined;
+  const reservation = data?.reservation ?? undefined;
 
   const typename = "ReservationUnitType";
   const pk = reservation?.reservationUnits?.[0]?.pk;
@@ -222,6 +227,7 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
     fetchPolicy: "no-cache",
   });
 
+  // TODO remove this and combine it to the original query
   useEffect(() => {
     // TODO why is this necessary? why require a second client side query after the page has loaded?
     if (reservationUnitData?.reservationUnit) {
@@ -242,8 +248,10 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservationUnitData, fetchAdditionalData, now]);
 
+  // TODO can we remove this?
   useEffect(() => {
     if (reservationUnitData?.reservationUnit == null) {
       return;
@@ -261,6 +269,7 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
       reservableTimeSpans,
       reservations: additionalData?.reservationUnit?.reservations,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [additionalData, reservationUnitData?.reservationUnit, id]);
 
   const { data: userReservationsData } = useQuery<Query, QueryReservationsArgs>(
@@ -371,12 +380,11 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
   }
 
   const handleSubmit = () => {
-    const pk = reservation.pk;
     // TODO refactor: using initial reservation when we only need time information is bad
     const begin = initialReservation?.begin;
     const end = initialReservation?.end;
-    if (pk && begin && end) {
-      adjustReservationTime({ pk, begin, end });
+    if (reservation.pk && begin && end) {
+      adjustReservationTime({ pk: reservation.pk, begin, end });
     }
   };
 

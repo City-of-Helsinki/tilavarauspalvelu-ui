@@ -3,8 +3,8 @@ import { IMAGE_FRAGMENT } from "common/src/queries/fragments";
 
 export const RESERVATIONUNIT_QUERY = gql`
   ${IMAGE_FRAGMENT}
-  query reservationUnit($pk: Int) {
-    reservationUnitByPk(pk: $pk) {
+  query reservationUnit($id: ID!) {
+    reservationUnit(id: $id) {
       pk
       state
       reservationState
@@ -232,7 +232,6 @@ export const RESERVATION_UNIT_EDITOR_PARAMETERS = gql`
         }
       }
     }
-
     taxPercentages {
       edges {
         node {

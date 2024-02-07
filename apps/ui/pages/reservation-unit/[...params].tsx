@@ -74,9 +74,16 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const commonProps = getCommonServerSideProps();
   const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
 
+<<<<<<< HEAD
   if (Number.isFinite(Number(reservationUnitPk)) && path === "reservation") {
     const typename = "ReservationUnitType";
     const id = base64encode(typename + ":" + reservationUnitPk);
+=======
+  if (isFinite(reservationUnitPk) && path === "reservation") {
+    const typename = "ReservationUnitType";
+    const id = base64encode(`${typename}:${reservationUnitPk}`);
+
+>>>>>>> cbae3f3a (refactor: remove use of ByPk queries)
     const { data: reservationUnitData } = await apolloClient.query<
       Query,
       QueryReservationUnitArgs
@@ -86,7 +93,24 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       fetchPolicy: "no-cache",
     });
 
+<<<<<<< HEAD
     const genericTerms = await getGenericTerms(apolloClient);
+=======
+    const { data: termsData } = await apolloClient.query<
+      Query,
+      QueryTermsOfUseArgs
+    >({
+      query: TERMS_OF_USE,
+      fetchPolicy: "no-cache",
+      variables: {
+        termsType: TermsOfUseTermsOfUseTermsTypeChoices.GenericTerms,
+      },
+    });
+    const genericTerms =
+      termsData.termsOfUse?.edges
+        ?.map((n) => n?.node)
+        .find((n) => n?.pk === "booking") ?? null;
+>>>>>>> cbae3f3a (refactor: remove use of ByPk queries)
 
     const { data: paramsData } = await apolloClient.query<Query>({
       query: OPTIONS_QUERY,
@@ -616,11 +640,17 @@ const ReservationUnitReservationWithReservationProp = ({
 const ReservationUnitReservation = (props: PropsNarrowed) => {
   const { reservationPk } = props;
 
+<<<<<<< HEAD
   // TODO show an error if this fails
   // TODO show an error if the pk is not a number
   // TODO find a typesafe way to do this
   const typename = "ReservationType";
   const id = base64encode(typename + ":" + reservationPk);
+=======
+  // TODO find a typesafe way to do this
+  const typename = "ReservationType";
+  const id = base64encode(`${typename}:${reservationData?.pk}`);
+>>>>>>> cbae3f3a (refactor: remove use of ByPk queries)
   const { data, loading } = useQuery<Query, QueryReservationArgs>(
     GET_RESERVATION,
     {
@@ -630,17 +660,21 @@ const ReservationUnitReservation = (props: PropsNarrowed) => {
     }
   );
 
+<<<<<<< HEAD
   // TODO errors vs loading
   if (loading || !data?.reservationByPk?.pk) {
+=======
+  if (loading || !data?.reservation?.pk) {
+>>>>>>> cbae3f3a (refactor: remove use of ByPk queries)
     return null;
   }
 
-  const { reservationByPk } = data;
+  const { reservation } = data;
 
   return (
     <ReservationUnitReservationWithReservationProp
       {...props}
-      fetchedReservation={reservationByPk}
+      fetchedReservation={reservation}
     />
   );
 };

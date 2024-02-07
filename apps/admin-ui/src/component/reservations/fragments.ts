@@ -1,5 +1,8 @@
 import { gql } from "@apollo/client";
-import { RESERVEE_NAME_FRAGMENT, RESERVEE_BILLING_FRAGMENT } from "common/src/queries/fragments";
+import {
+  RESERVEE_NAME_FRAGMENT,
+  RESERVEE_BILLING_FRAGMENT,
+} from "common/src/queries/fragments";
 
 export const RESERVATION_META_FRAGMENT = gql`
   ${RESERVEE_NAME_FRAGMENT}
@@ -121,6 +124,7 @@ export const RESERVATION_COMMON_FRAGMENT = gql`
   }
 `;
 
+// TODO fragment this now that the ByPk type is removed (and ui has common fragments)
 // NOTE can't reuse the fragment on a different types without an interface
 // and our schema is borked: having both ReservationUnitType and ReservationUnitByPkType
 // so use only the plural reservationUnits version of the query with this.

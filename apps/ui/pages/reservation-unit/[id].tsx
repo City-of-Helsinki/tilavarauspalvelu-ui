@@ -166,12 +166,10 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         id,
       },
     });
-    console.log("reservationUnitData", reservationUnitData);
 
     const previewPass = uuid === reservationUnitData.reservationUnit?.uuid;
 
-    const reservationUnit =
-      reservationUnitData?.reservationUnit ?? undefined;
+    const reservationUnit = reservationUnitData?.reservationUnit ?? undefined;
     if (!isReservationUnitPublished(reservationUnit) && !previewPass) {
       return {
         props: {

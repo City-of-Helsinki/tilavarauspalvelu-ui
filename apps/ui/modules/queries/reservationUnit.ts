@@ -5,6 +5,7 @@ import {
   RESERVATION_UNIT_FRAGMENT,
   UNIT_NAME_FRAGMENT,
 } from "./fragments";
+
 export { TERMS_OF_USE_QUERY as TERMS_OF_USE } from "common/src/queries/queries";
 
 export const RESERVATION_UNIT_QUERY = gql`

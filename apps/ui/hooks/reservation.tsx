@@ -116,7 +116,7 @@ export function useReservation({ reservationPk }: UseReservationProps): {
 } {
   // TODO typesafe way to get typename
   const typename = "ReservationType";
-  const id = base64encode(typename + ":" + reservationPk);
+  const id = base64encode(`${typename}:${reservationPk}`);
   const { data, error, loading } = useQuery<Query, QueryReservationArgs>(
     GET_RESERVATION,
     {
@@ -126,7 +126,7 @@ export function useReservation({ reservationPk }: UseReservationProps): {
     }
   );
 
-  const reservation = data?.reservation  ?? undefined;
+  const reservation = data?.reservation ?? undefined;
 
   return {
     reservation,

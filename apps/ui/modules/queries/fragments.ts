@@ -1,8 +1,10 @@
 import { gql } from "@apollo/client";
-import { TERMS_OF_USE_NAME_FRAGMENT, TERMS_OF_USE_TEXT_FRAGMENT } from "common/src/queries/fragments";
+import {
+  TERMS_OF_USE_NAME_FRAGMENT,
+  TERMS_OF_USE_TEXT_FRAGMENT,
+} from "common/src/queries/fragments";
 
 // TODO improve naming of the fragments to match the purpose or use case
-
 
 // TODO refactor admin-ui and common to use this fragment where ever images are used
 // could also split it into MEDIUM, LARGE, SMALL fragments (the imageUrl is required for all)
