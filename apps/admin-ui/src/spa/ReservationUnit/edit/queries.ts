@@ -1,8 +1,9 @@
 import { gql } from "@apollo/client";
-import { IMAGE_FRAGMENT } from "common/src/queries/fragments";
+import { PRICING_FRAGMENT, IMAGE_FRAGMENT } from "common/src/queries/fragments";
 
 export const RESERVATIONUNIT_QUERY = gql`
   ${IMAGE_FRAGMENT}
+  ${PRICING_FRAGMENT}
   query reservationUnit($id: ID!) {
     reservationUnit(id: $id) {
       pk
@@ -123,18 +124,12 @@ export const RESERVATIONUNIT_QUERY = gql`
         pk
       }
       pricings {
-        begins
-        pricingType
-        priceUnit
-        lowestPrice
+        ...PricingFields
         lowestPriceNet
-        highestPrice
         highestPriceNet
         taxPercentage {
           pk
-          value
         }
-        status
         pk
       }
       applicationRoundTimeSlots {

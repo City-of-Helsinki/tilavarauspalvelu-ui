@@ -1,16 +1,22 @@
 import { gql } from "@apollo/client";
-import { IMAGE_FRAGMENT } from "common/src/queries/fragments";
-import {
-  PRICING_FRAGMENT,
-  RESERVATION_UNIT_FRAGMENT,
-  UNIT_NAME_FRAGMENT,
-} from "./fragments";
+import { RESERVATION_UNIT_FRAGMENT, UNIT_NAME_FRAGMENT } from "./fragments";
+import { IMAGE_FRAGMENT, PRICING_FRAGMENT } from "common/src/queries/fragments";
 
 export { TERMS_OF_USE_QUERY as TERMS_OF_USE } from "common/src/queries/queries";
+
+const RESERVATION_UNIT_TYPE_FRAGMENT = gql`
+  fragment ReservationUnitTypeFields on ReservationUnitTypeType {
+    pk
+    nameFi
+    nameEn
+    nameSv
+  }
+`;
 
 export const RESERVATION_UNIT_QUERY = gql`
   ${IMAGE_FRAGMENT}
   ${RESERVATION_UNIT_FRAGMENT}
+  ${RESERVATION_UNIT_TYPE_FRAGMENT}
   query ReservationUnit($id: ID!) {
     reservationUnit(id: $id) {
       ...ReservationUnitFields
@@ -42,9 +48,7 @@ export const RESERVATION_UNIT_QUERY = gql`
       state
       reservationState
       reservationUnitType {
-        nameFi
-        nameEn
-        nameSv
+        ...ReservationUnitTypeFields
       }
       minReservationDuration
       maxReservationDuration
@@ -73,6 +77,7 @@ export const RESERVATION_UNITS = gql`
   ${PRICING_FRAGMENT}
   ${IMAGE_FRAGMENT}
   ${UNIT_NAME_FRAGMENT}
+  ${RESERVATION_UNIT_TYPE_FRAGMENT}
   query SearchReservationUnits(
     $textSearch: String
     $pk: [Int]
@@ -136,10 +141,7 @@ export const RESERVATION_UNITS = gql`
           isClosed
           firstReservableDatetime
           reservationUnitType {
-            id: pk
-            nameFi
-            nameEn
-            nameSv
+            ...ReservationUnitTypeFields
           }
           unit {
             ...UnitNameFields
@@ -167,6 +169,7 @@ export const RELATED_RESERVATION_UNITS = gql`
   ${UNIT_NAME_FRAGMENT}
   ${PRICING_FRAGMENT}
   ${IMAGE_FRAGMENT}
+  ${RESERVATION_UNIT_TYPE_FRAGMENT}
   query RelatedReservationUnits(
     $unit: [Int]!
     $isDraft: Boolean
@@ -187,9 +190,7 @@ export const RELATED_RESERVATION_UNITS = gql`
             ...UnitNameFields
           }
           reservationUnitType {
-            nameFi
-            nameEn
-            nameSv
+            ...ReservationUnitTypeFields
           }
           maxPersons
           publishBegins
@@ -240,14 +241,12 @@ export const OPENING_HOURS = gql`
 `;
 
 export const RESERVATION_UNIT_TYPES = gql`
+  ${RESERVATION_UNIT_TYPE_FRAGMENT}
   query ReservationUnitTypes {
     reservationUnitTypes {
       edges {
         node {
-          pk
-          nameFi
-          nameEn
-          nameSv
+          ...ReservationUnitTypeFields
         }
       }
     }

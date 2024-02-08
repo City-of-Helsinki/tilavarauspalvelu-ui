@@ -1,15 +1,14 @@
 import { gql } from "@apollo/client";
-import { IMAGE_FRAGMENT } from "common/src/queries/fragments";
 import { Type } from "common/types/gql-types";
 import {
   RESERVEE_NAME_FRAGMENT,
   RESERVEE_BILLING_FRAGMENT,
 } from "common/src/queries/fragments";
 import {
+  IMAGE_FRAGMENT,
   PRICING_FRAGMENT,
-  RESERVATION_UNIT_FRAGMENT,
-  UNIT_NAME_FRAGMENT,
-} from "./fragments";
+} from "common/src/queries/fragments";
+import { RESERVATION_UNIT_FRAGMENT, UNIT_NAME_FRAGMENT } from "./fragments";
 
 export const CREATE_RESERVATION = gql`
   mutation createReservation($input: ReservationCreateMutationInput!) {

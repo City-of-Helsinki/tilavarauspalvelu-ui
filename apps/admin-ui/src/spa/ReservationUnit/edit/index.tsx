@@ -817,11 +817,12 @@ function BasicSection({
 
 function ReservationUnitSettings({
   form,
-  parametersData,
+  metadataOptions,
+  cancellationRuleOptions,
 }: {
   form: UseFormReturn<ReservationUnitEditFormValues>;
-  // TODO refactor so we don't pass a query result here
-  parametersData: Query | undefined;
+  metadataOptions: Array<{ value: number; label: string }>;
+  cancellationRuleOptions: Array<{ value: number; label: string }>;
 }) {
   const { t } = useTranslation();
   const { control, watch, formState } = form;
@@ -837,19 +838,6 @@ function ReservationUnitSettings({
   const authenticationOptions = Object.values(Authentication).map((choice) => ({
     value: choice,
     label: t(`authentication.${choice}`),
-  }));
-
-  const cancellationRuleOptions = filterNonNullable(
-    parametersData?.reservationUnitCancellationRules?.edges.map((e) => e?.node)
-  ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.nameFi ?? "no-name",
-  }));
-  const metadataOptions = filterNonNullable(
-    parametersData?.metadataSets?.edges.map((e) => e?.node)
-  ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.name ?? "no-name",
   }));
 
   const hasErrors =
@@ -1998,6 +1986,18 @@ const ReservationUnitEditor = ({
   const reservationUnitTypes = filterNonNullable(
     parametersData?.reservationUnitTypes?.edges?.map((e) => e?.node)
   );
+  const cancellationRuleOptions = filterNonNullable(
+    parametersData?.reservationUnitCancellationRules?.edges.map((e) => e?.node)
+  ).map((n) => ({
+    value: n?.pk ?? -1,
+    label: n?.nameFi ?? "no-name",
+  }));
+  const metadataOptions = filterNonNullable(
+    parametersData?.metadataSets?.edges.map((e) => e?.node)
+  ).map((n) => ({
+    value: n?.pk ?? -1,
+    label: n?.name ?? "no-name",
+  }));
 
   // ----------------------------- Callbacks ----------------------------------
   const onSubmit = async (formValues: ReservationUnitEditFormValues) => {
@@ -2160,7 +2160,8 @@ const ReservationUnitEditor = ({
         {isDirect && (
           <ReservationUnitSettings
             form={form}
-            parametersData={parametersData}
+            metadataOptions={metadataOptions}
+            cancellationRuleOptions={cancellationRuleOptions}
           />
         )}
         <PricingSection

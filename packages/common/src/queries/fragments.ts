@@ -1,15 +1,5 @@
 import { gql } from "@apollo/client";
 
-export const IMAGE_FRAGMENT = gql`
-  fragment ImageFragment on ReservationUnitImageType {
-    imageUrl
-    largeUrl
-    mediumUrl
-    smallUrl
-    imageType
-  }
-`;
-
 export const RESERVEE_NAME_FRAGMENT = gql`
   fragment ReserveeNameFields on ReservationType {
     reserveeFirstName
@@ -62,5 +52,49 @@ export const TERMS_OF_USE_FRAGMENT = gql`
     ...TermsOfUseNameFields
     ...TermsOfUseTextFields
     termsType
+  }
+`;
+
+export const PRICING_FRAGMENT = gql`
+  fragment PricingFields on ReservationUnitPricingType {
+    begins
+    priceUnit
+    pricingType
+    lowestPrice
+    highestPrice
+    taxPercentage {
+      value
+    }
+    status
+  }
+`;
+
+// TODO could split it into MEDIUM, LARGE, SMALL fragments (the imageUrl is required for all)
+export const IMAGE_FRAGMENT = gql`
+  fragment ImageFields on ReservationUnitImageType {
+    imageUrl
+    largeUrl
+    mediumUrl
+    smallUrl
+    imageType
+  }
+`;
+
+export const LOCATION_FRAGMENT = gql`
+  fragment LocationFields on LocationType {
+    addressStreetFi
+    addressZip
+    addressCityFi
+  }
+`;
+
+export const LOCATION_FRAGMENT_I18N = gql`
+  ${LOCATION_FRAGMENT}
+  fragment LocationFieldsI18n on LocationType {
+    ...LocationFields
+    addressStreetEn
+    addressStreetSv
+    addressCityEn
+    addressCitySv
   }
 `;

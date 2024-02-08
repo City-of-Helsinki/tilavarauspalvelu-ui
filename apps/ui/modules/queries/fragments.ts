@@ -1,72 +1,37 @@
 import { gql } from "@apollo/client";
 import {
+  PRICING_FRAGMENT,
   TERMS_OF_USE_NAME_FRAGMENT,
   TERMS_OF_USE_TEXT_FRAGMENT,
+  IMAGE_FRAGMENT,
+  LOCATION_FRAGMENT_I18N,
 } from "common/src/queries/fragments";
 
 // TODO improve naming of the fragments to match the purpose or use case
 
-// TODO refactor admin-ui and common to use this fragment where ever images are used
-// could also split it into MEDIUM, LARGE, SMALL fragments (the imageUrl is required for all)
-export const IMAGE_FRAGMENT = gql`
-  fragment ImageFields on ReservationUnitImageType {
-    imageUrl
-    largeUrl
-    mediumUrl
-    smallUrl
-    imageType
-  }
-`;
-
-// TODO really unit location fragment, but it's missing the addressZip and addressCity fields
-// TODO could futher fragment the address fields
 export const UNIT_NAME_FRAGMENT = gql`
+  ${LOCATION_FRAGMENT_I18N}
   fragment UnitNameFields on UnitType {
     pk
     nameFi
     nameEn
     nameSv
     location {
-      addressStreetFi
-      addressStreetEn
-      addressStreetSv
+      ...LocationFieldsI18n
     }
   }
 `;
 
 export const UNIT_FRAGMENT = gql`
+  ${UNIT_NAME_FRAGMENT}
   fragment UnitFields on UnitType {
+    ...UnitNameFields
     id
-    pk
     tprekId
-    nameFi
-    nameEn
-    nameSv
     location {
       latitude
       longitude
-      addressStreetFi
-      addressStreetEn
-      addressStreetSv
-      addressZip
-      addressCityFi
-      addressCityEn
-      addressCitySv
     }
-  }
-`;
-
-export const PRICING_FRAGMENT = gql`
-  fragment PricingFields on ReservationUnitPricingType {
-    begins
-    priceUnit
-    pricingType
-    lowestPrice
-    highestPrice
-    taxPercentage {
-      value
-    }
-    status
   }
 `;
 
