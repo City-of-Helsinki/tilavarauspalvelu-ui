@@ -1921,6 +1921,7 @@ const ReservationUnitEditor = ({
     MutationCreateReservationUnitArgs
   >(CREATE_RESERVATION_UNIT);
 
+  // TODO this is extrenous, reservationUnitByPk.unit should include it
   const { data: unitResourcesData } = useQuery<Query, QueryUnitByPkArgs>(
     UNIT_WITH_SPACES_AND_RESOURCES,
     {

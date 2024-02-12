@@ -40,8 +40,6 @@ export const RESERVATION_UNIT_QUERY = gql`
       bufferTimeBefore
       bufferTimeAfter
       reservationStartInterval
-      publishBegins
-      publishEnds
       reservationBegins
       reservationEnds
       canApplyFreeOfCharge
@@ -193,8 +191,6 @@ export const RELATED_RESERVATION_UNITS = gql`
             ...ReservationUnitTypeFields
           }
           maxPersons
-          publishBegins
-          publishEnds
           isDraft
           pricings {
             ...PricingFields

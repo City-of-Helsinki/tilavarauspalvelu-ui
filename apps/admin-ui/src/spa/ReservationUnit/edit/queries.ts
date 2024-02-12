@@ -34,10 +34,6 @@ export const RESERVATIONUNIT_QUERY = gql`
         pk
         nameFi
       }
-      services {
-        pk
-        nameFi
-      }
       purposes {
         pk
         nameFi
@@ -76,13 +72,6 @@ export const RESERVATIONUNIT_QUERY = gql`
       images {
         imageType
         imageUrl
-      }
-      location {
-        addressStreetFi
-        addressZip
-        addressCityFi
-        longitude
-        latitude
       }
       equipment {
         pk
