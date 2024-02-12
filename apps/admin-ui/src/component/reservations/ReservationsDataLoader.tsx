@@ -7,13 +7,14 @@ import {
   ReservationType,
 } from "common/types/gql-types";
 import { More } from "@/component/More";
-import { LIST_PAGE_SIZE } from "../../common/const";
-import { useNotification } from "../../context/NotificationContext";
+import { LIST_PAGE_SIZE } from "@/common/const";
+import { useNotification } from "@/context/NotificationContext";
 import Loader from "../Loader";
 import { FilterArguments } from "./Filters";
 import { RESERVATIONS_QUERY } from "./queries";
 import ReservationsTable from "./ReservationsTable";
 import { fromUIDate } from "common/src/common/util";
+import { addDays } from "date-fns";
 
 export type Sort = {
   field: string;
@@ -48,6 +49,10 @@ const mapFilterParams = (
 
   // only use defaults if search is "empty"
   const defaults = emptySearch ? defaultParams : {};
+  // construct a new endDateString, adding one day so the selected date is included
+  const endDateObject = fromUIDate(params.end);
+  const endDateString =
+    endDateObject && addDays(endDateObject, 1).toISOString();
   return {
     unit: params.unit?.map((u) => u.value as string),
     reservationUnitType: params.reservationUnitType?.map(
@@ -61,8 +66,8 @@ const mapFilterParams = (
             ?.map((x) => (x != null ? String(x) : null))
         : defaults.state,
     textSearch: params.textSearch || undefined,
-    begin: parseDate(params.begin) || defaults.begin,
-    end: parseDate(params.end),
+    begin: parseDate(params.begin) ?? defaults.begin,
+    end: endDateString,
     priceGte: params.minPrice !== "" ? params.minPrice : undefined,
     priceLte: params.maxPrice !== "" ? params.maxPrice : undefined,
     orderStatus: params.paymentStatuses
@@ -110,7 +115,7 @@ const useReservations = (
     }
   );
 
-  const reservations = (data?.reservations?.edges || [])
+  const reservations = (data?.reservations?.edges ?? [])
     .map((edge) => edge?.node)
     .filter((x): x is ReservationType => x != null);
 
@@ -147,7 +152,7 @@ const ReservationsDataLoader = ({
         sortChanged={onSortChanged}
       />
       <More
-        totalCount={totalCount || 0}
+        totalCount={totalCount ?? 0}
         count={data.length}
         fetchMore={() => fetchMore({ variables: { offset } })}
       />
