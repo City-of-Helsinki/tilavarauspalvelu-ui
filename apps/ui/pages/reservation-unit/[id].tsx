@@ -748,8 +748,9 @@ const ReservationUnit = ({
     [addReservation, reservationUnit?.pk, setInitialReservation]
   );
 
-  const [isReservable, reason] = isReservationUnitReservable(reservationUnit);
-  if (!isReservable) {
+  const [reservationUnitIsReservable, reason] =
+    isReservationUnitReservable(reservationUnit);
+  if (!reservationUnitIsReservable) {
     // eslint-disable-next-line no-console
     console.warn("not reservable because: ", reason);
   }
@@ -861,7 +862,7 @@ const ReservationUnit = ({
     <Wrapper>
       <Head
         reservationUnit={reservationUnit}
-        isReservable={isReservable}
+        reservationUnitIsReservable={reservationUnitIsReservable}
         subventionSuffix={
           reservationUnit?.canApplyFreeOfCharge ? (
             <SubventionSuffix
@@ -875,32 +876,33 @@ const ReservationUnit = ({
       <Container>
         <Columns>
           <div>
-            {!isReservationStartInFuture(reservationUnit) && isReservable && (
-              <QuickReservation
-                isSlotReservable={isSlotReservable}
-                isReservationUnitReservable={!isReservationQuotaReached}
-                createReservation={createReservation}
-                reservationUnit={reservationUnit}
-                calendarRef={calendarRef}
-                setErrorMsg={setErrorMsg}
-                subventionSuffix={
-                  reservationUnit?.canApplyFreeOfCharge
-                    ? () => (
-                        <SubventionSuffix
-                          placement="quick-reservation"
-                          ref={openPricingTermsRef}
-                          setIsDialogOpen={setIsDialogOpen}
-                        />
-                      )
-                    : undefined
-                }
-                shouldUnselect={shouldUnselect}
-                quickReservationSlot={quickReservationSlot}
-                setQuickReservationSlot={setQuickReservationSlot}
-                setInitialReservation={setInitialReservation}
-                apiBaseUrl={apiBaseUrl}
-              />
-            )}
+            {!isReservationStartInFuture(reservationUnit) &&
+              reservationUnitIsReservable && (
+                <QuickReservation
+                  isSlotReservable={isSlotReservable}
+                  isReservationUnitReservable={!isReservationQuotaReached}
+                  createReservation={createReservation}
+                  reservationUnit={reservationUnit}
+                  calendarRef={calendarRef}
+                  setErrorMsg={setErrorMsg}
+                  subventionSuffix={
+                    reservationUnit?.canApplyFreeOfCharge
+                      ? () => (
+                          <SubventionSuffix
+                            placement="quick-reservation"
+                            ref={openPricingTermsRef}
+                            setIsDialogOpen={setIsDialogOpen}
+                          />
+                        )
+                      : undefined
+                  }
+                  shouldUnselect={shouldUnselect}
+                  quickReservationSlot={quickReservationSlot}
+                  setQuickReservationSlot={setQuickReservationSlot}
+                  setInitialReservation={setInitialReservation}
+                  apiBaseUrl={apiBaseUrl}
+                />
+              )}
             <JustForDesktop customBreakpoint={breakpoints.l}>
               <AddressSection reservationUnit={reservationUnit} />
             </JustForDesktop>
@@ -918,7 +920,7 @@ const ReservationUnit = ({
                 </Content>
               </>
             )}
-            {isReservable && (
+            {reservationUnitIsReservable && (
               <CalendarWrapper data-testid="reservation-unit__calendar--wrapper">
                 <Subheading>
                   {t("reservations:reservationCalendar", {
@@ -1034,7 +1036,7 @@ const ReservationUnit = ({
             )}
             <ReservationInfoContainer
               reservationUnit={reservationUnit}
-              isReservable={isReservable}
+              reservationUnitIsReservable={reservationUnitIsReservable}
             />
             {termsOfUseContent && (
               <Accordion
