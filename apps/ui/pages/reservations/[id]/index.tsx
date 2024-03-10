@@ -294,7 +294,7 @@ const Reservation = ({
     const reservationUnitPrice = getReservationUnitPrice({
       reservationUnit,
       pricingDate: reservation.begin ? new Date(reservation.begin) : undefined,
-      asInt: true,
+      asNumeral: true,
     });
 
     return (
