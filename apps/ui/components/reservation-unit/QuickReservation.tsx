@@ -11,10 +11,7 @@ import {
   getReservationUnitPrice,
   getTimeString,
 } from "@/modules/reservationUnit";
-import { getPostLoginUrl } from "@/modules/util";
-import { MediumButton } from "@/styles/util";
 import Carousel from "../Carousel";
-import LoginFragment from "../LoginFragment";
 import { getLastPossibleReservationDate } from "@/components/reservation-unit/utils";
 import type { FocusTimeSlot } from "@/components/calendar/ReservationCalendarControls";
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
@@ -28,11 +25,9 @@ export type TimeRange = {
 };
 
 type Props = {
-  reservationUnitIsReservable: boolean;
   reservationUnit: ReservationUnitByPkType | null;
   calendarRef: React.RefObject<HTMLDivElement>;
   subventionSuffix: JSX.Element | undefined;
-  apiBaseUrl: string;
   reservationForm: UseFormReturn<{
     duration?: number;
     date?: string;
@@ -42,8 +37,8 @@ type Props = {
   startingTimeOptions: OptionType[];
   focusSlot: FocusTimeSlot | null;
   nextAvailableTime: Date | null;
-  storeReservationForLogin: () => void;
   submitReservation: SubmitHandler<PendingReservationFormType>;
+  LoginAndSubmit: JSX.Element;
 };
 
 const timeItems = 24;
@@ -201,18 +196,16 @@ const ActionWrapper = styled.div`
 `;
 
 const QuickReservation = ({
-  reservationUnitIsReservable,
   reservationUnit,
   subventionSuffix,
   calendarRef,
-  apiBaseUrl,
   reservationForm,
   focusSlot,
   durationOptions,
   startingTimeOptions,
   nextAvailableTime,
-  storeReservationForLogin,
   submitReservation,
+  LoginAndSubmit,
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { setValue, watch, handleSubmit } = reservationForm;
@@ -372,27 +365,7 @@ const QuickReservation = ({
           </NoTimes>
         )}
       </Times>
-      <ActionWrapper>
-        <LoginFragment
-          isActionDisabled={!focusSlot?.isReservable}
-          apiBaseUrl={apiBaseUrl}
-          actionCallback={() => storeReservationForLogin()}
-          componentIfAuthenticated={
-            reservationUnitIsReservable && (
-              <MediumButton
-                disabled={!focusSlot?.isReservable}
-                type="submit"
-                isLoading={reservationForm.formState.isSubmitting}
-                loadingText={t("reservationCalendar:makeReservationLoading")}
-                data-test="quick-reservation__button--submit"
-              >
-                {t("reservationCalendar:makeReservation")}
-              </MediumButton>
-            )
-          }
-          returnUrl={getPostLoginUrl()}
-        />
-      </ActionWrapper>
+      <ActionWrapper>{LoginAndSubmit}</ActionWrapper>
     </Wrapper>
   );
 };
