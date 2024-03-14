@@ -13,6 +13,7 @@ type Props = {
   cellSpacing?: number;
   wrapAround?: boolean;
   hideCenterControls?: boolean;
+  slideIndex?: number;
 };
 
 const Button = styled(MediumButton).attrs({
