@@ -71,7 +71,7 @@ export const PRICING_FRAGMENT = gql`
 
 // TODO could split it into MEDIUM, LARGE, SMALL fragments (the imageUrl is required for all)
 export const IMAGE_FRAGMENT = gql`
-  fragment ImageFields on ReservationUnitImageType {
+  fragment ImageFragment on ReservationUnitImageType {
     imageUrl
     largeUrl
     mediumUrl

@@ -81,7 +81,7 @@ export const RESERVATION_UNIT_FRAGMENT = gql`
       ...PricingFields
     }
     images {
-      ...ImageFields
+      ...ImageFragment
     }
     spaces {
       pk

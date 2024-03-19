@@ -140,7 +140,6 @@ export const RESERVATIONUNIT_RESERVATIONS_FRAGMENT = gql`
     ) {
       ...ReservationCommon
       name
-      priority
       numPersons
       calendarUrl
       reservationUnits {
