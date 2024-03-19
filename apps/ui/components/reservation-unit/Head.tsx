@@ -7,10 +7,7 @@ import { isReservationStartInFuture } from "common/src/calendar/util";
 import { formatDuration } from "common/src/common/util";
 import { fontRegular, H2, H3 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import {
-  ReservationKind,
-  ReservationUnitType,
-} from "common/types/gql-types";
+import { ReservationKind, ReservationUnitType } from "common/types/gql-types";
 import { omit } from "lodash";
 import { useLocalStorage } from "react-use";
 import { Container } from "common";

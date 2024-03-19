@@ -174,15 +174,15 @@ const ReservationCancellation = ({
 
   const typename = "ReservationType";
   const id = base64encode(`${typename}:${pk}`);
-  const { data: reservationData, loading } = useQuery<Query, QueryReservationArgs>(
-    GET_RESERVATION,
-    {
-      fetchPolicy: "no-cache",
-      variables: {
-        id,
-      },
-    }
-  );
+  const { data: reservationData, loading } = useQuery<
+    Query,
+    QueryReservationArgs
+  >(GET_RESERVATION, {
+    fetchPolicy: "no-cache",
+    variables: {
+      id,
+    },
+  });
   const { reservation } = reservationData || {};
 
   const { data: cancelReasonsData } = useQuery<

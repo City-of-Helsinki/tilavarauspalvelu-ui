@@ -3,8 +3,6 @@ import { Type } from "common/types/gql-types";
 import {
   RESERVEE_NAME_FRAGMENT,
   RESERVEE_BILLING_FRAGMENT,
-} from "common/src/queries/fragments";
-import {
   IMAGE_FRAGMENT,
   PRICING_FRAGMENT,
 } from "common/src/queries/fragments";

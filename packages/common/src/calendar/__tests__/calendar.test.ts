@@ -461,39 +461,15 @@ describe("isStartTimeWithinInterval", () => {
 
 describe("getTimeslots", () => {
   test("returns 2 for 90min interval", () => {
-    expect(
-      getTimeslots(
-        ReservationStartInterval.Interval_90Mins
-      )
-    ).toBe(2);
+    expect(getTimeslots(ReservationStartInterval.Interval_90Mins)).toBe(2);
   });
 
   test("returns 2 for all rest", () => {
-    expect(
-      getTimeslots(
-        ReservationStartInterval.Interval_15Mins
-      )
-    ).toBe(2);
-    expect(
-      getTimeslots(
-        ReservationStartInterval.Interval_30Mins
-      )
-    ).toBe(2);
-    expect(
-      getTimeslots(
-        ReservationStartInterval.Interval_60Mins
-      )
-    ).toBe(2);
-    expect(
-      getTimeslots(
-        "foo" as ReservationStartInterval
-      )
-    ).toBe(2);
-    expect(
-      getTimeslots(
-        null as unknown as ReservationStartInterval
-      )
-    ).toBe(2);
+    expect(getTimeslots(ReservationStartInterval.Interval_15Mins)).toBe(2);
+    expect(getTimeslots(ReservationStartInterval.Interval_30Mins)).toBe(2);
+    expect(getTimeslots(ReservationStartInterval.Interval_60Mins)).toBe(2);
+    expect(getTimeslots("foo" as ReservationStartInterval)).toBe(2);
+    expect(getTimeslots(null as unknown as ReservationStartInterval)).toBe(2);
   });
 });
 
@@ -706,10 +682,8 @@ describe("isReservationUnitReservable", () => {
     isDraft: false,
     requireIntroduction: false,
     requireReservationHandling: false,
-    ReservationKind:
-      ReservationKind.Direct,
-    reservationStartInterval:
-      ReservationStartInterval.Interval_15Mins,
+    ReservationKind: ReservationKind.Direct,
+    reservationStartInterval: ReservationStartInterval.Interval_15Mins,
     uuid: "1234",
     images: [],
     reservableTimeSpans: [

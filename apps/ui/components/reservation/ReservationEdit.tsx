@@ -220,7 +220,7 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
   // TODO why is this needed? why isn't it part of the reservationUnit query?
   const [fetchAdditionalData, { data: additionalData }] = useLazyQuery<
     Query,
-      QueryReservationUnitArgs &
+    QueryReservationUnitArgs &
       ReservationUnitTypeReservableTimeSpansArgs &
       ReservationUnitTypeReservationsArgs
   >(OPENING_HOURS, {
@@ -232,13 +232,14 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
     // TODO why is this necessary? why require a second client side query after the page has loaded?
     if (reservationUnitData?.reservationUnit) {
       // TODO this could be changed to fetch the id from the reservationUnitData (instead of pk and constructing it)
-      const typename = "ReservationUnitType";
-      const { reservationUnit } = reservationUnitData;
-      const { pk } = reservationUnit
-      const id = pk ? base64encode(`${typename}:${pk}`) : "";
+      const typenameUnit = "ReservationUnitType";
+      const { pk: resUnitPk } = reservationUnitData.reservationUnit;
+      const idUnit = resUnitPk
+        ? base64encode(`${typenameUnit}:${resUnitPk}`)
+        : "";
       fetchAdditionalData({
         variables: {
-          id,
+          id: idUnit,
           startDate: String(toApiDate(new Date(now))),
           endDate: String(toApiDate(addYears(new Date(), 1))),
           from: toApiDate(new Date(now)),
@@ -248,7 +249,6 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservationUnitData, fetchAdditionalData, now]);
 
   // TODO can we remove this?
@@ -269,7 +269,6 @@ const ReservationEdit = ({ id: resPk, apiBaseUrl }: Props): JSX.Element => {
       reservableTimeSpans,
       reservations: additionalData?.reservationUnit?.reservations,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [additionalData, reservationUnitData?.reservationUnit, id]);
 
   const { data: userReservationsData } = useQuery<Query, QueryReservationsArgs>(

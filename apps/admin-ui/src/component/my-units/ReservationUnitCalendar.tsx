@@ -107,8 +107,7 @@ const ReservationUnitCalendar = ({
 
   const reservations = filterNonNullable(data?.reservationUnit?.reservations);
   const events = reservations.map((reservation) => {
-    const isBlocked =
-      reservation.type === Type.Blocked;
+    const isBlocked = reservation.type === Type.Blocked;
     const title = !isBlocked
       ? constructEventTitle(reservation, reservationUnitPk)
       : t("MyUnits.Calendar.legend.closed");
