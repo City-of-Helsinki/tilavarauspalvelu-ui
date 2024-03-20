@@ -484,8 +484,8 @@ const ReservationUnit = ({
     (reservationUnit.minReservationDuration
       ? reservationUnit.minReservationDuration / 60
       : 0);
-  const formDate = watch("date");
-  const formUIDate = fromUIDate(formDate ?? "");
+  const dateValue = watch("date");
+  const formUIDate = fromUIDate(dateValue ?? "");
   const focusDate = useMemo(
     () => new Date(formUIDate != null ? formUIDate : new Date()),
     [formUIDate]
@@ -517,8 +517,7 @@ const ReservationUnit = ({
       isReservable: isSlotReservable(start, end),
       durationMinutes: durationValue,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [durationValue, isSlotReservable, timeValue]);
+  }, [dateValue, timeValue, durationValue, isSlotReservable]);
   const durationOptions = useMemo(() => {
     const {
       minReservationDuration,

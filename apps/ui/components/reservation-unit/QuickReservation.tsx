@@ -103,21 +103,6 @@ const Times = styled.div`
 
 const Slots = styled.div``;
 
-const StyledCarousel = styled(Carousel)`
-  .slider-control-centerleft,
-  .slider-control-centerright {
-    top: 36px !important;
-  }
-
-  .slider-list {
-    &:focus-visible {
-      outline: none;
-    }
-
-    cursor: default !important;
-  }
-`;
-
 const SlotGroup = styled.ul`
   list-style: none;
   margin: 0;
@@ -294,7 +279,7 @@ const QuickReservation = ({
       <Times>
         {startingTimeOptions.length > 0 ? (
           <Slots>
-            <StyledCarousel
+            <Carousel
               hideCenterControls
               wrapAround={false}
               slideIndex={activeChunk}
@@ -333,12 +318,12 @@ const QuickReservation = ({
                     )}
                 </SlotGroup>
               ))}
-            </StyledCarousel>
+            </Carousel>
           </Slots>
         ) : (
           <NoTimes>
             <span>{t("reservationCalendar:quickReservation.noTimes")}</span>
-            {nextAvailableTime && (
+            {nextAvailableTime != null && (
               <span>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid -- FIXME */}
                 <a
