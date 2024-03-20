@@ -223,7 +223,7 @@ const SubmitButtonWrapper = styled.div`
   order: 3;
 `;
 
-const StyledSelect = styled(ControlledSelect)`
+const StyledControlledSelect = styled(ControlledSelect)`
   & > div:nth-of-type(2) {
     line-height: var(--lineheight-l);
   }
@@ -410,7 +410,7 @@ const ReservationCalendarControls = ({
                     : new Date()
                 }
               />
-              <StyledSelect
+              <StyledControlledSelect
                 name="time"
                 label={t("reservationCalendar:startTime")}
                 control={reservationForm.control}
@@ -418,7 +418,7 @@ const ReservationCalendarControls = ({
                 disabled={!(startingTimeOptions?.length >= 1) && !time}
               />
               <div data-testid="reservation__input--duration">
-                <StyledSelect
+                <StyledControlledSelect
                   name="duration"
                   control={reservationForm.control}
                   label={t("reservationCalendar:duration")}

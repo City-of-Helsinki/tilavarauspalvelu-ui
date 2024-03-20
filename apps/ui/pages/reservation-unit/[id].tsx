@@ -291,8 +291,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         searchDuration: Number.isNaN(Number(duration))
           ? null
           : Number(duration),
-        searchDate: `${date}` ?? null,
-        searchTime: `${time}` ?? null,
+        searchDate: date ? `${date}` : null,
+        searchTime: time ? `${time}` : null,
       },
     };
   }
@@ -456,11 +456,11 @@ const ReservationUnit = ({
   const todaysTimeSpans = reservableTimeSpans.filter(
     (span) => span.startDatetime && isToday(new Date(span.startDatetime))
   );
-  const searchUIDate = fromUIDate(searchDate);
+  const searchUIDate = fromUIDate(searchDate ?? "");
   // TODO: plug in query parameters
   const initialFieldValues = {
     date:
-      searchUIDate && isValidDate(searchUIDate)
+      searchDate && searchUIDate && isValidDate(searchUIDate)
         ? searchDate
         : toUIDate(new Date(todaysTimeSpans[0]?.startDatetime ?? "")),
     duration:
@@ -469,8 +469,9 @@ const ReservationUnit = ({
         ? reservationUnit.minReservationDuration / 60
         : 0),
     time:
-      searchTime ??
-      getTimeString(new Date(todaysTimeSpans[0]?.startDatetime ?? "")),
+      searchTime ?? todaysTimeSpans[0]
+        ? getTimeString(new Date(todaysTimeSpans[0].startDatetime ?? ""))
+        : getTimeString(),
   };
   const reservationForm = useForm<PendingReservationFormType>({
     defaultValues: initialFieldValues,
@@ -485,7 +486,10 @@ const ReservationUnit = ({
       : 0);
   const formDate = watch("date");
   const formUIDate = fromUIDate(formDate ?? "");
-  const focusDate = new Date(formUIDate != null ? formUIDate : new Date());
+  const focusDate = useMemo(
+    () => new Date(formUIDate != null ? formUIDate : new Date()),
+    [formUIDate]
+  );
 
   const timeValue = watch("time") ?? getTimeString();
   const submitReservation = (_data: PendingReservationFormType) => {
@@ -577,11 +581,11 @@ const ReservationUnit = ({
         label: span,
         value: span,
       }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     reservableTimeSpans,
     reservationUnit?.reservationStartInterval,
     now,
+    focusDate,
     durationValue,
     isSlotReservable,
   ]);
@@ -667,19 +671,18 @@ const ReservationUnit = ({
       if (!reservationUnit) {
         return false;
       }
-
-      const newReservation = getNewReservation({
-        start: new Date(start),
-        end: addMinutes(new Date(start), durationValue),
-        reservationUnit,
-      });
-
       if (
         !isSlotReservable(start, end, skipLengthCheck) ||
         isReservationQuotaReached
       ) {
         return false;
       }
+
+      const newReservation = getNewReservation({
+        start: new Date(start),
+        end: addMinutes(new Date(start), durationValue),
+        reservationUnit,
+      });
 
       const newDate = toUIDate(new Date(newReservation.begin));
       const newTime = getTimeString(new Date(newReservation.begin));
@@ -758,17 +761,19 @@ const ReservationUnit = ({
     const existingReservations = filterNonNullable(
       reservationUnit?.reservations
     );
+    const focusEvent = {
+      begin: focusSlot?.start,
+      end: focusSlot?.end,
+      state: "INITIAL",
+    };
+    const shouldDisplayFocusSlot =
+      focusSlot != null &&
+      focusSlot.start != null &&
+      focusSlot.end != null &&
+      isSlotReservable(focusSlot.start, focusSlot.end);
     return [
       ...existingReservations,
-      ...(focusSlot != null
-        ? [
-            {
-              begin: focusSlot.start,
-              end: focusSlot.end,
-              state: "INITIAL",
-            },
-          ]
-        : []),
+      ...(shouldDisplayFocusSlot ? [focusEvent] : []),
     ]
       .filter((n): n is NonNullable<typeof n> => n != null)
       .map((n) => {

@@ -3,7 +3,7 @@ import type { OptionType } from "common/types/common";
 import { IconAngleDown } from "hds-react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { chunkArray } from "common/src/common/util";
+import { chunkArray, toUIDate } from "common/src/common/util";
 import { fontBold, fontMedium, H4 } from "common/src/common/typography";
 import type { ReservationUnitByPkType } from "common/types/gql-types";
 import { breakpoints } from "common";
@@ -211,27 +211,23 @@ const QuickReservation = ({
   const { setValue, watch, handleSubmit } = reservationForm;
   const formDate = watch("date");
   const dateValue = useMemo(() => new Date(formDate ?? ""), [formDate]);
-  const focusDate = useMemo(
-    () => focusSlot?.start ?? dateValue,
-    [focusSlot, dateValue]
-  );
   const duration =
     watch("duration") ?? reservationUnit?.minReservationDuration ?? 0;
 
   const getPrice = useCallback(
     (asNumeral = false) => {
-      if (reservationUnit == null || focusDate == null || duration == null) {
+      if (reservationUnit == null || dateValue == null || duration == null) {
         return null;
       }
       return getReservationUnitPrice({
         reservationUnit,
-        pricingDate: focusDate,
+        pricingDate: dateValue,
         minutes: duration,
         trailingZeros: true,
         asNumeral,
       });
     },
-    [duration, reservationUnit, focusDate]
+    [duration, reservationUnit, dateValue]
   );
 
   // A map of all available times for the day, chunked into groups of 8
@@ -274,6 +270,7 @@ const QuickReservation = ({
           initialMonth={dateValue ?? new Date()}
           minDate={new Date()}
           maxDate={lastPossibleDate ?? undefined}
+          disableConfirmation={false}
         />
         <StyledSelect
           name="duration"
@@ -353,7 +350,7 @@ const QuickReservation = ({
                       // console.log(nextAvailableTime);
                       const nextTime = getTimeString(nextAvailableTime);
                       nextAvailableTime.setHours(0, 0, 0, 0);
-                      setValue("date", nextAvailableTime.toISOString());
+                      setValue("date", toUIDate(nextAvailableTime));
                       setValue("time", nextTime);
                     }
                   }}
