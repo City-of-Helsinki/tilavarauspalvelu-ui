@@ -66,6 +66,7 @@
   "startDate": "Date",
   "startTime": "Start time",
   "duration": "Duration",
+  "noTimesAvailable": "No available times",
   "steps": {
     "step1": "Booking details",
     "step2": "Booking terms and conditions",
@@ -89,9 +90,9 @@
   "reservationQuotaFull_other": "You cannot make new bookings.",
   "quickReservation": {
     "heading": "See the available times and make a booking",
-    "subheading": "Available times",
-    "noTimes": "No available times",
+    "availableTimes": "Available times for {{date}} ({{duration}}):",
+    "noTimes": "No {{duration}} times available",
     "gotoCalendar": "See all available times",
-    "nextAvailableTime": "Show next"
+    "nextAvailableTime": "Next {{duration}} time ({{date}})"
   }
 }

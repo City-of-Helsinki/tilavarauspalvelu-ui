@@ -66,6 +66,7 @@
   "startDate": "Dag",
   "startTime": "Starttid",
   "duration": "Längd",
+  "noTimesAvailable": "Inga lediga tider",
   "steps": {
     "step1": "Uppgifter om bokningen",
     "step2": "Bokningens villkor",
@@ -89,9 +90,9 @@
   "reservationQuotaFull_other": "Du kan inte göra nya bokningar.",
   "quickReservation": {
     "heading": "Se lediga tider och boka",
-    "subheading": "Lediga tider",
-    "noTimes": "Inga lediga tider",
+    "availableTimes": "Lediga tider på {{date}} ({{duration}}):",
+    "noTimes": "Inga lediga tider på {{date}}",
     "gotoCalendar": "Se alla lediga tider",
-    "nextAvailableTime": "Visa följande"
+    "nextAvailableTime": "Nästa {{duration}} tid ({{date}})"
   }
 }

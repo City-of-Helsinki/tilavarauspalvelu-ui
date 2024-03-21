@@ -1,16 +1,13 @@
 import React, { useCallback, useMemo } from "react";
 import type { OptionType } from "common/types/common";
-import { IconAngleDown } from "hds-react";
+import { Button, IconAngleDown } from "hds-react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { chunkArray, toUIDate } from "common/src/common/util";
 import { fontBold, fontMedium, H4 } from "common/src/common/typography";
 import type { ReservationUnitByPkType } from "common/types/gql-types";
 import { breakpoints } from "common";
-import {
-  getReservationUnitPrice,
-  getTimeString,
-} from "@/modules/reservationUnit";
+import { getReservationUnitPrice } from "@/modules/reservationUnit";
 import Carousel from "../Carousel";
 import { getLastPossibleReservationDate } from "@/components/reservation-unit/utils";
 import type { FocusTimeSlot } from "@/components/calendar/ReservationCalendarControls";
@@ -18,6 +15,7 @@ import type { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { PendingReservationFormType } from "@/components/reservation-unit/schema";
 import ControlledDateInput from "@/components/common/ControlledDateInput";
 import ControlledSelect from "@/components/common/ControlledSelect";
+import { getSelectedOption } from "@/modules/util";
 
 export type TimeRange = {
   start: Date;
@@ -98,7 +96,15 @@ const Subheading = styled.div`
 `;
 
 const Times = styled.div`
-  margin: var(--spacing-s) 0 var(--spacing-m);
+  margin: var(--spacing-s) 0 var(--spacing-l);
+`;
+const NoTimes = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-m);
+  margin: var(--spacing-l) 0 calc(var(--spacing-s) * -1) 0;
 `;
 
 const Slots = styled.div``;
@@ -143,26 +149,6 @@ const StyledSelect = styled(ControlledSelect)`
   li[role="option"] {
     white-space: nowrap;
   }
-
-  #quick-reservation-duration-toggle-button {
-    position: relative;
-
-    > span {
-      position: absolute;
-      white-space: nowrap;
-    }
-  }
-`;
-
-const NoTimes = styled.div`
-  a {
-    color: var(--color-bus) !important;
-    ${fontMedium};
-  }
-
-  display: flex;
-  justify-content: space-between;
-  gap: var(--spacing-m);
 `;
 
 const CalendarLink = styled.a`
@@ -238,7 +224,6 @@ const QuickReservation = ({
   const lastPossibleDate = getLastPossibleReservationDate(
     reservationUnit ?? undefined
   );
-
   return (
     <Wrapper
       id="quick-reservation"
@@ -264,20 +249,21 @@ const QuickReservation = ({
           options={durationOptions}
         />
       </Selects>
-      <Price data-testid="quick-reservation-price">
-        {focusSlot?.isReservable && (
-          <>
-            {t("reservationUnit:price")}: <PriceValue>{getPrice()}</PriceValue>
-            {getPrice(true) !== "0" && subventionSuffix}
-          </>
-        )}
-      </Price>
 
       <Subheading>
-        {t("reservationCalendar:quickReservation.subheading")}
+        {t(
+          `reservationCalendar:quickReservation.${startingTimeOptions.length ? "availableTimes" : "noTimes"}`,
+          {
+            duration: getSelectedOption(
+              duration,
+              durationOptions
+            )?.label.trim(),
+            date: formDate,
+          }
+        )}
       </Subheading>
       <Times>
-        {startingTimeOptions.length > 0 ? (
+        {startingTimeOptions.length ? (
           <Slots>
             <Carousel
               hideCenterControls
@@ -322,32 +308,41 @@ const QuickReservation = ({
           </Slots>
         ) : (
           <NoTimes>
-            <span>{t("reservationCalendar:quickReservation.noTimes")}</span>
             {nextAvailableTime != null && (
               <span>
-                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid -- FIXME */}
-                <a
+                <Button
                   data-testid="quick-reservation-next-available-time"
-                  href="#"
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (nextAvailableTime != null) {
-                      // console.log(nextAvailableTime);
-                      const nextTime = getTimeString(nextAvailableTime);
-                      nextAvailableTime.setHours(0, 0, 0, 0);
-                      setValue("date", toUIDate(nextAvailableTime));
-                      setValue("time", nextTime);
-                    }
+                    setValue("date", toUIDate(nextAvailableTime));
                   }}
                 >
-                  {t("reservationCalendar:quickReservation.nextAvailableTime")}
-                </a>
+                  {t("reservationCalendar:quickReservation.nextAvailableTime", {
+                    duration: getSelectedOption(
+                      duration,
+                      durationOptions
+                    )?.label.trim(),
+                    date: toUIDate(nextAvailableTime),
+                  })}
+                </Button>
               </span>
             )}
           </NoTimes>
         )}
       </Times>
-      <ActionWrapper>{LoginAndSubmit}</ActionWrapper>
+      <ActionWrapper>
+        <Price data-testid="quick-reservation-price">
+          {focusSlot?.isReservable && (
+            <>
+              {t("reservationUnit:price")}:{" "}
+              <PriceValue>{getPrice()}</PriceValue>
+              {getPrice(true) !== "0" && subventionSuffix}
+            </>
+          )}
+        </Price>
+        {focusSlot?.isReservable && LoginAndSubmit}
+      </ActionWrapper>
     </Wrapper>
   );
 };

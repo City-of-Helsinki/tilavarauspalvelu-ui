@@ -62,8 +62,9 @@
   "timeFormatAssist": "Tunti/minuutit",
   "durationFormatAssist": "Tunti:minuutit",
   "startDate": "Päivä",
-  "startTime": "Aloitusaika",
   "duration": "Kesto",
+  "startTime": "Aloitusaika",
+  "noTimesAvailable": "Ei vapaita aikoja",
   "steps": {
     "step1": "Varauksen tiedot",
     "step2": "Varauksen ehdot",
@@ -87,9 +88,9 @@
   "reservationQuotaFull_other": "Et voi tehdä uusia varauksia.",
   "quickReservation": {
     "heading": "Katso vapaat ajat ja varaa",
-    "subheading": "Seuraavat vapaat ajat",
-    "noTimes": "Ei vapaita aikoja",
+    "availableTimes": "Vapaat ajat {{date}} ({{duration}}):",
+    "noTimes": "Ei vapaita {{duration}} aikoja {{date}}.",
     "gotoCalendar": "Katso kaikki vapaat ajat",
-    "nextAvailableTime": "Näytä seuraava"
+    "nextAvailableTime": "Seuraava {{duration}} aika ({{date}})"
   }
 }
