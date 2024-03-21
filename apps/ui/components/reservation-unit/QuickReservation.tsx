@@ -7,10 +7,7 @@ import { chunkArray, toUIDate } from "common/src/common/util";
 import { fontBold, fontMedium, H4 } from "common/src/common/typography";
 import type { ReservationUnitByPkType } from "common/types/gql-types";
 import { breakpoints } from "common";
-import {
-  getReservationUnitPrice,
-  getTimeString,
-} from "@/modules/reservationUnit";
+import { getReservationUnitPrice } from "@/modules/reservationUnit";
 import Carousel from "../Carousel";
 import { getLastPossibleReservationDate } from "@/components/reservation-unit/utils";
 import type { FocusTimeSlot } from "@/components/calendar/ReservationCalendarControls";
@@ -155,9 +152,12 @@ const StyledSelect = styled(ControlledSelect)`
 `;
 
 const NoTimes = styled.div`
-  a {
+  button {
     color: var(--color-bus) !important;
     ${fontMedium};
+    appearance: none;
+    border: none;
+    background-color: transparent;
   }
 
   display: flex;
@@ -238,7 +238,6 @@ const QuickReservation = ({
   const lastPossibleDate = getLastPossibleReservationDate(
     reservationUnit ?? undefined
   );
-
   return (
     <Wrapper
       id="quick-reservation"
@@ -325,23 +324,16 @@ const QuickReservation = ({
             <span>{t("reservationCalendar:quickReservation.noTimes")}</span>
             {nextAvailableTime != null && (
               <span>
-                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid -- FIXME */}
-                <a
+                <button
                   data-testid="quick-reservation-next-available-time"
-                  href="#"
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (nextAvailableTime != null) {
-                      // console.log(nextAvailableTime);
-                      const nextTime = getTimeString(nextAvailableTime);
-                      nextAvailableTime.setHours(0, 0, 0, 0);
-                      setValue("date", toUIDate(nextAvailableTime));
-                      setValue("time", nextTime);
-                    }
+                    setValue("date", toUIDate(nextAvailableTime));
                   }}
                 >
                   {t("reservationCalendar:quickReservation.nextAvailableTime")}
-                </a>
+                </button>
               </span>
             )}
           </NoTimes>
