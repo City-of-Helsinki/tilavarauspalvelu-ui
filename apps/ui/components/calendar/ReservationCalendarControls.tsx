@@ -143,7 +143,9 @@ const Content = styled.div<{ $isAnimated: boolean }>`
   }
 
   @media (min-width: ${breakpoints.xl}) {
-    grid-template-columns: 154px 120px 140px minmax(100px, 1fr) 110px auto;
+    grid-template-columns:
+      154px 140px minmax(max-content, 190px) minmax(100px, 1fr)
+      110px auto;
   }
 `;
 
@@ -224,6 +226,9 @@ const SubmitButtonWrapper = styled.div`
 `;
 
 const StyledControlledSelect = styled(ControlledSelect)`
+  [class*="Select-module_disabled"] *::placeholder {
+    color: var(--color-black-40) !important;
+  }
   & > div:nth-of-type(2) {
     line-height: var(--lineheight-l);
   }
@@ -411,20 +416,23 @@ const ReservationCalendarControls = ({
                 }
               />
               <StyledControlledSelect
+                name="duration"
+                control={reservationForm.control}
+                label={t("reservationCalendar:duration")}
+                options={durationOptions}
+              />
+              <StyledControlledSelect
                 name="time"
                 label={t("reservationCalendar:startTime")}
                 control={reservationForm.control}
                 options={startingTimeOptions}
                 disabled={!(startingTimeOptions?.length >= 1) && !time}
+                placeholder={
+                  !(startingTimeOptions?.length >= 1)
+                    ? t("reservationCalendar:noTimesAvailable")
+                    : undefined
+                }
               />
-              <div data-testid="reservation__input--duration">
-                <StyledControlledSelect
-                  name="duration"
-                  control={reservationForm.control}
-                  label={t("reservationCalendar:duration")}
-                  options={durationOptions}
-                />
-              </div>
               <PriceWrapper>
                 {focusSlot.isReservable && (
                   <>

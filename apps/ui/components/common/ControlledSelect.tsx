@@ -4,6 +4,13 @@ import { useTranslation } from "next-i18next";
 import { Controller, useForm } from "react-hook-form";
 import { OptionType } from "common/types/common";
 import { getSelectedOption } from "@/modules/util";
+import styled from "styled-components";
+
+const StyledSelect = styled(Select)`
+  button:disabled span {
+    color: var(--color-black-40);
+  }
+`;
 
 type Props = {
   name: string;
@@ -14,6 +21,7 @@ type Props = {
   disabled?: boolean;
   error?: string;
   validate?: { [key: string]: (val: string) => boolean };
+  placeholder?: string;
 };
 const ControlledSelect = ({
   name,
@@ -22,7 +30,9 @@ const ControlledSelect = ({
   required,
   options,
   error,
+  disabled,
   validate,
+  placeholder,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   return (
@@ -36,16 +46,17 @@ const ControlledSelect = ({
           value: "",
         };
         return (
-          <Select
+          <StyledSelect
             id={name}
             value={currentValue}
-            placeholder={t("common:select")}
+            placeholder={placeholder ?? t("common:select")}
             options={options}
             label={label}
             required={required ?? false}
-            onChange={(selection: OptionType): void => {
-              field.onChange(selection.value);
-            }}
+            disabled={disabled ?? false}
+            onChange={(selected: OptionType | unknown): void =>
+              field.onChange((selected as OptionType).value)
+            }
             invalid={Boolean(error)}
             error={error}
           />
