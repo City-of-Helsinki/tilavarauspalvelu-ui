@@ -284,7 +284,7 @@ const SearchForm = ({
     [reservationUnitTypeOptions, unitOptions, purposeOptions]
   );
 
-  const formValueKeys = Object.keys(formValues);
+  const formValueKeys = Object.keys(formValues).filter((key) => key !== "applicationRound");
 
   return (
     <>
