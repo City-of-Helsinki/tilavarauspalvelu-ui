@@ -203,9 +203,9 @@ const ReservationUnitCard = ({
                     size="s"
                   />
                 }
-                text={`${t("reservationUnitCard:maxPersons", {
+                text={t("reservationUnitCard:maxPersons", {
                   count: reservationUnit.maxPersons,
-                })}`}
+                })}
               />
             ) : null}
           </Props>

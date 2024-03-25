@@ -112,7 +112,7 @@ const getColConfig = (t: TFunction) =>
 export const SORT_KEYS = COLS.filter((c) => c.isSortable).map((c) => c.key);
 
 function appMapper(app: ApplicationNode, t: TFunction): ApplicationView {
-  const applicationEvents = (app.applicationSections || [])
+  const applicationEvents = (app.applicationSections ?? [])
     .flatMap((ae) => ae?.reservationUnitOptions)
     .flatMap((eru) => ({
       ...eru?.reservationUnit?.unit,

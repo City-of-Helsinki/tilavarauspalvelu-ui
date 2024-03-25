@@ -211,9 +211,9 @@ const StatusTag = (ru: {
   let dayText = "";
   const timeText = format(new Date(availableAt), "HH:mm");
   if (isToday(new Date(availableAt))) {
-    dayText = `${t("common:today")}`;
+    dayText = t("common:today");
   } else if (isTomorrow(new Date(availableAt))) {
-    dayText = `${t("common:tomorrow")}`;
+    dayText = t("common:tomorrow");
   } else dayText = `${toUIDate(new Date(availableAt))} `;
 
   return <StyledTag $status="available">{`${dayText} ${timeText}`}</StyledTag>;
@@ -293,9 +293,9 @@ const ReservationUnitCard = ({ reservationUnit }: PropsT): JSX.Element => {
                     size="s"
                   />
                 }
-                text={`${t("reservationUnitCard:maxPersons", {
+                text={t("reservationUnitCard:maxPersons", {
                   count: reservationUnit.maxPersons,
-                })}`}
+                })}
               />
             ) : null}
           </Props>

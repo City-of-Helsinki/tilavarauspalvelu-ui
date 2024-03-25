@@ -417,7 +417,7 @@ function ApplicationRoundAllocation({
     .concat([
       {
         value: 11,
-        label: `${t("filters.reservationUnitApplicationOthers")}`,
+        label: t("filters.reservationUnitApplicationOthers"),
       },
     ]);
 
@@ -559,7 +559,7 @@ function ApplicationRoundAllocation({
         reservationUnit={
           unitReservationUnits.find(
             (x) => x.pk != null && x.pk.toString() === selectedReservationUnit
-          ) || unitReservationUnits[0]
+          ) ?? unitReservationUnits[0]
         }
         relatedAllocations={affectingAllocations}
         // TODO overly complicated but doesn't properly handle single failures

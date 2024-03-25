@@ -519,7 +519,7 @@ const Reservation = ({
             <SubHeading>
               <Link
                 data-testid="reservation__reservation-unit"
-                href={`${reservationUnitPath(reservationUnit.pk ?? 0)}`}
+                href={reservationUnitPath(reservationUnit.pk ?? 0)}
               >
                 {getReservationUnitName(reservationUnit)}
               </Link>

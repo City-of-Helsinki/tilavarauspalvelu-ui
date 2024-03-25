@@ -32,7 +32,7 @@ function TimeframeStatus({
   let message = "";
   if (isResolved) {
     message = t("ApplicationRound.resolutionDate", {
-      date: formatDate(resolutionDate || ""),
+      date: formatDate(resolutionDate ?? ""),
     });
   } else if (isPast(dateBegin) && isFuture(dateEnd)) {
     message = t("Application.timeframeCurrent", {

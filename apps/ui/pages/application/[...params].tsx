@@ -247,7 +247,7 @@ function ApplicationPageWithQuery({
     console.error("applications query failed: ", error);
     return (
       <ErrorToast
-        error={`${t("common:error.dataError")}`}
+        error={t("common:error.dataError")}
         onClose={() => router.reload()}
       />
     );

@@ -571,6 +571,7 @@ const getTranslatedTooltipTex = (t: TFunction, fieldName: string) => {
 };
 
 // default is 20 if no spaces selected
+
 const getMaxPersons = (spaceList: NonNullable<SpaceType>[]) => {
   const persons =
     spaceList.map((s) => s.maxPersons ?? 0).reduce((a, x) => a + x, 0) || 20;

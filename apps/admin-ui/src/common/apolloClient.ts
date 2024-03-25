@@ -67,7 +67,7 @@ function createClient(apiBaseUrl: string) {
 
   // NOTE upload link typing is broken when updating apollo to 3.8
   // FIXME upload link is broken locally (it succeeds but no new image is available)
-  // @ts-expect-error FIXME
+  // @ts-expect-error FIXME this works but the types are a mess
   const uploadLink: ApolloLink = createUploadLink(uploadLinkOptions);
   const httpLink = new HttpLink({ uri, credentials: "include" });
 

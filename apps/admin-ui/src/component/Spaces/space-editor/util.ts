@@ -9,7 +9,7 @@ const recurse = (
 ): SpaceType[] => {
   const newParent = {
     ...parent,
-    nameFi: "".padStart(depth, paddingChar) + parent.nameFi,
+    nameFi: "".padStart(depth, paddingChar) + (parent.nameFi ?? ""),
   } as SpaceType;
 
   const children = spaces.filter((e) => e.parent?.pk === parent.pk);

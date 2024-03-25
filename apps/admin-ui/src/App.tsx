@@ -124,7 +124,7 @@ const PremisesRouter = () => (
       element={withAuthorization(<SpacesList />, Permission.CAN_MANAGE_SPACES)}
     />
     <Route
-      path={`${prefixes.reservationUnits}`}
+      path={prefixes.reservationUnits}
       element={withAuthorization(
         <ReservationUnits />,
         Permission.CAN_MANAGE_UNITS

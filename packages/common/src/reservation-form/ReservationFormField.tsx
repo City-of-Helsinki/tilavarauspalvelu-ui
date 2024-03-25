@@ -137,7 +137,7 @@ const ReservationFormField = ({
   const { t } = useTranslation();
 
   const lowerCaseTranslationKey =
-    translationKey?.toLocaleLowerCase() || "individual";
+    translationKey?.toLocaleLowerCase() ?? "individual";
 
   const isWideRow = useMemo(
     (): boolean =>
@@ -198,9 +198,9 @@ const ReservationFormField = ({
   const isFreeOfChargeReasonRequired =
     field === "freeOfChargeReason" && watch("applyingForFreeOfCharge") === true;
 
-  const label = `${t(
+  const label = t(
     `reservationApplication:label.${lowerCaseTranslationKey}.${field}`
-  )}`;
+  );
 
   const minValue =
     get(params, field)?.min != null && !Number.isNaN(get(params, field).min)
@@ -292,7 +292,7 @@ const ReservationFormField = ({
             value={
               typeof formField.value === "object"
                 ? formField.value
-                : options[field].find((n) => n.value === defaultValue) || null
+                : options[field].find((n) => n.value === defaultValue) ?? null
             }
             error={errorText}
             required={required}
@@ -305,7 +305,7 @@ const ReservationFormField = ({
   if (isNumField)
     return (
       <NumberInput
-        label={`${label}`}
+        label={label}
         id={field}
         {...register(field, {
           valueAsNumber: true,

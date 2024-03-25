@@ -164,11 +164,10 @@ const EditStep0 = ({
         .map((n) => {
           const suffix = n.state === "INITIAL" ? duration : "";
           const event = {
-            title: `${
+            title:
               n.state === "CANCELLED"
                 ? `${t("reservationCalendar:prefixForCancelled")}: `
-                : suffix
-            }`,
+                : suffix,
             start: n.begin ? parseDate(n.begin) : new Date(),
             end: n.end ? parseDate(n.end) : new Date(),
             allDay: false,

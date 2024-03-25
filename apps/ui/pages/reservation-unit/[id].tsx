@@ -656,11 +656,10 @@ const ReservationUnit = ({
       .map((n) => {
         const suffix = n.state === "INITIAL" ? duration : "";
         const event: CalendarEvent<ReservationType> = {
-          title: `${
+          title:
             n.state === "CANCELLED"
               ? `${t("reservationCalendar:prefixForCancelled")}: `
-              : suffix
-          }`,
+              : suffix,
           start: n.begin != null ? new Date(n.begin) : new Date(),
           end: n.end != null ? new Date(n.end) : new Date(),
           allDay: false,

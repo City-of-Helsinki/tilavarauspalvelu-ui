@@ -159,7 +159,7 @@ export function getApplicantName(
 ): string {
   return application?.applicantType === ApplicantTypeChoice.Individual
     ? `${application?.contactPerson?.firstName} ${application?.contactPerson?.lastName}`.trim()
-    : application?.user?.name || "";
+    : application?.user?.name ?? "";
 }
 
 // TODO is this parse? or format? it looks like a format
