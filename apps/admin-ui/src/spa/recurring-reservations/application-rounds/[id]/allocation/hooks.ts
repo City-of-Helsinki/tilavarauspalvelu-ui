@@ -362,7 +362,7 @@ export function useRemoveAllocation({
         );
         return;
       }
-      const { deleteAllocatedTimeslot: res } = data || {};
+      const { deleteAllocatedTimeslot: res } = data ?? {};
       if (res?.deleted) {
         const { name } = applicationSection;
         const msg = t("Allocation.resetSuccess", { name });

@@ -323,7 +323,7 @@ const SpaceEditor = ({ space, unit }: Props): JSX.Element | null => {
             type={state.notification.type}
             label={t(state.notification.title)}
             dismissible
-            closeButtonLabelText={`${t("common.close")}`}
+            closeButtonLabelText={t("common.close")}
             onClose={() => dispatch({ type: "clearNotification" })}
           >
             {t(state.notification.text)}

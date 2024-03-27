@@ -44,6 +44,7 @@ module.exports = {
     "@typescript-eslint/no-unnecessary-condition": 0,
     "@typescript-eslint/no-confusing-void-expression": 0,
     "eslint-comments/require-description": 0,
+    "@typescript-eslint/prefer-nullish-coalescing": 0,
     "@typescript-eslint/no-misused-promises": 0,
     "@typescript-eslint/no-unsafe-member-access": 0,
     "@typescript-eslint/consistent-type-definitions": 0,

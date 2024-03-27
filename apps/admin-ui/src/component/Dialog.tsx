@@ -69,7 +69,7 @@ function Dialog({
   return (
     <>
       <Seranwrap
-        style={{ cursor: `${canBeClosed ? "cursor" : "default"}` }}
+        style={{ cursor: canBeClosed ? "cursor" : "default" }}
         onClick={() => canBeClosed && closeDialog && closeDialog()}
       />
       <Content className={className} style={style}>

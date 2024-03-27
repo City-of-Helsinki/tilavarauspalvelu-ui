@@ -302,7 +302,7 @@ const ReservationCancellation = ({ id, apiBaseUrl }: Props): JSX.Element => {
                         render={() => (
                           <StyledSelect
                             id="reservation__button--cancel-reason"
-                            label={`${t("reservations:cancelReason")}`}
+                            label={t("reservations:cancelReason")}
                             onChange={(val: OptionType) => {
                               setValue("reason", val.value);
                             }}

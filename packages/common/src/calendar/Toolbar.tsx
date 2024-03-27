@@ -173,9 +173,9 @@ const Toolbar = ({
       const endYear = format(end, "yyyy", culture);
       const currentYear = format(new Date(), "yyyy", culture);
       title = `${startDay}.${startMonth !== endMonth ? `${startMonth}.` : ""}${
-        startYear !== endYear ? `${startYear}` : ""
+        startYear !== endYear ? startYear : ""
       } – ${endDay}.${endMonth}.${
-        startYear !== endYear || endYear !== currentYear ? `${endYear}` : ""
+        startYear !== endYear || endYear !== currentYear ? endYear : ""
       }`;
     }
   }

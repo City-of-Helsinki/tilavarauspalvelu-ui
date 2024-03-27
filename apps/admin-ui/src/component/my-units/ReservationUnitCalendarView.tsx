@@ -45,7 +45,7 @@ const ReservationUnitCalendarView = (): JSX.Element => {
             />
           </HorisontalFlex>
           <ReservationUnitCalendar
-            key={begin + reservationUnitId}
+            key={`${begin}-${reservationUnitId}`}
             begin={begin}
             reservationUnitPk={reservationUnitId}
           />

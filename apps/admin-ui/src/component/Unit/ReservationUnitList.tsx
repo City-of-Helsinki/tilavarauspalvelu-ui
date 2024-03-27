@@ -71,11 +71,9 @@ const ReservationUnitList = ({
             $filtersActive={filters.length > 0}
             // TODO use count in the translation e.g t("common.filtered", { count: filters.length })
             // with keys common.filtered_zero and common.filtered_other
-            title={t(
-              `${filters.length > 0 ? "common.filtered" : "common.filter"}`
-            )}
+            title={t(filters.length > 0 ? "common.filtered" : "common.filter")}
           >
-            {t(`${filters.length > 0 ? "common.filtered" : "common.filter"}`)}
+            {t(filters.length > 0 ? "common.filtered" : "common.filter")}
           </FilterBtn>
           <FilterControls
             filters={filters}

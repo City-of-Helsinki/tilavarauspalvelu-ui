@@ -166,7 +166,7 @@ export function getTranslation(
       return String(parent[keyString]);
     }
   }
-  const fallback = options?.fallbackLang || "fi";
+  const fallback = options?.fallbackLang ?? "fi";
   const fallbackKeyString = `${key}${capitalize(fallback)}`;
   if (parent && parent[fallbackKeyString]) {
     if (typeof parent[fallbackKeyString] === "string") {

@@ -101,7 +101,7 @@ function Breadcrumb({
   linkComponent,
   className,
 }: Props): JSX.Element {
-  const Link = linkComponent || Fragment;
+  const Link = linkComponent ?? Fragment;
 
   const routesWithSlug = routes?.filter((n) => n.slug);
   const lastRoute = routes[routes.length - 1];

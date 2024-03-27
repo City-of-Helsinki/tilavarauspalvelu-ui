@@ -51,7 +51,7 @@ export default appWithTranslation(MyApp, {
   interpolation: {
     format: (value, fmt, _lng) => {
       if (value instanceof Date && isValid(value))
-        return format(value, fmt || "d.M.yyyy", { locale: fi });
+        return format(value, fmt ?? "d.M.yyyy", { locale: fi });
       return value;
     },
     escapeValue: false,

@@ -582,12 +582,10 @@ function DataTable({
                   isSelectionActive
                 }
                 title={t(
-                  `${filters.length > 0 ? "common.filtered" : "common.filter"}`
+                  filters.length > 0 ? "common.filtered" : "common.filter"
                 )}
               >
-                {t(
-                  `${filters.length > 0 ? "common.filtered" : "common.filter"}`
-                )}
+                {t(filters.length > 0 ? "common.filtered" : "common.filter")}
               </FilterBtn>
               <FilterControls
                 filters={filters}
@@ -804,7 +802,7 @@ function DataTable({
                                 return (
                                   <Cell key={colKey}>
                                     {link ? (
-                                      <A to={`${link}`} className="cellContent">
+                                      <A to={link} className="cellContent">
                                         <span className="cellContent">
                                           {value}
                                         </span>

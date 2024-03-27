@@ -25,6 +25,7 @@ import { fontMedium, fontRegular } from "../common/typography";
 import type { OptionType, ReservationUnitNode } from "../../types/common";
 import { GroupHeading, Subheading, TwoColumnContainer } from "./styles";
 import IconPremises from "../icons/IconPremises";
+import { filterNonNullable } from "../helpers";
 
 type CommonProps = {
   options: Record<string, OptionType[]>;
@@ -158,8 +159,7 @@ const ReservationFormFields = ({
 
   const fieldsExtended = fields.map((field) => ({
     field,
-    required: (metadata?.requiredFields || [])
-      .filter((x): x is string => x != null)
+    required: filterNonNullable(metadata?.requiredFields)
       .map(camelCase)
       .includes(field),
   }));

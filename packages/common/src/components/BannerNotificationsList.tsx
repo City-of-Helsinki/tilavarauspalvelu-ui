@@ -163,7 +163,9 @@ const BannerNotificationsList = ({
   const displayedNotificationsList = groupedNotificationsList.filter(
     (item) =>
       closedNotificationsList != null &&
-      !closedNotificationsList.includes(String(item.id + item.activeFrom))
+      !closedNotificationsList.includes(
+        String(item.id + (item.activeFrom ?? "-"))
+      )
   );
 
   return (

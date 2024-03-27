@@ -524,12 +524,12 @@ export const doesBufferCollide = (
 
   const newReservationStartBuffer =
     reservation.bufferTimeAfter &&
-    reservation.bufferTimeAfter > (newReservation.bufferTimeBefore || 0)
+    reservation.bufferTimeAfter > (newReservation.bufferTimeBefore ?? 0)
       ? reservation.bufferTimeAfter
       : newReservation.bufferTimeBefore;
   const newReservationEndBuffer =
     reservation.bufferTimeBefore &&
-    reservation.bufferTimeBefore > (newReservation.bufferTimeAfter || 0)
+    reservation.bufferTimeBefore > (newReservation.bufferTimeAfter ?? 0)
       ? reservation.bufferTimeBefore
       : newReservation.bufferTimeAfter;
 
@@ -702,7 +702,7 @@ export const getNewReservation = ({
 
   const { end: minEnd } = getMinReservation({
     begin: start,
-    minReservationDuration: minReservationDuration || 0,
+    minReservationDuration: minReservationDuration ?? 0,
     reservationStartInterval,
   });
 

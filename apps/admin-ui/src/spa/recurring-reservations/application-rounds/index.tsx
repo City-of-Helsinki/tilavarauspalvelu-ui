@@ -59,7 +59,7 @@ const RoundsAccordion = ({
     <Accordion heading={name} initiallyOpen={initiallyOpen}>
       <AccordionContainer>
         {!rounds || rounds.length === 0
-          ? emptyContent || <span>no data {name}</span>
+          ? emptyContent ?? <span>no data {name}</span>
           : rounds?.map((round) => (
               <ApplicationRoundCard key={round.pk} applicationRound={round} />
             ))}
@@ -210,7 +210,7 @@ function AllApplicationRounds(): JSX.Element | null {
                 isSortable: true,
                 headerName: t("ApplicationRound.headings.sent"),
                 transform: (applicationRound: ApplicationRoundNode) =>
-                  formatDate(applicationRound.statusTimestamp || null) || "-",
+                  formatDate(applicationRound.statusTimestamp ?? null) ?? "-",
                 key: "statusTimestampSort",
               },
             ]}
@@ -220,7 +220,7 @@ function AllApplicationRounds(): JSX.Element | null {
                 (a) => ({
                   ...a,
                   statusTimestampSort: new Date(
-                    a.statusTimestamp || ""
+                    a.statusTimestamp ?? ""
                   ).getTime(),
                 })
               ) || []

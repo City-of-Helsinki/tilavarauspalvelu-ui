@@ -517,8 +517,8 @@ function Calendar<T extends Record<string, unknown>>({
       onNavigate={onNavigate}
       view={viewType}
       onView={onView}
-      min={min || addHours(startOfDay(begin), 6)}
-      max={max || endOfMonth(begin)}
+      min={min ?? addHours(startOfDay(begin), 6)}
+      max={max ?? endOfMonth(begin)}
       localizer={localizer(culture)}
       toolbar={showToolbar}
       views={["day", "week", "month"]}

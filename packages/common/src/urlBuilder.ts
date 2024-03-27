@@ -32,8 +32,7 @@ export function getSignInUrl(
   const authUrl = buildAuthUrl(apiBaseUrl);
   if (callBackUrl.includes(`/logout`)) {
     // TODO this is unsound if the callback url is not a full url but this at least redirects to an error page
-    const baseUrl =
-      originOverride != null ? originOverride : new URL(callBackUrl).origin;
+    const baseUrl = originOverride ?? new URL(callBackUrl).origin;
     return `${authUrl}login?next=${baseUrl}`;
   }
   const next =
