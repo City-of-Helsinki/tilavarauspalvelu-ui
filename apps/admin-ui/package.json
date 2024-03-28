@@ -37,7 +37,7 @@
     "apollo-upload-client": "17.0.0",
     "classnames": "^2.3.2",
     "common": "workspace:*",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.6.0",
     "eslint-config-custom": "workspace:*",
     "focus-trap-react": "^10.2.3",
     "form-data": "^4.0.0",
