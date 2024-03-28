@@ -2,7 +2,6 @@ import {
   type ReservationUnitNode,
   formatters as getFormatters,
   getReservationVolume,
-  OptionType,
 } from "common";
 import { flatten, trim, uniq } from "lodash";
 import { addMinutes, isAfter, isBefore, isSameDay, set } from "date-fns";
@@ -353,7 +352,7 @@ export function getPossibleTimesForDay(
   reservationUnit: ReservationUnitByPkType,
   activeApplicationRounds: RoundPeriod[],
   durationValue: number
-): OptionType[] {
+): { label: string; value: string }[] {
   const allTimes: string[] = [];
   filterNonNullable(reservableTimeSpans)
     .filter((x) => isInTimeSpan(date, x))
