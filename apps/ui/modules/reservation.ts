@@ -1,6 +1,5 @@
 import { addMinutes, addSeconds, isAfter, isValid } from "date-fns";
-import { secondsToHms } from "common/src/common/util";
-import { OptionType, PendingReservation } from "common/types/common";
+import type { PendingReservation } from "common/types/common";
 import {
   PaymentOrderType,
   ReserveeType,
@@ -22,47 +21,53 @@ import {
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import { filterNonNullable } from "common/src/helpers";
 import { getTranslation } from "./util";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 
 export const getDurationOptions = (
   minReservationDuration: number | undefined,
   maxReservationDuration: number | undefined,
   reservationStartInterval: ReservationStartInterval,
   t: TFunction
-): OptionType[] => {
+): { label: string; value: number }[] => {
   const intervalSeconds = getIntervalMinutes(reservationStartInterval) * 60;
   if (!minReservationDuration || !maxReservationDuration || !intervalSeconds)
     return [];
 
-  const timeOptions = [];
+  const durationOptions: { label: string; value: number }[] = [];
+  const intervalMinutes = getIntervalMinutes(reservationStartInterval);
+  if (!minReservationDuration || !maxReservationDuration || !intervalMinutes)
+    return durationOptions;
+  const minReservationDurationMinutes = minReservationDuration / 60;
+  const maxReservationDurationMinutes = maxReservationDuration / 60;
+
   for (
     let i =
-      minReservationDuration > intervalSeconds
-        ? minReservationDuration
-        : intervalSeconds;
-    i <= maxReservationDuration;
-    i += intervalSeconds
+      minReservationDurationMinutes > intervalMinutes
+        ? minReservationDurationMinutes
+        : intervalMinutes;
+    i <= maxReservationDurationMinutes;
+    i += intervalMinutes
   ) {
-    const hms = secondsToHms(i);
+    const hours: number = Math.floor(i / 60);
     const hourString =
-      hms.h !== 0 && hms.h >= 2
-        ? t("common:abbreviations.hour", { count: hms.h })
-        : "";
+      i > 90 ? t("common:abbreviations.hour", { count: hours }) : "";
     const minuteString = () => {
-      if (hms.h < 2)
-        return t("common:abbreviations.minute", { count: hms.h * 60 + hms.m });
-      if (hms.m !== 0)
-        return t("common:abbreviations.minute", { count: hms.m });
+      if (i > 90) return t("common:abbreviations.minute", { count: i % 60 });
+      if (i <= 90) return t("common:abbreviations.minute", { count: i });
+      if (i !== 0)
+        return t("common:abbreviations.minute", {
+          count: i - hours * 60,
+        });
       return "";
     };
     const optionString = `${hourString} ${minuteString()}`;
-    timeOptions.push({
+    durationOptions.push({
       label: optionString,
-      value: `${hms.h}:${String(hms.m).padEnd(2, "0")}`,
+      value: i,
     });
   }
 
-  return timeOptions;
+  return durationOptions;
 };
 
 export const isReservationInThePast = (

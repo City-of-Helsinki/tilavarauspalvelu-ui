@@ -1,82 +1,51 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation, type TFunction } from "next-i18next";
 import styled from "styled-components";
-import {
-  differenceInMinutes,
-  differenceInSeconds,
-  isValid,
-  max,
-  min,
-  parseISO,
-  addMinutes,
-  isBefore,
-  isAfter,
-  isSameDay,
-  startOfDay,
-} from "date-fns";
-import {
-  Button,
-  DateInput,
-  IconAngleDown,
-  IconAngleUp,
-  IconCross,
-  Select,
-} from "hds-react";
+import { Button, IconAngleDown, IconAngleUp, IconCross } from "hds-react";
 import { maxBy, trim } from "lodash";
-import { CalendarEvent } from "common/src/calendar/Calendar";
-import {
-  convertHMSToSeconds,
-  secondsToHms,
-  toUIDate,
-} from "common/src/common/util";
-import { useLocalStorage } from "react-use";
+import { toUIDate } from "common/src/common/util";
 import { Transition } from "react-transition-group";
-import {
-  RoundPeriod,
-  doBuffersCollide,
-  doReservationsCollide,
-  isRangeReservable,
-} from "common/src/calendar/util";
-import type { OptionType, PendingReservation } from "common/types/common";
+import type { OptionType } from "common/types/common";
 import {
   fontBold,
   fontMedium,
   fontRegular,
 } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
-import { ReservationUnitByPkType } from "common/types/gql-types";
-import { filterNonNullable, getLocalizationLang } from "common/src/helpers";
-import { MediumButton, truncatedText } from "@/styles/util";
-import { ReservationProps } from "@/context/DataContext";
-import { getDurationOptions } from "@/modules/reservation";
+import type { ReservationUnitByPkType } from "common/types/gql-types";
+import { truncatedText } from "@/styles/util";
 import {
-  getPossibleTimesForDay,
   getReservationUnitPrice,
+  getTimeString,
 } from "@/modules/reservationUnit";
-import LoginFragment from "../LoginFragment";
-import { useDebounce } from "@/hooks/useDebounce";
-import { capitalize, formatDuration, getPostLoginUrl } from "@/modules/util";
+import { capitalize, getSelectedOption } from "@/modules/util";
+import type { SubmitHandler, UseFormReturn } from "react-hook-form";
+import type { TimeRange } from "@/components/reservation-unit/QuickReservation";
+import { PendingReservationFormType } from "@/components/reservation-unit/schema";
+import ControlledDateInput from "@/components/common/ControlledDateInput";
+import ControlledSelect from "@/components/common/ControlledSelect";
 
-type Props<T> = {
+export type FocusTimeSlot = TimeRange & {
+  isReservable: boolean;
+  durationMinutes: number;
+};
+
+type Props = {
   reservationUnit: ReservationUnitByPkType;
-  initialReservation: PendingReservation | null;
-  setInitialReservation: (reservation: PendingReservation | null) => void;
-  isSlotReservable: (start: Date, end: Date) => boolean;
-  isReserving: boolean;
-  setCalendarFocusDate: (date: Date) => void;
-  activeApplicationRounds: RoundPeriod[];
-  createReservation?: (arg: ReservationProps) => void;
-  setErrorMsg: (msg: string | null) => void;
-  handleEventChange: (
-    event: CalendarEvent<T>,
-    skipLengthCheck?: boolean
-  ) => boolean;
-  mode: "create" | "edit";
-  customAvailabilityValidation?: (start: Date) => boolean;
+  mode: string;
   shouldCalendarControlsBeVisible?: boolean;
   setShouldCalendarControlsBeVisible?: (value: boolean) => void;
-  apiBaseUrl: string;
   isAnimated?: boolean;
+  reservationForm: UseFormReturn<{
+    duration?: number;
+    date?: string;
+    time?: string;
+  }>;
+  durationOptions: OptionType[];
+  startingTimeOptions: OptionType[];
+  focusSlot: FocusTimeSlot;
+  submitReservation: SubmitHandler<PendingReservationFormType>;
+  LoginAndSubmit?: JSX.Element;
 };
 
 const Wrapper = styled.div`
@@ -174,7 +143,7 @@ const Content = styled.div<{ $isAnimated: boolean }>`
   }
 
   @media (min-width: ${breakpoints.xl}) {
-    grid-template-columns: 154px 105px 140px minmax(100px, 1fr) 110px auto;
+    grid-template-columns: 154px 120px 140px minmax(100px, 1fr) 110px auto;
   }
 `;
 
@@ -254,21 +223,7 @@ const SubmitButtonWrapper = styled.div`
   order: 3;
 `;
 
-const SubmitButton = styled(MediumButton)`
-  white-space: nowrap;
-
-  > span {
-    margin: 0 !important;
-    padding-right: var(--spacing-3-xs);
-    padding-left: var(--spacing-3-xs);
-  }
-
-  @media (min-width: ${breakpoints.m}) {
-    order: unset;
-  }
-`;
-
-const StyledSelect = styled(Select<OptionType>)`
+const StyledControlledSelect = styled(ControlledSelect)`
   & > div:nth-of-type(2) {
     line-height: var(--lineheight-l);
   }
@@ -312,66 +267,35 @@ const TogglerLabelContent = ({
   );
 };
 
-const ReservationCalendarControls = <T extends Record<string, unknown>>({
+const ReservationCalendarControls = ({
   reservationUnit,
-  initialReservation,
-  setInitialReservation,
-  isSlotReservable,
-  isReserving,
-  setCalendarFocusDate,
-  activeApplicationRounds,
-  createReservation,
-  setErrorMsg,
-  handleEventChange,
   mode,
-  customAvailabilityValidation,
   shouldCalendarControlsBeVisible,
   setShouldCalendarControlsBeVisible,
-  apiBaseUrl,
   isAnimated = false,
-}: Props<T>): JSX.Element => {
-  const { t, i18n } = useTranslation();
-
-  const { begin, end } = initialReservation ?? {};
-  const {
-    minReservationDuration,
-    maxReservationDuration,
-    reservationStartInterval,
-  } = reservationUnit;
-
-  const durationOptions = useMemo(() => {
-    const options = getDurationOptions(
-      minReservationDuration ?? 0,
-      maxReservationDuration ?? 0,
-      reservationStartInterval,
-      t
-    );
-    return [{ value: "0:00", label: "" }, ...options];
-  }, [
-    minReservationDuration,
-    maxReservationDuration,
-    reservationStartInterval,
-    t,
-  ]);
-
-  const [date, setDate] = useState<Date | null>(new Date());
-  const [startTime, setStartTime] = useState<string | null>(null);
-  const [duration, setDuration] = useState<OptionType | null>(
-    durationOptions[0]
+  reservationForm,
+  durationOptions,
+  focusSlot,
+  startingTimeOptions,
+  submitReservation,
+  LoginAndSubmit,
+}: Props): JSX.Element => {
+  const { t } = useTranslation();
+  const { watch, handleSubmit } = reservationForm;
+  const { start, end } = focusSlot ?? {};
+  const formDate = watch("date");
+  const formDuration = watch("duration");
+  const date = new Date(formDate ?? "");
+  const dateValue = useMemo(() => new Date(formDate ?? ""), [formDate]);
+  const focusDate = useMemo(
+    () => focusSlot?.start ?? dateValue,
+    [focusSlot, dateValue]
   );
+  const duration = !Number.isNaN(Number(formDuration))
+    ? Number(formDuration)
+    : reservationUnit.minReservationDuration ?? 0;
+  const time = watch("time") ?? getTimeString(focusDate);
   const [areControlsVisible, setAreControlsVisible] = useState(false);
-
-  const [_, setStoredReservation] =
-    useLocalStorage<ReservationProps>("reservation");
-
-  useEffect(() => {
-    if (!initialReservation) {
-      setStartTime(null);
-    }
-  }, [initialReservation]);
-
-  const debouncedStartTime = useDebounce(begin, 200);
-  const debouncedEndTime = useDebounce(end, 200);
 
   useEffect(() => {
     if (setShouldCalendarControlsBeVisible) {
@@ -379,256 +303,43 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     }
   }, [setShouldCalendarControlsBeVisible, shouldCalendarControlsBeVisible]);
 
-  useEffect(() => {
-    if (debouncedStartTime && debouncedEndTime) {
-      const newDate = new Date(debouncedStartTime);
-
-      const newStartTime = `${newDate.getHours()}:${newDate
-        .getMinutes()
-        .toString()
-        .padEnd(2, "0")}`;
-      const diff = secondsToHms(
-        differenceInSeconds(
-          new Date(debouncedEndTime),
-          new Date(debouncedStartTime)
-        )
-      );
-      const durationHMS = `${diff.h || "0"}:${String(diff.m).padEnd(2, "0")}`;
-      const newDuration = durationOptions.find((n) => n.value === durationHMS);
-
-      setDate(newDate);
-      setStartTime(newStartTime);
-      setDuration(newDuration ?? null);
-    }
-  }, [debouncedStartTime, debouncedEndTime, setDate, durationOptions]);
-
-  useEffect(() => {
-    if (date != null && isValid(date) && startTime && duration) {
-      const {
-        bufferTimeBefore,
-        bufferTimeAfter,
-        reservableTimeSpans,
-        reservationsMinDaysBefore,
-        reservationsMaxDaysBefore,
-        reservations,
-        reservationBegins,
-        reservationEnds,
-      } = reservationUnit;
-
-      setErrorMsg(null);
-      const startDate = new Date(date);
-      const endDate = new Date(date);
-      const [hours, minutes] = startTime.split(":");
-      const [durationHours, durationMinutes] = String(duration.value).split(
-        ":"
-      );
-      startDate.setHours(Number(hours), Number(minutes), 0, 0);
-      endDate.setHours(
-        Number(hours) + Number(durationHours),
-        Number(minutes) + Number(durationMinutes),
-        0,
-        0
-      );
-
-      if (isSlotReservable(startDate, endDate)) {
-        handleEventChange({
-          start: startDate,
-          end: endDate,
-        });
-        setInitialReservation({
-          begin: startDate.toISOString(),
-          end: endDate.toISOString(),
-        });
-      } else {
-        setInitialReservation(null);
-      }
-      const res = filterNonNullable(reservations);
-      if (
-        doBuffersCollide(
-          {
-            start: startDate,
-            end: endDate,
-            isBlocked: false,
-            bufferTimeBefore: bufferTimeBefore ?? undefined,
-            bufferTimeAfter: bufferTimeAfter ?? undefined,
-          },
-          res
-        )
-      ) {
-        setErrorMsg(t("reservationCalendar:errors.bufferCollision"));
-      }
-
-      if (doReservationsCollide({ start: startDate, end: endDate }, res)) {
-        setErrorMsg(t(`reservationCalendar:errors.collision`));
-      } else if (
-        !isRangeReservable({
-          range: [startDate, addMinutes(endDate, -1)],
-          reservableTimeSpans: filterNonNullable(reservableTimeSpans) ?? [],
-          reservationBegins: reservationBegins
-            ? new Date(reservationBegins)
-            : undefined,
-          reservationEnds: reservationEnds
-            ? new Date(reservationEnds)
-            : undefined,
-          reservationsMinDaysBefore: reservationsMinDaysBefore ?? 0,
-          reservationsMaxDaysBefore: reservationsMaxDaysBefore ?? 0,
-          activeApplicationRounds,
-          reservationStartInterval,
-        }) ||
-        (customAvailabilityValidation &&
-          !customAvailabilityValidation(startDate))
-      ) {
-        setErrorMsg(t(`reservationCalendar:errors.unavailable`));
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    date,
-    startTime,
-    duration?.value,
-    reservationUnit,
-    reservationStartInterval,
-  ]);
-
-  // TODO why?
-  useEffect(() => {
-    setInitialReservation(null);
-  }, [setInitialReservation]);
-
-  const timeIntervalForDay = useMemo(() => {
-    if (date == null) {
-      return undefined;
-    }
-
-    // TODO the conversions and null filters should be done before this component (page or SSR)
-    // TODO this is also very similar to the one in QuickReservation
-    const timeframes = filterNonNullable(reservationUnit.reservableTimeSpans)
-      .map((x) => (x.startDatetime && x.endDatetime ? x : null))
-      .filter(
-        (x): x is { startDatetime: string; endDatetime: string } => x != null
-      )
-      .map((x) => ({
-        startDatetime: new Date(x.startDatetime),
-        endDatetime: new Date(x.endDatetime),
-      }))
-      .filter((n) => {
-        if (isSameDay(date, n.startDatetime)) return true;
-        if (isBefore(date, n.startDatetime)) return false;
-        if (isAfter(date, n.endDatetime)) return false;
-        return true;
-      });
-
-    if (timeframes.length === 0) {
-      return undefined;
-    }
-
-    return {
-      start: min(timeframes.map((n) => n.startDatetime)),
-      end: max(timeframes.map((n) => n.endDatetime)),
-    };
-  }, [reservationUnit?.reservableTimeSpans, date]);
-
-  const { start: dayStartTime, end: dayEndTime }: { start?: Date; end?: Date } =
-    timeIntervalForDay ?? {};
-
-  // TODO this doesn't respect the duration selection and vice versa
-  // so there are error situations where the duration and startTime are selectable but invalid
-  const startingTimesOptions: OptionType[] = useMemo(() => {
-    const durations = durationOptions
-      .filter((n) => n.label !== "")
-      .map((n) => n.value);
-
-    const durationValue = durations[0]?.toString();
-
-    if (
-      date == null ||
-      dayStartTime == null ||
-      dayEndTime == null ||
-      durationValue == null
-    ) {
-      return [];
-    }
-
-    const [endHours, endMinutes] = durationValue.split(":").map(Number);
-
-    // TODO this is very similar to the one in QuickReservation
-    const { reservableTimeSpans: spans, reservationStartInterval: interval } =
-      reservationUnit;
-    return getPossibleTimesForDay(spans, interval, date)
-      .map((n) => {
-        const [hours, minutes] = n.split(":").map(Number);
-        if (hours == null || minutes == null) return null;
-        const start = new Date(date);
-        start.setHours(hours, minutes);
-        const e = addMinutes(start, endHours * 60 + endMinutes);
-        return isSlotReservable(start, e) ? n : null;
-      })
-      .filter((n): n is NonNullable<typeof n> => n != null)
-      .map((n) => (n.startsWith("0") ? n.substring(1) : n))
-      .map((n) => ({
-        label: n,
-        value: n,
-      }));
-  }, [
-    dayStartTime,
-    dayEndTime,
-    reservationUnit,
-    durationOptions,
-    isSlotReservable,
-    date,
-  ]);
-
-  const isReservable = useMemo(
-    () =>
-      duration != null &&
-      initialReservation?.begin != null &&
-      initialReservation.end != null &&
-      isSlotReservable(
-        new Date(initialReservation.begin),
-        new Date(initialReservation.end)
-      ),
-    [duration, initialReservation, isSlotReservable]
-  );
-
-  const beginDate = t("common:dateWithWeekday", {
-    date: begin && parseISO(begin),
+  const startDate = t("common:dateWithWeekday", {
+    date: start && toUIDate(start),
   });
 
-  const beginTime = t("common:timeInForm", {
-    date: begin && parseISO(begin),
+  const startTime = t("common:timeInForm", {
+    date: time,
   });
 
   const endDate = t("common:dateWithWeekday", {
-    date: end && parseISO(end),
+    date: end && toUIDate(end),
   });
 
   const endTime = t("common:timeInForm", {
-    date: end && parseISO(end),
+    date: end && getTimeString(end),
   });
 
   const togglerLabel = (() => {
     const dateStr = trim(
-      `${capitalize(beginDate)} ${beginTime}${
-        endDate !== beginDate ? ` - ${capitalize(endDate)} ` : "-"
+      `${capitalize(startDate)} ${startTime}${
+        endDate !== startDate ? ` - ${capitalize(endDate)} ` : "-"
       }${endTime}`,
       "-"
     );
     const durationStr =
-      end != null && begin != null
-        ? formatDuration(differenceInMinutes(new Date(end), new Date(begin)), t)
+      duration != null
+        ? getSelectedOption(duration, durationOptions)?.label
         : "";
 
     return `${dateStr}, ${durationStr}`;
   })();
 
-  const minutes =
-    (convertHMSToSeconds(`0${duration?.value ?? 0}:00`) ?? 0) / 60;
   const price =
-    date != null
+    date != null && duration != null
       ? getReservationUnitPrice({
           reservationUnit,
           pricingDate: date,
-          minutes,
+          minutes: duration,
           trailingZeros: true,
         })
       : undefined;
@@ -638,175 +349,115 @@ const ReservationCalendarControls = <T extends Record<string, unknown>>({
     (n) => n?.endDatetime
   );
 
-  const submitButton = createReservation ? (
-    <SubmitButtonWrapper>
-      <LoginFragment
-        isActionDisabled={!isReservable}
-        apiBaseUrl={apiBaseUrl}
-        actionCallback={() => {
-          if (reservationUnit.pk != null && initialReservation != null) {
-            setStoredReservation({
-              ...initialReservation,
-              pk: null,
-              price: null,
-              reservationUnitPk: reservationUnit.pk ?? 0,
-            });
-          }
-        }}
-        componentIfAuthenticated={
-          <SubmitButton
-            onClick={() => {
-              if (reservationUnit.pk != null && initialReservation != null) {
-                createReservation({
-                  ...initialReservation,
-                  price: null,
-                  reservationUnitPk: reservationUnit.pk,
-                });
-              }
-            }}
-            disabled={!isReservable}
-            isLoading={isReserving}
-            loadingText={t("reservationCalendar:makeReservationLoading")}
-            data-test="reservation__button--submit"
-          >
-            {t("reservationCalendar:makeReservation")}
-          </SubmitButton>
-        }
-        returnUrl={getPostLoginUrl()}
-      />
-    </SubmitButtonWrapper>
-  ) : null;
-
   return (
     <Wrapper data-testid="reservation-unit__reservation-controls--wrapper">
-      <TogglerTop>
-        <ToggleControls>
-          <TogglerLabel>
-            {isReservable ? (
-              <TogglerLabelContent
-                areControlsVisible={areControlsVisible}
-                togglerLabel={togglerLabel}
-                t={t}
-                price={price}
-              />
-            ) : (
-              t("reservationCalendar:selectTime")
-            )}
-          </TogglerLabel>
-          <ToggleButton
-            onClick={() => {
-              setAreControlsVisible(!areControlsVisible);
-              if (
-                shouldCalendarControlsBeVisible &&
-                setShouldCalendarControlsBeVisible != null
-              ) {
-                setShouldCalendarControlsBeVisible(!areControlsVisible);
-              }
-            }}
-            data-testid="reservation-unit__reservation-controls--toggle-button"
-          >
-            {areControlsVisible ? (
-              <IconAngleDown aria-label={t("common:showLess")} size="m" />
-            ) : (
-              <IconAngleUp aria-label={t("common:showMore")} size="m" />
-            )}
-          </ToggleButton>
-        </ToggleControls>
-      </TogglerTop>
-      <TogglerBottom>
-        {isReservable && !areControlsVisible && submitButton}
-      </TogglerBottom>
-      <Transition
-        mountOnEnter
-        unmountOnExit
-        timeout={isAnimated ? 500 : 0}
-        in={areControlsVisible}
-      >
-        {(state) => (
-          <Content className={state} $isAnimated={isAnimated}>
-            <DateInput
-              onChange={(val, valueAsDate) => {
-                if (
-                  !val ||
-                  !isValid(valueAsDate) ||
-                  valueAsDate < startOfDay(new Date())
-                ) {
-                  setInitialReservation(null);
-                } else {
-                  setDate(valueAsDate);
-                  setCalendarFocusDate(valueAsDate);
-                }
-              }}
-              value={date != null ? toUIDate(date) : ""}
-              id="reservation__input--date"
-              initialMonth={new Date()}
-              label={t("reservationCalendar:startDate")}
-              language={getLocalizationLang(i18n.language)}
-              minDate={new Date()}
-              maxDate={
-                lastOpeningDate?.endDatetime
-                  ? new Date(lastOpeningDate.endDatetime)
-                  : new Date()
-              }
-            />
-            <StyledSelect
-              id="reservation__input--start-time"
-              label={t("reservationCalendar:startTime")}
-              onChange={(val: OptionType) => {
-                if (val.value != null) {
-                  setStartTime(val.value?.toString());
-                }
-              }}
-              options={startingTimesOptions}
-              value={
-                startingTimesOptions.find((n) => n.value === startTime) ?? null
-              }
-            />
-            <div data-testid="reservation__input--duration">
-              <StyledSelect
-                id="reservation__input--duration"
-                label={t("reservationCalendar:duration")}
-                onChange={(val: OptionType) => {
-                  setDuration(val);
-                }}
-                options={durationOptions}
-                value={duration}
-              />
-            </div>
-            <PriceWrapper>
-              {isReservable && (
-                <>
-                  <label htmlFor="price">{t("reservationUnit:price")}</label>
-                  <Price id="price" data-testid="reservation__price--value">
-                    {price}
-                  </Price>
-                </>
+      <form noValidate onSubmit={handleSubmit(submitReservation)}>
+        <TogglerTop>
+          <ToggleControls>
+            <TogglerLabel>
+              {focusSlot.isReservable ? (
+                <TogglerLabelContent
+                  areControlsVisible={areControlsVisible}
+                  togglerLabel={togglerLabel}
+                  t={t}
+                  price={price}
+                />
+              ) : (
+                t("reservationCalendar:selectTime")
               )}
-            </PriceWrapper>
-            <ResetButton
+            </TogglerLabel>
+            <ToggleButton
               onClick={() => {
-                setStartTime(null);
-                setDuration(null);
-                setInitialReservation(null);
+                setAreControlsVisible(!areControlsVisible);
+                if (
+                  shouldCalendarControlsBeVisible &&
+                  setShouldCalendarControlsBeVisible != null
+                ) {
+                  setShouldCalendarControlsBeVisible(!areControlsVisible);
+                }
               }}
-              disabled={!startTime}
-              $isLast={mode === "edit"}
+              data-testid="reservation-unit__reservation-controls--toggle-button"
+              type="button"
             >
-              {t("searchForm:resetForm")}
-            </ResetButton>
-            {mode === "edit" && (
-              <SelectButton
-                onClick={() => setAreControlsVisible(false)}
-                disabled={!startTime}
-                data-testid="reservation__button--select-time"
+              {areControlsVisible ? (
+                <IconAngleDown aria-label={t("common:showLess")} size="m" />
+              ) : (
+                <IconAngleUp aria-label={t("common:showMore")} size="m" />
+              )}
+            </ToggleButton>
+          </ToggleControls>
+        </TogglerTop>
+        <TogglerBottom>
+          {focusSlot.isReservable && !areControlsVisible && LoginAndSubmit}
+        </TogglerBottom>
+        <Transition
+          mountOnEnter
+          unmountOnExit
+          timeout={isAnimated ? 500 : 0}
+          in={areControlsVisible}
+        >
+          {(state) => (
+            <Content className={state} $isAnimated={isAnimated}>
+              <ControlledDateInput
+                name="date"
+                control={reservationForm.control}
+                label={t("reservationCalendar:startDate")}
+                initialMonth={dateValue ?? new Date()}
+                minDate={new Date()}
+                maxDate={
+                  lastOpeningDate?.endDatetime
+                    ? new Date(lastOpeningDate.endDatetime)
+                    : new Date()
+                }
+              />
+              <StyledControlledSelect
+                name="time"
+                label={t("reservationCalendar:startTime")}
+                control={reservationForm.control}
+                options={startingTimeOptions}
+                disabled={!(startingTimeOptions?.length >= 1) && !time}
+              />
+              <div data-testid="reservation__input--duration">
+                <StyledControlledSelect
+                  name="duration"
+                  control={reservationForm.control}
+                  label={t("reservationCalendar:duration")}
+                  options={durationOptions}
+                />
+              </div>
+              <PriceWrapper>
+                {focusSlot.isReservable && (
+                  <>
+                    <label htmlFor="price">{t("reservationUnit:price")}</label>
+                    <Price id="price" data-testid="reservation__price--value">
+                      {price}
+                    </Price>
+                  </>
+                )}
+              </PriceWrapper>
+              <ResetButton
+                onClick={() => reservationForm.reset()}
+                disabled={!focusSlot}
+                $isLast={mode === "edit"}
               >
-                {t("reservationCalendar:selectTime")}
-              </SelectButton>
-            )}
-            {mode === "create" && submitButton}
-          </Content>
-        )}
-      </Transition>
+                {t("searchForm:resetForm")}
+              </ResetButton>
+              {mode === "edit" && (
+                <SelectButton
+                  onClick={() => setAreControlsVisible(false)}
+                  disabled={!focusSlot.isReservable}
+                  data-testid="reservation__button--select-time"
+                >
+                  {t("reservationCalendar:selectTime")}
+                </SelectButton>
+              )}
+              {mode === "create" && (
+                <SubmitButtonWrapper>{LoginAndSubmit}</SubmitButtonWrapper>
+              )}
+            </Content>
+          )}
+        </Transition>
+      </form>
     </Wrapper>
   );
 };

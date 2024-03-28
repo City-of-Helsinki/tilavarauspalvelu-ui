@@ -32,7 +32,7 @@ import BreadcrumbWrapper from "../common/BreadcrumbWrapper";
 
 interface PropsType {
   reservationUnit: ReservationUnitByPkType;
-  isReservable?: boolean;
+  reservationUnitIsReservable?: boolean;
   subventionSuffix?: JSX.Element;
 }
 
@@ -145,7 +145,7 @@ const NonReservableNotification = ({
 const Head = ({
   reservationUnit,
   // activeOpeningTimes,
-  isReservable,
+  reservationUnitIsReservable,
   subventionSuffix,
 }: PropsType): JSX.Element => {
   const { t } = useTranslation();
@@ -168,7 +168,7 @@ const Head = ({
 
   const unitPriceSuffix =
     pricing &&
-    getPrice({ pricing, asInt: true }) !== "0" &&
+    getPrice({ pricing, asNumeral: true }) !== "0" &&
     subventionSuffix != null
       ? subventionSuffix
       : undefined;
@@ -257,7 +257,7 @@ const Head = ({
                   />
                 )}
               </Props>
-              {!isReservable && (
+              {!reservationUnitIsReservable && (
                 <NonReservableNotification reservationUnit={reservationUnit} />
               )}
             </div>
