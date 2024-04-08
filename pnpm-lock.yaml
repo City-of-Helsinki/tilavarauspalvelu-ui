@@ -274,8 +274,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1
       nuka-carousel:
-        specifier: ^7.0.0
-        version: 7.0.0(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^8.0.0
+        version: 8.0.0(react-dom@18.2.0)(react@18.2.0)
       query-string:
         specifier: 9.0.0
         version: 9.0.0
@@ -14251,9 +14251,8 @@ packages:
     dependencies:
       boolbase: 1.0.0
 
-  /nuka-carousel@7.0.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-KE0WV1MuE4Gq6ynL8P3qJH2rGq/DkJ0ej+ezo0IuZp4oklV8WNqu6P6O1utJqihHLGoEuFppq5wlHSHfhdCHXA==}
-    engines: {node: '>=12.0.0'}
+  /nuka-carousel@8.0.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-MQl5o7mtz5JdppcybsIotCxs9RJuIZGvsLHFfHLyd4rGFVMvx4xWASPbE50j//05tpzig0QV5VkGW4uCzoaNig==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
