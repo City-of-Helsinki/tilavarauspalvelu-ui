@@ -1176,8 +1176,6 @@ const translations: ITranslations = {
   ReservationUnitsSearch: {
     resultCount_one: ["{{count}} hakutulos"],
     resultCount_other: ["{{count}} hakutulosta"],
-    textSearchLabel: ["Varausyksikön nimi"],
-    textSearchPlaceHolder: ["Hae"],
     typeLabel: ["Tilan tyyppi"],
     typePlaceHolder: ["Suodata"],
     unitLabel: ["Toimipiste"],
@@ -1829,6 +1827,7 @@ const translations: ITranslations = {
       purpose: ["Valitse käyttötarkoitus"],
       homeCity: ["Valitse kotikunta"],
       reservationUnitType: ["Valitse varausyksikön tyyppi"],
+      reservationUnitState: ["Valitse varausyksikön tila"],
     },
     label: {
       unit: ["Toimipiste"],
@@ -1846,6 +1845,7 @@ const translations: ITranslations = {
       applicantType: ["Asiakastyyppi"],
       order: ["Varausyksiköiden toivejärjestys"],
       reservationUnitType: ["Varausyksikön tyyppi"],
+      reservationUnitState: ["Varausyksikön tila"],
     },
     // weird values that don't fit under placeholder or label (custom options in this case)
     reservationUnitApplication: ["Tilatoive"],
