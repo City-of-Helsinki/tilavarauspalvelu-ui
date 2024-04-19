@@ -1,5 +1,9 @@
-import React, { type FC } from "react";
-import { ApolloProvider } from "@apollo/client";
+import React, { useState, type FC, useEffect } from "react";
+import {
+  ApolloClient,
+  ApolloProvider,
+  NormalizedCacheObject,
+} from "@apollo/client";
 import { appWithTranslation } from "next-i18next";
 import type { AppProps } from "next/app";
 /* eslint-disable import/no-duplicates */
@@ -8,19 +12,51 @@ import { format, isValid } from "date-fns";
 /* eslint-enable import/no-duplicates */
 import { ThemeProvider } from "styled-components";
 import { theme } from "common";
-import PageWrapper from "../components/common/PageWrapper";
-import { ExternalScripts } from "../components/ExternalScripts";
-import { DataContextProvider } from "../context/DataContext";
-import { createApolloClient } from "../modules/apolloClient";
-import { TrackingWrapper } from "../modules/tracking";
-import nextI18NextConfig from "../next-i18next.config";
+import PageWrapper from "@/components/common/PageWrapper";
+import { ExternalScripts } from "@/components/ExternalScripts";
+import { DataContextProvider } from "@/context/DataContext";
+import { createApolloClient, getCsrfToken } from "@/modules/apolloClient";
+import { TrackingWrapper } from "@/modules/tracking";
+import nextI18NextConfig from "@/next-i18next.config";
 import "common/styles/variables.css";
-import "../styles/global.scss";
+import "@/styles/global.scss";
+
+/// Have to handle async client creation so need a hook (React has no async components).
+function useApolloClient(apiBaseUrl: string) {
+  const [client, setClient] = useState<
+    ApolloClient<NormalizedCacheObject> | undefined
+  >(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!apiBaseUrl || client || isLoading) {
+      return;
+    }
+    async function createClient() {
+      setIsLoading(true);
+      // Make sure we have the CSRF token before creating the client.
+      // This sets the client cookie used by futher requests, so we can ignore the return value.
+      await getCsrfToken(apiBaseUrl);
+      const c = await createApolloClient(apiBaseUrl, undefined);
+      setClient(c);
+      setIsLoading(false);
+    }
+    createClient();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- don't refresh if client or loading
+  }, [apiBaseUrl]);
+
+  return { client };
+}
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { hotjarEnabled, matomoEnabled, cookiehubEnabled, apiBaseUrl } =
     pageProps;
-  const client = createApolloClient(apiBaseUrl ?? "", undefined);
+  const { client } = useApolloClient(apiBaseUrl);
+
+  // Can't render without apollo client, and it's creation is async
+  if (!client) {
+    return null;
+  }
   return (
     <>
       <DataContextProvider>

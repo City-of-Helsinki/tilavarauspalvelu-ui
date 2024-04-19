@@ -24,7 +24,7 @@ type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { locale, params } = ctx;
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   const genericTermsId = params?.id;
   const { data: genericTermsData } = await apolloClient.query<

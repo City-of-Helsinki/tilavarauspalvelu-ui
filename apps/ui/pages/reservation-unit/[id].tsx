@@ -151,7 +151,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const pk = Number(params?.id);
   const uuid = query.ru;
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   // TODO does this return only possible rounds or do we need to do frontend filtering on them?
   const { data } = await apolloClient.query<Query>({

@@ -69,7 +69,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale, params } = ctx;
   const pk = Number(params?.id);
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   if (isFinite(pk)) {
     const bookingTerms = await getGenericTerms(apolloClient);

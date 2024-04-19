@@ -20,7 +20,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { locale, params } = ctx;
   const id = Number(params?.id);
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   const { data } = await apolloClient.query<Query, QueryApplicationRoundsArgs>({
     fetchPolicy: "no-cache",

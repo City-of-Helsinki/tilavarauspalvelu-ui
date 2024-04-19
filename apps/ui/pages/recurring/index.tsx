@@ -26,7 +26,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const now = new Date();
   const { locale } = ctx;
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   const { data } = await apolloClient.query<Query, QueryApplicationRoundsArgs>({
     query: APPLICATION_ROUNDS,

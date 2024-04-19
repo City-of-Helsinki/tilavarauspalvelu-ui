@@ -50,14 +50,50 @@ function getServerCookie(
   return token;
 }
 
-export function createApolloClient(
-  hostUrl: string,
+// POST requests require a CSRF token, if it's missing this can be used to set get it.
+async function fetchCsrfToken(apiUrl: string) {
+  const url = `${apiUrl}/csrf/`;
+  return fetch(url, {
+    method: "GET",
+    credentials: "include",
+  }).then((response) => {
+    if (response.ok) {
+      const csrfCookie = response.headers
+        .getSetCookie()
+        .find((cookie) => cookie.startsWith("csrftoken="));
+      const csrfToken = csrfCookie?.split(";")[0].split("=")[1];
+      return csrfToken;
+    }
+
+    throw new Error("Failed to fetch CSRF token");
+  });
+}
+
+export async function getCsrfToken(
+  apiUrl: string,
   ctx?: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>
 ) {
   const isServer = typeof window === "undefined";
   const csrfToken = isServer
     ? getServerCookie(ctx?.req?.headers, "csrftoken")
     : getCookie("csrftoken");
+  if (csrfToken != null) {
+    return csrfToken;
+  }
+
+  return fetchCsrfToken(apiUrl);
+}
+
+/// Has to be async because we might need to fetch the CSRF token.
+/// Can't make any graphql requests without the CSRF token.
+/// Only needs to fetch the CSRF token if it's the first request (otherwise it's included in the site cookies already).
+/// Not sure if this is required on the client (it doesn't actually set the cookie, and requires another fetch to set the cookie in the browser).
+export async function createApolloClient(
+  hostUrl: string,
+  ctx?: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>
+) {
+  const isServer = typeof window === "undefined";
+  const csrfToken = await getCsrfToken(hostUrl, ctx);
 
   const sessionCookie = isServer
     ? getServerCookie(ctx?.req?.headers, "sessionid")

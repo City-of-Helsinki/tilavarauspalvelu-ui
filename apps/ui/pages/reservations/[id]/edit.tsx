@@ -29,7 +29,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const pk = params?.id;
 
   const commonProps = getCommonServerSideProps();
-  const client = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const client = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   if (Number.isFinite(Number(pk))) {
     // TODO why are we doing two separate queries? the linked reservationUnit should be part of the reservation query

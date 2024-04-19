@@ -69,7 +69,7 @@ const StyledSorting = styled(Sorting)`
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale, query } = ctx;
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
   // TODO type this properly
   const values = query as Record<string, string>;
   const { data } = await apolloClient.query<Query, QueryReservationUnitsArgs>({

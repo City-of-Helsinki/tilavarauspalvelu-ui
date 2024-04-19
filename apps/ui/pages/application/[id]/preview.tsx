@@ -133,7 +133,7 @@ function Preview(props: PropsNarrowed): JSX.Element {
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale } = ctx;
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   const tos = await getGenericTerms(apolloClient);
 

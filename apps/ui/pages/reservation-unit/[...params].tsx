@@ -70,7 +70,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { locale, params } = ctx;
   const [reservationUnitPk, path, reservationPk] = params?.params ?? [];
   const commonProps = getCommonServerSideProps();
-  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const apolloClient = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   if (Number.isFinite(Number(reservationUnitPk)) && path === "reservation") {
     const typename = "ReservationUnitNode";

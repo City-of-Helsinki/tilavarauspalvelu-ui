@@ -26,7 +26,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const pk = params?.id;
 
   const commonProps = getCommonServerSideProps();
-  const client = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const client = await createApolloClient(commonProps.apiBaseUrl, ctx);
 
   if (Number.isFinite(Number(pk))) {
     const typename = "ReservationNode";
