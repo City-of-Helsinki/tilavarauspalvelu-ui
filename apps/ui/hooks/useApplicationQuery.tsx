@@ -9,6 +9,7 @@ export const useApplicationQuery = (pk?: number) => {
   const { data, error, loading } = useQuery<Query, QueryApplicationArgs>(
     APPLICATION_QUERY,
     {
+      fetchPolicy: "no-cache",
       variables: {
         id,
       },
