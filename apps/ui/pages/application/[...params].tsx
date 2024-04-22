@@ -10,11 +10,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type {
   ApplicationNode,
   ApplicationRoundNode,
+  QueryApplicationArgs,
+  Query,
 } from "common/types/gql-types";
 import { ApplicationPageWrapper } from "@/components/application/ApplicationPage";
 import { Page1 } from "@/components/application/Page1";
 import Page2 from "@/components/application/Page2";
-import { CenterSpinner } from "@/components/common/common";
 import { getTranslation } from "@/modules/util";
 import {
   type ApplicationFormValues,
@@ -25,8 +26,10 @@ import {
 import useReservationUnitsList from "@/hooks/useReservationUnitList";
 import { useApplicationUpdate } from "@/hooks/useApplicationUpdate";
 import { ErrorToast } from "@/components/common/ErrorToast";
-import { useApplicationQuery } from "@/hooks/useApplicationQuery";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
+import { base64encode } from "common/src/helpers";
+import { createApolloClient } from "@/modules/apolloClient";
+import { APPLICATION_QUERY } from "common/src/queries/application";
 
 // TODO move this to a shared file
 // and combine all the separate error handling functions to one
@@ -109,10 +112,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const [id, slug] = params ?? [];
   const pk = Number.isNaN(Number(id)) ? null : Number(id);
 
+  const commonProps = getCommonServerSideProps();
   if (pk == null) {
     return {
       props: {
-        ...getCommonServerSideProps(),
+        ...commonProps,
         notFound: true,
         slug,
         ...(await serverSideTranslations(locale ?? "fi")),
@@ -121,13 +125,23 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     };
   }
 
+  const client = await createApolloClient(commonProps.apiBaseUrl, ctx);
+  const typename = "ApplicationNode";
+  const { data } = await client.query<Query, QueryApplicationArgs>({
+    query: APPLICATION_QUERY,
+      fetchPolicy: "no-cache",
+      variables: {
+        id:  base64encode(`${typename}:${pk}`),
+      },
+    });
+
   return {
     props: {
-      ...getCommonServerSideProps(),
-      key: locale,
+      ...commonProps,
       pk,
       slug,
       ...(await serverSideTranslations(locale ?? "fi")),
+      data,
     },
   };
 }
@@ -234,32 +248,14 @@ function ApplicationRootPage({
 function ApplicationPageWithQuery({
   pk,
   slug,
+  data,
 }: PropsNarrowed): JSX.Element | null {
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  const { application, error, isLoading } = useApplicationQuery(
-    pk ?? undefined
-  );
-
-  if (error != null) {
-    // eslint-disable-next-line no-console
-    console.error("applications query failed: ", error);
-    return (
-      <ErrorToast
-        error={`${t("common:error.dataError")}`}
-        onClose={() => router.reload()}
-      />
-    );
-  }
+  const { application } = data;
 
   const applicationRound = application?.applicationRound ?? undefined;
 
   if (pk == null) {
     return <Error statusCode={404} />;
-  }
-  if (isLoading) {
-    return <CenterSpinner />;
   }
   if (application == null || applicationRound == null) {
     return <Error statusCode={404} />;
