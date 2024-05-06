@@ -356,6 +356,10 @@ export type ApplicationRoundNode = Node & {
   nameEn?: Maybe<Scalars["String"]["output"]>;
   nameFi?: Maybe<Scalars["String"]["output"]>;
   nameSv?: Maybe<Scalars["String"]["output"]>;
+  notesWhenApplying: Scalars["String"]["output"];
+  notesWhenApplyingEn?: Maybe<Scalars["String"]["output"]>;
+  notesWhenApplyingFi?: Maybe<Scalars["String"]["output"]>;
+  notesWhenApplyingSv?: Maybe<Scalars["String"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
   publicDisplayBegin: Scalars["DateTime"]["output"];
   publicDisplayEnd: Scalars["DateTime"]["output"];
@@ -426,6 +430,8 @@ export type ApplicationRoundNodeReservationUnitsArgs = {
   surfaceAreaGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   surfaceAreaLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  tprekDepartmentId?: InputMaybe<Scalars["String"]["input"]>;
+  tprekId?: InputMaybe<Scalars["String"]["input"]>;
   typeRankGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   typeRankLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   unit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
@@ -565,7 +571,7 @@ export type ApplicationSectionNode = Node & {
 export type ApplicationSectionNodeReservationUnitOptionsArgs = {
   orderBy?: InputMaybe<Array<InputMaybe<ReservationUnitOptionOrderingChoices>>>;
   pk?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
-  preferredOrder?: InputMaybe<Scalars["Int"]["input"]>;
+  preferredOrder?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   reservationUnit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
 };
 
@@ -911,59 +917,6 @@ export enum CustomerTypeChoice {
   Nonprofit = "NONPROFIT",
 }
 
-/** Debugging information for the current query. */
-export type DjangoDebug = {
-  __typename?: "DjangoDebug";
-  /** Raise exceptions for this API query. */
-  exceptions?: Maybe<Array<Maybe<DjangoDebugException>>>;
-  /** Executed SQL queries for this API query. */
-  sql?: Maybe<Array<Maybe<DjangoDebugSql>>>;
-};
-
-/** Represents a single exception raised. */
-export type DjangoDebugException = {
-  __typename?: "DjangoDebugException";
-  /** The class of the exception */
-  excType: Scalars["String"]["output"];
-  /** The message of the exception */
-  message: Scalars["String"]["output"];
-  /** The stack trace */
-  stack: Scalars["String"]["output"];
-};
-
-/** Represents a single database query made to a Django managed DB. */
-export type DjangoDebugSql = {
-  __typename?: "DjangoDebugSQL";
-  /** The Django database alias (e.g. 'default'). */
-  alias: Scalars["String"]["output"];
-  /** Duration of this database query in seconds. */
-  duration: Scalars["Float"]["output"];
-  /** Postgres connection encoding if available. */
-  encoding?: Maybe<Scalars["String"]["output"]>;
-  /** Whether this database query was a SELECT. */
-  isSelect: Scalars["Boolean"]["output"];
-  /** Whether this database query took more than 10 seconds. */
-  isSlow: Scalars["Boolean"]["output"];
-  /** Postgres isolation level if available. */
-  isoLevel?: Maybe<Scalars["String"]["output"]>;
-  /** JSON encoded database query parameters. */
-  params: Scalars["String"]["output"];
-  /** The raw SQL of this query, without params. */
-  rawSql: Scalars["String"]["output"];
-  /** The actual SQL sent to this database. */
-  sql?: Maybe<Scalars["String"]["output"]>;
-  /** Start time of this database query. */
-  startTime: Scalars["Float"]["output"];
-  /** Stop time of this database query. */
-  stopTime: Scalars["Float"]["output"];
-  /** Postgres transaction ID if available. */
-  transId?: Maybe<Scalars["String"]["output"]>;
-  /** Postgres transaction status if available. */
-  transStatus?: Maybe<Scalars["String"]["output"]>;
-  /** The type of database being used (e.g. postrgesql, mysql, sqlite). */
-  vendor: Scalars["String"]["output"];
-};
-
 export type EquipmentCategoryCreateMutationInput = {
   name: Scalars["String"]["input"];
   nameEn?: InputMaybe<Scalars["String"]["input"]>;
@@ -1141,6 +1094,7 @@ export enum GeneralPermissionChoices {
   CanManageGeneralRoles = "CAN_MANAGE_GENERAL_ROLES",
   CanManageNotifications = "CAN_MANAGE_NOTIFICATIONS",
   CanManagePurposes = "CAN_MANAGE_PURPOSES",
+  CanManageQualifiers = "CAN_MANAGE_QUALIFIERS",
   CanManageReservations = "CAN_MANAGE_RESERVATIONS",
   CanManageReservationPurposes = "CAN_MANAGE_RESERVATION_PURPOSES",
   CanManageReservationUnits = "CAN_MANAGE_RESERVATION_UNITS",
@@ -1181,6 +1135,24 @@ export type GeneralRolePermissionNode = Node & {
   id: Scalars["ID"]["output"];
   permission?: Maybe<GeneralPermissionChoices>;
   pk?: Maybe<Scalars["Int"]["output"]>;
+};
+
+export type HelsinkiProfileDataNode = {
+  __typename?: "HelsinkiProfileDataNode";
+  birthday?: Maybe<Scalars["Date"]["output"]>;
+  city?: Maybe<Scalars["String"]["output"]>;
+  email?: Maybe<Scalars["String"]["output"]>;
+  firstName?: Maybe<Scalars["String"]["output"]>;
+  isStrongLogin: Scalars["Boolean"]["output"];
+  lastName?: Maybe<Scalars["String"]["output"]>;
+  loginMethod?: Maybe<LoginMethod>;
+  municipalityCode?: Maybe<Scalars["String"]["output"]>;
+  municipalityName?: Maybe<Scalars["String"]["output"]>;
+  phone?: Maybe<Scalars["String"]["output"]>;
+  pk: Scalars["Int"]["output"];
+  postalCode?: Maybe<Scalars["String"]["output"]>;
+  ssn?: Maybe<Scalars["String"]["output"]>;
+  streetAddress?: Maybe<Scalars["String"]["output"]>;
 };
 
 /** An enumeration. */
@@ -1336,6 +1308,13 @@ export enum LocationType {
   Fixed = "FIXED",
   /** Siirrettävä */
   Movable = "MOVABLE",
+}
+
+/** An enumeration. */
+export enum LoginMethod {
+  Ad = "AD",
+  Other = "OTHER",
+  Profile = "PROFILE",
 }
 
 export type Mutation = {
@@ -1890,7 +1869,6 @@ export enum QualifierOrderingChoices {
 
 export type Query = {
   __typename?: "Query";
-  _debug?: Maybe<DjangoDebug>;
   /**
    * Return all allocations that affect allocations for given reservation unit
    * (through space hierarchy or common resource) during the given time period.
@@ -1918,6 +1896,8 @@ export type Query = {
   keywords?: Maybe<KeywordNodeConnection>;
   metadataSets?: Maybe<ReservationMetadataSetNodeConnection>;
   order?: Maybe<PaymentOrderNode>;
+  /** Get information about the user, using Helsinki profile if necessary. */
+  profileData?: Maybe<HelsinkiProfileDataNode>;
   purposes?: Maybe<PurposeNodeConnection>;
   qualifiers?: Maybe<QualifierNodeConnection>;
   recurringReservation?: Maybe<RecurringReservationNode>;
@@ -2186,6 +2166,11 @@ export type QueryOrderArgs = {
   orderUuid: Scalars["String"]["input"];
 };
 
+export type QueryProfileDataArgs = {
+  applicationId?: InputMaybe<Scalars["Int"]["input"]>;
+  reservationId?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type QueryPurposesArgs = {
   after?: InputMaybe<Scalars["String"]["input"]>;
   before?: InputMaybe<Scalars["String"]["input"]>;
@@ -2363,6 +2348,8 @@ export type QueryReservationUnitsArgs = {
   surfaceAreaGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   surfaceAreaLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  tprekDepartmentId?: InputMaybe<Scalars["String"]["input"]>;
+  tprekId?: InputMaybe<Scalars["String"]["input"]>;
   typeRankGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   typeRankLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   unit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
@@ -3124,6 +3111,8 @@ export type ReservationNodeReservationUnitArgs = {
   surfaceAreaGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   surfaceAreaLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  tprekDepartmentId?: InputMaybe<Scalars["String"]["input"]>;
+  tprekId?: InputMaybe<Scalars["String"]["input"]>;
   typeRankGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   typeRankLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   unit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
@@ -3790,6 +3779,7 @@ export type ReservationUnitNode = Node & {
   nameEn?: Maybe<Scalars["String"]["output"]>;
   nameFi?: Maybe<Scalars["String"]["output"]>;
   nameSv?: Maybe<Scalars["String"]["output"]>;
+  numActiveUserReservations?: Maybe<Scalars["Int"]["output"]>;
   paymentMerchant?: Maybe<PaymentMerchantNode>;
   paymentProduct?: Maybe<PaymentProductNode>;
   paymentTerms?: Maybe<TermsOfUseNode>;
@@ -5022,6 +5012,8 @@ export type UnitNodeReservationunitSetArgs = {
   surfaceAreaGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   surfaceAreaLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  tprekDepartmentId?: InputMaybe<Scalars["String"]["input"]>;
+  tprekId?: InputMaybe<Scalars["String"]["input"]>;
   typeRankGte?: InputMaybe<Scalars["Decimal"]["input"]>;
   typeRankLte?: InputMaybe<Scalars["Decimal"]["input"]>;
   unit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
