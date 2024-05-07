@@ -5849,6 +5849,8 @@ export type ReservationUnitFieldsFragment = {
 export type SearchFormParamsUnitQueryVariables = Exact<{
   publishedReservationUnits?: InputMaybe<Scalars["Boolean"]["input"]>;
   ownReservations?: InputMaybe<Scalars["Boolean"]["input"]>;
+  onlyDirectBookable?: InputMaybe<Scalars["Boolean"]["input"]>;
+  onlySeasonalBookable?: InputMaybe<Scalars["Boolean"]["input"]>;
   orderBy?: InputMaybe<
     Array<InputMaybe<UnitOrderingChoices>> | InputMaybe<UnitOrderingChoices>
   >;
@@ -8993,11 +8995,15 @@ export const SearchFormParamsUnitDocument = gql`
   query SearchFormParamsUnit(
     $publishedReservationUnits: Boolean
     $ownReservations: Boolean
+    $onlyDirectBookable: Boolean
+    $onlySeasonalBookable: Boolean
     $orderBy: [UnitOrderingChoices]
   ) {
     units(
       publishedReservationUnits: $publishedReservationUnits
       ownReservations: $ownReservations
+      onlyDirectBookable: $onlyDirectBookable
+      onlySeasonalBookable: $onlySeasonalBookable
       orderBy: $orderBy
     ) {
       edges {
@@ -9027,6 +9033,8 @@ export const SearchFormParamsUnitDocument = gql`
  *   variables: {
  *      publishedReservationUnits: // value for 'publishedReservationUnits'
  *      ownReservations: // value for 'ownReservations'
+ *      onlyDirectBookable: // value for 'onlyDirectBookable'
+ *      onlySeasonalBookable: // value for 'onlySeasonalBookable'
  *      orderBy: // value for 'orderBy'
  *   },
  * });
