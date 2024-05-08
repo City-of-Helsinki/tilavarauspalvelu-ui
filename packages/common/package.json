@@ -37,7 +37,7 @@
     "react-hook-form": "^7.51.2",
     "react-i18next": "^14.1.0",
     "react-use": "^17.5.0",
-    "styled-components": "5.3.11",
+    "styled-components": "6.1.10",
     "tsconfig": "workspace:*",
     "zod": "^3.22.4"
   },

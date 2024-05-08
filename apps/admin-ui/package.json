@@ -60,7 +60,7 @@
     "reactjs-popup": "^2.0.6",
     "sass": "^1.74.1",
     "sharp": "^0.33.3",
-    "styled-components": "5.3.11",
+    "styled-components": "6.1.10",
     "tsconfig": "workspace:*",
     "typescript-cookie": "^1.0.6",
     "viewport-mercator-project": "^7.0.4",
