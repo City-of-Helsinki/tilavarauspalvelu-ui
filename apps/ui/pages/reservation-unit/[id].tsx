@@ -149,6 +149,7 @@ type WeekOptions = "day" | "week" | "month";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { params, query, locale } = ctx;
+  performance.mark("ssr-start");
   const pk = Number(params?.id);
   const uuid = query.ru;
   const commonProps = getCommonServerSideProps();
@@ -260,6 +261,14 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       reservations,
       affectingReservations,
       pk
+    );
+
+    performance.mark("ssr-end");
+    performance.measure("/reservation-unit/[id]/", "ssr-start", "ssr-end");
+    // eslint-disable-next-line no-console
+    console.log(
+      "Performance: /reservation-unit/[id]/",
+      performance.getEntriesByName("/reservation-unit/[id]/")
     );
 
     return {

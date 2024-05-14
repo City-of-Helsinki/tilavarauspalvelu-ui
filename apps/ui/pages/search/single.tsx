@@ -66,6 +66,8 @@ const StyledSorting = styled(Sorting)`
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale, query } = ctx;
+  performance.mark("ssr-start");
+
   const commonProps = getCommonServerSideProps();
   const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
   const variables = processVariables(
@@ -124,6 +126,14 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
       value: node.pk,
       label: node.name,
     }));
+
+  performance.mark("ssr-end");
+  performance.measure("/search/single", "ssr-start", "ssr-end");
+  // eslint-disable-next-line no-console
+  console.log(
+    "Performance: /search/single",
+    performance.getEntriesByName("/search/single")
+  );
 
   return {
     props: {

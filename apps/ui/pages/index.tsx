@@ -39,6 +39,8 @@ const Home = ({ purposes, units }: Props): JSX.Element => {
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { locale } = ctx;
+
+  performance.mark("ssr-start");
   const commonProps = getCommonServerSideProps();
   const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
 
@@ -67,6 +69,11 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const units = filterNonNullable(
     unitData?.units?.edges?.map((edge) => edge?.node)
   );
+
+  performance.mark("ssr-end");
+  performance.measure("/index/", "ssr-start", "ssr-end");
+  // eslint-disable-next-line no-console
+  console.log("Performance: /index", performance.getEntriesByName("/index/"));
 
   return {
     props: {
