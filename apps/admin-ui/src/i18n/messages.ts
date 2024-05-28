@@ -566,7 +566,7 @@ const translations: ITranslations = {
     HANDLED: ["Hyväksytty"],
     IN_ALLOCATION: ["Käsittelyssä"],
     RESERVED: ["Varattu"],
-    UNALLOCATED: ["Ei jaettu"],
+    UNALLOCATED: ["Vastaanotettu"],
   },
   TimeSlotStatusCell: {
     declined: ["Hylätty"],
