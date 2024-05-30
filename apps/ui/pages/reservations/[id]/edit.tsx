@@ -11,6 +11,7 @@ import {
   ReservationDocument,
   type ReservationQuery,
   type ReservationQueryVariables,
+  type CurrentUserQuery,
 } from "@gql/gql-types";
 import {
   base64encode,
@@ -20,9 +21,23 @@ import {
 import { toApiDate } from "common/src/common/util";
 import { addYears } from "date-fns";
 import { RELATED_RESERVATION_STATES } from "common/src/const";
+import { CURRENT_USER } from "@/modules/queries/user";
+
+type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
+
+function ReservationEditPage(props: PropsNarrowed): JSX.Element {
+  const { reservation, reservationUnit } = props;
+
+  return (
+    <ReservationEdit
+      apiBaseUrl={props.apiBaseUrl}
+      reservation={reservation}
+      reservationUnit={reservationUnit}
+    />
+  );
+}
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
-type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale, params } = ctx;
@@ -69,6 +84,12 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     });
     const { reservationUnit } = reservationUnitData;
 
+    const { data: userData } = await client.query<CurrentUserQuery>({
+      query: CURRENT_USER,
+      fetchPolicy: "no-cache",
+    });
+    const user = userData?.currentUser;
+
     const timespans = filterNonNullable(reservationUnit?.reservableTimeSpans);
     const reservableTimeSpans = timespans;
     const reservationSet = filterNonNullable(
@@ -84,7 +105,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     );
 
     // TODO check for nulls and return notFound if necessary
-    if (reservation != null && reservationUnit != null) {
+    if (
+      reservation != null &&
+      reservationUnit != null &&
+      reservation.user?.pk === user?.pk
+    ) {
       return {
         props: {
           ...commonProps,
@@ -111,18 +136,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
       ...(await serverSideTranslations(locale ?? "fi")),
     },
   };
-}
-
-function ReservationEditPage(props: PropsNarrowed): JSX.Element {
-  const { reservation, reservationUnit } = props;
-
-  return (
-    <ReservationEdit
-      apiBaseUrl={props.apiBaseUrl}
-      reservation={reservation}
-      reservationUnit={reservationUnit}
-    />
-  );
 }
 
 export default ReservationEditPage;
