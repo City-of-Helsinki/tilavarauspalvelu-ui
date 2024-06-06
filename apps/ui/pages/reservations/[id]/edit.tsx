@@ -51,7 +51,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
     const resUnitPk = reservation?.reservationUnit?.[0]?.pk;
     const id = resUnitPk
-      ? base64encode(`ReservationUnitNode:${resUnitPk}`)
+      ? base64encode(`ReservationUnitNode:${resUnitPk ?? 0}`)
       : "";
     const { data: reservationUnitData } = await client.query<
       ReservationUnitPageQuery,

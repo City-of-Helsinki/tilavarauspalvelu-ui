@@ -363,7 +363,7 @@ function CreateReservationModal({
   const { t } = useTranslation();
 
   const isPkValid = pk > 0;
-  const id = base64encode(`ReservationUnitNode:${pk}`);
+  const id = base64encode(`ReservationUnitNode:${pk ?? 0}`);
   const { data, loading } = useReservationUnitQuery({
     variables: { id },
     skip: !isPkValid,
