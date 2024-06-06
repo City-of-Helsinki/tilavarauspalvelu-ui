@@ -129,7 +129,7 @@ export const HANDLING_COUNT_QUERY = gql`
     reservations(
       state: "REQUIRES_HANDLING"
       beginDate: $beginDate
-      onlyWithPermission: true
+      onlyWithHandlingPermission: true
     ) {
       edges {
         node {
