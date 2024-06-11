@@ -2,6 +2,7 @@ import React from "react";
 import type { GetServerSidePropsContext } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
+  CurrentUserQuery,
   ReservationCancelReasonsDocument,
   type ReservationCancelReasonsQuery,
   type ReservationCancelReasonsQueryVariables,
@@ -14,9 +15,22 @@ import ReservationCancellation from "@/components/reservation/ReservationCancell
 import { getCommonServerSideProps } from "@/modules/serverUtils";
 import { createApolloClient } from "@/modules/apolloClient";
 import { base64encode, filterNonNullable } from "common/src/helpers";
+import { CURRENT_USER } from "@/modules/queries/user";
+
+type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
+
+function ReservationCancelPage(props: PropsNarrowed): JSX.Element {
+  // TODO can be removed if SSR returns notFound for nulls
+  const { reservation } = props;
+
+  if (reservation == null) {
+    return <Error statusCode={404} />;
+  }
+
+  return <ReservationCancellation {...props} reservation={reservation} />;
+}
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
-type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale, params } = ctx;
@@ -38,6 +52,12 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     });
     const { reservation } = reservationData || {};
 
+    const { data: userData } = await client.query<CurrentUserQuery>({
+      query: CURRENT_USER,
+      fetchPolicy: "no-cache",
+    });
+    const user = userData?.currentUser;
+
     const { data: cancelReasonsData } = await client.query<
       ReservationCancelReasonsQuery,
       ReservationCancelReasonsQueryVariables
@@ -52,16 +72,21 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
       )
     );
 
-    // TODO check for null and return notFound
-    return {
-      props: {
-        ...commonProps,
-        ...(await serverSideTranslations(locale ?? "fi")),
-        key: `${pk}-cancel-{locale}`,
-        reservation: reservation ?? null,
-        reasons,
-      },
-    };
+    if (
+      reservation != null &&
+      user?.pk != null &&
+      reservation.user?.pk === user?.pk
+    ) {
+      return {
+        props: {
+          ...commonProps,
+          ...(await serverSideTranslations(locale ?? "fi")),
+          key: `${pk}-cancel-{locale}`,
+          reservation,
+          reasons,
+        },
+      };
+    }
   }
 
   return {
@@ -73,16 +98,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
       key: `${pk}-cancel-${locale}`,
     },
   };
-}
-
-function ReservationCancelPage(props: PropsNarrowed): JSX.Element {
-  // TODO can be removed if SSR returns notFound for nulls
-  const { reservation } = props;
-  if (reservation == null) {
-    return <Error statusCode={404} />;
-  }
-
-  return <ReservationCancellation {...props} reservation={reservation} />;
 }
 
 export default ReservationCancelPage;
