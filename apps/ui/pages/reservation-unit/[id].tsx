@@ -90,6 +90,7 @@ import EquipmentList from "@/components/reservation-unit/EquipmentList";
 import { JustForDesktop, JustForMobile } from "@/modules/style/layout";
 import {
   SLOTS_EVERY_HOUR,
+  generateSlotsFromSpans,
   getDurationOptions,
   getNewReservation,
   getSlotPropGetter,
@@ -140,7 +141,7 @@ type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
 
 type WeekOptions = "day" | "week" | "month";
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { params, query, locale } = ctx;
   const pk = Number(params?.id);
   const uuid = query.ru;
@@ -298,7 +299,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     },
     notFound: true,
   };
-};
+}
 
 const Columns = styled(TwoColumnLayout)`
   > div:first-of-type {
@@ -535,8 +536,11 @@ const ReservationUnit = ({
   const focusSlot: FocusTimeSlot = useMemo(() => {
     const start = focusDate;
     const end = addMinutes(start, durationValue);
+    const reservableTimeSpans = filterNonNullable(reservationUnit.reservableTimeSpans);
+    const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
     const isReservable = isReservationReservable({
       reservationUnit,
+      timeframes,
       activeApplicationRounds,
       start,
       end,
@@ -653,8 +657,11 @@ const ReservationUnit = ({
       const minEnd = addSeconds(start, minReservationDuration ?? 0);
       const newEnd = new Date(Math.max(end.getTime(), minEnd.getTime()));
 
+      const reservableTimeSpans = filterNonNullable(reservationUnit.reservableTimeSpans);
+      const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
       const isReservable = isReservationReservable({
         reservationUnit,
+        timeframes,
         activeApplicationRounds,
         start,
         end: newEnd,
@@ -665,16 +672,17 @@ const ReservationUnit = ({
         return false;
       }
 
+      console.log('Calendar EVENT: Moving the reservation')
       // Limit the duration to the max reservation duration
       // TODO should be replaced with a utility function that is properly named
-      const newReservation = getNewReservation({
+      const { begin } = getNewReservation({
         start,
         end: newEnd,
         reservationUnit,
       });
 
-      const newDate = toUIDate(new Date(newReservation.begin));
-      const newTime = getTimeString(new Date(newReservation.begin));
+      const newDate = toUIDate(begin);
+      const newTime = getTimeString(begin);
       setValue("date", newDate);
       setValue("time", newTime);
       setValue("duration", differenceInMinutes(end, start));
@@ -712,8 +720,11 @@ const ReservationUnit = ({
           ? addSeconds(start, reservationUnit?.minReservationDuration ?? 0)
           : new Date(end);
 
+      const reservableTimeSpans = filterNonNullable(reservationUnit.reservableTimeSpans);
+      const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
       const isReservable = isReservationReservable({
         reservationUnit,
+        timeframes,
         activeApplicationRounds,
         start,
         end: normalizedEnd,
@@ -723,14 +734,14 @@ const ReservationUnit = ({
         return false;
       }
 
-      const newReservation = getNewReservation({
+      const { begin } = getNewReservation({
         start: new Date(start),
         end: normalizedEnd,
         reservationUnit,
       });
 
-      const newDate = toUIDate(new Date(newReservation.begin));
-      const newTime = getTimeString(new Date(newReservation.begin));
+      const newDate = toUIDate(begin);
+      const newTime = getTimeString(begin);
       // click doesn't change the duration
       setValue("date", newDate);
       setValue("time", newTime);
@@ -761,8 +772,11 @@ const ReservationUnit = ({
       end,
       state: "INITIAL",
     };
+    const reservableTimeSpans = filterNonNullable(reservationUnit.reservableTimeSpans);
+    const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
     const isReservable = isReservationReservable({
       reservationUnit,
+      timeframes,
       activeApplicationRounds,
       start,
       end,

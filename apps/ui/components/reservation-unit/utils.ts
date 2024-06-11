@@ -12,6 +12,7 @@ import {
 import {
   type RoundPeriod,
   isReservationReservable,
+  generateSlotsFromSpans,
 } from "@/modules/reservation";
 
 function pickMaybeDay(
@@ -114,8 +115,11 @@ function getAvailableTimesForDay({
       const endDate = addMinutes(startDate, duration ?? 0);
       const startTime = new Date(start);
       startTime.setHours(timeHours, timeMinutes, 0, 0);
+      const reservableTimeSpans = filterNonNullable(spans);
+      const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
       const isReservable = isReservationReservable({
         reservationUnit,
+        timeframes,
         activeApplicationRounds,
         start: startDate,
         end: endDate,

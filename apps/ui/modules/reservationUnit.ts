@@ -22,6 +22,7 @@ import { filterNonNullable } from "common/src/helpers";
 import { capitalize, getDayIntervals, getTranslation } from "./util";
 import {
   RoundPeriod,
+  generateSlotsFromSpans,
   isReservationReservable,
   isSlotWithinReservationTime,
 } from "@/modules/reservation";
@@ -366,6 +367,7 @@ export function getPossibleTimesForDay(
   durationValue: number
 ): { label: string; value: string }[] {
   const allTimes: string[] = [];
+  console.log('getPossibleTimesForDay')
   filterNonNullable(reservableTimeSpans)
     .filter((x) => isInTimeSpan(date, x))
     .forEach((rts) => {
@@ -393,8 +395,11 @@ export function getPossibleTimesForDay(
       const [slotH, slotM] = span.split(":").map(Number);
       const slotDate = new Date(date);
       slotDate.setHours(slotH, slotM, 0, 0);
-      const isReservable = isReservationReservable({
+
+  const timeframes= generateSlotsFromSpans(filterNonNullable(reservableTimeSpans), slotDate);
+  const isReservable = isReservationReservable({
         reservationUnit,
+        timeframes,
         activeApplicationRounds,
         start: slotDate,
         end: addMinutes(slotDate, durationValue),

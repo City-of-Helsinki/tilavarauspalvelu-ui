@@ -22,6 +22,7 @@ import { filterNonNullable, getLocalizationLang } from "common/src/helpers";
 import {
   SLOTS_EVERY_HOUR,
   canReservationTimeBeChanged,
+  generateSlotsFromSpans,
   getDurationOptions,
   getNewReservation,
   getSlotPropGetter,
@@ -195,8 +196,11 @@ export function EditStep0({
   const isSlotAvailable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
       const resUnit = getWithoutThisReservation(reservationUnit, reservation);
+      const reservableTimeSpans = filterNonNullable(reservationUnit.reservableTimeSpans);
+      const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
       return isReservationReservable({
         reservationUnit: resUnit,
+        timeframes,
         activeApplicationRounds,
         start,
         end,
@@ -358,9 +362,9 @@ export function EditStep0({
         return false;
       }
 
-      const newReservation = getNewReservation({ start, end, reservationUnit });
-      const newDate = toUIDate(new Date(newReservation.begin));
-      const newTime = getTimeString(new Date(newReservation.begin));
+      const { begin } = getNewReservation({ start, end, reservationUnit });
+      const newDate = toUIDate(begin);
+      const newTime = getTimeString(begin);
       setValue("date", newDate, { shouldDirty: true });
       setValue("time", newTime, { shouldDirty: true });
       setValue("duration", differenceInMinutes(end, start), {
@@ -400,18 +404,19 @@ export function EditStep0({
           ? addSeconds(start, reservationUnit?.minReservationDuration ?? 0)
           : new Date(end);
 
-      const newReservation = getNewReservation({
+      const { begin } = getNewReservation({
         start,
         end: normalizedEnd,
         reservationUnit,
       });
 
+      // TODO why isn't this normalizedEnd?
       if (!isSlotAvailable(start, end, skipLengthCheck)) {
         return false;
       }
 
-      const newDate = toUIDate(new Date(newReservation.begin));
-      const newTime = getTimeString(new Date(newReservation.begin));
+      const newDate = toUIDate(new Date(begin));
+      const newTime = getTimeString(new Date(begin));
       // click doesn't change the duration
       setValue("date", newDate, { shouldDirty: true });
       setValue("time", newTime, { shouldDirty: true });
