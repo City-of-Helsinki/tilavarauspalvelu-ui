@@ -4,11 +4,6 @@ import { addMinutes, isAfter, isBefore, isSameDay, set } from "date-fns";
 import { i18n } from "next-i18next";
 import { toUIDate } from "common/src/common/util";
 import {
-  type RoundPeriod,
-  getDayIntervals,
-  isSlotWithinReservationTime,
-} from "common/src/calendar/util";
-import {
   ReservationUnitState,
   type ReservationUnitNode,
   State,
@@ -24,8 +19,12 @@ import {
   ReservationKind,
 } from "@gql/gql-types";
 import { filterNonNullable } from "common/src/helpers";
-import { capitalize, getTranslation } from "./util";
-import { isReservationReservable } from "@/modules/reservation";
+import { capitalize, getDayIntervals, getTranslation } from "./util";
+import {
+  RoundPeriod,
+  isReservationReservable,
+  isSlotWithinReservationTime,
+} from "@/modules/reservation";
 import { type PricingFieldsFragment } from "common/gql/gql-types";
 import { gql } from "@apollo/client";
 

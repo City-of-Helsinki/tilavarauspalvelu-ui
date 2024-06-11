@@ -9,8 +9,10 @@ import {
   getPossibleTimesForDay,
   isInTimeSpan,
 } from "@/modules/reservationUnit";
-import { isReservationReservable } from "@/modules/reservation";
-import type { RoundPeriod } from "common/src/calendar/util";
+import {
+  type RoundPeriod,
+  isReservationReservable,
+} from "@/modules/reservation";
 
 function pickMaybeDay(
   a: Date | undefined,

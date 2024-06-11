@@ -25,7 +25,7 @@ import {
   isReservationUnitPublished,
 } from "../reservationUnit";
 import mockTranslations from "../../public/locales/fi/prices.json";
-import { RoundPeriod } from "common/src/calendar/util";
+import { type RoundPeriod } from "../reservation";
 
 jest.mock("next-i18next", () => ({
   i18n: {

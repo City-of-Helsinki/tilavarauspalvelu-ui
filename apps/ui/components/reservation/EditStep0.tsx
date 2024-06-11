@@ -1,10 +1,5 @@
 import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
-import {
-  getEventBuffers,
-  getNewReservation,
-  getSlotPropGetter,
-  getTimeslots,
-} from "common/src/calendar/util";
+import { getEventBuffers } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
 import type { PendingReservation } from "common/types/common";
 import type {
@@ -25,8 +20,11 @@ import styled from "styled-components";
 import { Toolbar } from "common/src/calendar/Toolbar";
 import { filterNonNullable, getLocalizationLang } from "common/src/helpers";
 import {
+  SLOTS_EVERY_HOUR,
   canReservationTimeBeChanged,
   getDurationOptions,
+  getNewReservation,
+  getSlotPropGetter,
   isReservationReservable,
 } from "@/modules/reservation";
 import {
@@ -467,7 +465,7 @@ export function EditStep0({
               event?.state.toString() === "INITIAL"
             }
             step={30}
-            timeslots={getTimeslots(reservationUnit.reservationStartInterval)}
+            timeslots={SLOTS_EVERY_HOUR}
             culture={getLocalizationLang(i18n.language)}
             aria-hidden
             longPressThreshold={100}

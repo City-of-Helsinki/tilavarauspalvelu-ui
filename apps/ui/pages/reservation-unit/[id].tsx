@@ -26,13 +26,7 @@ import {
   toApiDate,
   toUIDate,
 } from "common/src/common/util";
-import {
-  getEventBuffers,
-  getNewReservation,
-  getSlotPropGetter,
-  getTimeslots,
-  isReservationStartInFuture,
-} from "common/src/calendar/util";
+import { getEventBuffers } from "common/src/calendar/util";
 import { Container, formatters as getFormatters } from "common";
 import { useLocalStorage, useMedia } from "react-use";
 import { breakpoints } from "common/src/common/style";
@@ -95,8 +89,12 @@ import {
 import EquipmentList from "@/components/reservation-unit/EquipmentList";
 import { JustForDesktop, JustForMobile } from "@/modules/style/layout";
 import {
+  SLOTS_EVERY_HOUR,
   getDurationOptions,
+  getNewReservation,
+  getSlotPropGetter,
   isReservationReservable,
+  isReservationStartInFuture,
 } from "@/modules/reservation";
 import SubventionSuffix from "@/components/reservation/SubventionSuffix";
 import InfoDialog from "@/components/common/InfoDialog";
@@ -1143,9 +1141,7 @@ const ReservationUnit = ({
                       event?.state?.toString() === "INITIAL"
                     }
                     step={30}
-                    timeslots={getTimeslots(
-                      reservationUnit.reservationStartInterval
-                    )}
+                    timeslots={SLOTS_EVERY_HOUR}
                     culture={getLocalizationLang(i18n.language)}
                     aria-hidden
                     longPressThreshold={100}
