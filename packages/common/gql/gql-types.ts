@@ -5715,6 +5715,9 @@ export type ApplicationQuery = {
     additionalInformation?: string | null;
     applicationRound: {
       id: string;
+      notesWhenApplyingFi?: string | null;
+      notesWhenApplyingEn?: string | null;
+      notesWhenApplyingSv?: string | null;
       pk?: number | null;
       nameFi?: string | null;
       nameSv?: string | null;
@@ -6430,6 +6433,9 @@ export const ApplicationDocument = gql`
       ...ApplicationCommon
       applicationRound {
         id
+        notesWhenApplyingFi
+        notesWhenApplyingEn
+        notesWhenApplyingSv
         termsOfUse {
           id
           ...TermsOfUseFields

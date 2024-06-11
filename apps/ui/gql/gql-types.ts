@@ -5477,6 +5477,9 @@ export type ApplicationsQuery = {
           criteriaFi?: string | null;
           criteriaEn?: string | null;
           criteriaSv?: string | null;
+          notesWhenApplyingFi?: string | null;
+          notesWhenApplyingEn?: string | null;
+          notesWhenApplyingSv?: string | null;
           reservationUnits: Array<{
             id: string;
             pk?: number | null;
@@ -5547,6 +5550,9 @@ export type ApplicationRoundFieldsFragment = {
   criteriaFi?: string | null;
   criteriaEn?: string | null;
   criteriaSv?: string | null;
+  notesWhenApplyingFi?: string | null;
+  notesWhenApplyingEn?: string | null;
+  notesWhenApplyingSv?: string | null;
   reservationUnits: Array<{
     id: string;
     pk?: number | null;
@@ -5600,6 +5606,9 @@ export type ApplicationRoundsUiQuery = {
         criteriaFi?: string | null;
         criteriaEn?: string | null;
         criteriaSv?: string | null;
+        notesWhenApplyingFi?: string | null;
+        notesWhenApplyingEn?: string | null;
+        notesWhenApplyingSv?: string | null;
         reservationUnits: Array<{
           id: string;
           pk?: number | null;
@@ -7331,6 +7340,9 @@ export type ApplicationQuery = {
     additionalInformation?: string | null;
     applicationRound: {
       id: string;
+      notesWhenApplyingFi?: string | null;
+      notesWhenApplyingEn?: string | null;
+      notesWhenApplyingSv?: string | null;
       pk?: number | null;
       nameFi?: string | null;
       nameSv?: string | null;
@@ -7705,6 +7717,9 @@ export const ApplicationRoundFieldsFragmentDoc = gql`
     criteriaFi
     criteriaEn
     criteriaSv
+    notesWhenApplyingFi
+    notesWhenApplyingEn
+    notesWhenApplyingSv
     reservationUnits {
       id
       pk
@@ -10380,6 +10395,9 @@ export const ApplicationDocument = gql`
       ...ApplicationCommon
       applicationRound {
         id
+        notesWhenApplyingFi
+        notesWhenApplyingEn
+        notesWhenApplyingSv
         termsOfUse {
           id
           ...TermsOfUseFields
