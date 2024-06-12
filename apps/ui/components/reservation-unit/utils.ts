@@ -1,18 +1,15 @@
 import { filterNonNullable } from "common/src/helpers";
 import { addDays, addMinutes, isAfter, isBefore, set } from "date-fns";
 import type {
-  ReservableTimeSpanType,
   ReservationUnitNode,
   ReservationUnitPageQuery,
 } from "@gql/gql-types";
-import {
-  getPossibleTimesForDay,
-  isInTimeSpan,
-} from "@/modules/reservationUnit";
+import { getPossibleTimesForDay } from "@/modules/reservationUnit";
 import {
   type RoundPeriod,
   isReservationReservable,
-  generateSlotsFromSpans,
+  ReservableMap,
+  dateToKey,
 } from "@/modules/reservation";
 
 function pickMaybeDay(
@@ -81,7 +78,7 @@ type AvailableTimesProps = {
   start: Date;
   duration: number;
   reservationUnit: QueryT;
-  slots: ReservableTimeSpanType[];
+  reservableTimes: ReservableMap;
   activeApplicationRounds: RoundPeriod[];
   fromStartOfDay?: boolean;
 };
@@ -92,16 +89,18 @@ function getAvailableTimesForDay({
   start,
   duration,
   reservationUnit,
+  reservableTimes,
   activeApplicationRounds,
 }: AvailableTimesProps): string[] {
-  if (!reservationUnit || !activeApplicationRounds) return [];
+  if (!reservationUnit || !activeApplicationRounds) {
+    return [];
+  }
   const [timeHours, timeMinutesRaw] = [0, 0];
 
   const timeMinutes = timeMinutesRaw > 59 ? 59 : timeMinutesRaw;
-  const { reservableTimeSpans: spans, reservationStartInterval: interval } =
-    reservationUnit;
+  const { reservationStartInterval: interval } = reservationUnit;
   return getPossibleTimesForDay(
-    spans,
+    reservableTimes,
     interval,
     start,
     reservationUnit,
@@ -115,11 +114,9 @@ function getAvailableTimesForDay({
       const endDate = addMinutes(startDate, duration ?? 0);
       const startTime = new Date(start);
       startTime.setHours(timeHours, timeMinutes, 0, 0);
-      const reservableTimeSpans = filterNonNullable(spans);
-      const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
       const isReservable = isReservationReservable({
         reservationUnit,
-        timeframes,
+        reservableTimes,
         activeApplicationRounds,
         start: startDate,
         end: endDate,
@@ -133,32 +130,25 @@ function getAvailableTimesForDay({
 
 // Returns the next available time, after the given time (Date object)
 export function getNextAvailableTime(props: AvailableTimesProps): Date | null {
-  const { start, reservationUnit } = props;
+  const { start, reservationUnit, reservableTimes } = props;
   if (reservationUnit == null) {
     return null;
   }
-  const {
-    reservableTimeSpans,
-    reservationsMinDaysBefore,
-    reservationsMaxDaysBefore,
-  } = reservationUnit;
+  const { reservationsMinDaysBefore, reservationsMaxDaysBefore } =
+    reservationUnit;
 
   const today = addDays(new Date(), reservationsMinDaysBefore ?? 0);
   const possibleEndDay = getLastPossibleReservationDate(reservationUnit);
   const endDay = possibleEndDay ? addDays(possibleEndDay, 1) : undefined;
   const minDay = dayMax([today, start]) ?? today;
   // Find the first possible day
-  const interval = filterNonNullable(reservableTimeSpans).find((x) =>
-    isInTimeSpan(minDay, x)
-  );
-
-  if (!interval?.startDatetime || !interval.endDatetime) {
+  // FIXME use the end date to iterate till we find a day
+  const openTimes = reservableTimes.get(dateToKey(minDay));
+  if (openTimes == null) {
     return null;
   }
-  if (endDay && endDay < new Date(interval.endDatetime) && endDay < minDay) {
-    return null;
-  }
-  const startDay = dayMax([new Date(interval.startDatetime), minDay]) ?? minDay;
+  const interval = openTimes[0];
+  const startDay = dayMax([new Date(interval.start), minDay]) ?? minDay;
 
   const daysToGenerate = reservationsMaxDaysBefore ?? 180;
   const days = Array.from({ length: daysToGenerate }, (_, i) =>

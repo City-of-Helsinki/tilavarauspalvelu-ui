@@ -22,7 +22,6 @@ import { filterNonNullable, getLocalizationLang } from "common/src/helpers";
 import {
   SLOTS_EVERY_HOUR,
   canReservationTimeBeChanged,
-  generateSlotsFromSpans,
   getDurationOptions,
   getNewReservation,
   getSlotPropGetter,
@@ -44,6 +43,7 @@ import { eventStyleGetter } from "@/components/common/calendarUtils";
 import { type UseFormReturn } from "react-hook-form";
 import { type PendingReservationFormType } from "@/components/reservation-unit/schema";
 import { fromUIDate, isValidDate, toUIDate } from "common/src/common/util";
+import { useReservableTimes } from "@/hooks/useReservableTimes";
 
 type QueryData = NonNullable<ListReservationsQuery["reservations"]>;
 type Node = NonNullable<
@@ -173,7 +173,6 @@ export function EditStep0({
   userReservations,
   activeApplicationRounds,
   reservationForm,
-  setErrorMsg,
   nextStep,
   isLoading,
 }: Props): JSX.Element {
@@ -192,34 +191,29 @@ export function EditStep0({
   const { isDirty } = formState;
 
   const [focusDate, setFocusDate] = useState<Date>(originalBegin);
+  const reservableTimes = useReservableTimes(reservationUnit);
 
   const isSlotAvailable = useCallback(
     (start: Date, end: Date, skipLengthCheck = false): boolean => {
       const resUnit = getWithoutThisReservation(reservationUnit, reservation);
-      const reservableTimeSpans = filterNonNullable(reservationUnit.reservableTimeSpans);
-      const timeframes = generateSlotsFromSpans(reservableTimeSpans, start);
       return isReservationReservable({
         reservationUnit: resUnit,
-        timeframes,
+        reservableTimes,
         activeApplicationRounds,
         start,
         end,
         skipLengthCheck,
       });
     },
-    [reservationUnit, reservation, activeApplicationRounds]
+    [reservationUnit, reservableTimes, reservation, activeApplicationRounds]
   );
 
   const durationOptions = getDurationOptions(reservationUnit, t);
 
-  const reservableTimeSpans = filterNonNullable(
-    reservationUnit?.reservableTimeSpans
-  );
-
   const duration =
     watch("duration") ?? differenceInMinutes(originalBegin, originalEnd);
   const startingTimeOptions = getPossibleTimesForDay(
-    reservableTimeSpans,
+    reservableTimes,
     reservationUnit?.reservationStartInterval,
     fromUIDate(watch("date") ?? "") ?? new Date(),
     reservationUnit,
@@ -299,7 +293,7 @@ export function EditStep0({
       return undefined;
     }
     return getSlotPropGetter({
-      reservableTimeSpans,
+      reservableTimes,
       activeApplicationRounds,
       reservationBegins: reservationUnit.reservationBegins
         ? new Date(reservationUnit.reservationBegins)
@@ -311,12 +305,7 @@ export function EditStep0({
       reservationsMaxDaysBefore: reservationUnit.reservationsMaxDaysBefore ?? 0,
       customValidation: (date) => isSlotFree(date),
     });
-  }, [
-    activeApplicationRounds,
-    reservationUnit,
-    isSlotFree,
-    reservableTimeSpans,
-  ]);
+  }, [activeApplicationRounds, reservationUnit, isSlotFree, reservableTimes]);
 
   // TODO submit should be completely unnecessary
   // just disable nextStep button if the form is invalid
@@ -338,17 +327,20 @@ export function EditStep0({
 
     const resUnit = getWithoutThisReservation(reservationUnit, reservation);
 
-    const [isNewReservationValid, validationError] =
-      canReservationTimeBeChanged({
-        reservation,
-        newReservation,
-        reservationUnit: resUnit,
-        activeApplicationRounds,
-      });
+    const isNewReservationValid = canReservationTimeBeChanged({
+      reservation,
+      newReservation,
+      reservableTimes,
+      reservationUnit: resUnit,
+      activeApplicationRounds,
+    });
 
+    /*
     if (validationError) {
       setErrorMsg(t(`reservations:modifyTimeReasons.${validationError}`));
-    } else if (isNewReservationValid) {
+    }
+    */
+    if (isNewReservationValid) {
       nextStep();
     }
   };
