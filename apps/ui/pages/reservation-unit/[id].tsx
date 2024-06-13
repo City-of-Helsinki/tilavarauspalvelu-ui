@@ -104,7 +104,6 @@ import {
   CalendarFooter,
   CalendarWrapper,
   Content,
-  Left,
   MapWrapper,
   PaddedContent,
   StyledNotification,
@@ -305,6 +304,12 @@ const Columns = styled(TwoColumnLayout)`
   > div:first-of-type {
     order: 1;
   }
+`;
+
+const RightColumn = styled.div`
+  display: flex;
+  gap: var(--spacing-l);
+  flex-direction: column;
 `;
 
 const EventWrapper = styled.div``;
@@ -1057,7 +1062,7 @@ const ReservationUnit = ({
       />
       <Container>
         <Columns>
-          <div>
+          <RightColumn>
             {!isReservationStartInFuture(reservationUnit) &&
               reservationUnitIsReservable && (
                 <QuickReservation
@@ -1076,8 +1081,8 @@ const ReservationUnit = ({
             <JustForDesktop customBreakpoint={breakpoints.l}>
               <AddressSection reservationUnit={reservationUnit} />
             </JustForDesktop>
-          </div>
-          <Left>
+          </RightColumn>
+          <div>
             <Subheading>{t("reservationUnit:description")}</Subheading>
             <Content data-testid="reservation-unit__description">
               <Sanitize html={getTranslation(reservationUnit, "description")} />
@@ -1302,7 +1307,7 @@ const ReservationUnit = ({
                 />
               </PaddedContent>
             </Accordion>
-          </Left>
+          </div>
         </Columns>
         <InfoDialog
           id="pricing-terms"
