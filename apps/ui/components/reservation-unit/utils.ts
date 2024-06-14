@@ -39,12 +39,14 @@ const dayMax = (days: Array<Date | undefined>): Date | undefined => {
   }, undefined);
 };
 
+type LastPossibleReservationDateProps = Pick<
+  ReservationUnitNode,
+  "reservationsMaxDaysBefore" | "reservableTimeSpans" | "reservationEnds"
+>;
+
 // Returns the last possible reservation date for the given reservation unit
 export function getLastPossibleReservationDate(
-  reservationUnit?: Pick<
-    ReservationUnitNode,
-    "reservationsMaxDaysBefore" | "reservableTimeSpans" | "reservationEnds"
-  >
+  reservationUnit?: LastPossibleReservationDateProps
 ): Date | null {
   if (!reservationUnit) {
     return null;
@@ -62,6 +64,7 @@ export function getLastPossibleReservationDate(
   const reservationUnitNotReservable = reservationEnds
     ? new Date(reservationEnds)
     : undefined;
+  // Why does this return now instead of null if there are no reservableTimeSpans?
   const endDateTime = reservableTimeSpans.at(-1)?.endDatetime ?? undefined;
   const lastOpeningDate = endDateTime ? new Date(endDateTime) : new Date();
   return (
