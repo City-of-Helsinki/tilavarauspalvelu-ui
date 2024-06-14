@@ -92,10 +92,9 @@ import {
   SLOTS_EVERY_HOUR,
   getDurationOptions,
   getNewReservation,
-  getSlotPropGetter,
-  isReservationReservable,
   isReservationStartInFuture,
 } from "@/modules/reservation";
+import { getSlotPropGetter, isRangeReservable } from "@/modules/reservable";
 import SubventionSuffix from "@/components/reservation/SubventionSuffix";
 import InfoDialog from "@/components/common/InfoDialog";
 import {
@@ -552,12 +551,14 @@ const ReservationUnit = ({
   const focusSlot: FocusTimeSlot = useMemo(() => {
     const start = focusDate;
     const end = addMinutes(start, durationValue);
-    const isReservable = isReservationReservable({
+    const isReservable = isRangeReservable({
+      range: {
+        start,
+        end,
+      },
       reservationUnit,
       reservableTimes,
       activeApplicationRounds,
-      start,
-      end,
       skipLengthCheck: false,
     });
 
@@ -674,12 +675,14 @@ const ReservationUnit = ({
       const minEnd = addSeconds(start, minReservationDuration ?? 0);
       const newEnd = new Date(Math.max(end.getTime(), minEnd.getTime()));
 
-      const isReservable = isReservationReservable({
+      const isReservable = isRangeReservable({
+        range: {
+          start,
+          end: newEnd,
+        },
         reservationUnit,
         reservableTimes,
         activeApplicationRounds,
-        start,
-        end: newEnd,
         skipLengthCheck: false,
       });
 
@@ -740,12 +743,14 @@ const ReservationUnit = ({
           ? addSeconds(start, reservationUnit?.minReservationDuration ?? 0)
           : new Date(end);
 
-      const isReservable = isReservationReservable({
+      const isReservable = isRangeReservable({
+        range: {
+          start,
+          end: normalizedEnd,
+        },
         reservationUnit,
         reservableTimes,
         activeApplicationRounds,
-        start,
-        end: normalizedEnd,
         skipLengthCheck: false,
       });
       if (!isReservable) {
@@ -791,12 +796,14 @@ const ReservationUnit = ({
       end,
       state: "INITIAL",
     };
-    const isReservable = isReservationReservable({
+    const isReservable = isRangeReservable({
+      range: {
+        start,
+        end,
+      },
       reservationUnit,
       reservableTimes,
       activeApplicationRounds,
-      start,
-      end,
       skipLengthCheck: false,
     });
 
