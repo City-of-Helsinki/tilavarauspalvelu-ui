@@ -344,6 +344,7 @@ export type ApplicationRoundNode = Node & {
   handledDate?: Maybe<Scalars["DateTime"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
+  isSettingHandledAllowed?: Maybe<Scalars["Boolean"]["output"]>;
   name: Scalars["String"]["output"];
   nameEn?: Maybe<Scalars["String"]["output"]>;
   nameFi?: Maybe<Scalars["String"]["output"]>;
@@ -356,6 +357,7 @@ export type ApplicationRoundNode = Node & {
   publicDisplayBegin: Scalars["DateTime"]["output"];
   publicDisplayEnd: Scalars["DateTime"]["output"];
   purposes: Array<ReservationPurposeNode>;
+  reservationCreationStatus?: Maybe<ApplicationRoundReservationCreationStatusChoice>;
   reservationPeriodBegin: Scalars["Date"]["output"];
   reservationPeriodEnd: Scalars["Date"]["output"];
   reservationUnitCount?: Maybe<Scalars["Int"]["output"]>;
@@ -449,6 +451,13 @@ export type ApplicationRoundNodeEdge = {
 export enum ApplicationRoundOrderingChoices {
   PkAsc = "pkAsc",
   PkDesc = "pkDesc",
+}
+
+/** An enumeration. */
+export enum ApplicationRoundReservationCreationStatusChoice {
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  NotCompleted = "NOT_COMPLETED",
 }
 
 /** An enumeration. */
@@ -612,10 +621,9 @@ export enum ApplicationSectionOrderingChoices {
 
 /** An enumeration. */
 export enum ApplicationSectionStatusChoice {
-  Failed = "FAILED",
   Handled = "HANDLED",
   InAllocation = "IN_ALLOCATION",
-  Reserved = "RESERVED",
+  Rejected = "REJECTED",
   Unallocated = "UNALLOCATED",
 }
 
@@ -1751,7 +1759,6 @@ export type PurposeNode = Node & {
   nameFi?: Maybe<Scalars["String"]["output"]>;
   nameSv?: Maybe<Scalars["String"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Järjestysnumero, jota käytetään rajapinnan järjestämisessä. */
   rank?: Maybe<Scalars["Int"]["output"]>;
   smallUrl?: Maybe<Scalars["String"]["output"]>;
 };
@@ -1863,6 +1870,8 @@ export type Query = {
   qualifiers?: Maybe<QualifierNodeConnection>;
   recurringReservation?: Maybe<RecurringReservationNode>;
   recurringReservations?: Maybe<RecurringReservationNodeConnection>;
+  rejectedOccurrence?: Maybe<RejectedOccurrenceNode>;
+  rejectedOccurrences?: Maybe<RejectedOccurrenceNodeConnection>;
   reservation?: Maybe<ReservationNode>;
   reservationCancelReasons?: Maybe<ReservationCancelReasonNodeConnection>;
   reservationDenyReasons?: Maybe<ReservationDenyReasonNodeConnection>;
@@ -1880,6 +1889,7 @@ export type Query = {
   taxPercentages?: Maybe<TaxPercentageNodeConnection>;
   termsOfUse?: Maybe<TermsOfUseNodeConnection>;
   unit?: Maybe<UnitNode>;
+  unitGroups?: Maybe<UnitGroupNodeConnection>;
   units?: Maybe<UnitNodeConnection>;
   user?: Maybe<UserNode>;
 };
@@ -2185,6 +2195,25 @@ export type QueryRecurringReservationsArgs = {
   user?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
+export type QueryRejectedOccurrenceArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type QueryRejectedOccurrencesArgs = {
+  after?: InputMaybe<Scalars["String"]["input"]>;
+  applicationRound?: InputMaybe<Scalars["Int"]["input"]>;
+  before?: InputMaybe<Scalars["String"]["input"]>;
+  first?: InputMaybe<Scalars["Int"]["input"]>;
+  last?: InputMaybe<Scalars["Int"]["input"]>;
+  offset?: InputMaybe<Scalars["Int"]["input"]>;
+  orderBy?: InputMaybe<Array<InputMaybe<RejectedOccurrenceOrderingChoices>>>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
+  recurringReservation?: InputMaybe<Scalars["Int"]["input"]>;
+  reservationUnit?: InputMaybe<Scalars["Int"]["input"]>;
+  textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  unit?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type QueryReservationArgs = {
   id: Scalars["ID"]["input"];
 };
@@ -2431,6 +2460,14 @@ export type QueryUnitArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type QueryUnitGroupsArgs = {
+  after?: InputMaybe<Scalars["String"]["input"]>;
+  before?: InputMaybe<Scalars["String"]["input"]>;
+  first?: InputMaybe<Scalars["Int"]["input"]>;
+  last?: InputMaybe<Scalars["Int"]["input"]>;
+  offset?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type QueryUnitsArgs = {
   after?: InputMaybe<Scalars["String"]["input"]>;
   before?: InputMaybe<Scalars["String"]["input"]>;
@@ -2493,6 +2530,7 @@ export type RecurringReservationCreateMutationPayload = {
 export type RecurringReservationNode = Node & {
   abilityGroup?: Maybe<AbilityGroupNode>;
   ageGroup?: Maybe<AgeGroupNode>;
+  allocatedTimeSlot?: Maybe<AllocatedTimeSlotNode>;
   beginDate?: Maybe<Scalars["Date"]["output"]>;
   beginTime?: Maybe<Scalars["Time"]["output"]>;
   created: Scalars["DateTime"]["output"];
@@ -2504,10 +2542,21 @@ export type RecurringReservationNode = Node & {
   name: Scalars["String"]["output"];
   pk?: Maybe<Scalars["Int"]["output"]>;
   recurrenceInDays?: Maybe<Scalars["Int"]["output"]>;
+  rejectedOccurrences: Array<RejectedOccurrenceNode>;
   reservationUnit: ReservationUnitNode;
   reservations: Array<ReservationNode>;
   user?: Maybe<UserNode>;
   weekdays?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
+};
+
+export type RecurringReservationNodeRejectedOccurrencesArgs = {
+  applicationRound?: InputMaybe<Scalars["Int"]["input"]>;
+  orderBy?: InputMaybe<Array<InputMaybe<RejectedOccurrenceOrderingChoices>>>;
+  pk?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
+  recurringReservation?: InputMaybe<Scalars["Int"]["input"]>;
+  reservationUnit?: InputMaybe<Scalars["Int"]["input"]>;
+  textSearch?: InputMaybe<Scalars["String"]["input"]>;
+  unit?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type RecurringReservationNodeReservationsArgs = {
@@ -2637,6 +2686,67 @@ export type RejectAllSectionOptionsMutationInput = {
 export type RejectAllSectionOptionsMutationPayload = {
   pk?: Maybe<Scalars["Int"]["output"]>;
 };
+
+export type RejectedOccurrenceNode = Node & {
+  beginDatetime: Scalars["DateTime"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  endDatetime: Scalars["DateTime"]["output"];
+  /** The ID of the object */
+  id: Scalars["ID"]["output"];
+  pk?: Maybe<Scalars["Int"]["output"]>;
+  recurringReservation: RecurringReservationNode;
+  rejectionReason: RejectionReadinessChoice;
+};
+
+export type RejectedOccurrenceNodeConnection = {
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<RejectedOccurrenceNodeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars["Int"]["output"]>;
+};
+
+/** A Relay edge containing a `RejectedOccurrenceNode` and its cursor. */
+export type RejectedOccurrenceNodeEdge = {
+  /** A cursor for use in pagination */
+  cursor: Scalars["String"]["output"];
+  /** The item at the end of the edge */
+  node?: Maybe<RejectedOccurrenceNode>;
+};
+
+/** Ordering fields for the 'RejectedOccurrence' model. */
+export enum RejectedOccurrenceOrderingChoices {
+  ApplicantAsc = "applicantAsc",
+  ApplicantDesc = "applicantDesc",
+  ApplicationPkAsc = "applicationPkAsc",
+  ApplicationPkDesc = "applicationPkDesc",
+  ApplicationSectionNameAsc = "applicationSectionNameAsc",
+  ApplicationSectionNameDesc = "applicationSectionNameDesc",
+  ApplicationSectionPkAsc = "applicationSectionPkAsc",
+  ApplicationSectionPkDesc = "applicationSectionPkDesc",
+  BeginDatetimeAsc = "beginDatetimeAsc",
+  BeginDatetimeDesc = "beginDatetimeDesc",
+  EndDatetimeAsc = "endDatetimeAsc",
+  EndDatetimeDesc = "endDatetimeDesc",
+  PkAsc = "pkAsc",
+  PkDesc = "pkDesc",
+  RejectionReasonAsc = "rejectionReasonAsc",
+  RejectionReasonDesc = "rejectionReasonDesc",
+  ReservationUnitPkAsc = "reservationUnitPkAsc",
+  ReservationUnitPkDesc = "reservationUnitPkDesc",
+  UnitPkAsc = "unitPkAsc",
+  UnitPkDesc = "unitPkDesc",
+}
+
+/** An enumeration. */
+export enum RejectionReadinessChoice {
+  /** Aloitusaika ei sallittu */
+  IntervalNotAllowed = "INTERVAL_NOT_ALLOWED",
+  /** Päällekkäisiä varauksia */
+  OverlappingReservations = "OVERLAPPING_RESERVATIONS",
+  /** Varausyksikkö suljettu */
+  ReservationUnitClosed = "RESERVATION_UNIT_CLOSED",
+}
 
 export type ReservableTimeSpanType = {
   endDatetime?: Maybe<Scalars["DateTime"]["output"]>;
@@ -2973,13 +3083,16 @@ export type ReservationNode = Node & {
   isHandled?: Maybe<Scalars["Boolean"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
   numPersons?: Maybe<Scalars["Int"]["output"]>;
+  /** @deprecated Please use to 'paymentOrder' instead. */
   order?: Maybe<PaymentOrderNode>;
+  /** Reservation this order is based on */
+  paymentOrder: Array<PaymentOrderNode>;
   pk?: Maybe<Scalars["Int"]["output"]>;
   price?: Maybe<Scalars["Decimal"]["output"]>;
   priceNet?: Maybe<Scalars["Decimal"]["output"]>;
   purpose?: Maybe<ReservationPurposeNode>;
   recurringReservation?: Maybe<RecurringReservationNode>;
-  reservationUnit?: Maybe<Array<ReservationUnitNode>>;
+  reservationUnit: Array<ReservationUnitNode>;
   reserveeAddressCity?: Maybe<Scalars["String"]["output"]>;
   reserveeAddressStreet?: Maybe<Scalars["String"]["output"]>;
   reserveeAddressZip?: Maybe<Scalars["String"]["output"]>;
@@ -2992,7 +3105,7 @@ export type ReservationNode = Node & {
   reserveeOrganisationName?: Maybe<Scalars["String"]["output"]>;
   reserveePhone?: Maybe<Scalars["String"]["output"]>;
   reserveeType?: Maybe<CustomerTypeChoice>;
-  /** @deprecated Please refer to type. */
+  /** @deprecated Please use to 'type' instead. */
   staffEvent?: Maybe<Scalars["Boolean"]["output"]>;
   state: State;
   taxPercentageValue?: Maybe<Scalars["Decimal"]["output"]>;
@@ -4907,6 +5020,22 @@ export type UnitGroupNodeUnitsArgs = {
   serviceSector?: InputMaybe<Scalars["Decimal"]["input"]>;
 };
 
+export type UnitGroupNodeConnection = {
+  /** Contains the nodes in this connection. */
+  edges: Array<Maybe<UnitGroupNodeEdge>>;
+  /** Pagination data for this connection. */
+  pageInfo: PageInfo;
+  totalCount?: Maybe<Scalars["Int"]["output"]>;
+};
+
+/** A Relay edge containing a `UnitGroupNode` and its cursor. */
+export type UnitGroupNodeEdge = {
+  /** A cursor for use in pagination */
+  cursor: Scalars["String"]["output"];
+  /** The item at the end of the edge */
+  node?: Maybe<UnitGroupNode>;
+};
+
 export type UnitNode = Node & {
   description: Scalars["String"]["output"];
   descriptionEn?: Maybe<Scalars["String"]["output"]>;
@@ -4931,6 +5060,7 @@ export type UnitNode = Node & {
   shortDescriptionSv?: Maybe<Scalars["String"]["output"]>;
   spaces: Array<SpaceNode>;
   tprekId?: Maybe<Scalars["String"]["output"]>;
+  unitGroups: Array<UnitGroupNode>;
   webPage: Scalars["String"]["output"];
 };
 
@@ -5032,6 +5162,10 @@ export enum UnitOrderingChoices {
   RankDesc = "rankDesc",
   ReservationCountAsc = "reservationCountAsc",
   ReservationCountDesc = "reservationCountDesc",
+  ReservationUnitsCountAsc = "reservationUnitsCountAsc",
+  ReservationUnitsCountDesc = "reservationUnitsCountDesc",
+  UnitGroupNameAsc = "unitGroupNameAsc",
+  UnitGroupNameDesc = "unitGroupNameDesc",
 }
 
 /** An enumeration. */
@@ -6819,7 +6953,7 @@ export type ReservationUnitsByUnitQuery = {
         reserveeName?: string | null;
         bufferTimeBefore: number;
         bufferTimeAfter: number;
-        reservationUnit?: Array<{
+        reservationUnit: Array<{
           id: string;
           pk?: number | null;
           nameFi?: string | null;
@@ -6830,7 +6964,7 @@ export type ReservationUnitsByUnitQuery = {
             pk?: number | null;
             serviceSectors: Array<{ id: string; pk?: number | null }>;
           } | null;
-        }> | null;
+        }>;
         user?: {
           id: string;
           firstName: string;
@@ -6859,7 +6993,7 @@ export type ReservationUnitsByUnitQuery = {
     reserveeName?: string | null;
     bufferTimeBefore: number;
     bufferTimeAfter: number;
-    reservationUnit?: Array<{
+    reservationUnit: Array<{
       id: string;
       pk?: number | null;
       nameFi?: string | null;
@@ -6870,7 +7004,7 @@ export type ReservationUnitsByUnitQuery = {
         pk?: number | null;
         serviceSectors: Array<{ id: string; pk?: number | null }>;
       } | null;
-    }> | null;
+    }>;
     user?: {
       id: string;
       firstName: string;
@@ -6988,7 +7122,7 @@ export type ReservationUnitCalendarQuery = {
       reserveeName?: string | null;
       bufferTimeBefore: number;
       bufferTimeAfter: number;
-      reservationUnit?: Array<{
+      reservationUnit: Array<{
         id: string;
         pk?: number | null;
         nameFi?: string | null;
@@ -6999,7 +7133,7 @@ export type ReservationUnitCalendarQuery = {
           pk?: number | null;
           serviceSectors: Array<{ id: string; pk?: number | null }>;
         } | null;
-      }> | null;
+      }>;
       user?: {
         id: string;
         firstName: string;
@@ -7027,7 +7161,7 @@ export type ReservationUnitCalendarQuery = {
     reserveeName?: string | null;
     bufferTimeBefore: number;
     bufferTimeAfter: number;
-    reservationUnit?: Array<{
+    reservationUnit: Array<{
       id: string;
       pk?: number | null;
       nameFi?: string | null;
@@ -7038,7 +7172,7 @@ export type ReservationUnitCalendarQuery = {
         pk?: number | null;
         serviceSectors: Array<{ id: string; pk?: number | null }>;
       } | null;
-    }> | null;
+    }>;
     user?: {
       id: string;
       firstName: string;
@@ -7255,7 +7389,7 @@ export type ReservationUnitReservationsFragment = {
   reserveeName?: string | null;
   bufferTimeBefore: number;
   bufferTimeAfter: number;
-  reservationUnit?: Array<{
+  reservationUnit: Array<{
     id: string;
     pk?: number | null;
     nameFi?: string | null;
@@ -7266,7 +7400,7 @@ export type ReservationUnitReservationsFragment = {
       pk?: number | null;
       serviceSectors: Array<{ id: string; pk?: number | null }>;
     } | null;
-  }> | null;
+  }>;
   user?: {
     id: string;
     firstName: string;
@@ -7347,11 +7481,11 @@ export type ReservationsQuery = {
         reserveeName?: string | null;
         bufferTimeBefore: number;
         bufferTimeAfter: number;
-        reservationUnit?: Array<{
+        reservationUnit: Array<{
           id: string;
           nameFi?: string | null;
           unit?: { id: string; nameFi?: string | null } | null;
-        }> | null;
+        }>;
         order?: { id: string; status?: OrderStatus | null } | null;
         user?: { id: string; firstName: string; lastName: string } | null;
       } | null;
@@ -7535,7 +7669,7 @@ export type ReservationQuery = {
     billingAddressStreet?: string | null;
     billingAddressCity?: string | null;
     billingAddressZip?: string | null;
-    reservationUnit?: Array<{
+    reservationUnit: Array<{
       id: string;
       pk?: number | null;
       nameFi?: string | null;
@@ -7591,7 +7725,7 @@ export type ReservationQuery = {
         requiredFields: Array<{ id: string; fieldName: string }>;
         supportedFields: Array<{ id: string; fieldName: string }>;
       } | null;
-    }> | null;
+    }>;
     order?: {
       id: string;
       status?: OrderStatus | null;
@@ -7648,7 +7782,7 @@ export type RecurringReservationQuery = {
       begin: string;
       end: string;
       state: State;
-      reservationUnit?: Array<{ id: string; pk?: number | null }> | null;
+      reservationUnit: Array<{ id: string; pk?: number | null }>;
     }>;
   } | null;
 };
