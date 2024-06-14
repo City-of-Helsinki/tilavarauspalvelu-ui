@@ -2,7 +2,11 @@ import { formatters as getFormatters, getReservationVolume } from "common";
 import { flatten, trim, uniq } from "lodash";
 import { addMinutes, isAfter, isBefore, isSameDay, set } from "date-fns";
 import { i18n } from "next-i18next";
-import { toUIDate } from "common/src/common/util";
+import {
+  convertLanguageCode,
+  getTranslationSafe,
+  toUIDate,
+} from "common/src/common/util";
 import {
   type RoundPeriod,
   getDayIntervals,
@@ -137,20 +141,15 @@ export function getReservationUnitName(
 
 export function getUnitName(
   unit?: Pick<UnitNode, "nameFi" | "nameSv" | "nameEn"> | null,
-  language: string = i18n?.language ?? "fi"
+  locale: string = i18n?.language ?? "fi"
 ): string | undefined {
   if (unit == null) {
     return undefined;
   }
-  const key = `name${capitalize(language)}`;
-  if (key in unit) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- silly magic to avoid implicit any type
-    const val: unknown = (unit as any)[key];
-    if (typeof val === "string" && val.length > 0) {
-      return val;
-    }
-  }
-  return unit.nameFi ?? "-";
+  return (
+    getTranslationSafe(unit, "name", convertLanguageCode(locale ?? "")) ??
+    undefined
+  );
 }
 
 export function getReservationUnitInstructionsKey(state: State): string | null {
