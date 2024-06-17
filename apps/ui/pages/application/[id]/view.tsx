@@ -15,9 +15,17 @@ import {
   getGenericTerms,
 } from "@/modules/serverUtils";
 import { base64encode } from "common/src/helpers";
-import { useApplicationQuery } from "@/gql/gql-types";
+import {
+  CurrentUserDocument,
+  type CurrentUserQuery,
+  useApplicationQuery,
+} from "@/gql/gql-types";
+import { ApplicationDocument } from "common/gql/gql-types";
 
-const View = ({ id: pk, tos }: Props): JSX.Element => {
+type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
+type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
+
+const View = ({ id: pk, tos }: PropsNarrowed): JSX.Element => {
   const { t } = useTranslation();
 
   const router = useRouter();
@@ -68,8 +76,6 @@ const View = ({ id: pk, tos }: Props): JSX.Element => {
   );
 };
 
-type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
-
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { locale } = ctx;
   const commonProps = getCommonServerSideProps();
@@ -83,12 +89,43 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const pkstring = Array.isArray(id) ? id[0] : id;
   const pk = Number.isNaN(Number(pkstring)) ? undefined : Number(pkstring);
 
+  const { data: applicationData, error } = await apolloClient.query({
+    query: ApplicationDocument,
+    variables: { id: base64encode(`ApplicationNode:${pk}`) },
+    fetchPolicy: "no-cache",
+  });
+
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error("Error while fetching application", error);
+  }
+
+  const { data: userData } = await apolloClient.query<CurrentUserQuery>({
+    query: CurrentUserDocument,
+    fetchPolicy: "no-cache",
+  });
+
+  const { currentUser: user } = userData ?? {};
+  const { application } = applicationData ?? {};
+
+  if (application != null && user != null && application.user?.pk === user.pk) {
+    return {
+      props: {
+        ...commonProps,
+        key: locale ?? "fi",
+        id: pk ?? null,
+        tos,
+        ...(await serverSideTranslations(locale ?? "fi")),
+      },
+    };
+  }
+
   return {
+    notFound: true,
     props: {
+      // have to double up notFound inside the props to get TS types dynamically
+      notFound: true,
       ...commonProps,
-      key: locale ?? "fi",
-      id: pk ?? null,
-      tos,
       ...(await serverSideTranslations(locale ?? "fi")),
     },
   };
