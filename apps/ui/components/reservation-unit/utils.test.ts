@@ -1,10 +1,11 @@
-import { addDays } from "date-fns";
+import { addDays, format, set } from "date-fns";
 import { getLastPossibleReservationDate, getNextAvailableTime } from "./utils";
 import {
   ReservationKind,
   ReservationStartInterval,
 } from "common/gql/gql-types";
 import { ReservationUnitPageQuery } from "@/gql/gql-types";
+import { ReservableMap } from "@/modules/reservable";
 
 describe("getLastPossibleReservationDate", () => {
   test("returns null if no reservationUnit is given", () => {
@@ -94,6 +95,9 @@ const reservationUnit: ReservationUnitPageQuery["reservationUnit"] = {
   pricings: [],
 };
 
+function constructDate(d: Date, hours: number, minutes: number) {
+  return set(d, { hours, minutes, seconds: 0, milliseconds: 0 });
+}
 // Rules for writing tests:
 // 1. default data for happy path, progressively modify it for other cases
 // 2. only modify one thing at a time
@@ -102,9 +106,37 @@ const reservationUnit: ReservationUnitPageQuery["reservationUnit"] = {
 // More important when testing error cases.
 // Alternative would be to refactor and reduce inputs to the function.
 // e.g. this is not necessary for a function that takes 2 - 3 parameters.
+/* eslint-disable @typescript-eslint/no-non-null-assertion -- expect breaks on null */
 describe("getNextAvailableTime", () => {
+  beforeAll(() => {
+    jest.useFakeTimers({
+      // There is some weird time zone issues (this seems to work)
+      now: new Date(2024, 0, 1, 9, 0, 0),
+    });
+  });
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+  let reservableTimes: ReservableMap;
+  beforeEach(() => {
+    const today = new Date();
+    reservableTimes = new Map();
+    reservableTimes.set(format(today, "yyyy-MM-dd"), [
+      { start: constructDate(today, 11, 0), end: constructDate(today, 12, 0) },
+      { start: constructDate(today, 13, 0), end: constructDate(today, 15, 0) },
+      { start: constructDate(today, 16, 0), end: constructDate(today, 17, 0) },
+      { start: constructDate(today, 18, 0), end: constructDate(today, 20, 0) },
+    ]);
+    reservableTimes.set(format(addDays(today, 1), "yyyy-MM-dd"), [
+      {
+        start: constructDate(addDays(today, 1), 10, 0),
+        end: constructDate(addDays(today, 1), 15, 0),
+      },
+    ]);
+  });
+
   test("finds the next available time for today", () => {
-    const reservableTimes = new Map();
+    const today = new Date();
     const input = {
       start: new Date(),
       duration: 60,
@@ -116,23 +148,181 @@ describe("getNextAvailableTime", () => {
     };
     const val = getNextAvailableTime(input);
     expect(val).toBeInstanceOf(Date);
+    expect(val!.getDate()).toBe(today.getDate());
+    expect(val!.getHours()).toBe(11);
   });
+
   // there is earlier times available but they are too short
-  test.todo("finds the correct length time today");
-  // today is reservable, has available times but they are too short
-  test.todo("finds the correct length time tomorrow");
-  test.todo("finds no available times if the duration is too long");
-  // if minReservableDays before is 7
-  describe("reservationsMinDaysBefore check", () => {
-    test.todo("finds the next available time a week from now");
-    test.todo(
-      "NO times if times are only available after reservationsMinDaysBefore"
-    );
+  test("finds the first long enough time today", () => {
+    const today = new Date();
+    const input = {
+      start: new Date(),
+      duration: 90,
+      reservationUnit: {
+        ...reservationUnit,
+      },
+      reservableTimes,
+      activeApplicationRounds: [],
+    };
+    const val = getNextAvailableTime(input);
+    expect(val).toBeInstanceOf(Date);
+    expect(val!.getHours()).toBe(13);
+    expect(val!.getDate()).toBe(today.getDate());
   });
+
+  // today is reservable, has available times but they are too short
+  test("looking for tomorrow finds the correct length time", () => {
+    const input = {
+      start: addDays(new Date(), 1),
+      duration: 90,
+      reservationUnit: {
+        ...reservationUnit,
+      },
+      reservableTimes,
+      activeApplicationRounds: [],
+    };
+    const val = getNextAvailableTime(input);
+    expect(val).toBeInstanceOf(Date);
+    expect(val!.getHours()).toBe(10);
+    expect(val!.getDate()).toBe(addDays(new Date(), 1).getDate());
+  });
+
+  test("finds the next available time tomorrow when today has too short times", () => {
+    const input = {
+      start: new Date(),
+      duration: 300,
+      reservationUnit: {
+        ...reservationUnit,
+      },
+      reservableTimes,
+      activeApplicationRounds: [],
+    };
+    const val = getNextAvailableTime(input);
+    expect(val).toBeInstanceOf(Date);
+    expect(val!.getHours()).toBe(10);
+    expect(val!.getDate()).toBe(addDays(new Date(), 1).getDate());
+  });
+
+  test("finds no available times if the duration is too long", () => {
+    const today = new Date();
+    const shortTimes = reservableTimes.get(format(today, "yyyy-MM-dd"));
+    if (!shortTimes) {
+      throw new Error("Mock data broken");
+    }
+    for (const i of [0, 1, 2, 3, 4, 5]) {
+      reservableTimes.set(
+        format(addDays(new Date(), i), "yyyy-MM-dd"),
+        shortTimes
+      );
+    }
+    const input = {
+      start: new Date(),
+      duration: 160,
+      reservationUnit: {
+        ...reservationUnit,
+      },
+      reservableTimes,
+      activeApplicationRounds: [],
+    };
+    const val = getNextAvailableTime(input);
+    expect(val).toBeNull();
+  });
+
+  test("Finds a date even if there are empty ranges before it", () => {
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      reservableTimes.set(format(addDays(today, i), "yyyy-MM-dd"), []);
+    }
+    reservableTimes.set(format(addDays(today, 7), "yyyy-MM-dd"), [
+      {
+        start: constructDate(addDays(today, 7), 10, 0),
+        end: constructDate(addDays(today, 7), 15, 0),
+      },
+    ]);
+    const input = {
+      start: new Date(),
+      duration: 30,
+      reservationUnit: {
+        ...reservationUnit,
+      },
+      reservableTimes,
+      activeApplicationRounds: [],
+    };
+    const val = getNextAvailableTime(input);
+    expect(val).toBeInstanceOf(Date);
+    expect(val!.getDate()).toBe(addDays(today, 7).getDate());
+    expect(val!.getHours()).toBe(10);
+  });
+
+  describe("reservationsMinDaysBefore check", () => {
+    test("finds the next available time a week from now", () => {
+      const today = new Date();
+      for (let i = 0; i < 2 * 7; i++) {
+        reservableTimes.set(format(addDays(today, i), "yyyy-MM-dd"), [
+          {
+            start: constructDate(addDays(today, i), 10, 0),
+            end: constructDate(addDays(today, i), 15, 0),
+          },
+        ]);
+      }
+      const input = {
+        start: new Date(),
+        duration: 60,
+        reservationUnit: {
+          ...reservationUnit,
+          reservationsMinDaysBefore: 7,
+        },
+        reservableTimes,
+        activeApplicationRounds: [],
+      };
+      const val = getNextAvailableTime(input);
+      expect(val).toBeInstanceOf(Date);
+      expect(val!.getDate()).toBe(addDays(today, 7).getDate());
+      expect(val!.getHours()).toBe(10);
+    });
+
+    test("NO times if times are only available before reservationsMinDaysBefore", () => {
+      const today = new Date();
+      for (let i = 0; i < 7; i++) {
+        reservableTimes.set(format(addDays(today, i), "yyyy-MM-dd"), [
+          {
+            start: constructDate(addDays(today, i), 10, 0),
+            end: constructDate(addDays(today, i), 15, 0),
+          },
+        ]);
+      }
+      const input = {
+        start: new Date(),
+        duration: 60,
+        reservationUnit: {
+          ...reservationUnit,
+          reservationsMinDaysBefore: 7,
+        },
+        reservableTimes,
+        activeApplicationRounds: [],
+      };
+      const val = getNextAvailableTime(input);
+      expect(val).toBeNull();
+    });
+  });
+
   describe("reservationsMaxDaysBefore check", () => {
-    // FIXME use the end date to iterate till we find a day
-    test.todo(
-      "NO times if times are only available after reservationsMaxDaysBefore"
-    );
+    test("NO times if times are only available after reservationsMaxDaysBefore", () => {
+      const today = new Date();
+      reservableTimes.set(format(today, "yyyy-MM-dd"), []);
+      const input = {
+        start: new Date(),
+        duration: 30,
+        reservationUnit: {
+          ...reservationUnit,
+          reservationsMaxDaysBefore: 1,
+        },
+        reservableTimes,
+        activeApplicationRounds: [],
+      };
+      const val = getNextAvailableTime(input);
+      expect(val).toBeNull();
+    });
   });
 });
+/* eslint-enable @typescript-eslint/no-non-null-assertion */
