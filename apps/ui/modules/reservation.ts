@@ -366,7 +366,6 @@ export function canReservationTimeBeChanged({
     reservationUnit,
     reservableTimes,
     activeApplicationRounds,
-    skipLengthCheck: false,
   });
 }
 
