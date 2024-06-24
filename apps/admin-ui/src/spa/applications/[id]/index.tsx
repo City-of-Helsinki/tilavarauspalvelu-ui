@@ -17,7 +17,10 @@ import { type TFunction } from "i18next";
 import { H2, H4, H5, Strong } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import { base64encode, filterNonNullable } from "common/src/helpers";
-import { getValidationErrors } from "common/src/apolloUtils";
+import {
+  getPermissionErrors,
+  getValidationErrors,
+} from "common/src/apolloUtils";
 import {
   ApplicationStatusChoice,
   ApplicantTypeChoice,
@@ -51,6 +54,8 @@ import { ValueBox } from "../ValueBox";
 import { TimeSelector } from "../TimeSelector";
 import { getApplicantName, getApplicationStatusColor } from "@/helpers";
 import Error404 from "@/common/Error404";
+import usePermission from "@/hooks/usePermission";
+import { Permission } from "@/modules/permissionHelper";
 
 type ApplicationType = NonNullable<ApplicationAdminQuery["application"]>;
 type ApplicationSectionType = NonNullable<
@@ -237,6 +242,9 @@ const ApplicationSectionsContainer = styled.div`
     align-items: center;
     padding-left: 1rem;
 
+    /* when the button is hidden the row should still have the same height */
+    min-height: 46px;
+
     /* responsive shinanigans the tag takes too much space */
     :nth-child(4) {
       display: none;
@@ -356,7 +364,7 @@ function RejectOptionButton({
   refetch: () => Promise<ApolloQueryResult<ApplicationAdminQuery>>;
 }) {
   const [mutation, { loading }] = useRejectRestMutation();
-
+  const { hasUnitPermission } = usePermission();
   const { notifyError } = useNotification();
   const { t } = useTranslation();
 
@@ -379,7 +387,9 @@ function RejectOptionButton({
       refetch();
     } catch (err) {
       const mutationErrors = getValidationErrors(err);
-      if (mutationErrors.length > 0) {
+      if (getPermissionErrors(err).length > 0) {
+        notifyError(t("errors.noPermission"));
+      } else if (mutationErrors.length > 0) {
         // TODO handle other codes also
         const isInvalidState = mutationErrors.find(
           (e) => e.code === "invalid" && e.field === "rejected"
@@ -393,6 +403,7 @@ function RejectOptionButton({
           notifyError(t("errors.formValidationError", { message }));
         }
       } else {
+        // TODO this translation is missing
         notifyError(t("errors.errorRejectingOption"));
       }
     }
@@ -414,10 +425,19 @@ function RejectOptionButton({
     console.warn("no allocatedTimeSlots", option);
   }
 
+  const hasPerms = hasUnitPermission(
+    Permission.CAN_MANAGE_APPLICATIONS,
+    option.reservationUnit?.unit
+  );
   const canReject =
     applicationStatus === ApplicationStatusChoice.InAllocation ||
     applicationStatus === ApplicationStatusChoice.Handled;
-  const isDisabled = !canReject || option.allocatedTimeSlots?.length > 0;
+  const isDisabled =
+    !canReject || option.allocatedTimeSlots?.length > 0 || !hasPerms;
+
+  if (!hasPerms) {
+    return null;
+  }
   return (
     <Button
       variant="supplementary"
@@ -446,6 +466,7 @@ function RejectAllOptionsButton({
   refetch: () => Promise<ApolloQueryResult<ApplicationAdminQuery>>;
 }) {
   const { t } = useTranslation();
+  const { hasUnitPermission } = usePermission();
 
   const [rejectMutation, { loading: rejectLoading }] =
     useRejectAllSectionOptionsMutation();
@@ -477,7 +498,9 @@ function RejectAllOptionsButton({
       refetch();
     } catch (err) {
       const mutationErrors = getValidationErrors(err);
-      if (mutationErrors.length > 0) {
+      if (getPermissionErrors(err).length > 0) {
+        notifyError(t("errors.noPermission"));
+      } else if (mutationErrors.length > 0) {
         // TODO handle other codes also
         const isInvalidState = mutationErrors.find(
           (e) => e.code === "CANNOT_REJECT_SECTION_OPTIONS"
@@ -491,6 +514,7 @@ function RejectAllOptionsButton({
           notifyError(t("errors.formValidationError", { message }));
         }
       } else {
+        // TODO this translation is missing
         notifyError(t("errors.errorRejectingOption"));
       }
     }
@@ -510,15 +534,26 @@ function RejectAllOptionsButton({
     console.warn("section.allocations is null", section);
   }
 
+  const hasPerms = section.reservationUnitOptions.every((x) =>
+    hasUnitPermission(
+      Permission.CAN_MANAGE_APPLICATIONS,
+      x.reservationUnit?.unit
+    )
+  );
   const inAllocation =
     applicationStatus === ApplicationStatusChoice.InAllocation ||
     applicationStatus === ApplicationStatusChoice.Handled;
   const isRejected = section.reservationUnitOptions.every((x) => x.rejected);
   const hasAllocations = section.allocations != null && section.allocations > 0;
   const canReject = inAllocation && !hasAllocations;
+  const isDisabled = !canReject || !hasPerms;
+
+  if (!hasPerms) {
+    return null;
+  }
   return (
     <Button
-      disabled={!canReject}
+      disabled={isDisabled}
       size="small"
       variant="secondary"
       onClick={() => (isRejected ? handleRestoreAll() : handleRejectAll())}
@@ -595,10 +630,6 @@ function ApplicationSectionDetails({
     {
       key: "reject",
       transform: (reservationUnitOption: ReservationUnitOptionType) => {
-        // TODO button should only be visible if user has "can_handle_applications" permission
-        // the application is visible to the user if they have "can_view_application" permission
-        // but they aren't allowed to reject it
-        // requires mergin a PR with changes to application permission checks
         return (
           <RejectOptionButton
             option={reservationUnitOption}
@@ -700,6 +731,7 @@ function RejectApplicationButton({
 }): JSX.Element | null {
   const { t } = useTranslation();
   const { notifyError } = useNotification();
+  const { hasUnitPermission } = usePermission();
 
   const [rejectionMutation, { loading: isRejectionLoading }] =
     useRejectAllApplicationOptionsMutation();
@@ -732,7 +764,9 @@ function RejectApplicationButton({
       refetch();
     } catch (err) {
       const mutationErrors = getValidationErrors(err);
-      if (mutationErrors.length > 0) {
+      if (getPermissionErrors(err).length > 0) {
+        notifyError(t("errors.noPermission"));
+      } else if (mutationErrors.length > 0) {
         // TODO handle other codes also
         const isInvalidState = mutationErrors.find(
           (e) => e.code === "CANNOT_REJECT_APPLICATION_OPTIONS"
@@ -780,6 +814,15 @@ function RejectApplicationButton({
     console.warn("application.status is null", application);
   }
 
+  const hasPerms =
+    application.applicationSections?.every((section) =>
+      section.reservationUnitOptions?.every((x) =>
+        hasUnitPermission(
+          Permission.CAN_MANAGE_APPLICATIONS,
+          x.reservationUnit?.unit
+        )
+      )
+    ) ?? false;
   const isInAllocation =
     application.status === ApplicationStatusChoice.InAllocation ||
     application.status === ApplicationStatusChoice.Handled;
@@ -794,6 +837,11 @@ function RejectApplicationButton({
     application.applicationSections?.every((section) =>
       section.reservationUnitOptions.every((option) => option.rejected)
     ) ?? false;
+  const isDisabled = !canReject || !hasPerms;
+
+  if (!hasPerms) {
+    return null;
+  }
 
   return (
     <Button
@@ -801,7 +849,7 @@ function RejectApplicationButton({
       variant="secondary"
       theme="black"
       onClick={() => (isRejected ? handleRestoreAll() : handleRejectAll())}
-      disabled={!canReject}
+      disabled={isDisabled}
     >
       {isRejected ? t("Application.btnRestore") : t("Application.btnReject")}
     </Button>
