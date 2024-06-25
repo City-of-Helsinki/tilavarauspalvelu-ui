@@ -413,6 +413,7 @@ function RequestedReservation({
     parseFloat(pricing.highestPrice) >= 0;
 
   const reservationTagline = createTagString(reservation, t);
+  const order = reservation.paymentOrder[0];
 
   const route = [
     {
@@ -564,9 +565,9 @@ function RequestedReservation({
                 <ApplicationData
                   label={t("RequestedReservation.paymentState")}
                   data={
-                    reservation.order?.status == null
+                    order.status == null
                       ? "-"
-                      : t(`Payment.status.${reservation.order?.status}`)
+                      : t(`Payment.status.${order?.status}`)
                   }
                 />
                 <ApplicationData
