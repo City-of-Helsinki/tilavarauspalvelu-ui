@@ -4,33 +4,13 @@ import {
   ReservationUnitOrderingChoices,
   useSearchReservationUnitsQuery,
 } from "@gql/gql-types";
-import { filterNonNullable } from "common/src/helpers";
+import { filterNonNullable, toNumber } from "common/src/helpers";
 import { LARGE_LIST_PAGE_SIZE } from "@/common/const";
 import { useNotification } from "@/context/NotificationContext";
 import Loader from "@/component/Loader";
 import { More } from "@/component/More";
 import { ReservationUnitsTable } from "./ReservationUnitsTable";
-import { FilterArguments } from "./Filters";
-
-type Props = {
-  filters: FilterArguments;
-};
-
-const mapFilterParams = ({
-  reservationUnitStates,
-  ...params
-}: FilterArguments) => ({
-  ...params,
-  maxPersonsLte: params.maxPersonsLte,
-  maxPersonsGte: params.maxPersonsGte,
-  surfaceAreaLte: params.surfaceAreaLte,
-  surfaceAreaGte: params.surfaceAreaGte,
-  unit: params.unit.map((u) => u.value).map(Number),
-  state: reservationUnitStates.map((u) => u.value).map(String),
-  reservationUnitType: params.reservationUnitType
-    .map((u) => u.value)
-    .map(Number),
-});
+import { useSearchParams } from "react-router-dom";
 
 function transformOrderBy(
   orderBy: string,
@@ -79,7 +59,7 @@ function transformSortString(
   return [];
 }
 
-export function ReservationUnitsDataReader({ filters }: Props): JSX.Element {
+export function ReservationUnitsDataReader(): JSX.Element {
   const { notifyError } = useNotification();
 
   const [sort, setSort] = useState<string>("");
@@ -92,20 +72,49 @@ export function ReservationUnitsDataReader({ filters }: Props): JSX.Element {
   };
 
   const orderBy = transformSortString(sort);
-  const { fetchMore, loading, data, previousData } =
-    useSearchReservationUnitsQuery({
-      variables: {
-        orderBy,
-        first: LARGE_LIST_PAGE_SIZE,
-        ...mapFilterParams(filters),
-      },
-      onError: (err: ApolloError) => {
-        notifyError(err.message);
-      },
-      fetchPolicy: "cache-and-network",
-      // TODO enable or no?
-      nextFetchPolicy: "cache-first",
-    });
+
+  const [searchParams] = useSearchParams();
+  const reservationUnitTypes = searchParams
+    .getAll("reservationUnitType")
+    .map(Number)
+    .filter(Number.isInteger);
+
+  const reservationUnitStates = searchParams.getAll("reservationUnitState");
+
+  const unit = searchParams.getAll("unit").map(Number).filter(Number.isInteger);
+
+  const searchFilter = searchParams.get("search");
+  // it's typed string but it's actually a number (python Decimal)
+  const maxPersonsLte = toNumber(searchParams.get("maxPersonsLte"))?.toString();
+  const maxPersonsGte = toNumber(searchParams.get("maxPersonsGte"))?.toString();
+  const surfaceAreaLte = toNumber(
+    searchParams.get("surfaceAreaLte")
+  )?.toString();
+  const surfaceAreaGte = toNumber(
+    searchParams.get("surfaceAreaGte")
+  )?.toString();
+
+  const query = useSearchReservationUnitsQuery({
+    variables: {
+      orderBy,
+      first: LARGE_LIST_PAGE_SIZE,
+      maxPersonsLte,
+      maxPersonsGte,
+      surfaceAreaLte,
+      surfaceAreaGte,
+      nameFi: searchFilter,
+      unit,
+      state: reservationUnitStates,
+      reservationUnitType: reservationUnitTypes,
+    },
+    onError: (err: ApolloError) => {
+      notifyError(err.message);
+    },
+    fetchPolicy: "cache-and-network",
+    // TODO enable or no?
+    nextFetchPolicy: "cache-first",
+  });
+  const { fetchMore, loading, data, previousData } = query;
 
   const { reservationUnits } = data ?? previousData ?? {};
   const resUnits = filterNonNullable(

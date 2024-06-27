@@ -1,60 +1,16 @@
-import { TextInput } from "hds-react";
-import { isEmpty } from "lodash";
-import React, { useEffect, useReducer } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 import styled from "styled-components";
-import { breakpoints } from "common/src/common/style";
 import ShowAllContainer from "common/src/components/ShowAllContainer";
-import { OptionType } from "../../common/types";
-import UnitFilter from "../filters/UnitFilter";
-import Tags, { Action, getReducer, toTags } from "../lists/Tags";
-import { Grid, Span3 } from "../../styles/layout";
-import ReservationUnitStateFilter from "../filters/ReservationUnitStateFilter";
-import ReservationUnitTypeFilter from "../filters/ReservationUnitTypeFilter";
-
-export type FilterArguments = {
-  nameFi?: string;
-  maxPersonsGte?: string;
-  maxPersonsLte?: string;
-  surfaceAreaGte?: string;
-  surfaceAreaLte?: string;
-  unit: OptionType[];
-  reservationUnitType: OptionType[];
-  reservationUnitStates: OptionType[];
-};
-
-const multivaluedFields = [
-  "unit",
-  "reservationUnitType",
-  "reservationUnitStates",
-];
-
-type Props = {
-  onSearch: (args: FilterArguments) => void;
-};
-
-const Grid3Container = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-l);
-  @media (min-width: ${breakpoints.l}) {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-`;
-
-const Grid2Container = styled(Grid3Container)`
-  @media (min-width: ${breakpoints.l}) {
-    grid-template-columns: 1fr 1fr;
-  }
-`;
-
-const RangeContrainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: top;
-  text-align: center;
-`;
+import { AutoGrid } from "@/styles/layout";
+import { useReservationUnitTypes, useUnitOptions } from "@/hooks";
+import { ReservationUnitState } from "@gql/gql-types";
+import {
+  MultiSelectFilter,
+  SearchFilter,
+  RangeNumberFilter,
+} from "@/component/QueryParamFilters";
+import { SearchTags } from "@/component/SearchTags";
 
 const Wrapper = styled.div`
   display: flex;
@@ -71,152 +27,88 @@ const MoreWrapper = styled(ShowAllContainer)`
   }
 `;
 
-export const emptyState = {
-  reservationUnitType: [],
-  unit: [],
-  reservationUnitStates: [],
-};
-
-const MyTextInput = ({
-  id,
-  value,
-  dispatch,
-}: {
-  id: keyof FilterArguments;
-  value?: string;
-  dispatch: React.Dispatch<Action<FilterArguments>>;
-}) => (
-  <TextInput
-    id={id}
-    label=" "
-    onChange={(e) => {
-      if (e.target.value.length > 0) {
-        dispatch({
-          type: "set",
-          value: { [id]: e.target.value },
-        });
-      } else {
-        dispatch({
-          type: "deleteTag",
-          field: id,
-        });
-      }
-    }}
-    value={value || ""}
-    placeholder={i18next.t(`ReservationUnitsSearch.${id}PlaceHolder`)}
-    errorText={
-      !isEmpty(value) && Number.isNaN(Number(value))
-        ? i18next.t("ReservationUnitsSearch.notANumber")
-        : undefined
-    }
-  />
-);
-
-const Filters = ({ onSearch }: Props): JSX.Element => {
+function Filters(): JSX.Element {
   const { t } = useTranslation();
-  const [state, dispatch] = useReducer(
-    getReducer<FilterArguments>(emptyState),
-    emptyState
-  );
 
-  useEffect(() => {
-    onSearch(state);
-  }, [onSearch, state]);
+  const reservationUnitStateOptions = Object.values(ReservationUnitState)
+    .filter((x) => x !== ReservationUnitState.Archived)
+    .map((s) => ({
+      value: s,
+      label: t(`ReservationUnits.state.${s}`),
+    }));
 
-  const tags = toTags(
-    state,
-    t,
-    multivaluedFields,
-    ["nameFi"],
-    "ReservationUnitsSearch"
-  );
+  const { options: unitOptions } = useUnitOptions();
+  const { options: reservationUnitTypeOptions } = useReservationUnitTypes();
+
+  function translateTag(tag: string, val: string): string {
+    switch (tag) {
+      case "unit":
+        return unitOptions.find((u) => u.value === Number(val))?.label || val;
+      case "reservationUnitType":
+        return (
+          reservationUnitTypeOptions.find((u) => u.value === Number(val))
+            ?.label || val
+        );
+      case "reservationUnitState":
+        return (
+          reservationUnitStateOptions.find((u) => u.value === val)?.label || val
+        );
+      case "maxPersonsGte":
+        return t("ReservationUnitsSearch.filters.maxPersonsGteTag", {
+          value: val,
+        });
+      case "maxPersonsLte":
+        return t("ReservationUnitsSearch.filters.maxPersonsLteTag", {
+          value: val,
+        });
+      case "surfaceAreaGte":
+        return t("ReservationUnitsSearch.filters.surfaceAreaGteTag", {
+          value: val,
+        });
+      case "surfaceAreaLte":
+        return t("ReservationUnitsSearch.filters.surfaceAreaLteTag", {
+          value: val,
+        });
+      default:
+        return val;
+    }
+  }
 
   return (
-    <div>
-      <Wrapper>
-        <Grid>
-          <Span3>
-            <TextInput
-              id="nameFi"
-              label={t("ReservationUnitsSearch.textSearchLabel")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  onSearch(state);
-                }
-              }}
-              onChange={(e) =>
-                dispatch({ type: "set", value: { nameFi: e.target.value } })
-              }
-              placeholder={t("ReservationUnitsSearch.textSearchPlaceHolder")}
-              value={state.nameFi || ""}
-            />
-          </Span3>
-          <Span3>
-            <UnitFilter
-              onChange={(e) => dispatch({ type: "set", value: { unit: e } })}
-              value={state.unit}
-            />
-          </Span3>
-          <Span3>
-            <ReservationUnitTypeFilter
-              onChange={(e) =>
-                dispatch({ type: "set", value: { reservationUnitType: e } })
-              }
-              value={state.reservationUnitType}
-            />
-          </Span3>
-          <Span3>
-            <ReservationUnitStateFilter
-              value={state.reservationUnitStates}
-              onChange={(e) =>
-                dispatch({ type: "set", value: { reservationUnitStates: e } })
-              }
-            />
-          </Span3>
-        </Grid>
-        <MoreWrapper
-          showAllLabel={t("ReservationUnitsSearch.moreFilters")}
-          showLessLabel={t("ReservationUnitsSearch.lessFilters")}
-          maximumNumber={0}
-        >
-          <Grid2Container>
-            <div>
-              <div>{t("ReservationUnitsSearch.maxPersonsLabel")}</div>
-              <RangeContrainer>
-                <MyTextInput
-                  id="maxPersonsGte"
-                  value={state.maxPersonsGte}
-                  dispatch={dispatch}
-                />
-                <MyTextInput
-                  id="maxPersonsLte"
-                  value={state.maxPersonsLte}
-                  dispatch={dispatch}
-                />
-              </RangeContrainer>
-            </div>
-            <div>
-              <div>{t("ReservationUnitsSearch.surfaceAreaLabel")}</div>
-              <RangeContrainer>
-                <MyTextInput
-                  id="surfaceAreaGte"
-                  value={state.surfaceAreaGte}
-                  dispatch={dispatch}
-                />
-                <MyTextInput
-                  id="surfaceAreaLte"
-                  value={state.surfaceAreaLte}
-                  dispatch={dispatch}
-                />
-              </RangeContrainer>
-            </div>
-          </Grid2Container>
-        </MoreWrapper>
-      </Wrapper>
-
-      <Tags tags={tags} t={t} dispatch={dispatch} />
-    </div>
+    <Wrapper>
+      <AutoGrid>
+        <SearchFilter name="search" labelKey="reservationUnit" />
+        <MultiSelectFilter options={unitOptions} name="unit" />
+        <MultiSelectFilter
+          options={reservationUnitTypeOptions}
+          name="reservationUnitType"
+        />
+        <MultiSelectFilter
+          options={reservationUnitStateOptions}
+          name="reservationUnitState"
+        />
+      </AutoGrid>
+      <MoreWrapper
+        showAllLabel={t("ReservationUnitsSearch.moreFilters")}
+        showLessLabel={t("ReservationUnitsSearch.lessFilters")}
+        maximumNumber={0}
+      >
+        <AutoGrid>
+          <RangeNumberFilter
+            label={t("ReservationUnitsSearch.maxPersonsLabel")}
+            minName="maxPersonsGte"
+            maxName="maxPersonsLte"
+          />
+          <RangeNumberFilter
+            label={t("ReservationUnitsSearch.surfaceAreaLabel")}
+            minName="surfaceAreaGte"
+            maxName="surfaceAreaLte"
+          />
+        </AutoGrid>
+      </MoreWrapper>
+      <SearchTags hide={[]} translateTag={translateTag} />
+    </Wrapper>
   );
-};
+}
 
 export default Filters;
