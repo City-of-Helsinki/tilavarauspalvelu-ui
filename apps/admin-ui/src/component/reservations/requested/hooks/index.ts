@@ -1,6 +1,6 @@
 import {
   type CalendarReservationFragment,
-  State,
+  ReservationStateChoice,
   ReservationTypeChoice,
   useReservationQuery,
   useReservationDenyReasonsQuery,
@@ -13,6 +13,7 @@ import { toApiDate } from "common/src/common/util";
 import { useNotification } from "@/context/NotificationContext";
 import { base64encode, filterNonNullable } from "common/src/helpers";
 import { type CalendarEventType } from "../Calendar";
+import { convertToReservationStateChoice } from "common/src/conversion";
 
 export { default as useCheckCollisions } from "./useCheckCollisions";
 
@@ -58,8 +59,10 @@ const shouldBeShownInTheCalendar = (
   r: CalendarReservationFragment,
   ownPk?: number
 ) =>
-  r.state === State.Confirmed ||
-  r.state === State.RequiresHandling ||
+  convertToReservationStateChoice(r.state) ===
+    ReservationStateChoice.Confirmed ||
+  convertToReservationStateChoice(r.state) ===
+    ReservationStateChoice.RequiresHandling ||
   r.pk === ownPk;
 
 // TODO there is an issue here with denied "Blocked" reservations shown in the Calendar as regular "Blocked" reservations
@@ -88,10 +91,10 @@ export function useReservationData(
       endDate: toApiDate(end ?? today) ?? "",
       // NOTE we need denied to show the past reservations
       state: [
-        State.Confirmed,
-        State.RequiresHandling,
-        State.Denied,
-        State.WaitingForPayment,
+        ReservationStateChoice.Confirmed,
+        ReservationStateChoice.RequiresHandling,
+        ReservationStateChoice.Denied,
+        ReservationStateChoice.WaitingForPayment,
       ],
     },
     onError: () => {
@@ -204,7 +207,11 @@ export const useReservationEditData = (pk?: string) => {
   // into it will break the reservation queries elsewhere.
   const possibleReservations = recurringReservations
     .filter((x) => new Date(x.begin) > new Date())
-    .filter((x) => x.state === State.Confirmed);
+    .filter(
+      (x) =>
+        convertToReservationStateChoice(x.state) ===
+        ReservationStateChoice.Confirmed
+    );
 
   const nextRecurranceId = base64encode(
     `${typename}:${possibleReservations?.at(0)?.pk}` ?? 0

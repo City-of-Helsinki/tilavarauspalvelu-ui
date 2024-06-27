@@ -4,10 +4,12 @@ import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import {
-  State,
   ReservationOrderingChoices,
   useListReservationsQuery,
   type ListReservationsQuery,
+  ReservationStateChoice,
+  ReservationTypeChoice,
+  State,
 } from "@gql/gql-types";
 import NotificationWrapper from "common/src/components/NotificationWrapper";
 import { useCurrentUser } from "@/hooks/user";
@@ -160,10 +162,14 @@ export function InProgressReservationNotification() {
   const { data } = useListReservationsQuery({
     skip: !currentUser?.pk,
     variables: {
-      state: [State.WaitingForPayment, State.Created],
+      state: [
+        ReservationStateChoice.WaitingForPayment,
+        ReservationStateChoice.Created,
+      ],
       orderBy: ReservationOrderingChoices.PkDesc,
-      user: currentUser?.pk?.toString() ?? "",
+      user: currentUser?.pk ?? 0,
       beginDate: toApiDate(new Date()),
+      reservationType: ReservationTypeChoice.Normal,
     },
     fetchPolicy: "no-cache",
   });

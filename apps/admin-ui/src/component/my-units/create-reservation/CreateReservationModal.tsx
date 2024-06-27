@@ -31,6 +31,7 @@ import ReservationTypeForm from "../ReservationTypeForm";
 import ControlledTimeInput from "../components/ControlledTimeInput";
 import ControlledDateInput from "../components/ControlledDateInput";
 import { base64encode, filterNonNullable } from "common/src/helpers";
+import { convertToReservationTypeChoice } from "common/src/conversion";
 
 type ReservationUnitType = NonNullable<ReservationUnitQuery["reservationUnit"]>;
 
@@ -277,17 +278,24 @@ const DialogContent = ({
 
       const flatMetaValues = flattenMetadata(values, fields);
 
+      if (convertToReservationTypeChoice(values.type) == null) {
+        throw new Error("Invalid reservation type");
+      }
       const bufferBefore =
-        values.type !== "BLOCKED" && values.bufferTimeBefore
+        convertToReservationTypeChoice(values.type) !==
+          ReservationTypeChoice.Blocked && values.bufferTimeBefore
           ? reservationUnit.bufferTimeBefore ?? 0
           : 0;
       const bufferAfter =
-        values.type !== "BLOCKED" && values.bufferTimeAfter
+        convertToReservationTypeChoice(values.type) !==
+          ReservationTypeChoice.Blocked && values.bufferTimeAfter
           ? reservationUnit.bufferTimeAfter ?? 0
           : 0;
       const input: ReservationStaffCreateMutationInput = {
         reservationUnitPks: [reservationUnit.pk],
-        type: values.type ?? "",
+        type:
+          convertToReservationTypeChoice(values.type) ??
+          ReservationTypeChoice.Normal,
         begin: dateTime(values.date, values.startTime),
         end: dateTime(values.date, values.endTime),
         bufferTimeBefore: bufferBefore.toString(),

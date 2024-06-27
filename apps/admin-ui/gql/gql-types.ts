@@ -2221,9 +2221,9 @@ export type QueryRejectedOccurrencesArgs = {
   orderBy?: InputMaybe<Array<InputMaybe<RejectedOccurrenceOrderingChoices>>>;
   pk?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   recurringReservation?: InputMaybe<Scalars["Int"]["input"]>;
-  reservationUnit?: InputMaybe<Scalars["Int"]["input"]>;
+  reservationUnit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   textSearch?: InputMaybe<Scalars["String"]["input"]>;
-  unit?: InputMaybe<Scalars["Int"]["input"]>;
+  unit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
 };
 
 export type QueryReservationArgs = {
@@ -2567,9 +2567,9 @@ export type RecurringReservationNodeRejectedOccurrencesArgs = {
   orderBy?: InputMaybe<Array<InputMaybe<RejectedOccurrenceOrderingChoices>>>;
   pk?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   recurringReservation?: InputMaybe<Scalars["Int"]["input"]>;
-  reservationUnit?: InputMaybe<Scalars["Int"]["input"]>;
+  reservationUnit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   textSearch?: InputMaybe<Scalars["String"]["input"]>;
-  unit?: InputMaybe<Scalars["Int"]["input"]>;
+  unit?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
 };
 
 export type RecurringReservationNodeReservationsArgs = {
@@ -7453,6 +7453,7 @@ export type ReservationsQueryVariables = Exact<{
   createdAtGte?: InputMaybe<Scalars["Date"]["input"]>;
   createdAtLte?: InputMaybe<Scalars["Date"]["input"]>;
   applyingForFreeOfCharge?: InputMaybe<Scalars["Boolean"]["input"]>;
+  isRecurring?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
 export type ReservationsQuery = {
@@ -12661,6 +12662,7 @@ export const ReservationsDocument = gql`
     $createdAtGte: Date
     $createdAtLte: Date
     $applyingForFreeOfCharge: Boolean
+    $isRecurring: Boolean
   ) {
     reservations(
       first: $first
@@ -12678,6 +12680,7 @@ export const ReservationsDocument = gql`
       endDate: $endDate
       createdAtGte: $createdAtGte
       createdAtLte: $createdAtLte
+      isRecurring: $isRecurring
       applyingForFreeOfCharge: $applyingForFreeOfCharge
       onlyWithPermission: true
     ) {
@@ -12733,6 +12736,7 @@ export const ReservationsDocument = gql`
  *      createdAtGte: // value for 'createdAtGte'
  *      createdAtLte: // value for 'createdAtLte'
  *      applyingForFreeOfCharge: // value for 'applyingForFreeOfCharge'
+ *      isRecurring: // value for 'isRecurring'
  *   },
  * });
  */

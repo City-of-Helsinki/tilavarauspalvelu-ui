@@ -2414,9 +2414,9 @@ type Query {
     orderBy: [RejectedOccurrenceOrderingChoices]
     pk: [Int]
     recurringReservation: Int
-    reservationUnit: Int
+    reservationUnit: [Int]
     textSearch: String
-    unit: Int
+    unit: [Int]
   ): RejectedOccurrenceNodeConnection
   reservation(
     """
@@ -2791,9 +2791,9 @@ type RecurringReservationNode implements Node {
     orderBy: [RejectedOccurrenceOrderingChoices]
     pk: [Int]
     recurringReservation: Int
-    reservationUnit: Int
+    reservationUnit: [Int]
     textSearch: String
-    unit: Int
+    unit: [Int]
   ): [RejectedOccurrenceNode!]!
   reservationUnit: ReservationUnitNode!
   reservations(

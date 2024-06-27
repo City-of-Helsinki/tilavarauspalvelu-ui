@@ -94,7 +94,7 @@ const SPECIALISED_SINGLE_RESERVATION_FRAGMENT = gql`
     calendarUrl
     price
     taxPercentageValue
-    order {
+    paymentOrder {
       id
       orderUuid
       refundUuid
