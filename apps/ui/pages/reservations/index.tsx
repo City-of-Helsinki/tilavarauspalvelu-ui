@@ -8,9 +8,10 @@ import { useRouter } from "next/router";
 import { fontMedium } from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import {
-  State,
+  ReservationStateChoice,
   ReservationOrderingChoices,
   useListReservationsQuery,
+  ReservationTypeChoice,
 } from "@gql/gql-types";
 import { Container } from "common";
 import { filterNonNullable } from "common/src/helpers";
@@ -97,21 +98,22 @@ const Reservations = (): JSX.Element | null => {
     variables: {
       state:
         tab === "cancelled"
-          ? [State.Cancelled]
+          ? [ReservationStateChoice.Cancelled]
           : [
-              State.Confirmed,
-              State.RequiresHandling,
-              State.WaitingForPayment,
-              State.Denied,
+              ReservationStateChoice.Confirmed,
+              ReservationStateChoice.RequiresHandling,
+              ReservationStateChoice.WaitingForPayment,
+              ReservationStateChoice.Denied,
             ],
       orderBy:
         tab === "upcoming"
           ? [ReservationOrderingChoices.BeginAsc]
           : [ReservationOrderingChoices.BeginDesc],
-      user: currentUser?.pk?.toString() ?? "",
+      user: currentUser?.pk ?? 0,
       // NOTE today's reservations are always shown in upcoming (even when they are in the past)
       beginDate: tab === "upcoming" ? toApiDate(today) : undefined,
       endDate: tab === "past" ? toApiDate(addDays(today, -1)) : undefined,
+      reservationType: ReservationTypeChoice.Normal,
     },
   });
 

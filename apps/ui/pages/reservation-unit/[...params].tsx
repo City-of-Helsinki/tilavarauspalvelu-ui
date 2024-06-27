@@ -25,6 +25,7 @@ import {
   ReservationDocument,
   ReservationQueryVariables,
   useReservationLazyQuery,
+  ReservationStateChoice,
 } from "@gql/gql-types";
 import { Inputs } from "common/src/reservation-form/types";
 import { Subheading } from "common/src/reservation-form/styles";
@@ -260,7 +261,10 @@ function ReservationUnitReservation(props: PropsNarrowed): JSX.Element | null {
         return;
       }
 
-      if (state === State.Confirmed || state === State.RequiresHandling) {
+      if (
+        state === ReservationStateChoice.Confirmed ||
+        state === ReservationStateChoice.RequiresHandling
+      ) {
         router.push(`${reservationsUrl}${pk}/confirmation`);
       } else if (steps?.length > 2) {
         const { order } = data.confirmReservation ?? {};

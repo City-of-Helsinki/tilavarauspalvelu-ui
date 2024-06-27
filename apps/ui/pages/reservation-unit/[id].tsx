@@ -136,6 +136,7 @@ import { MediumButton } from "@/styles/util";
 import LoginFragment from "@/components/LoginFragment";
 import { RELATED_RESERVATION_STATES } from "common/src/const";
 import { ErrorToast } from "@/components/common/ErrorToast";
+import { ReservationTypeChoice } from "common/gql/gql-types";
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
@@ -579,9 +580,10 @@ const ReservationUnit = ({
     skip: !currentUser || !reservationUnit?.pk,
     variables: {
       beginDate: toApiDate(now),
-      user: currentUser?.pk?.toString() ?? "",
-      reservationUnit: [reservationUnit?.pk?.toString() ?? ""],
+      user: currentUser?.pk ?? 0,
+      reservationUnit: [reservationUnit?.pk ?? 0],
       state: RELATED_RESERVATION_STATES,
+      reservationType: ReservationTypeChoice.Normal,
     },
   });
 

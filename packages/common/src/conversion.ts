@@ -1,4 +1,10 @@
-import { Weekday } from "../gql/gql-types";
+import {
+  ReservationStateChoice,
+  ReservationTypeChoice,
+  State,
+  Type,
+  Weekday,
+} from "../gql/gql-types";
 
 export type Day = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export function transformWeekday(d: Day): Weekday {
@@ -36,5 +42,62 @@ export function convertWeekday(d: Weekday): Day {
       return 5;
     case Weekday.Sunday:
       return 6;
+  }
+}
+
+export function convertToType(t: string): Type | undefined {
+  switch (t) {
+    case "BEHALF":
+      return Type.Behalf;
+    case "BLOCKED":
+      return Type.Blocked;
+    case "NORMAL":
+      return Type.Normal;
+    case "SEASONAL":
+      return Type.Seasonal;
+    case "STAFF":
+      return Type.Staff;
+  }
+}
+
+export function convertToReservationTypeChoice(
+  t: Type | string
+): ReservationTypeChoice | undefined {
+  switch (t) {
+    case Type.Behalf:
+    case "BEHALF":
+      return ReservationTypeChoice.Behalf;
+    case Type.Blocked:
+    case "BLOCKED":
+      return ReservationTypeChoice.Blocked;
+    case Type.Normal:
+    case "NORMAL":
+      return ReservationTypeChoice.Normal;
+    case Type.Seasonal:
+    case "SEASONAL":
+      return ReservationTypeChoice.Seasonal;
+    case Type.Staff:
+    case "STAFF":
+      return ReservationTypeChoice.Staff;
+    default:
+  }
+}
+
+export function convertToReservationStateChoice(
+  s: State
+): ReservationStateChoice {
+  switch (s) {
+    case State.Confirmed:
+      return ReservationStateChoice.Confirmed;
+    case State.Cancelled:
+      return ReservationStateChoice.Cancelled;
+    case State.Denied:
+      return ReservationStateChoice.Denied;
+    case State.Created:
+      return ReservationStateChoice.Created;
+    case State.RequiresHandling:
+      return ReservationStateChoice.RequiresHandling;
+    case State.WaitingForPayment:
+      return ReservationStateChoice.WaitingForPayment;
   }
 }

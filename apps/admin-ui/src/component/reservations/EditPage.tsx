@@ -23,6 +23,7 @@ import EditPageWrapper from "./EditPageWrapper";
 import { useReservationEditData } from "./requested/hooks";
 import { useStaffReservationMutation } from "./hooks";
 import { filterNonNullable } from "common/src/helpers";
+import { convertToType } from "common/src/conversion";
 
 type ReservationType = NonNullable<ReservationQuery["reservation"]>;
 type ReservationUnitType = NonNullable<ReservationType["reservationUnit"]>[0];
@@ -160,7 +161,7 @@ function EditReservation({
       reservationUnitPks: [reservationUnit.pk],
       seriesName: values.seriesName !== "" ? values.seriesName : undefined,
       workingMemo: values.comments,
-      type: values.type ?? "",
+      type: convertToType(values.type),
       ...flattenedMetadataSetValues,
     };
 
