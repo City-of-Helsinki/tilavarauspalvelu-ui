@@ -23,7 +23,7 @@ import {
   reservationsPrefix,
   isBrowser,
 } from "./const";
-import type { LocalizationLanguages } from "common/src/helpers";
+import { type LocalizationLanguages } from "common/src/helpers";
 
 export { formatDuration } from "common/src/common/util";
 export { fromAPIDate, fromUIDate };
@@ -280,7 +280,7 @@ export const printErrorMessages = (error: ApolloError): string => {
 export const isTouchDevice = (): boolean =>
   isBrowser && window?.matchMedia("(any-hover: none)").matches;
 
-export const getPostLoginUrl = () => {
+export function getPostLoginUrl() {
   if (!isBrowser) {
     return undefined;
   }
@@ -288,7 +288,7 @@ export const getPostLoginUrl = () => {
   const params = new URLSearchParams(searchParams);
   params.set("isPostLogin", "true");
   return `${origin}${pathname}?${params.toString()}`;
-};
+}
 
 // TODO move to common and combine with admin (requires i18n changes: replace messages.ts with json)
 export function formatTimeRange(
