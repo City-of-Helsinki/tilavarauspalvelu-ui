@@ -1,19 +1,17 @@
 import { z } from "zod";
 import { fromUIDate } from "common/src/common/util";
-import { ReservationStartInterval } from "@gql/gql-types";
+import {
+  ReservationStartInterval,
+  ReservationTypeChoice,
+} from "@gql/gql-types";
 import { intervalToNumber } from "./utils";
 import {
   checkTimeStringFormat,
   checkValidFutureDate,
 } from "common/src/schemas/schemaCommon";
 
-export const ReservationTypes = [
-  "STAFF",
-  "BEHALF",
-  "BLOCKED",
-  "NORMAL",
-] as const;
-export const ReservationTypeSchema = z.enum(ReservationTypes);
+export const ReservationTypes = Object.values(ReservationTypeChoice);
+export const ReservationTypeSchema = z.nativeEnum(ReservationTypeChoice);
 
 export type ReservationType = z.infer<typeof ReservationTypeSchema>;
 
