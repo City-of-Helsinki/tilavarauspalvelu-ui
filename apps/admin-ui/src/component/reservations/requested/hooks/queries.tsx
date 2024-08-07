@@ -167,9 +167,17 @@ export const RECURRING_RESERVATION_QUERY = gql`
           id
           status
         }
+        type
         reservationUnit {
           id
           pk
+          bufferTimeBefore
+          bufferTimeAfter
+          reservationStartInterval
+          unit {
+            id
+            pk
+          }
         }
       }
     }

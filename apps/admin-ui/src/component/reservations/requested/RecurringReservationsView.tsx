@@ -16,7 +16,7 @@ import {
 import ReservationListButton from "@/component/ReservationListButton";
 import DenyDialog from "./DenyDialog";
 import { useModal } from "@/context/ModalContext";
-import EditTimeModal from "../EditTimeModal";
+import { EditTimeModal } from "../EditTimeModal";
 import { base64encode, filterNonNullable } from "common/src/helpers";
 import { useNotification } from "app/context/NotificationContext";
 import { LoadingSpinner } from "hds-react";
@@ -73,7 +73,7 @@ function RecurringReservationsView({
         // The correct way to deal with this would be either split
         // the Edit modal into two parts or do a query using id inside it (if we need all the data).
         reservation={res as ReservationEditType}
-        onAccept={() => handleChangeSuccess()}
+        onAccept={handleChangeSuccess}
         onClose={() => setModalContent(null)}
       />,
       true
@@ -167,10 +167,14 @@ function RecurringReservationsView({
     .concat(rejected)
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
+  const reservationUnit = reservations[0].reservationUnit[0];
   return (
     <ReservationList
       header={<H6 as="h3">{t("RecurringReservationsView.Heading")}</H6>}
       items={items}
+      reservationUnit={reservationUnit}
+      recurringReservationPk={recurringPk}
+      type={recurringReservation?.reservations[0].type ?? undefined}
     />
   );
 }

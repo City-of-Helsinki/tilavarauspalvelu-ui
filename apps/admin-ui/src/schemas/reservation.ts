@@ -16,18 +16,19 @@ export const ReservationTypeSchema = z.nativeEnum(ReservationTypeChoice);
 export type ReservationType = z.infer<typeof ReservationTypeSchema>;
 
 export const TimeFormSchema = z.object({
+  pk: z.number().optional(),
   // NOTE date needs to be string that is not coerced because it uses FI format
   date: z.string(),
   startTime: z.string(),
   endTime: z.string(),
-  bufferTimeAfter: z.boolean(),
-  bufferTimeBefore: z.boolean(),
+  enableBufferTimeAfter: z.boolean(),
+  enableBufferTimeBefore: z.boolean(),
+  type: ReservationTypeSchema,
 });
 
 const ReservationFormSchema = z
   .object({
     comments: z.string().optional(),
-    type: ReservationTypeSchema,
     // backend doesn't accept bad emails (empty is fine)
     reserveeEmail: z
       .union([z.string().email(), z.string().length(0)])
@@ -106,11 +107,7 @@ const ReservationFormSchemaRefined = (interval: ReservationStartInterval) =>
     )
     .superRefine((val, ctx) =>
       checkReservationInterval(val.endTime, ctx, "endTime", 15)
-    )
-    .refine((s) => s.type, {
-      path: ["type"],
-      message: "Required",
-    });
+    );
 
 // NOTE duplicated schema because schemas need to be refined after merge (only times in this case)
 export const TimeChangeFormSchemaRefined = (
@@ -139,7 +136,11 @@ export const TimeChangeFormSchemaRefined = (
     )
     .superRefine((val, ctx) =>
       checkReservationInterval(val.endTime, ctx, "endTime", 15)
-    );
+    )
+    .refine((s) => s.type, {
+      path: ["type"],
+      message: "Required",
+    });
 
 export { ReservationFormSchemaRefined as ReservationFormSchema };
 

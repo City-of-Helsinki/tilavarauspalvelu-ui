@@ -368,6 +368,7 @@ const translations: ITranslations = {
         ],
       },
       pageTitle: ["Tee toistuva varaus"],
+      addNewReservation: ["Lisää uusi varaus"],
       Confirmation: {
         removed: ["Poistettu"],
         overlapping: ["Ei saatavilla"],
