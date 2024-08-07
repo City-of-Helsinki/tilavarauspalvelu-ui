@@ -6,7 +6,6 @@ import { z } from "zod";
 import { type TFunction } from "i18next";
 import {
   ReservationTypeChoice,
-  ReservationUnitNode,
   useCreateStaffReservationMutation,
   useStaffAdjustReservationTimeMutation,
   type ReservationQuery,
@@ -23,10 +22,8 @@ import ControlledTimeInput from "../my-units/components/ControlledTimeInput";
 import ControlledDateInput from "../my-units/components/ControlledDateInput";
 import { BufferToggles } from "../my-units/BufferToggles";
 import { useCheckCollisions } from "./requested/hooks";
-import { filterNonNullable } from "common/src/helpers";
 import { getNormalizedInterval, parseDateTimeSafe } from "@/helpers";
 import { formatDateTimeRange } from "@/common/util";
-import { ReservationUnitEditFormValues } from "app/spa/ReservationUnit/edit/form";
 import { gql } from "@apollo/client";
 
 const StyledForm = styled.form`
@@ -35,7 +32,6 @@ const StyledForm = styled.form`
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
   gap: var(--spacing-s);
 `;
-
 
 const ActionButtons = styled(Dialog.ActionButtons)`
   justify-content: end;
@@ -109,15 +105,25 @@ type CommonProps = {
   onClose: () => void;
 };
 type MutationValues = {
-  pk: number | undefined,
-  begin: Date,
-  end: Date,
-  buffers: { before?: number; after?: number }
-}
+  pk: number | undefined;
+  begin: Date;
+  end: Date;
+  buffers: { before?: number; after?: number };
+};
 
 // TODO use a fragment
 type QueryT = NonNullable<ReservationQuery["reservation"]>;
-type ReservationType = Pick<QueryT, "pk" | "begin" | "end" | "reservationUnit" |  "bufferTimeAfter" | "bufferTimeBefore" | "recurringReservation" | "type" >;
+type ReservationType = Pick<
+  QueryT,
+  | "pk"
+  | "begin"
+  | "end"
+  | "reservationUnit"
+  | "bufferTimeAfter"
+  | "bufferTimeBefore"
+  | "recurringReservation"
+  | "type"
+>;
 type DialogContentProps = {
   form: UseFormReturn<EditFormValueType>;
   reservationUnitPk: number;
@@ -125,7 +131,6 @@ type DialogContentProps = {
   bufferTimeAfter: number;
   mutate: (values: MutationValues) => void;
 } & CommonProps;
-
 
 function convertToApiFormat(begin: Date, end: Date) {
   return {
@@ -152,7 +157,6 @@ function DialogContent({
     watch,
   } = form;
 
-
   const formDate = watch("date");
   const formEndTime = watch("endTime");
   const formStartTime = watch("startTime");
@@ -168,13 +172,11 @@ function DialogContent({
     end,
     buffers: {
       before:
-        formType !== ReservationTypeChoice.Blocked &&
-        bufferTimeBefore
+        formType !== ReservationTypeChoice.Blocked && bufferTimeBefore
           ? bufferTimeBefore
           : 0,
       after:
-        formType !== ReservationTypeChoice.Blocked &&
-        bufferTimeAfter
+        formType !== ReservationTypeChoice.Blocked && bufferTimeAfter
           ? bufferTimeAfter
           : 0,
     },
@@ -197,21 +199,20 @@ function DialogContent({
           },
         });
       } catch (err) {
-      if (err instanceof Error) {
-        const { message } = err;
-        console.warn("error", message);
-        const translatedError = i18n.exists(`errors.descriptive.${message}`)
-          ? t(`errors.descriptive.${message}`)
-          : t("errors.descriptive.genericError");
-        notifyError(
-          t("ReservationDialog.saveFailed", { error: translatedError })
-        );
-      } else {
-        console.warn("error", err);
-        notifyError(t("ReservationDialog.saveFailed"));
+        if (err instanceof Error) {
+          const { message } = err;
+          console.warn("error", message);
+          const translatedError = i18n.exists(`errors.descriptive.${message}`)
+            ? t(`errors.descriptive.${message}`)
+            : t("errors.descriptive.genericError");
+          notifyError(
+            t("ReservationDialog.saveFailed", { error: translatedError })
+          );
+        } else {
+          console.warn("error", err);
+          notifyError(t("ReservationDialog.saveFailed"));
+        }
       }
-    }
-
     }
   };
 
@@ -288,10 +289,7 @@ function DialogContent({
           <Button {...btnCommon} onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button
-            disabled={isDisabled}
-            type="submit"
-          >
+          <Button disabled={isDisabled} type="submit">
             {/* TODO different translation for new reservations */}
             {t("Reservation.EditTime.accept")}
           </Button>
@@ -315,27 +313,35 @@ export type NewReservationModalProps = CommonProps & {
   // should also be the one we are looking at in the UI (not the first or some other one)
   // (because two reservations in the same series can have different metadata)
   // if some of them are in the past and some in the future and they got edited after that (the ones in the past have the original metadata)
+  reservationToCopy: ReservationQuery["reservation"];
+  /*
   reservationUnit: Pick<ReservationUnitNode, "pk" | "bufferTimeAfter" | "bufferTimeBefore" | "reservationStartInterval">;
   recurringReservationPk: number;
   type: ReservationTypeChoice;
+  */
   onAccept: () => void;
-}
+};
 
 export function NewReservationModal({
-  reservationUnit,
-  recurringReservationPk,
-  type,
+  reservationToCopy,
   onAccept,
   onClose,
 }: NewReservationModalProps) {
   const { t } = useTranslation();
   const { isOpen } = useModal();
 
+  const { recurringReservation, type } = reservationToCopy ?? {};
+
+  const { pk: recurringReservationPk } = recurringReservation ?? {};
+  const reservationUnit = reservationToCopy?.reservationUnit?.[0];
+
   // NOTE 0 => buffer disabled for this reservation, undefined => no buffers selected
   const bufferTimeBefore = reservationUnit?.bufferTimeBefore ?? 0;
   const bufferTimeAfter = reservationUnit?.bufferTimeAfter ?? 0;
 
-  const interval = getNormalizedInterval(reservationUnit?.reservationStartInterval);
+  const interval = getNormalizedInterval(
+    reservationUnit?.reservationStartInterval
+  );
 
   // TODO should we even have default values?
   const now = useMemo(() => new Date(), []);
@@ -361,10 +367,15 @@ export function NewReservationModal({
   // but do we need to pass in also the metadata? i.e. copy all the fields from another reservation?
   const [create] = useCreateStaffReservationMutation();
 
+  // TODO pass the type as a prop? it's available in the form
+  // but it doesn't need to be?
   const mutate = async ({ begin, end, buffers }: MutationValues) => {
     console.log("create", begin, end, buffers);
-    if (!reservationUnit.pk) {
+    if (!reservationUnit?.pk) {
       throw new Error("reservation unit pk missing");
+    }
+    if (type == null) {
+      throw new Error("type missing");
     }
     create({
       variables: {
@@ -372,7 +383,7 @@ export function NewReservationModal({
           ...convertToApiFormat(begin, end),
           bufferTimeAfter: String(buffers.after),
           bufferTimeBefore: String(buffers.before),
-          reservationUnitPks: [reservationUnit.pk],
+          reservationUnitPks: [reservationUnit?.pk],
           type,
           recurringReservationPk,
         },
@@ -380,7 +391,7 @@ export function NewReservationModal({
     });
     // TODO notify success
     onAccept();
-  }
+  };
 
   return (
     <StyledDialog
@@ -397,7 +408,7 @@ export function NewReservationModal({
       <ErrorBoundary fallback={<div>{t("errors.unknown")}</div>}>
         <DialogContent
           form={form}
-          reservationUnitPk={reservationUnit.pk ?? 0}
+          reservationUnitPk={reservationUnit?.pk ?? 0}
           bufferTimeAfter={bufferTimeAfter}
           bufferTimeBefore={bufferTimeBefore}
           mutate={mutate}
@@ -411,7 +422,11 @@ export function NewReservationModal({
 // TODO refactor so it doesnt require a reservation
 // use the same UI for new reservation creation (only requires unit or reservation unit?)
 // allow either a move or new (if / else if we have to)
-export function EditTimeModal({ reservation, onAccept, onClose }: CommonProps & { onAccept: () => void; reservation: ReservationType }) {
+export function EditTimeModal({
+  reservation,
+  onAccept,
+  onClose,
+}: CommonProps & { onAccept: () => void; reservation: ReservationType }) {
   const { isOpen } = useModal();
   const { t } = useTranslation();
 
@@ -426,7 +441,9 @@ export function EditTimeModal({ reservation, onAccept, onClose }: CommonProps & 
   const bufferTimeAfter =
     (reservation.bufferTimeAfter || reservationUnit?.bufferTimeAfter) ?? 0;
 
-  const interval = getNormalizedInterval(reservationUnit?.reservationStartInterval);
+  const interval = getNormalizedInterval(
+    reservationUnit?.reservationStartInterval
+  );
 
   const form = useForm<EditFormValueType>({
     resolver: zodResolver(TimeChangeFormSchemaRefined(interval)),
@@ -449,25 +466,25 @@ export function EditTimeModal({ reservation, onAccept, onClose }: CommonProps & 
 
   // TODO this callback needs to passed as a prop
   const changeTime = async ({ pk, begin, end, buffers }: MutationValues) => {
-      // TODO this should use createReservationMutation
-      if (!pk) {
-        throw new Error("pk missing");
-      }
-      changeTimeMutation({
-        variables: {
-          input: {
-            ...convertToApiFormat(begin, end),
-            pk,
-            bufferTimeAfter:
-              buffers.after != null ? String(buffers.after) : undefined,
-            bufferTimeBefore:
-              buffers.before != null ? String(buffers.before) : undefined,
-          },
+    // TODO this should use createReservationMutation
+    if (!pk) {
+      throw new Error("pk missing");
+    }
+    changeTimeMutation({
+      variables: {
+        input: {
+          ...convertToApiFormat(begin, end),
+          pk,
+          bufferTimeAfter:
+            buffers.after != null ? String(buffers.after) : undefined,
+          bufferTimeBefore:
+            buffers.before != null ? String(buffers.before) : undefined,
         },
-      });
-      notifySuccess(t("Reservation.EditTime.successToast"));
-      onAccept();
-   }
+      },
+    });
+    notifySuccess(t("Reservation.EditTime.successToast"));
+    onAccept();
+  };
 
   return (
     <StyledDialog

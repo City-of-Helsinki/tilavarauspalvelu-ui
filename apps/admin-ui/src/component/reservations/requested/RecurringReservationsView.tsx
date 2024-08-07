@@ -26,16 +26,19 @@ type RecurringReservationType = NonNullable<
 >;
 type ReservationType = NonNullable<RecurringReservationType["reservations"]>[0];
 
-function RecurringReservationsView({
+export function RecurringReservationsView({
   recurringPk,
   onSelect,
   onChange,
   onReservationUpdated,
+  reservation,
 }: {
   recurringPk: number;
   onSelect?: (selected: ReservationType) => void;
   onChange?: () => Promise<ApolloQueryResult<ReservationQuery>>;
   onReservationUpdated?: () => void;
+  // optional reservation to copy when creating a new reservation
+  reservation?: ReservationQuery["reservation"];
 }) {
   const { t } = useTranslation();
   const { setModalContent } = useModal();
@@ -167,16 +170,17 @@ function RecurringReservationsView({
     .concat(rejected)
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  const reservationUnit = reservations[0].reservationUnit[0];
+  // const reservationUnit = reservations[0].reservationUnit[0];
   return (
     <ReservationList
       header={<H6 as="h3">{t("RecurringReservationsView.Heading")}</H6>}
       items={items}
+      reservationToCopy={reservation}
+      /*
       reservationUnit={reservationUnit}
       recurringReservationPk={recurringPk}
       type={recurringReservation?.reservations[0].type ?? undefined}
+      */
     />
   );
 }
-
-export default RecurringReservationsView;

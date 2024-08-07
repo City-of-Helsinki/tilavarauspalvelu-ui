@@ -203,7 +203,9 @@ const DialogContent = ({
   start: Date;
 }) => {
   const { t, i18n } = useTranslation();
-  const interval = getNormalizedInterval(reservationUnit.reservationStartInterval);
+  const interval = getNormalizedInterval(
+    reservationUnit.reservationStartInterval
+  );
   const form = useForm<FormValueType>({
     resolver: zodResolver(ReservationFormSchema(interval)),
     // TODO onBlur or onChange? onChange is anoying because it highlights even untouched fields

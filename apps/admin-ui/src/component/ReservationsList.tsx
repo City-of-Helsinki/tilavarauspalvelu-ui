@@ -2,11 +2,11 @@ import React from "react";
 import { toUIDate } from "common/src/common/util";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
-import { type Maybe, RejectionReadinessChoice } from "@gql/gql-types";
+import { RejectionReadinessChoice, ReservationQuery } from "@gql/gql-types";
 import { Button } from "hds-react";
-import usePermission, { type UnitPermissionFragment } from "@/hooks/usePermission";
+import usePermission from "@/hooks/usePermission";
 import { Permission } from "@/modules/permissionHelper";
-import { NewReservationModal, NewReservationModalProps } from "./reservations/EditTimeModal";
+import { NewReservationModal } from "./reservations/EditTimeModal";
 import { useModal } from "@/context/ModalContext";
 
 export type NewReservationListItem = {
@@ -142,56 +142,47 @@ function StatusElement({ item }: { item: NewReservationListItem }) {
 }
 
 type AddNewReservationButtonProps = {
-  reservationUnit:
-    Pick<NewReservationModalProps, "reservationUnit">["reservationUnit"] & {
-    unit?: Maybe<UnitPermissionFragment>;
-  }
-} & Pick<NewReservationModalProps, "type" | "recurringReservationPk">;
+  reservationToCopy: ReservationQuery["reservation"];
+};
 
 function AddNewReservationButton({
-  reservationUnit,
-  type,
-  recurringReservationPk
+  reservationToCopy,
 }: AddNewReservationButtonProps) {
-  const { hasUnitPermission } = usePermission()
-  const { unit } = reservationUnit;
+  const { hasUnitPermission } = usePermission();
+  const unit = reservationToCopy?.reservationUnit?.[0] ?? {};
   const isAllowed = hasUnitPermission(Permission.CAN_MANAGE_RESERVATIONS, unit);
   const { t } = useTranslation();
 
   const { setModalContent } = useModal();
 
   const handleClose = () => {
-    setModalContent(null)
-  }
+    setModalContent(null);
+  };
   const handleAccept = () => {
     handleClose();
-  }
+  };
   const handleClick = () => {
     setModalContent(
       <NewReservationModal
         onAccept={handleAccept}
         onClose={handleClose}
-        reservationUnit={reservationUnit}
-        type={type}
-        recurringReservationPk={recurringReservationPk}
+        reservationToCopy={reservationToCopy}
       />,
       true
     );
-  }
+  };
 
   return (
-    <>
-      <Button
-        theme="black"
-        variant="secondary"
-        size="small"
-        disabled={!isAllowed}
-        onClick={handleClick}
-        >
-        {t("MyUnits.RecurringReservation.addNewReservation")}
-      </Button>
-    </>
-  )
+    <Button
+      theme="black"
+      variant="secondary"
+      size="small"
+      disabled={!isAllowed}
+      onClick={handleClick}
+    >
+      {t("MyUnits.RecurringReservation.addNewReservation")}
+    </Button>
+  );
 }
 
 const TitleWrapper = styled.div`
@@ -205,34 +196,30 @@ type Props = {
   header?: React.ReactNode;
   items: NewReservationListItem[];
   hasPadding?: boolean;
-}
+};
 type ExtendedProps = {
-  reservationUnit: AddNewReservationButtonProps["reservationUnit"];
-  type: AddNewReservationButtonProps["type"];
-  recurringReservationPk: AddNewReservationButtonProps["recurringReservationPk"];
+  reservationToCopy: ReservationQuery["reservation"];
 } & Props;
 
 /// Used by the RecurringReservation pages to show a list of reservations
 // TODO should be renamed / moved to signify that this is only for recurring reservations
 // TODO should pass the reservation unit here not the unit (or both)
-export function ReservationList(props : Props | ExtendedProps) {
+export function ReservationList(props: Props | ExtendedProps) {
   const { header, items, hasPadding } = props;
   if (items.length === 0) {
     return null;
   }
 
-  const hasReservationUnit = "reservationUnit" in props
+  const hasReservation = "reservationToCopy" in props;
 
   return (
     <ListWrapper data-testid="reservations-list">
       <TitleWrapper>
         {header}
-        {hasReservationUnit && (
+        {hasReservation && (
           <div>
             <AddNewReservationButton
-              reservationUnit={props.reservationUnit}
-              type={props.type}
-              recurringReservationPk={props.recurringReservationPk}
+              reservationToCopy={props.reservationToCopy}
             />
           </div>
         )}
