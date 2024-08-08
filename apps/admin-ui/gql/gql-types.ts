@@ -7255,6 +7255,30 @@ export type StaffAdjustReservationTimeMutation = {
   } | null;
 };
 
+export type ChangeReservationTimeFragment = {
+  id: string;
+  pk?: number | null;
+  begin: string;
+  end: string;
+  type?: ReservationTypeChoice | null;
+  bufferTimeAfter: number;
+  bufferTimeBefore: number;
+  recurringReservation?: {
+    pk?: number | null;
+    id: string;
+    weekdays?: Array<number | null> | null;
+    beginDate?: string | null;
+    endDate?: string | null;
+  } | null;
+  reservationUnit: Array<{
+    id: string;
+    pk?: number | null;
+    bufferTimeBefore: number;
+    bufferTimeAfter: number;
+    reservationStartInterval: ReservationStartInterval;
+  }>;
+};
+
 export type ReservationUnitPricingFragment = {
   pricings: Array<{
     id: string;
@@ -7769,12 +7793,14 @@ export type RecurringReservationQuery = {
       rejectionReason: RejectionReadinessChoice;
     }>;
     reservations: Array<{
+      state?: ReservationStateChoice | null;
       id: string;
       pk?: number | null;
       begin: string;
       end: string;
-      state?: ReservationStateChoice | null;
       type?: ReservationTypeChoice | null;
+      bufferTimeAfter: number;
+      bufferTimeBefore: number;
       paymentOrder: Array<{ id: string; status?: OrderStatus | null }>;
       reservationUnit: Array<{
         id: string;
@@ -7784,6 +7810,13 @@ export type RecurringReservationQuery = {
         reservationStartInterval: ReservationStartInterval;
         unit?: { id: string; pk?: number | null } | null;
       }>;
+      recurringReservation?: {
+        pk?: number | null;
+        id: string;
+        weekdays?: Array<number | null> | null;
+        beginDate?: string | null;
+        endDate?: string | null;
+      } | null;
     }>;
   } | null;
 };
@@ -9401,6 +9434,31 @@ export const ReservationsInIntervalFragmentDoc = gql`
     bufferTimeAfter
     type
     affectedReservationUnits
+  }
+`;
+export const ChangeReservationTimeFragmentDoc = gql`
+  fragment ChangeReservationTime on ReservationNode {
+    id
+    pk
+    begin
+    end
+    type
+    bufferTimeAfter
+    bufferTimeBefore
+    recurringReservation {
+      pk
+      id
+      weekdays
+      beginDate
+      endDate
+    }
+    reservationUnit {
+      id
+      pk
+      bufferTimeBefore
+      bufferTimeAfter
+      reservationStartInterval
+    }
   }
 `;
 export const PricingFieldsFragmentDoc = gql`
@@ -13197,22 +13255,13 @@ export const RecurringReservationDocument = gql`
         rejectionReason
       }
       reservations {
-        id
-        pk
-        begin
-        end
+        ...ChangeReservationTime
         state
         paymentOrder {
           id
           status
         }
-        type
         reservationUnit {
-          id
-          pk
-          bufferTimeBefore
-          bufferTimeAfter
-          reservationStartInterval
           unit {
             id
             pk
@@ -13221,6 +13270,7 @@ export const RecurringReservationDocument = gql`
       }
     }
   }
+  ${ChangeReservationTimeFragmentDoc}
 `;
 
 /**

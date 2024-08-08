@@ -5,6 +5,7 @@ import { Button, Dialog, Notification } from "hds-react";
 import { z } from "zod";
 import { type TFunction } from "i18next";
 import {
+  type ChangeReservationTimeFragment,
   ReservationTypeChoice,
   useCreateStaffReservationMutation,
   useStaffAdjustReservationTimeMutation,
@@ -25,6 +26,7 @@ import { useCheckCollisions } from "./requested/hooks";
 import { getNormalizedInterval, parseDateTimeSafe } from "@/helpers";
 import { formatDateTimeRange } from "@/common/util";
 import { gql } from "@apollo/client";
+import { filterNonNullable } from "common/src/helpers";
 
 const StyledForm = styled.form`
   margin-top: var(--spacing-m);
@@ -68,7 +70,7 @@ function recurringReservationInfoText({
   end?: Date;
   t: TFunction;
 }) {
-  return t("Reservation.EditTime.recurringInfoTimes", {
+  return t("Reservation.EditTimeModal.recurringInfoTimes", {
     weekdays: weekdays
       .sort((a, b) => a - b)
       .map((weekday) => t(`dayShort.${weekday}`))
@@ -99,7 +101,31 @@ export const CHANGE_RESERVATION_TIME = gql`
   }
 `;
 
-// TODO add create new reservation mutation
+export const CHANGE_RESERVATION_TIME_QUERY_FRAGMENT = gql`
+  fragment ChangeReservationTime on ReservationNode {
+    id
+    pk
+    begin
+    end
+    type
+    bufferTimeAfter
+    bufferTimeBefore
+    recurringReservation {
+      pk
+      id
+      weekdays
+      beginDate
+      endDate
+    }
+    reservationUnit {
+      id
+      pk
+      bufferTimeBefore
+      bufferTimeAfter
+      reservationStartInterval
+    }
+  }
+`;
 
 type CommonProps = {
   onClose: () => void;
@@ -111,25 +137,15 @@ type MutationValues = {
   buffers: { before?: number; after?: number };
 };
 
-// TODO use a fragment
-type QueryT = NonNullable<ReservationQuery["reservation"]>;
-type ReservationType = Pick<
-  QueryT,
-  | "pk"
-  | "begin"
-  | "end"
-  | "reservationUnit"
-  | "bufferTimeAfter"
-  | "bufferTimeBefore"
-  | "recurringReservation"
-  | "type"
->;
+
 type DialogContentProps = {
   form: UseFormReturn<EditFormValueType>;
   reservationUnitPk: number;
   bufferTimeBefore: number;
   bufferTimeAfter: number;
   mutate: (values: MutationValues) => void;
+  topContent?: React.ReactNode;
+  type: "move" | "new";
 } & CommonProps;
 
 function convertToApiFormat(begin: Date, end: Date) {
@@ -146,6 +162,8 @@ function DialogContent({
   bufferTimeAfter,
   mutate,
   onClose,
+  topContent,
+  type,
 }: DialogContentProps) {
   const { t, i18n } = useTranslation();
   const { notifyError } = useNotification();
@@ -220,36 +238,16 @@ function DialogContent({
     errorMsg ? t(`reservationForm:errors.${errorMsg}`) : "";
 
   const newTimeString = start && end ? formatDateInterval(t, start, end) : "";
-  // TODO this is only relaevant for moving existing reservations (not new ones)
-  // const originalTime = formatDateInterval(t, startDateTime, endDateTime);
+  const translateKey =
+    type === "move"
+      ? "Reservation.EditTimeModal"
+      : "Reservation.NewReservationModal";
+  const commonTrKey = "Reservation.CommonModal";
   const isDisabled = (!isDirty && !isValid) || isLoading || hasCollisions;
   return (
     <Dialog.Content>
       <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
-        {/* FIX later reservation.recurringReservation && (
-          <TimeInfoBox>
-            {t("Reservation.EditTime.recurringInfoLabel")}:{" "}
-            <Bold>
-              {recurringReservationInfoText({
-                weekdays: filterNonNullable(
-                  reservation.recurringReservation.weekdays
-                ),
-                begin: ((x) => (x != null ? new Date(x) : undefined))(
-                  reservation.recurringReservation.beginDate
-                ),
-                end: ((x) => (x != null ? new Date(x) : undefined))(
-                  reservation.recurringReservation.endDate
-                ),
-                t,
-              })}
-            </Bold>
-          </TimeInfoBox>
-        )*/}
-        {/*
-        <TimeInfoBox>
-          {t("Reservation.EditTime.originalTime")}: <Bold>{originalTime}</Bold>
-        </TimeInfoBox>
-        */}
+        {topContent}
         <ControlledDateInput
           name="date"
           control={control}
@@ -271,18 +269,16 @@ function DialogContent({
           <BufferToggles before={bufferTimeBefore} after={bufferTimeAfter} />
         </FormProvider>
         <TimeInfoBox $isDisabled={!isDirty || !isValid}>
-          {/* TODO different translation for new reservations */}
-          {t("Reservation.EditTime.newTime")}: <Bold>{newTimeString}</Bold>
+          {t(`${commonTrKey}.newTime`)}: <Bold>{newTimeString}</Bold>
         </TimeInfoBox>
         {hasCollisions && (
-          /* TODO different translation for new reservations */
           <Notification
             size="small"
-            label={t("Reservation.EditTime.error.reservationCollides")}
+            label={t(`${commonTrKey}.error.reservationCollides`)}
             type="error"
             style={{ marginTop: "var(--spacing-s)", gridColumn: "1 / -1" }}
           >
-            {t("Reservation.EditTime.error.reservationCollides")}
+            {t(`${commonTrKey}.error.reservationCollides`)}
           </Notification>
         )}
         <ActionButtons>
@@ -290,8 +286,7 @@ function DialogContent({
             {t("common.cancel")}
           </Button>
           <Button disabled={isDisabled} type="submit">
-            {/* TODO different translation for new reservations */}
-            {t("Reservation.EditTime.accept")}
+            {t(`${translateKey}.acceptBtn`)}
           </Button>
         </ActionButtons>
       </StyledForm>
@@ -308,17 +303,7 @@ const StyledDialog = styled(Dialog)`
 `;
 
 export type NewReservationModalProps = CommonProps & {
-  // TODO this can't be reservation unit really (has to be the recurringReservation where the new reservation is created)
-  // FIXME replace these three with a single reservation (we need to copy all the metadata from another reservation in the series)
-  // should also be the one we are looking at in the UI (not the first or some other one)
-  // (because two reservations in the same series can have different metadata)
-  // if some of them are in the past and some in the future and they got edited after that (the ones in the past have the original metadata)
   reservationToCopy: ReservationQuery["reservation"];
-  /*
-  reservationUnit: Pick<ReservationUnitNode, "pk" | "bufferTimeAfter" | "bufferTimeBefore" | "reservationStartInterval">;
-  recurringReservationPk: number;
-  type: ReservationTypeChoice;
-  */
   onAccept: () => void;
 };
 
@@ -359,6 +344,7 @@ export function NewReservationModal({
       enableBufferTimeBefore: true,
       // FIXME this is incorrect (they are created as part of a series)
       // so we need to use the type from other reservations in that series
+      // TODO we can remove the type completely? correct?
       type: ReservationTypeChoice.Staff,
     },
   });
@@ -366,6 +352,8 @@ export function NewReservationModal({
   // TODO for the create mutation we need to pass in at least the recurringReservationPk (from another reservation in the same series)
   // but do we need to pass in also the metadata? i.e. copy all the fields from another reservation?
   const [create] = useCreateStaffReservationMutation();
+
+  const { notifySuccess } = useNotification();
 
   // TODO pass the type as a prop? it's available in the form
   // but it doesn't need to be?
@@ -386,11 +374,12 @@ export function NewReservationModal({
           reservationUnitPks: [reservationUnit?.pk],
           type,
           recurringReservationPk,
+          // FIXME copy attributes from the reservation to copy
         },
       },
     });
-    // TODO notify success
     onAccept();
+    notifySuccess(t("Reservation.NewReservationModal.successToast"));
   };
 
   return (
@@ -403,7 +392,7 @@ export function NewReservationModal({
     >
       <Dialog.Header
         id="modal-header"
-        title={t("Reservation.EditTime.title")}
+        title={t("Reservation.NewReservationModal.title")}
       />
       <ErrorBoundary fallback={<div>{t("errors.unknown")}</div>}>
         <DialogContent
@@ -413,6 +402,7 @@ export function NewReservationModal({
           bufferTimeBefore={bufferTimeBefore}
           mutate={mutate}
           onClose={onClose}
+          type="new"
         />
       </ErrorBoundary>
     </StyledDialog>
@@ -426,7 +416,7 @@ export function EditTimeModal({
   reservation,
   onAccept,
   onClose,
-}: CommonProps & { onAccept: () => void; reservation: ReservationType }) {
+}: CommonProps & { onAccept: () => void; reservation: ChangeReservationTimeFragment }) {
   const { isOpen } = useModal();
   const { t } = useTranslation();
 
@@ -445,10 +435,16 @@ export function EditTimeModal({
     reservationUnit?.reservationStartInterval
   );
 
+  if (reservation.pk == null) {
+    // eslint-disable-next-line no-console
+    console.warn("EditTimeModal: pk missing");
+  }
+
   const form = useForm<EditFormValueType>({
     resolver: zodResolver(TimeChangeFormSchemaRefined(interval)),
     mode: "onChange",
     defaultValues: {
+      pk: reservation.pk ?? undefined,
       date: format(startDateTime, "dd.MM.yyyy"),
       startTime: format(startDateTime, "HH:mm"),
       endTime: format(endDateTime, "HH:mm"),
@@ -460,17 +456,14 @@ export function EditTimeModal({
 
   const { notifySuccess } = useNotification();
 
-  // TODO the mutation should be passed as a prop
-  // or actually a callback function that takes in the form values
   const [changeTimeMutation] = useStaffAdjustReservationTimeMutation();
 
-  // TODO this callback needs to passed as a prop
-  const changeTime = async ({ pk, begin, end, buffers }: MutationValues) => {
-    // TODO this should use createReservationMutation
+  const changeTime = async ({ begin, end, buffers }: MutationValues) => {
+    const pk = reservation.pk;
     if (!pk) {
       throw new Error("pk missing");
     }
-    changeTimeMutation({
+    await changeTimeMutation({
       variables: {
         input: {
           ...convertToApiFormat(begin, end),
@@ -482,10 +475,11 @@ export function EditTimeModal({
         },
       },
     });
-    notifySuccess(t("Reservation.EditTime.successToast"));
+    notifySuccess(t("Reservation.EditTimeModal.successToast"));
     onAccept();
   };
 
+  const originalTime = formatDateInterval(t, startDateTime, endDateTime);
   return (
     <StyledDialog
       variant="primary"
@@ -496,7 +490,7 @@ export function EditTimeModal({
     >
       <Dialog.Header
         id="modal-header"
-        title={t("Reservation.EditTime.title")}
+        title={t("Reservation.EditTimeModal.title")}
       />
       <ErrorBoundary fallback={<div>{t("errors.unknown")}</div>}>
         <DialogContent
@@ -506,6 +500,32 @@ export function EditTimeModal({
           bufferTimeBefore={bufferTimeBefore}
           mutate={changeTime}
           onClose={onClose}
+          type="move"
+          topContent={
+            <>
+              <TimeInfoBox>
+                {t("Reservation.EditTimeModal.recurringInfoLabel")}:{" "}
+                <Bold>
+                  {recurringReservationInfoText({
+                    weekdays: filterNonNullable(
+                      reservation.recurringReservation?.weekdays
+                    ),
+                    begin: ((x) => (x != null ? new Date(x) : undefined))(
+                      reservation.recurringReservation?.beginDate
+                    ),
+                    end: ((x) => (x != null ? new Date(x) : undefined))(
+                      reservation.recurringReservation?.endDate
+                    ),
+                    t,
+                  })}
+                </Bold>
+              </TimeInfoBox>
+              <TimeInfoBox>
+                {t("Reservation.EditTimeModal.originalTime")}:{" "}
+                <Bold>{originalTime}</Bold>
+              </TimeInfoBox>
+            </>
+          }
         />
       </ErrorBoundary>
     </StyledDialog>

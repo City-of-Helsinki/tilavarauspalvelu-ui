@@ -68,14 +68,14 @@ export function RecurringReservationsView({
     onChange?.();
   };
 
-  type ReservationEditType = NonNullable<ReservationQuery["reservation"]>;
+  // type ReservationEditType = NonNullable<ReservationQuery["reservation"]>;
   const handleChange = (res: (typeof reservations)[0]) => {
     setModalContent(
       <EditTimeModal
         // TODO this was here already (so probably uses the undefineds on purpose)
         // The correct way to deal with this would be either split
         // the Edit modal into two parts or do a query using id inside it (if we need all the data).
-        reservation={res as ReservationEditType}
+        reservation={res}
         onAccept={handleChangeSuccess}
         onClose={() => setModalContent(null)}
       />,

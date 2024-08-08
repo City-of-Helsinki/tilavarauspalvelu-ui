@@ -672,22 +672,31 @@ const translations: ITranslations = {
       schedule: ["Vuoro"],
     },
     noReservations: ["Ei varauksia"],
-    EditTime: {
-      buttonName: ["Muuta aikaa"],
-      title: ["Muuta varauksen aikaa"],
-      newTime: ["Uusi aika"],
-      originalTime: ["Muutettava aika"],
-      recurringInfoLabel: ["Toistuva varaus aikavälillä"],
-      recurringInfoTimes: ["{{ weekdays }} {{begin}} - {{end}}"],
-      accept: ["Muuta aikaa"],
+    NewReservationModal: {
+      // TODO check the translations
+      acceptBtn: ["Uusi varaus"],
+      title: ["Luo uusi varaus"],
       successToast: ["Uusi aika tallennettu"],
+    },
+    CommonModal: {
       form: {
         startTime: ["Aloitusaika"],
         length: ["Kesto"],
       },
+      newTime: ["Uusi aika"],
+      error: {
+        reservationCollides: ["Toivomasi aika ei ole saatavilla"],
+      },
+    },
+    EditTimeModal: {
+      title: ["Muuta varauksen aikaa"],
+      originalTime: ["Muutettava aika"],
+      recurringInfoLabel: ["Toistuva varaus aikavälillä"],
+      recurringInfoTimes: ["{{ weekdays }} {{begin}} - {{end}}"],
+      acceptBtn: ["Muuta aikaa"],
+      successToast: ["Uusi aika tallennettu"],
       error: {
         mutation: ["Ajan muutos epäonnistui."],
-        reservationCollides: ["Toivomasi aika ei ole saatavilla"],
       },
     },
     EditPage: {

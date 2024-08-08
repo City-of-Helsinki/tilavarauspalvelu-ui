@@ -158,22 +158,13 @@ export const RECURRING_RESERVATION_QUERY = gql`
         rejectionReason
       }
       reservations {
-        id
-        pk
-        begin
-        end
+        ...ChangeReservationTime
         state
         paymentOrder {
           id
           status
         }
-        type
         reservationUnit {
-          id
-          pk
-          bufferTimeBefore
-          bufferTimeAfter
-          reservationStartInterval
           unit {
             id
             pk
