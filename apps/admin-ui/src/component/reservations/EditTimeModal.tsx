@@ -10,6 +10,7 @@ import {
   useCreateStaffReservationMutation,
   useStaffAdjustReservationTimeMutation,
   type ReservationQuery,
+  ReservationStaffCreateMutationInput,
 } from "@gql/gql-types";
 import { FormProvider, UseFormReturn, useForm } from "react-hook-form";
 import { differenceInMinutes, format } from "date-fns";
@@ -26,7 +27,7 @@ import { useCheckCollisions } from "./requested/hooks";
 import { getNormalizedInterval, parseDateTimeSafe } from "@/helpers";
 import { formatDateTimeRange } from "@/common/util";
 import { gql } from "@apollo/client";
-import { filterNonNullable } from "common/src/helpers";
+import { filterNonNullable, pick } from "common/src/helpers";
 
 const StyledForm = styled.form`
   margin-top: var(--spacing-m);
@@ -50,6 +51,14 @@ const TimeInfoBox = styled.p<{ $isDisabled?: boolean }>`
 
 const Bold = styled.b`
   white-space: nowrap;
+`;
+
+const StyledDialog = styled(Dialog)`
+  /* larger than normal HDS modal */
+  && {
+    width: 100%;
+  }
+  max-width: 944px;
 `;
 
 const btnCommon = {
@@ -136,7 +145,6 @@ type MutationValues = {
   end: Date;
   buffers: { before?: number; after?: number };
 };
-
 
 type DialogContentProps = {
   form: UseFormReturn<EditFormValueType>;
@@ -294,13 +302,6 @@ function DialogContent({
   );
 }
 
-const StyledDialog = styled(Dialog)`
-  /* larger than normal HDS modal */
-  && {
-    width: 100%;
-  }
-  max-width: 944px;
-`;
 
 export type NewReservationModalProps = CommonProps & {
   reservationToCopy: ReservationQuery["reservation"];
@@ -345,7 +346,7 @@ export function NewReservationModal({
       // FIXME this is incorrect (they are created as part of a series)
       // so we need to use the type from other reservations in that series
       // TODO we can remove the type completely? correct?
-      type: ReservationTypeChoice.Staff,
+      type: reservationToCopy?.type ?? ReservationTypeChoice.Staff,
     },
   });
 
@@ -355,27 +356,69 @@ export function NewReservationModal({
 
   const { notifySuccess } = useNotification();
 
-  // TODO pass the type as a prop? it's available in the form
-  // but it doesn't need to be?
-  const mutate = async ({ begin, end, buffers }: MutationValues) => {
-    console.log("create", begin, end, buffers);
+  function createInput({
+    begin,
+    end,
+    buffers,
+  }: MutationValues): ReservationStaffCreateMutationInput {
+    if (reservationToCopy == null) {
+      throw new Error("reservationToCopy missing");
+    }
+    const keys = [
+      "name",
+      "description",
+      "applyingForFreeOfCharge",
+      "billingAddressCity",
+      "billingAddressStreet",
+      "billingAddressZip",
+      "billingEmail",
+      "billingFirstName",
+      "billingLastName",
+      "billingPhone",
+      "freeOfChargeReason",
+      "numPersons",
+      "reserveeAddressCity",
+      "reserveeAddressStreet",
+      "reserveeAddressZip",
+      "reserveeEmail",
+      "reserveeFirstName",
+      "reserveeId",
+      "reserveeIsUnregisteredAssociation",
+      "reserveeLastName",
+      "reserveeOrganisationName",
+      "reserveePhone",
+    ] as const;
+    // TODO set the pks in the mutation
+    const homeCity = reservationToCopy.homeCity;
+    const purpose = reservationToCopy.purpose;
+    const ageGroup = reservationToCopy.ageGroup;
+    const metadata = pick(reservationToCopy, keys);
     if (!reservationUnit?.pk) {
       throw new Error("reservation unit pk missing");
     }
     if (type == null) {
       throw new Error("type missing");
     }
+    return {
+      ...metadata,
+      homeCityPk: homeCity?.pk,
+      purposePk: purpose?.pk,
+      ageGroupPk: ageGroup?.pk,
+      ...convertToApiFormat(begin, end),
+      bufferTimeAfter: String(buffers.after),
+      bufferTimeBefore: String(buffers.before),
+      reservationUnitPks: [reservationUnit?.pk],
+      type,
+      recurringReservationPk,
+    };
+  }
+
+  // TODO pass the type as a prop? it's available in the form
+  // but it doesn't need to be?
+  const mutate = async (values: MutationValues) => {
     create({
       variables: {
-        input: {
-          ...convertToApiFormat(begin, end),
-          bufferTimeAfter: String(buffers.after),
-          bufferTimeBefore: String(buffers.before),
-          reservationUnitPks: [reservationUnit?.pk],
-          type,
-          recurringReservationPk,
-          // FIXME copy attributes from the reservation to copy
-        },
+        input: createInput(values),
       },
     });
     onAccept();
@@ -416,7 +459,10 @@ export function EditTimeModal({
   reservation,
   onAccept,
   onClose,
-}: CommonProps & { onAccept: () => void; reservation: ChangeReservationTimeFragment }) {
+}: CommonProps & {
+  onAccept: () => void;
+  reservation: ChangeReservationTimeFragment;
+}) {
   const { isOpen } = useModal();
   const { t } = useTranslation();
 

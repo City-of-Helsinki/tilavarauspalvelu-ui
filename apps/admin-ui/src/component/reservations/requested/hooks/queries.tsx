@@ -165,6 +165,7 @@ export const RECURRING_RESERVATION_QUERY = gql`
           status
         }
         reservationUnit {
+          id
           unit {
             id
             pk

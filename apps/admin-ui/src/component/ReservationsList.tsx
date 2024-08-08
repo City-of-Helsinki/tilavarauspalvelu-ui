@@ -158,9 +158,12 @@ function AddNewReservationButton({
   const handleClose = () => {
     setModalContent(null);
   };
+
   const handleAccept = () => {
     handleClose();
+    // FIXME refetch / invalidate
   };
+
   const handleClick = () => {
     setModalContent(
       <NewReservationModal
