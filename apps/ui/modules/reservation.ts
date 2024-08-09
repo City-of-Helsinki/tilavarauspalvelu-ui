@@ -1,5 +1,11 @@
-import { addMinutes, addSeconds, isAfter, isValid } from "date-fns";
-import type { PendingReservation } from "common/types/common";
+import {
+  addMinutes,
+  addSeconds,
+  isAfter,
+  addDays,
+  roundToNearestMinutes,
+  differenceInMinutes,
+} from "date-fns";
 import {
   type ReservationNode,
   ReservationStartInterval,
@@ -8,25 +14,26 @@ import {
   type Maybe,
   type ListReservationsQuery,
   type IsReservableFieldsFragment,
-  type ReservationUnitNode,
   ReservationStateChoice,
+  type ReservationUnitNode,
   OrderStatus,
   type ReservationOrderStatusFragment,
+  type CancellationRuleFieldsFragment,
 } from "@gql/gql-types";
-import {
-  type RoundPeriod,
-  doBuffersCollide,
-  doReservationsCollide,
-  getIntervalMinutes,
-  isRangeReservable,
-  isReservationLongEnough,
-  isReservationShortEnough,
-  isStartTimeWithinInterval,
-} from "common/src/calendar/util";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
-import { filterNonNullable } from "common/src/helpers";
+import { getIntervalMinutes } from "common/src/conversion";
 import { getTranslation } from "./util";
-import type { TFunction } from "i18next";
+import { type TFunction } from "i18next";
+import { type PendingReservation } from "@/modules/types";
+import {
+  type ReservableMap,
+  type RoundPeriod,
+  isRangeReservable,
+} from "./reservable";
+
+// TimeSlots change the Calendar view. How many intervals are shown i.e. every half an hour, every hour
+// we use every hour only => 2
+export const SLOTS_EVERY_HOUR = 2;
 
 /// @param opts subset of ReservationUnitNode
 /// @param t translation function
@@ -89,7 +96,7 @@ export function getDurationOptions(
   return durationOptions;
 }
 
-export function isReservationInThePast(
+function isReservationInThePast(
   reservation: Pick<ReservationNode, "begin">
 ): boolean {
   if (!reservation?.begin) {
@@ -127,34 +134,44 @@ type GetReservationCancellationReasonReservationT = Pick<
   }> | null;
 };
 
-function isReservationWithinCancellationPeriod(
+function isTooCloseToCancel(
   reservation: IsWithinCancellationPeriodReservationT
 ): boolean {
   const reservationUnit = reservation.reservationUnit?.[0];
   const begin = new Date(reservation.begin);
 
-  const minutesBeforeCancel =
-    reservationUnit?.cancellationRule?.canBeCancelledTimeBefore ?? 0;
-  const cancelLatest = addSeconds(new Date(), minutesBeforeCancel);
+  const { canBeCancelledTimeBefore } = reservationUnit?.cancellationRule ?? {};
+  const cancelLatest = addSeconds(begin, -(canBeCancelledTimeBefore ?? 0));
+  const now = new Date();
 
-  return cancelLatest > begin;
+  return cancelLatest < now;
 }
 
+type CanUserCancelReservationProps = Pick<
+  NonNullable<ReservationNodeT>,
+  "state" | "begin"
+> & {
+  reservationUnit?: Maybe<Array<CancellationRuleFieldsFragment>> | undefined;
+};
 export function canUserCancelReservation(
-  reservation: IsWithinCancellationPeriodReservationT &
-    Pick<NonNullable<ReservationNodeT>, "state">,
-  skipTimeCheck = false
+  reservation: CanUserCancelReservationProps
 ): boolean {
   const reservationUnit = reservation.reservationUnit?.[0];
+  if (!reservationUnit) return false;
+  // TODO why isn't user allowed to cancel waiting for payment?
+  // TODO why can't user cancel if the reservation is waiting for handling?
   if (reservation.state !== ReservationStateChoice.Confirmed) return false;
-  if (!reservationUnit?.cancellationRule) return false;
-  if (reservationUnit?.cancellationRule?.needsHandling) return false;
-  if (!skipTimeCheck && isReservationWithinCancellationPeriod(reservation))
+  if (reservationUnit.cancellationRule == null) return false;
+  // TODO why isn't the user allowed to cancel if the reservation has been handled?
+  if (reservationUnit.cancellationRule.needsHandling) return false;
+  if (isTooCloseToCancel(reservation)) {
     return false;
+  }
 
   return true;
 }
 
+// TODO why is this named like this??? what does application have to do with this?
 export function getReservationApplicationMutationValues(
   // TODO don't use Records to avoid proper typing
   payload: Record<string, string | number | boolean>,
@@ -196,7 +213,7 @@ type ReservationCancellationReason =
   | "REQUIRES_HANDLING"
   | "BUFFER";
 
-export function getReservationCancellationReason(
+export function getWhyReservationCantBeCancelled(
   reservation: GetReservationCancellationReasonReservationT
 ): ReservationCancellationReason | null {
   const reservationUnit = reservation.reservationUnit?.[0];
@@ -205,7 +222,7 @@ export function getReservationCancellationReason(
     return "PAST";
   }
 
-  if (!reservationUnit?.cancellationRule) {
+  if (reservationUnit?.cancellationRule == null) {
     return "NO_CANCELLATION_RULE";
   }
 
@@ -213,10 +230,7 @@ export function getReservationCancellationReason(
     return "REQUIRES_HANDLING";
   }
 
-  if (
-    reservationUnit.cancellationRule?.canBeCancelledTimeBefore &&
-    isReservationWithinCancellationPeriod(reservation)
-  ) {
+  if (isTooCloseToCancel(reservation)) {
     return "BUFFER";
   }
 
@@ -251,203 +265,121 @@ export function getNormalizedReservationOrderStatus(
   return null;
 }
 
-type ReservationUnitReservableProps = {
-  reservationUnit: IsReservableFieldsFragment;
-  activeApplicationRounds: RoundPeriod[];
-  start: Date;
-  end: Date;
-  skipLengthCheck: boolean;
-};
-
-/// NOTE don't return [boolean, string] causes issues in TS / JS
-/// instead break this function into cleaner separate functions
-export function isReservationReservable({
-  reservationUnit,
-  activeApplicationRounds,
-  start,
-  end,
-  skipLengthCheck = false,
-}: ReservationUnitReservableProps): boolean {
-  if (!reservationUnit) {
-    return false;
-  }
-
-  const normalizedEnd = addMinutes(end, -1);
-
-  const {
-    reservationSet,
-    bufferTimeBefore,
-    bufferTimeAfter,
-    reservableTimeSpans: reservableTimes,
-    maxReservationDuration,
-    minReservationDuration,
-    reservationStartInterval,
-    reservationsMaxDaysBefore,
-    reservationsMinDaysBefore,
-    reservationBegins,
-    reservationEnds,
-  } = reservationUnit;
-
-  if (!isValid(start) || !isValid(end)) {
-    return false;
-  }
-
-  const reservationsArr = filterNonNullable(reservationSet);
-  if (
-    doBuffersCollide(
-      {
-        start,
-        end,
-        isBlocked: false,
-        bufferTimeBefore: bufferTimeBefore ?? 0,
-        bufferTimeAfter: bufferTimeAfter ?? 0,
-      },
-      reservationsArr
-    )
-  ) {
-    return false;
-  }
-
-  const reservableTimeSpans = filterNonNullable(reservableTimes) ?? [];
-  if (
-    !isStartTimeWithinInterval(
-      start,
-      reservableTimeSpans,
-      reservationStartInterval
-    )
-  ) {
-    return false;
-  }
-
-  if (
-    !isRangeReservable({
-      range: [new Date(start), normalizedEnd],
-      reservableTimeSpans,
-      reservationBegins: reservationBegins
-        ? new Date(reservationBegins)
-        : undefined,
-      reservationEnds: reservationEnds ? new Date(reservationEnds) : undefined,
-      reservationsMaxDaysBefore: reservationsMaxDaysBefore ?? 0,
-      reservationsMinDaysBefore: reservationsMinDaysBefore ?? 0,
-      activeApplicationRounds,
-    })
-  ) {
-    return false;
-  }
-
-  if (
-    !skipLengthCheck &&
-    !isReservationLongEnough(start, end, minReservationDuration ?? 0)
-  ) {
-    return false;
-  }
-
-  if (
-    !skipLengthCheck &&
-    !isReservationShortEnough(start, end, maxReservationDuration ?? 0)
-  ) {
-    return false;
-  }
-
-  if (doReservationsCollide({ start, end }, reservationsArr)) {
-    return false;
-  }
-
-  return true;
+function isReservationConfirmed(reservation: {
+  state?: Maybe<ReservationStateChoice> | undefined;
+}): boolean {
+  return reservation.state === ReservationStateChoice.Confirmed;
 }
 
-const isReservationConfirmed = (reservation: {
-  state?: Maybe<ReservationStateChoice> | undefined;
-}): boolean => reservation.state === ReservationStateChoice.Confirmed;
-
-const isReservationFreeOfCharge = (
+function isReservationFreeOfCharge(
   reservation: Pick<ReservationNode, "price">
-): boolean => parseInt(String(reservation.price), 10) === 0;
+): boolean {
+  return parseInt(String(reservation.price), 10) === 0;
+}
 
 export type CanReservationBeChangedProps = {
-  reservation?: Pick<
+  reservation: Pick<
     ReservationNode,
     "begin" | "end" | "isHandled" | "state" | "price"
-  >;
-  newReservation?: ReservationNode | PendingReservation;
-  reservationUnit?: IsReservableFieldsFragment;
+  > &
+    CanUserCancelReservationProps;
+  reservableTimes: ReservableMap;
+  newReservation: PendingReservation;
+  reservationUnit: IsReservableFieldsFragment;
   activeApplicationRounds?: RoundPeriod[];
 };
 
-/// NOTE [boolean, string] causes issues in TS / JS
-/// ![false] === ![true] === false, with no type errors
-/// either refactor the return value or add lint rules to disable ! operator
-/// TODO disable undefined from reservation and reservationUnit
-export const canReservationTimeBeChanged = ({
-  reservation,
-  newReservation,
-  reservationUnit,
-  activeApplicationRounds = [],
-}: CanReservationBeChangedProps): [boolean, string?] => {
-  if (reservation == null) {
-    return [false];
-  }
+export function getWhyReservationCantBeChanged(
+  props: Pick<Required<CanReservationBeChangedProps>, "reservation">
+): string | null {
+  const { reservation } = props;
   // existing reservation state is not CONFIRMED
   if (!isReservationConfirmed(reservation)) {
-    return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
+    return "RESERVATION_MODIFICATION_NOT_ALLOWED";
   }
 
   // existing reservation begin time is in the future
   if (isReservationInThePast(reservation)) {
-    return [false, "RESERVATION_BEGIN_IN_PAST"];
+    return "RESERVATION_BEGIN_IN_PAST";
   }
 
   // existing reservation is free
   if (!isReservationFreeOfCharge(reservation)) {
-    return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
-  }
-
-  // existing reservation has valid cancellation rule that does not require handling
-  if (!canUserCancelReservation(reservation, true)) {
-    return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
+    return "RESERVATION_MODIFICATION_NOT_ALLOWED";
   }
 
   // existing reservation cancellation buffer is not exceeded
   if (!canUserCancelReservation(reservation)) {
-    return [false, "CANCELLATION_TIME_PAST"];
+    return "CANCELLATION_TIME_PAST";
   }
 
   // existing reservation has been handled
   if (reservation.isHandled) {
-    return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
+    return "RESERVATION_MODIFICATION_NOT_ALLOWED";
   }
 
-  if (newReservation) {
-    //  new reservation is free
-    if (!isReservationFreeOfCharge(newReservation)) {
-      return [false, "RESERVATION_MODIFICATION_NOT_ALLOWED"];
-    }
+  return null;
+}
 
-    if (reservationUnit == null) {
-      return [false, "RESERVATION_UNIT_NOT_FOUND"];
-    }
+export function isReservationEditable(
+  props: Pick<Required<CanReservationBeChangedProps>, "reservation">
+): boolean {
+  if (getWhyReservationCantBeChanged(props) != null) {
+    return false;
+  }
+  return true;
+}
 
-    //  new reservation is valid
-    const isReservable = isReservationReservable({
-      reservationUnit,
-      activeApplicationRounds,
+/// Only used by reservation edit (both page and component)
+/// NOTE [boolean, string] causes issues in TS / JS
+/// ![false] === ![true] === false, with no type errors
+/// either refactor the return value or add lint rules to disable ! operator
+/// TODO disable undefined from reservation and reservationUnit
+export function canReservationTimeBeChanged({
+  reservation,
+  newReservation,
+  reservableTimes,
+  reservationUnit,
+  activeApplicationRounds = [],
+}: CanReservationBeChangedProps): boolean {
+  if (reservation == null) {
+    return false;
+  }
+  // existing reservation state is not CONFIRMED
+  if (!isReservationConfirmed(reservation)) {
+    return false;
+  }
+
+  if (!isReservationEditable({ reservation })) {
+    return false;
+  }
+
+  // New reservation would require payment
+  if (!isReservationFreeOfCharge(newReservation)) {
+    return false;
+  }
+
+  if (reservationUnit == null) {
+    return false;
+  }
+
+  //  new reservation is valid
+  return isRangeReservable({
+    range: {
       start: new Date(newReservation.begin),
       end: new Date(newReservation.end),
-      skipLengthCheck: false,
-    });
-    if (!isReservable) {
-      return [false, "RESERVATION_TIME_INVALID"];
-    }
-  }
-
-  return [true];
-};
+    },
+    reservationUnit,
+    reservableTimes,
+    activeApplicationRounds,
+  });
+}
 
 // FIXME this is awful: we don't use the Node type anymore, this is not type safe, it's not intuative what this does and why
-export const getReservationValue = (
+export function getReservationValue(
   reservation: ReservationNode,
   key: string
-): string | number | null => {
+): string | number | null {
   switch (key) {
     case "ageGroup": {
       const { minimum, maximum } = reservation.ageGroup || {};
@@ -478,7 +410,7 @@ export const getReservationValue = (
       return null;
     }
   }
-};
+}
 
 export function getCheckoutUrl(
   order?: Maybe<{ checkoutUrl?: Maybe<string> }>,
@@ -500,4 +432,96 @@ export function getCheckoutUrl(
     console.error(e);
   }
   return undefined;
+}
+
+export function isReservationStartInFuture(
+  reservationUnit: Pick<
+    ReservationUnitNode,
+    "reservationBegins" | "reservationsMaxDaysBefore"
+  >,
+  now = new Date()
+): boolean {
+  const { reservationBegins, reservationsMaxDaysBefore } = reservationUnit;
+  const bufferDays = reservationsMaxDaysBefore ?? 0;
+  const negativeBuffer = Math.abs(bufferDays) * -1;
+
+  return (
+    !!reservationBegins &&
+    now < addDays(new Date(reservationBegins), negativeBuffer)
+  );
+}
+
+export function getNewReservation({
+  start,
+  end,
+  reservationUnit,
+}: {
+  reservationUnit: Pick<
+    ReservationUnitNode,
+    "minReservationDuration" | "reservationStartInterval"
+  >;
+  start: Date;
+  end: Date;
+}) {
+  const { minReservationDuration, reservationStartInterval } = reservationUnit;
+
+  const { end: minEnd } = getMinReservation({
+    begin: start,
+    minReservationDuration: minReservationDuration ?? 0,
+    reservationStartInterval,
+  });
+
+  const validEnd = getValidEndingTime({
+    start,
+    end: roundToNearestMinutes(end),
+    reservationStartInterval,
+  });
+  const normalizedEnd = Math.max(validEnd.getTime(), minEnd.getTime());
+
+  return {
+    begin: start,
+    end: new Date(normalizedEnd),
+  };
+}
+
+function getMinReservation({
+  begin,
+  reservationStartInterval,
+  minReservationDuration = 0,
+}: {
+  begin: Date;
+  reservationStartInterval: ReservationStartInterval;
+  minReservationDuration?: number;
+}): { begin: Date; end: Date } {
+  const minDurationMinutes = minReservationDuration / 60;
+  const intervalMinutes = getIntervalMinutes(reservationStartInterval);
+
+  const minutes =
+    minDurationMinutes < intervalMinutes ? intervalMinutes : minDurationMinutes;
+  return { begin, end: addMinutes(begin, minutes) };
+}
+
+function getValidEndingTime({
+  start,
+  end,
+  reservationStartInterval,
+}: {
+  start: Date;
+  end: Date;
+  reservationStartInterval: ReservationStartInterval;
+}): Date {
+  const intervalMinutes = getIntervalMinutes(reservationStartInterval);
+
+  const durationMinutes = differenceInMinutes(end, start);
+  const remainder = durationMinutes % intervalMinutes;
+
+  if (remainder !== 0) {
+    const wholeIntervals = Math.abs(
+      Math.floor(durationMinutes / intervalMinutes)
+    );
+
+    return addMinutes(start, wholeIntervals * intervalMinutes);
+  }
+
+  return end;
 }

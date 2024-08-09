@@ -1,4 +1,5 @@
-import type { ImageFragment, Maybe } from "../gql/gql-types";
+import { isAfter, isBefore } from "date-fns";
+import { type ImageFragment, type Maybe } from "../gql/gql-types";
 import { pixel } from "./common/style";
 
 export function filterNonNullable<T>(
@@ -103,4 +104,30 @@ function getImageSourceWithoutDefault(
     default:
       return null;
   }
+}
+function pickMaybeDay(
+  a: Date | undefined,
+  b: Date | undefined,
+  compF: (a: Date, b: Date) => boolean
+): Date | undefined {
+  if (!a) {
+    return b;
+  }
+  if (!b) {
+    return a;
+  }
+  return compF(a, b) ? a : b;
+}
+
+// Returns a Date object with the first day of the given array of Dates
+export function dayMin(days: Array<Date | undefined>): Date | undefined {
+  return filterNonNullable(days).reduce<Date | undefined>((acc, day) => {
+    return pickMaybeDay(acc, day, isBefore);
+  }, undefined);
+}
+
+export function dayMax(days: Array<Date | undefined>): Date | undefined {
+  return filterNonNullable(days).reduce<Date | undefined>((acc, day) => {
+    return pickMaybeDay(acc, day, isAfter);
+  }, undefined);
 }

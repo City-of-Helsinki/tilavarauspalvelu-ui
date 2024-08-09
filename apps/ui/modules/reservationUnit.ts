@@ -1,20 +1,22 @@
 import { formatters as getFormatters, getReservationVolume } from "common";
 import { flatten, trim, uniq } from "lodash";
-import { addMinutes, isAfter, isBefore, isSameDay, set } from "date-fns";
+import {
+  addMinutes,
+  getHours,
+  getMinutes,
+  isAfter,
+  isBefore,
+  isSameDay,
+  set,
+} from "date-fns";
 import { i18n } from "next-i18next";
 import { toUIDate } from "common/src/common/util";
-import {
-  type RoundPeriod,
-  getDayIntervals,
-  isSlotWithinReservationTime,
-} from "common/src/calendar/util";
 import {
   ReservationUnitState,
   type ReservationUnitNode,
   PricingType,
   PriceUnit,
   Status,
-  type ReservationUnitPageQuery,
   type EquipmentFieldsFragment,
   type PriceReservationUnitFragment,
   type UnitNode,
@@ -22,19 +24,32 @@ import {
   type MetadataSetsFragment,
   ReservationKind,
   ReservationStateChoice,
+  type IsReservableFieldsFragment,
+  ReservationStartInterval,
 } from "@gql/gql-types";
-import { filterNonNullable } from "common/src/helpers";
 import { capitalize, getTranslation } from "./util";
-import { isReservationReservable } from "@/modules/reservation";
+import {
+  type ReservableMap,
+  type RoundPeriod,
+  isSlotWithinReservationTime,
+  dateToKey,
+  isRangeReservable,
+} from "@/modules/reservable";
 import { type PricingFieldsFragment } from "common/gql/gql-types";
 import { gql } from "@apollo/client";
+import { getIntervalMinutes } from "common/src/conversion";
 
-export const getTimeString = (date = new Date()): string => {
+function formatTimeObject(time: { h: number; m: number }): string {
+  return `${time.h.toString().padStart(2, "0")}:${time.m.toString().padStart(2, "0")}`;
+}
+function formatTime(date: Date): string {
   if (Number.isNaN(date.getTime())) {
     return "";
   }
-  return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
-};
+  return formatTimeObject({ h: getHours(date), m: getMinutes(date) });
+}
+
+export { formatTime as getTimeString };
 
 export function isReservationUnitPublished(
   reservationUnit?: Pick<ReservationUnitNode, "state"> | null
@@ -355,57 +370,101 @@ export function isInTimeSpan(
   return true;
 }
 
-// TODO this should be a fragment
-type QueryT = NonNullable<ReservationUnitPageQuery["reservationUnit"]>;
+/// Generate a list of intervals for a day
+// TODO this can be moved to reservationUnit (not used here anymore)
+export function getDayIntervals(
+  startTime: { h: number; m: number },
+  endTime: { h: number; m: number },
+  interval: ReservationStartInterval
+): { h: number; m: number }[] {
+  // normalize end time to allow comparison
+  const nEnd = endTime.h === 0 && endTime.m === 0 ? { h: 23, m: 59 } : endTime;
+  const iMins = getIntervalMinutes(interval);
+
+  const start = startTime;
+  const end = nEnd;
+
+  const startMins = start.h * 60 + start.m;
+  const endMins = end.h * 60 + end.m;
+
+  const intervals: Array<{ h: number; m: number }> = [];
+  for (let i = startMins; i < endMins; i += iMins) {
+    // don't allow interval overflow but handle 0:00 as 23:59
+    if (i + iMins > endMins + 1) {
+      break;
+    }
+    const m = i % 60;
+    const h = (i - m) / 60;
+    intervals.push({ h, m });
+  }
+  return intervals;
+}
+
 // Returns an timeslot array (in HH:mm format) with the time-slots that are
 // available for reservation on the given date
 // TODO should rewrite the timespans to be NonNullable and dates (and do the conversion early, not on each component render)
-export function getPossibleTimesForDay(
-  reservableTimeSpans: ReservationUnitNode["reservableTimeSpans"],
-  reservationStartInterval: ReservationUnitNode["reservationStartInterval"],
-  date: Date,
-  reservationUnit: QueryT,
-  activeApplicationRounds: RoundPeriod[],
-  durationValue: number
-): { label: string; value: string }[] {
-  const allTimes: string[] = [];
-  filterNonNullable(reservableTimeSpans)
-    .filter((x) => isInTimeSpan(date, x))
-    .forEach((rts) => {
-      if (!rts?.startDatetime || !rts?.endDatetime) return;
-      const startDate = new Date(rts.startDatetime);
-      const endDate = new Date(rts.endDatetime);
-      const begin = isSameDay(startDate, date)
-        ? startDate
-        : set(date, { hours: 0, minutes: 0 });
-      const end = isSameDay(endDate, date)
-        ? endDate
-        : set(date, { hours: 23, minutes: 59 });
-      // TODO I hate this function, don't use strings for durations
-      // wasteful because we do date -> string -> object -> number -> string
-      // the numbers are what we compare but all the scaffolding to mess with memory alloc
-      const intervals = getDayIntervals(
-        getTimeString(begin),
-        getTimeString(end),
-        reservationStartInterval
-      ).map((i) => i.substring(0, 5));
-      allTimes.push(...intervals);
-    });
-  return allTimes
+export function getPossibleTimesForDay({
+  reservableTimes,
+  interval,
+  date,
+  reservationUnit,
+  activeApplicationRounds,
+  durationValue,
+}: {
+  reservableTimes: ReservableMap;
+  interval: ReservationUnitNode["reservationStartInterval"];
+  date: Date;
+  reservationUnit: Omit<IsReservableFieldsFragment, "reservableTimeSpans">;
+  activeApplicationRounds: readonly RoundPeriod[];
+  durationValue: number;
+}): { label: string; value: string }[] {
+  const allTimes: Array<{ h: number; m: number }> = [];
+  const slotsForDay = reservableTimes.get(dateToKey(date)) ?? [];
+  for (const slot of slotsForDay) {
+    const startDate = slot.start;
+    const endDate = slot.end;
+    const begin = isSameDay(startDate, date)
+      ? startDate
+      : set(date, { hours: 0, minutes: 0 });
+    const end = isSameDay(endDate, date)
+      ? endDate
+      : set(date, { hours: 23, minutes: 59 });
+
+    const s: { h: number; m: number } = {
+      h: getHours(begin),
+      m: getMinutes(begin),
+    };
+    const e: { h: number; m: number } = {
+      h: getHours(end),
+      m: getMinutes(end),
+    };
+    const intervals = getDayIntervals(s, e, interval);
+    allTimes.push(...intervals);
+  }
+
+  const times = allTimes
     .filter((span) => {
-      const [slotH, slotM] = span.split(":").map(Number);
+      const { h: slotH, m: slotM } = span;
       const slotDate = new Date(date);
       slotDate.setHours(slotH, slotM, 0, 0);
-      const isReservable = isReservationReservable({
+      if (slotDate < new Date()) {
+        return false;
+      }
+      const isReservable = isRangeReservable({
+        range: {
+          start: slotDate,
+          end: addMinutes(slotDate, durationValue),
+        },
         reservationUnit,
+        reservableTimes,
         activeApplicationRounds,
-        start: slotDate,
-        end: addMinutes(slotDate, durationValue),
-        skipLengthCheck: false,
       });
-      return slotDate >= new Date() && isReservable;
+      return isReservable;
     })
+    // TODO the conversion should be done in a separate function so we can reuse the logic without string conversion
+    .map((time) => formatTimeObject(time))
     .map((time) => ({ label: time, value: time }));
+  return times;
 }
 
 // TODO use a fragment

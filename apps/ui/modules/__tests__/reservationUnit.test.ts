@@ -1,5 +1,13 @@
 import { cloneDeep, get as mockGet } from "lodash";
-import { addDays } from "date-fns";
+import {
+  addDays,
+  addHours,
+  endOfDay,
+  format,
+  getHours,
+  startOfDay,
+  startOfToday,
+} from "date-fns";
 import { toUIDate } from "common/src/common/util";
 import {
   type EquipmentNode,
@@ -9,13 +17,19 @@ import {
   PricingType,
   ReservationUnitState,
   type ReservationUnitNode,
-  type UnitNode,
   Status,
+  PricingFieldsFragment,
+  Authentication,
+  ReservationKind,
+  ReservationStartInterval,
+  ReservationState,
 } from "@gql/gql-types";
 import {
+  getDayIntervals,
   getEquipmentCategories,
   getEquipmentList,
   getFuturePricing,
+  getPossibleTimesForDay,
   getPrice,
   getReservationUnitInstructionsKey,
   getReservationUnitName,
@@ -23,9 +37,12 @@ import {
   getUnitName,
   isReservationUnitPaidInFuture,
   isReservationUnitPublished,
+  isReservationUnitReservable,
 } from "../reservationUnit";
 import mockTranslations from "../../public/locales/fi/prices.json";
-import { RoundPeriod } from "common/src/calendar/util";
+import { type ReservableMap, dateToKey, type RoundPeriod } from "../reservable";
+import { createMockReservationUnit } from "@/test/testUtils";
+import { base64encode } from "common/src/helpers";
 
 jest.mock("next-i18next", () => ({
   i18n: {
@@ -37,205 +54,357 @@ jest.mock("next-i18next", () => ({
   },
 }));
 
+// Turn into describe block and spec the tests
+describe("getPossibleTimesForDay", () => {
+  beforeAll(() => {
+    jest.useFakeTimers({
+      doNotFake: ["performance"],
+      // use two numbers for hour so we don't need to pad with 0
+      now: new Date(2024, 0, 1, 10, 0, 0),
+    });
+  });
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
+  function mockReservableTimes(): ReservableMap {
+    const map: ReservableMap = new Map();
+    for (let i = 0; i < 30; i++) {
+      const date = addDays(startOfToday(), i);
+      const key = format(date, "yyyy-MM-dd");
+      const value = [{ start: startOfDay(date), end: endOfDay(date) }];
+      map.set(key, value);
+    }
+    return map;
+  }
+
+  function createInput({
+    date,
+    interval,
+    duration,
+    reservableTimes,
+  }: {
+    date: Date;
+    interval?: ReservationStartInterval;
+    duration?: number;
+    bufferTimeBefore?: number;
+    bufferTimeAfter?: number;
+    reservableTimes?: ReservableMap;
+  }) {
+    const reservationUnit = createMockReservationUnit({});
+    return {
+      date,
+      interval: interval ?? ReservationStartInterval.Interval_30Mins,
+      reservationUnit,
+      activeApplicationRounds: [] as const,
+      reservableTimes: reservableTimes ?? mockReservableTimes(),
+      durationValue: duration ?? 30,
+    };
+  }
+
+  // Doesn't care about the time (outside of can't be in the past) only the day
+  test("returns a list of possible times for today in the future", () => {
+    const date = startOfToday();
+    const hour = getHours(new Date());
+    const input = createInput({ date });
+    const output: { label: string; value: string }[] = [];
+    for (let i = hour; i < 24; i++) {
+      // now is not in the set
+      if (i !== hour) {
+        output.push({ label: `${i}:00`, value: `${i}:00` });
+      }
+      output.push({ label: `${i}:30`, value: `${i}:30` });
+    }
+    expect(getPossibleTimesForDay(input)).toStrictEqual(output);
+  });
+
+  test("interval is 60 mins", () => {
+    const date = startOfToday();
+    const hour = getHours(new Date()) + 1;
+    const input = createInput({
+      date,
+      interval: ReservationStartInterval.Interval_60Mins,
+    });
+    const output: { label: string; value: string }[] = [];
+    for (let i = hour; i < 24; i++) {
+      output.push({ label: `${i}:00`, value: `${i}:00` });
+    }
+    expect(getPossibleTimesForDay(input)).toStrictEqual(output);
+  });
+
+  test("interval is 120 mins", () => {
+    const date = startOfToday();
+    const hour = getHours(new Date()) + 2;
+    const input = createInput({
+      date,
+      interval: ReservationStartInterval.Interval_120Mins,
+    });
+    const output: { label: string; value: string }[] = [];
+    for (let i = hour; i < 24; i += 2) {
+      output.push({ label: `${i}:00`, value: `${i}:00` });
+    }
+    expect(getPossibleTimesForDay(input)).toStrictEqual(output);
+  });
+
+  test("no ranges for past days", () => {
+    const date = addDays(startOfToday(), -1);
+    const input = createInput({ date });
+    expect(getPossibleTimesForDay(input)).toStrictEqual([]);
+  });
+
+  test("no reservable times for the date", () => {
+    const date = startOfToday();
+    const reservableTimes = mockReservableTimes();
+    reservableTimes.delete(dateToKey(date));
+    const input = createInput({ date, reservableTimes });
+    expect(getPossibleTimesForDay(input)).toStrictEqual([]);
+  });
+
+  test("multiple reservable times for the date", () => {
+    const date = startOfToday();
+    const reservableTimes = mockReservableTimes();
+    reservableTimes.set(dateToKey(date), [
+      { start: addHours(date, 12), end: addHours(date, 14) },
+      { start: addHours(date, 16), end: addHours(date, 17) },
+    ]);
+    const input = createInput({ date, reservableTimes });
+    const output = ["12:00", "12:30", "13:00", "13:30", "16:00", "16:30"].map(
+      (label) => ({ label, value: label })
+    );
+    expect(getPossibleTimesForDay(input)).toStrictEqual(output);
+  });
+
+  test("duration is longer than the available times", () => {
+    const date = startOfToday();
+    const reservableTimes = mockReservableTimes();
+    reservableTimes.set(dateToKey(date), [
+      { start: addHours(date, 10), end: addHours(date, 11) },
+      { start: addHours(date, 12), end: addHours(date, 14) },
+      { start: addHours(date, 16), end: addHours(date, 18) },
+      { start: addHours(date, 19), end: addHours(date, 20) },
+    ]);
+    const input = createInput({ date, duration: 150, reservableTimes });
+    expect(getPossibleTimesForDay(input)).toStrictEqual([]);
+  });
+
+  // getPossibleTimesForDay does multiple calls to isRangeReservable which is heavy
+  // a lot of array copying / generation
+  test("performance", () => {
+    const date = startOfToday();
+    const reservableTimes = mockReservableTimes();
+    reservableTimes.set(dateToKey(date), [
+      { start: addHours(date, 10), end: addHours(date, 11) },
+      { start: addHours(date, 12), end: addHours(date, 14) },
+      { start: addHours(date, 16), end: addHours(date, 18) },
+      { start: addHours(date, 19), end: addHours(date, 20) },
+    ]);
+    const input = createInput({ date, reservableTimes });
+    const start = performance.now();
+    getPossibleTimesForDay(input);
+    const end = performance.now();
+    expect(end - start).toBeLessThan(20);
+  });
+});
+
 describe("getPrice", () => {
+  const pricingBase: PricingFieldsFragment = {
+    id: "1",
+    begins: "",
+    taxPercentage: {
+      id: "1",
+      pk: 1,
+      value: "24",
+    },
+    status: Status.Active,
+    lowestPrice: "0",
+    highestPrice: "60.5",
+    priceUnit: PriceUnit.PerHour,
+    pricingType: PricingType.Paid,
+  };
+
+  function constructInput({
+    lowestPrice,
+    highestPrice,
+    priceUnit,
+    minutes,
+  }: {
+    lowestPrice?: number;
+    highestPrice?: number;
+    priceUnit?: PriceUnit;
+    minutes?: number;
+  }) {
+    return {
+      pricing: {
+        ...pricingBase,
+        lowestPrice: lowestPrice?.toString() ?? "0",
+        highestPrice: highestPrice?.toString() ?? "60.5",
+        priceUnit: priceUnit ?? PriceUnit.PerHour,
+      },
+      minutes: minutes ?? undefined,
+    };
+  }
+
   test("price range", () => {
-    const pricing = {
+    const input = constructInput({
       lowestPrice: 10,
       highestPrice: 50.5,
-      priceUnit: "PER_15_MINS",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
+      priceUnit: PriceUnit.Per_15Mins,
+    });
 
-    expect(getPrice({ pricing })).toBe("10 - 50,5 € / 15 min");
+    expect(getPrice(input)).toBe("10 - 50,5 € / 15 min");
   });
 
   test("price range with no min", () => {
-    const pricing = {
+    const input = constructInput({
       lowestPrice: 0.0,
       highestPrice: 50.5,
-      priceUnit: "PER_15_MINS",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing })).toBe("0 - 50,5 € / 15 min");
+      priceUnit: PriceUnit.Per_15Mins,
+    });
+    expect(getPrice(input)).toBe("0 - 50,5 € / 15 min");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: 60.5,
-      priceUnit: "PER_HOUR",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 60 })).toBe("0 - 60,5 €");
+    const input = constructInput({
+      minutes: 60,
+    });
+    expect(getPrice(input)).toBe("0 - 60,5 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "60.5",
-      priceUnit: "PER_HOUR",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 61 })).toBe("0 - 75,63 €");
+    const input = constructInput({
+      minutes: 61,
+    });
+    expect(getPrice(input)).toBe("0 - 75,63 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "100",
-      priceUnit: "PER_HOUR",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 61 })).toBe("0 - 125 €");
+    const input = constructInput({
+      highestPrice: 100,
+      minutes: 61,
+    });
+    expect(getPrice(input)).toBe("0 - 125 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "100",
-      priceUnit: "PER_HOUR",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 90 })).toBe("0 - 150 €");
+    const input = constructInput({
+      highestPrice: 100,
+      minutes: 90,
+    });
+    expect(getPrice(input)).toBe("0 - 150 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "100",
-      priceUnit: "PER_HOUR",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 91 })).toBe("0 - 175 €");
+    const input = constructInput({
+      highestPrice: 100,
+      minutes: 91,
+    });
+    expect(getPrice(input)).toBe("0 - 175 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "30",
-      priceUnit: "PER_15_MINS",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 60 })).toBe("0 - 120 €");
+    const input = constructInput({
+      highestPrice: 30,
+      minutes: 60,
+      priceUnit: PriceUnit.Per_15Mins,
+    });
+    expect(getPrice(input)).toBe("0 - 120 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "30",
-      priceUnit: "PER_30_MINS",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 60 })).toBe("0 - 60 €");
+    const input = constructInput({
+      highestPrice: 30,
+      minutes: 60,
+      priceUnit: PriceUnit.Per_30Mins,
+    });
+    expect(getPrice(input)).toBe("0 - 60 €");
   });
 
   test("price range with minutes", () => {
-    const pricing = {
-      lowestPrice: 0,
-      highestPrice: "30",
-      priceUnit: "PER_30_MINS",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 61 })).toBe("0 - 75 €");
+    const input = constructInput({
+      highestPrice: 30,
+      minutes: 61,
+      priceUnit: PriceUnit.Per_30Mins,
+    });
+    expect(getPrice(input)).toBe("0 - 75 €");
   });
 
   test("price range with minutes and fixed unit", () => {
-    const pricing = {
-      lowestPrice: "10",
-      highestPrice: "100",
-      priceUnit: "PER_HALF_DAY",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 61 })).toBe("10 - 100 €");
+    const input = constructInput({
+      lowestPrice: 10,
+      highestPrice: 100,
+      minutes: 61,
+      priceUnit: PriceUnit.PerHalfDay,
+    });
+    expect(getPrice(input)).toBe("10 - 100 €");
   });
 
   test("price range with minutes and fixed unit", () => {
-    const pricing = {
-      lowestPrice: "10",
-      highestPrice: "100",
-      priceUnit: "PER_DAY",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing, minutes: 1234 })).toBe("10 - 100 €");
+    const input = constructInput({
+      lowestPrice: 10,
+      highestPrice: 100,
+      minutes: 1234,
+      priceUnit: PriceUnit.PerDay,
+    });
+    expect(getPrice(input)).toBe("10 - 100 €");
   });
 
   test("price range with minutes and fixed unit", () => {
-    const pricing = {
-      lowestPrice: "10",
-      highestPrice: "100",
-      priceUnit: "PER_WEEK",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
+    const input = constructInput({
+      lowestPrice: 10,
+      highestPrice: 100,
+      minutes: 1234,
+      priceUnit: PriceUnit.PerWeek,
+    });
 
-    expect(getPrice({ pricing, minutes: 1234 })).toBe("10 - 100 €");
+    expect(getPrice(input)).toBe("10 - 100 €");
   });
 
   test("fixed price", () => {
-    const pricing = {
+    const input = constructInput({
       lowestPrice: 50,
       highestPrice: 50,
-      priceUnit: "FIXED",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
+      priceUnit: PriceUnit.Fixed,
+    });
 
-    expect(getPrice({ pricing })).toBe("50 €");
+    expect(getPrice(input)).toBe("50 €");
   });
 
   test("fixed price with decimals", () => {
-    const pricing = {
+    const input = constructInput({
       lowestPrice: 50,
       highestPrice: 50,
-      priceUnit: "FIXED",
-      pricingType: "PAID",
-    } as unknown as ReservationUnitPricingNode;
+      priceUnit: PriceUnit.Fixed,
+    });
 
-    expect(getPrice({ pricing, trailingZeros: true })).toBe("50,00 €");
+    expect(getPrice({ ...input, trailingZeros: true })).toBe("50,00 €");
   });
 
   test("no price", () => {
-    const pricing = {
-      begins: "",
-      status: "ACTIVE",
-      lowestPrice: "0",
-      highestPrice: "0",
-      priceUnit: "PER_HOUR",
-      pricingType: "PAID",
-    } as ReservationUnitPricingNode;
-
-    expect(getPrice({ pricing })).toBe("Maksuton");
+    const input = constructInput({
+      lowestPrice: 0,
+      highestPrice: 0,
+    });
+    expect(getPrice(input)).toBe("Maksuton");
   });
 
   test("total price with minutes", () => {
-    const pricing = {
+    const pricing: PricingFieldsFragment = {
+      ...pricingBase,
       lowestPrice: "0.0",
       highestPrice: "50.5",
-      priceUnit: "PER_15_MINS",
-      pricingType: "PAID",
-      status: "ACTIVE",
-    } as ReservationUnitPricingNode;
+      priceUnit: PriceUnit.Per_15Mins,
+    };
 
     expect(getPrice({ pricing, minutes: 180 })).toBe("0 - 606 €");
   });
 
   test("total price with minutes and decimals", () => {
-    const pricing = {
+    const pricing: PricingFieldsFragment = {
+      ...pricingBase,
       lowestPrice: "0.0",
       highestPrice: "50.5",
-      priceUnit: "PER_15_MINS",
-      pricingType: "PAID",
-      status: "ACTIVE",
-    } as ReservationUnitPricingNode;
+      priceUnit: PriceUnit.Per_15Mins,
+    };
 
     expect(getPrice({ pricing, minutes: 180, trailingZeros: true })).toBe(
       "0 - 606,00 €"
@@ -250,47 +419,39 @@ describe("isReservationUnitPublished", () => {
 
   test("with valid states", () => {
     expect(
-      isReservationUnitPublished({
-        state: ReservationUnitState.Published,
-      } as unknown as ReservationUnitNode)
+      isReservationUnitPublished({ state: ReservationUnitState.Published })
     ).toBe(true);
 
     expect(
       isReservationUnitPublished({
         state: ReservationUnitState.ScheduledHiding,
-      } as unknown as ReservationUnitNode)
+      })
     ).toBe(true);
   });
 
   test("with invalid states", () => {
     expect(
-      isReservationUnitPublished({
-        state: ReservationUnitState.Archived,
-      } as unknown as ReservationUnitNode)
+      isReservationUnitPublished({ state: ReservationUnitState.Archived })
     ).toBe(false);
 
     expect(
-      isReservationUnitPublished({
-        state: ReservationUnitState.Draft,
-      } as unknown as ReservationUnitNode)
+      isReservationUnitPublished({ state: ReservationUnitState.Draft })
     ).toBe(false);
 
     expect(
-      isReservationUnitPublished({
-        state: ReservationUnitState.Hidden,
-      } as unknown as ReservationUnitNode)
+      isReservationUnitPublished({ state: ReservationUnitState.Hidden })
     ).toBe(false);
 
     expect(
       isReservationUnitPublished({
         state: ReservationUnitState.ScheduledPeriod,
-      } as unknown as ReservationUnitNode)
+      })
     ).toBe(false);
 
     expect(
       isReservationUnitPublished({
         state: ReservationUnitState.ScheduledPublishing,
-      } as unknown as ReservationUnitNode)
+      })
     ).toBe(false);
   });
 });
@@ -609,7 +770,7 @@ describe("getReservationUnitName", () => {
       nameFi: "Unit 1 FI",
       nameEn: "",
       nameSv: "",
-    } as ReservationUnitNode;
+    };
 
     expect(getReservationUnitName(reservationUnit, "sv")).toEqual("Unit 1 FI");
   });
@@ -617,7 +778,7 @@ describe("getReservationUnitName", () => {
   it("should return the name of the unit in the default language", () => {
     const reservationUnit = {
       nameFi: "Unit 1 FI",
-    } as ReservationUnitNode;
+    };
 
     expect(getReservationUnitName(reservationUnit, "sv")).toEqual("Unit 1 FI");
   });
@@ -627,7 +788,7 @@ describe("getReservationUnitName", () => {
       nameFi: "Unit 1 FI",
       nameEn: null,
       nameSv: null,
-    } as ReservationUnitNode;
+    };
 
     expect(getReservationUnitName(reservationUnit, "sv")).toEqual("Unit 1 FI");
   });
@@ -639,7 +800,7 @@ describe("getUnitName", () => {
       nameFi: "Unit 1 FI",
       nameEn: "Unit 1 EN",
       nameSv: "Unit 1 SV",
-    } as UnitNode;
+    };
 
     expect(getUnitName(unit)).toEqual("Unit 1 FI");
   });
@@ -649,7 +810,7 @@ describe("getUnitName", () => {
       nameFi: "Unit 1 FI",
       nameEn: "Unit 1 EN",
       nameSv: "Unit 1 SV",
-    } as UnitNode;
+    };
 
     expect(getUnitName(unit, "sv")).toEqual("Unit 1 SV");
   });
@@ -659,7 +820,7 @@ describe("getUnitName", () => {
       nameFi: "Unit 1 FI",
       nameEn: "",
       nameSv: "",
-    } as UnitNode;
+    };
 
     expect(getUnitName(unit, "sv")).toEqual("Unit 1 FI");
   });
@@ -667,7 +828,7 @@ describe("getUnitName", () => {
   it("should return the name of the unit in the default language", () => {
     const unit = {
       nameFi: "Unit 1 FI",
-    } as UnitNode;
+    };
 
     expect(getUnitName(unit, "sv")).toEqual("Unit 1 FI");
   });
@@ -677,7 +838,7 @@ describe("getUnitName", () => {
       nameFi: "Unit 1 FI",
       nameEn: null,
       nameSv: null,
-    } as UnitNode;
+    };
 
     expect(getUnitName(unit, "sv")).toEqual("Unit 1 FI");
   });
@@ -886,71 +1047,75 @@ describe("getFuturePricing", () => {
 });
 
 describe("getReservationUnitPrice", () => {
-  const reservationUnit: ReservationUnitNode = {
+  const reservationUnit = {
     id: "testing",
     pricings: [
       {
+        id: "1",
         pk: 1,
         begins: toUIDate(addDays(new Date(), 10), "yyyy-MM-dd"),
         pricingType: PricingType.Paid,
         priceUnit: PriceUnit.PerHour,
-        lowestPrice: 10,
-        lowestPriceNet: 10,
-        highestPrice: 20,
-        highestPriceNet: 20,
+        lowestPrice: "10",
+        lowestPriceNet: "10",
+        highestPrice: "20",
+        highestPriceNet: "20",
         taxPercentage: {
           id: "1",
-          value: 24,
+          value: "24",
         },
         status: Status.Future,
       },
       {
+        id: "2",
         pk: 2,
         begins: toUIDate(addDays(new Date(), 20), "yyyy-MM-dd"),
         pricingType: PricingType.Paid,
         priceUnit: PriceUnit.PerHour,
-        lowestPrice: 20,
-        lowestPriceNet: 20,
-        highestPrice: 30,
-        highestPriceNet: 30,
+        lowestPrice: "20",
+        lowestPriceNet: "20",
+        highestPrice: "30",
+        highestPriceNet: "30",
         taxPercentage: {
           id: "1",
-          value: 24,
+          value: "24",
         },
         status: Status.Future,
       },
       {
+        id: "3",
         pk: 3,
         begins: toUIDate(addDays(new Date(), 5), "yyyy-MM-dd"),
         pricingType: PricingType.Paid,
         priceUnit: PriceUnit.PerHour,
-        lowestPrice: 40,
-        lowestPriceNet: 40,
-        highestPrice: 50,
-        highestPriceNet: 50,
+        lowestPrice: "40",
+        lowestPriceNet: "40",
+        highestPrice: "50",
+        highestPriceNet: "50",
         taxPercentage: {
           id: "1",
-          value: 24,
+          value: "24",
         },
         status: Status.Future,
       },
       {
+        id: "4",
         pk: 4,
         begins: toUIDate(addDays(new Date(), 5), "yyyy-MM-dd"),
         pricingType: PricingType.Paid,
         priceUnit: PriceUnit.PerHour,
-        lowestPrice: 0,
-        lowestPriceNet: 0,
-        highestPrice: 10,
-        highestPriceNet: 10,
+        lowestPrice: "0",
+        lowestPriceNet: "0",
+        highestPrice: "10",
+        highestPriceNet: "10",
         taxPercentage: {
           id: "1",
-          value: 24,
+          value: "24",
         },
         status: Status.Active,
       },
     ],
-  } as unknown as ReservationUnitNode;
+  };
 
   it("returns future data based on date lookup", () => {
     const data = cloneDeep(reservationUnit);
@@ -1086,5 +1251,241 @@ describe("isReservationUnitPaidInFuture", () => {
     ] as ReservationUnitPricingNode[];
 
     expect(isReservationUnitPaidInFuture(pricings)).toBe(false);
+  });
+});
+
+describe("isReservationUnitReservable", () => {
+  function constructReservationUnitNode({
+    minReservationDuration = 3600,
+    maxReservationDuration = 3600,
+    reservationState = ReservationState.Reservable,
+  }: {
+    minReservationDuration?: number;
+    maxReservationDuration?: number;
+    reservationState?: ReservationState;
+  }) {
+    const date = new Date().toISOString().split("T")[0];
+    const reservationUnit: ReservationUnitNode = {
+      pk: 1,
+      id: base64encode("ReservationUnitNode:1"),
+      allowReservationsWithoutOpeningHours: true,
+      applicationRoundTimeSlots: [],
+      applicationRounds: [],
+      bufferTimeAfter: 0,
+      bufferTimeBefore: 0,
+      authentication: Authentication.Strong,
+      canApplyFreeOfCharge: false,
+      contactInformation: "",
+      description: "",
+      equipments: [],
+      images: [],
+      isArchived: false,
+      isDraft: false,
+      name: "",
+      paymentTypes: [],
+      pricings: [],
+      purposes: [],
+      qualifiers: [],
+      requireIntroduction: false,
+      requireReservationHandling: false,
+      reservationBlockWholeDay: false,
+      reservationCancelledInstructions: "",
+      reservationConfirmedInstructions: "",
+      reservationKind: ReservationKind.Direct,
+      reservationPendingInstructions: "",
+      reservationStartInterval: ReservationStartInterval.Interval_15Mins,
+      resources: [],
+      services: [],
+      spaces: [],
+      maxPersons: 10,
+      uuid: "be4fa7a2-05b7-11ee-be56-0242ac120004",
+      minReservationDuration,
+      maxReservationDuration,
+      metadataSet: {
+        id: "1234",
+        name: "metadata",
+        supportedFields: [
+          {
+            id: "1234",
+            fieldName: "name",
+          },
+        ],
+        requiredFields: [] as const,
+      },
+      reservationState,
+      reservableTimeSpans: [
+        {
+          startDatetime: `${date}T04:00:00+00:00`,
+          endDatetime: `${date}T20:00:00+00:00`,
+        },
+      ],
+    };
+    return reservationUnit;
+  }
+
+  test("returns true for a unit that is reservable", () => {
+    const [res1] = isReservationUnitReservable(
+      constructReservationUnitNode({})
+    );
+    expect(res1).toBe(true);
+
+    const [res2] = isReservationUnitReservable(
+      constructReservationUnitNode({
+        reservationState: ReservationState.ScheduledClosing,
+      })
+    );
+    expect(res2).toBe(true);
+  });
+
+  test("returns false for a unit that is not reservable", () => {
+    const [res1] = isReservationUnitReservable({
+      ...constructReservationUnitNode({}),
+      reservableTimeSpans: undefined,
+      reservationState: ReservationState.ReservationClosed,
+    });
+    expect(res1).toBe(false);
+
+    const [res2] = isReservationUnitReservable({
+      ...constructReservationUnitNode({}),
+      reservationState: ReservationState.ReservationClosed,
+    });
+    expect(res2).toBe(false);
+
+    const [res5] = isReservationUnitReservable({
+      ...constructReservationUnitNode({}),
+      reservationState: ReservationState.ScheduledReservation,
+    });
+    expect(res5).toBe(false);
+
+    const [res6] = isReservationUnitReservable({
+      ...constructReservationUnitNode({}),
+      reservationState: ReservationState.ScheduledPeriod,
+    });
+    expect(res6).toBe(false);
+  });
+
+  test("returns correct value with buffer days", () => {
+    const [res1] = isReservationUnitReservable({
+      ...constructReservationUnitNode({}),
+      reservationBegins: addDays(new Date(), 5).toISOString(),
+      reservationsMaxDaysBefore: 5,
+    });
+    expect(res1).toBe(false);
+
+    const [res2] = isReservationUnitReservable({
+      ...constructReservationUnitNode({}),
+      reservationBegins: addDays(new Date(), 5).toISOString(),
+      reservationsMaxDaysBefore: 4,
+      reservableTimeSpans: undefined,
+    });
+    expect(res2).toBe(false);
+  });
+});
+
+describe("getDayIntervals", () => {
+  test("getDayIntervals from 9 to 17 with 30 min interval", () => {
+    const input = {
+      startTime: { h: 9, m: 0 },
+      endTime: { h: 17, m: 0 },
+      interval: ReservationStartInterval.Interval_30Mins,
+    };
+    const output: { h: number; m: number }[] = [];
+    for (let i = 9; i < 17; i++) {
+      output.push({ h: i, m: 0 });
+      output.push({ h: i, m: 30 });
+    }
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual(output);
+  });
+  test("getDayIntervals from 9 to 17 with 15 min interval", () => {
+    const input = {
+      startTime: { h: 9, m: 0 },
+      endTime: { h: 17, m: 0 },
+      interval: ReservationStartInterval.Interval_15Mins,
+    };
+    const output: { h: number; m: number }[] = [];
+    for (let i = 9; i < 17; i++) {
+      output.push({ h: i, m: 0 });
+      output.push({ h: i, m: 15 });
+      output.push({ h: i, m: 30 });
+      output.push({ h: i, m: 45 });
+    }
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual(output);
+  });
+  test("getDayIntervals from 9 to 17 with 60 min interval", () => {
+    const input = {
+      startTime: { h: 9, m: 0 },
+      endTime: { h: 17, m: 0 },
+      interval: ReservationStartInterval.Interval_60Mins,
+    };
+    const output: { h: number; m: number }[] = [];
+    for (let i = 9; i < 17; i++) {
+      output.push({ h: i, m: 0 });
+    }
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual(output);
+  });
+  test("getDayIntervals from 0 to 24 with 30 min interval", () => {
+    const input = {
+      startTime: { h: 0, m: 0 },
+      endTime: { h: 24, m: 0 },
+      interval: ReservationStartInterval.Interval_30Mins,
+    };
+    const output: { h: number; m: number }[] = [];
+    for (let i = 0; i < 24; i++) {
+      output.push({ h: i, m: 0 });
+      output.push({ h: i, m: 30 });
+    }
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual(output);
+  });
+  test("getDayIntervals with invalid range", () => {
+    const input = {
+      startTime: { h: 17, m: 0 },
+      endTime: { h: 9, m: 0 },
+      interval: ReservationStartInterval.Interval_30Mins,
+    };
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual([]);
+  });
+  test("getDayIntervals with 0 size range", () => {
+    const input = {
+      startTime: { h: 17, m: 0 },
+      endTime: { h: 17, m: 0 },
+      interval: ReservationStartInterval.Interval_30Mins,
+    };
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual([]);
+  });
+  test("getDayIntervals with uneven times", () => {
+    const input = {
+      startTime: { h: 9, m: 20 },
+      endTime: { h: 17, m: 20 },
+      interval: ReservationStartInterval.Interval_30Mins,
+    };
+    const output: { h: number; m: number }[] = [];
+    for (let i = 9; i < 17; i++) {
+      output.push({ h: i, m: 20 });
+      output.push({ h: i, m: 50 });
+    }
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual(output);
+  });
+  test("getDayIntervals with uneven times", () => {
+    const input = {
+      startTime: { h: 9, m: 20 },
+      endTime: { h: 17, m: 0 },
+      interval: ReservationStartInterval.Interval_30Mins,
+    };
+    const output: { h: number; m: number }[] = [];
+    for (let i = 9; i < 17; i++) {
+      output.push({ h: i, m: 20 });
+      if (i < 16) {
+        output.push({ h: i, m: 50 });
+      }
+    }
+    const res = getDayIntervals(input.startTime, input.endTime, input.interval);
+    expect(res).toEqual(output);
   });
 });

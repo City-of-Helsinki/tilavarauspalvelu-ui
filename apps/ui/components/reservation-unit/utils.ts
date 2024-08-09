@@ -1,50 +1,32 @@
-import { filterNonNullable } from "common/src/helpers";
-import { addDays, addMinutes, isAfter, isBefore, set } from "date-fns";
+import {
+  addDays,
+  addMinutes,
+  isAfter,
+  isBefore,
+  set,
+  startOfDay,
+} from "date-fns";
 import type {
-  ReservableTimeSpanType,
   ReservationUnitNode,
   ReservationUnitPageQuery,
 } from "@gql/gql-types";
+import { getPossibleTimesForDay } from "@/modules/reservationUnit";
 import {
-  getPossibleTimesForDay,
-  isInTimeSpan,
-} from "@/modules/reservationUnit";
-import { isReservationReservable } from "@/modules/reservation";
-import type { RoundPeriod } from "common/src/calendar/util";
+  type RoundPeriod,
+  type ReservableMap,
+  dateToKey,
+  isRangeReservable,
+} from "@/modules/reservable";
+import { dayMax, dayMin } from "common/src/helpers";
 
-function pickMaybeDay(
-  a: Date | undefined,
-  b: Date | undefined,
-  compF: (a: Date, b: Date) => boolean
-): Date | undefined {
-  if (!a) {
-    return b;
-  }
-  if (!b) {
-    return a;
-  }
-  return compF(a, b) ? a : b;
-}
-
-// Returns a Date object with the first day of the given array of Dates
-const dayMin = (days: Array<Date | undefined>): Date | undefined => {
-  return filterNonNullable(days).reduce<Date | undefined>((acc, day) => {
-    return pickMaybeDay(acc, day, isBefore);
-  }, undefined);
-};
-
-const dayMax = (days: Array<Date | undefined>): Date | undefined => {
-  return filterNonNullable(days).reduce<Date | undefined>((acc, day) => {
-    return pickMaybeDay(acc, day, isAfter);
-  }, undefined);
-};
+type LastPossibleReservationDateProps = Pick<
+  ReservationUnitNode,
+  "reservationsMaxDaysBefore" | "reservableTimeSpans" | "reservationEnds"
+>;
 
 // Returns the last possible reservation date for the given reservation unit
 export function getLastPossibleReservationDate(
-  reservationUnit?: Pick<
-    ReservationUnitNode,
-    "reservationsMaxDaysBefore" | "reservableTimeSpans" | "reservationEnds"
-  >
+  reservationUnit?: LastPossibleReservationDateProps
 ): Date | null {
   if (!reservationUnit) {
     return null;
@@ -62,6 +44,7 @@ export function getLastPossibleReservationDate(
   const reservationUnitNotReservable = reservationEnds
     ? new Date(reservationEnds)
     : undefined;
+  // Why does this return now instead of null if there are no reservableTimeSpans?
   const endDateTime = reservableTimeSpans.at(-1)?.endDatetime ?? undefined;
   const lastOpeningDate = endDateTime ? new Date(endDateTime) : new Date();
   return (
@@ -78,8 +61,8 @@ type AvailableTimesProps = {
   start: Date;
   duration: number;
   reservationUnit: QueryT;
-  slots: ReservableTimeSpanType[];
-  activeApplicationRounds: RoundPeriod[];
+  reservableTimes: ReservableMap;
+  activeApplicationRounds: readonly RoundPeriod[];
   fromStartOfDay?: boolean;
 };
 
@@ -89,22 +72,24 @@ function getAvailableTimesForDay({
   start,
   duration,
   reservationUnit,
+  reservableTimes,
   activeApplicationRounds,
 }: AvailableTimesProps): string[] {
-  if (!reservationUnit || !activeApplicationRounds) return [];
+  if (!reservationUnit) {
+    return [];
+  }
   const [timeHours, timeMinutesRaw] = [0, 0];
 
   const timeMinutes = timeMinutesRaw > 59 ? 59 : timeMinutesRaw;
-  const { reservableTimeSpans: spans, reservationStartInterval: interval } =
-    reservationUnit;
-  return getPossibleTimesForDay(
-    spans,
+  const { reservationStartInterval: interval } = reservationUnit;
+  return getPossibleTimesForDay({
+    reservableTimes,
     interval,
-    start,
+    date: start,
     reservationUnit,
     activeApplicationRounds,
-    duration
-  )
+    durationValue: duration,
+  })
     .map((n) => {
       const [slotHours, slotMinutes] = n.label.split(":").map(Number);
       const startDate = new Date(start);
@@ -112,12 +97,14 @@ function getAvailableTimesForDay({
       const endDate = addMinutes(startDate, duration ?? 0);
       const startTime = new Date(start);
       startTime.setHours(timeHours, timeMinutes, 0, 0);
-      const isReservable = isReservationReservable({
+      const isReservable = isRangeReservable({
+        range: {
+          start: startDate,
+          end: endDate,
+        },
         reservationUnit,
+        reservableTimes,
         activeApplicationRounds,
-        start: startDate,
-        end: endDate,
-        skipLengthCheck: false,
       });
 
       return isReservable && !isBefore(startDate, startTime) ? n.label : null;
@@ -127,32 +114,69 @@ function getAvailableTimesForDay({
 
 // Returns the next available time, after the given time (Date object)
 export function getNextAvailableTime(props: AvailableTimesProps): Date | null {
-  const { start, reservationUnit } = props;
+  const { start, reservationUnit, reservableTimes } = props;
   if (reservationUnit == null) {
     return null;
   }
-  const {
-    reservableTimeSpans,
-    reservationsMinDaysBefore,
-    reservationsMaxDaysBefore,
-  } = reservationUnit;
+  const { reservationsMinDaysBefore, reservationsMaxDaysBefore } =
+    reservationUnit;
 
-  const today = addDays(new Date(), reservationsMinDaysBefore ?? 0);
+  const minReservationDate = addDays(
+    new Date(),
+    reservationsMinDaysBefore ?? 0
+  );
   const possibleEndDay = getLastPossibleReservationDate(reservationUnit);
   const endDay = possibleEndDay ? addDays(possibleEndDay, 1) : undefined;
-  const minDay = dayMax([today, start]) ?? today;
-  // Find the first possible day
-  const interval = filterNonNullable(reservableTimeSpans).find((x) =>
-    isInTimeSpan(minDay, x)
-  );
+  // NOTE there is still a case where application rounds have a hole but there are no reservable times
+  // this is not a real use case but technically possible
+  const openAfterRound: Date | undefined = props.activeApplicationRounds.reduce<
+    Date | undefined
+  >((acc, round) => {
+    if (round.reservationPeriodEnd == null) {
+      return acc;
+    }
+    const end = new Date(round.reservationPeriodEnd);
+    const begin = new Date(round.reservationPeriodBegin);
+    if (isBefore(end, minReservationDate)) {
+      return acc;
+    }
+    if (acc == null) {
+      return end;
+    }
+    // skip non-overlapping ranges
+    if (startOfDay(begin) > startOfDay(acc)) {
+      return acc;
+    }
+    return dayMax([acc, new Date(round.reservationPeriodEnd)]);
+  }, undefined);
+  const minDay =
+    dayMax([minReservationDate, start, openAfterRound]) ?? minReservationDate;
 
-  if (!interval?.startDatetime || !interval.endDatetime) {
+  // Find the first possible day
+  let openTimes = reservableTimes.get(dateToKey(minDay));
+  const it = reservableTimes.entries();
+  while (openTimes == null || openTimes.length === 0) {
+    const result = it.next();
+    if (result.done) {
+      return null;
+    }
+    const {
+      value: [_key, value],
+    } = result;
+    if (endDay != null && isAfter(minDay, endDay)) {
+      return null;
+    }
+    if (value.length > 0) {
+      minDay.setDate(value[0].start.getDate());
+      openTimes = reservableTimes.get(dateToKey(minDay));
+    }
+  }
+  if (openTimes == null || openTimes.length === 0) {
     return null;
   }
-  if (endDay && endDay < new Date(interval.endDatetime) && endDay < minDay) {
-    return null;
-  }
-  const startDay = dayMax([new Date(interval.startDatetime), minDay]) ?? minDay;
+
+  const interval = openTimes[0];
+  const startDay = dayMax([new Date(interval.start), minDay]) ?? minDay;
 
   const daysToGenerate = reservationsMaxDaysBefore ?? 180;
   const days = Array.from({ length: daysToGenerate }, (_, i) =>

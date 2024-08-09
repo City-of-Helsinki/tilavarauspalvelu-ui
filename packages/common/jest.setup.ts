@@ -25,7 +25,7 @@ const DEFAULT_PROPS_WARNING =
 
 beforeAll(() => {
   // eslint-disable-next-line no-console
-  console.error = (msg) =>
+  console.error = (msg: string) =>
     !(
       msg.toString().includes(ACT_DEPRECATED_WARNING) ||
       msg.toString().includes(DEFAULT_PROPS_WARNING)

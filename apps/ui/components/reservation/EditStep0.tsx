@@ -1,12 +1,10 @@
-import Calendar, { CalendarEvent } from "common/src/calendar/Calendar";
-import {
-  getEventBuffers,
-  getNewReservation,
-  getSlotPropGetter,
-  getTimeslots,
-} from "common/src/calendar/util";
+import Calendar, {
+  type CalendarEvent,
+  type SlotClickProps,
+} from "common/src/calendar/Calendar";
+import { getEventBuffers } from "common/src/calendar/util";
 import { breakpoints } from "common/src/common/style";
-import type { PendingReservation } from "common/types/common";
+import type { PendingReservation } from "@/modules/types";
 import type {
   ApplicationRoundFieldsFragment,
   ListReservationsQuery,
@@ -14,7 +12,7 @@ import type {
   ReservationQuery,
   ReservationUnitPageQuery,
 } from "@gql/gql-types";
-import { addMinutes, addSeconds, differenceInMinutes } from "date-fns";
+import { addMinutes, differenceInMinutes } from "date-fns";
 import classNames from "classnames";
 import { IconArrowRight, IconCross } from "hds-react";
 import { useRouter } from "next/router";
@@ -25,10 +23,16 @@ import styled from "styled-components";
 import { Toolbar } from "common/src/calendar/Toolbar";
 import { filterNonNullable, getLocalizationLang } from "common/src/helpers";
 import {
+  SLOTS_EVERY_HOUR,
   canReservationTimeBeChanged,
   getDurationOptions,
-  isReservationReservable,
+  getNewReservation,
 } from "@/modules/reservation";
+import {
+  getBoundCheckedReservation,
+  getSlotPropGetter,
+  isRangeReservable,
+} from "@/modules/reservable";
 import {
   getPossibleTimesForDay,
   getReservationUnitPrice,
@@ -45,6 +49,7 @@ import { eventStyleGetter } from "@/components/common/calendarUtils";
 import { type UseFormReturn } from "react-hook-form";
 import { type PendingReservationFormType } from "@/components/reservation-unit/schema";
 import { fromUIDate, isValidDate, toUIDate } from "common/src/common/util";
+import { useReservableTimes } from "@/hooks/useReservableTimes";
 
 type QueryData = NonNullable<ListReservationsQuery["reservations"]>;
 type Node = NonNullable<
@@ -174,7 +179,6 @@ export function EditStep0({
   userReservations,
   activeApplicationRounds,
   reservationForm,
-  setErrorMsg,
   nextStep,
   isLoading,
 }: Props): JSX.Element {
@@ -183,9 +187,6 @@ export function EditStep0({
   const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
   const [calendarViewType, setCalendarViewType] = useState<WeekOptions>("week");
 
-  const [shouldCalendarControlsBeVisible, setShouldCalendarControlsBeVisible] =
-    useState(false);
-
   const originalBegin = new Date(reservation.begin);
   const originalEnd = new Date(reservation.end);
 
@@ -193,37 +194,36 @@ export function EditStep0({
   const { isDirty } = formState;
 
   const [focusDate, setFocusDate] = useState<Date>(originalBegin);
+  const reservableTimes = useReservableTimes(reservationUnit);
 
   const isSlotAvailable = useCallback(
-    (start: Date, end: Date, skipLengthCheck = false): boolean => {
+    (start: Date, end: Date): boolean => {
       const resUnit = getWithoutThisReservation(reservationUnit, reservation);
-      return isReservationReservable({
+      return isRangeReservable({
+        range: {
+          start,
+          end,
+        },
         reservationUnit: resUnit,
+        reservableTimes,
         activeApplicationRounds,
-        start,
-        end,
-        skipLengthCheck,
       });
     },
-    [reservationUnit, reservation, activeApplicationRounds]
+    [reservationUnit, reservableTimes, reservation, activeApplicationRounds]
   );
 
   const durationOptions = getDurationOptions(reservationUnit, t);
 
-  const reservableTimeSpans = filterNonNullable(
-    reservationUnit?.reservableTimeSpans
-  );
-
   const duration =
     watch("duration") ?? differenceInMinutes(originalBegin, originalEnd);
-  const startingTimeOptions = getPossibleTimesForDay(
-    reservableTimeSpans,
-    reservationUnit?.reservationStartInterval,
-    fromUIDate(watch("date") ?? "") ?? new Date(),
+  const startingTimeOptions = getPossibleTimesForDay({
+    reservableTimes,
+    interval: reservationUnit?.reservationStartInterval,
+    date: fromUIDate(watch("date") ?? "") ?? new Date(),
     reservationUnit,
     activeApplicationRounds,
-    duration
-  );
+    durationValue: duration,
+  });
 
   const focusSlot = calculateFocusSlot(
     watch("date") ?? "",
@@ -297,7 +297,7 @@ export function EditStep0({
       return undefined;
     }
     return getSlotPropGetter({
-      reservableTimeSpans,
+      reservableTimes,
       activeApplicationRounds,
       reservationBegins: reservationUnit.reservationBegins
         ? new Date(reservationUnit.reservationBegins)
@@ -309,12 +309,7 @@ export function EditStep0({
       reservationsMaxDaysBefore: reservationUnit.reservationsMaxDaysBefore ?? 0,
       customValidation: (date) => isSlotFree(date),
     });
-  }, [
-    activeApplicationRounds,
-    reservationUnit,
-    isSlotFree,
-    reservableTimeSpans,
-  ]);
+  }, [activeApplicationRounds, reservationUnit, isSlotFree, reservableTimes]);
 
   // TODO submit should be completely unnecessary
   // just disable nextStep button if the form is invalid
@@ -336,91 +331,114 @@ export function EditStep0({
 
     const resUnit = getWithoutThisReservation(reservationUnit, reservation);
 
-    const [isNewReservationValid, validationError] =
-      canReservationTimeBeChanged({
-        reservation,
-        newReservation,
-        reservationUnit: resUnit,
-        activeApplicationRounds,
-      });
+    const isNewReservationValid = canReservationTimeBeChanged({
+      reservation,
+      newReservation,
+      reservableTimes,
+      reservationUnit: resUnit,
+      activeApplicationRounds,
+    });
 
+    /*
     if (validationError) {
       setErrorMsg(t(`reservations:modifyTimeReasons.${validationError}`));
-    } else if (isNewReservationValid) {
+    }
+    */
+    if (isNewReservationValid) {
       nextStep();
     }
   };
 
   const handleCalendarEventChange = useCallback(
-    (
-      { start, end }: CalendarEvent<ReservationNode>,
-      skipLengthCheck = false
-    ): boolean => {
-      if (!isSlotAvailable(start, end, skipLengthCheck)) {
+    ({ start, end }: CalendarEvent<ReservationNode>): boolean => {
+      const { start: newStart, end: newEnd } =
+        getBoundCheckedReservation({
+          start,
+          end,
+          reservationUnit,
+          durationOptions,
+        }) ?? {};
+
+      if (newStart == null || newEnd == null) {
         return false;
       }
 
-      const newReservation = getNewReservation({ start, end, reservationUnit });
-      const newDate = toUIDate(new Date(newReservation.begin));
-      const newTime = getTimeString(new Date(newReservation.begin));
+      if (!isSlotAvailable(newStart, newEnd)) {
+        return false;
+      }
+
+      const { begin } = getNewReservation({
+        start: newStart,
+        end: newEnd,
+        reservationUnit,
+      });
+      const newDate = toUIDate(begin);
+      const newTime = getTimeString(begin);
       setValue("date", newDate, { shouldDirty: true });
       setValue("time", newTime, { shouldDirty: true });
-      setValue("duration", differenceInMinutes(end, start), {
+      setValue("duration", differenceInMinutes(newEnd, newStart), {
         shouldDirty: true,
       });
 
       const isClientATouchDevice = isTouchDevice();
       if (isClientATouchDevice) {
-        setShouldCalendarControlsBeVisible(true);
+        // TODO test: does setValue work?
+        setValue("isControlsVisible", true);
       }
 
       return true;
     },
-    [isSlotAvailable, reservationUnit, setValue]
+    [isSlotAvailable, reservationUnit, setValue, durationOptions]
   );
 
-  // FIXME some issues still moving a reservation (requires multiple clicks at times)
+  // compared to handleDragEvent, this doesn't allow changing the duration (only the start time)
+  // if the duration is not possible, the event is not moved
   const handleSlotClick = useCallback(
-    (
-      {
-        start,
-        end,
-        action,
-      }: { start: Date; end: Date; action: "select" | "click" | "doubleClick" },
-      skipLengthCheck = false
-    ): boolean => {
-      const isClientATouchDevice = isTouchDevice();
-      const isTouchClick = action === "select" && isClientATouchDevice;
+    (props: SlotClickProps): boolean => {
+      const { start, end, action } = props;
+      // const isTouchClick = action === "select" && isClientATouchDevice;
 
-      if (action === "select" && !isClientATouchDevice) {
+      // why?
+      if (action === "select" && !isTouchDevice()) {
         return false;
       }
 
-      const normalizedEnd =
-        action === "click" ||
-        (isTouchClick && differenceInMinutes(end, start) <= 30)
-          ? addSeconds(start, reservationUnit?.minReservationDuration ?? 0)
-          : new Date(end);
+      // need to check the start time is valid
+      // ignore end time because the duration is fixed
+      const { start: newStart } =
+        getBoundCheckedReservation({
+          start,
+          end,
+          reservationUnit,
+          durationOptions,
+        }) ?? {};
 
-      const newReservation = getNewReservation({
-        start,
-        end: normalizedEnd,
+      if (newStart == null) {
+        return false;
+      }
+
+      // onClick should not change the duration
+      const realEnd = addMinutes(newStart, duration);
+      if (!isSlotAvailable(newStart, realEnd)) {
+        return false;
+      }
+
+      // TODO this seems superfluous
+      const { begin } = getNewReservation({
+        start: newStart,
+        end: realEnd,
         reservationUnit,
       });
 
-      if (!isSlotAvailable(start, end, skipLengthCheck)) {
-        return false;
-      }
-
-      const newDate = toUIDate(new Date(newReservation.begin));
-      const newTime = getTimeString(new Date(newReservation.begin));
+      const uiDate = toUIDate(begin);
+      const uiTime = getTimeString(begin);
       // click doesn't change the duration
-      setValue("date", newDate, { shouldDirty: true });
-      setValue("time", newTime, { shouldDirty: true });
+      setValue("date", uiDate, { shouldDirty: true });
+      setValue("time", uiTime, { shouldDirty: true });
 
       return true;
     },
-    [reservationUnit, isSlotAvailable, setValue]
+    [reservationUnit, isSlotAvailable, setValue, durationOptions, duration]
   );
 
   const events = [...calendarEvents, ...eventBuffers];
@@ -447,7 +465,7 @@ export function EditStep0({
                 setCalendarViewType(str);
               }
             }}
-            onSelecting={(event) => handleCalendarEventChange(event, true)}
+            onSelecting={handleCalendarEventChange}
             // TODO what is the purpose of this?
             // min={addHours(startOfDay(focusDate), 6)}
             showToolbar
@@ -467,7 +485,7 @@ export function EditStep0({
               event?.state ? event?.state?.toString() === "INITIAL" : false
             }
             step={30}
-            timeslots={getTimeslots(reservationUnit.reservationStartInterval)}
+            timeslots={SLOTS_EVERY_HOUR}
             culture={getLocalizationLang(i18n.language)}
             aria-hidden
             longPressThreshold={100}
@@ -477,10 +495,6 @@ export function EditStep0({
           <ReservationCalendarControls
             reservationUnit={reservationUnit}
             mode="edit"
-            shouldCalendarControlsBeVisible={shouldCalendarControlsBeVisible}
-            setShouldCalendarControlsBeVisible={
-              setShouldCalendarControlsBeVisible
-            }
             isAnimated={isMobile}
             reservationForm={reservationForm}
             durationOptions={durationOptions}

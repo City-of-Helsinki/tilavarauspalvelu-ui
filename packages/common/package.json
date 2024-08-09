@@ -12,10 +12,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:css": "stylelint './src/**/*.tsx'",
-    "test": "echo 'FIXME common tests are broken'",
+    "test": "SKIP_ENV_VALIDATION=true TZ=Europe/Helsinki jest --runInBand",
     "format": "prettier --ignore-path \"../.prettierignore\" --write \"**/*.{js,jsx,ts,tsx,json}\"",
     "generate-email-templates": "node ./email/convertToHTML.mjs",
-    "tsc:check": "tsc --noEmit --project tsconfig.tscheck.json",
+    "tsc:check": "tsc --noEmit --project tsconfig.json",
     "tsc:clean": "tsc --build --clean",
     "generate:emails": "pnpm generate-email-templates"
   },
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@apollo/client": "^3.9.7",
-    "@testing-library/jest-dom": "^6.2.0",
+    "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.12",

@@ -41,6 +41,7 @@ import {
   HeadingSection,
   ReservationPageWrapper,
 } from "../reservations/styles";
+import ClientOnly from "common/src/ClientOnly";
 
 type ReservationUnitNodeT = NonNullable<
   ReservationUnitPageQuery["reservationUnit"]
@@ -118,10 +119,7 @@ function BylineContent({
   step: number;
 }) {
   const { watch } = form;
-  const date = watch("date");
-  const time = watch("time");
-  const duration = watch("duration");
-  const formValues = { date, time, duration };
+  const formValues = watch();
   const times = convertFormToApi(formValues);
   const modifiedReservation =
     times && step !== 0 ? { ...reservation, ...times } : reservation;
@@ -143,6 +141,7 @@ function convertReservationEdit(
     date: toUIDate(originalBegin),
     duration: differenceInMinutes(originalEnd, originalBegin),
     time: getTimeString(originalBegin),
+    isControlsVisible: false,
   };
 }
 
@@ -308,31 +307,33 @@ export function ReservationEdit({
             <Sanitize html={termsOfUse} />
           </PinkBox>
         )}
-        <EditCalendarSection>
-          {step === 0 && (
-            <EditStep0
-              reservation={reservation}
-              reservationUnit={reservationUnit}
-              userReservations={userReservations}
-              activeApplicationRounds={activeApplicationRounds}
-              reservationForm={reservationForm}
-              setErrorMsg={setErrorMsg}
-              nextStep={() => setStep(1)}
-              apiBaseUrl={apiBaseUrl}
-              isLoading={false}
-            />
-          )}
-          {step === 1 && (
-            <EditStep1
-              reservation={reservation}
-              reservationUnit={reservationUnit}
-              setErrorMsg={setErrorMsg}
-              setStep={setStep}
-              handleSubmit={handleSubmit}
-              isSubmitting={isLoading}
-            />
-          )}
-        </EditCalendarSection>
+        <ClientOnly>
+          <EditCalendarSection>
+            {step === 0 && (
+              <EditStep0
+                reservation={reservation}
+                reservationUnit={reservationUnit}
+                userReservations={userReservations}
+                activeApplicationRounds={activeApplicationRounds}
+                reservationForm={reservationForm}
+                setErrorMsg={setErrorMsg}
+                nextStep={() => setStep(1)}
+                apiBaseUrl={apiBaseUrl}
+                isLoading={false}
+              />
+            )}
+            {step === 1 && (
+              <EditStep1
+                reservation={reservation}
+                reservationUnit={reservationUnit}
+                setErrorMsg={setErrorMsg}
+                setStep={setStep}
+                handleSubmit={handleSubmit}
+                isSubmitting={isLoading}
+              />
+            )}
+          </EditCalendarSection>
+        </ClientOnly>
       </ReservationPageWrapper>
       {errorMsg && (
         <Toast
