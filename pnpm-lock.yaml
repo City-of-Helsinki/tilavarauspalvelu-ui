@@ -440,8 +440,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-big-calendar:
-        specifier: ^1.8.6
-        version: 1.8.6(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
+        specifier: ^1.13.2
+        version: 1.13.2(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.2.0)
@@ -486,8 +486,8 @@ importers:
         specifier: ^18.0.27
         version: 18.0.27
       '@types/react-big-calendar':
-        specifier: ^1.8.8
-        version: 1.8.8
+        specifier: ^1.8.9
+        version: 1.8.9
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
@@ -2062,10 +2062,6 @@ packages:
 
   '@babel/runtime@7.22.15':
     resolution: {integrity: sha512-T0O+aa+4w0u06iNmapipJXMV4HoUir03hpx3/YqXXhu9xim3w+dVphjFWl1OH8NbZHw5Lbm9k45drDkgq2VNNA==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/runtime@7.23.8':
-    resolution: {integrity: sha512-Y7KbAP984rn1VGMbGqKmBLio9V7y5Je9GvU4rQPCPinCyNfUcToxIXl06d59URp/F3LwinvODxab5N/G6qggkw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.24.0':
@@ -3813,8 +3809,8 @@ packages:
   '@types/quill@1.3.10':
     resolution: {integrity: sha512-IhW3fPW+bkt9MLNlycw8u8fWb7oO7W5URC9MfZYHBlA24rex9rs23D5DETChu1zvgVdc5ka64ICjJOgQMr6Shw==}
 
-  '@types/react-big-calendar@1.8.8':
-    resolution: {integrity: sha512-xSwparUglinKh9YyuaFqmMGZvSXKV9iEygD6JnSuEH8YR9YFemQ9+3U9MM8Ylqiaf2Sff+jlmcoe4E6USp2e0w==}
+  '@types/react-big-calendar@1.8.9':
+    resolution: {integrity: sha512-HIHLUxR3PzWHrFdZ00VnCMvDjAh5uzlL0vMC2b7tL3bKaAJsqq9T8h+x0GVeDbZfMfHAd1cs5tZBhVvourNJXQ==}
 
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
@@ -4984,9 +4980,6 @@ packages:
 
   date-fns@3.6.0:
     resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
-
-  dayjs@1.11.10:
-    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
 
   dayjs@1.11.12:
     resolution: {integrity: sha512-Rt2g+nTbLlDWZTwwrIXjy9MeiZmSDI375FvZs72ngxx8PDC6YXOeR3q5LAuPzjZQxhiWdRKac7RKV+YyQYfYIg==}
@@ -7852,8 +7845,8 @@ packages:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
 
-  react-big-calendar@1.8.6:
-    resolution: {integrity: sha512-/weukU7kfaowMgC634Vtzc3eNAEpTPxmK9aVEpRQ6gIrTUlL8E+xpgWZ4ouc8HdwRDD0nJD14po5NGbTOFwbtg==}
+  react-big-calendar@1.13.2:
+    resolution: {integrity: sha512-yzeVRM1I+JloeJXytrZx2lJWKUfLAi5bsgGuBjh3aFSHZrdFcGnfA7LE6pBacdyOG+NGP+332m2MziszkmQWcw==}
     peerDependencies:
       react: ^16.14.0 || ^17 || ^18
       react-dom: ^16.14.0 || ^17 || ^18
@@ -11478,10 +11471,6 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  '@babel/runtime@7.23.8':
-    dependencies:
-      regenerator-runtime: 0.14.1
-
   '@babel/runtime@7.24.0':
     dependencies:
       regenerator-runtime: 0.14.1
@@ -14077,7 +14066,7 @@ snapshots:
     dependencies:
       parchment: 1.1.4
 
-  '@types/react-big-calendar@1.8.8':
+  '@types/react-big-calendar@1.8.9':
     dependencies:
       '@types/date-arithmetic': 4.1.4
       '@types/prop-types': 15.7.11
@@ -15559,8 +15548,6 @@ snapshots:
   date-fns@2.16.1: {}
 
   date-fns@3.6.0: {}
-
-  dayjs@1.11.10: {}
 
   dayjs@1.11.12: {}
 
@@ -19185,12 +19172,12 @@ snapshots:
 
   range-parser@1.2.1: {}
 
-  react-big-calendar@1.8.6(react-dom@18.3.1(react@18.2.0))(react@18.2.0):
+  react-big-calendar@1.13.2(react-dom@18.3.1(react@18.2.0))(react@18.2.0):
     dependencies:
-      '@babel/runtime': 7.23.8
+      '@babel/runtime': 7.25.0
       clsx: 1.2.1
       date-arithmetic: 4.1.0
-      dayjs: 1.11.10
+      dayjs: 1.11.12
       dom-helpers: 5.2.1
       globalize: 0.1.1
       invariant: 2.2.4
