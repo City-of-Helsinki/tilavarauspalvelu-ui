@@ -12,8 +12,7 @@ import React from "react";
 import styled from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import useHandling from "@/hooks/useHandling";
-import usePermission from "@/hooks/usePermission";
-import { Permission } from "@/modules/permissionHelper";
+import { usePermission } from "@/hooks/usePermission";
 import Logo from "common/src/components/Logo";
 import { env } from "@/env.mjs";
 import {
@@ -27,6 +26,7 @@ import {
   unitsUrl,
   singleUnitUrl,
 } from "@/common/urls";
+import { UserPermissionChoice } from "@gql/gql-types";
 
 type Props = {
   apiBaseUrl: string;
@@ -105,12 +105,12 @@ interface IMenuChild {
   routes?: string[];
   excludeRoutes?: string[];
   exact?: boolean;
-  permission?: Permission;
+  permission?: UserPermissionChoice;
 }
 
 const getFilteredMenu = (
   hasOwnUnits: boolean,
-  hasPermission: (perm: Permission) => boolean
+  hasPermission: (perm: UserPermissionChoice) => boolean
 ): IMenuChild[] => [
   ...(hasOwnUnits
     ? [
@@ -122,8 +122,8 @@ const getFilteredMenu = (
       ]
     : []),
 
-  ...(hasPermission(Permission.CAN_VIEW_RESERVATIONS) ||
-  hasPermission(Permission.CAN_CREATE_STAFF_RESERVATIONS)
+  ...(hasPermission(UserPermissionChoice.CanViewReservations) ||
+  hasPermission(UserPermissionChoice.CanCreateStaffReservations)
     ? [
         {
           title: "MainMenu.requestedReservations",
@@ -138,7 +138,7 @@ const getFilteredMenu = (
       ]
     : []),
 
-  ...(hasPermission(Permission.CAN_VALIDATE_APPLICATIONS)
+  ...(hasPermission(UserPermissionChoice.CanViewApplications)
     ? [
         {
           title: "MainMenu.applicationRounds",
@@ -147,25 +147,25 @@ const getFilteredMenu = (
       ]
     : []),
 
-  ...(hasPermission(Permission.CAN_MANAGE_RESERVATION_UNITS)
+  ...(hasPermission(UserPermissionChoice.CanManageReservationUnits)
     ? [
         {
-          permission: Permission.CAN_MANAGE_RESERVATION_UNITS,
+          permission: UserPermissionChoice.CanManageReservationUnits,
           title: "MainMenu.reservationUnits",
           routes: [reservationUnitsUrl],
         },
         {
-          permission: Permission.CAN_MANAGE_UNITS,
+          permission: UserPermissionChoice.CanManageReservationUnits,
           title: "MainMenu.units",
           routes: [unitsUrl, singleUnitUrl],
         },
       ].filter((item) => hasPermission(item.permission))
     : []),
 
-  ...(hasPermission(Permission.CAN_MANAGE_BANNER_NOTIFICATIONS)
+  ...(hasPermission(UserPermissionChoice.CanManageNotifications)
     ? [
         {
-          permission: Permission.CAN_MANAGE_BANNER_NOTIFICATIONS,
+          permission: UserPermissionChoice.CanManageNotifications,
           title: "MainMenu.notifications",
           routes: [bannerNotificationsUrl],
         },
