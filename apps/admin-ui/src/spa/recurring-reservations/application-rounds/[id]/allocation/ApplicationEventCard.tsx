@@ -8,7 +8,6 @@ import {
   type ApplicationSectionAllocationsQuery,
 } from "@gql/gql-types";
 import { SemiBold, fontMedium } from "common";
-import { ageGroup } from "@/component/reservations/requested/util";
 import { filterNonNullable } from "common/src/helpers";
 import { convertWeekday } from "common/src/conversion";
 import {
@@ -24,6 +23,7 @@ import { type ApolloQueryResult } from "@apollo/client";
 import { getApplicationSectionUrl } from "@/common/urls";
 import { errorToast } from "common/src/common/toast";
 import { getApplicantName } from "@/helpers";
+import { formatAgeGroup } from "@/common/util";
 
 export type AllocationApplicationSectionCardType =
   | "unallocated"
@@ -220,7 +220,7 @@ export function ApplicationSectionCard({
           {t("Allocation.ageGroup")}:{" "}
           <SemiBold>
             {t("common.agesSuffix", {
-              range: ageGroup(applicationSection.ageGroup),
+              range: formatAgeGroup(applicationSection.ageGroup),
             })}
             , {applicationSection.numPersons} {t("common.peopleSuffixShort")}
           </SemiBold>
