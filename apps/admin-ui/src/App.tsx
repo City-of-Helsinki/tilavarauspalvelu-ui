@@ -19,12 +19,14 @@ const Units = dynamic(() => import(`${UNIT_PATH}/Units`));
 const Unit = dynamic(() => import(`${UNIT_PATH}/Unit`));
 const SpacesResources = dynamic(import(`${UNIT_PATH}/SpacesResources`));
 
-const SpacesList = dynamic(() => import("./spa/spaces"));
+const SpacesList = dynamic(() => import("./component/Spaces/SpacesList"));
 const SpaceEditorView = dynamic(
   () => import("./spa/unit/space-editor/SpaceEditorView")
 );
 
-const ResourcesList = dynamic(() => import("./spa/resources"));
+const ResourcesList = dynamic(
+  () => import("./component/Resources/ResourcesList")
+);
 const ResourceEditorView = dynamic(
   () => import("./spa/unit/resource-editor/ResourceEditorView")
 );
@@ -34,7 +36,7 @@ const ApplicationDetails = dynamic(
 );
 
 const ReservationUnits = dynamic(
-  () => import("./spa/reservation-units/ReservationUnits")
+  () => import("./component/reservation-units/ReservationUnits")
 );
 const ReservationUnitEditor = dynamic(
   () => import("./spa/ReservationUnit/edit/index")

@@ -1,15 +1,16 @@
 import React from "react";
 import { IconGroup } from "hds-react";
-import { useTranslation, type TFunction } from "next-i18next";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { H1, Strong } from "common/src/common/typography";
 import { type ApolloError } from "@apollo/client";
 import { useSpacesQuery, type SpaceNode } from "@gql/gql-types";
-import Loader from "@/component/Loader";
+import Loader from "../Loader";
 import { errorToast } from "common/src/common/toast";
 import { Container } from "@/styles/layout";
 import { filterNonNullable } from "common/src/helpers";
-import { CustomTable } from "@/component/Table";
+import { CustomTable } from "../Table";
 import { Link } from "react-router-dom";
 import { getSpaceUrl } from "@/common/urls";
 
