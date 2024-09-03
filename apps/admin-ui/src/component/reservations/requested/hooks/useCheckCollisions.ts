@@ -9,7 +9,7 @@ import { base64encode, filterNonNullable } from "common/src/helpers";
 import { toApiDate } from "common/src/common/util";
 import { RELATED_RESERVATION_STATES } from "common/src/const";
 
-export function useCheckCollisions({
+function useCheckCollisions({
   reservationPk,
   reservationUnitPk,
   start,
@@ -86,3 +86,5 @@ export function useCheckCollisions({
 
   return { isLoading: loading, hasCollisions: collisions.length > 0 };
 }
+
+export default useCheckCollisions;

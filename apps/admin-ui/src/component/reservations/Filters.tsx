@@ -15,8 +15,8 @@ import {
   RangeNumberFilter,
   SearchFilter,
   SelectFilter,
-} from "@/component/QueryParamFilters";
-import { SearchTags } from "@/component/SearchTags";
+} from "../QueryParamFilters";
+import { SearchTags } from "../SearchTags";
 import {
   OrderStatusWithFree,
   ReservationTypeChoice,

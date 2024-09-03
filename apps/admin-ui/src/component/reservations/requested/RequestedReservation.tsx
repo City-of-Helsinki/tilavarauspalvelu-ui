@@ -24,6 +24,7 @@ import { ReservationWorkingMemo } from "@/component/WorkingMemo";
 import { Accordion } from "@/common/hds-fork/Accordion";
 import { BirthDate } from "@/component/BirthDate";
 import {
+  ageGroup,
   createTagString,
   getName,
   getReservatinUnitPricing,
@@ -31,16 +32,15 @@ import {
   reservationPrice,
 } from "./util";
 import Calendar from "./Calendar";
-import VisibleIfPermission from "@/component/VisibleIfPermission";
+import VisibleIfPermission from "./VisibleIfPermission";
 import ApprovalButtons from "./ApprovalButtons";
-import { RecurringReservationsView } from "@/component/RecurringReservationsView";
+import { RecurringReservationsView } from "./RecurringReservationsView";
 import { useRecurringReservations, useReservationData } from "./hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
 import { base64encode } from "common/src/helpers";
 import { fontMedium } from "common";
 import { errorToast } from "common/src/common/toast";
-import { formatAgeGroup } from "@/common/util";
 
 type ReservationType = NonNullable<ReservationQuery["reservation"]>;
 
@@ -198,7 +198,7 @@ function ReservationSummary({
     reservation.ageGroup != null
       ? {
           l: "filters.ageGroup",
-          v: `${formatAgeGroup(reservation.ageGroup)} ${t(
+          v: `${ageGroup(reservation.ageGroup)} ${t(
             "RequestedReservation.ageGroupSuffix"
           )}`,
         }
@@ -470,7 +470,7 @@ function RequestedReservation({
               </DataWrapper>
               {reservation.ageGroup && (
                 <DataWrapper label={t("filters.ageGroup")}>
-                  {`${formatAgeGroup(reservation.ageGroup)} ${t("RequestedReservation.ageGroupSuffix")}`}
+                  {`${ageGroup(reservation.ageGroup)} ${t("RequestedReservation.ageGroupSuffix")}`}
                 </DataWrapper>
               )}
               <DataWrapper label={t("filters.purpose")}>

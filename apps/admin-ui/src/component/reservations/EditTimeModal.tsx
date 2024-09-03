@@ -22,7 +22,7 @@ import { TimeChangeFormSchemaRefined, TimeFormSchema } from "@/schemas";
 import ControlledTimeInput from "@/component/ControlledTimeInput";
 import ControlledDateInput from "@/component/ControlledDateInput";
 import { BufferToggles } from "@/component/BufferToggles";
-import { useCheckCollisions } from "@/hooks";
+import { useCheckCollisions } from "./requested/hooks";
 import { getNormalizedInterval, parseDateTimeSafe } from "@/helpers";
 import { formatDateTimeRange } from "@/common/util";
 import { gql } from "@apollo/client";
