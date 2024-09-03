@@ -111,9 +111,7 @@ const ReservationTitleSection = forwardRef<HTMLDivElement, Props>(
     const sectionPk =
       data?.recurringReservation?.allocatedTimeSlot?.reservationUnitOption
         ?.applicationSection?.pk;
-    const applicationLink = applicationPk
-      ? getApplicationUrl(applicationPk, sectionPk)
-      : null;
+    const applicationLink = getApplicationUrl(applicationPk, sectionPk);
 
     const order = reservation.paymentOrder[0];
     return (
@@ -146,9 +144,11 @@ const ReservationTitleSection = forwardRef<HTMLDivElement, Props>(
         <DateTime>
           {t("RequestedReservation.createdAt")}{" "}
           {formatDateTime(reservation.createdAt ?? "")}
-          <ExternalLink to={applicationLink} size="s">
-            {`${t("RequestedReservation.applicationLink")}: ${applicationPk}-${sectionPk}`}
-          </ExternalLink>
+          {applicationLink !== "" && (
+            <ExternalLink to={applicationLink} size="s">
+              {`${t("RequestedReservation.applicationLink")}: ${applicationPk}-${sectionPk}`}
+            </ExternalLink>
+          )}
         </DateTime>
       </div>
     );
