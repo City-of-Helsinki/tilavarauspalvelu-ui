@@ -14,21 +14,21 @@ import NotificationsRouter from "./component/notifications/router";
 import Error404 from "./common/Error404";
 import { UserPermissionChoice } from "@gql/gql-types";
 
-const UNIT_PATH = "./spa/unit";
+const UNIT_PATH = "./component/Unit";
 const Units = dynamic(() => import(`${UNIT_PATH}/Units`));
 const Unit = dynamic(() => import(`${UNIT_PATH}/Unit`));
 const SpacesResources = dynamic(import(`${UNIT_PATH}/SpacesResources`));
 
 const SpacesList = dynamic(() => import("./component/Spaces/SpacesList"));
 const SpaceEditorView = dynamic(
-  () => import("./spa/unit/space-editor/SpaceEditorView")
+  () => import("./component/Spaces/space-editor/SpaceEditorView")
 );
 
 const ResourcesList = dynamic(
   () => import("./component/Resources/ResourcesList")
 );
 const ResourceEditorView = dynamic(
-  () => import("./spa/unit/resource-editor/ResourceEditorView")
+  () => import("./component/Resources/resource-editor/ResourceEditorView")
 );
 
 const ApplicationDetails = dynamic(
