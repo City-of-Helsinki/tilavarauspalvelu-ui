@@ -4,7 +4,7 @@ import { Toolbar } from "common/src/calendar/Toolbar";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
 import { type ReservationQuery, ReservationTypeChoice } from "@gql/gql-types";
-import { useModal } from "@/context/ModalContext";
+import { useModal } from "app/context/ModalContext";
 import eventStyleGetter, { legend } from "./eventStyleGetter";
 import Legend from "./Legend";
 import { EditTimeModal } from "../EditTimeModal";

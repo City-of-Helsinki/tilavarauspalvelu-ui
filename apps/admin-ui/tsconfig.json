@@ -4,6 +4,7 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       // old version
+      "app/*": ["./src/*"],
       "@/*": ["./src/*"],
       "@gql/*": ["./gql/*"]
     }

@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "app/env.mjs";
 import { ApplicationStatusChoice } from "@gql/gql-types";
 
 export { isBrowser } from "common/src/helpers";
