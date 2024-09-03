@@ -15,7 +15,6 @@ import { BasicLink } from "@/styles/util";
 import IconDraft from "@/images/icon_draft.svg";
 import { getImageSource } from "common/src/helpers";
 import { NoWrap } from "common/styles/util";
-import { getReservationUnitUrl } from "@/common/urls";
 
 type UnitType = NonNullable<UnitQuery["unit"]>;
 type ReservationUnitType = NonNullable<UnitType["reservationunitSet"]>[0];
@@ -114,7 +113,8 @@ export function ReservationUnitCard({
 
   const hasPurposes = (reservationUnit?.purposes?.length || 0) > 0;
 
-  const link = getReservationUnitUrl(reservationUnit.pk, unitId);
+  // TODO use urlBuilder
+  const link = `/unit/${unitId}/reservationUnit/edit/${reservationUnit.pk}`;
   const imgSrc = getImageSource(image, "medium");
 
   return (

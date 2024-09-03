@@ -14,8 +14,7 @@ import Loader from "@/component/Loader";
 import { ExternalLink } from "@/component/ExternalLink";
 import { base64encode, filterNonNullable } from "common/src/helpers";
 import Error404 from "@/common/Error404";
-import { ReservationUnitList } from "./ReservationUnitList";
-import { getReservationUnitUrl } from "@/common/urls";
+import { ReservationUnitList } from "../ReservationUnitList";
 
 interface IProps {
   [key: string]: string;
@@ -189,7 +188,7 @@ function Unit(): JSX.Element {
           variant="supplementary"
           iconLeft={<IconPlusCircleFill />}
           onClick={() => {
-            history(getReservationUnitUrl(undefined, unitPk));
+            history(`/unit/${unitPk}/reservationUnit/edit/`);
           }}
         >
           {t("Unit.reservationUnitCreate")}
