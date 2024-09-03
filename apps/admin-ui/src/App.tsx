@@ -14,9 +14,10 @@ import NotificationsRouter from "./spa/notifications/router";
 import Error404 from "./common/Error404";
 import { UserPermissionChoice } from "@gql/gql-types";
 
-const Units = dynamic(() => import("./spa/unit"));
-const Unit = dynamic(() => import("./spa/unit/[id]"));
-const SpacesResources = dynamic(import("./spa/unit/SpacesResources"));
+const UNIT_PATH = "./spa/unit";
+const Units = dynamic(() => import(`${UNIT_PATH}/Units`));
+const Unit = dynamic(() => import(`${UNIT_PATH}/Unit`));
+const SpacesResources = dynamic(import(`${UNIT_PATH}/SpacesResources`));
 
 const SpacesList = dynamic(() => import("./spa/spaces"));
 const SpaceEditorView = dynamic(
