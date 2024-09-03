@@ -1,5 +1,6 @@
 import { differenceInMinutes, format } from "date-fns";
 import type { TFunction } from "i18next";
+import { trim } from "lodash";
 import {
   formatters as getFormatters,
   getReservationPrice,
@@ -45,10 +46,10 @@ export function reservationPrice(
 }
 
 /** returns reservation unit pricing at given date */
-export function getReservatinUnitPricing(
+export const getReservatinUnitPricing = (
   reservationUnit: ReservationUnitType | undefined,
   datetime: string
-): PricingFieldsFragment | null {
+): PricingFieldsFragment | null => {
   if (!reservationUnit?.pricings || reservationUnit.pricings.length === 0) {
     return null;
   }
@@ -68,7 +69,7 @@ export function getReservatinUnitPricing(
     }
     return prev;
   }, reservationUnit.pricings[0]);
-}
+};
 
 export function getReservationPriceDetails(
   reservation: ReservationType,
@@ -111,10 +112,10 @@ export function getReservationPriceDetails(
       });
 }
 
-function reserveeTypeToTranslationKey(
+const reserveeTypeToTranslationKey = (
   reserveeType: CustomerTypeChoice,
   isUnregisteredAssociation: boolean
-) {
+) => {
   switch (reserveeType) {
     case CustomerTypeChoice.Business:
     case CustomerTypeChoice.Individual:
@@ -126,7 +127,7 @@ function reserveeTypeToTranslationKey(
     default:
       return "";
   }
-}
+};
 
 export function getTranslationKeyForCustomerTypeChoice(
   reservationType?: ReservationTypeChoice,
@@ -156,12 +157,14 @@ export function getName(
   t: TFunction
 ): string {
   if (reservation.name) {
-    return `${reservation.pk}, ${reservation.name}`.trim();
+    return trim(`${reservation.pk}, ${reservation.name}`);
   }
 
-  return `${reservation.pk}, ${
-    getReserveeName(reservation, t) || t("RequestedReservation.noName")
-  }`.trim();
+  return trim(
+    `${reservation.pk}, ${
+      getReserveeName(reservation, t) || t("RequestedReservation.noName")
+    }`.trim()
+  );
 }
 
 // TODO rename: it's the time + duration
