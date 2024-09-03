@@ -15,7 +15,7 @@ const defaultStates = [
   ReservationStateChoice.RequiresHandling,
 ];
 
-export function RequestedPage(): JSX.Element {
+function Reservations(): JSX.Element {
   const { t } = useTranslation();
 
   const today = useMemo(() => new Date(), []);
@@ -58,3 +58,5 @@ export function RequestedPage(): JSX.Element {
     </Container>
   );
 }
+
+export default Reservations;
