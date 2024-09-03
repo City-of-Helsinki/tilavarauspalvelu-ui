@@ -2,7 +2,7 @@ import { get } from "lodash";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { Table, TableProps } from "@/common/hds-fork/table/Table";
+import { Table, TableProps } from "hds-react";
 
 type TableWrapperProps = {
   $headingBackground?: string;
@@ -47,37 +47,57 @@ const StyledTable = styled(Table)<TableWrapperProps>`
   }
 `;
 
-type Props = TableProps & {
+// Custom sort callback for backwards compatibility (can be refactored out)
+type Props = Omit<TableProps, "onSort"> & {
   setSort?: (col: string) => void;
   isLoading?: boolean;
-  // hack to avoid circular key error
-  // TODO should fix the bug in the Table component
-  disableKey?: boolean;
 };
 
 // @param isLoading - if true, table is rendered with a loading overlay
 // TODO overlay and spinner for loading would be preferable over colour switching
-export const CustomTable = ({
+export function CustomTable({
   isLoading,
-  disableKey,
+  setSort,
   ...props
-}: Props): JSX.Element => (
-  <StyledTable
-    // NOTE have to unmount on data changes because there is a bug in the Table component
-    // removing this and using sort leaves ghost elements in the table.
-    key={!disableKey ? JSON.stringify(props.rows) : undefined}
-    $headingBackground={
-      isLoading ? "var(--color-black-20)" : "var(--color-black-10)"
+}: Props): JSX.Element {
+
+  const onSort = (order: "asc" | "desc", colKey: string) => {
+    const field = order === "asc" ? colKey : `-${colKey}`;
+    if (setSort) {
+      setSort(field);
     }
-    $tableBackground={
-      isLoading ? "var(--color-black-10)" : "var(--color-white)"
+  };
+
+  return (
+    <StyledTable
+      {...props}
+      onSort={onSort}
+      // NOTE have to unmount on data changes because there is a bug in the Table component
+      // removing this and using sort leaves ghost elements in the table.
+      // also search indicators are not correct when search changes (initial direction / key)
+      key={JSON.stringify(props.rows, replacer)}
+      $headingBackground={
+        isLoading ? "var(--color-black-20)" : "var(--color-black-10)"
+      }
+      $tableBackground={
+        isLoading ? "var(--color-black-10)" : "var(--color-white)"
+      }
+      $colWidths={
+        props?.cols ? props.cols.map((col) => get(col, "width", "auto")) : []
+      }
+    />
+  );
+}
+
+// React elements can't be serialized into json
+function replacer(_key: string, value: unknown) {
+  if (typeof value === "object" && value !== null) {
+    if ("$$typeof" in value && value["$$typeof"] != null && value["$$typeof"].toString() === "Symbol(react.element)") {
+      return undefined;
     }
-    $colWidths={
-      props?.cols ? props.cols.map((col) => get(col, "width", "auto")) : []
-    }
-    {...props}
-  />
-);
+  }
+  return value;
+}
 
 const A = styled(Link)`
   color: black;

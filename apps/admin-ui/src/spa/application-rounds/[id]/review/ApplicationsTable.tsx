@@ -183,9 +183,10 @@ export function ApplicationsTable({
 
   const sortField = sort?.replace(/-/, "") ?? "";
   const sortDirection = sort?.startsWith("-") ? "desc" : "asc";
+  console.log("sortField", sortField);
+  console.log("sortDirection", sortDirection);
   return (
     <CustomTable
-      disableKey
       setSort={onSortChanged}
       indexKey="pk"
       isLoading={isLoading}
