@@ -4,9 +4,9 @@ import type { TFunction } from "i18next";
 import { memoize, orderBy, uniqBy } from "lodash";
 import { IconLinkExternal } from "hds-react";
 import type { ApplicationSectionsQuery } from "@gql/gql-types";
-import { MAX_APPLICATION_ROUND_NAME_LENGTH } from "@/common/const";
+import { MAX_APPLICATION_ROUND_NAME_LENGTH, PUBLIC_URL } from "@/common/const";
 import { getApplicantName, truncate } from "@/helpers";
-import { getApplicationUrl } from "@/common/urls";
+import { applicationDetailsUrl } from "@/common/urls";
 import { CustomTable, ExternalTableLink } from "@/component/Table";
 import { ApplicationSectionStatusCell } from "./StatusCell";
 import {
@@ -85,7 +85,10 @@ const COLS = [
     key: "applicant",
     transform: ({ applicantName, applicationPk, pk }: ApplicationEventView) => (
       <ExternalTableLink
-        href={getApplicationUrl(applicationPk, pk, true)}
+        // TODO use url builder
+        href={`${PUBLIC_URL}${applicationDetailsUrl(applicationPk ?? 0)}#${
+          pk ?? 0
+        }`}
         target="_blank"
         rel="noopener noreferrer"
       >

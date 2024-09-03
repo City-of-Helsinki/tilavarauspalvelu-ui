@@ -88,7 +88,7 @@ const COLS = [
       pk,
     }: ApplicationScheduleView) => (
       <ExternalTableLink
-        href={getApplicationUrl(applicationPk, pk, true)}
+        href={getApplicationUrl(applicationPk, pk)}
         target="_blank"
         rel="noopener noreferrer"
       >

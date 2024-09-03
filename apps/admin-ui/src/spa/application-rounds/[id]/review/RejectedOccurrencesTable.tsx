@@ -95,7 +95,7 @@ const COLS = [
       pk,
     }: RejectedOccurrencesView) => (
       <ExternalTableLink
-        href={getApplicationUrl(applicationPk, pk, true)}
+        href={getApplicationUrl(applicationPk, pk)}
         target="_blank"
         rel="noopener noreferrer"
       >

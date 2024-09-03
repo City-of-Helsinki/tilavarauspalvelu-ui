@@ -13,7 +13,6 @@ import { useRecurringReservationQuery } from "@gql/gql-types";
 import { base64encode, filterNonNullable } from "common/src/helpers";
 import { ButtonLikeLink } from "@/component/ButtonLikeLink";
 import { errorToast } from "common/src/common/toast";
-import { getReservationUrl } from "@/common/urls";
 
 const InfoSection = styled.p`
   margin: var(--spacing-l) 0;
@@ -65,7 +64,9 @@ function RecurringReservationDoneInner({
   const { recurringReservation } = data ?? {};
   const reservations = filterNonNullable(recurringReservation?.reservations);
 
-  const reservationUrl = getReservationUrl(reservations[0]?.pk);
+  // TODO use urlbuilder
+  const reservationPk = reservations[0]?.pk;
+  const reservationUrl = reservationPk ? `/reservations/${reservationPk}` : "";
 
   return (
     <StyledContainer>
@@ -78,7 +79,10 @@ function RecurringReservationDoneInner({
         <ButtonLikeLink to="../../.." relative="path">
           {t(`buttonToUnit`)}
         </ButtonLikeLink>
-        <ButtonLikeLink disabled={reservationUrl === ""} to={reservationUrl}>
+        <ButtonLikeLink
+          disabled={reservations[0]?.pk == null}
+          to={reservationUrl}
+        >
           {t(`buttonToReservation`)}
         </ButtonLikeLink>
       </ActionsWrapper>
