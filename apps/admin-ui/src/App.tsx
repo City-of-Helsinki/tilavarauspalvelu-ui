@@ -16,7 +16,9 @@ import { UserPermissionChoice } from "@gql/gql-types";
 import { UnitsRouter } from "./spa/unit/router";
 
 const Units = dynamic(() => import("./spa/unit"));
+const SpacesList = dynamic(() => import("./spa/spaces"));
 
+const ResourcesList = dynamic(() => import("./spa/resources"));
 const ApplicationDetails = dynamic(
   () => import("./spa/applications/[id]/index")
 );
@@ -69,9 +71,27 @@ const PremisesRouter = ({
 }: Omit<Props, "reservationUnitPreviewUrl">) => (
   <Routes>
     <Route
+      path="spaces"
+      element={withAuthorization(
+        <SpacesList />,
+        apiBaseUrl,
+        feedbackUrl,
+        UserPermissionChoice.CanManageReservationUnits
+      )}
+    />
+    <Route
       path={prefixes.reservationUnits}
       element={withAuthorization(
         <ReservationUnits />,
+        apiBaseUrl,
+        feedbackUrl,
+        UserPermissionChoice.CanManageReservationUnits
+      )}
+    />
+    <Route
+      path="resources"
+      element={withAuthorization(
+        <ResourcesList />,
         apiBaseUrl,
         feedbackUrl,
         UserPermissionChoice.CanManageReservationUnits
