@@ -6290,7 +6290,6 @@ export type UnitQuery = {
     tprekId?: string | null;
     shortDescriptionFi?: string | null;
     reservationunitSet: Array<{
-      isArchived: boolean;
       isDraft: boolean;
       id: string;
       pk?: number | null;
@@ -10099,7 +10098,6 @@ export const UnitDocument = gql`
       shortDescriptionFi
       reservationunitSet {
         ...ReservationUnitCommonFields
-        isArchived
         resources {
           id
           pk
