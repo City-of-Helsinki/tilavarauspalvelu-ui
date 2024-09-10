@@ -25,7 +25,6 @@ import {
   type ReservationUnitPublishingState,
   type ReservationUnitReservationState,
   TermsType,
-  Status,
   ImageType,
   useUnitWithSpacesAndResourcesQuery,
   useDeleteImageMutation,
@@ -63,7 +62,7 @@ import { ArchiveDialog } from "./ArchiveDialog";
 import { ReservationStateTag, ReservationUnitStateTag } from "./tags";
 import { ActivationGroup } from "./ActivationGroup";
 import { ImageEditor } from "./ImageEditor";
-import { PricingTypeView } from "./PricingType";
+import { PricingOption, PricingTypeView } from "./PricingType";
 import { GenericDialog } from "./GenericDialog";
 import {
   type ReservationUnitEditFormValues,
@@ -71,6 +70,8 @@ import {
   convertReservationUnit,
   transformReservationUnit,
   type ImageFormType,
+  isInPast,
+  isInFuture,
 } from "./form";
 import { ButtonLikeLink } from "@/component/ButtonLikeLink";
 import { SeasonalSection } from "./SeasonalSection";
@@ -325,24 +326,25 @@ const FieldGroupHeading = styled.span`
 
 function FieldGroup({
   children,
-  id,
   heading,
   tooltip = "",
   className,
   style,
+  required,
 }: {
   heading: string;
   tooltip?: string;
-  id?: string;
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  required?: boolean;
 }): JSX.Element {
   return (
     <FieldGroupWrapper className={className} style={style}>
       <div>
-        <FieldGroupHeading>{heading}</FieldGroupHeading>
-        {id ? <span id={id} /> : null}
+        <FieldGroupHeading>
+          {heading} {required ? "*" : ""}
+        </FieldGroupHeading>
         <div className="ReservationUnitEditor__FieldGroup-children">
           {children}
         </div>
@@ -592,14 +594,13 @@ function BasicSection({
   const { errors } = formState;
   const { spaces } = unit ?? {};
 
-  const spaceOptions =
-    spaces?.map((s) => ({
-      label: String(s?.nameFi),
-      value: Number(s?.pk),
-    })) ?? [];
+  const spaceOptions = filterNonNullable(spaces).map((s) => ({
+    label: String(s?.nameFi),
+    value: Number(s?.pk),
+  }));
   const resourceOptions = filterNonNullable(
     spaces?.flatMap((s) => s?.resourceSet)
-  ).map((r) => ({ label: String(r?.nameFi), value: Number(r?.pk) }));
+  ).map((r) => ({ label: r.nameFi ?? "", value: r.pk ?? 0 }));
 
   const spacePks = watch("spaces");
   const selectedSpaces = filterNonNullable(
@@ -627,7 +628,6 @@ function BasicSection({
     >
       <AutoGrid>
         <RadioFieldGroup
-          id="reservationKind"
           heading={t("ReservationUnitEditor.label.reservationKind")}
           tooltip={t("ReservationUnitEditor.tooltip.reservationKind")}
         >
@@ -1092,46 +1092,39 @@ function PricingSection({
   pricingTermsOptions,
 }: {
   form: UseFormReturn<ReservationUnitEditFormValues>;
-  taxPercentageOptions: { value: number; label: string }[];
+  taxPercentageOptions: PricingOption[];
   pricingTermsOptions: { value: string; label: string }[];
 }) {
   const { t } = useTranslation();
   const { control, watch, formState } = form;
   const { errors } = formState;
 
-  const isFuturePriceVisible = watch("hasFuturePricing");
-  const isPaid =
-    watch("pricings")
-      .filter((p) => p?.pricingType === "PAID")
-      .filter((p) => p.status === Status.Active || isFuturePriceVisible)
-      .length > 0;
-
+  const pricings = watch("pricings");
+  const isPaid = pricings.filter((p) => p.isPaid).length > 0;
   const hasErrors = errors.pricings != null || errors.paymentTypes != null;
+
   return (
     <Accordion
       open={hasErrors}
       heading={t("ReservationUnitEditor.label.pricings")}
     >
       <VerticalFlex>
-        {watch("pricings").map(
-          (pricing, index) =>
-            pricing?.status === Status.Active && (
-              <FieldGroup
-                // eslint-disable-next-line react/no-array-index-key -- TODO refactor to use pk / fake pks
-                key={index}
-                id="pricings"
-                heading={`${t("ReservationUnitEditor.label.pricingType")} *`}
-                tooltip={t("ReservationUnitEditor.tooltip.pricingType")}
-              >
-                <PricingTypeView
-                  // TODO form index is bad, use pk or form key
-                  index={index}
-                  form={form}
-                  taxPercentageOptions={taxPercentageOptions}
-                />
-              </FieldGroup>
-            )
-        )}
+        {watch("pricings")
+          .filter((p) => isInPast(p.begins))
+          .map((pricing) => (
+            <FieldGroup
+              key={`pricing-${pricing.pk}`}
+              heading={t("ReservationUnitEditor.label.pricingType")}
+              required
+              tooltip={t("ReservationUnitEditor.tooltip.pricingType")}
+            >
+              <PricingTypeView
+                pk={pricing.pk}
+                form={form}
+                taxPercentageOptions={taxPercentageOptions}
+              />
+            </FieldGroup>
+          ))}
         <Controller
           control={control}
           name="hasFuturePricing"
@@ -1139,31 +1132,28 @@ function PricingSection({
             <Checkbox
               checked={value}
               onChange={() => onChange(!value)}
-              label={t("ReservationUnitEditor.label.priceChange")}
+              label={t("ReservationUnitEditor.label.hasFuturePrice")}
               id="hasFuturePrice"
             />
           )}
         />
         {watch("hasFuturePricing") &&
-          watch("pricings").map(
-            (pricing, index) =>
-              pricing.status === Status.Future && (
-                <FieldGroup
-                  // eslint-disable-next-line react/no-array-index-key -- TODO refactor to use pk / fake pks
-                  key={index}
-                  id="pricings"
-                  heading={`${t("ReservationUnitEditor.label.pricingType")} *`}
-                  tooltip={t("ReservationUnitEditor.tooltip.pricingType")}
-                >
-                  <PricingTypeView
-                    // TODO form index is bad, use pk or form key
-                    index={index}
-                    form={form}
-                    taxPercentageOptions={taxPercentageOptions}
-                  />
-                </FieldGroup>
-              )
-          )}
+          watch("pricings")
+            .filter((p) => isInFuture(p.begins))
+            .map((pricing) => (
+              <FieldGroup
+                key={`pricing-${pricing.pk}`}
+                heading={t("ReservationUnitEditor.label.pricingType")}
+                required
+                tooltip={t("ReservationUnitEditor.tooltip.pricingType")}
+              >
+                <PricingTypeView
+                  pk={pricing.pk}
+                  form={form}
+                  taxPercentageOptions={taxPercentageOptions}
+                />
+              </FieldGroup>
+            ))}
         {isPaid && (
           // TODO this should be outside the pricing type because it's reservation unit wide
           <HorisontalFlex style={{ justifyContent: "space-between" }}>
@@ -1459,27 +1449,27 @@ function DescriptionSection({
   const equipmentOptions = filterNonNullable(
     equipments?.edges.map((n) => n?.node)
   ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.nameFi ?? "no-name",
+    value: n.pk ?? -1,
+    label: n.nameFi ?? "no-name",
   }));
 
   const purposeOptions = filterNonNullable(
     purposes?.edges.map((n) => n?.node)
   ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.nameFi ?? "no-name",
+    value: n.pk ?? -1,
+    label: n.nameFi ?? "no-name",
   }));
   const qualifierOptions = filterNonNullable(
     qualifiers?.edges.map((n) => n?.node)
   ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.nameFi ?? "no-name",
+    value: n.pk ?? -1,
+    label: n.nameFi ?? "no-name",
   }));
   const reservationUnitTypeOptions = filterNonNullable(
     reservationUnitTypes?.edges.map((n) => n?.node)
   ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.nameFi ?? "no-name",
+    value: n.pk ?? -1,
+    label: n.nameFi ?? "no-name",
   }));
 
   const hasErrors =
@@ -1680,8 +1670,9 @@ function ReservationUnitEditor({
   const taxPercentageOptions = filterNonNullable(
     parametersData?.taxPercentages?.edges.map((e) => e?.node)
   ).map((n) => ({
-    value: n?.pk ?? -1,
-    label: n?.value.toString(),
+    value: Number(n.value),
+    pk: n.pk ?? -1,
+    label: n.value,
   }));
   const serviceSpecificTermsOptions = makeTermsOptions(
     parametersData,

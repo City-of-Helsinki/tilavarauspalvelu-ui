@@ -1,4 +1,4 @@
-import { filterNonNullable } from "common/src/helpers";
+import { filterNonNullable, toNumber } from "common/src/helpers";
 import {
   fromApiDate,
   fromUIDate,
@@ -8,15 +8,13 @@ import {
 import {
   ReservationStartInterval,
   Authentication,
-  PricingType,
   ReservationKind,
-  Status,
   PriceUnit,
-  type ReservationUnitPricingNode,
   ImageType,
   type ReservationUnitEditQuery,
+  ReservationUnitPricingSerializerInput,
 } from "@gql/gql-types";
-import { addDays, format } from "date-fns";
+import { addDays, endOfDay, format } from "date-fns";
 import { z } from "zod";
 import {
   checkLengthWithoutHtml,
@@ -30,23 +28,41 @@ export const PaymentTypes = ["ONLINE", "INVOICE", "ON_SITE"] as const;
 type QueryData = ReservationUnitEditQuery["reservationUnit"];
 type Node = NonNullable<QueryData>;
 
+/// @param date string in UI format
+/// @returns true if date is in the past
+export function isInPast(date: string) {
+  const d = fromUIDate(date);
+  if (d == null) {
+    return false;
+  }
+  return d <= endOfDay(new Date());
+}
+
+/// @param date string in UI format
+/// @returns true if date is in the future
+export function isInFuture(date: string) {
+  const d = fromUIDate(date);
+  if (d == null) {
+    return false;
+  }
+  return d > endOfDay(new Date());
+}
+
 const PricingFormSchema = z.object({
   // pk === 0 means new pricing good decission?
   // pk === 0 fails silently on the backend, but undefined creates a new pricing
   pk: z.number(),
-  taxPercentage: z.object({
-    pk: z.number(),
-    value: z.number(),
-  }),
+  taxPercentage: z.number(),
+  // TODO remove the second value keep the net or gross price only
   lowestPrice: z.number(),
   lowestPriceNet: z.number(),
   highestPrice: z.number(),
   highestPriceNet: z.number(),
-  pricingType: z.nativeEnum(PricingType),
   priceUnit: z.nativeEnum(PriceUnit).nullable(),
-  status: z.nativeEnum(Status),
   // NOTE this has to be a string because of HDS date input in ui format: "d.M.yyyy"
   begins: z.string(),
+  // frontend only value, this is used to control if we should show price section
+  isPaid: z.boolean(),
 });
 
 type PricingFormValues = z.infer<typeof PricingFormSchema>;
@@ -56,78 +72,78 @@ const refinePricing = (
   ctx: z.RefinementCtx,
   path: string
 ) => {
-  if (data.status === Status.Future) {
-    if (data.begins === "") {
-      ctx.addIssue({
-        message: "Required",
-        path: [`${path}.begins`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    const date = fromUIDate(data.begins);
-    if (date == null || Number.isNaN(date.getTime())) {
-      ctx.addIssue({
-        message: "Invalid date",
-        path: [`${path}.begins`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    if (date != null && date < new Date()) {
-      ctx.addIssue({
-        message: "Begin needs to be in the future",
-        path: [`${path}.begins`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
+  // TODO do we need future time validation?
+  // TODO we can skip this if the pricing is active
+  if (data.begins === "" || data.pk <= 0) {
+    ctx.addIssue({
+      message: "Required",
+      path: [`${path}.begins`],
+      code: z.ZodIssueCode.custom,
+    });
   }
-
-  if (data.pricingType === PricingType.Paid) {
-    const lowestPrice = Number(data.lowestPrice);
-    const highestPrice = Number(data.highestPrice);
-    const lowestPriceNet = Number(data.lowestPriceNet);
-    const highestPriceNet = Number(data.highestPriceNet);
-    if (Number.isNaN(lowestPrice)) {
-      ctx.addIssue({
-        message: "must be a number",
-        path: [`${path}.lowestPrice`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    if (Number.isNaN(highestPrice)) {
-      ctx.addIssue({
-        message: "must be a number",
-        path: [`${path}.highestPrice`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    if (Number.isNaN(lowestPriceNet)) {
-      ctx.addIssue({
-        message: "must be a number",
-        path: [`${path}.lowestPriceNet`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    if (Number.isNaN(highestPriceNet)) {
-      ctx.addIssue({
-        message: "must be a number",
-        path: [`${path}.highestPriceNet`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    if (data.taxPercentage.pk === 0) {
-      ctx.addIssue({
-        message: "taxPercentage must be selected",
-        path: [`${path}.taxPercentage`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
-    if (lowestPrice > highestPrice) {
-      ctx.addIssue({
-        message: "lowestPrice must be lower than highestPrice",
-        path: [`${path}.lowestPrice`],
-        code: z.ZodIssueCode.custom,
-      });
-    }
+  /*
+  const date = fromUIDate(data.begins);
+  if (date == null || Number.isNaN(date.getTime())) {
+    ctx.addIssue({
+      message: "Invalid date",
+      path: [`${path}.begins`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  if (date != null && date < new Date()) {
+    ctx.addIssue({
+      message: "Begin needs to be in the future",
+      path: [`${path}.begins`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  */
+  // TODO do we need to validate pricing? free needs to be allowed
+  const lowestPrice = Number(data.lowestPrice);
+  const highestPrice = Number(data.highestPrice);
+  const lowestPriceNet = Number(data.lowestPriceNet);
+  const highestPriceNet = Number(data.highestPriceNet);
+  if (Number.isNaN(lowestPrice)) {
+    ctx.addIssue({
+      message: "must be a number",
+      path: [`${path}.lowestPrice`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  if (Number.isNaN(highestPrice)) {
+    ctx.addIssue({
+      message: "must be a number",
+      path: [`${path}.highestPrice`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  if (Number.isNaN(lowestPriceNet)) {
+    ctx.addIssue({
+      message: "must be a number",
+      path: [`${path}.lowestPriceNet`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  if (Number.isNaN(highestPriceNet)) {
+    ctx.addIssue({
+      message: "must be a number",
+      path: [`${path}.highestPriceNet`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  if (data.taxPercentage <= 0) {
+    ctx.addIssue({
+      message: "taxPercentage must be selected",
+      path: [`${path}.taxPercentage`],
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  if (lowestPrice > highestPrice) {
+    ctx.addIssue({
+      message: "lowestPrice must be lower than highestPrice",
+      path: [`${path}.lowestPrice`],
+      code: z.ZodIssueCode.custom,
+    });
   }
 };
 
@@ -215,10 +231,7 @@ function validateSeasonalTimes(
       }
 
       // check that the begin is before the end
-      if (
-        !Number.isNaN(Number(begin.minutes)) &&
-        !Number.isNaN(Number(begin.hours))
-      ) {
+      if (!Number.isNaN(begin.minutes) && !Number.isNaN(begin.hours)) {
         const t1 = begin.hours * 60 + begin.minutes;
         const t2 = end.hours * 60 + end.minutes;
         if (t1 >= t2 && t2 !== 0) {
@@ -252,7 +265,7 @@ function validateSeasonalTimes(
             });
           }
         }
-        if (lastEnd == null && !Number.isNaN(Number(begin.minutes))) {
+        if (lastEnd == null && !Number.isNaN(begin.minutes)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: "Not allowed to add a second time without first",
@@ -261,7 +274,7 @@ function validateSeasonalTimes(
         }
       }
 
-      if (!Number.isNaN(Number(begin.hours))) {
+      if (!Number.isNaN(begin.hours)) {
         const t2 = end.hours * 60 + end.minutes;
         lastEnd = t2;
       }
@@ -652,25 +665,21 @@ export const ReservationUnitEditSchema = z
     }
 
     // refine pricing only if not draft and the pricing is enabled
-    const enabledPricings = v.pricings.filter(
-      (p) => v.hasFuturePricing || p.status === Status.Active
-    );
-    enabledPricings.forEach((p, i) => {
+    for (let i = 0; i < v.pricings.length; i++) {
+      const p = v.pricings[i];
       refinePricing(p, ctx, `pricings.${i}`);
-    });
+    }
 
     // TODO if it includes futurePricing check that the futurePrice date is in the future (is today ok?)
-    const hasPaidPricing = enabledPricings.some(
-      (p) => p.pricingType === PricingType.Paid
-    );
-    if (hasPaidPricing && v.paymentTypes.length === 0) {
+    const isPaid = v.pricings.some((p) => p.highestPrice > 0);
+    if (isPaid && v.paymentTypes.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Required",
         path: ["paymentTypes"],
       });
     }
-    if (v.canApplyFreeOfCharge && hasPaidPricing && v.pricingTerms == null) {
+    if (v.canApplyFreeOfCharge && isPaid && v.pricingTerms == null) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Required",
@@ -683,22 +692,11 @@ export type ReservationUnitEditFormValues = z.infer<
   typeof ReservationUnitEditSchema
 >;
 
-// NOTE decimal type is incorrectly typed as number in codegen
-function convertMaybeDecimal(value?: unknown) {
-  if (value == null || value === "") {
-    return undefined;
-  }
-  return Number(value);
-}
-
-function convertBegins(begins?: string, status?: Status) {
+function convertBegins(begins?: string) {
   const d = begins != null && begins !== "" ? fromApiDate(begins) : undefined;
   const today = new Date();
   if (d != null) {
     return toUIDate(d);
-  }
-  if (status === Status.Future) {
-    return toUIDate(addDays(today, 1));
   }
   return toUIDate(today);
 }
@@ -707,38 +705,41 @@ type PricingNode = NonNullable<Node["pricings"]>[0];
 function convertPricing(p?: PricingNode): PricingFormValues {
   return {
     pk: p?.pk ?? 0,
-    taxPercentage: {
-      pk: p?.taxPercentage?.pk ?? 0,
-      value: convertMaybeDecimal(p?.taxPercentage?.value) ?? 0,
-    },
-    lowestPrice: convertMaybeDecimal(p?.lowestPrice) ?? 0,
-    lowestPriceNet: convertMaybeDecimal(p?.lowestPriceNet) ?? 0,
-    highestPrice: convertMaybeDecimal(p?.highestPrice) ?? 0,
-    highestPriceNet: convertMaybeDecimal(p?.highestPriceNet) ?? 0,
-    pricingType: p?.pricingType ?? PricingType.Free,
+    taxPercentage: p?.taxPercentage?.pk ?? 0,
+    lowestPrice: toNumber(p?.lowestPrice) ?? 0,
+    lowestPriceNet: toNumber(p?.lowestPriceNet) ?? 0,
+    highestPrice: toNumber(p?.highestPrice) ?? 0,
+    highestPriceNet: toNumber(p?.highestPriceNet) ?? 0,
+    isPaid: (toNumber(p?.highestPrice) ?? 0) > 0,
     priceUnit: p?.priceUnit ?? null,
-    status: p?.status ?? Status.Active,
-    begins: convertBegins(p?.begins, p?.status),
+    begins: convertBegins(p?.begins),
   };
 }
 
-// Don't return past pricings (they can't be saved to backend)
-// Always return one active pricing and one future pricing
-// the boolean toggle in the form decides if the future one is shown or saved
 function convertPricingList(pricings: PricingNode[]): PricingFormValues[] {
-  const isActive = (p?: (typeof pricings)[0]) => p?.status === Status.Active;
-  const isFuture = (p?: (typeof pricings)[0]) => p?.status === Status.Future;
+  const pris = pricings.map(convertPricing);
+  // Always include two pricings in the form data (the frontend doesn't support dynamic adding)
+  // negative pk for new pricings
+  let rollingIndex = -1;
+  while (pris.length < 2) {
+    const begins =
+      pris.length === 0
+        ? toUIDate(new Date())
+        : toUIDate(addDays(new Date(), 1));
 
-  const active = pricings.find(isActive);
-  // NOTE using casting here because we only need the status to be set for the next step
-  const future =
-    pricings.find(isFuture) ??
-    ({
-      status: Status.Future,
-    } as ReservationUnitPricingNode);
-
-  // allow undefined's here so we create two default values always
-  return [active, future].map(convertPricing);
+    pris.push({
+      pk: rollingIndex--,
+      taxPercentage: 0,
+      lowestPrice: 0,
+      lowestPriceNet: 0,
+      highestPrice: 0,
+      highestPriceNet: 0,
+      isPaid: false,
+      priceUnit: null,
+      begins,
+    });
+  }
+  return pris;
 }
 
 function convertImage(image?: Node["images"][0]): ImageFormType {
@@ -890,9 +891,7 @@ export function convertReservationUnit(
       filterNonNullable(data?.applicationRoundTimeSlots)
     ),
     hasFuturePricing:
-      data?.pricings?.some(
-        (p) => p?.status != null && p?.status === Status.Future
-      ) ?? false,
+      data?.pricings?.some((p) => new Date(p.begins) > new Date()) ?? false,
     hasScheduledPublish:
       data?.publishBegins != null || data?.publishEnds != null,
     hasScheduledReservation:
@@ -907,6 +906,7 @@ export function convertReservationUnit(
   };
 }
 
+// TODO type
 export function transformReservationUnit(
   values: ReservationUnitEditFormValues
 ) {
@@ -945,9 +945,6 @@ export function transformReservationUnit(
     images, // images are updated with a separate mutation
     ...vals
   } = values;
-
-  const shouldSavePricing = (p: PricingFormValues) =>
-    hasFuturePricing || p.status === Status.Active;
 
   const isReservableTime = (t?: SeasonalFormType["reservableTimes"][0]) =>
     t && t.begin && t.end;
@@ -1001,25 +998,26 @@ export function transformReservationUnit(
     termsOfUseFi: termsOfUseFi !== "" ? termsOfUseFi : null,
     termsOfUseSv: termsOfUseSv !== "" ? termsOfUseSv : null,
     cancellationRule: hasCancellationRule ? cancellationRule : null,
-    // TODO only one active price can be saved
-    // the form doesn't allow multiples but make sure here that we only have one active and one future and warn the user if not
-    pricings: filterNonNullable(pricings)
-      .filter(shouldSavePricing)
-      .map((p) => ({
-        begins: toApiDate(fromUIDate(p.begins) ?? new Date()) ?? "",
-        // TODO don't need to save both net and gross prices
-        highestPrice: p.highestPrice.toString(),
-        highestPriceNet: p.highestPriceNet.toString(),
-        lowestPrice: p.lowestPrice.toString(),
-        lowestPriceNet: p.lowestPriceNet.toString(),
-        ...(p.pk !== 0 ? { pk: p.pk } : {}),
-        ...(p.priceUnit != null ? { priceUnit: p.priceUnit } : {}),
-        pricingType: p.pricingType,
-        status: p.status,
-        ...(p.taxPercentage.pk !== 0
-          ? { taxPercentage: p.taxPercentage.pk }
-          : {}),
-      })),
+    pricings: filterNonNullable(
+      pricings.map((p) => transformPricing(p, hasFuturePricing))
+    ),
     applicationRoundTimeSlots,
+  };
+}
+
+function transformPricing(
+  p: PricingFormValues,
+  hasFuturePricing: boolean
+): ReservationUnitPricingSerializerInput | null {
+  if (!hasFuturePricing && isInFuture(p.begins)) {
+    return null;
+  }
+  const begins = fromUIDate(p.begins) ?? new Date();
+  return {
+    begins: toApiDate(begins) ?? "",
+    highestPrice: p.highestPrice.toString(),
+    lowestPrice: p.lowestPrice.toString(),
+    ...(p.pk > 0 ? { pk: p.pk } : {}),
+    ...(p.priceUnit != null ? { priceUnit: p.priceUnit } : {}),
   };
 }

@@ -13,10 +13,8 @@ import {
   type EquipmentNode,
   ReservationStateChoice,
   PriceUnit,
-  PricingType,
   ReservationUnitPublishingState,
   type ReservationUnitNode,
-  Status,
   Authentication,
   ReservationKind,
   ReservationStartInterval,
@@ -44,6 +42,7 @@ import mockTranslations from "../../public/locales/fi/prices.json";
 import { type ReservableMap, dateToKey, type RoundPeriod } from "../reservable";
 import { createMockReservationUnit } from "@/test/testUtils";
 import { base64encode } from "common/src/helpers";
+import { TFunction } from "i18next";
 
 jest.mock("next-i18next", () => ({
   i18n: {
@@ -220,6 +219,7 @@ describe("getPriceString", () => {
     minutes?: number;
   }): GetPriceType {
     return {
+      t: ((str: string) => str) as TFunction,
       pricing: constructPricing({
         lowestPrice,
         highestPrice,
@@ -867,8 +867,6 @@ describe("getFuturePricing", () => {
           begins: date,
           lowestPrice: 0,
           highestPrice: 10,
-          status: Status.Future,
-          pricingType: PricingType.Paid,
         })
       ),
     };
@@ -894,13 +892,6 @@ describe("getFuturePricing", () => {
   test("should return undefined if no future pricing", () => {
     const data = constructInput({ days });
     expect(getFuturePricing(data)).toEqual(data.pricings[2]);
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    data.pricings[0]!.status = Status.Past;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    data.pricings[1]!.status = Status.Active;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    data.pricings[2]!.status = Status.Past;
     expect(getFuturePricing(data)).toBeNull();
   });
 
@@ -993,23 +984,18 @@ function constructPricing({
   highestPrice,
   taxPercentage,
   begins,
-  status,
-  pricingType,
   priceUnit,
 }: {
   begins?: Date;
   lowestPrice?: number;
   highestPrice?: number;
   taxPercentage?: number;
-  status?: Status;
-  pricingType?: PricingType;
   priceUnit?: PriceUnit;
 }): NonNullable<PriceReservationUnitFragment>["pricings"][0] {
   const p = highestPrice ?? lowestPrice ?? 0;
   return {
     id: "1",
     begins: toApiDateUnsafe(begins ?? new Date()),
-    pricingType: pricingType ?? PricingType.Paid,
     priceUnit: priceUnit ?? PriceUnit.PerHour,
     lowestPrice: lowestPrice?.toString() ?? p.toString(),
     highestPrice: highestPrice?.toString() ?? p.toString(),
@@ -1017,7 +1003,6 @@ function constructPricing({
       id: "1",
       value: (taxPercentage ?? 24).toString(),
     },
-    status: status ?? Status.Future,
   };
 }
 
@@ -1038,6 +1023,7 @@ describe("getReservationUnitPrice", () => {
     date: Date;
   }): GetReservationUnitPriceProps {
     return {
+      t: ((str: string) => str) as TFunction,
       pricingDate: date,
       reservationUnit: {
         pricings: [
@@ -1064,7 +1050,6 @@ describe("getReservationUnitPrice", () => {
             lowestPrice: 0,
             highestPrice: 10,
             taxPercentage: 24,
-            status: Status.Active,
           }),
         ],
       },
@@ -1083,19 +1068,18 @@ describe("getReservationUnitPrice", () => {
     const date = addDays(new Date(), 15);
     const input = {
       pricingDate: date,
+      t: ((str: string) => str) as TFunction,
       reservationUnit: {
         pricings: [
           constructPricing({
             begins: addDays(new Date(), -10),
             highestPrice: 20,
             taxPercentage: 24,
-            status: Status.Active,
           }),
           constructPricing({
             begins: addDays(new Date(), 10),
             highestPrice: 25,
             taxPercentage: 25.5,
-            status: Status.Future,
           }),
         ],
       },
@@ -1105,19 +1089,17 @@ describe("getReservationUnitPrice", () => {
   test("future change in tax for free uses future price", () => {
     const date = addDays(new Date(), 15);
     const input = {
+      t: ((str: string) => str) as TFunction,
       pricingDate: date,
       reservationUnit: {
         pricings: [
           constructPricing({
             begins: addDays(new Date(), -10),
-            status: Status.Active,
-            pricingType: PricingType.Free,
           }),
           constructPricing({
             begins: addDays(new Date(), 10),
             highestPrice: 25,
             taxPercentage: 25.5,
-            status: Status.Future,
           }),
         ],
       },
@@ -1133,13 +1115,11 @@ describe("isReservationUnitPaidInFuture", () => {
         begins: addDays(new Date(), 10),
         lowestPrice: 0,
         highestPrice: 20,
-        status: Status.Future,
       }),
       constructPricing({
         begins: addDays(new Date(), 20),
         lowestPrice: 0,
         highestPrice: 10,
-        status: Status.Active,
       }),
     ];
 
@@ -1152,14 +1132,11 @@ describe("isReservationUnitPaidInFuture", () => {
         begins: addDays(new Date(), 10),
         lowestPrice: 0,
         highestPrice: 0,
-        status: Status.Future,
-        pricingType: PricingType.Free,
       }),
       constructPricing({
         begins: addDays(new Date(), 20),
         lowestPrice: 0,
         highestPrice: 10,
-        status: Status.Active,
       }),
     ];
 
@@ -1172,14 +1149,11 @@ describe("isReservationUnitPaidInFuture", () => {
         begins: addDays(new Date(), -10),
         lowestPrice: 0,
         highestPrice: 0,
-        status: Status.Active,
-        pricingType: PricingType.Free,
       }),
       constructPricing({
         begins: addDays(new Date(), 20),
         lowestPrice: 0,
         highestPrice: 20,
-        status: Status.Future,
       }),
     ];
 
@@ -1192,14 +1166,11 @@ describe("isReservationUnitPaidInFuture", () => {
         begins: addDays(new Date(), 10),
         lowestPrice: 0,
         highestPrice: 0,
-        status: Status.Future,
       }),
       constructPricing({
         begins: addDays(new Date(), 20),
         lowestPrice: 0,
         highestPrice: 0,
-        status: Status.Active,
-        pricingType: PricingType.Free,
       }),
     ];
 
@@ -1212,15 +1183,11 @@ describe("isReservationUnitPaidInFuture", () => {
         begins: addDays(new Date(), 10),
         lowestPrice: 0,
         highestPrice: 20,
-        status: Status.Future,
-        pricingType: PricingType.Free,
       }),
       constructPricing({
         begins: addDays(new Date(), 20),
         lowestPrice: 0,
         highestPrice: 20,
-        status: Status.Active,
-        pricingType: PricingType.Free,
       }),
     ];
 
