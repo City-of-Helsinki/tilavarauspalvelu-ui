@@ -1690,14 +1690,6 @@ export enum PriceUnit {
 }
 
 /** An enumeration. */
-export enum PricingType {
-  /** Maksuton */
-  Free = "FREE",
-  /** Maksullinen */
-  Paid = "PAID",
-}
-
-/** An enumeration. */
 export enum Priority {
   Primary = "PRIMARY",
   Secondary = "SECONDARY",
@@ -3545,7 +3537,6 @@ export enum ReservationTypeStaffChoice {
 }
 
 export type ReservationUnitCancellationRuleNode = Node & {
-  /** Seconds before reservations related to this cancellation rule can be cancelled without handling. */
   canBeCancelledTimeBefore?: Maybe<Scalars["Duration"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
@@ -4081,44 +4072,27 @@ export type ReservationUnitPaymentTypeNode = Node & {
 };
 
 export type ReservationUnitPricingNode = Node & {
-  /** When pricing is activated */
   begins: Scalars["Date"]["output"];
-  /** Maximum price of the reservation unit including VAT */
   highestPrice: Scalars["Decimal"]["output"];
   highestPriceNet?: Maybe<Scalars["Decimal"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
-  /** Minimum price of the reservation unit including VAT */
   lowestPrice: Scalars["Decimal"]["output"];
   lowestPriceNet?: Maybe<Scalars["Decimal"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Unit of the price */
   priceUnit: PriceUnit;
-  /** What kind of pricing types are available with this reservation unit. */
-  pricingType?: Maybe<PricingType>;
-  /** Status of the pricing */
-  status: Status;
-  /** The percentage of tax included in the price */
   taxPercentage: TaxPercentageNode;
 };
 
 export type ReservationUnitPricingSerializerInput = {
-  /** When pricing is activated */
   begins: Scalars["Date"]["input"];
-  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   highestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
-  /** Minimum price of the reservation unit including VAT */
+  isActivatedOnBegins?: InputMaybe<Scalars["Boolean"]["input"]>;
   lowestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   lowestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
   pk?: InputMaybe<Scalars["Int"]["input"]>;
-  /** Unit of the price */
   priceUnit?: InputMaybe<PriceUnit>;
-  /** What kind of pricing types are available with this reservation unit. */
-  pricingType?: InputMaybe<PricingType>;
-  /** Status of the pricing */
-  status: Status;
-  /** The percentage of tax included in the price */
   taxPercentage?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -4150,7 +4124,6 @@ export type ReservationUnitTypeNode = Node & {
   nameFi?: Maybe<Scalars["String"]["output"]>;
   nameSv?: Maybe<Scalars["String"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Järjestysnumero, jota käytetään rajapinnan järjestämisessä. */
   rank?: Maybe<Scalars["Int"]["output"]>;
 };
 
@@ -4753,12 +4726,20 @@ export type SpaceUpdateMutationPayload = {
 
 /** An enumeration. */
 export enum Status {
-  /** aktiivinen */
-  Active = "ACTIVE",
-  /** tuleva */
-  Future = "FUTURE",
-  /** mennyt */
-  Past = "PAST",
+  /** Peruttu */
+  Cancelled = "CANCELLED",
+  /** Luonnos */
+  Draft = "DRAFT",
+  /** Rauennut */
+  Expired = "EXPIRED",
+  /** Käsitelty */
+  Handled = "HANDLED",
+  /** Käsittelyssä */
+  InAllocation = "IN_ALLOCATION",
+  /** Vastaanotettu */
+  Received = "RECEIVED",
+  /** Päätökset lähetetty */
+  ResultSent = "RESULT_SENT",
 }
 
 export type SuitableTimeRangeNode = Node & {
@@ -4791,7 +4772,6 @@ export type TaxPercentageNode = Node & {
   /** The ID of the object */
   id: Scalars["ID"]["output"];
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** The tax percentage for a price */
   value: Scalars["Decimal"]["output"];
 };
 
@@ -5250,22 +5230,14 @@ export type UpdateReservationUnitOptionApplicantSerializerInput = {
 };
 
 export type UpdateReservationUnitPricingSerializerInput = {
-  /** When pricing is activated */
   begins?: InputMaybe<Scalars["Date"]["input"]>;
-  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   highestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
-  /** Minimum price of the reservation unit including VAT */
+  isActivatedOnBegins?: InputMaybe<Scalars["Boolean"]["input"]>;
   lowestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   lowestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
   pk?: InputMaybe<Scalars["Int"]["input"]>;
-  /** Unit of the price */
   priceUnit?: InputMaybe<PriceUnit>;
-  /** What kind of pricing types are available with this reservation unit. */
-  pricingType?: InputMaybe<PricingType>;
-  /** Status of the pricing */
-  status?: InputMaybe<Status>;
-  /** The percentage of tax included in the price */
   taxPercentage?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -5954,10 +5926,8 @@ export type PricingFieldsFragment = {
   id: string;
   begins: string;
   priceUnit: PriceUnit;
-  pricingType?: PricingType | null;
   lowestPrice: string;
   highestPrice: string;
-  status: Status;
   taxPercentage: { id: string; pk?: number | null; value: string };
 };
 
@@ -6836,10 +6806,8 @@ export type ReservationUnitEditQuery = {
       id: string;
       begins: string;
       priceUnit: PriceUnit;
-      pricingType?: PricingType | null;
       lowestPrice: string;
       highestPrice: string;
-      status: Status;
       taxPercentage: { id: string; pk?: number | null; value: string };
     }>;
     applicationRoundTimeSlots: Array<{
@@ -8431,10 +8399,8 @@ export type ReservationQuery = {
         id: string;
         begins: string;
         priceUnit: PriceUnit;
-        pricingType?: PricingType | null;
         lowestPrice: string;
         highestPrice: string;
-        status: Status;
         taxPercentage: { id: string; pk?: number | null; value: string };
       }>;
       metadataSet?: {
@@ -8732,10 +8698,8 @@ export type ReservationUnitPricingFragment = {
     id: string;
     begins: string;
     priceUnit: PriceUnit;
-    pricingType?: PricingType | null;
     lowestPrice: string;
     highestPrice: string;
-    status: Status;
     taxPercentage: { id: string; pk?: number | null; value: string };
   }>;
 };
@@ -9714,7 +9678,6 @@ export const PricingFieldsFragmentDoc = gql`
     id
     begins
     priceUnit
-    pricingType
     lowestPrice
     highestPrice
     taxPercentage {
@@ -9722,7 +9685,6 @@ export const PricingFieldsFragmentDoc = gql`
       pk
       value
     }
-    status
   }
 `;
 export const ReservationUnitPricingFragmentDoc = gql`
@@ -9802,12 +9764,17 @@ export function useBannerNotificationsListAllLazyQuery(
   >(BannerNotificationsListAllDocument, options);
 }
 export function useBannerNotificationsListAllSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsListAllQuery,
-    BannerNotificationsListAllQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsListAllQuery,
+        BannerNotificationsListAllQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsListAllQuery,
     BannerNotificationsListAllQueryVariables
@@ -9884,12 +9851,17 @@ export function useBannerNotificationsListLazyQuery(
   >(BannerNotificationsListDocument, options);
 }
 export function useBannerNotificationsListSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsListQuery,
-    BannerNotificationsListQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsListQuery,
+        BannerNotificationsListQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsListQuery,
     BannerNotificationsListQueryVariables
@@ -9973,12 +9945,17 @@ export function useApplicationLazyQuery(
   );
 }
 export function useApplicationSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationQuery,
+        ApplicationQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<ApplicationQuery, ApplicationQueryVariables>(
     ApplicationDocument,
     options
@@ -10050,12 +10027,14 @@ export function useTermsOfUseLazyQuery(
   );
 }
 export function useTermsOfUseSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    TermsOfUseQuery,
-    TermsOfUseQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<TermsOfUseQuery, TermsOfUseQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<TermsOfUseQuery, TermsOfUseQueryVariables>(
     TermsOfUseDocument,
     options
@@ -10145,9 +10124,14 @@ export function useUnitLazyQuery(
   );
 }
 export function useUnitSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<UnitQuery, UnitQueryVariables>
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<UnitQuery, UnitQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<UnitQuery, UnitQueryVariables>(
     UnitDocument,
     options
@@ -10227,12 +10211,17 @@ export function useUnitWithSpacesAndResourcesLazyQuery(
   >(UnitWithSpacesAndResourcesDocument, options);
 }
 export function useUnitWithSpacesAndResourcesSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    UnitWithSpacesAndResourcesQuery,
-    UnitWithSpacesAndResourcesQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        UnitWithSpacesAndResourcesQuery,
+        UnitWithSpacesAndResourcesQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     UnitWithSpacesAndResourcesQuery,
     UnitWithSpacesAndResourcesQueryVariables
@@ -10323,12 +10312,17 @@ export function useHandlingDataLazyQuery(
   );
 }
 export function useHandlingDataSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    HandlingDataQuery,
-    HandlingDataQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        HandlingDataQuery,
+        HandlingDataQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<HandlingDataQuery, HandlingDataQueryVariables>(
     HandlingDataDocument,
     options
@@ -10401,12 +10395,17 @@ export function useBannerNotificationsAdminLazyQuery(
   >(BannerNotificationsAdminDocument, options);
 }
 export function useBannerNotificationsAdminSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsAdminQuery,
-    BannerNotificationsAdminQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsAdminQuery,
+        BannerNotificationsAdminQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsAdminQuery,
     BannerNotificationsAdminQueryVariables
@@ -10490,12 +10489,17 @@ export function useBannerNotificationsAdminListLazyQuery(
   >(BannerNotificationsAdminListDocument, options);
 }
 export function useBannerNotificationsAdminListSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsAdminListQuery,
-    BannerNotificationsAdminListQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsAdminListQuery,
+        BannerNotificationsAdminListQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsAdminListQuery,
     BannerNotificationsAdminListQueryVariables
@@ -10572,12 +10576,17 @@ export function useReservationDateOfBirthLazyQuery(
   >(ReservationDateOfBirthDocument, options);
 }
 export function useReservationDateOfBirthSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationDateOfBirthQuery,
-    ReservationDateOfBirthQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationDateOfBirthQuery,
+        ReservationDateOfBirthQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationDateOfBirthQuery,
     ReservationDateOfBirthQueryVariables
@@ -10654,12 +10663,17 @@ export function useApplicationDateOfBirthLazyQuery(
   >(ApplicationDateOfBirthDocument, options);
 }
 export function useApplicationDateOfBirthSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationDateOfBirthQuery,
-    ApplicationDateOfBirthQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationDateOfBirthQuery,
+        ApplicationDateOfBirthQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationDateOfBirthQuery,
     ApplicationDateOfBirthQueryVariables
@@ -10905,12 +10919,17 @@ export function useCheckPermissionsLazyQuery(
   >(CheckPermissionsDocument, options);
 }
 export function useCheckPermissionsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    CheckPermissionsQuery,
-    CheckPermissionsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        CheckPermissionsQuery,
+        CheckPermissionsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     CheckPermissionsQuery,
     CheckPermissionsQueryVariables
@@ -10986,12 +11005,17 @@ export function useReservationDenyReasonsLazyQuery(
   >(ReservationDenyReasonsDocument, options);
 }
 export function useReservationDenyReasonsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationDenyReasonsQuery,
-    ReservationDenyReasonsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationDenyReasonsQuery,
+        ReservationDenyReasonsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationDenyReasonsQuery,
     ReservationDenyReasonsQueryVariables
@@ -11081,12 +11105,17 @@ export function useReservationUnitsFilterParamsLazyQuery(
   >(ReservationUnitsFilterParamsDocument, options);
 }
 export function useReservationUnitsFilterParamsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitsFilterParamsQuery,
-    ReservationUnitsFilterParamsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitsFilterParamsQuery,
+        ReservationUnitsFilterParamsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitsFilterParamsQuery,
     ReservationUnitsFilterParamsQueryVariables
@@ -11165,12 +11194,17 @@ export function useReservationUnitTypesFilterLazyQuery(
   >(ReservationUnitTypesFilterDocument, options);
 }
 export function useReservationUnitTypesFilterSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitTypesFilterQuery,
-    ReservationUnitTypesFilterQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitTypesFilterQuery,
+        ReservationUnitTypesFilterQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitTypesFilterQuery,
     ReservationUnitTypesFilterQueryVariables
@@ -11250,12 +11284,17 @@ export function useUnitsFilterLazyQuery(
   );
 }
 export function useUnitsFilterSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    UnitsFilterQuery,
-    UnitsFilterQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        UnitsFilterQuery,
+        UnitsFilterQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<UnitsFilterQuery, UnitsFilterQueryVariables>(
     UnitsFilterDocument,
     options
@@ -11348,12 +11387,17 @@ export function useCurrentUserLazyQuery(
   );
 }
 export function useCurrentUserSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    CurrentUserQuery,
-    CurrentUserQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        CurrentUserQuery,
+        CurrentUserQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<CurrentUserQuery, CurrentUserQueryVariables>(
     CurrentUserDocument,
     options
@@ -11554,12 +11598,17 @@ export function useReservationUnitEditLazyQuery(
   >(ReservationUnitEditDocument, options);
 }
 export function useReservationUnitEditSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitEditQuery,
-    ReservationUnitEditQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitEditQuery,
+        ReservationUnitEditQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitEditQuery,
     ReservationUnitEditQueryVariables
@@ -11959,12 +12008,17 @@ export function useReservationUnitEditorParametersLazyQuery(
   >(ReservationUnitEditorParametersDocument, options);
 }
 export function useReservationUnitEditorParametersSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitEditorParametersQuery,
-    ReservationUnitEditorParametersQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitEditorParametersQuery,
+        ReservationUnitEditorParametersQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitEditorParametersQuery,
     ReservationUnitEditorParametersQueryVariables
@@ -12050,12 +12104,17 @@ export function useApplicationRoundFilterLazyQuery(
   >(ApplicationRoundFilterDocument, options);
 }
 export function useApplicationRoundFilterSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationRoundFilterQuery,
-    ApplicationRoundFilterQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationRoundFilterQuery,
+        ApplicationRoundFilterQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationRoundFilterQuery,
     ApplicationRoundFilterQueryVariables
@@ -12153,12 +12212,17 @@ export function useAllApplicationEventsLazyQuery(
   >(AllApplicationEventsDocument, options);
 }
 export function useAllApplicationEventsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    AllApplicationEventsQuery,
-    AllApplicationEventsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        AllApplicationEventsQuery,
+        AllApplicationEventsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     AllApplicationEventsQuery,
     AllApplicationEventsQueryVariables
@@ -12430,12 +12494,17 @@ export function useApplicationSectionAllocationsLazyQuery(
   >(ApplicationSectionAllocationsDocument, options);
 }
 export function useApplicationSectionAllocationsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationSectionAllocationsQuery,
-    ApplicationSectionAllocationsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationSectionAllocationsQuery,
+        ApplicationSectionAllocationsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationSectionAllocationsQuery,
     ApplicationSectionAllocationsQueryVariables
@@ -12579,12 +12648,17 @@ export function useApplicationRoundCriteriaLazyQuery(
   >(ApplicationRoundCriteriaDocument, options);
 }
 export function useApplicationRoundCriteriaSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationRoundCriteriaQuery,
-    ApplicationRoundCriteriaQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationRoundCriteriaQuery,
+        ApplicationRoundCriteriaQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationRoundCriteriaQuery,
     ApplicationRoundCriteriaQueryVariables
@@ -12730,12 +12804,17 @@ export function useRejectedOccurrencesLazyQuery(
   >(RejectedOccurrencesDocument, options);
 }
 export function useRejectedOccurrencesSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    RejectedOccurrencesQuery,
-    RejectedOccurrencesQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        RejectedOccurrencesQuery,
+        RejectedOccurrencesQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     RejectedOccurrencesQuery,
     RejectedOccurrencesQueryVariables
@@ -12914,12 +12993,17 @@ export function useApplicationsLazyQuery(
   );
 }
 export function useApplicationsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationsQuery,
-    ApplicationsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationsQuery,
+        ApplicationsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<ApplicationsQuery, ApplicationsQueryVariables>(
     ApplicationsDocument,
     options
@@ -13068,12 +13152,17 @@ export function useApplicationSectionsLazyQuery(
   >(ApplicationSectionsDocument, options);
 }
 export function useApplicationSectionsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationSectionsQuery,
-    ApplicationSectionsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationSectionsQuery,
+        ApplicationSectionsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationSectionsQuery,
     ApplicationSectionsQueryVariables
@@ -13226,12 +13315,17 @@ export function useAllocatedTimeSlotsLazyQuery(
   >(AllocatedTimeSlotsDocument, options);
 }
 export function useAllocatedTimeSlotsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    AllocatedTimeSlotsQuery,
-    AllocatedTimeSlotsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        AllocatedTimeSlotsQuery,
+        AllocatedTimeSlotsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     AllocatedTimeSlotsQuery,
     AllocatedTimeSlotsQueryVariables
@@ -13308,12 +13402,17 @@ export function useApplicationRoundsLazyQuery(
   >(ApplicationRoundsDocument, options);
 }
 export function useApplicationRoundsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationRoundsQuery,
-    ApplicationRoundsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationRoundsQuery,
+        ApplicationRoundsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationRoundsQuery,
     ApplicationRoundsQueryVariables
@@ -13386,12 +13485,17 @@ export function useApplicationRoundLazyQuery(
   >(ApplicationRoundDocument, options);
 }
 export function useApplicationRoundSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationRoundQuery,
-    ApplicationRoundQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationRoundQuery,
+        ApplicationRoundQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationRoundQuery,
     ApplicationRoundQueryVariables
@@ -13465,12 +13569,17 @@ export function useApplicationAdminLazyQuery(
   >(ApplicationAdminDocument, options);
 }
 export function useApplicationAdminSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationAdminQuery,
-    ApplicationAdminQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationAdminQuery,
+        ApplicationAdminQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ApplicationAdminQuery,
     ApplicationAdminQueryVariables
@@ -13819,12 +13928,14 @@ export function useOptionsLazyQuery(
   );
 }
 export function useOptionsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    OptionsQuery,
-    OptionsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<OptionsQuery, OptionsQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<OptionsQuery, OptionsQueryVariables>(
     OptionsDocument,
     options
@@ -13900,12 +14011,14 @@ export function useUnitViewLazyQuery(
   );
 }
 export function useUnitViewSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    UnitViewQuery,
-    UnitViewQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<UnitViewQuery, UnitViewQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<UnitViewQuery, UnitViewQueryVariables>(
     UnitViewDocument,
     options
@@ -14018,12 +14131,17 @@ export function useReservationUnitsByUnitLazyQuery(
   >(ReservationUnitsByUnitDocument, options);
 }
 export function useReservationUnitsByUnitSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitsByUnitQuery,
-    ReservationUnitsByUnitQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitsByUnitQuery,
+        ReservationUnitsByUnitQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitsByUnitQuery,
     ReservationUnitsByUnitQueryVariables
@@ -14096,12 +14214,17 @@ export function useReservationUnitLazyQuery(
   >(ReservationUnitDocument, options);
 }
 export function useReservationUnitSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitQuery,
-    ReservationUnitQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitQuery,
+        ReservationUnitQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitQuery,
     ReservationUnitQueryVariables
@@ -14183,12 +14306,17 @@ export function useRecurringReservationUnitLazyQuery(
   >(RecurringReservationUnitDocument, options);
 }
 export function useRecurringReservationUnitSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    RecurringReservationUnitQuery,
-    RecurringReservationUnitQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        RecurringReservationUnitQuery,
+        RecurringReservationUnitQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     RecurringReservationUnitQuery,
     RecurringReservationUnitQueryVariables
@@ -14283,12 +14411,17 @@ export function useReservationUnitCalendarLazyQuery(
   >(ReservationUnitCalendarDocument, options);
 }
 export function useReservationUnitCalendarSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationUnitCalendarQuery,
-    ReservationUnitCalendarQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationUnitCalendarQuery,
+        ReservationUnitCalendarQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationUnitCalendarQuery,
     ReservationUnitCalendarQueryVariables
@@ -14437,12 +14570,17 @@ export function useReservationTimesInReservationUnitLazyQuery(
   >(ReservationTimesInReservationUnitDocument, options);
 }
 export function useReservationTimesInReservationUnitSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationTimesInReservationUnitQuery,
-    ReservationTimesInReservationUnitQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationTimesInReservationUnitQuery,
+        ReservationTimesInReservationUnitQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationTimesInReservationUnitQuery,
     ReservationTimesInReservationUnitQueryVariables
@@ -14729,12 +14867,17 @@ export function useSearchReservationUnitsLazyQuery(
   >(SearchReservationUnitsDocument, options);
 }
 export function useSearchReservationUnitsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    SearchReservationUnitsQuery,
-    SearchReservationUnitsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        SearchReservationUnitsQuery,
+        SearchReservationUnitsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     SearchReservationUnitsQuery,
     SearchReservationUnitsQueryVariables
@@ -14822,12 +14965,17 @@ export function useReservationApplicationLinkLazyQuery(
   >(ReservationApplicationLinkDocument, options);
 }
 export function useReservationApplicationLinkSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationApplicationLinkQuery,
-    ReservationApplicationLinkQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationApplicationLinkQuery,
+        ReservationApplicationLinkQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationApplicationLinkQuery,
     ReservationApplicationLinkQueryVariables
@@ -14924,12 +15072,17 @@ export function useReservationsByReservationUnitLazyQuery(
   >(ReservationsByReservationUnitDocument, options);
 }
 export function useReservationsByReservationUnitSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationsByReservationUnitQuery,
-    ReservationsByReservationUnitQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationsByReservationUnitQuery,
+        ReservationsByReservationUnitQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationsByReservationUnitQuery,
     ReservationsByReservationUnitQueryVariables
@@ -15014,12 +15167,17 @@ export function useReservationLazyQuery(
   );
 }
 export function useReservationSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationQuery,
-    ReservationQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationQuery,
+        ReservationQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<ReservationQuery, ReservationQueryVariables>(
     ReservationDocument,
     options
@@ -15090,12 +15248,17 @@ export function useRecurringReservationLazyQuery(
   >(RecurringReservationDocument, options);
 }
 export function useRecurringReservationSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    RecurringReservationQuery,
-    RecurringReservationQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        RecurringReservationQuery,
+        RecurringReservationQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     RecurringReservationQuery,
     RecurringReservationQueryVariables
@@ -15387,12 +15550,14 @@ export function useSeriesPageLazyQuery(
   );
 }
 export function useSeriesPageSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    SeriesPageQuery,
-    SeriesPageQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<SeriesPageQuery, SeriesPageQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<SeriesPageQuery, SeriesPageQueryVariables>(
     SeriesPageDocument,
     options
@@ -15463,12 +15628,17 @@ export function useReservationSeriesLazyQuery(
   >(ReservationSeriesDocument, options);
 }
 export function useReservationSeriesSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationSeriesQuery,
-    ReservationSeriesQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationSeriesQuery,
+        ReservationSeriesQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     ReservationSeriesQuery,
     ReservationSeriesQueryVariables
@@ -15774,12 +15944,17 @@ export function useReservationsLazyQuery(
   );
 }
 export function useReservationsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ReservationsQuery,
-    ReservationsQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ReservationsQuery,
+        ReservationsQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<ReservationsQuery, ReservationsQueryVariables>(
     ReservationsDocument,
     options
@@ -15974,9 +16149,14 @@ export function useUnitsLazyQuery(
   );
 }
 export function useUnitsSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<UnitsQuery, UnitsQueryVariables>
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<UnitsQuery, UnitsQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<UnitsQuery, UnitsQueryVariables>(
     UnitsDocument,
     options
@@ -16146,12 +16326,14 @@ export function useResourceLazyQuery(
   );
 }
 export function useResourceSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ResourceQuery,
-    ResourceQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<ResourceQuery, ResourceQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<ResourceQuery, ResourceQueryVariables>(
     ResourceDocument,
     options
@@ -16330,12 +16512,14 @@ export function useUnitSpacesLazyQuery(
   );
 }
 export function useUnitSpacesSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    UnitSpacesQuery,
-    UnitSpacesQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<UnitSpacesQuery, UnitSpacesQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<UnitSpacesQuery, UnitSpacesQueryVariables>(
     UnitSpacesDocument,
     options
@@ -16426,9 +16610,14 @@ export function useSpaceLazyQuery(
   );
 }
 export function useSpaceSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<SpaceQuery, SpaceQueryVariables>
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<SpaceQuery, SpaceQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<SpaceQuery, SpaceQueryVariables>(
     SpaceDocument,
     options

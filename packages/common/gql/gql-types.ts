@@ -1690,14 +1690,6 @@ export enum PriceUnit {
 }
 
 /** An enumeration. */
-export enum PricingType {
-  /** Maksuton */
-  Free = "FREE",
-  /** Maksullinen */
-  Paid = "PAID",
-}
-
-/** An enumeration. */
 export enum Priority {
   Primary = "PRIMARY",
   Secondary = "SECONDARY",
@@ -3545,7 +3537,6 @@ export enum ReservationTypeStaffChoice {
 }
 
 export type ReservationUnitCancellationRuleNode = Node & {
-  /** Seconds before reservations related to this cancellation rule can be cancelled without handling. */
   canBeCancelledTimeBefore?: Maybe<Scalars["Duration"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
@@ -4081,44 +4072,27 @@ export type ReservationUnitPaymentTypeNode = Node & {
 };
 
 export type ReservationUnitPricingNode = Node & {
-  /** When pricing is activated */
   begins: Scalars["Date"]["output"];
-  /** Maximum price of the reservation unit including VAT */
   highestPrice: Scalars["Decimal"]["output"];
   highestPriceNet?: Maybe<Scalars["Decimal"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
-  /** Minimum price of the reservation unit including VAT */
   lowestPrice: Scalars["Decimal"]["output"];
   lowestPriceNet?: Maybe<Scalars["Decimal"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Unit of the price */
   priceUnit: PriceUnit;
-  /** What kind of pricing types are available with this reservation unit. */
-  pricingType?: Maybe<PricingType>;
-  /** Status of the pricing */
-  status: Status;
-  /** The percentage of tax included in the price */
   taxPercentage: TaxPercentageNode;
 };
 
 export type ReservationUnitPricingSerializerInput = {
-  /** When pricing is activated */
   begins: Scalars["Date"]["input"];
-  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   highestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
-  /** Minimum price of the reservation unit including VAT */
+  isActivatedOnBegins?: InputMaybe<Scalars["Boolean"]["input"]>;
   lowestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   lowestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
   pk?: InputMaybe<Scalars["Int"]["input"]>;
-  /** Unit of the price */
   priceUnit?: InputMaybe<PriceUnit>;
-  /** What kind of pricing types are available with this reservation unit. */
-  pricingType?: InputMaybe<PricingType>;
-  /** Status of the pricing */
-  status: Status;
-  /** The percentage of tax included in the price */
   taxPercentage?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -4150,7 +4124,6 @@ export type ReservationUnitTypeNode = Node & {
   nameFi?: Maybe<Scalars["String"]["output"]>;
   nameSv?: Maybe<Scalars["String"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Järjestysnumero, jota käytetään rajapinnan järjestämisessä. */
   rank?: Maybe<Scalars["Int"]["output"]>;
 };
 
@@ -4753,12 +4726,20 @@ export type SpaceUpdateMutationPayload = {
 
 /** An enumeration. */
 export enum Status {
-  /** aktiivinen */
-  Active = "ACTIVE",
-  /** tuleva */
-  Future = "FUTURE",
-  /** mennyt */
-  Past = "PAST",
+  /** Peruttu */
+  Cancelled = "CANCELLED",
+  /** Luonnos */
+  Draft = "DRAFT",
+  /** Rauennut */
+  Expired = "EXPIRED",
+  /** Käsitelty */
+  Handled = "HANDLED",
+  /** Käsittelyssä */
+  InAllocation = "IN_ALLOCATION",
+  /** Vastaanotettu */
+  Received = "RECEIVED",
+  /** Päätökset lähetetty */
+  ResultSent = "RESULT_SENT",
 }
 
 export type SuitableTimeRangeNode = Node & {
@@ -4791,7 +4772,6 @@ export type TaxPercentageNode = Node & {
   /** The ID of the object */
   id: Scalars["ID"]["output"];
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** The tax percentage for a price */
   value: Scalars["Decimal"]["output"];
 };
 
@@ -5250,22 +5230,14 @@ export type UpdateReservationUnitOptionApplicantSerializerInput = {
 };
 
 export type UpdateReservationUnitPricingSerializerInput = {
-  /** When pricing is activated */
   begins?: InputMaybe<Scalars["Date"]["input"]>;
-  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   highestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
-  /** Minimum price of the reservation unit including VAT */
+  isActivatedOnBegins?: InputMaybe<Scalars["Boolean"]["input"]>;
   lowestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   lowestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
   pk?: InputMaybe<Scalars["Int"]["input"]>;
-  /** Unit of the price */
   priceUnit?: InputMaybe<PriceUnit>;
-  /** What kind of pricing types are available with this reservation unit. */
-  pricingType?: InputMaybe<PricingType>;
-  /** Status of the pricing */
-  status?: InputMaybe<Status>;
-  /** The percentage of tax included in the price */
   taxPercentage?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -5954,10 +5926,8 @@ export type PricingFieldsFragment = {
   id: string;
   begins: string;
   priceUnit: PriceUnit;
-  pricingType?: PricingType | null;
   lowestPrice: string;
   highestPrice: string;
-  status: Status;
   taxPercentage: { id: string; pk?: number | null; value: string };
 };
 
@@ -6296,7 +6266,6 @@ export const PricingFieldsFragmentDoc = gql`
     id
     begins
     priceUnit
-    pricingType
     lowestPrice
     highestPrice
     taxPercentage {
@@ -6304,7 +6273,6 @@ export const PricingFieldsFragmentDoc = gql`
       pk
       value
     }
-    status
   }
 `;
 export const LocationFieldsFragmentDoc = gql`
@@ -6407,12 +6375,17 @@ export function useBannerNotificationsListAllLazyQuery(
   >(BannerNotificationsListAllDocument, options);
 }
 export function useBannerNotificationsListAllSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsListAllQuery,
-    BannerNotificationsListAllQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsListAllQuery,
+        BannerNotificationsListAllQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsListAllQuery,
     BannerNotificationsListAllQueryVariables
@@ -6489,12 +6462,17 @@ export function useBannerNotificationsListLazyQuery(
   >(BannerNotificationsListDocument, options);
 }
 export function useBannerNotificationsListSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsListQuery,
-    BannerNotificationsListQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsListQuery,
+        BannerNotificationsListQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsListQuery,
     BannerNotificationsListQueryVariables
@@ -6578,12 +6556,17 @@ export function useApplicationLazyQuery(
   );
 }
 export function useApplicationSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        ApplicationQuery,
+        ApplicationQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<ApplicationQuery, ApplicationQueryVariables>(
     ApplicationDocument,
     options
@@ -6655,12 +6638,14 @@ export function useTermsOfUseLazyQuery(
   );
 }
 export function useTermsOfUseSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    TermsOfUseQuery,
-    TermsOfUseQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<TermsOfUseQuery, TermsOfUseQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<TermsOfUseQuery, TermsOfUseQueryVariables>(
     TermsOfUseDocument,
     options

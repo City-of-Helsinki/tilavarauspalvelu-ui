@@ -17,7 +17,6 @@ import { breakpoints } from "common/src/common/style";
 import { type PendingReservation } from "@/modules/types";
 import {
   type ApplicationRoundTimeSlotNode,
-  PricingType,
   type ReservationCreateMutationInput,
   useCreateReservationMutation,
   type ReservationUnitPageQuery,
@@ -31,6 +30,7 @@ import {
   base64encode,
   filterNonNullable,
   fromMondayFirstUnsafe,
+  toNumber,
 } from "common/src/helpers";
 import Head from "@/components/reservation-unit/Head";
 import { AddressSection } from "@/components/reservation-unit/Address";
@@ -897,6 +897,9 @@ function PriceChangeNotice({
     return null;
   }
 
+  const lowestPrice = toNumber(futurePricing.lowestPrice) ?? 0;
+  const taxPercentage = toNumber(futurePricing.taxPercentage.value) ?? 0;
+
   return (
     <p style={{ marginTop: 0 }}>
       <Trans
@@ -905,21 +908,19 @@ function PriceChangeNotice({
         values={{
           date: toUIDate(new Date(futurePricing.begins)),
           price: getPriceString({
+            t,
             pricing: futurePricing,
           }).toLocaleLowerCase(),
         }}
         components={{ bold: <strong /> }}
       />
-      {futurePricing.pricingType === PricingType.Paid &&
-        parseFloat(futurePricing.taxPercentage?.value ?? "") > 0 && (
-          <strong>
-            {t("reservationUnit:futurePriceNoticeTax", {
-              tax: formatters.strippedDecimal.format(
-                parseFloat(futurePricing.taxPercentage?.value ?? "")
-              ),
-            })}
-          </strong>
-        )}
+      {lowestPrice > 0 && taxPercentage > 0 && (
+        <strong>
+          {t("reservationUnit:futurePriceNoticeTax", {
+            tax: formatters.strippedDecimal.format(taxPercentage),
+          })}
+        </strong>
+      )}
       .
     </p>
   );

@@ -1839,20 +1839,6 @@ enum PriceUnit {
 """
 An enumeration.
 """
-enum PricingType {
-  """
-  Maksuton
-  """
-  FREE
-  """
-  Maksullinen
-  """
-  PAID
-}
-
-"""
-An enumeration.
-"""
 enum Priority {
   PRIMARY
   SECONDARY
@@ -3917,9 +3903,6 @@ enum ReservationTypeStaffChoice {
 }
 
 type ReservationUnitCancellationRuleNode implements Node {
-  """
-  Seconds before reservations related to this cancellation rule can be cancelled without handling.
-  """
   canBeCancelledTimeBefore: Duration
   """
   The ID of the object
@@ -4485,74 +4468,29 @@ type ReservationUnitPaymentTypeNode implements Node {
 }
 
 type ReservationUnitPricingNode implements Node {
-  """
-  When pricing is activated
-  """
   begins: Date!
-  """
-  Maximum price of the reservation unit including VAT
-  """
   highestPrice: Decimal!
   highestPriceNet: Decimal
   """
   The ID of the object
   """
   id: ID!
-  """
-  Minimum price of the reservation unit including VAT
-  """
   lowestPrice: Decimal!
   lowestPriceNet: Decimal
   pk: Int
-  """
-  Unit of the price
-  """
   priceUnit: PriceUnit!
-  """
-  What kind of pricing types are available with this reservation unit.
-  """
-  pricingType: PricingType
-  """
-  Status of the pricing
-  """
-  status: Status!
-  """
-  The percentage of tax included in the price
-  """
   taxPercentage: TaxPercentageNode!
 }
 
 input ReservationUnitPricingSerializerInput {
-  """
-  When pricing is activated
-  """
   begins: Date!
-  """
-  Maximum price of the reservation unit including VAT
-  """
   highestPrice: Decimal
   highestPriceNet: String
-  """
-  Minimum price of the reservation unit including VAT
-  """
+  isActivatedOnBegins: Boolean
   lowestPrice: Decimal
   lowestPriceNet: String
   pk: Int
-  """
-  Unit of the price
-  """
   priceUnit: PriceUnit
-  """
-  What kind of pricing types are available with this reservation unit.
-  """
-  pricingType: PricingType
-  """
-  Status of the pricing
-  """
-  status: Status!
-  """
-  The percentage of tax included in the price
-  """
   taxPercentage: Int
 }
 
@@ -4590,9 +4528,6 @@ type ReservationUnitTypeNode implements Node {
   nameFi: String
   nameSv: String
   pk: Int
-  """
-  Järjestysnumero, jota käytetään rajapinnan järjestämisessä.
-  """
   rank: Int
 }
 
@@ -5276,17 +5211,33 @@ An enumeration.
 """
 enum Status {
   """
-  aktiivinen
+  Peruttu
   """
-  ACTIVE
+  CANCELLED
   """
-  tuleva
+  Luonnos
   """
-  FUTURE
+  DRAFT
   """
-  mennyt
+  Rauennut
   """
-  PAST
+  EXPIRED
+  """
+  Käsitelty
+  """
+  HANDLED
+  """
+  Käsittelyssä
+  """
+  IN_ALLOCATION
+  """
+  Vastaanotettu
+  """
+  RECEIVED
+  """
+  Päätökset lähetetty
+  """
+  RESULT_SENT
 }
 
 type SuitableTimeRangeNode implements Node {
@@ -5325,9 +5276,6 @@ type TaxPercentageNode implements Node {
   """
   id: ID!
   pk: Int
-  """
-  The tax percentage for a price
-  """
   value: Decimal!
 }
 
@@ -5861,36 +5809,14 @@ input UpdateReservationUnitOptionApplicantSerializerInput {
 }
 
 input UpdateReservationUnitPricingSerializerInput {
-  """
-  When pricing is activated
-  """
   begins: Date
-  """
-  Maximum price of the reservation unit including VAT
-  """
   highestPrice: Decimal
   highestPriceNet: String
-  """
-  Minimum price of the reservation unit including VAT
-  """
+  isActivatedOnBegins: Boolean
   lowestPrice: Decimal
   lowestPriceNet: String
   pk: Int
-  """
-  Unit of the price
-  """
   priceUnit: PriceUnit
-  """
-  What kind of pricing types are available with this reservation unit.
-  """
-  pricingType: PricingType
-  """
-  Status of the pricing
-  """
-  status: Status
-  """
-  The percentage of tax included in the price
-  """
   taxPercentage: Int
 }
 
