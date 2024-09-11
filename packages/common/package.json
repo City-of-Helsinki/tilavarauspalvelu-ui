@@ -36,7 +36,7 @@
     "react-i18next": "^15.0.1",
     "react-toastify": "^10.0.5",
     "react-use": "^17.5.1",
-    "styled-components": "5.3.11",
+    "styled-components": "6.1.13",
     "tsconfig": "workspace:*",
     "zod": "^3.22.4"
   },
