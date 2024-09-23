@@ -1,4 +1,4 @@
-import { IconArrowRight, IconEuroSign, IconGroup, Tag } from "hds-react";
+import { IconArrowRight, IconEuroSign, IconGroup } from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
@@ -13,7 +13,6 @@ import type {
 import { format, isToday, isTomorrow } from "date-fns";
 import { toUIDate } from "common/src/common/util";
 import { getMainImage, getTranslation } from "@/modules/util";
-import IconWithText from "../common/IconWithText";
 import { truncatedText } from "@/styles/util";
 import {
   getActivePricing,
@@ -25,6 +24,8 @@ import { reservationUnitPrefix } from "@/modules/const";
 import { ButtonLikeLink } from "../common/ButtonLikeLink";
 import { useSearchParams } from "next/navigation";
 import { getImageSource, isBrowser } from "common/src/helpers";
+import Tag from "common/src/components/Tag";
+import IconWithText from "@/components/common/IconWithText";
 
 type QueryT = NonNullable<SearchReservationUnitsQuery["reservationUnits"]>;
 type Edge = NonNullable<NonNullable<QueryT["edges"]>[0]>;
@@ -171,31 +172,6 @@ const StyledIconWithText = styled(IconWithText)`
   }
 `;
 
-const StyledTag = styled(Tag)<{ $status: "available" | "no-times" | "closed" }>`
-  margin-bottom: var(--spacing-s);
-
-  @media (min-width: ${breakpoints.s}) {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1;
-    margin: 0;
-  }
-
-  && {
-    --tag-background: ${({ $status }) => {
-      switch ($status) {
-        case "available":
-          return "var(--color-success-light)";
-        case "no-times":
-          return "var(--color-error-light)";
-        case "closed":
-          return "var(--color-black-10)";
-      }
-    }};
-  }
-`;
-
 const StatusTag = ({
   data,
   id,
@@ -208,17 +184,17 @@ const StatusTag = ({
 
   if (closed) {
     return (
-      <StyledTag $status="closed" id={id}>
+      <Tag ariaLabel={t("reservationUnitCard:closed")} type="error" id={id}>
         {t("reservationUnitCard:closed")}
-      </StyledTag>
+      </Tag>
     );
   }
 
   if (!availableAt) {
     return (
-      <StyledTag $status="no-times" id={id}>
+      <Tag ariaLabel={t("reservationUnitCard:noTimes")} type="neutral" id={id}>
         {t("reservationUnitCard:noTimes")}
-      </StyledTag>
+      </Tag>
     );
   }
 
@@ -231,10 +207,11 @@ const StatusTag = ({
   } else dayText = `${toUIDate(new Date(availableAt))} `;
 
   return (
-    <StyledTag
-      $status="available"
+    <Tag
+      ariaLabel={`${t("reservationUnitCard:firstAvailableTime")}: ${dayText} ${timeText}`}
+      type="success"
       id={id}
-    >{`${dayText} ${timeText}`}</StyledTag>
+    >{`${dayText} ${timeText}`}</Tag>
   );
 };
 

@@ -24,9 +24,8 @@ import { BlackButton } from "@/styles/util";
 import { getApplicationRoundName } from "@/modules/applicationRound";
 import { ButtonLikeLink } from "@/components/common/ButtonLikeLink";
 import { ConfirmationDialog } from "common/src/components/ConfirmationDialog";
-import StatusLabel, {
-  type StatusLabelType,
-} from "common/src/components/StatusLabel";
+import StatusLabel from "common/src/components/StatusLabel";
+import { type StatusLabelType } from "common/src/tags";
 
 const Card = styled(HdsCard)`
   border-width: 0;
