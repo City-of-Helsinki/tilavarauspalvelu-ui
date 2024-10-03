@@ -7,7 +7,7 @@ import { breakpoints } from "common/src/common/style";
 import { Container } from "common";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetServerSidePropsContext } from "next";
-import { applicationsUrl } from "@/modules/util";
+import { applicationsUrl } from "@/modules/urls";
 import Head from "@/components/application/Head";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
 
