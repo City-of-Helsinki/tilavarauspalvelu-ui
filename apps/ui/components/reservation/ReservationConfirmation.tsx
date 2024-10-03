@@ -18,12 +18,12 @@ import { Subheading } from "common/src/reservation-form/styles";
 import { breakpoints } from "common/src/common/style";
 import { IconButton } from "common/src/components";
 import { signOut } from "common/src/browserHelpers";
-import { getReservationUnitInstructionsKey } from "../../modules/reservationUnit";
-import { getTranslation, reservationsUrl } from "../../modules/util";
-import { BlackButton } from "../../styles/util";
+import { getReservationUnitInstructionsKey } from "@/modules/reservationUnit";
+import { getTranslation } from "@/modules/util";
+import { BlackButton } from "@/styles/util";
 import { Paragraph } from "./styles";
-import { reservationUnitPath } from "../../modules/const";
 import { ButtonLikeLink } from "../common/ButtonLikeLink";
+import { getReservationUnitPath, reservationsUrl } from "@/modules/urls";
 
 type Node = NonNullable<ReservationQuery["reservation"]>;
 type Props = {
@@ -179,7 +179,7 @@ function ReservationConfirmation({
         )}
       {reservationUnit != null && (
         <ReturnLinkList
-          reservationUnitHome={reservationUnitPath(Number(reservationUnit?.pk))}
+          reservationUnitHome={getReservationUnitPath(reservationUnit?.pk)}
           apiBaseUrl={apiBaseUrl}
           style={{
             marginTop: "var(--spacing-3-xl)",
