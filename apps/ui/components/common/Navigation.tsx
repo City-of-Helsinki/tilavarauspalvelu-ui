@@ -25,7 +25,7 @@ import {
   reservationsPrefix,
   reservationUnitPrefix,
   singleSearchPrefix,
-} from "@/modules/const";
+} from "@/modules/urls";
 
 type HeaderProps = {
   apiBaseUrl: string;
