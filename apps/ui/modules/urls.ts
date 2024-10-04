@@ -13,10 +13,9 @@ export function getApplicationRoundUrl(
   if (id == null) {
     return "";
   }
-  return `${seasonalPrefix}/${id}/${page || ""}`;
+  return `${seasonalPrefix}/${id}/${page ?? ""}`;
 }
 
-// todo remove the use of query-string
 export function getSeasonalSearchUrl(
   pk: Maybe<number> | undefined,
   params?: URLSearchParams
@@ -60,7 +59,6 @@ export function getApplicationRoundPath(
   return `${seasonalPrefix}/${id}/${page ?? ""}`;
 }
 
-// todo remove the use of query-string
 export function getSeasonalSearchPath(
   pk: Maybe<number> | undefined,
   params?: URLSearchParams
@@ -105,7 +103,7 @@ export function getReservationPath(
   if (id == null) {
     return "";
   }
-  return `${reservationsPrefix}/${id}/${page || ""}`;
+  return `${reservationsPrefix}/${id}/${page ?? ""}`;
 }
 
 export function getReservationInProgressPath(
