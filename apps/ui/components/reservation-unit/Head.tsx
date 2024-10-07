@@ -21,7 +21,7 @@ import {
 import BreadcrumbWrapper from "../common/BreadcrumbWrapper";
 import { isReservationStartInFuture } from "@/modules/reservation";
 import { filterNonNullable } from "common/src/helpers";
-import { getSingleSearchUrl } from "@/modules/urls";
+import { getSingleSearchPath } from "@/modules/urls";
 
 type QueryT = NonNullable<ReservationUnitPageQuery["reservationUnit"]>;
 interface PropsType {
@@ -154,7 +154,7 @@ function Head({
   const hasSubventionSuffix = pricing && isPaid && subventionSuffix != null;
   const reservationUnitName = getReservationUnitName(reservationUnit);
   const unitName = getUnitName(reservationUnit.unit ?? undefined);
-  const searchUrl = getSingleSearchUrl();
+  const searchUrl = getSingleSearchPath();
 
   const iconsTexts = filterNonNullable([
     reservationUnit.reservationUnitType != null

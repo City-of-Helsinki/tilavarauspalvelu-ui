@@ -21,9 +21,9 @@ import { getLocalizationLang } from "common/src/helpers";
 import { env } from "@/env.mjs";
 import {
   applicationsPrefix,
-  recurringReservationsPrefix,
   reservationsPrefix,
   reservationUnitPrefix,
+  seasonalPrefix,
   singleSearchPrefix,
 } from "@/modules/urls";
 
@@ -116,7 +116,7 @@ const menuItems = [
   },
   {
     label: "navigation:Item.spaceReservation",
-    routes: [recurringReservationsPrefix],
+    routes: [seasonalPrefix],
   },
   {
     label: "navigation:Item.reservations",

@@ -10,7 +10,7 @@ import { getApplicationRoundName } from "@/modules/applicationRound";
 import { isValid } from "date-fns";
 import Card from "common/src/components/Card";
 import { ButtonLikeLink } from "@/components/common/ButtonLikeLink";
-import { getSeasonalSearchUrl } from "@/modules/urls";
+import { getApplicationRoundPath, getSeasonalSearchPath } from "@/modules/urls";
 
 interface Props {
   applicationRound: ApplicationRoundFieldsFragment;
@@ -68,7 +68,7 @@ export function ApplicationRoundCard({ applicationRound }: Props): JSX.Element {
 
   const buttons = [
     <ButtonLikeLink
-      href={`/criteria/${applicationRound.pk}`}
+      href={getApplicationRoundPath(applicationRound.pk, "criteria")}
       target="_blank"
       key="criteria"
     >
@@ -80,9 +80,7 @@ export function ApplicationRoundCard({ applicationRound }: Props): JSX.Element {
     buttons.push(
       <ButtonLikeLink
         key="button"
-        href={getSeasonalSearchUrl({
-          applicationRound: applicationRound.pk ?? null,
-        })}
+        href={getSeasonalSearchPath(applicationRound.pk)}
       >
         {t("application:Intro.startNewApplication")}
         <IconArrowRight aria-hidden />
