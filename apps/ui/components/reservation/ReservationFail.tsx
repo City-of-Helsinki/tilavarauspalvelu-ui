@@ -9,7 +9,7 @@ import { Container } from "common";
 import { signOut } from "common/src/browserHelpers";
 import { Paragraph } from "./styles";
 import { LinkButton } from "../../styles/util";
-import { getSingleSearchUrl } from "@/modules/urls";
+import { getSingleSearchPath } from "@/modules/urls";
 
 type Props = {
   type: "reservation" | "order";
@@ -72,7 +72,7 @@ const ReservationFail = ({ type, apiBaseUrl }: Props) => {
               marginTop: "var(--spacing-3-xl)",
             }}
           >
-            <StyledLink href={getSingleSearchUrl()}>
+            <StyledLink href={getSingleSearchPath()}>
               {t("reservations:backToSearch")}
               <IconArrowRight aria-hidden size="m" />
             </StyledLink>

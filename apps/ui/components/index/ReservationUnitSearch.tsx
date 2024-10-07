@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
-import { getSingleSearchUrl } from "@/modules/urls";
+import { getSingleSearchPath } from "@/modules/urls";
 
 const StyledTextInput = styled(TextInput)`
   position: relative;
@@ -39,7 +39,7 @@ const ReservationUnitSearch = (): JSX.Element => {
     event.preventDefault();
     const params = new URLSearchParams();
     params.set("textSearch", searchTerm);
-    router.push(getSingleSearchUrl(params));
+    router.push(getSingleSearchPath(params));
   };
 
   return (
