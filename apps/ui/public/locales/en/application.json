@@ -208,7 +208,17 @@
     "heading": "Seasonal booking application",
     "reservations": "Accepted bookings",
     "application": "Application",
-    "handledDate": "Handled"
+    "handledDate": "Handled",
+    "reservationsTab": {
+      "reservationUnit": "Space",
+      "rejected": "Rejected",
+      "showAllReservations": "Show all bookings",
+      "reservationUnitsTitle": "Location",
+      "reservationsTitle": "Reservations"
+    },
+    "helpModal": {
+      "title": "Unit specific information"
+    }
   },
   "sent": {
     "heading": "Thank you for the application",

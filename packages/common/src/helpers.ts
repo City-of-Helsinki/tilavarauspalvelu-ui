@@ -172,6 +172,29 @@ export function timeToMinutes(time: string) {
   return 0;
 }
 
+export function formatMinutes(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours}:${mins < 10 ? `0${mins}` : mins}`;
+}
+
+export function formatApiTimeInterval({
+  beginTime,
+  endTime,
+}: {
+  beginTime?: Maybe<string> | undefined;
+  endTime?: Maybe<string> | undefined;
+}): string {
+  if (!beginTime || !endTime) {
+    return "";
+  }
+  // TODO need to strip last :00 (use a conversion function)
+  // NOTE this uses extra cycles because of double conversions but it's safer than stripping from raw data
+  const btime = formatMinutes(timeToMinutes(beginTime));
+  const etime = formatMinutes(timeToMinutes(endTime));
+  return `${btime} - ${etime}`;
+}
+
 export function calculateMedian(numbers: number[]): number {
   const sorted = [...numbers].sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);

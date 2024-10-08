@@ -209,7 +209,17 @@
     "heading": "Kausivaraushakemus",
     "reservations": "Hyväksytyt varaukset",
     "application": "Hakemus",
-    "handledDate": "Käsitelty"
+    "handledDate": "Käsitelty",
+    "reservationsTab": {
+      "reservationUnit": "Tila",
+      "rejected": "Hylätty",
+      "showAllReservations": "Näytä kaikki varaukset",
+      "reservationUnitsTitle": "Toimipisteet",
+      "reservationsTitle": "Varaukset"
+    },
+    "helpModal": {
+      "title": "Tilakohtaiset ohjeet"
+    }
   },
   "sent": {
     "heading": "Kiitos hakemuksesta!",
