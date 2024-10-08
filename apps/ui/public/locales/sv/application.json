@@ -208,7 +208,17 @@
     "heading": "Säsongbokningsansökan",
     "reservations": "Godkända bokningar",
     "application": "Ansökan",
-    "handledDate": "Behandlad"
+    "handledDate": "Behandlad",
+    "reservationsTab": {
+      "reservationUnit": "Lokal",
+      "rejected": "Avslagen",
+      "showAllReservations": "Visa alla bokningar",
+      "reservationUnitsTitle": "Verksamhetsställe",
+      "reservationsTitle": "Bokningar"
+    },
+    "helpModal": {
+      "title": "Lokal specifik information"
+    }
   },
   "sent": {
     "heading": "Tack för din ansökan!",
