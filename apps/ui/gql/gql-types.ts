@@ -5451,10 +5451,9 @@ export type ApplicationsQueryVariables = Exact<{
   status:
     | Array<InputMaybe<ApplicationStatusChoice>>
     | InputMaybe<ApplicationStatusChoice>;
-  orderBy?: InputMaybe<
+  orderBy:
     | Array<InputMaybe<ApplicationOrderingChoices>>
-    | InputMaybe<ApplicationOrderingChoices>
-  >;
+    | InputMaybe<ApplicationOrderingChoices>;
 }>;
 
 export type ApplicationsQuery = {
@@ -8626,7 +8625,7 @@ export const ApplicationsDocument = gql`
   query Applications(
     $user: Int!
     $status: [ApplicationStatusChoice]!
-    $orderBy: [ApplicationOrderingChoices] = []
+    $orderBy: [ApplicationOrderingChoices]!
   ) {
     applications(user: $user, status: $status, orderBy: $orderBy) {
       edges {
