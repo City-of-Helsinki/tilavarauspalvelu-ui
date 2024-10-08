@@ -7,18 +7,8 @@ export const applicationsPrefix = "/applications";
 export const reservationsPrefix = "/reservations";
 export const seasonalPrefix = "/recurring";
 
-export const applicationsUrl = `${applicationsPrefix}/`;
 export const reservationsUrl = `${reservationsPrefix}/`;
-
-export function getApplicationRoundUrl(
-  id: Maybe<number> | undefined,
-  page?: string | undefined
-): string {
-  if (id == null) {
-    return "";
-  }
-  return `${seasonalPrefix}/${id}/${page ?? ""}`;
-}
+export const applicationsUrl = `${applicationsPrefix}/`;
 
 export function getSeasonalSearchUrl(
   pk: Maybe<number> | undefined,
@@ -97,6 +87,16 @@ export function getApplicationPath(
     return "";
   }
   return `${applicationsPrefix}/${pk}/${page ?? ""}`;
+}
+
+export function getApplicationSectionPath(
+  sectionPk: Maybe<number> | undefined,
+  applicationPk: Maybe<number> | undefined
+): string {
+  if (applicationPk == null || sectionPk == null) {
+    return "";
+  }
+  return `${getApplicationPath(applicationPk, "view")}/${sectionPk}`;
 }
 
 export function getReservationPath(
