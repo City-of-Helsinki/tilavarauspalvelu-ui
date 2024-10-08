@@ -283,8 +283,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1
       nuka-carousel:
-        specifier: ^7.0.0
-        version: 7.0.0(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
+        specifier: ^8.1.0
+        version: 8.1.0(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       query-string:
         specifier: 9.1.0
         version: 9.1.0
@@ -4275,6 +4275,7 @@ packages:
   eslint@8.57.1:
     resolution: {integrity: sha512-ypowyDxpVSYpkXr9WPv2PAZCtNip1Mv5KTW0SCurXv/9iOpcrH9PaqUElksqEB6pChqHGDRCFTyrZlGhnLNGiA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -5859,9 +5860,8 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
-  nuka-carousel@7.0.0:
-    resolution: {integrity: sha512-KE0WV1MuE4Gq6ynL8P3qJH2rGq/DkJ0ej+ezo0IuZp4oklV8WNqu6P6O1utJqihHLGoEuFppq5wlHSHfhdCHXA==}
-    engines: {node: '>=12.0.0'}
+  nuka-carousel@8.1.0:
+    resolution: {integrity: sha512-s2ZflAKeLHRiEKBZbAs8fFXneRXYaY5HA3a/DCGlbrQCZ9KtBAwgwhThdUb390SyktMSdoPz1FkozlMzvtjLCw==}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
@@ -14676,7 +14676,7 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
-  nuka-carousel@7.0.0(react-dom@18.3.1(react@18.2.0))(react@18.2.0):
+  nuka-carousel@8.1.0(react-dom@18.3.1(react@18.2.0))(react@18.2.0):
     dependencies:
       react: 18.2.0
       react-dom: 18.3.1(react@18.2.0)
