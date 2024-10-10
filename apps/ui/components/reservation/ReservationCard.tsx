@@ -95,7 +95,7 @@ function ReservationCard({ reservation, type }: PropsT): JSX.Element {
 
   const infos = [
     {
-      icon: <IconEuroSign aria-label={t("reservationUnit:price")} />,
+      icon: <IconEuroSign aria-label={t("common:price")} />,
       value: price ?? "",
     },
   ];
@@ -106,7 +106,7 @@ function ReservationCard({ reservation, type }: PropsT): JSX.Element {
       <ButtonLikeLink
         href={getReservationPath(reservation.pk, "cancel")}
         data-testid="reservation-card__button--cancel-reservation"
-        key={t("reservations:cancelReservationAbbreviated")}
+        key="cancel"
       >
         {t("reservations:cancelReservationAbbreviated")}
         <IconCross aria-hidden />
@@ -117,9 +117,9 @@ function ReservationCard({ reservation, type }: PropsT): JSX.Element {
     <ButtonLikeLink
       href={link}
       data-testid="reservation-card__button--goto-reservation"
-      key={t("reservationList:seeMore")}
+      key="show"
     >
-      {t("reservationList:seeMore")}
+      {t("common:show")}
       <IconArrowRight aria-hidden />
     </ButtonLikeLink>
   );
