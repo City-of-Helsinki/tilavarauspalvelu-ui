@@ -14,8 +14,6 @@
   "unitFilter": "Toimipiste",
   "purposesFilter": "Käyttötarkoitus",
   "equipmentsFilter": "Varustelu",
-  "dateFilter": "Päivämäärä",
-  "timeFilter": "Kellonaika",
   "durationFilter": "Kesto",
   "beginTimeIsBeforeEndTime": "Alkamisajan on oltava ennen loppumisaikaa",
   "resetForm": "Tyhjennä",

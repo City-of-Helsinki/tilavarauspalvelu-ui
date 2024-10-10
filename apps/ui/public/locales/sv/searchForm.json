@@ -14,8 +14,6 @@
   "unitFilter": "Verksamhetsställe",
   "purposesFilter": "Användningsändamål",
   "equipmentsFilter": "Utrustning",
-  "dateFilter": "Datum",
-  "timeFilter": "Tid",
   "durationFilter": "Varaktighet",
   "beginTimeIsBeforeEndTime": "Sluttiden måste vara senare än starttiden",
   "resetForm": "Töm",

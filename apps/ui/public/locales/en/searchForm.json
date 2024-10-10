@@ -14,8 +14,6 @@
   "unitFilter": "Location",
   "purposesFilter": "Purpose of use",
   "equipmentsFilter": "Equipment",
-  "dateFilter": "Date",
-  "timeFilter": "Time",
   "durationFilter": "Duration",
   "beginTimeIsBeforeEndTime": "The start time must be before the end time",
   "resetForm": "Clear",
