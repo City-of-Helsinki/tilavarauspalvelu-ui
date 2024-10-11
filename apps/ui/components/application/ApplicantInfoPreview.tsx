@@ -1,11 +1,32 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
 import { ApplicantTypeChoice, type ApplicationQuery } from "@gql/gql-types";
-import { getTranslation } from "common/src/common/util";
-import { SpanTwoColumns, TwoColumnContainer } from "../common/common";
-import Address from "./AddressPreview";
-import { StyledLabelValue } from "./styled";
+import {
+  ApplicationInfoContainer,
+  InfoItemContainer,
+  InfoItem,
+} from "./styled";
 
+const LabelValue = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number | null;
+}) => {
+  return (
+    <InfoItemContainer
+      className={
+        label === "preview.organisation.billingAddress" ? "fullWidth" : ""
+      }
+    >
+      <InfoItem>
+        <h4 className="info-label">{label}</h4>
+        <p>{value}</p>
+      </InfoItem>
+    </InfoItemContainer>
+  );
+};
 type Node = NonNullable<ApplicationQuery["application"]>;
 export function ApplicantInfoPreview({
   application,
@@ -13,74 +34,55 @@ export function ApplicantInfoPreview({
   application: Node;
 }): JSX.Element {
   const { t } = useTranslation();
-
+  const applicant = {
+    firstName: application.contactPerson?.firstName,
+    lastName: application.contactPerson?.lastName,
+    email: application.contactPerson?.email,
+    phoneNumber: application.contactPerson?.phoneNumber,
+  };
+  const contactPersonName = `${applicant.firstName} ${applicant.lastName}`;
+  const contactInfo = `${applicant.phoneNumber} / ${applicant.email}`;
+  const addressString = `${application.organisation?.address?.streetAddressFi}, ${application.organisation?.address?.postCode} ${application.organisation?.address?.cityFi}`;
+  const billingAddressString = `${application.billingAddress?.streetAddressFi}, ${application.billingAddress?.postCode} ${application.billingAddress?.cityFi}`;
   return (
-    <TwoColumnContainer>
+    <ApplicationInfoContainer>
       {application.applicantType == null ? (
         // TODO translate (though this is more a system error than a user error)
         <div style={{ gridColumn: "1 / -1" }}>ERROR: applicantType is null</div>
       ) : application.applicantType !== ApplicantTypeChoice.Individual ? (
         <>
-          <StyledLabelValue
+          <LabelValue
             label={t("application:preview.organisation.name")}
             value={application.organisation?.nameFi}
           />
-          <StyledLabelValue
-            label={t("application:preview.applicantTypeLabel")}
-            value={t(
-              `application:preview.applicantType.${application.applicantType}`
-            )}
+          <LabelValue
+            label={t("application:preview.organisation.coreBusiness")}
+            value={application.organisation?.coreBusinessFi}
           />
-          <SpanTwoColumns>
-            <StyledLabelValue
-              label={t("application:preview.organisation.coreBusiness")}
-              value={application.organisation?.coreBusinessFi}
-            />
-          </SpanTwoColumns>
-          <SpanTwoColumns>
-            <StyledLabelValue
-              label={t("application:preview.homeCity")}
-              value={getTranslation(application.homeCity ?? {}, "name")}
-            />
-          </SpanTwoColumns>
-          <Address
-            address={application.organisation?.address ?? undefined}
-            i18nMessagePrefix="common:address"
-          />
-          <Address
-            address={application.billingAddress ?? undefined}
-            i18nMessagePrefix="common:billingAddress"
+          <LabelValue
+            label={t("application:preview.organisation.registrationNumber")}
+            value={application.organisation?.identifier}
           />
         </>
       ) : null}
-      <StyledLabelValue
-        label={t("application:preview.firstName")}
-        value={application.contactPerson?.firstName}
+      <LabelValue
+        label={t("application:preview.contactPerson")}
+        value={contactPersonName}
       />
-      <StyledLabelValue
-        label={t("application:preview.lastName")}
-        value={application.contactPerson?.lastName}
+      <LabelValue
+        label={t("application:preview.contactInfo")}
+        value={contactInfo}
       />
-      <StyledLabelValue
-        label={t("application:preview.email")}
-        value={application.contactPerson?.email}
+      <LabelValue
+        label={t("application:preview.address")}
+        value={addressString}
       />
-      <StyledLabelValue
-        label={t("application:preview.phoneNumber")}
-        value={application.contactPerson?.phoneNumber}
-      />
-      {application.applicantType === ApplicantTypeChoice.Individual ? (
-        <>
-          <Address
-            address={application.billingAddress ?? undefined}
-            i18nMessagePrefix="common:address"
-          />
-          <StyledLabelValue
-            label={t("application:preview.additionalInformation")}
-            value={application.additionalInformation}
-          />
-        </>
-      ) : null}
-    </TwoColumnContainer>
+      {application.billingAddress && (
+        <LabelValue
+          label={t("application:preview.organisation.billingAddress")}
+          value={billingAddressString}
+        />
+      )}
+    </ApplicationInfoContainer>
   );
 }
