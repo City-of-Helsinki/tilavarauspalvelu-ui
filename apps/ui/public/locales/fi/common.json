@@ -86,6 +86,7 @@
     "postCode": "Postinumero",
     "city": "Postitoimipaikka"
   },
+  "price": "Hinta",
   "location": "Sijainti",
   "phone": "Puhelin",
   "email": "Sähköposti",

@@ -86,6 +86,7 @@
     "postCode": "Postnummer",
     "city": "Postanstalt"
   },
+  "price": "Pris",
   "location": "Läge",
   "phone": "Telefon",
   "email": "E-post",

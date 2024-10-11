@@ -95,7 +95,7 @@ function ReservationCard({ reservation, type }: PropsT): JSX.Element {
 
   const infos = [
     {
-      icon: <IconEuroSign aria-label={t("reservationUnit:price")} />,
+      icon: <IconEuroSign aria-label={t("common:price")} />,
       value: price ?? "",
     },
   ];
