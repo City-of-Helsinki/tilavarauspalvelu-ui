@@ -212,9 +212,12 @@
     "reservationsTab": {
       "reservationUnit": "Lokal",
       "rejected": "Avslagen",
+      "modified": "Ändrad",
       "showAllReservations": "Visa alla bokningar",
+      "cancelApplication": "Avbryt ansökan",
       "reservationUnitsTitle": "Verksamhetsställe",
-      "reservationsTitle": "Bokningar"
+      "reservationsTitle": "Bokningar",
+      "others": "andra"
     },
     "helpModal": {
       "title": "Lokal specifik information"

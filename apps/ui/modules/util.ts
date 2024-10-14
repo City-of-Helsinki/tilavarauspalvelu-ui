@@ -259,7 +259,7 @@ const dateFormatParams = {
   },
 };
 
-function formatTime(t: TFunction, date: Date): string {
+export function formatTime(t: TFunction, date: Date): string {
   return t("common:dateWithWeekday", {
     date,
     formatParams: {

@@ -188,7 +188,6 @@ export function formatApiTimeInterval({
   if (!beginTime || !endTime) {
     return "";
   }
-  // TODO need to strip last :00 (use a conversion function)
   // NOTE this uses extra cycles because of double conversions but it's safer than stripping from raw data
   const btime = formatMinutes(timeToMinutes(beginTime));
   const etime = formatMinutes(timeToMinutes(endTime));

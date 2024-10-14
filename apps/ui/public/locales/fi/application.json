@@ -213,9 +213,12 @@
     "reservationsTab": {
       "reservationUnit": "Tila",
       "rejected": "Hylätty",
+      "modified": "Muokattu",
       "showAllReservations": "Näytä kaikki varaukset",
+      "cancelApplication": "Peru koko kausivaraus",
       "reservationUnitsTitle": "Toimipisteet",
-      "reservationsTitle": "Varaukset"
+      "reservationsTitle": "Varaukset",
+      "others": "muuta"
     },
     "helpModal": {
       "title": "Tilakohtaiset ohjeet"

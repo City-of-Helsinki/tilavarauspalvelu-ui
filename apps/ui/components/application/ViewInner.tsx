@@ -9,7 +9,7 @@ import type {
 import { getTranslation } from "@/modules/util";
 import { ApplicantInfoPreview } from "./ApplicantInfoPreview";
 import { CheckboxContainer, StyledNotification } from "./styled";
-import { AccordionWithState as Accordion } from "../common/Accordion";
+import { AccordionWithState as Accordion } from "@/components/Accordion";
 import { ApplicationEventList } from "./ApplicationEventList";
 import TermsBox from "common/src/termsbox/TermsBox";
 import Sanitize from "../common/Sanitize";

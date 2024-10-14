@@ -5464,6 +5464,8 @@ export type ApplicationReservationsQuery = {
         allocatedTimeSlots: Array<{
           id: string;
           dayOfTheWeek: Weekday;
+          beginTime: string;
+          endTime: string;
           recurringReservation?: {
             id: string;
             pk?: number | null;
@@ -5479,6 +5481,12 @@ export type ApplicationReservationsQuery = {
               reservationConfirmedInstructionsFi?: string | null;
               reservationConfirmedInstructionsEn?: string | null;
               reservationConfirmedInstructionsSv?: string | null;
+              unit?: {
+                id: string;
+                nameFi?: string | null;
+                nameEn?: string | null;
+                nameSv?: string | null;
+              } | null;
             };
             rejectedOccurrences: Array<{
               id: string;
@@ -8688,6 +8696,8 @@ export const ApplicationReservationsDocument = gql`
           allocatedTimeSlots {
             id
             dayOfTheWeek
+            beginTime
+            endTime
             recurringReservation {
               id
               pk
@@ -8703,6 +8713,12 @@ export const ApplicationReservationsDocument = gql`
                 reservationConfirmedInstructionsFi
                 reservationConfirmedInstructionsEn
                 reservationConfirmedInstructionsSv
+                unit {
+                  id
+                  nameFi
+                  nameEn
+                  nameSv
+                }
               }
               rejectedOccurrences {
                 id
