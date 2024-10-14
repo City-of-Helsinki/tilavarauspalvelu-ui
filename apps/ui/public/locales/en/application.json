@@ -212,9 +212,12 @@
     "reservationsTab": {
       "reservationUnit": "Space",
       "rejected": "Rejected",
+      "modified": "Modified",
       "showAllReservations": "Show all bookings",
+      "cancelApplication": "Cancel whole application",
       "reservationUnitsTitle": "Location",
-      "reservationsTitle": "Reservations"
+      "reservationsTitle": "Reservations",
+      "others": "others"
     },
     "helpModal": {
       "title": "Unit specific information"

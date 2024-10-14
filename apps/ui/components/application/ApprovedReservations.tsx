@@ -13,21 +13,27 @@ import {
   toApiDate,
   toUIDate,
 } from "common/src/common/util";
-import { IconButton } from "common/src/components";
+import { IconButton, StatusLabel } from "common/src/components";
 import {
   filterNonNullable,
   formatApiTimeInterval,
+  formatMinutes,
+  fromMondayFirst,
   getLocalizationLang,
   LocalizationLanguages,
+  timeToMinutes,
   toMondayFirstUnsafe,
 } from "common/src/helpers";
 import {
-  Accordion,
   Button,
   Dialog,
+  IconCalendarRecurring,
+  IconClock,
   IconCross,
   IconInfoCircle,
   IconLinkExternal,
+  IconLocation,
+  IconPen,
   Table,
 } from "hds-react";
 import React, { useState } from "react";
@@ -35,6 +41,10 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import Sanitize from "../common/Sanitize";
 import { LinkLikeButton } from "common/styles/buttonCss";
+import { AccordionWithButtons } from "../AccordionWithButtons";
+import { type TFunction } from "i18next";
+import { convertWeekday, Day } from "common/src/conversion";
+import { formatTime } from "@/modules/util";
 
 const N_RESERVATIONS_TO_SHOW = 20;
 
@@ -43,21 +53,6 @@ type ApplicationT = NonNullable<ApplicationQuery["application"]>;
 type Props = {
   application: ApplicationT;
 };
-
-// TODO needs to be replaced with a custom accordion component
-// that has:
-// - an option for extra buttons on the right
-// - close button that is not the header
-// - option for icon + text list under the header
-// Our custom Accordion component can't handle these either
-const StyledAccordion = styled(Accordion)`
-  [class*="Accordion-module_accordionHeader__"] {
-    background-color: var(--color-black-10);
-  }
-  [class*="Accordion-module_accordionHeader__3_"] {
-    padding: var(--spacing-m);
-  }
-`;
 
 const H3 = styled.h3`
   font-size: var(--fontsize-heading-s);
@@ -79,11 +74,89 @@ const TableWrapper = styled.div`
     overflow-x: auto;
     > table {
       width: max-content;
+      min-width: 100%;
     }
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: var(--spacing-s);
+  justify-content: center;
+`;
+
+function formatAesName(
+  t: TFunction,
+  aes: ApplicationSectionT,
+  lang: LocalizationLanguages
+): string {
+  const reservationUnits = filterNonNullable(
+    aes.reservationUnitOptions
+      .map((x) => x.allocatedTimeSlots)
+      .map((x) => x.map((y) => y.recurringReservation?.reservationUnit))
+      .flat()
+  );
+  const firstResUnit = reservationUnits[0];
+  if (firstResUnit == null) {
+    return "-";
+  }
+  const count = reservationUnits.length;
+  const { unit } = firstResUnit;
+  const resUnitName = getTranslationSafe(firstResUnit, "name", lang);
+  const unitName = unit != null ? getTranslationSafe(unit, "name", lang) : "";
+  if (count > 1) {
+    // TODO this should truncate if on mobile at 26-30 characters (before the +)
+    // only on mobile... the best way to achieve this would be to split this into two spans
+    // use css to truncate
+    // but the text part is a string not JSX, so have to refactor
+    return `${resUnitName}, ${unitName} + ${count - 1} ${t("application:view:reservationsTab.others")}`;
+  }
+  return `${resUnitName}, ${unitName}`;
+}
+
+function formatNumberOfReservations(aes: ApplicationSectionT): string {
+  const reservations = aes.reservationUnitOptions.flatMap((ruo) =>
+    ruo.allocatedTimeSlots.flatMap(
+      (ats) => ats.recurringReservation?.reservations ?? []
+    )
+  );
+  const count = reservations.length;
+  // TODO translate
+  return `${count} varausta`;
+}
+
+function formatReservationTimes(
+  t: TFunction,
+  aes: ApplicationSectionT
+): string {
+  const atsList = filterNonNullable(
+    aes.reservationUnitOptions.flatMap((ruo) =>
+      ruo.allocatedTimeSlots.map((a) => a)
+    )
+  );
+  type TimeLabel = {
+    day: number;
+    label: string;
+  };
+  const times: TimeLabel[] = atsList.reduce<TimeLabel[]>((acc, ats) => {
+    if (ats.recurringReservation == null) {
+      return acc;
+    }
+    const { dayOfTheWeek } = ats;
+    const day = convertWeekday(dayOfTheWeek);
+    const time = formatApiTimeInterval(ats.recurringReservation);
+    // NOTE our translations are sunday first
+    // using enum translations is bad because we need to sort by day of the week
+    const tday = t(`weekDay.${fromMondayFirst(day)}`);
+    return [...acc, { day, label: `${tday} ${time}` }];
+  }, []);
+  times.sort((a, b) => a.day - b.day);
+
+  return times.map((x) => x.label).join(" / ") || "-";
+}
+
 export function ApprovedReservations({ application }: Props) {
+  const { t, i18n } = useTranslation();
   const { data, loading } = useApplicationReservationsQuery({
     variables: {
       id: application.id,
@@ -94,21 +167,38 @@ export function ApprovedReservations({ application }: Props) {
   });
   const { application: app } = data || {};
 
+  // FIXME why is there a type error in i18n.language (it's undefined)
+  const lang = getLocalizationLang(i18n.language ?? "");
+
   return (
     <ListContainer>
       {/* TODO spinner (or skeleton and put the spinner below) */}
       {loading && <p>Ladataan...</p>}
       {app?.applicationSections?.map((aes) => (
         /* TODO should be initially open if applicationSections.length === 1 */
-        <StyledAccordion
+        <AccordionWithButtons
           heading={aes.name}
           initiallyOpen={application.applicationSections?.length === 1}
           headingLevel={2}
-          closeButton={false}
+          icons={[
+            {
+              icon: <IconCalendarRecurring aria-hidden="true" />,
+              text: formatNumberOfReservations(aes),
+            },
+            {
+              icon: <IconClock aria-hidden="true" />,
+              // TODO this should have specific break points (at the / character)
+              text: formatReservationTimes(t, aes),
+            },
+            {
+              icon: <IconLocation aria-hidden="true" />,
+              text: formatAesName(t, aes, lang),
+            },
+          ]}
           key={aes.pk}
         >
           <ApplicationSection applicationSection={aes} key={aes.pk} />
-        </StyledAccordion>
+        </AccordionWithButtons>
       ))}
     </ListContainer>
   );
@@ -120,17 +210,8 @@ type ApplicationSectionT = NonNullable<QueryT["applicationSections"]>[0];
 type ReservationUnitTableElem = {
   reservationUnit: Pick<
     ReservationUnitNode,
-    "nameSv" | "nameFi" | "nameEn" | "id" | "pk"
-  >;
-  // TODO should this be a number or a string here (i.e. should it be translated already)?
-  dateOfWeek: string;
-  price: string;
-  // same for this actual end / start times or a combined string
-  time: string;
-  // TODO what is help link not a link it's a modal text
-  // probably needs to be a fragment (translated text fields)
-  helpText: Pick<
-    ReservationUnitNode,
+    | "id"
+    | "pk"
     | "reservationConfirmedInstructionsFi"
     | "reservationConfirmedInstructionsSv"
     | "reservationConfirmedInstructionsEn"
@@ -138,23 +219,26 @@ type ReservationUnitTableElem = {
     | "nameSv"
     | "nameEn"
   >;
+  dateOfWeek: string;
+  price: string;
+  // same for this actual end / start times or a combined string
+  time: string;
 };
+
 function ReservationUnitTable({
   reservationUnits,
 }: {
   reservationUnits: ReservationUnitTableElem[];
 }) {
   const { t, i18n } = useTranslation();
-  type ModalT = ReservationUnitTableElem["helpText"];
+  type ModalT = ReservationUnitTableElem["reservationUnit"];
   const [modal, setModal] = useState<ModalT | null>(null);
 
   const lang = getLocalizationLang(i18n.language);
 
-  // TODO translate headerName
   const cols = [
     {
       key: "reservationUnit",
-      // TODO the keys are too long for no reason
       headerName: t("application:view.reservationsTab.reservationUnit"),
       isSortable: false,
       transform: (elem: ReservationUnitTableElem) =>
@@ -181,13 +265,14 @@ function ReservationUnitTable({
     {
       key: "helpLink",
       headerName: t("application:view.helpModal.title"),
-      transform: ({ helpText }: ReservationUnitTableElem) => {
+      transform: ({ reservationUnit }: ReservationUnitTableElem) => {
         return (
           <LinkLikeButton
             onClick={() => {
-              setModal(helpText);
+              setModal(reservationUnit);
             }}
           >
+            {/* TODO translate */}
             Ohjeet
           </LinkLikeButton>
         );
@@ -239,9 +324,7 @@ function ReservationUnitTable({
           />
         </Dialog.Content>
         <Dialog.ActionButtons>
-          <Button onClick={() => setModal(null)}>
-            {t("common:close")}
-          </Button>
+          <Button onClick={() => setModal(null)}>{t("common:close")}</Button>
         </Dialog.ActionButtons>
       </Dialog>
     </>
@@ -252,20 +335,15 @@ type ReservationsTableElem = {
   date: Date;
   dayOfWeek: string;
   time: string;
-  // TODO replace with pk + name
   reservationUnit: Pick<
     ReservationUnitNode,
     "nameSv" | "nameFi" | "nameEn" | "id" | "pk"
   >;
-  status: "" | "rejected";
-  // TODO how to implement the cancel callback
-  // should be the pk of the reservation so we can call a mutation on it
-  // cancelButton: string;
+  status: "" | "rejected" | "modified";
   pk: number;
 };
 
 // icon button forces medium styling for the label
-// FIXME focus effect doesn't work correctly inside a table
 const IconButton400 = styled(IconButton)`
   & span {
     ${fontRegular}
@@ -328,7 +406,6 @@ function ReservationsTable({
     },
     {
       key: "reservationUnit",
-      // TODO the keys are too long for no reason
       headerName: t("application:view.reservationsTab.reservationUnit"),
       isSortable: false,
       transform: (elem: ReservationsTableElem) =>
@@ -341,14 +418,21 @@ function ReservationsTable({
       key: "status",
       headerName: "",
       isSortable: false,
-      // TODO this should be a StatusTag
-      transform: ({ status }: ReservationsTableElem) => (
-        <span>
-          {status === "rejected"
-            ? t("application:view.reservationsTab.rejected")
-            : ""}
-        </span>
-      ),
+      transform: ({ status }: ReservationsTableElem) => {
+        const icon = status === "rejected" ? <IconCross /> : <IconPen />;
+        const type = status === "rejected" ? "error" : "neutral";
+        return (
+          <span>
+            {status !== "" ? (
+              <StatusLabel icon={icon} type={type}>
+                {t(`application:view.reservationsTab.${status}`)}
+              </StatusLabel>
+            ) : (
+              ""
+            )}
+          </span>
+        );
+      },
     },
     {
       key: "cancelButton",
@@ -358,12 +442,11 @@ function ReservationsTable({
         <Button
           variant="supplementary"
           iconLeft={<IconCross />}
-          // TODO should use global css rules to override all supplementary buttons (or default theme)
           theme="black"
           style={{ whiteSpace: "nowrap" }}
           onClick={() => handleCancel(pk)}
         >
-          {t("common:remove")}
+          {t("common:cancel")}
         </Button>
       ),
     },
@@ -386,25 +469,39 @@ function ApplicationSection({
   // TODO need to do some reduce magic also since weekdays: [] while we need to flatten them
   // TODO remove all elements with null recurring reservation here
   // in case we are here either because of invalid data or because this component is used when the Application has not been finalized
-  const reservationUnits: ReservationUnitTableElem[] = filterNonNullable(
+  // TODO rename these, it's based on the day of the week not the reservation unit
+  const reservationUnitsByDay = filterNonNullable(
     applicationSection.reservationUnitOptions
-      .map((ruo) =>
-        ruo.allocatedTimeSlots.map((ats) => ats.recurringReservation)
-      )
+      .map((ruo) => ruo.allocatedTimeSlots.map((ats) => ats))
       .flat()
-  ).map((r) => ({
-    reservationUnit: r.reservationUnit,
-    // TODO this requires reduce (array expansion)
-    dateOfWeek:
-      filterNonNullable(r.weekdays)
-        .map((day) => t(`weekDayLong.${day}`))
-        .join(", ") ?? "-",
-    // Pricing is not implemented. So all are free or empty?
-    price: "",
-    time: formatApiTimeInterval(r),
-    // link to the reservation-unit? or a specific page for it
-    helpText: r.reservationUnit,
-  }));
+      .map((ats) => {
+        const { recurringReservation: r, dayOfTheWeek } = ats;
+        if (r == null) {
+          return null;
+        }
+        const { reservationUnit } = r;
+        // TODO use translation based on enums not numbers
+        const day = convertWeekday(dayOfTheWeek);
+        return {
+          reservationUnit,
+          day,
+          recurringReservation: r,
+          time: formatApiTimeInterval(r),
+        };
+      })
+  );
+  reservationUnitsByDay.sort((a, b) => a.day - b.day);
+  // TODO sort by day of the week, i.e. use an intermediate object before translating the day
+  const reservationUnits: ReservationUnitTableElem[] = reservationUnitsByDay.map((x) => {
+    const { reservationUnit, day, time } = x;
+    return {
+      reservationUnit,
+      dateOfWeek: t(`weekDayLong.${fromMondayFirst(day)}`),
+      // Pricing is not implemented. So all are empty
+      price: "",
+      time,
+    };
+  });
 
   const reservations: ReservationsTableElem[] = filterNonNullable(
     applicationSection.reservationUnitOptions
@@ -422,8 +519,9 @@ function ApplicationSection({
           const dayOfWeek = t(
             `weekDayLong.${toMondayFirstUnsafe(start.getDay())}`
           );
-          // TODO
-          const time = `${start.getHours()}:${start.getMinutes()} - ${end.getHours()}:${end.getMinutes()}`;
+          const stime = formatTime(t, start);
+          const etime = formatTime(t, end);
+          const time = `${stime} - ${etime}`;
           return {
             date: start,
             dayOfWeek,
@@ -439,14 +537,26 @@ function ApplicationSection({
         // i.e. convert it to a date and get the day of the week
         const dayOfWeek =
           filterNonNullable(r.weekdays)
-            .map((day) => t(`weekDayLong.${day}`))
+            .map((day) => t(`weekDayLong.${fromMondayFirst(day as Day)}`))
             .join(", ") ?? "-";
-        const time = formatApiTimeInterval(r);
-        // TODO this should be enabled if there is something unusual (like it's from the rejected list)
-        // it defaults to empty
-        const status =
-          res.state === ReservationStateChoice.Confirmed ? "" : "rejected";
+
+        const beginMins = timeToMinutes(r.beginTime ?? "");
+        const endMins = timeToMinutes(r.endTime ?? "");
         const start = new Date(res.begin);
+        const end = new Date(res.end);
+        const beginMins2 = start.getHours() * 60 + start.getMinutes();
+        const endMins2 = end.getHours() * 60 + end.getMinutes();
+        const isModified = beginMins !== beginMins2 || endMins !== endMins2;
+        const btime = formatMinutes(beginMins2);
+        const etime = formatMinutes(endMins2);
+        const time = `${btime} - ${etime}`;
+
+        const status =
+          res.state === ReservationStateChoice.Denied
+            ? "rejected"
+            : isModified
+              ? "modified"
+              : "";
         return {
           date: start,
           dayOfWeek,
@@ -471,12 +581,29 @@ function ApplicationSection({
       <ReservationUnitTable reservationUnits={reservationUnits} />
       <H3>{t("application:view.reservationsTab.reservationsTitle")}</H3>
       <ReservationsTable reservations={reservations} />
-      <div style={{ display: "flex", justifyContent: "space-around" }}>
+      <ButtonContainer>
         {/* TODO needs to be a link button with an open to other tab and external icon */}
-        <Button disabled variant="secondary">
+        {/* TODO translate and style */}
+        <Button
+          disabled
+          variant="secondary"
+          iconRight={<IconLinkExternal />} >
           {t("application:view.reservationsTab.showAllReservations")}
         </Button>
-      </div>
+        <Button
+          variant="secondary"
+          theme="black"
+          key="cancel"
+          onClick={() => {
+            errorToast({ text: "Not implemented: cancel application" });
+          }}
+          iconRight={<IconCross />}
+        >
+          {t("application:view.reservationsTab.cancelApplication")}
+        </Button>
+        {/* TODO on mobile add a button to remove a reservation
+         * this is duplicated code from the accordion */}
+      </ButtonContainer>
     </ListContainer>
   );
 }

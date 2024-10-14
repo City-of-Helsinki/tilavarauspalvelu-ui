@@ -20,6 +20,8 @@ export const APPLICATION_RESERVATIONS_QUERY = gql`
           allocatedTimeSlots {
             id
             dayOfTheWeek
+            beginTime
+            endTime
             recurringReservation {
               id
               pk
@@ -35,6 +37,12 @@ export const APPLICATION_RESERVATIONS_QUERY = gql`
                 reservationConfirmedInstructionsFi
                 reservationConfirmedInstructionsEn
                 reservationConfirmedInstructionsSv
+                unit {
+                  id
+                  nameFi
+                  nameEn
+                  nameSv
+                }
               }
               rejectedOccurrences {
                 id
