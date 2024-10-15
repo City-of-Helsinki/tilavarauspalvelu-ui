@@ -12,7 +12,7 @@ type LinkT = {
 
 export type Props = {
   id?: string;
-  heading: string;
+  heading?: string;
   body?: string | JSX.Element;
   links?: LinkT[];
   acceptLabel?: string;
@@ -105,7 +105,7 @@ const TermsBox = ({
   return (
     <Wrapper {...rest} id={id}>
       <Content>
-        <Heading>{heading}</Heading>
+        {heading && <Heading>{heading}</Heading>}
         <p>{body}</p>
         {links && links?.length > 0 && (
           <LinkList>
