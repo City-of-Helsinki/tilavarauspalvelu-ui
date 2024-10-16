@@ -8,14 +8,13 @@ import {
 import React from "react";
 import { useTranslation } from "next-i18next";
 import NextImage from "next/image";
-import styled from "styled-components";
-import { fontMedium } from "common/src/common/typography";
 import type { ReservationUnitCardFieldsFragment } from "@gql/gql-types";
 import { getMainImage, getTranslation } from "@/modules/util";
-import { reservationUnitPrefix } from "@/modules/const";
 import { getReservationUnitName, getUnitName } from "@/modules/reservationUnit";
 import { getImageSource } from "common/src/helpers";
 import Card from "common/src/components/Card";
+import { getReservationUnitPath } from "@/modules/urls";
+import { ButtonLikeLink } from "../common/ButtonLikeLink";
 
 type Node = ReservationUnitCardFieldsFragment;
 interface IProps {
@@ -25,25 +24,15 @@ interface IProps {
   removeReservationUnit: (reservationUnit: Node) => void;
 }
 
-/* TODO something is overriding button font-family to be bold */
-const StyledButton = styled(Button).attrs({ size: "small" })`
-  && {
-    ${fontMedium}
-  }
-`;
-
 export function ReservationUnitCard({
   reservationUnit,
   selectReservationUnit,
   containsReservationUnit,
   removeReservationUnit,
 }: IProps): JSX.Element {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const name = getReservationUnitName(reservationUnit);
-
-  const localeString = i18n.language === "fi" ? "" : `/${i18n.language}`;
-  const link = `${localeString}${reservationUnitPrefix}/${reservationUnit.pk}`;
 
   const unitName = reservationUnit.unit
     ? getUnitName(reservationUnit.unit)
@@ -91,18 +80,21 @@ export function ReservationUnitCard({
   const buttons = [];
   if (containsReservationUnit(reservationUnit)) {
     buttons.push(
-      <StyledButton
+      <Button
+        size="small"
+        variant="primary"
         iconRight={<IconCheck aria-hidden />}
         onClick={() => removeReservationUnit(reservationUnit)}
         data-testid="reservation-unit-card__button--select"
         key={t("common:removeReservationUnit")}
       >
         {t("common:removeReservationUnit")}
-      </StyledButton>
+      </Button>
     );
   } else {
     buttons.push(
-      <StyledButton
+      <Button
+        size="small"
         variant="secondary"
         iconRight={<IconPlus aria-hidden />}
         onClick={() => selectReservationUnit(reservationUnit)}
@@ -110,19 +102,20 @@ export function ReservationUnitCard({
         key={t("common:selectReservationUnit")}
       >
         {t("common:selectReservationUnit")}
-      </StyledButton>
+      </Button>
     );
   }
   buttons.push(
-    <StyledButton
-      variant="secondary"
-      iconRight={<IconLinkExternal aria-hidden />}
-      onClick={() => window.open(link, "_blank")}
+    <ButtonLikeLink
+      href={getReservationUnitPath(reservationUnit.pk)}
+      target="_blank"
+      rel="noopener noreferrer"
       data-testid="reservation-unit-card__button--link"
       key={t("reservationUnitCard:seeMore")}
     >
+      <IconLinkExternal aria-hidden />
       {t("reservationUnitCard:seeMore")}
-    </StyledButton>
+    </ButtonLikeLink>
   );
 
   return (

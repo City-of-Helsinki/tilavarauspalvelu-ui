@@ -51,11 +51,6 @@ const BottomWrapper = styled(Container)`
     padding: var(--spacing-m);
     background-color: var(--color-black-5);
   }
-  [class*="ListContainer"] {
-    display: flex;
-    flex-flow: column nowrap;
-    gap: var(--spacing-m);
-  }
 `;
 
 const StyledSorting = styled(Sorting)`

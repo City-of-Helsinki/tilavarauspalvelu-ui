@@ -140,7 +140,6 @@ const filterOrder = [
 ];
 
 type FormValues = {
-  applicationRound: number;
   minPersons: number | null;
   maxPersons: number | null;
   unit: number[];
@@ -152,7 +151,6 @@ type FormValues = {
 // TODO combine as much as possible with the one in single-search (move them to a common place)
 function mapQueryToForm(query: ParsedUrlQuery): FormValues {
   return {
-    applicationRound: mapQueryParamToNumber(query.applicationRound) ?? 0,
     purposes: mapQueryParamToNumberArray(query.purposes),
     unit: mapQueryParamToNumberArray(query.unit),
     reservationUnitTypes: mapQueryParamToNumberArray(
@@ -164,17 +162,16 @@ function mapQueryToForm(query: ParsedUrlQuery): FormValues {
   };
 }
 
+type OptionType = { value: number; label: string };
 export function SeasonalSearchForm({
-  applicationRoundOptions,
   reservationUnitTypeOptions,
   purposeOptions,
   unitOptions,
   isLoading,
 }: {
-  applicationRoundOptions: Array<{ value: number; label: string }>;
-  reservationUnitTypeOptions: Array<{ value: number; label: string }>;
-  purposeOptions: Array<{ value: number; label: string }>;
-  unitOptions: Array<{ value: number; label: string }>;
+  reservationUnitTypeOptions: OptionType[];
+  purposeOptions: OptionType[];
+  unitOptions: OptionType[];
   isLoading: boolean;
 }): JSX.Element | null {
   const { t } = useTranslation();
@@ -211,18 +208,12 @@ export function SeasonalSearchForm({
   };
 
   const multiSelectFilters = ["unit", "reservationUnitTypes", "purposes"];
-  const hideList = ["applicationRound", "order", "sort", "ref"];
+  const hideList = ["id", "order", "sort", "ref"];
 
   return (
     <form noValidate onSubmit={handleSubmit(search)}>
       <TopContainer>
         <Filters $areFiltersVisible={areFiltersVisible}>
-          <ControlledSelect
-            name="applicationRound"
-            control={control}
-            options={applicationRoundOptions}
-            label={t("searchForm:roundLabel")}
-          />
           <TextInput
             id="search"
             label={t("searchForm:textSearchLabel")}
