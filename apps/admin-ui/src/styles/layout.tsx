@@ -44,12 +44,12 @@ export const HorisontalFlex = styled.div`
 
 HorisontalFlex.displayName = "HorisontalFlex";
 
-export const ButtonContainer = styled.div`
+export const ButtonContainer = styled.div<{ $noMargin?: boolean }>`
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2-xs);
   width: 100%;
-  margin-bottom: var(--spacing-s);
+  margin-bottom: ${({ $noMargin }) => ($noMargin ? "0" : "var(--spacing-s);")};
 `;
 ButtonContainer.displayName = "ButtonContainer";
 
@@ -84,7 +84,11 @@ export const autoGridCss = css`
   gap: var(--spacing-m);
 `;
 
-export const AutoGrid = styled.div<{ $minWidth?: string; $largeGap?: boolean }>`
+export const AutoGrid = styled.div<{
+  $minWidth?: string;
+  $largeGap?: boolean;
+  $alignCenter?: boolean;
+}>`
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
@@ -94,7 +98,7 @@ export const AutoGrid = styled.div<{ $minWidth?: string; $largeGap?: boolean }>`
       1fr
     )
   );
-  align-items: baseline;
+  align-items: ${({ $alignCenter }) => ($alignCenter ? "center" : "baseline")};
   gap: ${({ $largeGap }) =>
       $largeGap ? " var(--spacing-xl)" : "var(--spacing-m)"}
     var(--spacing-m);
