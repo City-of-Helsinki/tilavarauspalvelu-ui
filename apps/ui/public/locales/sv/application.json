@@ -205,7 +205,10 @@
     }
   },
   "view": {
-    "heading": "Säsongbokningsansökan"
+    "heading": "Säsongbokningsansökan",
+    "reservations": "Godkända bokningar",
+    "application": "Ansökan",
+    "handledDate": "Behandlad"
   },
   "sent": {
     "heading": "Tack för din ansökan!",

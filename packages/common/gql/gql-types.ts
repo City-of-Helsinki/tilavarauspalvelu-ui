@@ -3545,7 +3545,6 @@ export enum ReservationTypeStaffChoice {
 }
 
 export type ReservationUnitCancellationRuleNode = Node & {
-  /** Seconds before reservations related to this cancellation rule can be cancelled without handling. */
   canBeCancelledTimeBefore?: Maybe<Scalars["Duration"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
@@ -4081,44 +4080,30 @@ export type ReservationUnitPaymentTypeNode = Node & {
 };
 
 export type ReservationUnitPricingNode = Node & {
-  /** When pricing is activated */
   begins: Scalars["Date"]["output"];
-  /** Maximum price of the reservation unit including VAT */
   highestPrice: Scalars["Decimal"]["output"];
   highestPriceNet?: Maybe<Scalars["Decimal"]["output"]>;
   /** The ID of the object */
   id: Scalars["ID"]["output"];
-  /** Minimum price of the reservation unit including VAT */
   lowestPrice: Scalars["Decimal"]["output"];
   lowestPriceNet?: Maybe<Scalars["Decimal"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Unit of the price */
   priceUnit: PriceUnit;
-  /** What kind of pricing types are available with this reservation unit. */
   pricingType?: Maybe<PricingType>;
-  /** Status of the pricing */
   status: Status;
-  /** The percentage of tax included in the price */
   taxPercentage: TaxPercentageNode;
 };
 
 export type ReservationUnitPricingSerializerInput = {
-  /** When pricing is activated */
   begins: Scalars["Date"]["input"];
-  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   highestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
-  /** Minimum price of the reservation unit including VAT */
   lowestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   lowestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
   pk?: InputMaybe<Scalars["Int"]["input"]>;
-  /** Unit of the price */
   priceUnit?: InputMaybe<PriceUnit>;
-  /** What kind of pricing types are available with this reservation unit. */
   pricingType?: InputMaybe<PricingType>;
-  /** Status of the pricing */
   status: Status;
-  /** The percentage of tax included in the price */
   taxPercentage?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -4150,7 +4135,6 @@ export type ReservationUnitTypeNode = Node & {
   nameFi?: Maybe<Scalars["String"]["output"]>;
   nameSv?: Maybe<Scalars["String"]["output"]>;
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** Järjestysnumero, jota käytetään rajapinnan järjestämisessä. */
   rank?: Maybe<Scalars["Int"]["output"]>;
 };
 
@@ -4791,7 +4775,6 @@ export type TaxPercentageNode = Node & {
   /** The ID of the object */
   id: Scalars["ID"]["output"];
   pk?: Maybe<Scalars["Int"]["output"]>;
-  /** The tax percentage for a price */
   value: Scalars["Decimal"]["output"];
 };
 
@@ -5250,22 +5233,15 @@ export type UpdateReservationUnitOptionApplicantSerializerInput = {
 };
 
 export type UpdateReservationUnitPricingSerializerInput = {
-  /** When pricing is activated */
   begins?: InputMaybe<Scalars["Date"]["input"]>;
-  /** Maximum price of the reservation unit including VAT */
   highestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   highestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
-  /** Minimum price of the reservation unit including VAT */
   lowestPrice?: InputMaybe<Scalars["Decimal"]["input"]>;
   lowestPriceNet?: InputMaybe<Scalars["String"]["input"]>;
   pk?: InputMaybe<Scalars["Int"]["input"]>;
-  /** Unit of the price */
   priceUnit?: InputMaybe<PriceUnit>;
-  /** What kind of pricing types are available with this reservation unit. */
   pricingType?: InputMaybe<PricingType>;
-  /** Status of the pricing */
   status?: InputMaybe<Status>;
-  /** The percentage of tax included in the price */
   taxPercentage?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -5724,179 +5700,6 @@ export type ApplicationCommonFragment = {
     name?: string | null;
     email: string;
     pk?: number | null;
-  } | null;
-};
-
-export type ApplicationQueryVariables = Exact<{
-  id: Scalars["ID"]["input"];
-}>;
-
-export type ApplicationQuery = {
-  application?: {
-    id: string;
-    pk?: number | null;
-    status?: ApplicationStatusChoice | null;
-    lastModifiedDate: string;
-    applicantType?: ApplicantTypeChoice | null;
-    additionalInformation?: string | null;
-    applicationRound: {
-      id: string;
-      notesWhenApplyingFi?: string | null;
-      notesWhenApplyingEn?: string | null;
-      notesWhenApplyingSv?: string | null;
-      pk?: number | null;
-      nameFi?: string | null;
-      nameSv?: string | null;
-      nameEn?: string | null;
-      applicationPeriodBegin: string;
-      applicationPeriodEnd: string;
-      reservationPeriodBegin: string;
-      reservationPeriodEnd: string;
-      status?: ApplicationRoundStatusChoice | null;
-      applicationsCount?: number | null;
-      reservationUnitCount?: number | null;
-      statusTimestamp?: string | null;
-      termsOfUse?: {
-        id: string;
-        pk?: string | null;
-        termsType: TermsType;
-        nameFi?: string | null;
-        nameEn?: string | null;
-        nameSv?: string | null;
-        textFi?: string | null;
-        textEn?: string | null;
-        textSv?: string | null;
-      } | null;
-      reservationUnits: Array<{
-        id: string;
-        pk?: number | null;
-        nameFi?: string | null;
-        nameSv?: string | null;
-        nameEn?: string | null;
-        minPersons?: number | null;
-        maxPersons?: number | null;
-        images: Array<{
-          id: string;
-          imageUrl?: string | null;
-          largeUrl?: string | null;
-          mediumUrl?: string | null;
-          smallUrl?: string | null;
-          imageType: ImageType;
-        }>;
-        unit?: {
-          id: string;
-          pk?: number | null;
-          nameFi?: string | null;
-          nameSv?: string | null;
-          nameEn?: string | null;
-        } | null;
-      }>;
-    };
-    applicationSections?: Array<{
-      id: string;
-      pk?: number | null;
-      name: string;
-      status?: ApplicationSectionStatusChoice | null;
-      reservationMaxDuration: number;
-      numPersons: number;
-      reservationsEndDate: string;
-      reservationsBeginDate: string;
-      appliedReservationsPerWeek: number;
-      reservationMinDuration: number;
-      suitableTimeRanges: Array<{
-        id: string;
-        pk?: number | null;
-        beginTime: string;
-        endTime: string;
-        dayOfTheWeek: Weekday;
-        priority: Priority;
-      }>;
-      purpose?: {
-        id: string;
-        pk?: number | null;
-        nameFi?: string | null;
-        nameSv?: string | null;
-        nameEn?: string | null;
-      } | null;
-      reservationUnitOptions: Array<{
-        id: string;
-        pk?: number | null;
-        preferredOrder: number;
-        reservationUnit: {
-          id: string;
-          pk?: number | null;
-          nameFi?: string | null;
-          nameEn?: string | null;
-          nameSv?: string | null;
-          unit?: {
-            id: string;
-            pk?: number | null;
-            nameFi?: string | null;
-            nameEn?: string | null;
-            nameSv?: string | null;
-          } | null;
-          applicationRoundTimeSlots: Array<{
-            id: string;
-            weekday: number;
-            closed: boolean;
-            reservableTimes?: Array<{
-              begin: string;
-              end: string;
-            } | null> | null;
-          }>;
-        };
-      }>;
-      ageGroup?: {
-        id: string;
-        pk?: number | null;
-        minimum: number;
-        maximum?: number | null;
-      } | null;
-    }> | null;
-    contactPerson?: {
-      id: string;
-      pk?: number | null;
-      firstName: string;
-      lastName: string;
-      email?: string | null;
-      phoneNumber?: string | null;
-    } | null;
-    organisation?: {
-      id: string;
-      pk?: number | null;
-      nameFi?: string | null;
-      identifier?: string | null;
-      organisationType: OrganizationTypeChoice;
-      coreBusinessFi?: string | null;
-      yearEstablished?: number | null;
-      address?: {
-        id: string;
-        pk?: number | null;
-        postCode: string;
-        streetAddressFi?: string | null;
-        cityFi?: string | null;
-      } | null;
-    } | null;
-    homeCity?: {
-      id: string;
-      pk?: number | null;
-      nameFi?: string | null;
-      nameEn?: string | null;
-      nameSv?: string | null;
-    } | null;
-    billingAddress?: {
-      id: string;
-      pk?: number | null;
-      postCode: string;
-      streetAddressFi?: string | null;
-      cityFi?: string | null;
-    } | null;
-    user?: {
-      id: string;
-      name?: string | null;
-      email: string;
-      pk?: number | null;
-    } | null;
   } | null;
 };
 
@@ -6407,12 +6210,17 @@ export function useBannerNotificationsListAllLazyQuery(
   >(BannerNotificationsListAllDocument, options);
 }
 export function useBannerNotificationsListAllSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsListAllQuery,
-    BannerNotificationsListAllQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsListAllQuery,
+        BannerNotificationsListAllQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsListAllQuery,
     BannerNotificationsListAllQueryVariables
@@ -6489,12 +6297,17 @@ export function useBannerNotificationsListLazyQuery(
   >(BannerNotificationsListDocument, options);
 }
 export function useBannerNotificationsListSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    BannerNotificationsListQuery,
-    BannerNotificationsListQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<
+        BannerNotificationsListQuery,
+        BannerNotificationsListQueryVariables
+      >
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<
     BannerNotificationsListQuery,
     BannerNotificationsListQueryVariables
@@ -6512,93 +6325,6 @@ export type BannerNotificationsListSuspenseQueryHookResult = ReturnType<
 export type BannerNotificationsListQueryResult = Apollo.QueryResult<
   BannerNotificationsListQuery,
   BannerNotificationsListQueryVariables
->;
-export const ApplicationDocument = gql`
-  query Application($id: ID!) {
-    application(id: $id) {
-      ...ApplicationCommon
-      applicationRound {
-        id
-        notesWhenApplyingFi
-        notesWhenApplyingEn
-        notesWhenApplyingSv
-        termsOfUse {
-          id
-          ...TermsOfUseFields
-        }
-      }
-    }
-  }
-  ${ApplicationCommonFragmentDoc}
-  ${TermsOfUseFieldsFragmentDoc}
-`;
-
-/**
- * __useApplicationQuery__
- *
- * To run a query within a React component, call `useApplicationQuery` and pass it any options that fit your needs.
- * When your component renders, `useApplicationQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useApplicationQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useApplicationQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  > &
-    (
-      | { variables: ApplicationQueryVariables; skip?: boolean }
-      | { skip: boolean }
-    )
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<ApplicationQuery, ApplicationQueryVariables>(
-    ApplicationDocument,
-    options
-  );
-}
-export function useApplicationLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<ApplicationQuery, ApplicationQueryVariables>(
-    ApplicationDocument,
-    options
-  );
-}
-export function useApplicationSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    ApplicationQuery,
-    ApplicationQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useSuspenseQuery<ApplicationQuery, ApplicationQueryVariables>(
-    ApplicationDocument,
-    options
-  );
-}
-export type ApplicationQueryHookResult = ReturnType<typeof useApplicationQuery>;
-export type ApplicationLazyQueryHookResult = ReturnType<
-  typeof useApplicationLazyQuery
->;
-export type ApplicationSuspenseQueryHookResult = ReturnType<
-  typeof useApplicationSuspenseQuery
->;
-export type ApplicationQueryResult = Apollo.QueryResult<
-  ApplicationQuery,
-  ApplicationQueryVariables
 >;
 export const TermsOfUseDocument = gql`
   query TermsOfUse($termsType: TermsType) {
@@ -6655,12 +6381,14 @@ export function useTermsOfUseLazyQuery(
   );
 }
 export function useTermsOfUseSuspenseQuery(
-  baseOptions?: Apollo.SuspenseQueryHookOptions<
-    TermsOfUseQuery,
-    TermsOfUseQueryVariables
-  >
+  baseOptions?:
+    | Apollo.SkipToken
+    | Apollo.SuspenseQueryHookOptions<TermsOfUseQuery, TermsOfUseQueryVariables>
 ) {
-  const options = { ...defaultOptions, ...baseOptions };
+  const options =
+    baseOptions === Apollo.skipToken
+      ? baseOptions
+      : { ...defaultOptions, ...baseOptions };
   return Apollo.useSuspenseQuery<TermsOfUseQuery, TermsOfUseQueryVariables>(
     TermsOfUseDocument,
     options

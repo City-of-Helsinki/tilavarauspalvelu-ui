@@ -205,7 +205,10 @@
     }
   },
   "view": {
-    "heading": "Seasonal booking application"
+    "heading": "Seasonal booking application",
+    "reservations": "Accepted bookings",
+    "application": "Application",
+    "handledDate": "Handled"
   },
   "sent": {
     "heading": "Thank you for the application",

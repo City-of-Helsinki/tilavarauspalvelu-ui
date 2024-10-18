@@ -9,38 +9,28 @@ import {
   type ApplicationQuery,
 } from "@gql/gql-types";
 import { useRouter } from "next/router";
-import Head from "./Head";
+import { Head } from "./Head";
 import Stepper, { StepperProps } from "./Stepper";
 import NotesWhenApplying from "@/components/application/NotesWhenApplying";
-
-const StyledContainer = styled(Container)`
-  background-color: var(--color-white);
-`;
+import { getApplicationPath } from "@/modules/urls";
 
 const InnerContainer = styled.div<{ $hideStepper: boolean }>`
   display: grid;
   gap: 1em;
   ${({ $hideStepper }) =>
     $hideStepper
-      ? `grid-template-columns: 6em 1fr;`
+      ? `grid-template-columns: 1fr;`
       : `grid-template-columns: 18em 1fr;`}
 
   @media (max-width: ${breakpoints.l}) {
     grid-template-columns: 1fr;
-    gap: 0;
-  }
-`;
-
-const Main = styled.div`
-  margin-top: var(--spacing-s);
-
-  @media (max-width: ${breakpoints.s}) {
-    width: calc(100vw - 3 * var(--spacing-xs));
   }
 `;
 
 const NotesWrapper = styled.div`
-  margin-bottom: var(--spacing-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
 `;
 
 // TODO this should have more complete checks (but we are thinking of splitting the form anyway)
@@ -103,36 +93,34 @@ export function ApplicationPageWrapper({
   const { t } = useTranslation();
   const router = useRouter();
 
-  const pages = ["page1", "page2", "page3", "preview"];
+  const pages = ["page1", "page2", "page3", "preview"] as const;
 
   const hideStepper =
     pages.filter((x) => router.asPath.match(`/${x}`)).length === 0;
   const steps: StepperProps = {
     steps: pages.map((x, i) => ({ slug: x, step: i })),
     completedStep: application ? calculateCompletedStep(application) : 0,
-    // TODO use an urlbuilder
-    basePath: `/application/${application?.pk ?? 0}`,
+    basePath: getApplicationPath(application?.pk),
     isFormDirty: isDirty ?? false,
   };
 
   return (
-    <>
+    <Container>
       <Head heading={t(`${translationKeyPrefix}.heading`)}>
         {headContent || overrideText || t(`${translationKeyPrefix}.text`)}
       </Head>
-      <StyledContainer>
-        <InnerContainer $hideStepper={hideStepper}>
-          {hideStepper ? <div /> : <Stepper {...steps} />}
-          <Main>
-            <NotesWrapper>
-              <NotesWhenApplying
-                applicationRound={application?.applicationRound ?? null}
-              />
-            </NotesWrapper>
-            {children}
-          </Main>
-        </InnerContainer>
-      </StyledContainer>
-    </>
+      <InnerContainer $hideStepper={hideStepper}>
+        {hideStepper ? null : <Stepper {...steps} />}
+        {/* TODO preview / view should not maybe display these notes */}
+        <NotesWrapper>
+          <div>
+            <NotesWhenApplying
+              applicationRound={application?.applicationRound ?? null}
+            />
+          </div>
+          {children}
+        </NotesWrapper>
+      </InnerContainer>
+    </Container>
   );
 }
