@@ -55,7 +55,7 @@ importers:
         version: 14.2.15
       '@sentry/nextjs':
         specifier: ^8.29.0
-        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react@18.2.0)(webpack@5.94.0)
+        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react@18.2.0)(webpack@5.94.0)
       apollo-upload-client:
         specifier: 17.0.0
         version: 17.0.0(@apollo/client@3.9.7(@types/react@18.2.7)(graphql-ws@5.16.0(graphql@16.9.0))(graphql@16.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(graphql@16.9.0)
@@ -94,10 +94,10 @@ importers:
         version: 4.17.21
       next:
         specifier: 14.2.15
-        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3)
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       query-string:
         specifier: 9.1.0
         version: 9.1.0
@@ -129,8 +129,8 @@ importers:
         specifier: ^2.0.6
         version: 2.0.6(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       sass:
-        specifier: ^1.78.0
-        version: 1.78.0
+        specifier: ^1.80.3
+        version: 1.80.3
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -236,7 +236,7 @@ importers:
         version: 3.9.0(react-hook-form@7.53.0(react@18.2.0))
       '@sentry/nextjs':
         specifier: ^8.29.0
-        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react@18.2.0)(webpack@5.94.0)
+        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react@18.2.0)(webpack@5.94.0)
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -272,13 +272,13 @@ importers:
         version: 4.17.21
       next:
         specifier: 14.2.15
-        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3)
       next-compose-plugins:
         specifier: ^2.2.1
         version: 2.2.1
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       next-transpile-modules:
         specifier: ^10.0.1
         version: 10.0.1
@@ -310,8 +310,8 @@ importers:
         specifier: ^2.13.0
         version: 2.13.0
       sass:
-        specifier: ^1.78.0
-        version: 1.78.0
+        specifier: ^1.80.3
+        version: 1.80.3
       styled-components:
         specifier: 5.3.11
         version: 5.3.11(@babel/core@7.25.2)(react-dom@18.3.1(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
@@ -426,10 +426,10 @@ importers:
         version: 4.15.3
       next:
         specifier: 14.2.15
-        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3)
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -3472,6 +3472,10 @@ packages:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
 
+  chokidar@4.0.1:
+    resolution: {integrity: sha512-n8enUVCED/KVRQlab1hr3MVpcVMvxtZjmEa956u+4YijlmQED223XMSYj2tLuKvr4jcCTzNNMpQDUer72MMmzA==}
+    engines: {node: '>= 14.16.0'}
+
   chrome-trace-event@1.0.4:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
     engines: {node: '>=6.0'}
@@ -6399,6 +6403,10 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
+  readdirp@4.0.2:
+    resolution: {integrity: sha512-yDMz9g+VaZkqBYS/ozoBJwaBhTbZo3UNYQHNRw1D3UFQB8oHB4uS/tAODO+ZLjGWmUbKnIlOWO+aaIiAxrUWHA==}
+    engines: {node: '>= 14.16.0'}
+
   redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
@@ -6597,8 +6605,8 @@ packages:
   sanitize-html@2.13.0:
     resolution: {integrity: sha512-Xff91Z+4Mz5QiNSLdLWwjgBDm5b1RU6xBT0+12rapjiaR7SwfRdjw8f+6Rir2MXKLrDicRFHdb51hGOAxmsUIA==}
 
-  sass@1.78.0:
-    resolution: {integrity: sha512-AaIqGSrjo5lA2Yg7RvFZrlXDBCp3nV4XP73GrLGvdRWWwk+8H3l0SDvq/5bA4eF+0RFPLuWUk3E+P1U/YqnpsQ==}
+  sass@1.80.3:
+    resolution: {integrity: sha512-ptDWyVmDMVielpz/oWy3YP3nfs7LpJTHIJZboMVs8GEC9eUmtZTZhMHlTW98wY4aEorDfjN38+Wr/XjskFWcfA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -10227,7 +10235,7 @@ snapshots:
       '@sentry/types': 8.29.0
       '@sentry/utils': 8.29.0
 
-  '@sentry/nextjs@8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react@18.2.0)(webpack@5.94.0)':
+  '@sentry/nextjs@8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react@18.2.0)(webpack@5.94.0)':
     dependencies:
       '@opentelemetry/instrumentation-http': 0.53.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.27.0
@@ -10241,7 +10249,7 @@ snapshots:
       '@sentry/vercel-edge': 8.29.0
       '@sentry/webpack-plugin': 2.22.3(webpack@5.94.0)
       chalk: 3.0.0
-      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3)
       resolve: 1.22.8
       rollup: 3.29.4
       stacktrace-parser: 0.1.10
@@ -11586,6 +11594,10 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  chokidar@4.0.1:
+    dependencies:
+      readdirp: 4.0.2
 
   chrome-trace-event@1.0.4: {}
 
@@ -14561,7 +14573,7 @@ snapshots:
 
   next-compose-plugins@2.2.1: {}
 
-  next-i18next@15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0):
+  next-i18next@15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0):
     dependencies:
       '@babel/runtime': 7.25.6
       '@types/hoist-non-react-statics': 3.3.5
@@ -14569,7 +14581,7 @@ snapshots:
       hoist-non-react-statics: 3.3.2
       i18next: 23.15.1
       i18next-fs-backend: 2.3.2
-      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3)
       react: 18.2.0
       react-i18next: 15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
 
@@ -14577,7 +14589,7 @@ snapshots:
     dependencies:
       enhanced-resolve: 5.17.1
 
-  next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0):
+  next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.3):
     dependencies:
       '@next/env': 14.2.15
       '@swc/helpers': 0.5.5
@@ -14599,7 +14611,7 @@ snapshots:
       '@next/swc-win32-ia32-msvc': 14.2.15
       '@next/swc-win32-x64-msvc': 14.2.15
       '@opentelemetry/api': 1.9.0
-      sass: 1.78.0
+      sass: 1.80.3
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -15243,6 +15255,8 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
+  readdirp@4.0.2: {}
+
   redent@3.0.0:
     dependencies:
       indent-string: 4.0.0
@@ -15439,9 +15453,10 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.4.45
 
-  sass@1.78.0:
+  sass@1.80.3:
     dependencies:
-      chokidar: 3.6.0
+      '@parcel/watcher': 2.4.1
+      chokidar: 4.0.1
       immutable: 4.3.7
       source-map-js: 1.2.1
 
