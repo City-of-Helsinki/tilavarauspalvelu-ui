@@ -9,7 +9,7 @@ import {
   getApplicationSectionPath,
   getReservationUnitPath,
 } from "@/modules/urls";
-import { fontMedium, fontRegular, H5 } from "common";
+import { breakpoints, fontMedium, fontRegular, H5 } from "common";
 import { errorToast } from "common/src/common/toast";
 import {
   getTranslationSafe,
@@ -32,6 +32,7 @@ import {
   IconCalendarRecurring,
   IconClock,
   IconCross,
+  IconEuroSign,
   IconInfoCircle,
   IconLinkExternal,
   IconLocation,
@@ -74,11 +75,70 @@ const ListContainer = styled.div`
 // Tables can't do horizontal scroll without wrapping the table in a div
 // NOTE HDS Table can't be styled so have to wrap it in an extra div.
 const TableWrapper = styled.div`
-  & > div {
-    overflow-x: auto;
-    > table {
-      width: max-content;
-      min-width: 100%;
+  /* Mobile uses cards, so no horizontal scroll */
+  @media (width > ${breakpoints.s}) {
+    & > div {
+      overflow-x: auto;
+      > table {
+        width: max-content;
+        min-width: 100%;
+      }
+    }
+  }
+
+  /* remove icons unless mobile */
+  @media (width > ${breakpoints.s}) {
+    /* the first link uses icon button, don't remove it's icon */
+    /* && table > tbody > tr > td *:not([class*="IconButton_"]) svg { */
+    /* TODO these rules are way too complex, and also it doesn't pick both the a and button children correctly
+     * move the display setting to the child elements instead of the table */
+    /* && table > tbody > tr > td *:not(button):not(a) * > div > svg { */
+    && table > tbody > tr > td * svg {
+      display: none;
+    }
+  }
+
+  /* Change table to cards on mobile
+   * wrong way selector because we don't want to redo the HDS table styling
+   *
+   * TODO remove background colour
+   * TODO should have no padding between cards (and single border between two cards)
+   * TODO first table element is "title" for the card
+   * - medium font, no icon, less padding,
+   */
+  @media (width <= ${breakpoints.s}) {
+    && table {
+      /* No heading, cards have their own headings */
+      & thead {
+        display: none;
+      }
+      /* TODO remove from final version (we don't want spacing between the cards */
+      border-collapse: separate;
+      border-spacing: 0 0.5rem;
+
+      & td {
+        /* TODO remove bg colour (after we have borders correct) */
+        background-color: var(--color-black-5);
+        /*border-style : hidden;*/
+        --border-width: 1px;
+        --border-color: var(--color-black-90);
+        border: var(--border-width) solid var(--border-color);
+        border-bottom: none;
+        border-top: none;
+        &:first-child {
+          border-top: var(--border-width) solid var(--border-color);
+        }
+        &:last-child {
+          border-bottom: var(--border-width) solid var(--border-color);
+        }
+      }
+    }
+    & table > thead > tr > th,
+    & table > tbody > tr > td {
+      display: flex;
+      &:empty {
+        display: none;
+      }
     }
   }
 `;
@@ -87,6 +147,10 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: var(--spacing-s);
   justify-content: center;
+  flex-direction: row;
+  @media (max-width: ${breakpoints.s}) {
+    flex-direction: column;
+  }
 `;
 
 // TODO type return
@@ -215,6 +279,12 @@ export function ApprovedReservations({ application }: Props) {
 type QueryT = NonNullable<ApplicationReservationsQuery["application"]>;
 type ApplicationSectionT = NonNullable<QueryT["applicationSections"]>[0];
 
+const IconTextWrapper = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3-xs);
+`;
+
 type ReservationUnitTableElem = {
   reservationUnit: Pick<
     ReservationUnitNode,
@@ -259,31 +329,53 @@ function ReservationUnitTable({
       key: "dateOfWeek",
       headerName: t("common:day"),
       isSortable: false,
+      // TODO aria-hidden is questionable on mobile (because we are hiding the table header)
+      transform: ({ dateOfWeek }: ReservationUnitTableElem) => (
+        <IconTextWrapper>
+          <IconClock aria-hidden="true" />
+          {dateOfWeek}
+        </IconTextWrapper>
+      ),
     },
     {
       key: "time",
       headerName: t("common:timeLabel"),
       isSortable: false,
+      transform: ({ time }: ReservationUnitTableElem) => (
+        <IconTextWrapper>
+          <IconClock aria-hidden="true" />
+          {time}
+        </IconTextWrapper>
+      )
     },
     {
       key: "price",
       headerName: t("common:price"),
       isSortable: false,
+      transform: ({ price }: ReservationUnitTableElem) => (
+        price ? (
+          <IconTextWrapper>
+            <IconEuroSign aria-hidden="true" />
+            {price}
+          </IconTextWrapper>
+        ) : ""
+      ),
     },
     {
       key: "helpLink",
       headerName: t("application:view.helpModal.title"),
-      transform: ({ reservationUnit }: ReservationUnitTableElem) => {
-        return (
+      transform: ({ reservationUnit }: ReservationUnitTableElem) => (
           <LinkLikeButton
             onClick={() => {
               setModal(reservationUnit);
             }}
+            // table already includes padding
+            style={{ padding: 0 }}
           >
+            <IconInfoCircle aria-hidden="true" />
             {t("application:view.helpLink")}
           </LinkLikeButton>
-        );
-      },
+      ),
       isSortable: false,
     },
   ];
@@ -348,10 +440,28 @@ type ReservationsTableElem = {
   pk: number;
 };
 
-// icon button forces medium styling for the label
-const IconButton400 = styled(IconButton)`
+// TODO on mobile we want to wrap or truncate the text => requires changing Table instead
+// TODO this should not wrap on mobile, use truncate instead (it looks better and should be a rare case)
+const ReservationUnitLink = styled(IconButton)`
   & span {
-    ${fontRegular}
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  /* table hides icons by default, override this behaviour */
+  &&& svg {
+    display: inline;
+  }
+
+  /* icon button forces medium styling for the label
+   * on mobile it's mock title for the card so medium is correct
+   * on desktop it's a table cell so it's not correct
+   */
+  @media (width > ${breakpoints.s}) {
+    & span {
+      ${fontRegular}
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -367,17 +477,38 @@ function createReservationUnitLink({
 }): JSX.Element {
   const { pk } = reservationUnit;
   const name = getTranslationSafe(reservationUnit, "name", lang);
-  return pk != null && pk > 0 ? (
-    <IconButton400
+  if (pk == null || pk <= 0) {
+    return <span>{name}</span>
+  }
+  return (
+    <ReservationUnitLink
       href={getReservationUnitPath(pk)}
       label={name}
       openInNewTab
       icon={<IconLinkExternal aria-hidden />}
     />
-  ) : (
-    <span>{name}</span>
   );
 }
+
+// TODO on mobile this should be hidden behind a popover
+// for now hide it on mobile (the functionality is not implemented anyway)
+const CancelButton = styled(Button).attrs({
+  theme: "black",
+  variant: "supplementary",
+  iconLeft: <IconCross aria-hidden />,
+})`
+  white-space: nowrap;
+  /* the table hides icons by default, override this behaviour */
+  &&& svg {
+    display: inline;
+  }
+
+  display: none !important;
+  @media (width > ${breakpoints.s}) {
+    display: inline-flex !important;
+  }
+`;
+
 
 function ReservationsTable({
   reservations,
@@ -392,6 +523,12 @@ function ReservationsTable({
   const handleCancel = (pk: number) => {
     errorToast({ text: `Not implemented: cancel reservation: ${pk}` });
   };
+
+  // TODO on mobile the first three columns should be combined into a single row
+  // is the formatting the same? or should we do some shinanigans with two different html elements and display:none?
+  // actually no
+  // First row (mock title): {date} - {day full}
+  // second row: {icon} {day short} {time}
   const cols = [
     {
       key: "date",
@@ -426,15 +563,15 @@ function ReservationsTable({
       transform: ({ status }: ReservationsTableElem) => {
         const icon = status === "rejected" ? <IconCross /> : <IconPen />;
         const type = status === "rejected" ? "error" : "neutral";
+        if (status === "") {
+          return ""
+        }
+        // TODO do we need the extra span?
         return (
           <span>
-            {status !== "" ? (
-              <StatusLabel icon={icon} type={type}>
-                {t(`application:view.reservationsTab.${status}`)}
-              </StatusLabel>
-            ) : (
-              ""
-            )}
+            <StatusLabel icon={icon} type={type}>
+              {t(`application:view.reservationsTab.${status}`)}
+            </StatusLabel>
           </span>
         );
       },
@@ -444,15 +581,9 @@ function ReservationsTable({
       headerName: "",
       isSortable: false,
       transform: ({ pk }: ReservationsTableElem) => (
-        <Button
-          variant="supplementary"
-          iconLeft={<IconCross />}
-          theme="black"
-          style={{ whiteSpace: "nowrap" }}
-          onClick={() => handleCancel(pk)}
-        >
+        <CancelButton onClick={() => handleCancel(pk)}>
           {t("common:cancel")}
-        </Button>
+        </CancelButton>
       ),
     },
   ];
