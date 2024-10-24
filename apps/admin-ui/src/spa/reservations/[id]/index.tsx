@@ -9,7 +9,6 @@ import { add, startOfISOWeek } from "date-fns";
 import { breakpoints } from "common/src/common/style";
 import {
   CustomerTypeChoice,
-  PricingType,
   type ReservationQuery,
   ReservationStateChoice,
   useReservationQuery,
@@ -19,7 +18,7 @@ import Loader from "@/component/Loader";
 import { useModal } from "@/context/ModalContext";
 import { ButtonContainer, Container } from "@/styles/layout";
 import ShowWhenTargetInvisible from "@/component/ShowWhenTargetInvisible";
-import StickyHeader from "@/component/StickyHeader";
+import { StickyHeader } from "@/component/StickyHeader";
 import { ReservationWorkingMemo } from "@/component/WorkingMemo";
 import { Accordion } from "@/common/hds-fork/Accordion";
 import { BirthDate } from "@/component/BirthDate";
@@ -38,7 +37,7 @@ import { useReservationData } from "./hooks";
 import { useRecurringReservations } from "@/hooks";
 import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
-import { base64encode } from "common/src/helpers";
+import { base64encode, isPriceZero } from "common/src/helpers";
 import { fontMedium } from "common";
 import { formatAgeGroup } from "@/common/util";
 import Error404 from "@/common/Error404";
@@ -402,11 +401,12 @@ function RequestedReservation({
   const ref = useRef<HTMLHeadingElement>(null);
 
   const resUnit = reservation?.reservationUnits?.[0];
-  const pricing = getReservatinUnitPricing(resUnit, reservation.begin);
+  const pricing = getReservatinUnitPricing(
+    resUnit,
+    new Date(reservation.begin)
+  );
 
-  const isNonFree =
-    pricing?.pricingType === PricingType.Paid &&
-    parseFloat(pricing.highestPrice) >= 0;
+  const isNonFree = pricing != null ? !isPriceZero(pricing) : false;
 
   const reservationTagline = createTagString(reservation, t);
   const order = reservation.paymentOrder[0];
