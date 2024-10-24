@@ -1,20 +1,14 @@
 import { type Maybe } from "@/gql/gql-types";
 
+export const searchPrefix = "/search";
 export const reservationUnitPrefix = "/reservation-unit";
 export const singleSearchPrefix = "/search/single";
 export const applicationsPrefix = "/applications";
 export const reservationsPrefix = "/reservations";
 export const seasonalPrefix = "/recurring";
 
-export function getApplicationRoundUrl(
-  id: Maybe<number> | undefined,
-  page?: string | undefined
-): string {
-  if (id == null) {
-    return "";
-  }
-  return `${seasonalPrefix}/${id}/${page ?? ""}`;
-}
+export const reservationsUrl = `${reservationsPrefix}/`;
+export const applicationsUrl = `${applicationsPrefix}/`;
 
 export function getSeasonalSearchUrl(
   pk: Maybe<number> | undefined,
@@ -41,13 +35,6 @@ export function getSingleSearchUrl(params?: URLSearchParams): string {
 
   return base;
 }
-
-export const applicationsUrl = `${applicationsPrefix}/`;
-export const reservationsUrl = `${reservationsPrefix}/`;
-
-/// @deprecated
-export const reservationUnitPath = (id: number): string =>
-  `${reservationUnitPrefix}/${id}`;
 
 export function getApplicationRoundPath(
   id: Maybe<number> | undefined,
@@ -100,6 +87,16 @@ export function getApplicationPath(
     return "";
   }
   return `${applicationsPrefix}/${pk}/${page ?? ""}`;
+}
+
+export function getApplicationSectionPath(
+  sectionPk: Maybe<number> | undefined,
+  applicationPk: Maybe<number> | undefined
+): string {
+  if (applicationPk == null || sectionPk == null) {
+    return "";
+  }
+  return `${getApplicationPath(applicationPk, "view")}/${sectionPk}`;
 }
 
 export function getReservationPath(
