@@ -7,8 +7,8 @@ import { breakpoints } from "common/src/common/style";
 import { Container } from "common";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetServerSidePropsContext } from "next";
-import { applicationsUrl } from "@/modules/util";
-import Head from "@/components/application/Head";
+import { applicationsUrl } from "@/modules/urls";
+import { Head } from "@/components/application/Head";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
 
 const Paragraph = styled.p`
@@ -24,30 +24,28 @@ const StyledButton = styled(Button)`
   margin-bottom: var(--spacing-layout-l);
 `;
 
-const Sent = (): JSX.Element => {
+function Sent(): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
 
   return (
-    <>
+    <Container>
       <Head heading={t("application:sent.heading")}>
         <p>{t("application:sent.subHeading")}</p>
       </Head>
-      <Container>
-        <Paragraph>{t("application:sent.body")}</Paragraph>
-        <StyledButton
-          onClick={() => router.push(applicationsUrl)}
-          iconRight={<IconAngleRight />}
-          size="small"
-        >
-          {t("navigation:Item.applications")}
-        </StyledButton>
-      </Container>
-    </>
+      <Paragraph>{t("application:sent.body")}</Paragraph>
+      <StyledButton
+        onClick={() => router.push(applicationsUrl)}
+        iconRight={<IconAngleRight />}
+        size="small"
+      >
+        {t("navigation:Item.applications")}
+      </StyledButton>
+    </Container>
   );
-};
+}
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale } = ctx;
 
   // TODO should fetch on SSR but we need authentication for it
@@ -64,6 +62,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       ...(await serverSideTranslations(locale ?? "fi")),
     },
   };
-};
+}
 
 export default Sent;

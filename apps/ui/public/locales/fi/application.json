@@ -206,7 +206,10 @@
     }
   },
   "view": {
-    "heading": "Kausivaraushakemus"
+    "heading": "Kausivaraushakemus",
+    "reservations": "Hyväksytyt varaukset",
+    "application": "Hakemus",
+    "handledDate": "Käsitelty"
   },
   "sent": {
     "heading": "Kiitos hakemuksesta!",
