@@ -10,12 +10,14 @@ import {
 type StatusLabelProps = {
   type: StatusLabelType;
   icon: JSX.Element;
+  slim?: boolean;
   testId?: string;
   children: React.ReactNode;
 };
 
 const ColoredLabel = styled(HDSStatusLabel)<{
   $type: StatusLabelType;
+  $slim?: boolean;
 }>`
   && {
     --status-label-background: ${(props) =>
@@ -25,6 +27,7 @@ const ColoredLabel = styled(HDSStatusLabel)<{
     border-style: solid;
     border-color: ${(props) => getStatusBorderColor(props.$type)};
     white-space: nowrap;
+    margin-block: ${(props) => (props.$slim ? "-6px" : "inherit")};
   }
   svg {
     scale: 0.8;
@@ -35,6 +38,7 @@ const ColoredLabel = styled(HDSStatusLabel)<{
  * StatusLabel component (extends HDS StatusLabel with "draft" type)
  * @param {StatusLabelWithDraftType} type - StatusLabel type (neutral, info, alert, success, error, draft)
  * @param {JSX.Element} icon - Icon element
+ * @param {slim} - toggle negative block margin, for use in table cells
  * @param {string} dataTestId - Test id
  * @param {React.ReactNode} children - Label text
  * @returns {JSX.Element} - Rendered StatusLabel component
@@ -43,14 +47,16 @@ function StatusLabel({
   type,
   icon,
   testId,
+  slim = false,
   children,
 }: Readonly<StatusLabelProps>): JSX.Element {
   return (
     <ColoredLabel
       type={type === "draft" ? "neutral" : type} // HDS StatusLabel does not support "draft" type - so convert it to "neutral"
       iconLeft={icon}
-      dataTestId={testId}
+      data-testid={testId}
       $type={type}
+      $slim={slim}
     >
       {children}
     </ColoredLabel>
