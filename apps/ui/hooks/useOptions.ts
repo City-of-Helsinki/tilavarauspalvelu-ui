@@ -39,6 +39,7 @@ export const OPTIONS_QUERY = gql`
           nameFi
           nameEn
           nameSv
+          rank
         }
       }
     }

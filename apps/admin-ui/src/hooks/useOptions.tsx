@@ -6,7 +6,7 @@ export function useOptions() {
 
   const purpose = sortBy(
     optionsData?.reservationPurposes?.edges || [],
-    "node.nameFi"
+    "node.rank"
   ).map((purposeType) => ({
     label: purposeType?.node?.nameFi ?? "",
     value: Number(purposeType?.node?.pk),

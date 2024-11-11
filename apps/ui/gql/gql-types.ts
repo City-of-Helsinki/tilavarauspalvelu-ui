@@ -5418,6 +5418,7 @@ export type OptionsQuery = {
         nameFi?: string | null;
         nameEn?: string | null;
         nameSv?: string | null;
+        rank: number;
       } | null;
     } | null>;
   } | null;
@@ -8718,6 +8719,7 @@ export const OptionsDocument = gql`
           nameFi
           nameEn
           nameSv
+          rank
         }
       }
     }
