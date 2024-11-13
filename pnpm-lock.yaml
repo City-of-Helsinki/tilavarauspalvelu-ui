@@ -55,7 +55,7 @@ importers:
         version: 14.2.15
       '@sentry/nextjs':
         specifier: ^8.29.0
-        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react@18.2.0)(webpack@5.94.0)
+        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react@18.2.0)(webpack@5.94.0)
       apollo-upload-client:
         specifier: 17.0.0
         version: 17.0.0(@apollo/client@3.9.7(@types/react@18.2.7)(graphql-ws@5.16.0(graphql@16.9.0))(graphql@16.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(graphql@16.9.0)
@@ -94,10 +94,10 @@ importers:
         version: 4.17.21
       next:
         specifier: 14.2.15
-        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7)
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       query-string:
         specifier: 9.1.0
         version: 9.1.0
@@ -129,8 +129,8 @@ importers:
         specifier: ^2.0.6
         version: 2.0.6(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       sass:
-        specifier: ^1.78.0
-        version: 1.78.0
+        specifier: ^1.80.7
+        version: 1.80.7
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -236,7 +236,7 @@ importers:
         version: 3.9.0(react-hook-form@7.53.0(react@18.2.0))
       '@sentry/nextjs':
         specifier: ^8.29.0
-        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react@18.2.0)(webpack@5.94.0)
+        version: 8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react@18.2.0)(webpack@5.94.0)
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -272,13 +272,13 @@ importers:
         version: 4.17.21
       next:
         specifier: 14.2.15
-        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7)
       next-compose-plugins:
         specifier: ^2.2.1
         version: 2.2.1
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       next-transpile-modules:
         specifier: ^10.0.1
         version: 10.0.1
@@ -307,8 +307,8 @@ importers:
         specifier: ^2.13.0
         version: 2.13.0
       sass:
-        specifier: ^1.78.0
-        version: 1.78.0
+        specifier: ^1.80.7
+        version: 1.80.7
       styled-components:
         specifier: 5.3.11
         version: 5.3.11(@babel/core@7.25.2)(react-dom@18.3.1(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
@@ -423,10 +423,10 @@ importers:
         version: 4.15.3
       next:
         specifier: 14.2.15
-        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+        version: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7)
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
+        version: 15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -3074,6 +3074,7 @@ packages:
 
   acorn-import-assertions@1.9.0:
     resolution: {integrity: sha512-cmMwop9x+8KFhxvKrKfPYmN6/pKTYYHBqLa0DfvVZcKMJWNyWLnaqND7dx/qn66R7ewM1UX5XMaDVP5wlVTaVA==}
+    deprecated: package has been renamed to acorn-import-attributes
     peerDependencies:
       acorn: ^8
 
@@ -3468,6 +3469,10 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  chokidar@4.0.1:
+    resolution: {integrity: sha512-n8enUVCED/KVRQlab1hr3MVpcVMvxtZjmEa956u+4YijlmQED223XMSYj2tLuKvr4jcCTzNNMpQDUer72MMmzA==}
+    engines: {node: '>= 14.16.0'}
 
   chrome-trace-event@1.0.4:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
@@ -4806,8 +4811,8 @@ packages:
     resolution: {integrity: sha512-AizQPcaofEtO11RZhPPHBOJRdo/20MKQF9mBLnVkBoyHi1/zXK8fzVdnEpSV9gxqtnh6Qomfp3F0xT5qP/vThw==}
     engines: {node: '>=0.8.0'}
 
-  immutable@4.3.7:
-    resolution: {integrity: sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==}
+  immutable@5.0.2:
+    resolution: {integrity: sha512-1NU7hWZDkV7hJ4PJ9dur9gTNQ4ePNPN4k9/0YhwjzykTi/+3Q5pF93YU5QoVj8BuOnhLgaY8gs0U2pj4kSYVcw==}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -6396,6 +6401,10 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
+  readdirp@4.0.2:
+    resolution: {integrity: sha512-yDMz9g+VaZkqBYS/ozoBJwaBhTbZo3UNYQHNRw1D3UFQB8oHB4uS/tAODO+ZLjGWmUbKnIlOWO+aaIiAxrUWHA==}
+    engines: {node: '>= 14.16.0'}
+
   redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
@@ -6594,8 +6603,8 @@ packages:
   sanitize-html@2.13.0:
     resolution: {integrity: sha512-Xff91Z+4Mz5QiNSLdLWwjgBDm5b1RU6xBT0+12rapjiaR7SwfRdjw8f+6Rir2MXKLrDicRFHdb51hGOAxmsUIA==}
 
-  sass@1.78.0:
-    resolution: {integrity: sha512-AaIqGSrjo5lA2Yg7RvFZrlXDBCp3nV4XP73GrLGvdRWWwk+8H3l0SDvq/5bA4eF+0RFPLuWUk3E+P1U/YqnpsQ==}
+  sass@1.80.7:
+    resolution: {integrity: sha512-MVWvN0u5meytrSjsU7AWsbhoXi1sc58zADXFllfZzbsBT1GHjjar6JwBINYPRrkx/zqnQ6uqbQuHgE95O+C+eQ==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -10224,7 +10233,7 @@ snapshots:
       '@sentry/types': 8.29.0
       '@sentry/utils': 8.29.0
 
-  '@sentry/nextjs@8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react@18.2.0)(webpack@5.94.0)':
+  '@sentry/nextjs@8.29.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@1.26.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.53.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.26.0(@opentelemetry/api@1.9.0))(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react@18.2.0)(webpack@5.94.0)':
     dependencies:
       '@opentelemetry/instrumentation-http': 0.53.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.27.0
@@ -10238,7 +10247,7 @@ snapshots:
       '@sentry/vercel-edge': 8.29.0
       '@sentry/webpack-plugin': 2.22.3(webpack@5.94.0)
       chalk: 3.0.0
-      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7)
       resolve: 1.22.8
       rollup: 3.29.4
       stacktrace-parser: 0.1.10
@@ -10848,7 +10857,7 @@ snapshots:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint@8.57.1)(typescript@5.6.2)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.1)(typescript@5.6.2)
       eslint-config-prettier: 9.1.0(eslint@8.57.1)
-      eslint-import-resolver-alias: 1.1.2(eslint-plugin-import@2.30.0)
+      eslint-import-resolver-alias: 1.1.2(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1))
       eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-plugin-import@2.30.0)(eslint@8.57.1)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.57.1)
       eslint-plugin-import: 2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
@@ -10883,7 +10892,7 @@ snapshots:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint@8.57.1)(typescript@5.6.2)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.1)(typescript@5.6.2)
       eslint-config-prettier: 9.1.0(eslint@8.57.1)
-      eslint-import-resolver-alias: 1.1.2(eslint-plugin-import@2.30.0)
+      eslint-import-resolver-alias: 1.1.2(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1))
       eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-plugin-import@2.30.0)(eslint@8.57.1)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.57.1)
       eslint-plugin-import: 2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
@@ -11584,6 +11593,10 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  chokidar@4.0.1:
+    dependencies:
+      readdirp: 4.0.2
+
   chrome-trace-event@1.0.4: {}
 
   ci-info@3.9.0: {}
@@ -12257,7 +12270,7 @@ snapshots:
 
   eslint-define-config@2.1.0: {}
 
-  eslint-import-resolver-alias@1.1.2(eslint-plugin-import@2.30.0):
+  eslint-import-resolver-alias@1.1.2(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)):
     dependencies:
       eslint-plugin-import: 2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
 
@@ -12275,7 +12288,7 @@ snapshots:
       debug: 4.3.7(supports-color@5.5.0)
       enhanced-resolve: 5.17.1
       eslint: 8.57.1
-      eslint-module-utils: 2.11.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
+      eslint-module-utils: 2.11.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-plugin-import@2.30.0)(eslint@8.57.1))(eslint@8.57.1)
       fast-glob: 3.3.2
       get-tsconfig: 4.8.0
       is-bun-module: 1.2.1
@@ -12288,7 +12301,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.11.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1):
+  eslint-module-utils@2.11.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-plugin-import@2.30.0)(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -12316,7 +12329,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.11.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@8.57.1)
+      eslint-module-utils: 2.11.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.6.2))(eslint-plugin-import@2.30.0)(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -13149,7 +13162,7 @@ snapshots:
 
   immutable@3.7.6: {}
 
-  immutable@4.3.7: {}
+  immutable@5.0.2: {}
 
   import-fresh@3.3.0:
     dependencies:
@@ -14558,7 +14571,7 @@ snapshots:
 
   next-compose-plugins@2.2.1: {}
 
-  next-i18next@15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0):
+  next-i18next@15.3.1(i18next@23.15.1)(next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7))(react-i18next@15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0))(react@18.2.0):
     dependencies:
       '@babel/runtime': 7.25.6
       '@types/hoist-non-react-statics': 3.3.5
@@ -14566,7 +14579,7 @@ snapshots:
       hoist-non-react-statics: 3.3.2
       i18next: 23.15.1
       i18next-fs-backend: 2.3.2
-      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0)
+      next: 14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7)
       react: 18.2.0
       react-i18next: 15.1.0(i18next@23.15.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
 
@@ -14574,7 +14587,7 @@ snapshots:
     dependencies:
       enhanced-resolve: 5.17.1
 
-  next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.78.0):
+  next@14.2.15(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)(sass@1.80.7):
     dependencies:
       '@next/env': 14.2.15
       '@swc/helpers': 0.5.5
@@ -14596,7 +14609,7 @@ snapshots:
       '@next/swc-win32-ia32-msvc': 14.2.15
       '@next/swc-win32-x64-msvc': 14.2.15
       '@opentelemetry/api': 1.9.0
-      sass: 1.78.0
+      sass: 1.80.7
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -15240,6 +15253,8 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
+  readdirp@4.0.2: {}
+
   redent@3.0.0:
     dependencies:
       indent-string: 4.0.0
@@ -15436,11 +15451,13 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.4.45
 
-  sass@1.78.0:
+  sass@1.80.7:
     dependencies:
-      chokidar: 3.6.0
-      immutable: 4.3.7
+      chokidar: 4.0.1
+      immutable: 5.0.2
       source-map-js: 1.2.1
+    optionalDependencies:
+      '@parcel/watcher': 2.4.1
 
   saxes@6.0.0:
     dependencies:
