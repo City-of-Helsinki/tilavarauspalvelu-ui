@@ -98,6 +98,8 @@ export default withSentryConfig(nextConfig, {
   // https://github.com/getsentry/sentry-webpack-plugin#options
   org: "city-of-helsinki",
   project: "tilavaraus-admin-ui",
+  // TODO make configurable using env because we have different urls for different environments
+  // no that doesn't work, we need to upload to both urls when building docker
   sentryUrl: "https://sentry.test.hel.ninja/",
   authToken: env.SENTRY_AUTH_TOKEN,
   // Only print logs for uploading source maps in CI
@@ -110,4 +112,7 @@ export default withSentryConfig(nextConfig, {
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
+
+  // Upload a larger set of source maps for prettier stack traces (increases build time)
+  widenClientFileUpload: true,
 });
