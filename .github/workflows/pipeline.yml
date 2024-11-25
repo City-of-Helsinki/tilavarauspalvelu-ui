@@ -13,6 +13,9 @@ concurrency:
 
 env:
   SKIP_ENV_VALIDATION: "true"
+  NEXT_PUBLIC_BASE_URL: ""
+  # TODO do we need to add this to the next build (.env.local)
+  SENTRY_LOG_LEVEL: "debug"
 
 jobs:
   # Disabled because it broke, and no idea why.
@@ -42,6 +45,7 @@ jobs:
           pnpm lint --filter=admin-ui...
           pnpm lint:css --filter=admin-ui...
 
+
   build-admin-ui:
     name: Build admin ui
     runs-on: ubuntu-latest
@@ -50,8 +54,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: "Set up Docker Buildx"
-        uses: docker/setup-buildx-action@v3
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -62,6 +64,8 @@ jobs:
       - uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build ui
         run: pnpm build --filter admin-ui...
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   test-admin-ui:
     name: Test admin ui
@@ -98,7 +102,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - uses: dtinth/setup-github-actions-caching-for-turbo@v1
-
       - name: Lint ui
         run: |
           pnpm tsc:check --filter=ui...
@@ -110,8 +113,6 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [changed-packages]
     # if: needs.changed-packages.outputs.ui_changed == 'true'
-    env:
-      SKIP_ENV_VALIDATION: 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -122,17 +123,25 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      # FIXME enable cache after we are done with the source maps
+      #- uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      # FIXME sourcemap upload fails with 413 Request Entity Too Large
+      # have to copy the build envs to file otherwise nextjs can't find them
+      # TODO make the app base path configurable `apps/ui` (from monorepo root)
       - name: Build ui
-        run: pnpm build --filter ui...
+        run: |
+          touch apps/ui/.env.local
+          echo SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} >> apps/ui/.env.local
+          echo SENTRY_LOG_LEVEL=debug >> apps/ui/.env.local
+          pnpm build --filter ui...
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   test-ui:
     name: Unit tests ui
     runs-on: ubuntu-latest
     # needs: [changed-packages]
     # if: needs.changed-packages.outputs.ui_changed == 'true'
-    env:
-      SKIP_ENV_VALIDATION: 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
