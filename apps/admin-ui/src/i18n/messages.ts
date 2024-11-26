@@ -241,6 +241,9 @@ const translations: ITranslations = {
       RESERVATION_UNIT_MISSING_RESERVATION_UNIT_TYPE: [
         "Varausyksiköllä ei ole varausyksikkötyyppiä",
       ],
+      RESERVATION_DENYING_NOT_ALLOWED: [
+        "Ainoastaan käsiteltävät ja hyväksytyt varaukset voidaan hylätä",
+      ],
     },
     descriptive: {
       "Reservation overlaps with reservation before due to buffer time.": [

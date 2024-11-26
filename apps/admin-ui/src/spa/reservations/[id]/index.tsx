@@ -35,7 +35,7 @@ import ApprovalButtons from "./ApprovalButtons";
 import { RecurringReservationsView } from "@/component/RecurringReservationsView";
 import { useReservationData } from "./hooks";
 import { useRecurringReservations } from "@/hooks";
-import ApprovalButtonsRecurring from "./ApprovalButtonsRecurring";
+import { ApprovalButtonsRecurring } from "./ApprovalButtonsRecurring";
 import ReservationTitleSection from "./ReservationTitleSection";
 import { base64encode, isPriceFree } from "common/src/helpers";
 import { fontMedium } from "common";
