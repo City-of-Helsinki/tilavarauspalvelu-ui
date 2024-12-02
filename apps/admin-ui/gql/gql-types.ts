@@ -7520,7 +7520,12 @@ export type CreateStaffReservationMutation = {
   createStaffReservation?: { pk?: number | null } | null;
 };
 
-export type OptionsQueryVariables = Exact<{ [key: string]: never }>;
+export type OptionsQueryVariables = Exact<{
+  reservationPurposesOrderBy?: InputMaybe<
+    | Array<InputMaybe<ReservationPurposeOrderingChoices>>
+    | InputMaybe<ReservationPurposeOrderingChoices>
+  >;
+}>;
 
 export type OptionsQuery = {
   reservationPurposes?: {
@@ -13482,8 +13487,10 @@ export type CreateStaffReservationMutationOptions = Apollo.BaseMutationOptions<
   CreateStaffReservationMutationVariables
 >;
 export const OptionsDocument = gql`
-  query Options {
-    reservationPurposes {
+  query Options(
+    $reservationPurposesOrderBy: [ReservationPurposeOrderingChoices]
+  ) {
+    reservationPurposes(orderBy: $reservationPurposesOrderBy) {
       edges {
         node {
           id
@@ -13526,6 +13533,7 @@ export const OptionsDocument = gql`
  * @example
  * const { data, loading, error } = useOptionsQuery({
  *   variables: {
+ *      reservationPurposesOrderBy: // value for 'reservationPurposesOrderBy'
  *   },
  * });
  */
