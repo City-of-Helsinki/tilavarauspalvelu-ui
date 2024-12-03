@@ -2570,11 +2570,15 @@ type Query {
     nameSv: String
     nameSv_Icontains: String
     nameSv_Istartswith: String
+    onlyDirectBookable: Boolean
+    onlySeasonalBookable: Boolean
     onlyWithPermission: Boolean
     """
     Järjestä
     """
     orderBy: [UnitOrderingChoices]
+    ownReservations: Boolean
+    publishedReservationUnits: Boolean
     unit: [Int]
   ): [UnitAllNode!]
   user(
