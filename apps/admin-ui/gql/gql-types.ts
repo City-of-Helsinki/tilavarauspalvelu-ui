@@ -6950,6 +6950,7 @@ export type RejectedOccurrencesQueryVariables = Exact<{
 
 export type RejectedOccurrencesQuery = {
   rejectedOccurrences?: {
+    totalCount?: number | null;
     pageInfo: { hasNextPage: boolean; endCursor?: string | null };
     edges: Array<{
       node?: {
@@ -12320,6 +12321,7 @@ export const RejectedOccurrencesDocument = gql`
         hasNextPage
         endCursor
       }
+      totalCount
       edges {
         node {
           id
