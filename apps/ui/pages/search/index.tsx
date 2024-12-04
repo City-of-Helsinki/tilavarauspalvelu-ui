@@ -6,42 +6,23 @@ import { useMedia } from "react-use";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { breakpoints } from "common/src/common/style";
 import { H1 } from "common/src/common/typography";
-import {
-  ReservationKind,
-  SearchReservationUnitsDocument,
-  type SearchReservationUnitsQueryVariables,
-  type SearchReservationUnitsQuery,
-} from "@gql/gql-types";
+import { ReservationKind } from "@gql/gql-types";
 import { filterNonNullable } from "common/src/helpers";
-import { isBrowser } from "@/modules/const";
 import { SingleSearchForm } from "@/components/search/SingleSearchForm";
 import { ListWithPagination } from "@/components/common/ListWithPagination";
 import ReservationUnitCard from "@/components/search/SingleSearchReservationUnitCard";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
 import { createApolloClient } from "@/modules/apolloClient";
 import { getSearchOptions, processVariables } from "@/modules/search";
-import { useSearchValues } from "@/hooks/useSearchValues";
 import { useSearchQuery } from "@/hooks/useSearchQuery";
 import { SortingComponent } from "@/components/SortingComponent";
 import { Flex } from "common/styles/util";
+import { useSearchParams } from "next/navigation";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const { locale, query } = ctx;
+  const { locale } = ctx;
   const commonProps = getCommonServerSideProps();
   const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
-  const variables = processVariables(
-    query,
-    locale ?? "fi",
-    ReservationKind.Direct
-  );
-  const { data } = await apolloClient.query<
-    SearchReservationUnitsQuery,
-    SearchReservationUnitsQueryVariables
-  >({
-    query: SearchReservationUnitsDocument,
-    fetchPolicy: "no-cache",
-    variables,
-  });
   const opts = await getSearchOptions(apolloClient, "direct", locale ?? "");
 
   return {
@@ -49,7 +30,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
       ...getCommonServerSideProps(),
       ...(await serverSideTranslations(locale ?? "fi")),
       ...opts,
-      data,
     },
   };
 }
@@ -57,7 +37,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 
 function SearchSingle({
-  data: initialData,
   unitOptions,
   reservationUnitTypeOptions,
   purposeOptions,
@@ -65,17 +44,17 @@ function SearchSingle({
 }: Props): JSX.Element {
   const { t, i18n } = useTranslation();
 
-  const searchValues = useSearchValues();
+  const searchValues = useSearchParams();
 
-  const vars = processVariables(
-    searchValues,
-    i18n.language,
-    ReservationKind.Direct
-  );
+  const vars = processVariables({
+    values: searchValues,
+    language: i18n.language,
+    kind: ReservationKind.Direct,
+  });
   const query = useSearchQuery(vars);
-  const { data, isLoading, error, fetchMore } = query;
+  const { data, isLoading, error, fetchMore, previousData } = query;
 
-  const currData = data ?? initialData;
+  const currData = data ?? previousData;
   const reservationUnits = filterNonNullable(
     currData?.reservationUnits?.edges?.map((e) => e?.node)
   );
@@ -89,7 +68,6 @@ function SearchSingle({
   useEffect(() => {
     if (
       window.location.hash === "#content" &&
-      isBrowser &&
       isMobile &&
       currData?.reservationUnits != null &&
       content?.current?.offsetTop != null

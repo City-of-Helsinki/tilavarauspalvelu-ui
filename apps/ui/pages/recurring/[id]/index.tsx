@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
-import styled from "styled-components";
 import type { GetServerSidePropsContext } from "next";
 import { Notification } from "hds-react";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -9,16 +8,12 @@ import {
   ApplicationRoundStatusChoice,
   ReservationKind,
   ApplicationRoundOrderingChoices,
-  type SearchReservationUnitsQuery,
-  type SearchReservationUnitsQueryVariables,
-  SearchReservationUnitsDocument,
   type ApplicationRoundsUiQuery,
   type ApplicationRoundsUiQueryVariables,
   ApplicationRoundsUiDocument,
 } from "@gql/gql-types";
 import { filterNonNullable } from "common/src/helpers";
 import { SeasonalSearchForm } from "@/components/search/SeasonalSearchForm";
-import { HeroSubheading } from "@/modules/style/typography";
 import { createApolloClient } from "@/modules/apolloClient";
 import BreadcrumbWrapper from "@/components/common/BreadcrumbWrapper";
 import { ReservationUnitCard } from "@/components/search/ReservationUnitCard";
@@ -31,15 +26,15 @@ import {
   mapQueryParamToNumber,
   processVariables,
 } from "@/modules/search";
-import { useSearchValues } from "@/hooks/useSearchValues";
 import { useSearchQuery } from "@/hooks/useSearchQuery";
 import { SortingComponent } from "@/components/SortingComponent";
 import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const { locale, query } = ctx;
+  const { locale } = ctx;
   const commonProps = getCommonServerSideProps();
   const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
 
@@ -57,36 +52,18 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     data.applicationRounds?.edges.map((n) => n?.node)
   ).filter((ar) => ar.status === ApplicationRoundStatusChoice.Open);
 
-  const values = query;
-  const { data: searchData } = await apolloClient.query<
-    SearchReservationUnitsQuery,
-    SearchReservationUnitsQueryVariables
-  >({
-    query: SearchReservationUnitsDocument,
-    fetchPolicy: "no-cache",
-    variables: processVariables(values, locale ?? "fi", ReservationKind.Season),
-  });
-
   const opts = await getSearchOptions(apolloClient, "seasonal", locale ?? "");
   return {
     props: {
       ...commonProps,
       ...opts,
-      data: searchData,
       applicationRounds,
       ...(await serverSideTranslations(locale ?? "fi")),
     },
   };
 }
 
-// Uses larger font size
-// TODO should move the default 0 margin to the typography file
-const Ingress = styled(HeroSubheading)`
-  margin: 0;
-`;
-
 function SeasonalSearch({
-  data: initialData,
   applicationRounds,
   unitOptions,
   reservationUnitTypeOptions,
@@ -94,7 +71,7 @@ function SeasonalSearch({
 }: Props): JSX.Element {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const searchValues = useSearchValues();
+  const searchValues = useSearchParams();
 
   const applicationRoundPk = mapQueryParamToNumber(router.query.id);
   const selectedApplicationRound = applicationRounds.find(
@@ -109,15 +86,16 @@ function SeasonalSearch({
     // Hide other application rounds' reservation units
   } = useReservationUnitsList(selectedApplicationRound);
 
-  const variables = processVariables(
-    searchValues,
-    i18n.language,
-    ReservationKind.Season
-  );
+  const variables = processVariables({
+    values: searchValues,
+    language: i18n.language,
+    kind: ReservationKind.Season,
+    applicationRound: applicationRoundPk ?? 0,
+  });
   const query = useSearchQuery(variables);
-  const { data, isLoading, error, fetchMore } = query;
+  const { data, isLoading, error, fetchMore, previousData } = query;
 
-  const currData = data ?? initialData;
+  const currData = data ?? previousData;
   const reservationUnits = filterNonNullable(
     currData?.reservationUnits?.edges?.map((e) => e?.node)
   );
@@ -131,8 +109,10 @@ function SeasonalSearch({
         </Notification>
       ) : null}
       <BreadcrumbWrapper route={["/recurring", "search"]} />
-      <H1 $noMargin>{t("search:recurring.heading")}</H1>
-      <Ingress>{t("search:recurring.text")}</Ingress>
+      <div>
+        <H1 $noMargin>{t("search:recurring.heading")}</H1>
+        <p>{t("search:recurring.text")}</p>
+      </div>
       <SeasonalSearchForm
         unitOptions={unitOptions}
         reservationUnitTypeOptions={reservationUnitTypeOptions}
