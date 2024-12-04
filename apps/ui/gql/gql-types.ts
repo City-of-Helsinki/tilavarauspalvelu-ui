@@ -8009,6 +8009,21 @@ export type ReservationCancelPageQuery = {
         taxPercentage: { id: string; pk?: number | null; value: string };
       }>;
     }>;
+    recurringReservation?: {
+      id: string;
+      name: string;
+      allocatedTimeSlot?: {
+        id: string;
+        pk?: number | null;
+        reservationUnitOption: {
+          id: string;
+          applicationSection: {
+            id: string;
+            application: { id: string; pk?: number | null };
+          };
+        };
+      } | null;
+    } | null;
   } | null;
   reservationCancelReasons?: {
     edges: Array<{
@@ -8101,6 +8116,7 @@ export const CanUserCancelReservationFragmentDoc = gql`
     state
     begin
     reservationUnits {
+      id
       ...CancellationRuleFields
     }
   }
@@ -11478,6 +11494,24 @@ export const ReservationCancelPageDocument = gql`
           textEn
           textFi
           textSv
+        }
+      }
+      recurringReservation {
+        id
+        name
+        allocatedTimeSlot {
+          id
+          pk
+          reservationUnitOption {
+            id
+            applicationSection {
+              id
+              application {
+                id
+                pk
+              }
+            }
+          }
         }
       }
     }

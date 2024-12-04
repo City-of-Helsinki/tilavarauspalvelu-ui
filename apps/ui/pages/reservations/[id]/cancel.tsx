@@ -11,31 +11,56 @@ import { getCommonServerSideProps } from "@/modules/serverUtils";
 import { createApolloClient } from "@/modules/apolloClient";
 import { base64encode, filterNonNullable } from "common/src/helpers";
 import { isReservationCancellable } from "@/modules/reservation";
-import { getReservationPath } from "@/modules/urls";
+import { getApplicationPath, getReservationPath } from "@/modules/urls";
 import BreadcrumbWrapper from "@/components/common/BreadcrumbWrapper";
 import { useTranslation } from "next-i18next";
 import { gql } from "@apollo/client";
+import { useRouter } from "next/router";
 
 type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
 
 function ReservationCancelPage(props: PropsNarrowed): JSX.Element {
   const { t } = useTranslation();
   const { reservation } = props;
-  const routes = [
-    {
-      slug: "/reservations",
-      title: t("breadcrumb:reservations"),
-    },
-    {
-      slug: getReservationPath(reservation.pk),
-      title: t("reservations:reservationName", { id: reservation.pk }),
-    },
-    {
-      // NOTE Don't set slug. It hides the mobile breadcrumb
-      slug: "",
-      title: t("reservations:cancelReservation"),
-    },
-  ];
+  const router = useRouter();
+  let routes = [] as { slug: string; title: string }[];
+  if (router.asPath.includes("applications")) {
+    const applicationPk =
+      reservation?.recurringReservation?.allocatedTimeSlot
+        ?.reservationUnitOption?.applicationSection?.application?.pk;
+    routes = [
+      {
+        slug: "/applications",
+        title: t("breadcrumb:applications"),
+      },
+      {
+        slug: getApplicationPath(applicationPk, "view"),
+        title: t("breadcrumb:application", { id: applicationPk }),
+      },
+      {
+        // NOTE Don't set slug. It hides the mobile breadcrumb
+        slug: "",
+        title: t("reservations:cancelReservation"),
+      },
+    ];
+  } else {
+    // TODO need to check if we are in applications or reservations and pick correct breadcrumb
+    routes = [
+      {
+        slug: "/reservations",
+        title: t("breadcrumb:reservations"),
+      },
+      {
+        slug: getReservationPath(reservation.pk),
+        title: t("reservations:reservationName", { id: reservation.pk }),
+      },
+      {
+        // NOTE Don't set slug. It hides the mobile breadcrumb
+        slug: "",
+        title: t("reservations:cancelReservation"),
+      },
+    ];
+  }
 
   return (
     <>
@@ -122,6 +147,24 @@ export const RESERVATION_CANCEL_PAGE_QUERY = gql`
           textEn
           textFi
           textSv
+        }
+      }
+      recurringReservation {
+        id
+        name
+        allocatedTimeSlot {
+          id
+          pk
+          reservationUnitOption {
+            id
+            applicationSection {
+              id
+              application {
+                id
+                pk
+              }
+            }
+          }
         }
       }
     }

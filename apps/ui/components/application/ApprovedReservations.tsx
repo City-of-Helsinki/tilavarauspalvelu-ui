@@ -513,8 +513,10 @@ const StyledStatusLabel = styled(StatusLabel)`
 
 function ReservationsTable({
   reservations,
+  application,
 }: {
   reservations: ReservationsTableElem[];
+  application: Pick<ApplicationT, "pk">;
 }) {
   const { i18n } = useTranslation();
   const { t } = useTranslation();
@@ -523,7 +525,7 @@ function ReservationsTable({
   const router = useRouter();
 
   const handleCancel = (pk: number) => {
-    router.push(`/reservations/${pk}/cancel`);
+    router.push(`/applications/${application.pk}/view/${pk}/cancel`);
   };
 
   const cols = [
@@ -776,8 +778,10 @@ function sectionToReservationUnits(
 
 export function AllReservations({
   applicationSection,
+  application,
 }: {
   applicationSection: ApplicationSectionT;
+  application: Pick<ApplicationT, "pk">;
 }) {
   const { t } = useTranslation();
   const reservations = sectionToreservations(t, applicationSection);
@@ -786,7 +790,10 @@ export function AllReservations({
       <H3 $noMargin>
         {t("application:view.reservationsTab.reservationsTitle")}
       </H3>
-      <ReservationsTable reservations={reservations} />
+      <ReservationsTable
+        reservations={reservations}
+        application={application}
+      />
     </>
   );
 }
@@ -812,7 +819,10 @@ export function ApplicationSection({
       <H3>{t("application:view.reservationsTab.reservationUnitsTitle")}</H3>
       <ReservationUnitTable reservationUnits={reservationUnits} />
       <H3>{t("application:view.reservationsTab.reservationsTitle")}</H3>
-      <ReservationsTable reservations={reservations} />
+      <ReservationsTable
+        reservations={reservations}
+        application={application}
+      />
       <ButtonContainer $justifyContent="center">
         <ButtonLikeLink
           href={getApplicationSectionPath(

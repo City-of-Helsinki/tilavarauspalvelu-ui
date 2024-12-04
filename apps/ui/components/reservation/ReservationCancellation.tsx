@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useForm } from "react-hook-form";
 import { Button, IconArrowRight, IconCross, IconSignout } from "hds-react";
 import { useTranslation } from "next-i18next";
@@ -26,6 +26,7 @@ import TermsBox from "common/src/termsbox/TermsBox";
 import { AccordionWithState } from "../Accordion";
 import { breakpoints } from "common";
 import Error from "next/error";
+import { getPrice } from "@/modules/reservationUnit";
 
 type CancelReasonsQ = NonNullable<
   ReservationCancelPageQuery["reservationCancelReasons"]
@@ -81,11 +82,24 @@ type FormValues = {
   description?: string;
 };
 
-const StyledInfoCard = styled(ReservationInfoCard)`
+const infoCss = css`
   @media (min-width: ${breakpoints.m}) {
     grid-row: 1 / -1;
     grid-column: 2;
   }
+`;
+
+/* TODO need a better way to handle the size of the card
+ * on dekstop we want 390px but on mobile we want 100%
+ * and magic numbers are iffy */
+const StyledInfoCard = styled(ReservationInfoCard)`
+  ${infoCss}
+`;
+
+const ApplicationInfo = styled.div`
+  background-color: var(--color-silver-light);
+  padding: var(--spacing-m);
+  ${infoCss}
 `;
 
 export function ReservationCancellation(props: Props): JSX.Element {
@@ -119,7 +133,11 @@ export function ReservationCancellation(props: Props): JSX.Element {
        * another option would be
        * to split the pages in two so we can do separate SSR queries and append this element on the page level
        */}
-      <StyledInfoCard reservation={reservation} type="confirmed" />
+      {reservation.recurringReservation ? (
+        <ApplicationInfoCard reservation={reservation} />
+      ) : (
+        <StyledInfoCard reservation={reservation} type="confirmed" />
+      )}
       <Flex>
         {!isSuccess ? (
           <CancellationForm {...props} onNext={handleNext} />
@@ -128,6 +146,35 @@ export function ReservationCancellation(props: Props): JSX.Element {
         )}
       </Flex>
     </ReservationPageWrapper>
+  );
+}
+
+function ApplicationInfoCard({
+  reservation,
+}: {
+  reservation: Props["reservation"];
+}) {
+  // NOTE assumes that the name of the recurringReservation is copied from applicationSection when it's created
+  const name = reservation.recurringReservation?.name;
+  const reservationUnit = reservation.reservationUnits.find(() => true);
+  const { t, i18n } = useTranslation();
+  const lang = convertLanguageCode(i18n.language);
+  const reservationUnitName =
+    reservationUnit != null
+      ? getTranslationSafe(reservationUnit, "name", lang)
+      : "-";
+  const price = getPrice(reservation, lang, t);
+  return (
+    <ApplicationInfo>
+      <div>{name}</div>
+      <div>TODO datetime</div>
+      <ul>
+        {/* Icon + text */}
+        <li>TODO time</li>
+        <li>{reservationUnitName}</li>
+        <li>{price}</li>
+      </ul>
+    </ApplicationInfo>
   );
 }
 
@@ -205,6 +252,7 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
           <Actions>
             <ButtonLikeLink
               data-testid="reservation-cancel__button--back"
+              // TODO need to switch to application link if this is part of an application
               href={getReservationPath(reservation.pk)}
             >
               <IconCross aria-hidden="true" />

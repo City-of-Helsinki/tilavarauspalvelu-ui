@@ -21,9 +21,11 @@ import {
 import { ReservationOrderStatus } from "./ReservationOrderStatus";
 import { ReservationStatus } from "./ReservationStatus";
 import { ButtonLikeLink } from "../common/ButtonLikeLink";
-import { getImageSource } from "common/src/helpers";
+import { getImageSource, LocalizationLanguages } from "common/src/helpers";
 import Card from "common/src/components/Card";
 import { getReservationPath } from "@/modules/urls";
+import { TFunction } from "i18next";
+import { convertLanguageCode } from "common/src/common/util";
 
 type CardType = "upcoming" | "past" | "cancelled";
 
@@ -34,6 +36,30 @@ type NodeT = NonNullable<EdgeT["node"]>;
 interface PropsT {
   reservation: NodeT;
   type?: CardType;
+}
+function getPrice(
+  reservation: NodeT,
+  lang: LocalizationLanguages,
+  t: TFunction
+): string | null {
+  const reservationUnit = reservation.reservationUnits.find(() => true);
+  return reservation.state === ReservationStateChoice.RequiresHandling &&
+    reservationUnit
+    ? getReservationUnitPrice({
+        t,
+        reservationUnit,
+        pricingDate: new Date(reservation.begin),
+        minutes: differenceInMinutes(
+          new Date(reservation.end),
+          new Date(reservation.begin)
+        ),
+      })
+    : getReservationPrice(
+        reservation.price ?? undefined,
+        t("prices:priceFree"),
+        true,
+        lang
+      );
 }
 
 function ReservationCard({ reservation, type }: PropsT): JSX.Element {
@@ -47,30 +73,15 @@ function ReservationCard({ reservation, type }: PropsT): JSX.Element {
     formatDateTimeRange(t, new Date(begin), new Date(end))
   );
 
+  const lang = convertLanguageCode(i18n.language);
+  const price = getPrice(reservation, lang, t);
+
   const title = trim(
     `${getReservationUnitName(reservationUnit)}, ${getUnitName(
       reservationUnit?.unit ?? undefined
     )}`,
     ", "
   );
-
-  const price =
-    reservation.state === ReservationStateChoice.RequiresHandling
-      ? getReservationUnitPrice({
-          t,
-          reservationUnit,
-          pricingDate: new Date(reservation.begin),
-          minutes: differenceInMinutes(
-            new Date(reservation.end),
-            new Date(reservation.begin)
-          ),
-        })
-      : getReservationPrice(
-          reservation.price ?? undefined,
-          t("prices:priceFree"),
-          true,
-          i18n.language
-        );
 
   const normalizedOrderStatus =
     getNormalizedReservationOrderStatus(reservation);
