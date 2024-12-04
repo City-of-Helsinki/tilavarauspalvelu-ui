@@ -5317,7 +5317,27 @@ export type ReservationInfoCardFragment = {
   }>;
 };
 
-export type OptionsQueryVariables = Exact<{ [key: string]: never }>;
+export type OptionsQueryVariables = Exact<{
+  reservationUnitTypesOrderBy?: InputMaybe<
+    | Array<InputMaybe<ReservationUnitTypeOrderingChoices>>
+    | InputMaybe<ReservationUnitTypeOrderingChoices>
+  >;
+  purposesOrderBy?: InputMaybe<
+    | Array<InputMaybe<PurposeOrderingChoices>>
+    | InputMaybe<PurposeOrderingChoices>
+  >;
+  unitsOrderBy?: InputMaybe<
+    Array<InputMaybe<UnitOrderingChoices>> | InputMaybe<UnitOrderingChoices>
+  >;
+  equipmentsOrderBy?: InputMaybe<
+    | Array<InputMaybe<EquipmentOrderingChoices>>
+    | InputMaybe<EquipmentOrderingChoices>
+  >;
+  reservationPurposesOrderBy?: InputMaybe<
+    | Array<InputMaybe<ReservationPurposeOrderingChoices>>
+    | InputMaybe<ReservationPurposeOrderingChoices>
+  >;
+}>;
 
 export type OptionsQuery = {
   reservationUnitTypes?: {
@@ -5374,17 +5394,20 @@ export type OptionsQuery = {
       } | null;
     } | null>;
   } | null;
-  equipments?: {
-    edges: Array<{
-      node?: {
-        id: string;
-        pk?: number | null;
-        nameFi?: string | null;
-        nameEn?: string | null;
-        nameSv?: string | null;
-      } | null;
-    } | null>;
-  } | null;
+  equipmentsAll?: Array<{
+    id: string;
+    pk?: number | null;
+    nameFi?: string | null;
+    nameEn?: string | null;
+    nameSv?: string | null;
+  }> | null;
+  unitsAll?: Array<{
+    id: string;
+    pk?: number | null;
+    nameFi?: string | null;
+    nameSv?: string | null;
+    nameEn?: string | null;
+  }> | null;
 };
 
 export type ApplicationSectionReservationFragment = {
@@ -8650,8 +8673,14 @@ export const BannerNotificationCommonFragmentDoc = gql`
   }
 `;
 export const OptionsDocument = gql`
-  query Options {
-    reservationUnitTypes {
+  query Options(
+    $reservationUnitTypesOrderBy: [ReservationUnitTypeOrderingChoices]
+    $purposesOrderBy: [PurposeOrderingChoices]
+    $unitsOrderBy: [UnitOrderingChoices]
+    $equipmentsOrderBy: [EquipmentOrderingChoices]
+    $reservationPurposesOrderBy: [ReservationPurposeOrderingChoices]
+  ) {
+    reservationUnitTypes(orderBy: $reservationUnitTypesOrderBy) {
       edges {
         node {
           id
@@ -8662,7 +8691,7 @@ export const OptionsDocument = gql`
         }
       }
     }
-    purposes {
+    purposes(orderBy: $purposesOrderBy) {
       edges {
         node {
           id
@@ -8673,7 +8702,7 @@ export const OptionsDocument = gql`
         }
       }
     }
-    reservationPurposes {
+    reservationPurposes(orderBy: $reservationPurposesOrderBy) {
       edges {
         node {
           id
@@ -8705,16 +8734,19 @@ export const OptionsDocument = gql`
         }
       }
     }
-    equipments {
-      edges {
-        node {
-          id
-          pk
-          nameFi
-          nameEn
-          nameSv
-        }
-      }
+    equipmentsAll(orderBy: $equipmentsOrderBy) {
+      id
+      pk
+      nameFi
+      nameEn
+      nameSv
+    }
+    unitsAll(orderBy: $unitsOrderBy) {
+      id
+      pk
+      nameFi
+      nameSv
+      nameEn
     }
   }
 `;
@@ -8731,6 +8763,11 @@ export const OptionsDocument = gql`
  * @example
  * const { data, loading, error } = useOptionsQuery({
  *   variables: {
+ *      reservationUnitTypesOrderBy: // value for 'reservationUnitTypesOrderBy'
+ *      purposesOrderBy: // value for 'purposesOrderBy'
+ *      unitsOrderBy: // value for 'unitsOrderBy'
+ *      equipmentsOrderBy: // value for 'equipmentsOrderBy'
+ *      reservationPurposesOrderBy: // value for 'reservationPurposesOrderBy'
  *   },
  * });
  */
