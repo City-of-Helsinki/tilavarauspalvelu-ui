@@ -135,8 +135,7 @@ function StartApplicationBar({
           disabled={isSaving}
           iconRight={<IconArrowRight />}
         >
-          <JustForDesktop>{t("shoppingCart:next")}</JustForDesktop>
-          <JustForMobile>{t("shoppingCart:nextShort")}</JustForMobile>
+          {t("shoppingCart:nextShort")}
         </Button>
       </InnerContainer>
     </BackgroundContainer>
