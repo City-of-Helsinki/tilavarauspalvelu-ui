@@ -20,11 +20,9 @@ import { IconButton, StatusLabel } from "common/src/components";
 import {
   filterNonNullable,
   formatApiTimeInterval,
-  formatMinutes,
   fromMondayFirst,
   getLocalizationLang,
-  LocalizationLanguages,
-  timeToMinutes,
+  type LocalizationLanguages,
 } from "common/src/helpers";
 import {
   Button,
@@ -52,6 +50,7 @@ import { useMedia } from "react-use";
 import { ButtonContainer, Flex } from "common/styles/util";
 import { useRouter } from "next/router";
 import { isReservationCancellable } from "@/modules/reservation";
+import { formatDateTimeStrings } from "@/modules/util";
 
 const N_RESERVATIONS_TO_SHOW = 20;
 
@@ -525,6 +524,7 @@ function ReservationsTable({
   const router = useRouter();
 
   const handleCancel = (pk: number) => {
+    // TODO use a url builder
     router.push(`/applications/${application.pk}/view/${pk}/cancel`);
   };
 
@@ -608,6 +608,16 @@ function ReservationsTable({
         <CancelButton
           onClick={() => handleCancel(pk)}
           disabled={!isCancellable}
+          // TODO should enable the rest of cancel reasons
+          // RESERVATION_BEGIN_IN_PAST (if begin is in the past)
+          // CANCELLATION_TIME_PAST (if it could be cancellable, but the time is too late) i.e. it has valid cancel rule but the time has passed
+          // CANCELLATION_NOT_ALLOWED for other reasons (typically no cancel rule)
+          // Also there is a case where the reservation is not cancellable because it's already cancelled
+          title={
+            isCancellable
+              ? t("common:cancel")
+              : t("reservations:modifyTimeReasons.CANCELLATION_NOT_ALLOWED")
+          }
           // FIXME on mobile this should be hidden behind a popover (for now it's hidden)
           className="hide-on-mobile"
         >
@@ -622,49 +632,6 @@ function ReservationsTable({
       <Table variant="light" indexKey="date" rows={reservations} cols={cols} />
     </TableWrapper>
   );
-}
-
-/// Converts a date to minutes discarding date and seconds
-function toMinutes(d: Date): number {
-  return d.getHours() * 60 + d.getMinutes();
-}
-
-/// Creates time and date strings for reservations
-/// @param t - translation function
-/// @param res - reservation object
-/// @param orig - original reservation object (use undefined if not possible to modify)
-function toTimeString(
-  t: TFunction,
-  reservation: {
-    begin: string;
-    end: string;
-  },
-  orig?: {
-    beginTime: string;
-    endTime: string;
-  }
-): { date: Date; time: string; dayOfWeek: string; isModified: boolean } {
-  const start = new Date(reservation.begin);
-  const end = new Date(reservation.end);
-  const dayOfWeek = t(`weekDayLong.${start.getDay()}`);
-
-  const originalBeginMins = orig != null ? timeToMinutes(orig.beginTime) : -1;
-  const originalEndMins = orig != null ? timeToMinutes(orig.endTime) : -1;
-
-  const beginMins = toMinutes(start);
-  const endMins = toMinutes(end);
-  const isModified =
-    orig != null &&
-    (originalBeginMins !== beginMins || originalEndMins !== endMins);
-  const btime = formatMinutes(beginMins);
-  const etime = formatMinutes(endMins);
-  const time = `${btime} - ${etime}`;
-  return {
-    date: start,
-    time,
-    dayOfWeek,
-    isModified,
-  };
 }
 
 function sectionToreservations(
@@ -693,7 +660,7 @@ function sectionToreservations(
   ): ReservationsTableElem[] {
     return r.rejectedOccurrences.map((res) => {
       const reservation = { begin: res.beginDatetime, end: res.endDatetime };
-      const rest = toTimeString(t, reservation);
+      const rest = formatDateTimeStrings(t, reservation);
       return {
         ...rest,
         reservationUnit: r.reservationUnit,
@@ -708,7 +675,11 @@ function sectionToreservations(
     r: (typeof recurringReservations)[0]
   ): ReservationsTableElem[] {
     return r.reservations.map((res) => {
-      const { isModified, ...rest } = toTimeString(t, res, r.allocatedTimeSlot);
+      const { isModified, ...rest } = formatDateTimeStrings(
+        t,
+        res,
+        r.allocatedTimeSlot
+      );
 
       const isCancellable = isReservationCancellable(res);
       const status =

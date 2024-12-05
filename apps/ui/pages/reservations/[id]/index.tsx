@@ -272,16 +272,24 @@ function ReservationInfo({
   );
 }
 
-function useToastIfUpdated() {
+// TODO move to common hooks and parametrize
+// - the key we are looking for
+// - the success message (or the translation key)
+function useToastIfQueryParam({
+  key,
+  successMessage,
+}: { key: string, successMessage: string}) {
+
   const router = useRouter();
   const { t } = useTranslation();
 
   useEffect(() => {
     const removeTimeUpdatedParam = () => {
+      // TODO this could be changed to useSearchParams instead of router
       const { pathname, query } = router;
       // NOTE ParsedQuery is a Record<string, string>
       const params = new URLSearchParams(query as Record<string, string>);
-      params.delete("timeUpdated");
+      params.delete(key);
 
       router.replace(
         {
@@ -289,14 +297,17 @@ function useToastIfUpdated() {
           query: params.toString(),
         },
         undefined,
-        { shallow: true }
+        {
+          shallow: true,
+          scroll: false,
+        }
       );
     };
     const q = router.query;
 
-    if (q.timeUpdated) {
+    if (q[key]) {
       successToast({
-        text: t("reservations:saveNewTimeSuccess"),
+        text: successMessage,
       });
       removeTimeUpdatedParam();
     }
@@ -359,7 +370,10 @@ function Reservation({
   const normalizedOrderStatus =
     getNormalizedReservationOrderStatus(reservation);
 
-  useToastIfUpdated();
+  useToastIfQueryParam({
+    key: "timeUpdated",
+    successMessage: t("reservations:saveNewTimeSuccess"),
+  });
 
   const { begin, end } = reservation;
   const timeString = capitalize(

@@ -8019,7 +8019,19 @@ export type ReservationCancelPageQuery = {
           id: string;
           applicationSection: {
             id: string;
-            application: { id: string; pk?: number | null };
+            application: {
+              id: string;
+              pk?: number | null;
+              applicationRound: {
+                id: string;
+                termsOfUse?: {
+                  id: string;
+                  textFi?: string | null;
+                  textEn?: string | null;
+                  textSv?: string | null;
+                } | null;
+              };
+            };
           };
         };
       } | null;
@@ -11509,6 +11521,12 @@ export const ReservationCancelPageDocument = gql`
               application {
                 id
                 pk
+                applicationRound {
+                  id
+                  termsOfUse {
+                    ...TermsOfUseTextFields
+                  }
+                }
               }
             }
           }
@@ -11529,6 +11547,7 @@ export const ReservationCancelPageDocument = gql`
   }
   ${ReservationInfoCardFragmentDoc}
   ${CancellationRuleFieldsFragmentDoc}
+  ${TermsOfUseTextFieldsFragmentDoc}
 `;
 
 /**

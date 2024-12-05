@@ -162,6 +162,12 @@ export const RESERVATION_CANCEL_PAGE_QUERY = gql`
               application {
                 id
                 pk
+                applicationRound {
+                  id
+                  termsOfUse {
+                    ...TermsOfUseTextFields
+                  }
+                }
               }
             }
           }

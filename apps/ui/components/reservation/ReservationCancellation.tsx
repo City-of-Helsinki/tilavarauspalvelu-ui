@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { useForm } from "react-hook-form";
-import { Button, IconArrowRight, IconCross, IconSignout } from "hds-react";
+import {
+  Button,
+  IconArrowRight,
+  IconClock,
+  IconCross,
+  IconEuroSign,
+  IconLocation,
+  IconSignout,
+} from "hds-react";
 import { useTranslation } from "next-i18next";
-import { fontMedium, H1 } from "common/src/common/typography";
+import { fontMedium, H1, H4 } from "common/src/common/typography";
 import {
   useCancelReservationMutation,
   type ReservationCancelPageQuery,
@@ -16,6 +24,7 @@ import { ReservationPageWrapper } from "../reservations/styles";
 import {
   convertLanguageCode,
   getTranslationSafe,
+  toUIDate,
 } from "common/src/common/util";
 import { errorToast } from "common/src/common/toast";
 import { ControlledSelect } from "common/src/components/form";
@@ -27,6 +36,8 @@ import { AccordionWithState } from "../Accordion";
 import { breakpoints } from "common";
 import Error from "next/error";
 import { getPrice } from "@/modules/reservationUnit";
+import { formatDateTimeStrings } from "@/modules/util";
+import { LocalizationLanguages } from "common/src/helpers";
 
 type CancelReasonsQ = NonNullable<
   ReservationCancelPageQuery["reservationCancelReasons"]
@@ -96,10 +107,23 @@ const StyledInfoCard = styled(ReservationInfoCard)`
   ${infoCss}
 `;
 
-const ApplicationInfo = styled.div`
+const ApplicationInfo = styled(Flex).attrs({ $gap: "2-xs" })`
   background-color: var(--color-silver-light);
   padding: var(--spacing-m);
   ${infoCss}
+`;
+
+const IconList = styled(Flex).attrs({
+  $gap: "2-xs",
+})`
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-2-xs) 0 0;
+  li {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+  }
 `;
 
 export function ReservationCancellation(props: Props): JSX.Element {
@@ -164,16 +188,47 @@ function ApplicationInfoCard({
       ? getTranslationSafe(reservationUnit, "name", lang)
       : "-";
   const price = getPrice(reservation, lang, t);
+
+  const { dayOfWeek, time, date } = formatDateTimeStrings(
+    t,
+    reservation,
+    undefined,
+    true
+  );
+
+  const icons = [
+    {
+      text: time,
+      icon: <IconClock aria-hidden="true" />,
+    },
+    {
+      icon: <IconLocation aria-hidden="true" />,
+      text: reservationUnitName,
+    },
+    {
+      icon: <IconEuroSign aria-hidden="true" />,
+      text: price,
+    },
+  ];
+
   return (
     <ApplicationInfo>
-      <div>{name}</div>
-      <div>TODO datetime</div>
-      <ul>
-        {/* Icon + text */}
-        <li>TODO time</li>
-        <li>{reservationUnitName}</li>
-        <li>{price}</li>
-      </ul>
+      <H4 as="h2" $noMargin>
+        {name}
+      </H4>
+      <div>
+        {toUIDate(date)}
+        {" - "}
+        {dayOfWeek}
+      </div>
+      <IconList>
+        {icons.map(({ text, icon }) => (
+          <li key={text}>
+            {icon}
+            {text}
+          </li>
+        ))}
+      </IconList>
     </ApplicationInfo>
   );
 }
@@ -197,7 +252,6 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
     register("reason", { required: true });
     register("description");
   }, [register]);
-  const reservationUnit = reservation.reservationUnits.find(() => true);
 
   const onSubmit = (formData: FormValues) => {
     if (!reservation.pk || !formData.reason) {
@@ -224,10 +278,9 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
     }
   };
 
-  const cancellationTerms =
-    reservationUnit?.cancellationTerms != null
-      ? getTranslationSafe(reservationUnit?.cancellationTerms, "text", lang)
-      : null;
+  const cancellationTerms = getTranslatedTerms(reservation, lang);
+  // TODO need to switch to application link if this is part of an application
+  const backLink = getReservationPath(reservation.pk);
 
   return (
     <>
@@ -237,7 +290,7 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
           heading={t("reservationUnit:cancellationTerms")}
           disableBottomMargin
         >
-          <TermsBox body={<Sanitize html={cancellationTerms ?? ""} />} />
+          <TermsBox body={<Sanitize html={cancellationTerms} />} />
         </AccordionWithState>
       )}
       <Form onSubmit={handleSubmit(onSubmit)}>
@@ -252,8 +305,7 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
           <Actions>
             <ButtonLikeLink
               data-testid="reservation-cancel__button--back"
-              // TODO need to switch to application link if this is part of an application
-              href={getReservationPath(reservation.pk)}
+              href={backLink}
             >
               <IconCross aria-hidden="true" />
               {t("reservations:cancelReservationCancellation")}
@@ -274,6 +326,34 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
   );
 }
 
+/// For applications use application round terms of use
+function getTranslatedTerms(
+  reservation: Props["reservation"],
+  lang: LocalizationLanguages
+) {
+  if (reservation.recurringReservation) {
+    const round =
+      reservation.recurringReservation?.allocatedTimeSlot?.reservationUnitOption
+        ?.applicationSection?.application?.applicationRound;
+    const { termsOfUse } = round ?? {};
+    if (termsOfUse) {
+      return getTranslationSafe(termsOfUse, "text", lang);
+    }
+    return null;
+  }
+  const reservationUnit = reservation.reservationUnits.find(() => true);
+  if (reservationUnit?.cancellationTerms != null) {
+    return getTranslationSafe(reservationUnit?.cancellationTerms, "text", lang);
+  }
+  return null;
+}
+
+/* TODO
+Perumisen vahvistaminen ohjaa takaisin kausivaraushakemuksen kaikkien varausten listaan.
+Näytetään toast, joka ilmaisee peruttiinko kaikki tulevat varaukset vai ei: “Peruttiin kaikki tulevat varaukset.“ vs. “Peruttiin perumisehtojen mukaiset tulevat varaukset.“
+Kaikkien varausten peruminen onnistui. / All bookings were successfully canceled. /Alla bokningar avbokades framgångsrikt.
+Peruutusehdon täyttävät varaukset peruttiin / Bookings meeting the cancellation conditions were canceled. / Bokningar som uppfyllde avbokningsvillkoren avbokades.
+*/
 function CancellationSuccess(props: Props): JSX.Element {
   const { apiBaseUrl } = props;
   const reservationUnit = props.reservation.reservationUnits.find(() => true);
