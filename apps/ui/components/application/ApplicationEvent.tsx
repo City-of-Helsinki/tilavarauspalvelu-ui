@@ -3,7 +3,7 @@ import { Button, Checkbox, DateInput, NumberInput, TextInput } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { useFormContext } from "react-hook-form";
 import type { ApplicationQuery } from "@gql/gql-types";
-import { H5 } from "common/src/common/typography";
+import { H4 } from "common/src/common/typography";
 import { CheckboxWrapper } from "common/src/reservation-form/components";
 import { getLocalizationLang } from "common/src/helpers";
 import { ReservationUnitList } from "./ReservationUnitList";
@@ -126,7 +126,7 @@ function ApplicationEventInner({
 
   return (
     <Flex $gap="s" $marginTop="s">
-      <H5 as="h3">{t("application:Page1.basicInformationSubHeading")}</H5>
+      <H4 as="h3">{t("application:Page1.basicInformationSubHeading")}</H4>
       <AutoGrid>
         <div>
           <TextInput
@@ -163,7 +163,7 @@ function ApplicationEventInner({
           error={getTranslatedError("purpose")}
         />
       </AutoGrid>
-      <H5 as="h3"> {t("application:Page1.spacesSubHeading")}</H5>
+      <H4 as="h3"> {t("application:Page1.spacesSubHeading")}</H4>
       <ReservationUnitList
         applicationRound={applicationRound}
         index={index}
@@ -175,8 +175,8 @@ function ApplicationEventInner({
           unitOptions,
         }}
       />
-      <H5 as="h3">{t("application:Page1.applicationRoundSubHeading")}</H5>
-      <CheckboxWrapper>
+      <H4 as="h3">{t("application:Page1.applicationRoundSubHeading")}</H4>
+      <CheckboxWrapper style={{ margin: "0 0" }}>
         <Checkbox
           id={`applicationSections.${index}.defaultPeriod`}
           checked={selectionIsDefaultPeriod}
