@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import type { GetServerSidePropsContext } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import styled from "styled-components";
@@ -56,10 +56,9 @@ import {
   ButtonLikeLink,
   ButtonLikeExternalLink,
 } from "@/components/common/ButtonLikeLink";
-import { useRouter } from "next/router";
-import { successToast } from "common/src/common/toast";
 import { ReservationPageWrapper } from "@/components/reservations/styles";
 import { getReservationPath, getReservationUnitPath } from "@/modules/urls";
+import { useToastIfQueryParam } from "@/hooks";
 
 type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
 
@@ -270,48 +269,6 @@ function ReservationInfo({
       ))}
     </div>
   );
-}
-
-// TODO move to common hooks and parametrize
-// - the key we are looking for
-// - the success message (or the translation key)
-function useToastIfQueryParam({
-  key,
-  successMessage,
-}: { key: string, successMessage: string}) {
-
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    const removeTimeUpdatedParam = () => {
-      // TODO this could be changed to useSearchParams instead of router
-      const { pathname, query } = router;
-      // NOTE ParsedQuery is a Record<string, string>
-      const params = new URLSearchParams(query as Record<string, string>);
-      params.delete(key);
-
-      router.replace(
-        {
-          pathname,
-          query: params.toString(),
-        },
-        undefined,
-        {
-          shallow: true,
-          scroll: false,
-        }
-      );
-    };
-    const q = router.query;
-
-    if (q[key]) {
-      successToast({
-        text: successMessage,
-      });
-      removeTimeUpdatedParam();
-    }
-  }, [router, t]);
 }
 
 // TODO add a state check => if state is Created redirect to the reservation funnel
