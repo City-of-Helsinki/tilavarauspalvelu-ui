@@ -25,6 +25,7 @@ import { gql } from "@apollo/client";
 import BreadcrumbWrapper from "@/components/common/BreadcrumbWrapper";
 import { H1 } from "common";
 import styled from "styled-components";
+import { useToastIfQueryParam } from "@/hooks";
 
 const TabPanel = styled(Tabs.TabPanel)`
   && {
@@ -40,6 +41,19 @@ function View({ application, tos }: PropsNarrowed): JSX.Element {
 
   type TabOptions = "reservations" | "application";
   const [tab, setTab] = useState<TabOptions>("reservations");
+
+  /* TODO
+   * - single cancelled reservation toast
+   * - multiple reservations cancelled toast
+  Perumisen vahvistaminen ohjaa takaisin kausivaraushakemuksen kaikkien varausten listaan.
+  Näytetään toast, joka ilmaisee peruttiinko kaikki tulevat varaukset vai ei: “Peruttiin kaikki tulevat varaukset.“ vs. “Peruttiin perumisehtojen mukaiset tulevat varaukset.“
+  Kaikkien varausten peruminen onnistui. / All bookings were successfully canceled. /Alla bokningar avbokades framgångsrikt.
+  Peruutusehdon täyttävät varaukset peruttiin / Bookings meeting the cancellation conditions were canceled. / Bokningar som uppfyllde avbokningsvillkoren avbokades.
+  */
+  useToastIfQueryParam({
+    key: "deletedReservationPk",
+    successMessage: t("application:reservationDeleted"),
+  });
 
   const handleTabChange = (tab_: TabOptions) => {
     setTab(tab_);

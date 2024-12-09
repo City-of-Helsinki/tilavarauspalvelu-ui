@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 import { useForm } from "react-hook-form";
 import {
   Button,
-  IconArrowRight,
   IconClock,
   IconCross,
   IconEuroSign,
   IconLocation,
-  IconSignout,
 } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { fontMedium, H1, H4 } from "common/src/common/typography";
@@ -16,10 +14,8 @@ import {
   useCancelReservationMutation,
   type ReservationCancelPageQuery,
 } from "@gql/gql-types";
-import { IconButton } from "common/src/components";
 import Sanitize from "../common/Sanitize";
 import { ReservationInfoCard } from "./ReservationInfoCard";
-import { signOut } from "common/src/browserHelpers";
 import { ReservationPageWrapper } from "../reservations/styles";
 import {
   convertLanguageCode,
@@ -30,14 +26,14 @@ import { errorToast } from "common/src/common/toast";
 import { ControlledSelect } from "common/src/components/form";
 import { AutoGrid, ButtonContainer, Flex } from "common/styles/util";
 import { ButtonLikeLink } from "../common/ButtonLikeLink";
-import { getReservationPath } from "@/modules/urls";
+import { getApplicationPath, getReservationPath } from "@/modules/urls";
 import TermsBox from "common/src/termsbox/TermsBox";
 import { AccordionWithState } from "../Accordion";
 import { breakpoints } from "common";
-import Error from "next/error";
 import { getPrice } from "@/modules/reservationUnit";
 import { formatDateTimeStrings } from "@/modules/util";
 import { LocalizationLanguages } from "common/src/helpers";
+import { useRouter } from "next/router";
 
 type CancelReasonsQ = NonNullable<
   ReservationCancelPageQuery["reservationCancelReasons"]
@@ -64,29 +60,6 @@ const Form = styled.form`
     ${fontMedium};
   }
 `;
-
-function ReturnLinkList({ apiBaseUrl }: { apiBaseUrl: string }): JSX.Element {
-  const { t } = useTranslation();
-  return (
-    <Flex $gap="none" $alignItems="flex-start">
-      <IconButton
-        href="/reservations"
-        label={t("reservations:gotoReservations")}
-        icon={<IconArrowRight aria-hidden />}
-      />
-      <IconButton
-        href="/"
-        label={t("common:gotoFrontpage")}
-        icon={<IconArrowRight aria-hidden />}
-      />
-      <IconButton
-        icon={<IconSignout aria-hidden />}
-        onClick={() => signOut(apiBaseUrl)}
-        label={t("common:logout")}
-      />
-    </Flex>
-  );
-}
 
 type FormValues = {
   reason: number;
@@ -126,21 +99,34 @@ const IconList = styled(Flex).attrs({
   }
 `;
 
+function isPartOfApplication(reservation: NodeT): boolean {
+  return reservation?.recurringReservation != null;
+}
+
 export function ReservationCancellation(props: Props): JSX.Element {
-  const [isSuccess, setIsSuccess] = useState(false);
   const { t } = useTranslation();
+  const router = useRouter();
 
   const { reservation } = props;
 
-  const title = !isSuccess
-    ? t("reservations:cancelReservation")
-    : t("reservations:reservationCancelledTitle");
-  const ingress = !isSuccess
-    ? t("reservations:cancelReservationBody")
-    : t("reservations:reservationCancelledBody");
+  const title = t("reservations:cancelReservation");
+  const ingress = t("reservations:cancelReservationBody");
 
   const handleNext = () => {
-    setIsSuccess(true);
+    if (isPartOfApplication(reservation)) {
+      const applicationPk =
+        reservation.recurringReservation?.allocatedTimeSlot
+          ?.reservationUnitOption.applicationSection.application.pk;
+      const redirectUrl = getApplicationPath(applicationPk, "view");
+      if (redirectUrl) {
+        router.push(`${redirectUrl}?deletedReservationPk=${reservation.pk}`);
+      }
+    } else {
+      const redirectUrl = getReservationPath(reservation.pk);
+      if (redirectUrl) {
+        router.push(`${redirectUrl}?deleted=true`);
+      }
+    }
   };
 
   // TODO check that the reservation hasn't been cancelled already
@@ -151,23 +137,13 @@ export function ReservationCancellation(props: Props): JSX.Element {
         <H1 $noMargin>{title}</H1>
         <p>{ingress}</p>
       </div>
-      {/* TODO replace this if part of an application
-       * annoying thing here is that this adds unnecessary fields to the query
-       * we only need application fields or reservation fields
-       * another option would be
-       * to split the pages in two so we can do separate SSR queries and append this element on the page level
-       */}
       {reservation.recurringReservation ? (
         <ApplicationInfoCard reservation={reservation} />
       ) : (
         <StyledInfoCard reservation={reservation} type="confirmed" />
       )}
       <Flex>
-        {!isSuccess ? (
-          <CancellationForm {...props} onNext={handleNext} />
-        ) : (
-          <CancellationSuccess {...props} />
-        )}
+        <CancellationForm {...props} onNext={handleNext} />
       </Flex>
     </ReservationPageWrapper>
   );
@@ -346,35 +322,4 @@ function getTranslatedTerms(
     return getTranslationSafe(reservationUnit?.cancellationTerms, "text", lang);
   }
   return null;
-}
-
-/* TODO
-Perumisen vahvistaminen ohjaa takaisin kausivaraushakemuksen kaikkien varausten listaan.
-Näytetään toast, joka ilmaisee peruttiinko kaikki tulevat varaukset vai ei: “Peruttiin kaikki tulevat varaukset.“ vs. “Peruttiin perumisehtojen mukaiset tulevat varaukset.“
-Kaikkien varausten peruminen onnistui. / All bookings were successfully canceled. /Alla bokningar avbokades framgångsrikt.
-Peruutusehdon täyttävät varaukset peruttiin / Bookings meeting the cancellation conditions were canceled. / Bokningar som uppfyllde avbokningsvillkoren avbokades.
-*/
-function CancellationSuccess(props: Props): JSX.Element {
-  const { apiBaseUrl } = props;
-  const reservationUnit = props.reservation.reservationUnits.find(() => true);
-  const { i18n } = useTranslation();
-  const lang = convertLanguageCode(i18n.language);
-
-  // Should never happen but we can't enforce it in the type system
-  if (reservationUnit == null) {
-    return <Error statusCode={404} />;
-  }
-
-  const instructions = getTranslationSafe(
-    reservationUnit,
-    "reservationCancelledInstructions",
-    lang
-  );
-
-  return (
-    <>
-      {instructions && <p>{instructions}</p>}
-      <ReturnLinkList apiBaseUrl={apiBaseUrl} />
-    </>
-  );
 }
