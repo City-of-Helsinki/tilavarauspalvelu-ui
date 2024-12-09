@@ -47,8 +47,10 @@ const StyledReactQuill = styled(ReactQuill)<{
   border: 2px solid
     ${({ $error }) => ($error ? "var(--color-error)" : "var(--color-black-50)")};
   > div {
-    font-size: var(--fontsize-body-l);
     font-family: var(--tilavaraus-admin-font);
+    p {
+      margin-bottom: var(--spacing-s);
+    }
   }
 `;
 
