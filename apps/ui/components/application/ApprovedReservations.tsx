@@ -49,7 +49,10 @@ import { CenterSpinner } from "../common/common";
 import { useMedia } from "react-use";
 import { ButtonContainer, Flex } from "common/styles/util";
 import { useRouter } from "next/router";
-import { isReservationCancellable } from "@/modules/reservation";
+import {
+  isReservationCancellableReason,
+  ReservationCancellableReason,
+} from "@/modules/reservation";
 import { formatDateTimeStrings } from "@/modules/util";
 
 const N_RESERVATIONS_TO_SHOW = 20;
@@ -448,7 +451,7 @@ type ReservationsTableElem = {
     "nameSv" | "nameFi" | "nameEn" | "id" | "pk"
   >;
   status: "" | "rejected" | "modified";
-  isCancellable: boolean;
+  isCancellableReason: ReservationCancellableReason;
   pk: number;
 };
 
@@ -604,19 +607,14 @@ function ReservationsTable({
       key: "cancelButton",
       headerName: "",
       isSortable: false,
-      transform: ({ pk, isCancellable }: ReservationsTableElem) => (
+      transform: ({ pk, isCancellableReason }: ReservationsTableElem) => (
         <CancelButton
           onClick={() => handleCancel(pk)}
-          disabled={!isCancellable}
-          // TODO should enable the rest of cancel reasons
-          // RESERVATION_BEGIN_IN_PAST (if begin is in the past)
-          // CANCELLATION_TIME_PAST (if it could be cancellable, but the time is too late) i.e. it has valid cancel rule but the time has passed
-          // CANCELLATION_NOT_ALLOWED for other reasons (typically no cancel rule)
-          // Also there is a case where the reservation is not cancellable because it's already cancelled
+          disabled={isCancellableReason !== ""}
           title={
-            isCancellable
+            isCancellableReason === ""
               ? t("common:cancel")
-              : t("reservations:modifyTimeReasons.CANCELLATION_NOT_ALLOWED")
+              : t(`reservations:modifyTimeReasons.${isCancellableReason}`)
           }
           // FIXME on mobile this should be hidden behind a popover (for now it's hidden)
           className="hide-on-mobile"
@@ -665,7 +663,7 @@ function sectionToreservations(
         ...rest,
         reservationUnit: r.reservationUnit,
         status: "rejected",
-        isCancellable: false,
+        isCancellableReason: "ALREADY_CANCELLED",
         pk: 0,
       };
     });
@@ -681,7 +679,6 @@ function sectionToreservations(
         r.allocatedTimeSlot
       );
 
-      const isCancellable = isReservationCancellable(res);
       const status =
         res.state === ReservationStateChoice.Cancelled ||
         res.state === ReservationStateChoice.Denied
@@ -693,7 +690,7 @@ function sectionToreservations(
         ...rest,
         reservationUnit: r.reservationUnit,
         status,
-        isCancellable: isCancellable && status !== "rejected",
+        isCancellableReason: isReservationCancellableReason(res),
         pk: res.pk ?? 0,
       };
     });

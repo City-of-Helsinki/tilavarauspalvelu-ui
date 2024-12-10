@@ -229,13 +229,13 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
     register("description");
   }, [register]);
 
-  const onSubmit = (formData: FormValues) => {
+  const onSubmit = async (formData: FormValues) => {
     if (!reservation.pk || !formData.reason) {
       return;
     }
     const { reason, description } = formData;
     try {
-      cancelReservation({
+      await cancelReservation({
         variables: {
           input: {
             pk: reservation.pk,
@@ -244,9 +244,7 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
           },
         },
       });
-      // TODO redirect to a success page (or back to the reservation page with a toast is preferable)
       onNext();
-      window.scrollTo(0, 0);
     } catch (e) {
       errorToast({
         text: t("reservations:reservationCancellationFailed"),
