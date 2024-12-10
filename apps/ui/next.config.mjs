@@ -35,7 +35,15 @@ const nextConfig = {
         source: "/reservation/confirmation/:id",
         destination: "/reservations/:id/confirmation",
       },
+      {
+        // Old search url
+        source: "/search/single",
+        destination: "/search",
+      },
     ];
+  },
+  sassOptions: {
+    silenceDeprecations: ["legacy-js-api"],
   },
   compiler: {
     styledComponents: {
