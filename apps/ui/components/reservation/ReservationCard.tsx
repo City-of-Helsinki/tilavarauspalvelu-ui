@@ -1,8 +1,6 @@
 import React from "react";
 import { IconEuroSign, IconCross, IconArrowRight } from "hds-react";
 import { useTranslation } from "next-i18next";
-import { differenceInMinutes } from "date-fns";
-import { getReservationPrice } from "common";
 import { trim } from "lodash";
 import {
   type ListReservationsQuery,
@@ -14,17 +12,16 @@ import {
   getNormalizedReservationOrderStatus,
 } from "@/modules/reservation";
 import {
+  getPrice,
   getReservationUnitName,
-  getReservationUnitPrice,
   getUnitName,
 } from "@/modules/reservationUnit";
 import { ReservationOrderStatus } from "./ReservationOrderStatus";
 import { ReservationStatus } from "./ReservationStatus";
 import { ButtonLikeLink } from "../common/ButtonLikeLink";
-import { getImageSource, LocalizationLanguages } from "common/src/helpers";
+import { getImageSource } from "common/src/helpers";
 import Card from "common/src/components/Card";
 import { getReservationPath } from "@/modules/urls";
-import { TFunction } from "i18next";
 import { convertLanguageCode } from "common/src/common/util";
 
 type CardType = "upcoming" | "past" | "cancelled";
@@ -36,30 +33,6 @@ type NodeT = NonNullable<EdgeT["node"]>;
 interface PropsT {
   reservation: NodeT;
   type?: CardType;
-}
-function getPrice(
-  reservation: NodeT,
-  lang: LocalizationLanguages,
-  t: TFunction
-): string | null {
-  const reservationUnit = reservation.reservationUnits.find(() => true);
-  return reservation.state === ReservationStateChoice.RequiresHandling &&
-    reservationUnit
-    ? getReservationUnitPrice({
-        t,
-        reservationUnit,
-        pricingDate: new Date(reservation.begin),
-        minutes: differenceInMinutes(
-          new Date(reservation.end),
-          new Date(reservation.begin)
-        ),
-      })
-    : getReservationPrice(
-        reservation.price ?? undefined,
-        t("prices:priceFree"),
-        true,
-        lang
-      );
 }
 
 function ReservationCard({ reservation, type }: PropsT): JSX.Element {
@@ -74,7 +47,7 @@ function ReservationCard({ reservation, type }: PropsT): JSX.Element {
   );
 
   const lang = convertLanguageCode(i18n.language);
-  const price = getPrice(reservation, lang, t);
+  const price = getPrice(t, reservation, lang);
 
   const title = trim(
     `${getReservationUnitName(reservationUnit)}, ${getUnitName(

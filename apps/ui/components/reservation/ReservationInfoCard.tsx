@@ -127,9 +127,9 @@ export function ReservationInfoCard({
   const duration = differenceInMinutes(new Date(end), new Date(begin));
   const lang = convertLanguageCode(i18n.language);
   const price: string | null = getPrice(
+    t,
     reservation,
     lang,
-    t,
     shouldDisplayReservationUnitPrice
   );
   const shouldDisplayTaxPercentage: boolean =

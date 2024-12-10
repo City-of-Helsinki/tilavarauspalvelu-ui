@@ -170,7 +170,7 @@ function ApplicationInfoCard({
     reservationUnit != null
       ? getTranslationSafe(reservationUnit, "name", lang)
       : "-";
-  const price = getPrice(reservation, lang, t);
+  const price = getPrice(t, reservation, lang);
 
   const { dayOfWeek, time, date } = formatDateTimeStrings(
     t,

@@ -359,6 +359,7 @@ export function getReservationUnitPrice(
 // TODO use a fragment
 // TODO why do we need both this and getPriceString?
 export function getPrice(
+  t: TFunction,
   reservation: {
     reservationUnits: PriceReservationUnitFragment[];
     price?: Maybe<string> | undefined;
@@ -367,7 +368,6 @@ export function getPrice(
     end: string;
   },
   lang: LocalizationLanguages,
-  t: TFunction,
   reservationUnitPriceOnly = false
 ): string | null {
   const reservationUnit = reservation.reservationUnits.find(() => true);
