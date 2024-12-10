@@ -1,4 +1,4 @@
-import { Button, IconPlus, Notification } from "hds-react";
+import { Button, IconArrowUndo, IconPlus, Notification } from "hds-react";
 import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "next-i18next";
@@ -180,8 +180,13 @@ export function ReservationUnitList({
         maxWidth={breakpoints.l}
         fullHeight
         actions={
-          <Flex $alignItems="flex-end">
-            <Button onClick={() => setShowModal(false)}>
+          <Flex $alignItems="center">
+            <Button
+              iconLeft={<IconArrowUndo aria-hidden="true" />}
+              onClick={() => setShowModal(false)}
+              variant="supplementary"
+              theme="black"
+            >
               {t("reservationUnitModal:returnToApplication")}
             </Button>
           </Flex>

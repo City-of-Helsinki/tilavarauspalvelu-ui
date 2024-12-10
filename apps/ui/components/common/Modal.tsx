@@ -21,6 +21,7 @@ const ModalElement = styled(Flex)<{ $maxWidth?: string; $height?: string }>`
   --modal-max-width: 800px;
 
   background: var(--color-white);
+  border-top: 8px solid var(--color-bus);
   max-width: ${({ $maxWidth }) => $maxWidth ?? "var(--modal-max-width)"};
   width: 90%;
   position: relative;
@@ -42,12 +43,8 @@ const ModalElement = styled(Flex)<{ $maxWidth?: string; $height?: string }>`
 const CloseButton = styled(Button).attrs({
   size: "small",
   variant: "secondary",
-})``;
-
-const CloseButtonWrapper = styled.div`
-  position: absolute;
-  top: var(--spacing-layout-xs);
-  right: var(--spacing-layout-xs);
+})`
+  border-width: 0 !important;
 `;
 
 type Props = {
@@ -71,7 +68,7 @@ function Modal({
   actions,
   maxWidth,
   fullHeight,
-}: Props): JSX.Element | null {
+}: Readonly<Props>): JSX.Element | null {
   const { t } = useTranslation();
 
   if (!isBrowser) {
@@ -90,14 +87,12 @@ function Modal({
           $height={fullHeight ? "100%" : undefined}
         >
           {!hideCloseButton && (
-            <CloseButtonWrapper>
-              <CloseButton
-                onClick={handleClose}
-                aria-label={t(closeButtonKey) ?? t("common:close")}
-              >
-                <IconCross />
-              </CloseButton>
-            </CloseButtonWrapper>
+            <CloseButton
+              onClick={handleClose}
+              aria-label={t(closeButtonKey) ?? t("common:close")}
+            >
+              <IconCross />
+            </CloseButton>
           )}
           <section>{children}</section>
           {actions}
