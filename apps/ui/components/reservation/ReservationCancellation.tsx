@@ -103,6 +103,19 @@ function isPartOfApplication(reservation: NodeT): boolean {
   return reservation?.recurringReservation != null;
 }
 
+function getBackPath(reservation: NodeT): string {
+  if (reservation == null) {
+    return "";
+  }
+  if (isPartOfApplication(reservation)) {
+    const applicationPk =
+      reservation.recurringReservation?.allocatedTimeSlot?.reservationUnitOption
+        .applicationSection.application.pk;
+    return getApplicationPath(applicationPk, "view");
+  }
+  return getReservationPath(reservation.pk);
+}
+
 export function ReservationCancellation(props: Props): JSX.Element {
   const { t } = useTranslation();
   const router = useRouter();
@@ -113,19 +126,13 @@ export function ReservationCancellation(props: Props): JSX.Element {
   const ingress = t("reservations:cancelReservationBody");
 
   const handleNext = () => {
+    const redirectUrl = getBackPath(reservation);
     if (isPartOfApplication(reservation)) {
-      const applicationPk =
-        reservation.recurringReservation?.allocatedTimeSlot
-          ?.reservationUnitOption.applicationSection.application.pk;
-      const redirectUrl = getApplicationPath(applicationPk, "view");
       if (redirectUrl) {
         router.push(`${redirectUrl}?deletedReservationPk=${reservation.pk}`);
       }
-    } else {
-      const redirectUrl = getReservationPath(reservation.pk);
-      if (redirectUrl) {
-        router.push(`${redirectUrl}?deleted=true`);
-      }
+    } else if (redirectUrl) {
+      router.push(`${redirectUrl}?deleted=true`);
     }
   };
 
@@ -253,8 +260,7 @@ function CancellationForm(props: Props & { onNext: () => void }): JSX.Element {
   };
 
   const cancellationTerms = getTranslatedTerms(reservation, lang);
-  // TODO need to switch to application link if this is part of an application
-  const backLink = getReservationPath(reservation.pk);
+  const backLink = getBackPath(reservation);
 
   return (
     <>

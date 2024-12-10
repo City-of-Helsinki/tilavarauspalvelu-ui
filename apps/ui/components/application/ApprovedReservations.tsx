@@ -6,6 +6,7 @@ import {
   ReservationStateChoice,
 } from "@/gql/gql-types";
 import {
+  getApplicationPath,
   getApplicationSectionPath,
   getReservationUnitPath,
 } from "@/modules/urls";
@@ -246,7 +247,7 @@ export function ApprovedReservations({ application }: Props) {
       return slots.length > 0;
     })
   );
-  const initiallyOpen = app?.applicationSections?.length === 1;
+  const initiallyOpen = sections.length === 1;
   return (
     <Flex>
       {loading && <CenterSpinner />}
@@ -527,8 +528,9 @@ function ReservationsTable({
   const router = useRouter();
 
   const handleCancel = (pk: number) => {
-    // TODO use a url builder
-    router.push(`/applications/${application.pk}/view/${pk}/cancel`);
+    const appPath = getApplicationPath(application.pk, "view");
+    const url = `${appPath}/${pk}/cancel`;
+    router.push(url);
   };
 
   const cols = [
@@ -616,7 +618,7 @@ function ReservationsTable({
               ? t("common:cancel")
               : t(`reservations:modifyTimeReasons.${isCancellableReason}`)
           }
-          // FIXME on mobile this should be hidden behind a popover (for now it's hidden)
+          // TODO on mobile this should be hidden behind a popover (for now it's hidden)
           className="hide-on-mobile"
         >
           {t("common:cancel")}
