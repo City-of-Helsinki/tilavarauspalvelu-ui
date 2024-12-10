@@ -35,6 +35,10 @@ const nextConfig = {
         source: "/reservation/confirmation/:id",
         destination: "/reservations/:id/confirmation",
       },
+      {
+        source: "/applications/:id/view/:reservationId/cancel",
+        destination: "/reservations/:reservationId/cancel",
+      },
     ];
   },
   compiler: {
