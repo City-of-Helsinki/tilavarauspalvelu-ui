@@ -26,7 +26,7 @@ import {
 import Link from "next/link";
 import { createApolloClient } from "@/modules/apolloClient";
 import { formatDateTimeRange, getTranslation } from "@/modules/util";
-import Sanitize from "@/components/common/Sanitize";
+import { Sanitize } from "common/src/components/Sanitize";
 import { AccordionWithState as Accordion } from "@/components/Accordion";
 import {
   getCheckoutUrl,

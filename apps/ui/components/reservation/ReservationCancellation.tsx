@@ -10,7 +10,7 @@ import {
   type ReservationCancelReasonsQuery,
 } from "@gql/gql-types";
 import { IconButton } from "common/src/components";
-import Sanitize from "../common/Sanitize";
+import { Sanitize } from "common/src/components/Sanitize";
 import { getTranslation } from "@/modules/util";
 import { ReservationInfoCard } from "./ReservationInfoCard";
 import { signOut } from "common/src/browserHelpers";

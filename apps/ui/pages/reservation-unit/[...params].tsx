@@ -26,7 +26,7 @@ import {
 import { type Inputs } from "common/src/reservation-form/types";
 import { createApolloClient } from "@/modules/apolloClient";
 import { getReservationPath, getReservationUnitPath } from "@/modules/urls";
-import Sanitize from "@/components/common/Sanitize";
+import { Sanitize } from "common/src/components/Sanitize";
 import { isReservationUnitFreeOfCharge } from "@/modules/reservationUnit";
 import {
   getCheckoutUrl,
