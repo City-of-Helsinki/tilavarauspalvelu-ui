@@ -17,7 +17,7 @@ import {
   TermsAccordion as Accordion,
 } from "./styled";
 import { ApplicationEventList } from "./ApplicationEventList";
-import Sanitize from "../common/Sanitize";
+import { Sanitize } from "common/src/components/Sanitize";
 
 type Node = NonNullable<ApplicationQuery["application"]>;
 export function ViewApplication({
