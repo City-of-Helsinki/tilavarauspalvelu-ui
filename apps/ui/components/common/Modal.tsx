@@ -45,6 +45,9 @@ const CloseButton = styled(Button).attrs({
   variant: "secondary",
 })`
   border-width: 0 !important;
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
 `;
 
 type Props = {
