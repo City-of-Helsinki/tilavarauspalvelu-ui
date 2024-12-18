@@ -6,6 +6,7 @@ import {
   ReservationStateChoice,
 } from "@/gql/gql-types";
 import {
+  getApplicationPath,
   getApplicationSectionPath,
   getReservationUnitPath,
 } from "@/modules/urls";
@@ -20,11 +21,9 @@ import { IconButton, StatusLabel } from "common/src/components";
 import {
   filterNonNullable,
   formatApiTimeInterval,
-  formatMinutes,
   fromMondayFirst,
   getLocalizationLang,
-  LocalizationLanguages,
-  timeToMinutes,
+  type LocalizationLanguages,
 } from "common/src/helpers";
 import {
   Button,
@@ -50,6 +49,12 @@ import { AccordionWithIcons } from "../AccordionWithIcons";
 import { CenterSpinner } from "../common/common";
 import { useMedia } from "react-use";
 import { ButtonContainer, Flex } from "common/styles/util";
+import { useRouter } from "next/router";
+import {
+  isReservationCancellableReason,
+  ReservationCancellableReason,
+} from "@/modules/reservation";
+import { formatDateTimeStrings } from "@/modules/util";
 
 const N_RESERVATIONS_TO_SHOW = 20;
 
@@ -242,7 +247,7 @@ export function ApprovedReservations({ application }: Props) {
       return slots.length > 0;
     })
   );
-  const initiallyOpen = app?.applicationSections?.length === 1;
+  const initiallyOpen = sections.length === 1;
   return (
     <Flex>
       {loading && <CenterSpinner />}
@@ -447,6 +452,7 @@ type ReservationsTableElem = {
     "nameSv" | "nameFi" | "nameEn" | "id" | "pk"
   >;
   status: "" | "rejected" | "modified";
+  isCancellableReason: ReservationCancellableReason;
   pk: number;
 };
 
@@ -510,16 +516,21 @@ const StyledStatusLabel = styled(StatusLabel)`
 
 function ReservationsTable({
   reservations,
+  application,
 }: {
   reservations: ReservationsTableElem[];
+  application: Pick<ApplicationT, "pk">;
 }) {
   const { i18n } = useTranslation();
   const { t } = useTranslation();
 
   const lang = getLocalizationLang(i18n.language);
+  const router = useRouter();
 
   const handleCancel = (pk: number) => {
-    errorToast({ text: `Not implemented: cancel reservation: ${pk}` });
+    const appPath = getApplicationPath(application.pk, "view");
+    const url = `${appPath}/${pk}/cancel`;
+    router.push(url);
   };
 
   const cols = [
@@ -598,10 +609,15 @@ function ReservationsTable({
       key: "cancelButton",
       headerName: "",
       isSortable: false,
-      transform: ({ pk, status }: ReservationsTableElem) => (
+      transform: ({ pk, isCancellableReason }: ReservationsTableElem) => (
         <CancelButton
           onClick={() => handleCancel(pk)}
-          disabled={status === "rejected"}
+          disabled={isCancellableReason !== ""}
+          title={
+            isCancellableReason === ""
+              ? t("common:cancel")
+              : t(`reservations:modifyTimeReasons.${isCancellableReason}`)
+          }
           // TODO on mobile this should be hidden behind a popover (for now it's hidden)
           className="hide-on-mobile"
         >
@@ -616,49 +632,6 @@ function ReservationsTable({
       <Table variant="light" indexKey="date" rows={reservations} cols={cols} />
     </TableWrapper>
   );
-}
-
-/// Converts a date to minutes discarding date and seconds
-function toMinutes(d: Date): number {
-  return d.getHours() * 60 + d.getMinutes();
-}
-
-/// Creates time and date strings for reservations
-/// @param t - translation function
-/// @param res - reservation object
-/// @param orig - original reservation object (use undefined if not possible to modify)
-function toTimeString(
-  t: TFunction,
-  reservation: {
-    begin: string;
-    end: string;
-  },
-  orig?: {
-    beginTime: string;
-    endTime: string;
-  }
-): { date: Date; time: string; dayOfWeek: string; isModified: boolean } {
-  const start = new Date(reservation.begin);
-  const end = new Date(reservation.end);
-  const dayOfWeek = t(`weekDayLong.${start.getDay()}`);
-
-  const originalBeginMins = orig != null ? timeToMinutes(orig.beginTime) : -1;
-  const originalEndMins = orig != null ? timeToMinutes(orig.endTime) : -1;
-
-  const beginMins = toMinutes(start);
-  const endMins = toMinutes(end);
-  const isModified =
-    orig != null &&
-    (originalBeginMins !== beginMins || originalEndMins !== endMins);
-  const btime = formatMinutes(beginMins);
-  const etime = formatMinutes(endMins);
-  const time = `${btime} - ${etime}`;
-  return {
-    date: start,
-    time,
-    dayOfWeek,
-    isModified,
-  };
 }
 
 function sectionToreservations(
@@ -687,11 +660,12 @@ function sectionToreservations(
   ): ReservationsTableElem[] {
     return r.rejectedOccurrences.map((res) => {
       const reservation = { begin: res.beginDatetime, end: res.endDatetime };
-      const rest = toTimeString(t, reservation);
+      const rest = formatDateTimeStrings(t, reservation);
       return {
         ...rest,
         reservationUnit: r.reservationUnit,
         status: "rejected",
+        isCancellableReason: "ALREADY_CANCELLED",
         pk: 0,
       };
     });
@@ -701,9 +675,14 @@ function sectionToreservations(
     r: (typeof recurringReservations)[0]
   ): ReservationsTableElem[] {
     return r.reservations.map((res) => {
-      const { isModified, ...rest } = toTimeString(t, res, r.allocatedTimeSlot);
+      const { isModified, ...rest } = formatDateTimeStrings(
+        t,
+        res,
+        r.allocatedTimeSlot
+      );
 
       const status =
+        res.state === ReservationStateChoice.Cancelled ||
         res.state === ReservationStateChoice.Denied
           ? "rejected"
           : isModified
@@ -713,6 +692,7 @@ function sectionToreservations(
         ...rest,
         reservationUnit: r.reservationUnit,
         status,
+        isCancellableReason: isReservationCancellableReason(res),
         pk: res.pk ?? 0,
       };
     });
@@ -768,8 +748,10 @@ function sectionToReservationUnits(
 
 export function AllReservations({
   applicationSection,
+  application,
 }: {
   applicationSection: ApplicationSectionT;
+  application: Pick<ApplicationT, "pk">;
 }) {
   const { t } = useTranslation();
   const reservations = sectionToreservations(t, applicationSection);
@@ -778,7 +760,10 @@ export function AllReservations({
       <H3 $noMargin>
         {t("application:view.reservationsTab.reservationsTitle")}
       </H3>
-      <ReservationsTable reservations={reservations} />
+      <ReservationsTable
+        reservations={reservations}
+        application={application}
+      />
     </>
   );
 }
@@ -804,7 +789,10 @@ export function ApplicationSection({
       <H3>{t("application:view.reservationsTab.reservationUnitsTitle")}</H3>
       <ReservationUnitTable reservationUnits={reservationUnits} />
       <H3>{t("application:view.reservationsTab.reservationsTitle")}</H3>
-      <ReservationsTable reservations={reservations} />
+      <ReservationsTable
+        reservations={reservations}
+        application={application}
+      />
       <ButtonContainer $justifyContent="center">
         <ButtonLikeLink
           href={getApplicationSectionPath(

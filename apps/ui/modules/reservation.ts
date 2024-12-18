@@ -20,7 +20,8 @@ import {
   OrderStatus,
   type ReservationOrderStatusFragment,
   type CancellationRuleFieldsFragment,
-  BlockingReservationFieldsFragment,
+  type BlockingReservationFieldsFragment,
+  type CanUserCancelReservationFragment,
 } from "@gql/gql-types";
 import { getReservationApplicationFields } from "common/src/reservation-form/util";
 import { getIntervalMinutes } from "common/src/conversion";
@@ -136,33 +137,44 @@ function isTooCloseToCancel(
   return cancelLatest < now;
 }
 
-type CanUserCancelReservationProps = Pick<
-  NonNullable<ReservationNodeT>,
-  "state" | "begin"
-> & {
-  reservationUnits?: Maybe<Array<CancellationRuleFieldsFragment>> | undefined;
-};
 export function isReservationCancellable(
-  reservation: CanUserCancelReservationProps
+  reservation: CanUserCancelReservationFragment
 ): boolean {
-  const reservationUnit = reservation.reservationUnits?.[0];
+  return isReservationCancellableReason(reservation) === "";
+}
+
+export type ReservationCancellableReason =
+  | "RESERVATION_BEGIN_IN_PAST"
+  | "CANCELLATION_TIME_PAST"
+  | "ALREADY_CANCELLED"
+  | "CANCELLATION_NOT_ALLOWED"
+  | "";
+
+export function isReservationCancellableReason(
+  reservation: CanUserCancelReservationFragment
+): ReservationCancellableReason {
+  const reservationUnit = reservation.reservationUnits.find(() => true);
   const isReservationCancelled =
     reservation.state === ReservationStateChoice.Cancelled;
-  const isBeingHandled =
-    reservation.state === ReservationStateChoice.RequiresHandling;
-  if (isBeingHandled || isReservationCancelled) {
-    return false;
+  if (isReservationCancelled) {
+    return "ALREADY_CANCELLED";
   }
-  if (!reservationUnit) return false;
+  if (isReservationInThePast(reservation)) {
+    return "RESERVATION_BEGIN_IN_PAST";
+  }
+  if (reservationUnit?.cancellationRule == null) {
+    return "CANCELLATION_NOT_ALLOWED";
+  }
   // TODO why isn't user allowed to cancel waiting for payment?
   // TODO why can't user cancel if the reservation is waiting for handling?
-  if (reservation.state !== ReservationStateChoice.Confirmed) return false;
-  if (reservationUnit.cancellationRule == null) return false;
+  if (reservation.state !== ReservationStateChoice.Confirmed) {
+    return "CANCELLATION_NOT_ALLOWED";
+  }
   if (isTooCloseToCancel(reservation)) {
-    return false;
+    return "CANCELLATION_TIME_PAST";
   }
 
-  return true;
+  return "";
 }
 
 // TODO why is this named like this??? what does application have to do with this?
@@ -246,7 +258,7 @@ export type CanReservationBeChangedProps = {
     ReservationNode,
     "begin" | "end" | "isHandled" | "state" | "price"
   > &
-    CanUserCancelReservationProps;
+    CanUserCancelReservationFragment;
   reservableTimes: ReservableMap;
   newReservation: PendingReservation;
   reservationUnit: IsReservableFieldsFragment;

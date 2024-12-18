@@ -4,16 +4,13 @@ import { gql } from "@apollo/client";
 import { differenceInMinutes } from "date-fns";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { getReservationPrice, formatters as getFormatters } from "common";
+import { formatters as getFormatters } from "common";
 import { H4, Strong } from "common/src/common/typography";
 import {
   ReservationStateChoice,
   type ReservationInfoCardFragment,
 } from "@gql/gql-types";
-import {
-  getReservationUnitPrice,
-  isReservationUnitPaid,
-} from "@/modules/reservationUnit";
+import { getPrice, isReservationUnitPaid } from "@/modules/reservationUnit";
 import {
   capitalize,
   formatDuration,
@@ -24,6 +21,10 @@ import {
 import { getImageSource } from "common/src/helpers";
 import { getReservationUnitPath } from "@/modules/urls";
 import { Flex } from "common/styles/util";
+import {
+  convertLanguageCode,
+  getTranslationSafe,
+} from "common/src/common/util";
 
 type Type = "pending" | "confirmed" | "complete";
 
@@ -110,7 +111,6 @@ export function ReservationInfoCard({
   // NOTE can be removed after this has been refactored not to be used for PendingReservation
   const taxPercentageValue = reservation.taxPercentageValue;
 
-  const duration = differenceInMinutes(new Date(end), new Date(begin));
   const timeString = capitalize(
     formatDateTimeRange(t, new Date(begin), new Date(end))
   );
@@ -124,22 +124,14 @@ export function ReservationInfoCard({
     return null;
   }
 
-  const price: string | null =
-    reservation.state === ReservationStateChoice.RequiresHandling ||
+  const duration = differenceInMinutes(new Date(end), new Date(begin));
+  const lang = convertLanguageCode(i18n.language);
+  const price: string | null = getPrice(
+    t,
+    reservation,
+    lang,
     shouldDisplayReservationUnitPrice
-      ? getReservationUnitPrice({
-          t,
-          reservationUnit,
-          pricingDate: new Date(begin),
-          minutes: duration,
-        })
-      : getReservationPrice(
-          reservation?.price,
-          t("prices:priceFree"),
-          true,
-          i18n.language
-        );
-
+  );
   const shouldDisplayTaxPercentage: boolean =
     reservation.state === ReservationStateChoice.RequiresHandling && begin
       ? isReservationUnitPaid(reservationUnit.pricings, new Date(begin))
@@ -148,6 +140,11 @@ export function ReservationInfoCard({
   const name = getTranslation(reservationUnit, "name");
   const img = getMainImage(reservationUnit);
   const imgSrc = getImageSource(img, "medium");
+
+  const unitName =
+    reservationUnit.unit != null
+      ? getTranslationSafe(reservationUnit.unit, "name", lang)
+      : "-";
 
   // TODO why does this not use the Card component?
   return (
@@ -170,11 +167,7 @@ export function ReservationInfoCard({
             </span>
           </Subheading>
         )}
-        <Subheading>
-          {reservationUnit.unit != null
-            ? getTranslation(reservationUnit.unit, "name")
-            : "-"}
-        </Subheading>
+        <Subheading>{unitName}</Subheading>
         <div data-testid="reservation__reservation-info-card__duration">
           <Strong>
             {capitalize(timeString)}, {formatDuration(duration, t)}
