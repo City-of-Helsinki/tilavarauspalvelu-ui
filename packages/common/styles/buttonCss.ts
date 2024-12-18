@@ -68,7 +68,7 @@ export const LinkLikeButton = styled.button`
   cursor: pointer;
   font-size: var(--content-font-size);
   line-height: var(--content-line-height);
-  padding: var(--spacing-3-xs);
+  padding: 0;
   text-decoration: underline;
   &:hover {
     text-decoration: none;
@@ -83,4 +83,33 @@ export const LinkLikeButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3-xs);
+`;
+
+export const toggleButtonCss = css`
+  --focus-ring-color: var(--color-coat-of-arms);
+  color: var(--color-black);
+  padding: 0;
+  border-radius: 0;
+  border-width: 2px;
+  border-color: transparent;
+  background-color: transparent;
+
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2-xs);
+
+  :not(:disabled) {
+    :hover {
+      background-color: var(--color-black-10);
+      cursor: pointer;
+    }
+    :focus {
+      outline: none;
+      border-color: var(--focus-ring-color);
+    }
+  }
+  :disabled {
+    color: var(--color-black-50);
+    cursor: not-allowed;
+  }
 `;
