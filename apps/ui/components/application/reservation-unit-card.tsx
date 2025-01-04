@@ -240,25 +240,25 @@ export function ReservationUnitCard({
         <OrderButtonContainer>
           <DeleteContainer>
             <DeleteButton
-              iconRight={undefined}
               variant="supplementary"
               size="small"
               onClick={() => {
                 onDelete(reservationUnit);
               }}
+              iconRight={undefined}
             >
               {t("reservationUnitList:buttonRemove")}
             </DeleteButton>
           </DeleteContainer>
           <UpButton
-            iconLeft={<IconArrowUp aria-hidden />}
+            iconLeft={<IconArrowUp aria-hidden="true" />}
             onClick={() => onMoveUp(reservationUnit)}
             disabled={first}
           >
             {t("reservationUnitList:buttonUp")}
           </UpButton>
           <DownButton
-            iconLeft={<IconArrowDown aria-hidden />}
+            iconLeft={<IconArrowDown aria-hidden="true" />}
             onClick={() => onMoveDown(reservationUnit)}
             disabled={last}
           >
