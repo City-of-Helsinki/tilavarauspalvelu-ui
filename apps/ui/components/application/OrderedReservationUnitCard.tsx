@@ -2,11 +2,15 @@ import { IconArrowDown, IconArrowUp, Notification, Button } from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { fontBold, fontRegular, H6 } from "common/src/common/typography";
+import {
+  fontBold,
+  fontMedium,
+  fontRegular,
+  H6,
+} from "common/src/common/typography";
 import { breakpoints } from "common/src/common/style";
 import type { ReservationUnitCardFieldsFragment } from "@gql/gql-types";
 import { getMainImage, getTranslation } from "@/modules/util";
-import { MediumButton } from "@/styles/util";
 import { getReservationUnitName } from "@/modules/reservationUnit";
 import { getImageSource } from "common/src/helpers";
 import Card from "common/src/components/Card";
@@ -24,7 +28,7 @@ type Props = {
   invalid: boolean;
 };
 
-const NameCardContainer = styled(Flex).attrs({ $gap: "0" })`
+const NameCardContainer = styled(Flex).attrs({ $gap: "none" })`
   flex-direction: column;
   @media (min-width: ${breakpoints.m}) {
     flex-direction: row;
@@ -32,11 +36,13 @@ const NameCardContainer = styled(Flex).attrs({ $gap: "0" })`
 `;
 
 const PreCardLabel = styled(H6).attrs({ as: "h3" })`
-  margin-bottom: 0;
+  margin-bottom: var(--spacing-xs);
   margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3-xs);
   @media (min-width: ${breakpoints.m}) {
-    display: flex;
-    align-items: center;
+    margin-bottom: 0;
     font-size: var(--fontsize-heading-l);
     width: 3ch;
     overflow: hidden; /* maybe overkill, but this makes sure index numbers > 99 won't end up breaking the layout */
@@ -55,9 +61,11 @@ const OverlayContainer = styled(Flex)`
   }
 `;
 
+const orderButtonsWidth = "230px";
+
 const CardContainer = styled(Flex)`
   @media (min-width: ${breakpoints.m}) {
-    width: calc(100% - 230px);
+    width: calc(100% - ${orderButtonsWidth});
     overflow: hidden;
     [class*="Card__ImageWrapper"] {
       max-width: 147px;
@@ -88,7 +96,7 @@ const OrderButtonContainer = styled.div`
     grid-template-columns: 100px 1fr;
     grid-template-rows: 1fr 1fr;
     height: 100%;
-    width: 230px;
+    width: ${orderButtonsWidth};
     margin-top: 0;
     padding: 0;
     background: var(--color-black-20);
@@ -106,11 +114,13 @@ const DeleteContainer = styled(Flex).attrs({ $justifyContent: "center" })`
   }
 `;
 
-const DeleteButton = styled(MediumButton)`
+const DeleteButton = styled(Button)`
   white-space: nowrap;
   margin: var(--spacing-s) var(--spacing-s) var(--spacing-s) 0;
   color: var(--color-black-90) !important;
-  font-family: var(--font-bold), sans-serif !important;
+  && {
+    ${fontBold}
+  }
   @media (min-width: ${breakpoints.m}) {
     grid-column: 1;
     grid-row: 1 / 2;
@@ -122,46 +132,39 @@ const DeleteButton = styled(MediumButton)`
 `;
 
 const OrderButton = styled(Button)`
-  && {
+  &&& {
     position: relative;
     z-index: 2;
-    color: var(--color-black-90) !important;
     background-color: var(--color-white);
-    border-color: var(--color-black-90) !important;
-    ${fontBold}
-    &:hover,
-    &:focus:hover {
-      background-color: var(--color-black-5);
-    }
-
-    &:focus {
-      background-color: var(--color-white);
-    }
+    ${fontMedium}
 
     &:disabled {
-      background-color: var(--color-black-5);
-      border-color: var(--color-black-20) !important;
-      color: var(--color-black-20) !important;
       z-index: 1;
+      background-color: var(--color-black-5);
       ${fontRegular}
     }
+
+    @media (max-width: ${breakpoints.m}) {
+      &:not(:disabled) {
+        --background-color: var(--color-white);
+        --border-color: var(--color-black-90);
+        {/* after the button has been pressed it uses --border-color-hover while remaining in focus, thus requiring overriding a hover style in mobile */}
+        --border-color-hover: var(--color-black-90);
+      }
+    }
+
     @media (min-width: ${breakpoints.m}) {
       background-color: var(--color-black-5);
-      border-color: var(--color-black-5) !important;
-
       &:hover,
-      &:focus:hover {
-        background-color: var(--color-black-10);
-      }
-
-      &:focus {
-        background-color: var(--color-black-5);
+      &:focus-within,
+      &:focus-within:hover {
+        --color-focus: var(--color-black-90);
+        --background-color-focus: var(--color-black-5);
+        --background-color-hover-focus: var(--color-black-10);
       }
 
       &:disabled {
-        background-color: var(--color-black-5);
-        color: var(--color-black-20) !important;
-        border-color: transparent !important;
+        --border-color-disabled: transparent;
         ${fontRegular}
       }
     }
@@ -186,8 +189,8 @@ const DownButton = styled(OrderButton)`
     margin-right: 0 !important;
     grid-column: 2;
     grid-row: 2;
-    &&:disabled {
-      border-right: 0 !important;
+    &&:disabled && {
+      border-right: 0;
     }
   }
 `;
@@ -200,7 +203,7 @@ const ErrorNotification = styled(Notification).attrs({
 `;
 
 /// Custom card for selecting reservation units for application
-export function ReservationUnitCard({
+export function OrderedReservationUnitCard({
   reservationUnit,
   order,
   onDelete,
@@ -209,7 +212,7 @@ export function ReservationUnitCard({
   onMoveUp,
   onMoveDown,
   invalid,
-}: Props): JSX.Element {
+}: Readonly<Props>): JSX.Element {
   const { t } = useTranslation();
 
   const { unit } = reservationUnit;
@@ -251,6 +254,8 @@ export function ReservationUnitCard({
             </DeleteButton>
           </DeleteContainer>
           <UpButton
+            variant="supplementary"
+            theme="black"
             iconLeft={<IconArrowUp aria-hidden="true" />}
             onClick={() => onMoveUp(reservationUnit)}
             disabled={first}
@@ -258,6 +263,8 @@ export function ReservationUnitCard({
             {t("reservationUnitList:buttonUp")}
           </UpButton>
           <DownButton
+            variant="supplementary"
+            theme="black"
             iconLeft={<IconArrowDown aria-hidden="true" />}
             onClick={() => onMoveDown(reservationUnit)}
             disabled={last}

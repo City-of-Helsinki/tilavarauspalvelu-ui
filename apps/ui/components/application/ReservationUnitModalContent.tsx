@@ -43,12 +43,12 @@ function ReservationUnitCard({
   handleAdd,
   handleRemove,
   isSelected,
-}: {
+}: Readonly<{
   reservationUnit: ReservationUnitType;
   isSelected: boolean;
   handleAdd: (ru: ReservationUnitType) => void;
   handleRemove: (ru: ReservationUnitType) => void;
-}) {
+}>) {
   const { t } = useTranslation();
 
   const handle = () =>
