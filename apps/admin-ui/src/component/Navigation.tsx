@@ -27,97 +27,16 @@ import {
   unitsUrl,
   singleUnitUrl,
 } from "@/common/urls";
-import { UserPermissionChoice } from "@gql/gql-types";
+import { CurrentUserQuery, UserPermissionChoice } from "@gql/gql-types";
+import { filterNonNullable } from "common/src/helpers";
+import { headerCss } from "common/src/components/Navigation";
 
 type Props = {
   apiBaseUrl: string;
 };
 
-const BackgroundHeader = styled(Header)`
-  --header-color: black;
-  --actionbar-background-color: var(--color-bus-dark);
-  --notification-bubble-background-color: var(
-    --tilavaraus-admin-handling-count-color
-  );
-  [class^="HeaderActionBarItem-module_container"] {
-    > button span {
-      color: white !important;
-      svg {
-        color: white;
-      }
-    }
-  }
-
-  /* retain text-decoration: underline on the plain text in navigation items, but disable it in the notificationBubble */
-  [class^="HeaderNavigationMenu-module_headerNavigationMenuLinkContent__"]:hover,
-  [class^="HeaderNavigationMenu-module_headerNavigationMenuLinkContent__"]:focus-within {
-    a {
-      text-decoration: none;
-      span {
-        text-decoration: underline;
-      }
-      [class^="HeaderActionBarSubItem-module_notificationBubble__"] {
-        text-decoration: none;
-      }
-    }
-  }
-  #user-menu-dropdown {
-    color: black;
-    button,
-    span,
-    div {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-    }
-    svg {
-      color: var(--header-color);
-    }
-  }
-  #user-menu {
-    > button span {
-      color: white !important;
-      svg {
-        color: white;
-      }
-    }
-  }
-  #hds-mobile-menu {
-    #user-menu * {
-      color: var(--header-color) !important;
-      box-sizing: border-box;
-      button {
-        padding-inline: var(--spacing-s);
-      }
-    }
-    ul > li {
-      > span {
-        box-sizing: border-box;
-        padding: var(--spacing-s);
-        li {
-          width: 100%;
-          font-size: var(--fontsize-body-xl);
-        }
-        .active {
-          font-weight: bold;
-        }
-      }
-
-      /* hide the big link to frontpage which HDS adds by default */
-      &:first-child {
-        display: none;
-      }
-    }
-  }
-`;
-
-const ActionBar = styled(Header.ActionBar)`
-  [class*="HeaderActionBar-module_title"] {
-    color: white;
-  }
-  [class*="icon_hds-icon"] {
-    color: white;
-  }
+const StyledHeader = styled(Header)`
+  ${headerCss}
 `;
 
 const NavigationMenuWrapper = styled.div`
@@ -209,24 +128,32 @@ function checkActive(
   );
 }
 
+type NavigationLinkProps = {
+  title: string;
+  // Active check requires multiple routes
+  // TODO split the active check either to a callback function / separate prop /
+  // provide both a single route and an array of routes
+  routes: string[];
+  exact?: boolean;
+  exclude?: string[];
+  count?: number;
+};
+
 function NavigationLink({
   title,
   routes,
   exact,
   exclude,
   count,
-}: {
-  title: string;
-  routes: string[];
-  exact?: boolean;
-  exclude?: string[];
-  count?: number;
-}) {
+}: NavigationLinkProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  if (!routes) return null;
+  const route = routes.find(() => true);
+  if (!route) {
+    return null;
+  }
   const shouldDisplayCount =
     title === "MainMenu.requestedReservations" && count && count > 0;
 
@@ -239,52 +166,102 @@ function NavigationLink({
     navigate(routes[0]);
   };
 
+  const href = `/kasittely${route}`;
+  const isActive = checkActive(pathname, routes, exact ?? false, exclude)
+  const className = isActive ? "active" : ""
+
+  // Bubble is only available for ActionBarSubMenu, but that is a <li> element
+  // nesting multiple <li> elements without a parent <ul> is invalid HTML
+  // so we have to create a fake <ul> for this
+  // FIXME can't be done like this because it breaks the mobile menu
+  // have to do some custom magic instead reusing the bubble doesn't seem reasonable
+  if (shouldDisplayCount) {
+    return (
+      // <ul style={{ listStyle: "none", padding: 0 }}>
+        <Header.ActionBarSubItem
+          key={route}
+          onClick={handleClick}
+          href={href}
+          label={t(title)}
+          className={className}
+          notificationBubbleAriaLabel={"Määrä"}
+          notificationBubbleContent={count.toString()}
+        />
+      // </ul>
+    );
+  }
+
   return (
-    <Header.ActionBarSubItem
-      key={routes[0]}
+    <Header.Link
+      key={route}
       onClick={handleClick}
-      href={`/kasittely${routes[0]}`}
+      href={href}
       label={t(title)}
-      className={
-        checkActive(pathname, routes, exact ?? false, exclude) ? "active" : ""
-      }
-      notificationBubbleAriaLabel={shouldDisplayCount ? "Määrä" : undefined}
-      notificationBubbleContent={
-        shouldDisplayCount ? count?.toString() : undefined
-      }
+      className={className}
     />
   );
 }
-const Navigation = ({ apiBaseUrl }: Props) => {
-  const { t } = useTranslation();
+
+export function Navigation({ apiBaseUrl }: Props) {
   const { user } = useSession();
-  const firstName = user?.firstName?.trim() ?? "";
-  const lastName = user?.lastName?.trim() ?? "";
-  const name = `${firstName} ${lastName}`.trim() || t("Navigation.noName");
   const { handlingCount, hasOwnUnits } = useHandling();
-  if (!user) {
-    return null;
-  }
 
   const hasPerms = (perm: UserPermissionChoice, onlyGeneral?: boolean) => {
     return hasSomePermission(user, perm, onlyGeneral);
   };
-  const menuItemList = getFilteredMenu(hasOwnUnits, hasPerms).filter(
-    (item) => item != null
-  );
+  const menuItemList = filterNonNullable(getFilteredMenu(hasOwnUnits, hasPerms))
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <BackgroundHeader>
-      <ActionBar
+    <StyledHeader $isAdmin>
+      <ActionBar apiBaseUrl={apiBaseUrl} user={user} />
+      <NavigationMenuWrapper>
+        <Header.NavigationMenu>
+          {menuItemList.map((item) => (
+            <NavigationLink
+              key={item.routes && item.routes[0]}
+              title={item.title}
+              routes={item.routes ?? []}
+              exact={item.exact}
+              exclude={item.excludeRoutes}
+              count={handlingCount}
+            />
+          ))}
+        </Header.NavigationMenu>
+      </NavigationMenuWrapper>
+    </StyledHeader>
+  );
+}
+
+// TODO move this to base navigation component
+function ActionBar({
+  apiBaseUrl,
+  user,
+}: {
+  apiBaseUrl: string;
+    // TODO narrow down the type
+  user: CurrentUserQuery["currentUser"];
+}) {
+  const { t } = useTranslation();
+  const firstName = user?.firstName?.trim() ?? "";
+  const lastName = user?.lastName?.trim() ?? "";
+  const name = `${firstName} ${lastName}`.trim() || t("Navigation.noName");
+
+  const baseUrl = env.NEXT_PUBLIC_BASE_URL;
+  return (
+      <Header.ActionBar
         title={t("common:applicationName")}
         titleAriaLabel={t("common:applicationName")}
         frontPageLabel={t("common:gotoFrontpage")}
         titleStyle={TitleStyleType.Bold}
-        titleHref={env.NEXT_PUBLIC_BASE_URL ?? "/"}
+        titleHref={baseUrl ?? "/"}
         openFrontPageLinksAriaLabel={t("common:applicationName")}
         logo={<Logo size={LogoSize.Large} style={{ filter: "invert(1)" }} />}
         logoAriaLabel={`${t("common:applicationName")} logo`}
-        logoHref={env.NEXT_PUBLIC_BASE_URL}
+        logoHref={baseUrl}
       >
         {user ? (
           <Header.ActionBarItem
@@ -300,7 +277,7 @@ const Navigation = ({ apiBaseUrl }: Props) => {
                   <IconSignout />
                 </>
               }
-              onClick={() => signOut(apiBaseUrl, env.NEXT_PUBLIC_BASE_URL)}
+              onClick={() => signOut(apiBaseUrl, baseUrl)}
             />
           </Header.ActionBarItem>
         ) : (
@@ -309,23 +286,6 @@ const Navigation = ({ apiBaseUrl }: Props) => {
             onClick={() => signIn(apiBaseUrl)}
           />
         )}
-      </ActionBar>
-      <NavigationMenuWrapper>
-        <Header.NavigationMenu>
-          {menuItemList.map((item) => (
-            <NavigationLink
-              key={item.routes && item.routes[0]}
-              title={item.title}
-              routes={item.routes ?? []}
-              exact={item.exact}
-              exclude={item.excludeRoutes}
-              count={handlingCount}
-            />
-          ))}
-        </Header.NavigationMenu>
-      </NavigationMenuWrapper>
-    </BackgroundHeader>
+      </Header.ActionBar>
   );
-};
-
-export default Navigation;
+}

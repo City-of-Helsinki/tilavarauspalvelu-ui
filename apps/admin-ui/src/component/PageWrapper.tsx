@@ -7,7 +7,7 @@ import Error5xx from "@/common/Error5xx";
 import { BannerNotificationsList } from "common/src/components";
 import { BannerNotificationTarget } from "@gql/gql-types";
 import ScrollToTop from "../common/ScrollToTop";
-import Navigation from "./Navigation";
+import { Navigation } from "./Navigation";
 import { MainLander } from "./MainLander";
 import { ToastContainer } from "common/src/common/toast";
 import { useModal } from "@/context/ModalContext";

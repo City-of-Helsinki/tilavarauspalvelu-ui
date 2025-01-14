@@ -15,10 +15,9 @@ import { useSession } from "@/hooks/auth";
 import { type CurrentUserQuery } from "@gql/gql-types";
 import Logo from "common/src/components/Logo";
 import { useRouter } from "next/router";
-import { breakpoints } from "common";
 import { useLocation } from "react-use";
 import { signIn, signOut } from "common/src/browserHelpers";
-import { getLocalizationLang } from "common/src/helpers";
+import { filterNonNullable, getLocalizationLang } from "common/src/helpers";
 import { env } from "@/env.mjs";
 import {
   applicationsPrefix,
@@ -27,69 +26,10 @@ import {
   seasonalPrefix,
   singleSearchPrefix,
 } from "@/modules/urls";
+import { headerCss } from "common/src/components/Navigation";
 
-type HeaderProps = {
-  apiBaseUrl: string;
-  profileLink: string;
-  languageOptions?: LanguageOption[];
-};
-
-const Wrapper = styled.div`
-  @media (min-width: ${breakpoints.l}) {
-    [class*="module_headerNavigationMenuContainer__"] li {
-      a {
-        margin: 0;
-        &:focus {
-          text-decoration: underline;
-        }
-      }
-
-      span:has(.active) {
-        /* using box-shadow for a bottom border inside of the element, without affecting text positioning */
-        box-shadow: 0 -4px 0 0 var(--color-black) inset;
-        font-weight: bold;
-      }
-    }
-  }
-
-  #user-menu-dropdown ul {
-    display: flex;
-    flex-direction: column;
-
-    > * {
-      display: flex;
-      background: transparent;
-      border: 0;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--color-black-20);
-      transition: background 0.2s;
-      &:hover {
-        background: var(--color-black-10);
-        cursor: pointer;
-        text-decoration: underline;
-      }
-    }
-  }
-
-  #hds-mobile-menu {
-    ul > li {
-      > span {
-        padding: var(--spacing-s);
-        li,
-        a {
-          display: block;
-          width: 100%;
-          font-size: var(--fontsize-body-xl);
-        }
-      }
-      &:first-child {
-        display: none;
-      }
-    }
-    .active {
-      font-weight: bold;
-    }
-  }
+const StyledHeader = styled(Header)`
+  ${headerCss}
 `;
 
 const menuItems = [
@@ -131,7 +71,7 @@ function constructName(firstName?: string, lastName?: string) {
   return undefined;
 }
 
-function checkActive(pathname: string, routes: string[], exact: boolean) {
+function checkActive(pathname: string, routes: string[], exact?: boolean) {
   return routes.some((route) =>
     exact ? pathname === route : pathname.startsWith(route)
   );
@@ -142,6 +82,26 @@ function NavigationMenu({ user }: { user: CurrentUserQuery["currentUser"] }) {
   const { pathname } = useLocation();
   const router = useRouter();
 
+  const items = filterNonNullable( menuItems.filter((x) => !x.requireLogin || user).map((item) => {
+        const route = item.routes.find(() => true);
+        if (!route) {
+          return null;
+        }
+        const lang = getLocalizationLang(i18n.language);
+        const localisationString = lang === "fi" ? "" : lang;
+        const href = getLocalizationLang(i18n.language) === "fi"
+          ? route
+          : `/${localisationString}${route}`
+        const isActive = pathname != null ? checkActive(pathname, item.routes, item.exact) : false;
+        const className=isActive ? "active" : ""
+    return {
+      href,
+      className,
+      label: t(item.label),
+      key: item.label,
+    };
+  }));
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     router.push(e.currentTarget.href);
@@ -149,55 +109,50 @@ function NavigationMenu({ user }: { user: CurrentUserQuery["currentUser"] }) {
 
   return (
     <Header.NavigationMenu>
-      {menuItems.map((item) => {
-        if (item.requireLogin && !user) {
-          return null;
-        }
-        if (!pathname) {
-          return;
-        }
-        const localisationString =
-          i18n.language === "fi" ? "" : getLocalizationLang(i18n.language);
-
-        return (
-          <Header.ActionBarSubItem
-            key={item.label}
-            label={t(item.label)}
-            href={
-              getLocalizationLang(i18n.language) === "fi"
-                ? item.routes[0]
-                : `/${localisationString}${item.routes[0]}`
-            }
-            onClick={handleClick}
-            className={
-              checkActive(pathname, item.routes, item.exact ?? false)
-                ? "active"
-                : ""
-            }
-          />
-        );
-      })}
+      {items.map((item) => (
+        <Header.Link
+          key={item.key}
+          label={item.label}
+          href={item.href}
+          onClick={handleClick}
+          className={item.className}
+        />
+      ))}
     </Header.NavigationMenu>
   );
 }
 
-function ActionBar({ apiBaseUrl, profileLink, languageOptions }: HeaderProps) {
+type HeaderProps = {
+  apiBaseUrl: string;
+  profileLink: string;
+  languageOptions?: LanguageOption[];
+  baseUrl: string | undefined;
+  user: CurrentUserQuery["currentUser"];
+};
+
+function ActionBar({
+  apiBaseUrl,
+  profileLink,
+  languageOptions,
+  user,
+  baseUrl,
+}: HeaderProps) {
   const { t } = useTranslation();
-  const { isAuthenticated, user } = useSession();
   const { firstName, lastName } = user ?? {};
 
-  const userName = constructName(firstName, lastName);
+  const isAuthenticated = user != null;
+  const userName = constructName(firstName, lastName) ?? t("navigation:userNoName");
   return (
     <Header.ActionBar
       title={t("common:applicationName")}
       titleAriaLabel={t("common:applicationName")}
       frontPageLabel={t("common:gotoFrontpage")}
       titleStyle={TitleStyleType.Bold}
-      titleHref={env.NEXT_PUBLIC_BASE_URL ?? "/"}
+      titleHref={baseUrl ?? "/"}
       openFrontPageLinksAriaLabel={t("common:applicationName")}
       logo={<Logo size={LogoSize.Large} />}
       logoAriaLabel={`${t("common:applicationName")} logo`}
-      logoHref={env.NEXT_PUBLIC_BASE_URL}
+      logoHref={baseUrl}
       menuButtonLabel="Menu"
     >
       <Header.LanguageSelector
@@ -217,14 +172,15 @@ function ActionBar({ apiBaseUrl, profileLink, languageOptions }: HeaderProps) {
               <IconLinkExternal />
             </a>
           )}
-          <button
-            type="button"
-            aria-label={t("common:logout")}
+          <Header.ActionBarButton
+            label={
+              <>
+                <span>{t("common:logout")}</span>
+                <IconSignout />
+              </>
+            }
             onClick={() => signOut(apiBaseUrl)}
-          >
-            {t("common:logout")}
-            <IconSignout />
-          </button>
+          />
         </Header.ActionBarItem>
       ) : (
         <Header.ActionBarButton
@@ -242,10 +198,11 @@ function ActionBar({ apiBaseUrl, profileLink, languageOptions }: HeaderProps) {
   );
 }
 
-function Navigation({ apiBaseUrl, profileLink }: HeaderProps) {
+function Navigation({ apiBaseUrl, profileLink }: Pick<HeaderProps, "apiBaseUrl" | "profileLink">) {
   const { t, i18n } = useTranslation();
   const { user } = useSession();
   const router = useRouter();
+  const baseUrl = env.NEXT_PUBLIC_BASE_URL;
 
   const languageOptions: LanguageOption[] = [
     { label: t("navigation:languages.fi"), value: getLocalizationLang("fi") },
@@ -259,8 +216,7 @@ function Navigation({ apiBaseUrl, profileLink }: HeaderProps) {
   };
 
   return (
-    <Wrapper>
-      <Header
+      <StyledHeader
         onDidChangeLanguage={languageChangeHandler}
         defaultLanguage={router.locale}
         languages={languageOptions}
@@ -269,10 +225,11 @@ function Navigation({ apiBaseUrl, profileLink }: HeaderProps) {
           apiBaseUrl={apiBaseUrl}
           profileLink={profileLink}
           languageOptions={languageOptions}
+          user={user}
+          baseUrl={baseUrl}
         />
         <NavigationMenu user={user} />
-      </Header>
-    </Wrapper>
+      </StyledHeader>
   );
 }
 
