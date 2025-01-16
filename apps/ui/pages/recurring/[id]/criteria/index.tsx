@@ -8,7 +8,7 @@ import {
   type ApplicationRoundsUiQuery,
   type ApplicationRoundsUiQueryVariables,
 } from "@gql/gql-types";
-import { breakpoints, H1 } from "common";
+import { breakpoints, H1, H2, H3 } from "common";
 import { createApolloClient } from "@/modules/apolloClient";
 import Sanitize from "@/components/common/Sanitize";
 import { getTranslation } from "@/modules/util";
@@ -16,6 +16,7 @@ import BreadcrumbWrapper from "@/components/common/BreadcrumbWrapper";
 import { getApplicationRoundName } from "@/modules/applicationRound";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
 import NotesWhenApplying from "@/components/application/NotesWhenApplying";
+import { capitalize } from "lodash";
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
@@ -57,17 +58,30 @@ const ContentWrapper = styled.div`
   }
 `;
 
+const NotesWrapper = styled.div`
+  margin-left: 0;
+  @media (min-width: ${breakpoints.m}) {
+    margin-left: auto;
+  }
+`;
+
 function Criteria({ applicationRound }: PropsNarrowed): JSX.Element | null {
   const { t } = useTranslation();
 
-  const title = `${getApplicationRoundName(applicationRound)} ${t("applicationRound:criteria")}`;
+  const title = capitalize(t("applicationRound:criteria"));
+  const subtitle = `${getApplicationRoundName(applicationRound)} ${t("applicationRound:criteria")}`;
   return (
     <>
       <BreadcrumbWrapper route={["/recurring", "criteria"]} />
       <H1 $noMargin>{title}</H1>
+      <H3 as={H2} $noMargin>
+        {subtitle}
+      </H3>
       <ContentWrapper>
         <Sanitize html={getTranslation(applicationRound, "criteria")} />
-        <NotesWhenApplying applicationRound={applicationRound} />
+        <NotesWrapper>
+          <NotesWhenApplying applicationRound={applicationRound} />
+        </NotesWrapper>
       </ContentWrapper>
     </>
   );
