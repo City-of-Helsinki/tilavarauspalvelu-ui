@@ -1,4 +1,4 @@
-import { Button, IconArrowRight, IconPlusCircle } from "hds-react";
+import { Button, IconArrowRight, IconPlus } from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
 import { uniq } from "lodash";
@@ -137,20 +137,19 @@ export function Page1({ applicationRound, onNext }: Props): JSX.Element | null {
           />
         ) : null
       )}
-      <Button
-        id="addApplicationEvent"
-        variant="supplementary"
-        iconLeft={<IconPlusCircle />}
-        onClick={handleAddNewApplicationEvent}
-        size="small"
-      >
-        {t("application:Page1.createNew")}
-      </Button>
-      <ButtonContainer>
-        <div />
+      <ButtonContainer $justifyContent="space-between">
+        <Button
+          id="addApplicationEvent"
+          variant="secondary"
+          iconLeft={<IconPlus aria-hidden="true" />}
+          onClick={handleAddNewApplicationEvent}
+          size="small"
+        >
+          {t("application:Page1.createNew")}
+        </Button>
         <Button
           id="button__application--next"
-          iconRight={<IconArrowRight />}
+          iconRight={<IconArrowRight aria-hidden="true" />}
           disabled={submitDisabled}
           type="submit"
         >
