@@ -5,6 +5,7 @@ import {
   type Maybe,
 } from "../gql/gql-types";
 import { pixel } from "./common/style";
+import { OptionInProps } from "hds-react";
 
 export function filterNonNullable<T>(
   arr: Maybe<Maybe<T>[]> | undefined
@@ -182,6 +183,9 @@ export function dayMax(days: Array<Date | undefined>): Date | undefined {
   }, undefined);
 }
 
+/// @description Convert time string "HH:MM" to minutes
+/// safe for invalid time strings but not for invalid time values
+/// @return 0 if time is invalid otherwise the time in minutes
 export function timeToMinutes(time: string) {
   const [hours, minutes] = time.split(":").map(Number).filter(Number.isFinite);
   if (hours != null && minutes != null) {
@@ -256,4 +260,14 @@ export function constructUrl(basePath: string, page: string): string {
 
 export function ignoreMaybeArray<T>(value: T | T[]): T {
   return Array.isArray(value) ? value[0] : value;
+}
+
+export function convertOptionToHDS(option: {
+  label: string;
+  value: string | number;
+}): OptionInProps {
+  return {
+    label: option.label,
+    value: option.value.toString(),
+  };
 }

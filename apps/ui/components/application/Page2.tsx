@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { Button, IconArrowRight, Notification } from "hds-react";
+import {
+  Button,
+  ButtonVariant,
+  IconArrowRight,
+  Notification,
+  NotificationSize,
+} from "hds-react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { useFormContext } from "react-hook-form";
+import { useForm, useFormContext } from "react-hook-form";
 import type { ApplicationEventSchedulePriority } from "common/types/common";
 import {
   Priority,
@@ -29,7 +35,7 @@ import {
 } from "common/src/conversion";
 import { getReadableList } from "@/modules/util";
 import { AccordionWithState as Accordion } from "@/components/Accordion";
-import { TimeSelector } from "./TimeSelector";
+import { TimeSelector, TimeSelectorFormValues } from "./TimeSelector";
 import { errorToast, successToast } from "common/src/common/toast";
 import { ButtonContainer } from "common/styles/util";
 
@@ -245,10 +251,17 @@ const getApplicationEventsWhichMinDurationsIsNotFulfilled = (
 
 function Page2({ application, onNext }: Props): JSX.Element {
   const { t, i18n } = useTranslation();
-  const [reservationUnitPk, setReservationUnitPk] = useState<number>(
+  const initialReservationUnitPk =
     application?.applicationSections?.[0]?.reservationUnitOptions?.[0]
-      ?.reservationUnit?.pk ?? 0
-  );
+      ?.reservationUnit?.pk ?? 0;
+
+  const timeSelectorForm = useForm<TimeSelectorFormValues>({
+    defaultValues: {
+      reservationUnitPk: initialReservationUnitPk,
+      priority: 300,
+    },
+  });
+  const reservationUnitPk = timeSelectorForm.watch("reservationUnitPk");
 
   const [minDurationMsg, setMinDurationMsg] = useState(true);
   const router = useRouter();
@@ -437,7 +450,7 @@ function Page2({ application, onNext }: Props): JSX.Element {
           >
             <StyledNotification
               label={t("application:Page2.info")}
-              size="small"
+              size={NotificationSize.Small}
               type="info"
             >
               {t("application:Page2.info")}
@@ -450,8 +463,7 @@ function Page2({ application, onNext }: Props): JSX.Element {
               resetCells={() => resetCells(index)}
               summaryData={[summaryDataPrimary, summaryDataSecondary]}
               reservationUnitOptions={reservationUnitOptions}
-              reservationUnitPk={reservationUnitPk}
-              setReservationUnitPk={setReservationUnitPk}
+              form={timeSelectorForm}
             />
           </Accordion>
         );
@@ -463,7 +475,7 @@ function Page2({ application, onNext }: Props): JSX.Element {
           dismissible
           onClose={() => setMinDurationMsg(false)}
           closeButtonLabelText={t("common:close")}
-          dataTestId="application__page2--notification-min-duration"
+          data-testid="application__page2--notification-min-duration"
         >
           {applicationSections?.length === 1
             ? t("application:Page2.notification.minDuration.bodySingle")
@@ -479,14 +491,14 @@ function Page2({ application, onNext }: Props): JSX.Element {
       )}
       <ButtonContainer>
         <Button
-          variant="secondary"
+          variant={ButtonVariant.Secondary}
           onClick={() => router.push(`${application.pk}/page1`)}
         >
           {t("common:prev")}
         </Button>
         <Button
           id="button__application--next"
-          iconRight={<IconArrowRight />}
+          iconEnd={<IconArrowRight aria-hidden="true" />}
           type="submit"
         >
           {t("common:next")}

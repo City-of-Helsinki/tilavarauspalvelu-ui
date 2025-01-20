@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "next-i18next";
-import { Button, IconArrowLeft, IconArrowRight } from "hds-react";
+import {
+  Button,
+  ButtonVariant,
+  IconArrowLeft,
+  IconArrowRight,
+  LoadingSpinner,
+} from "hds-react";
 import {
   type ReservationQuery,
   type ReservationUnitPageFieldsFragment,
@@ -51,9 +57,6 @@ export function Step1({
   };
 
   const areTermsAccepted = isTermsAccepted.space && isTermsAccepted.service;
-  const loadingText = t(
-    `reservationCalendar:${requiresHandling ? "nextStep" : "makeReservation"}Loading`
-  );
   const submitText = t(
     `reservationCalendar:${requiresHandling ? "nextStep" : "makeReservation"}`
   );
@@ -77,21 +80,23 @@ export function Step1({
       />
       <ActionContainer>
         <Button
-          variant="primary"
           type="submit"
-          iconRight={
-            requiresHandling ? <IconArrowRight aria-hidden /> : undefined
+          variant={isSubmitting ? ButtonVariant.Clear : ButtonVariant.Primary}
+          iconEnd={
+            isSubmitting ? (
+              <LoadingSpinner small />
+            ) : requiresHandling ? (
+              <IconArrowRight aria-hidden="true" />
+            ) : undefined
           }
           data-testid="reservation__button--continue"
-          isLoading={isSubmitting}
-          loadingText={loadingText}
-          disabled={!areTermsAccepted}
+          disabled={!areTermsAccepted || isSubmitting}
         >
           {submitText}
         </Button>
         <Button
-          variant="secondary"
-          iconLeft={<IconArrowLeft aria-hidden />}
+          variant={ButtonVariant.Secondary}
+          iconStart={<IconArrowLeft aria-hidden="true" />}
           onClick={() => setStep(0)}
           data-testid="reservation__button--cancel"
         >
