@@ -2989,7 +2989,6 @@ type ReservationConfirmMutationPayload {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3028,7 +3027,6 @@ input ReservationCreateMutationInput {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3068,7 +3066,6 @@ type ReservationCreateMutationPayload {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3587,7 +3584,6 @@ input ReservationSeriesReservationCreateSerializerInput {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: ReserveeLanguage
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3679,7 +3675,6 @@ input ReservationStaffCreateMutationInput {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3727,7 +3722,6 @@ type ReservationStaffCreateMutationPayload {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3763,7 +3757,6 @@ input ReservationStaffModifyMutationInput {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: ReserveeLanguage
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -3805,7 +3798,6 @@ type ReservationStaffModifyMutationPayload {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: ReserveeLanguage
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -4764,7 +4756,6 @@ input ReservationUpdateMutationInput {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -4805,7 +4796,6 @@ type ReservationUpdateMutationPayload {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: String
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String
@@ -4829,25 +4819,6 @@ type ReservationWorkingMemoMutationPayload {
   """
   pk: Int
   workingMemo: String
-}
-
-"""
-An enumeration.
-"""
-enum ReserveeLanguage {
-  A_
-  """
-  Englanti
-  """
-  EN
-  """
-  Suomi
-  """
-  FI
-  """
-  Ruotsi
-  """
-  SV
 }
 
 """
@@ -5745,7 +5716,6 @@ input UpdateReservationSeriesReservationUpdateSerializerInput {
   reserveeFirstName: String
   reserveeId: String
   reserveeIsUnregisteredAssociation: Boolean
-  reserveeLanguage: ReserveeLanguage
   reserveeLastName: String
   reserveeOrganisationName: String
   reserveePhone: String

@@ -2765,7 +2765,6 @@ export type ReservationConfirmMutationPayload = {
   reserveeFirstName?: Maybe<Scalars["String"]["output"]>;
   reserveeId?: Maybe<Scalars["String"]["output"]>;
   reserveeIsUnregisteredAssociation?: Maybe<Scalars["Boolean"]["output"]>;
-  reserveeLanguage?: Maybe<Scalars["String"]["output"]>;
   reserveeLastName?: Maybe<Scalars["String"]["output"]>;
   reserveeOrganisationName?: Maybe<Scalars["String"]["output"]>;
   reserveePhone?: Maybe<Scalars["String"]["output"]>;
@@ -2804,7 +2803,6 @@ export type ReservationCreateMutationInput = {
   reserveeFirstName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeId?: InputMaybe<Scalars["String"]["input"]>;
   reserveeIsUnregisteredAssociation?: InputMaybe<Scalars["Boolean"]["input"]>;
-  reserveeLanguage?: InputMaybe<Scalars["String"]["input"]>;
   reserveeLastName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeOrganisationName?: InputMaybe<Scalars["String"]["input"]>;
   reserveePhone?: InputMaybe<Scalars["String"]["input"]>;
@@ -2844,7 +2842,6 @@ export type ReservationCreateMutationPayload = {
   reserveeFirstName?: Maybe<Scalars["String"]["output"]>;
   reserveeId?: Maybe<Scalars["String"]["output"]>;
   reserveeIsUnregisteredAssociation?: Maybe<Scalars["Boolean"]["output"]>;
-  reserveeLanguage?: Maybe<Scalars["String"]["output"]>;
   reserveeLastName?: Maybe<Scalars["String"]["output"]>;
   reserveeOrganisationName?: Maybe<Scalars["String"]["output"]>;
   reserveePhone?: Maybe<Scalars["String"]["output"]>;
@@ -3291,7 +3288,6 @@ export type ReservationSeriesReservationCreateSerializerInput = {
   reserveeFirstName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeId?: InputMaybe<Scalars["String"]["input"]>;
   reserveeIsUnregisteredAssociation?: InputMaybe<Scalars["Boolean"]["input"]>;
-  reserveeLanguage?: InputMaybe<ReserveeLanguage>;
   reserveeLastName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeOrganisationName?: InputMaybe<Scalars["String"]["input"]>;
   reserveePhone?: InputMaybe<Scalars["String"]["input"]>;
@@ -3371,7 +3367,6 @@ export type ReservationStaffCreateMutationInput = {
   reserveeFirstName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeId?: InputMaybe<Scalars["String"]["input"]>;
   reserveeIsUnregisteredAssociation?: InputMaybe<Scalars["Boolean"]["input"]>;
-  reserveeLanguage?: InputMaybe<Scalars["String"]["input"]>;
   reserveeLastName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeOrganisationName?: InputMaybe<Scalars["String"]["input"]>;
   reserveePhone?: InputMaybe<Scalars["String"]["input"]>;
@@ -3415,7 +3410,6 @@ export type ReservationStaffCreateMutationPayload = {
   reserveeFirstName?: Maybe<Scalars["String"]["output"]>;
   reserveeId?: Maybe<Scalars["String"]["output"]>;
   reserveeIsUnregisteredAssociation?: Maybe<Scalars["Boolean"]["output"]>;
-  reserveeLanguage?: Maybe<Scalars["String"]["output"]>;
   reserveeLastName?: Maybe<Scalars["String"]["output"]>;
   reserveeOrganisationName?: Maybe<Scalars["String"]["output"]>;
   reserveePhone?: Maybe<Scalars["String"]["output"]>;
@@ -3451,7 +3445,6 @@ export type ReservationStaffModifyMutationInput = {
   reserveeFirstName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeId?: InputMaybe<Scalars["String"]["input"]>;
   reserveeIsUnregisteredAssociation?: InputMaybe<Scalars["Boolean"]["input"]>;
-  reserveeLanguage?: InputMaybe<ReserveeLanguage>;
   reserveeLastName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeOrganisationName?: InputMaybe<Scalars["String"]["input"]>;
   reserveePhone?: InputMaybe<Scalars["String"]["input"]>;
@@ -3493,7 +3486,6 @@ export type ReservationStaffModifyMutationPayload = {
   reserveeFirstName?: Maybe<Scalars["String"]["output"]>;
   reserveeId?: Maybe<Scalars["String"]["output"]>;
   reserveeIsUnregisteredAssociation?: Maybe<Scalars["Boolean"]["output"]>;
-  reserveeLanguage?: Maybe<ReserveeLanguage>;
   reserveeLastName?: Maybe<Scalars["String"]["output"]>;
   reserveeOrganisationName?: Maybe<Scalars["String"]["output"]>;
   reserveePhone?: Maybe<Scalars["String"]["output"]>;
@@ -4372,7 +4364,6 @@ export type ReservationUpdateMutationInput = {
   reserveeFirstName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeId?: InputMaybe<Scalars["String"]["input"]>;
   reserveeIsUnregisteredAssociation?: InputMaybe<Scalars["Boolean"]["input"]>;
-  reserveeLanguage?: InputMaybe<Scalars["String"]["input"]>;
   reserveeLastName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeOrganisationName?: InputMaybe<Scalars["String"]["input"]>;
   reserveePhone?: InputMaybe<Scalars["String"]["input"]>;
@@ -4413,7 +4404,6 @@ export type ReservationUpdateMutationPayload = {
   reserveeFirstName?: Maybe<Scalars["String"]["output"]>;
   reserveeId?: Maybe<Scalars["String"]["output"]>;
   reserveeIsUnregisteredAssociation?: Maybe<Scalars["Boolean"]["output"]>;
-  reserveeLanguage?: Maybe<Scalars["String"]["output"]>;
   reserveeLastName?: Maybe<Scalars["String"]["output"]>;
   reserveeOrganisationName?: Maybe<Scalars["String"]["output"]>;
   reserveePhone?: Maybe<Scalars["String"]["output"]>;
@@ -4434,17 +4424,6 @@ export type ReservationWorkingMemoMutationPayload = {
   pk?: Maybe<Scalars["Int"]["output"]>;
   workingMemo?: Maybe<Scalars["String"]["output"]>;
 };
-
-/** An enumeration. */
-export enum ReserveeLanguage {
-  A = "A_",
-  /** Englanti */
-  En = "EN",
-  /** Suomi */
-  Fi = "FI",
-  /** Ruotsi */
-  Sv = "SV",
-}
 
 /** An enumeration. */
 export enum ReserveeType {
@@ -5200,7 +5179,6 @@ export type UpdateReservationSeriesReservationUpdateSerializerInput = {
   reserveeFirstName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeId?: InputMaybe<Scalars["String"]["input"]>;
   reserveeIsUnregisteredAssociation?: InputMaybe<Scalars["Boolean"]["input"]>;
-  reserveeLanguage?: InputMaybe<ReserveeLanguage>;
   reserveeLastName?: InputMaybe<Scalars["String"]["input"]>;
   reserveeOrganisationName?: InputMaybe<Scalars["String"]["input"]>;
   reserveePhone?: InputMaybe<Scalars["String"]["input"]>;

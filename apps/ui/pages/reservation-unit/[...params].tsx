@@ -265,7 +265,6 @@ function NewReservation(props: PropsNarrowed): JSX.Element | null {
           input: {
             pk: reservationPk ?? 0,
             ...input,
-            reserveeLanguage: i18n.language,
           },
         },
       });
