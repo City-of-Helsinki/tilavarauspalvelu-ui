@@ -29,7 +29,7 @@
     "hds-core": "^4.1.0",
     "hds-design-tokens": "^4.1.0",
     "hds-react": "^4.1.0",
-    "i18next": "^23.15.1",
+    "i18next": "^24.2.1",
     "lodash": "^4.17.21",
     "next": "15.1.5",
     "next-compose-plugins": "^2.2.1",
