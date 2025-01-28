@@ -49,11 +49,12 @@ import {
   convertLanguageCode,
   getTranslationSafe,
 } from "common/src/common/util";
-import { ApolloError, gql } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { PinkBox as PinkBoxBase } from "@/components/reservation/styles";
 import { Flex } from "common/styles/util";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { ReservationPageWrapper } from "@/components/reservations/styles";
+import { useDisplayError } from "@/hooks/useDisplayError";
 
 const StyledReservationInfoCard = styled(ReservationInfoCard)`
   grid-column: 1 / -1;
@@ -236,6 +237,8 @@ function NewReservation(props: PropsNarrowed): JSX.Element | null {
     reservationUnit?.metadataSet?.supportedFields
   );
 
+  const displayError = useDisplayError();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO: type the form
   const onSubmitStep0 = async (payload: any): Promise<void> => {
     const hasReserveeTypeField = containsField(supportedFields, "reserveeType");
@@ -278,14 +281,9 @@ function NewReservation(props: PropsNarrowed): JSX.Element | null {
         setStep(1);
         window.scrollTo(0, 0);
       }
-    } catch (e) {
-      if (e instanceof ApolloError) {
-        if (e.graphQLErrors[0].extensions?.code === "NOT_FOUND") {
-          errorToast({ text: t("errors:update_reservation_not_found") });
-          return;
-        }
-      }
-      errorToast({ text: t("errors:general_error") });
+    } catch (err) {
+      // TODO: NOT_FOUND at least is non-recoverable so we should redirect to the reservation unit page
+      displayError(err);
     }
   };
 
@@ -310,30 +308,21 @@ function NewReservation(props: PropsNarrowed): JSX.Element | null {
         state === ReservationStateChoice.RequiresHandling
       ) {
         router.push(getReservationPath(pk, "confirmation"));
-      } else if (steps?.length > 2) {
+        return;
+      } else if (state === ReservationStateChoice.WaitingForPayment) {
         const { order } = data?.confirmReservation ?? {};
         const checkoutUrl = getCheckoutUrl(order, i18n.language);
+        if (!checkoutUrl) {
+          throw new Error("No checkout url found");
+        }
 
-        if (checkoutUrl) {
-          router.push(checkoutUrl);
-        } else {
-          // eslint-disable-next-line no-console
-          console.warn("No checkout url found");
-          errorToast({ text: t("errors:general_error") });
-        }
+        router.push(checkoutUrl);
       } else {
-        // eslint-disable-next-line no-console
-        console.warn("Confirm reservation mutation returning something odd");
-        errorToast({ text: t("errors:general_error") });
+        throw new Error("Invalid state");
       }
-    } catch (e) {
-      if (e instanceof ApolloError) {
-        if (e.graphQLErrors[0].extensions?.code === "NOT_FOUND") {
-          errorToast({ text: t("errors:update_reservation_not_found") });
-          return;
-        }
-      }
-      errorToast({ text: "errors:general_error" });
+    } catch (err) {
+      // TODO: NOT_FOUND at least is non-recoverable so we should redirect to the reservation unit page
+      displayError(err);
     }
   };
 
