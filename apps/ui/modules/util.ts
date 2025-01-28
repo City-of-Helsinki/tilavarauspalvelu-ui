@@ -1,7 +1,6 @@
 import { isSameDay, parseISO } from "date-fns";
-import { i18n, TFunction } from "next-i18next";
+import { type TFunction } from "next-i18next";
 import { trim } from "lodash";
-import type { ApolloError } from "@apollo/client";
 import {
   toApiDate,
   toUIDate,
@@ -146,49 +145,13 @@ export const getAddressAlt = (ru: {
   return trim(`${street}, ${city}`, ", ");
 };
 
-export const applicationErrorText = (
+export function applicationErrorText(
   t: TFunction,
   key: string | undefined,
   attrs: { [key: string]: string | number } = {}
-): string => (key ? t(`application:error.${key}`, attrs) : "");
-
-export const getReadableList = (list: string[]): string => {
-  if (list.length === 0) {
-    return "";
-  }
-
-  const andStr = i18n?.t("common:and") || "";
-
-  if (list.length < 3) {
-    return list.join(` ${andStr} `);
-  }
-
-  return `${list.slice(0, -1).join(", ")} ${andStr} ${list[list.length - 1]}`;
-};
-
-export const printErrorMessages = (error: ApolloError): string => {
-  if (!error.graphQLErrors || error.graphQLErrors.length === 0) {
-    return "";
-  }
-
-  const { graphQLErrors: errors } = error;
-
-  // TODO add this case "No Reservation matches the given query."
-  // at least happens when mutating a reservation that doesn't exist
-  return errors
-    .reduce((acc, cur) => {
-      const code = cur?.extensions?.error_code
-        ? // eslint-disable-next-line @typescript-eslint/no-base-to-string -- FIXME
-          i18n?.t(`errors:${cur?.extensions?.error_code}`)
-        : "";
-      const message =
-        code === cur?.extensions?.error_code || !cur?.extensions?.error_code
-          ? i18n?.t("errors:general_error")
-          : code || "";
-      return message ? `${acc}${message}\n` : acc; /// contains non-breaking space
-    }, "")
-    .trim();
-};
+): string {
+  return key ? t(`application:error.${key}`, attrs) : "";
+}
 
 export const isTouchDevice = (): boolean =>
   isBrowser && window?.matchMedia("(any-hover: none)").matches;
