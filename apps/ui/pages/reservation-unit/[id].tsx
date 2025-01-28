@@ -48,7 +48,6 @@ import { Map as MapComponent } from "@/components/Map";
 import {
   getPostLoginUrl,
   getTranslation,
-  printErrorMessages,
 } from "@/modules/util";
 import {
   getFuturePricing,
@@ -91,9 +90,7 @@ import {
 import LoginFragment from "@/components/LoginFragment";
 import { RELATED_RESERVATION_STATES } from "common/src/const";
 import { useReservableTimes } from "@/hooks/useReservableTimes";
-import { errorToast } from "common/src/common/toast";
 import { ReservationTimePicker } from "@/components/reservation/ReservationTimePicker";
-import { ApolloError } from "@apollo/client";
 import { ReservationUnitPageWrapper } from "@/components/reservations/styles";
 import {
   getReservationInProgressPath,
@@ -103,6 +100,7 @@ import { ButtonVariant, LoadingSpinner, Notification } from "hds-react";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { Flex } from "common/styles/util";
 import { SubmitButton } from "@/styles/util";
+import { useDisplayError } from "@/hooks/useDisplayError";
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
@@ -464,6 +462,8 @@ function ReservationUnit({
 
   const [addReservation] = useCreateReservationMutation();
 
+  const displayError = useDisplayError();
+
   const createReservation = async (
     input: ReservationCreateMutationInput
   ): Promise<void> => {
@@ -483,12 +483,8 @@ function ReservationUnit({
       if (reservationUnit.pk != null) {
         router.push(getReservationInProgressPath(reservationUnit.pk, pk));
       }
-    } catch (error: unknown) {
-      const msg =
-        error instanceof ApolloError ? printErrorMessages(error) : null;
-      errorToast({
-        text: msg ?? t("errors:general_error"),
-      });
+    } catch (err) {
+      displayError(err);
     }
   };
 

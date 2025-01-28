@@ -39,6 +39,7 @@ function getErrorMessages(error: unknown): string {
   }
   if (error instanceof ApolloError) {
     const { graphQLErrors, networkError } = error;
+    // TODO what is this? why would ValidationError be in networkError?
     if (networkError != null) {
       if ("result" in networkError) {
         if (typeof networkError.result === "string") {
