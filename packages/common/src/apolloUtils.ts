@@ -1,19 +1,25 @@
 import { ApolloError } from "@apollo/client";
 import { type GraphQLErrors } from "@apollo/client/errors";
 
-type ValidationError = {
-  message: string | null;
-  code: string;
-  field: string | null;
-};
+// TODO narrow down the error type and transform unknowns to catch all
+type ErrorCode = string;
 
-type OverlappingError = {
+export interface ApiError {
+  code: ErrorCode;
+}
+
+export interface ValidationError extends ApiError {
+  message: string | null;
+  field: string | null;
+}
+
+export interface OverlappingError extends ApiError {
   overlapping: { begin: string; end: string }[];
-  code: string;
-};
+}
 
 function mapValidationError(gqlError: GraphQLErrors[0]): ValidationError[] {
   const { extensions } = gqlError;
+  const code = getExtensionCode(gqlError);
   if ("errors" in extensions && Array.isArray(extensions.errors)) {
     // field errors
     const { errors } = extensions;
@@ -21,11 +27,8 @@ function mapValidationError(gqlError: GraphQLErrors[0]): ValidationError[] {
       if (typeof err !== "object" || err == null) {
         return null;
       }
-      if ("message" in err && "code" in err && "field" in err) {
-        const { message, code, field } = err ?? {};
-        if (typeof code !== "string") {
-          return null;
-        }
+      if (code != null && "message" in err && "field" in err) {
+        const { message, field } = err ?? {};
         return {
           code,
           message: typeof message !== "string" ? null : message,
@@ -35,12 +38,7 @@ function mapValidationError(gqlError: GraphQLErrors[0]): ValidationError[] {
       return null;
     });
     return errs.filter((e): e is ValidationError => e != null);
-  } else if ("code" in extensions) {
-    // permission errors (non field errors)
-    const { code } = extensions;
-    if (typeof code !== "string") {
-      return [];
-    }
+  } else if (code != null) {
     return [
       {
         code,
@@ -68,12 +66,8 @@ export function getPermissionErrors(error: unknown): ValidationError[] {
     const { graphQLErrors } = error;
     if (graphQLErrors.length > 0) {
       const hasExtension = (e: (typeof graphQLErrors)[0]) => {
-        if (e.extensions == null) {
-          return false;
-        }
-        return (
-          PERMISSION_ERROR_CODES.find((x) => x === e.extensions?.code) != null
-        );
+        const code = getExtensionCode(e);
+        return PERMISSION_ERROR_CODES.some((x) => x === code);
       };
       return graphQLErrors.filter(hasExtension).flatMap(mapValidationError);
     }
@@ -86,16 +80,15 @@ export function getValidationErrors(error: unknown): ValidationError[] {
     return [];
   }
 
+  // TODO separate validation errors: this is invalid form values (user error)
+  const MUTATION_ERROR_CODE = "MUTATION_VALIDATION_ERROR";
+
   if (error instanceof ApolloError) {
     const { graphQLErrors } = error;
     if (graphQLErrors.length > 0) {
-      // TODO separate validation errors: this is invalid form values (user error)
-      const MUTATION_ERROR_CODE = "MUTATION_VALIDATION_ERROR";
       const isMutationError = (e: (typeof graphQLErrors)[0]) => {
-        if (e.extensions == null) {
-          return false;
-        }
-        return e.extensions.code === MUTATION_ERROR_CODE;
+        const code = getExtensionCode(e);
+        return code === MUTATION_ERROR_CODE;
       };
       return graphQLErrors.filter(isMutationError).flatMap(mapValidationError);
     }
@@ -114,10 +107,11 @@ extensions: {
 function mapOverlapError(gqlError: GraphQLErrors[0]) {
   const { extensions } = gqlError;
 
-  if ("overlapping" in extensions && "code" in extensions) {
-    const { overlapping, code } = extensions ?? {};
+  const code = getExtensionCode(gqlError);
+  if ("overlapping" in extensions) {
+    const { overlapping } = extensions ?? {};
     if (
-      typeof code !== "string" ||
+      code == null ||
       !Array.isArray(overlapping) ||
       overlapping.length === 0
     ) {
@@ -150,19 +144,57 @@ export function getSeriesOverlapErrors(error: unknown): OverlappingError[] {
   if (error == null) {
     return [];
   }
+  const CODE = "RESERVATION_SERIES_OVERLAPS";
 
   if (error instanceof ApolloError) {
     const { graphQLErrors } = error;
     if (graphQLErrors.length > 0) {
-      const CODE = "RESERVATION_SERIES_OVERLAPS";
       const isSpecificError = (e: (typeof graphQLErrors)[0]) => {
-        if (e.extensions == null) {
-          return false;
-        }
-        return e.extensions.code === CODE;
+        const code = getExtensionCode(e);
+        return code === CODE;
       };
       return graphQLErrors.filter(isSpecificError).flatMap(mapOverlapError);
     }
   }
   return [];
+}
+
+// TODO refactor so that this converts all different error types and not just the base type
+// i.e. include all other data also
+// then we can remove the public from other error functions
+// TODO add non-graphql errors code
+// TODO add no-extension errors
+export function getApiErrors(error: unknown): ApiError[] {
+  if (error == null) {
+    return [];
+  }
+
+  if (error instanceof ApolloError) {
+    const { graphQLErrors } = error;
+    if (graphQLErrors.length > 0) {
+      return graphQLErrors.map(getExtensionCode).map((code) => {
+        return {
+          code: code ?? "UNKNOWN",
+        };
+      });
+    }
+  }
+  return [];
+}
+
+function getExtensionCode(e: GraphQLErrors[0]): string | null {
+  if (e.extensions == null) {
+    return null;
+  }
+  if (
+    e.extensions.error_code != null &&
+    typeof e.extensions.error_code === "string"
+  ) {
+    return e.extensions.error_code;
+  }
+  // old extension name
+  if (e.extensions.code != null && typeof e.extensions.code === "string") {
+    return e.extensions.code;
+  }
+  return null;
 }
