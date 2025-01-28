@@ -1013,17 +1013,18 @@ function ReservationUnitSettings({
         />
         <CustomNumberInput name="maxReservationsPerUser" min={1} form={form} />
         <FieldGroup
-          heading={t("ReservationUnitEditor.introductionSettings")}
-          tooltip={t("ReservationUnitEditor.tooltip.introductionSettings")}
+          // FIXME replace the text fields
+          heading={t("ReservationUnitEditor.requireAdultReserveeSettings")}
+          tooltip={t("ReservationUnitEditor.tooltip.requireAdultReservee")}
           style={{ gridColumn: "1 / -1" }}
         >
           <Controller
             control={control}
-            name="requireIntroduction"
+            name="requireAdultReservee"
             render={({ field: { value, onChange } }) => (
               <Checkbox
-                id="requireIntroduction"
-                label={t("ReservationUnitEditor.requireIntroductionLabel")}
+                id="requireAdultReservee"
+                label={t("ReservationUnitEditor.requireAdultReserveeLabel")}
                 checked={value}
                 onChange={(e) => onChange(e.target.checked)}
               />

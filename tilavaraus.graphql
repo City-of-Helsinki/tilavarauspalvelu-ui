@@ -4002,7 +4002,7 @@ input ReservationUnitCreateMutationInput {
   publishEnds: DateTime
   purposes: [Int]
   qualifiers: [Int]
-  requireIntroduction: Boolean
+  requireAdultReservee: Boolean
   requireReservationHandling: Boolean
   reservationBegins: DateTime
   reservationBlockWholeDay: Boolean
@@ -4074,7 +4074,7 @@ type ReservationUnitCreateMutationPayload {
   publishingState: String
   purposes: [Int]
   qualifiers: [Int]
-  requireIntroduction: Boolean
+  requireAdultReservee: Boolean
   requireReservationHandling: Boolean
   reservationBegins: DateTime
   reservationBlockWholeDay: Boolean
@@ -4265,7 +4265,7 @@ type ReservationUnitNode implements Node {
     pk: [Int]
   ): [QualifierNode!]!
   rank: Int!
-  requireIntroduction: Boolean!
+  requireAdultReservee: Boolean!
   requireReservationHandling: Boolean!
   reservableTimeSpans(
     endDate: Date!
@@ -4628,7 +4628,7 @@ input ReservationUnitUpdateMutationInput {
   publishEnds: DateTime
   purposes: [Int]
   qualifiers: [Int]
-  requireIntroduction: Boolean
+  requireAdultReservee: Boolean
   requireReservationHandling: Boolean
   reservationBegins: DateTime
   reservationBlockWholeDay: Boolean
@@ -4700,7 +4700,7 @@ type ReservationUnitUpdateMutationPayload {
   publishingState: String
   purposes: [Int]
   qualifiers: [Int]
-  requireIntroduction: Boolean
+  requireAdultReservee: Boolean
   requireReservationHandling: Boolean
   reservationBegins: DateTime
   reservationBlockWholeDay: Boolean
