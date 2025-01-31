@@ -1,6 +1,8 @@
 import {
   Button,
-  IconPlusCircle,
+  ButtonVariant,
+  IconArrowUndo,
+  IconPlus,
   Notification,
   NotificationSize,
 } from "hds-react";
@@ -15,9 +17,9 @@ import { IconButton } from "common/src/components";
 import { filterNonNullable } from "common/src/helpers";
 import Modal from "../common/Modal";
 import type { ApplicationFormValues } from "./Form";
-import { ReservationUnitCard } from "./reservation-unit-card";
+import { OrderedReservationUnitCard } from "./OrderedReservationUnitCard";
 import { Flex } from "common/styles/util";
-import { ReservationUnitModalContent } from "./reservation-unit-modal-content";
+import { ReservationUnitModalContent } from "./ReservationUnitModalContent";
 import { breakpoints } from "common";
 
 type Node = NonNullable<ApplicationQuery["application"]>;
@@ -131,8 +133,9 @@ export function ReservationUnitList({
   };
 
   // Only checking for the required error here, other errors are handled in the ReservationUnitCard
-  const unitErros = errors.applicationSections?.[index]?.reservationUnits;
-  const hasNoUnitsError = unitErros != null && unitErros.message === "Required";
+  const unitErrors = errors.applicationSections?.[index]?.reservationUnits;
+  const hasNoUnitsError =
+    unitErrors != null && unitErrors.message === "Required";
 
   return (
     <Flex>
@@ -151,34 +154,44 @@ export function ReservationUnitList({
       >
         {t("reservationUnitList:infoReservationUnits")}
       </Notification>
-      {currentReservationUnits.map((ru, i, all) => (
-        <ReservationUnitCard
-          key={ru.pk}
-          invalid={
-            minSize != null && ru.maxPersons != null && minSize > ru.maxPersons
-          }
-          onDelete={remove}
-          reservationUnit={ru}
-          order={i}
-          first={i === 0}
-          last={i === all.length - 1}
-          onMoveDown={moveDown}
-          onMoveUp={moveUp}
+      <Flex $gap="m" $direction="column">
+        {currentReservationUnits.map((ru, i, all) => (
+          <OrderedReservationUnitCard
+            key={ru.pk}
+            invalid={
+              minSize != null &&
+              ru.maxPersons != null &&
+              minSize > ru.maxPersons
+            }
+            onDelete={remove}
+            reservationUnit={ru}
+            order={i}
+            first={i === 0}
+            last={i === all.length - 1}
+            onMoveDown={moveDown}
+            onMoveUp={moveUp}
+          />
+        ))}
+      </Flex>
+      <Flex $alignItems="center">
+        <IconButton
+          onClick={() => setShowModal(true)}
+          icon={<IconPlus aria-hidden="true" />}
+          label={t("reservationUnitList:add")}
         />
-      ))}
-      <IconButton
-        onClick={() => setShowModal(true)}
-        icon={<IconPlusCircle aria-hidden="true" />}
-        label={t("reservationUnitList:add")}
-      />
+      </Flex>
       <Modal
         show={showModal}
         handleClose={() => setShowModal(false)}
         maxWidth={breakpoints.l}
         fullHeight
         actions={
-          <Flex $alignItems="flex-end">
-            <Button onClick={() => setShowModal(false)}>
+          <Flex $alignItems="center">
+            <Button
+              iconStart={<IconArrowUndo aria-hidden="true" />}
+              onClick={() => setShowModal(false)}
+              variant={ButtonVariant.Supplementary}
+            >
               {t("reservationUnitModal:returnToApplication")}
             </Button>
           </Flex>

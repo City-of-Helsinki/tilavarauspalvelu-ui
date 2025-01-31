@@ -4,15 +4,15 @@ import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
 import {
   ApplicantTypeChoice,
-  ApplicationStatusChoice,
   type ApplicationQuery,
+  ApplicationStatusChoice,
 } from "@gql/gql-types";
 import { useRouter } from "next/router";
-import Stepper, { StepperProps } from "./Stepper";
 import NotesWhenApplying from "@/components/application/NotesWhenApplying";
 import { applicationsPrefix, getApplicationPath } from "@/modules/urls";
 import { Breadcrumb } from "../common/Breadcrumb";
-import { H1 } from "common";
+import { fontBold, H1 } from "common";
+import { Stepper as HDSStepper, StepState } from "hds-react";
 
 const InnerContainer = styled.div<{ $hideStepper: boolean }>`
   display: grid;
@@ -22,7 +22,7 @@ const InnerContainer = styled.div<{ $hideStepper: boolean }>`
   grid-template-columns: 1fr;
   @media (min-width: ${breakpoints.l}) {
     grid-template-columns: ${({ $hideStepper }) =>
-      $hideStepper ? `1fr;` : `23em 1fr;`};
+      $hideStepper ? `1fr;` : `21em 1fr;`};
   }
 `;
 
@@ -34,6 +34,12 @@ const ChildWrapper = styled.div`
   @media (min-width: ${breakpoints.l}) {
     grid-column: 2;
     grid-row: 1 / -1;
+  }
+`;
+
+const StyledStepper = styled(HDSStepper)`
+  [class*="Stepper-module_selected"] {
+    ${fontBold}
   }
 `;
 
@@ -86,26 +92,67 @@ type ApplicationPageProps = {
   headContent?: React.ReactNode;
 };
 
+const getStep = (slug: string) => {
+  switch (slug) {
+    case "page1":
+      return 0;
+    case "page2":
+      return 1;
+    case "page3":
+      return 2;
+    case "preview":
+      return 3;
+    default:
+      return 0;
+  }
+};
+
+const getStepState = (completedStep: number, step: number) => {
+  if (completedStep === step) {
+    return StepState.completed;
+  }
+  if (completedStep > step) {
+    return StepState.completed;
+  }
+  return StepState.disabled;
+};
+
 export function ApplicationPageWrapper({
   application,
   translationKeyPrefix,
   headContent,
   overrideText,
-  isDirty,
   children,
-}: ApplicationPageProps): JSX.Element {
-  const { t } = useTranslation();
+}: Readonly<ApplicationPageProps>): JSX.Element {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
+  const { asPath, push } = router;
 
   const pages = ["page1", "page2", "page3", "preview"] as const;
 
   const hideStepper =
     pages.filter((x) => router.asPath.match(`/${x}`)).length === 0;
-  const steps: StepperProps = {
-    steps: pages.map((x, i) => ({ slug: x, step: i })),
-    completedStep: application ? calculateCompletedStep(application) : 0,
-    basePath: getApplicationPath(application?.pk),
-    isFormDirty: isDirty ?? false,
+  const completedStep = calculateCompletedStep(application);
+  const steps = pages.map((x, i) => ({
+    label: t(`application:navigation.${x}`),
+    state: getStepState(completedStep, i),
+  }));
+
+  const handleStepClick = (i: number) => {
+    if (Number.isNaN(i) || i > 3) return; // invalid step
+    const targetPageIndex = i + 1;
+    if (
+      targetPageIndex === 4
+        ? asPath.endsWith("preview")
+        : asPath.includes(`page${targetPageIndex}`)
+    ) {
+      return; // already on the page, so do nothing
+    }
+    if (targetPageIndex === 4) {
+      push(`${getApplicationPath(application?.pk)}preview`);
+    } else {
+      push(`${getApplicationPath(application?.pk)}page${targetPageIndex}`);
+    }
   };
 
   const title = t(`${translationKeyPrefix}.heading`);
@@ -129,8 +176,15 @@ export function ApplicationPageWrapper({
         <H1 $noMargin>{title}</H1>
         <p>{subTitle}</p>
       </div>
+      {hideStepper ? null : (
+        <StyledStepper
+          language={i18n.language}
+          steps={steps}
+          selectedStep={getStep(asPath.split("/").pop() ?? "page1")}
+          onStepClick={(_e, i) => handleStepClick(i)}
+        />
+      )}
       <InnerContainer $hideStepper={hideStepper}>
-        {hideStepper ? null : <Stepper {...steps} />}
         <>
           {/* TODO preview / view should not maybe display these notes */}
           <StyledNotesWhenApplying
