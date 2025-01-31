@@ -78,9 +78,10 @@ const ApplicationSectionFormValueSchema = z
     accordionOpen: z.boolean(),
     // form specific: new events don't have pks and we need a unique identifier
     formKey: z.string(),
-    // selected reservation unit to show for this section
-    reservationUnitPk: z.number(),
-    priority: z.literal(200).or(z.literal(300)),
+    // selected reservation unit to show for this section (only used by Page2)
+    // TODO split the form? so we have three schemas (common + page1 + page2)
+    reservationUnitPk: z.number().optional(),
+    priority: z.literal(200).or(z.literal(300)).optional(),
   })
   .refine((s) => s.maxDuration >= s.minDuration, {
     path: ["maxDuration"],
@@ -164,9 +165,9 @@ function convertDate(date: string | null | undefined): string | undefined {
 
 const AddressFormValueSchema = z.object({
   pk: z.number().optional(),
-  streetAddress: z.string(),
-  city: z.string(),
-  postCode: z.string(),
+  streetAddress: z.string().min(1).max(80),
+  city: z.string().min(1).max(80),
+  postCode: z.string().min(1).max(32),
 });
 export type AddressFormValues = z.infer<typeof AddressFormValueSchema>;
 
@@ -174,7 +175,7 @@ export type AddressFormValues = z.infer<typeof AddressFormValueSchema>;
 const OrganisationFormValuesSchema = z.object({
   pk: z.number().optional(),
   name: z.string().min(1).max(255),
-  identifier: z.string().optional(),
+  identifier: z.string().max(255).optional(),
   yearEstablished: z.number().optional(),
   coreBusiness: z.string().min(1).max(255),
   address: AddressFormValueSchema,
@@ -325,17 +326,126 @@ export function ApplicationFormSchemaRefined(round: {
 // TODO refine the form (different applicant types require different fields)
 // if applicantType === Organisation | Company => organisation.identifier is required
 // if hasBillingAddress | applicantType === Individual => billingAddress is required
-const ApplicationFormPage3Schema = z.object({
-  pk: z.number(),
-  applicantType: ApplicantTypeSchema.optional(),
-  organisation: OrganisationFormValuesSchema.optional(),
-  contactPerson: PersonFormValuesSchema.optional(),
-  billingAddress: AddressFormValueSchema.optional(),
-  // this is not submitted, we can use it to remove the billing address from submit without losing the frontend state
-  hasBillingAddress: z.boolean().optional(),
-  additionalInformation: z.string().optional(),
-  homeCity: z.number().optional(),
-});
+export const ApplicationFormPage3Schema = z
+  .object({
+    pk: z.number(),
+    applicantType: ApplicantTypeSchema.optional(),
+    organisation: OrganisationFormValuesSchema.optional(),
+    contactPerson: PersonFormValuesSchema.optional(),
+    billingAddress: AddressFormValueSchema.optional(),
+    // this is not submitted, we can use it to remove the billing address from submit without losing the frontend state
+    hasBillingAddress: z.boolean().optional(),
+    additionalInformation: z.string().optional(),
+    homeCity: z.number().optional(),
+  })
+  .superRefine((val, ctx) => {
+    switch (val.applicantType) {
+      case ApplicantTypeChoice.Association:
+      case ApplicantTypeChoice.Company:
+        if (val.organisation?.identifier == null) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["organisation", "identifier"],
+            message: "Required",
+          });
+        }
+        break;
+      default:
+        break;
+    }
+    if (val.applicantType !== ApplicantTypeChoice.Individual) {
+      if (val.organisation?.name == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["organisation", "name"],
+          message: "Required",
+        });
+      }
+      if (val.organisation?.coreBusiness == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["organisation", "coreBusiness"],
+          message: "Required",
+        });
+      }
+      if (!val.organisation?.address?.streetAddress) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["organisation", "address", "streetAddress"],
+          message: "Required",
+        });
+      }
+      if (!val.organisation?.address?.city) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["organisation", "address", "city"],
+          message: "Required",
+        });
+      }
+      if (!val.organisation?.address?.postCode) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["organisation", "address", "postCode"],
+          message: "Required",
+        });
+      }
+    }
+    // TODO need to split
+    if (!val.contactPerson?.firstName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["contactPerson", "firstName"],
+        message: "Required",
+      });
+    }
+    if (!val.contactPerson?.lastName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["contactPerson", "lastName"],
+        message: "Required",
+      });
+    }
+    if (!val.contactPerson?.email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["contactPerson", "email"],
+        message: "Required",
+      });
+    }
+    if (!val.contactPerson?.phoneNumber) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["contactPerson", "phoneNumber"],
+        message: "Required",
+      });
+    }
+
+    // TODO need to check the subfields of the address
+    if (val.hasBillingAddress) {
+      if (!val.billingAddress?.streetAddress) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["billingAddress", "streetAddress"],
+          message: "Required",
+        });
+      }
+      if (!val.billingAddress?.city) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["billingAddress", "city"],
+          message: "Required",
+        });
+      }
+      if (!val.billingAddress?.postCode) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["billingAddress", "postCode"],
+          message: "Required",
+        });
+      }
+    }
+  });
+
 export type ApplicationFormPage3Values = z.infer<
   typeof ApplicationFormPage3Schema
 >;

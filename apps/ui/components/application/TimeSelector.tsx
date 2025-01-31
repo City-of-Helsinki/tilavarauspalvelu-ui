@@ -435,7 +435,7 @@ export function TimeSelector({
             labelHead={t(`common:weekDay.${fromMondayFirstUnsafe(day)}`)}
             cells={cells[day]}
             setCellValue={setCellValue}
-            priority={priority}
+            priority={priority ?? 200}
           />
         ))}
       </CalendarContainer>
