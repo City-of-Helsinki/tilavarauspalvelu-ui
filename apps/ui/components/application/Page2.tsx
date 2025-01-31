@@ -15,7 +15,7 @@ import { filterNonNullable } from "common/src/helpers";
 import type {
   ApplicationSectionFormValue,
   ApplicationFormValues,
-} from "./Form";
+} from "./form";
 import {
   convertLanguageCode,
   getTranslationSafe,
@@ -82,7 +82,7 @@ function getApplicationEventsWhichMinDurationsIsNotFulfilled(
   );
 }
 
-function Page2({ application, onNext }: Props): JSX.Element {
+export function Page2({ application, onNext }: Props): JSX.Element {
   const { t } = useTranslation();
 
   const [minDurationMsg, setMinDurationMsg] = useState(true);
@@ -235,5 +235,3 @@ function ApplicationSectionTimePicker({
     </Accordion>
   );
 }
-
-export default Page2;
