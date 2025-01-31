@@ -1,20 +1,16 @@
-import { Checkbox, NumberInput, TextArea, TextInput } from "hds-react";
+import { NumberInput, TextArea, TextInput } from "hds-react";
 import get from "lodash/get";
 import React, { useMemo } from "react";
-import {
-  Control,
-  Controller,
-  FieldValues,
-  useFormContext,
-} from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { fontMedium, fontRegular, Strongish } from "../common/typography";
+import { fontMedium, Strongish } from "../common/typography";
 import { CustomerTypeChoice } from "../../gql/gql-types";
 import { Inputs, Reservation } from "./types";
 import { CheckboxWrapper } from "./components";
 import { OptionType } from "../../types/common";
 import { ControlledSelect } from "../components/form";
+import { ControlledCheckbox } from "../components/form/ControlledCheckbox";
 
 type Props = {
   field: keyof Inputs;
@@ -80,45 +76,6 @@ const StyledTextArea = styled(TextArea)<TextAreaProps>`
     ${fontMedium};
   }
 `;
-
-const StyledCheckbox = styled(Checkbox)`
-  && label {
-    ${fontRegular};
-    line-height: var(--lineheight-l);
-
-    a {
-      text-decoration: underline;
-      color: var(--color-black);
-    }
-  }
-`;
-
-const ControlledCheckbox = (props: {
-  field: string;
-  control: Control<FieldValues, boolean>;
-  required: boolean;
-  label: string;
-  defaultValue?: boolean;
-  errorText?: string;
-  defaultChecked?: boolean;
-}) => (
-  <Controller
-    name={props.field}
-    control={props.control}
-    defaultValue={props.defaultValue}
-    rules={{ required: props.required }}
-    render={({ field: { value, onChange } }) => (
-      <StyledCheckbox
-        id={props.field}
-        onChange={(e) => onChange(e.target.checked)}
-        checked={value}
-        defaultChecked={props.defaultChecked}
-        label={props.label}
-        errorText={props.errorText}
-      />
-    )}
-  />
-);
 
 /* NOTE: backend returns validation errors if text fields are too long
  * remove maxlength after adding proper schema validation
@@ -341,7 +298,7 @@ const ReservationFormField = ({
 
   const checkParams = {
     id,
-    field,
+    name: field,
     control,
     defaultValue: typeof defaultValue === "boolean" ? defaultValue : undefined,
     label,
@@ -371,7 +328,7 @@ const ReservationFormField = ({
         <StyledCheckboxWrapper key={field} $break={isBreakingColumn}>
           <ControlledCheckbox
             {...checkParams}
-            defaultChecked={watch("reserveeIsUnregisteredAssociation")}
+            defaultValue={watch("reserveeIsUnregisteredAssociation")}
           />
         </StyledCheckboxWrapper>
       );

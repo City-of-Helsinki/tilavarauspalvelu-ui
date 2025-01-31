@@ -6,7 +6,7 @@ import { applicationErrorText } from "@/modules/util";
 import type { ApplicationFormPage3Values } from "./Form";
 import { SpanTwoColumns } from "./styled";
 
-const EmailInput = () => {
+export function EmailInput() {
   const { t } = useTranslation();
 
   const {
@@ -43,6 +43,4 @@ const EmailInput = () => {
       />
     </>
   );
-};
-
-export { EmailInput };
+}

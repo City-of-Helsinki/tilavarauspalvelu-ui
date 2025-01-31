@@ -107,12 +107,12 @@ function ApplicationEventInner({
     | "name"
     | "appliedReservationsPerWeek"
     | "reservationUnits";
-  const getTranslatedError = (field: FieldName): string => {
+  const getTranslatedError = (field: FieldName): string | undefined => {
     const error = errors.applicationSections?.[index]?.[field];
     if (error?.message != null) {
       return t(`application:validation.${error.message}`);
     }
-    return "";
+    return undefined;
   };
 
   // convert from minutes to seconds (search page uses minutes, this uses seconds)
@@ -120,6 +120,8 @@ function ApplicationEventInner({
     label: x.label,
     value: x.value * 60,
   }));
+
+  const lang = getLocalizationLang(i18n.language);
 
   return (
     <Flex $gap="s" $marginTop="s">
@@ -191,9 +193,9 @@ function ApplicationEventInner({
         />
       </CheckboxWrapper>
       <AutoGrid>
+        {/* TODO replace with ControlledDateInput */}
         <DateInput
-          // disableConfirmation: is not accessible
-          language={getLocalizationLang(i18n.language)}
+          language={lang}
           {...register(`applicationSections.${index}.begin`)}
           onChange={(v) => {
             clearErrors([
@@ -215,10 +217,10 @@ function ApplicationEventInner({
           invalid={errors?.applicationSections?.[index]?.begin != null}
           errorText={getTranslatedError("begin")}
         />
+        {/* TODO replace with ControlledDateInput */}
         <DateInput
           {...register(`applicationSections.${index}.end`)}
-          // disableConfirmation: is not accessible
-          language={getLocalizationLang(i18n.language)}
+          language={lang}
           onChange={(v) => {
             clearErrors([
               `applicationSections.${index}.begin`,

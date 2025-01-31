@@ -25,6 +25,7 @@ import {
   type PersonFormValues,
   type AddressFormValues,
   type OrganisationFormValues,
+  ApplicationFormPage3Schema,
 } from "@/components/application/Form";
 import { ApplicationPageWrapper } from "@/components/application/ApplicationPage";
 import { useApplicationUpdate } from "@/hooks/useApplicationUpdate";
@@ -36,6 +37,7 @@ import { getApplicationPath } from "@/modules/urls";
 import { Button, ButtonVariant, IconArrowRight } from "hds-react";
 import { ButtonContainer } from "common/styles/util";
 import styled from "styled-components";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function Buttons({
   applicationPk,
@@ -76,7 +78,6 @@ function transformPerson(person?: PersonFormValues) {
   };
 }
 
-type Node = NonNullable<ApplicationQuery["application"]>;
 function isAddressValid(address?: AddressFormValues) {
   const { streetAddress, postCode, city } = address || {};
   return (
@@ -111,8 +112,10 @@ function transformOrganisation(org: OrganisationFormValues) {
   };
 }
 
+type ApplicationT = NonNullable<ApplicationQuery["application"]>;
+
 function convertApplicationToForm(
-  app?: Maybe<Node>
+  app?: Maybe<ApplicationT>
 ): ApplicationFormPage3Values {
   return {
     pk: app?.pk ?? 0,
@@ -161,7 +164,6 @@ function Page3(): JSX.Element | null {
   const { cityOptions } = options;
 
   const { watch } = useFormContext<ApplicationFormPage3Values>();
-
   const type = watch("applicantType");
 
   switch (type) {
@@ -203,7 +205,8 @@ function Page3Wrapped(props: PropsNarrowed): JSX.Element | null {
     defaultValues: convertApplicationToForm(application),
     // No resolver because different types require different mandatory values.
     // Would need to write more complex validation logic that branches based on the type.
-    // resolver: zodResolver(ApplicationFormPage3Schema),
+    resolver: zodResolver(ApplicationFormPage3Schema),
+    reValidateMode: "onChange",
   });
 
   const {
