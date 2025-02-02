@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Button,
+  ButtonPresetTheme,
   ButtonSize,
   ButtonVariant,
   IconArrowUndo,
@@ -17,23 +18,28 @@ export function ReservationListButton({
   type,
   callback,
   t,
-}: {
+}: Readonly<{
   type: "remove" | "deny" | "restore" | "change" | "show";
   callback: () => void;
   // Pass the TFunc because the amount of buttons change and hooks break
   t: TFunction;
-}) {
+}>) {
   const btnCommon = {
     variant: ButtonVariant.Supplementary,
     onClick: callback,
     size: ButtonSize.Small,
+    theme: ButtonPresetTheme.Black,
   } as const;
 
   switch (type) {
     case "show":
       return (
         <a href="#reservation-calendar" style={{ textDecoration: "none" }}>
-          <Button key={type} {...btnCommon} iconStart={<IconClock />}>
+          <Button
+            key={type}
+            {...btnCommon}
+            iconStart={<IconClock aria-hidden />}
+          >
             {t("ReservationsListButton.showInCalendar")}
           </Button>
         </a>
@@ -41,19 +47,23 @@ export function ReservationListButton({
     case "deny":
     case "remove":
       return (
-        <Button key={type} {...btnCommon} iconStart={<IconCross />}>
+        <Button key={type} {...btnCommon} iconStart={<IconCross aria-hidden />}>
           {type === "deny" ? t("common.deny") : t("common.remove")}
         </Button>
       );
     case "restore":
       return (
-        <Button key={type} {...btnCommon} iconStart={<IconArrowUndo />}>
+        <Button
+          key={type}
+          {...btnCommon}
+          iconStart={<IconArrowUndo aria-hidden />}
+        >
           {t("common.restore")}
         </Button>
       );
     case "change":
       return (
-        <Button key={type} {...btnCommon} iconStart={<IconPen />}>
+        <Button key={type} {...btnCommon} iconStart={<IconPen aria-hidden />}>
           {t("ReservationsListButton.changeTime")}
         </Button>
       );
