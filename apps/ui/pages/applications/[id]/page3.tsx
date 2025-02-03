@@ -26,7 +26,7 @@ import { getCommonServerSideProps } from "@/modules/serverUtils";
 import { base64encode, ignoreMaybeArray, toNumber } from "common/src/helpers";
 import { errorToast } from "common/src/common/toast";
 import { getApplicationPath } from "@/modules/urls";
-import { Button, ButtonVariant, IconArrowRight } from "hds-react";
+import { Button, ButtonSize, ButtonVariant, IconArrowRight } from "hds-react";
 import { AutoGrid, ButtonContainer } from "common/styles/util";
 import styled from "styled-components";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -128,12 +128,17 @@ function Page3({ application }: PropsNarrowed): JSX.Element {
             <EmailInput />
           </AutoGrid>
           <ButtonContainer>
-            <Button variant={ButtonVariant.Secondary} onClick={onPrev}>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              onClick={onPrev}
+            >
               {t("common:prev")}
             </Button>
             <Button
               id="button__application--next"
               iconEnd={<IconArrowRight aria-hidden="true" />}
+              size={ButtonSize.Small}
               type="submit"
               disabled={!isValid}
             >

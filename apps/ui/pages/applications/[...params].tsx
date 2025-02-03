@@ -192,10 +192,11 @@ function ApplicationRootPage({
   const { t, i18n } = useTranslation();
 
   const lang = convertLanguageCode(i18n.language);
-  const applicationRoundName =
-    applicationRound != null
-      ? getTranslationSafe(applicationRound, "name", lang)
-      : "-";
+  const applicationRoundName = getTranslationSafe(
+    applicationRound,
+    "name",
+    lang
+  );
 
   const errorMessage = getErrorMessages(error);
   const errorTranslated =

@@ -20,7 +20,7 @@ import { errorToast } from "common/src/common/toast";
 import { getApplicationPath } from "@/modules/urls";
 import { ButtonLikeLink } from "@/components/common/ButtonLikeLink";
 import { ButtonContainer, Flex } from "common/styles/util";
-import { Button, ButtonVariant, LoadingSpinner } from "hds-react";
+import { Button, ButtonSize, ButtonVariant, LoadingSpinner } from "hds-react";
 import { toNumber } from "lodash";
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
@@ -79,19 +79,17 @@ function Preview({ application, tos }: PropsNarrowed): JSX.Element {
           setAcceptTermsOfUse={setAcceptTermsOfUse}
         />
         <ButtonContainer>
-          <ButtonLikeLink
-            size="large"
-            href={getApplicationPath(application.pk, "page3")}
-          >
+          <ButtonLikeLink href={getApplicationPath(application.pk, "page3")}>
             {t("common:prev")}
           </ButtonLikeLink>
           <Button
-            id="submit"
+            id="button__application--submit"
             type="submit"
             variant={
               isMutationLoading ? ButtonVariant.Clear : ButtonVariant.Primary
             }
             iconStart={isMutationLoading ? <LoadingSpinner /> : undefined}
+            size={ButtonSize.Small}
             disabled={!acceptTermsOfUse || isMutationLoading}
           >
             {t("common:submit")}
