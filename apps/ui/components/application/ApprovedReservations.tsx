@@ -1,9 +1,9 @@
 import {
   type ApplicationReservationsQuery,
   useApplicationReservationsQuery,
-  type ApplicationQuery,
-  ReservationUnitNode,
+  type ReservationUnitNode,
   ReservationStateChoice,
+  type ApplicationNode,
 } from "@/gql/gql-types";
 import {
   getApplicationReservationPath,
@@ -62,10 +62,7 @@ import { useSearchParams } from "next/navigation";
 
 const N_RESERVATIONS_TO_SHOW = 20;
 
-type ApplicationT = Pick<
-  NonNullable<ApplicationQuery["application"]>,
-  "id" | "pk"
->;
+type ApplicationT = Pick<ApplicationNode, "id" | "pk">;
 type Props = {
   application: ApplicationT;
 };
