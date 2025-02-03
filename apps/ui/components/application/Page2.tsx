@@ -26,11 +26,7 @@ import {
 import { getReadableList } from "@/modules/util";
 import { AccordionWithState as Accordion } from "@/components/Accordion";
 import { TimeSelector } from "./TimeSelector";
-import {
-  aesToCells,
-  Cell,
-  cellsToApplicationEventSchedules,
-} from "./module";
+import { aesToCells, Cell, cellsToApplicationEventSchedules } from "./module";
 import { errorToast } from "common/src/common/toast";
 import { ButtonContainer } from "common/styles/util";
 import { getApplicationPath } from "@/modules/urls";
@@ -139,9 +135,7 @@ function getListOfApplicationEventTitles(
 function getApplicationEventsWhichMinDurationsIsNotFulfilled(
   aes: ApplicationSectionPage2FormValue[]
 ): number[] {
-  const selected = aes.map((ae) =>
-    aesToCells(convertToSchedule(ae))
-  );
+  const selected = aes.map((ae) => aesToCells(convertToSchedule(ae)));
   const selectedHours = getLongestChunks(selected);
   return filterNonNullable(
     aes.map((ae, index) => {
@@ -151,7 +145,7 @@ function getApplicationEventsWhichMinDurationsIsNotFulfilled(
   );
 }
 
-function MinDurationMessage (): JSX.Element | null {
+function MinDurationMessage(): JSX.Element | null {
   const { t } = useTranslation();
   const { watch } = useFormContext<ApplicationPage2FormValues>();
   const applicationSections = filterNonNullable(watch("applicationSections"));
@@ -163,7 +157,10 @@ function MinDurationMessage (): JSX.Element | null {
     return null;
   }
 
-  const title = getListOfApplicationEventTitles(applicationSections, sectionsNotFullfilled);
+  const title = getListOfApplicationEventTitles(
+    applicationSections,
+    sectionsNotFullfilled
+  );
 
   return (
     <Notification
@@ -175,7 +172,8 @@ function MinDurationMessage (): JSX.Element | null {
     >
       {applicationSections.length === 1
         ? t("application:Page2.notification.minDuration.bodySingle")
-        : t("application:Page2.notification.minDuration.body", { title,
+        : t("application:Page2.notification.minDuration.body", {
+            title,
             count: sectionsNotFullfilled.length,
           })}
     </Notification>
