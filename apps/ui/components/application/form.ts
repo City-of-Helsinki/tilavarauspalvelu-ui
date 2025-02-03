@@ -84,7 +84,6 @@ const ApplicationSectionFormValueSchema = z
     accordionOpen: z.boolean(),
     // form specific: new events don't have pks and we need a unique identifier
     formKey: z.string(),
-
   })
   .refine((s) => s.maxDuration >= s.minDuration, {
     path: ["maxDuration"],
@@ -105,9 +104,11 @@ export type ApplicationSectionFormValue = z.infer<
   typeof ApplicationSectionFormValueSchema
 >;
 
-export type ApplicationSectionPage2FormValue  = z.infer<typeof ApplicationSectionPage2Schema>;
+export type ApplicationSectionPage2FormValue = z.infer<
+  typeof ApplicationSectionPage2Schema
+>;
 
-const ApplicationSectionPage2Schema = z.object({
+export const ApplicationSectionPage2Schema = z.object({
   pk: z.number(),
   suitableTimeRanges: z.array(SuitableTimeRangeFormTypeSchema).min(1),
   minDuration: z.number().min(1),
@@ -119,7 +120,18 @@ const ApplicationSectionPage2Schema = z.object({
 });
 
 type SectionType = NonNullable<Node["applicationSections"]>[0];
+
 function transformApplicationSectionPage2(
+  values: ApplicationSectionPage2FormValue
+): UpdateApplicationSectionForApplicationSerializerInput {
+  return {
+    pk: values.pk,
+    suitableTimeRanges: values.suitableTimeRanges.map(
+      transformSuitableTimeRange
+    ),
+  };
+}
+function convertApplicationSectionPage2(
   section: SectionType
 ): ApplicationSectionPage2FormValue {
   return {
@@ -129,18 +141,22 @@ function transformApplicationSectionPage2(
       (timeRanges) => convertTimeRange(timeRanges)
     ),
     minDuration: section.reservationMinDuration ?? 0,
+    reservationUnitPk:
+      section.reservationUnitOptions[0].reservationUnit.pk ?? 0,
   };
 }
 const ApplicationPage2Schema = z.object({
   pk: z.number(),
   // applicantType: ApplicantTypeSchema.optional(),
-  applicationSections: z.array(ApplicationSectionPage2Schema)
+  applicationSections: z.array(ApplicationSectionPage2Schema),
 });
 
 export type ApplicationPage2FormValues = z.infer<typeof ApplicationPage2Schema>;
 
 export function convertToSchedule(
-  b: NonNullable<NonNullable<ApplicationPage2FormValues["applicationSections"]>[0]>
+  b: NonNullable<
+    NonNullable<ApplicationPage2FormValues["applicationSections"]>[0]
+  >
 ): ApplicationEventScheduleFormType[] {
   return (
     b.suitableTimeRanges?.map((range) => {
@@ -157,24 +173,21 @@ export function convertToSchedule(
 function transformApplicationSectionToForm(
   section: SectionType
 ): ApplicationSectionFormValue {
-  const initialReservationUnitPk =
-    section.reservationUnitOptions[0].reservationUnit.pk ?? 0;
-
   const reservationUnits = filterNonNullable(
-      section.reservationUnitOptions?.map(
-        ({ reservationUnit, preferredOrder }) => ({
-          pk: reservationUnit?.pk,
-          preferredOrder,
-        })
-      )
+    section.reservationUnitOptions?.map(
+      ({ reservationUnit, preferredOrder }) => ({
+        pk: reservationUnit?.pk,
+        preferredOrder,
+      })
     )
-      .sort((a, b) =>
-        a.preferredOrder && b.preferredOrder
-          ? a.preferredOrder - b.preferredOrder
-          : 0
-      )
-      .map((eru) => eru.pk ?? 0)
-      .filter((pk) => pk > 0);
+  )
+    .sort((a, b) =>
+      a.preferredOrder && b.preferredOrder
+        ? a.preferredOrder - b.preferredOrder
+        : 0
+    )
+    .map((eru) => eru.pk ?? 0)
+    .filter((pk) => pk > 0);
 
   return {
     pk: section.pk ?? undefined,
@@ -191,8 +204,6 @@ function transformApplicationSectionToForm(
     begin: convertDate(section.reservationsBeginDate),
     end: convertDate(section.reservationsEndDate),
     accordionOpen: false,
-    reservationUnitPk: initialReservationUnitPk,
-    priority: 300,
   };
 }
 
@@ -500,9 +511,7 @@ export const ApplicationPage3Schema = z
     }
   });
 
-export type ApplicationPage3FormValues = z.infer<
-  typeof ApplicationPage3Schema
->;
+export type ApplicationPage3FormValues = z.infer<typeof ApplicationPage3Schema>;
 
 /// form -> API transformers, enforce return types so API changes cause type errors
 
@@ -566,19 +575,41 @@ function transformApplicationSection(
   return commonData;
 }
 
-// For pages 1 and 2
-export function transformApplication(
+export function transformApplicationPage2(
+  values: ApplicationPage2FormValues
+): ApplicationUpdateMutationInput {
+  const { pk } = values;
+  const appEvents = values.applicationSections;
+  return {
+    pk,
+    applicationSections: appEvents.map((ae) =>
+      transformApplicationSectionPage2(ae)
+    ),
+  };
+}
+// For page 1
+export function transformApplicationPage1(
   values: ApplicationPage1FormValues
 ): ApplicationUpdateMutationInput {
+  const { pk } = values;
   const appEvents = filterNonNullable(values.applicationSections);
   return {
-    pk: values.pk,
-    applicantType: values.applicantType,
+    pk,
+    ...("applicantType" in values
+      ? { applicantType: values.applicantType }
+      : {}),
     applicationSections: appEvents.map((ae) => transformApplicationSection(ae)),
   };
 }
 
-export function convertApplication(
+export function convertApplicationPage2(app: Node): ApplicationPage2FormValues {
+  return {
+    pk: app?.pk ?? 0,
+    applicationSections:
+      app.applicationSections?.map(convertApplicationSectionPage2) ?? [],
+  };
+}
+export function convertApplicationPage1(
   app: Node,
   reservationUnits: Pick<ReservationUnitNode, "pk">[]
 ): ApplicationPage1FormValues {
@@ -601,8 +632,6 @@ export function convertApplication(
     appliedReservationsPerWeek: 1,
     reservationUnits: filterNonNullable(reservationUnits.map((ru) => ru.pk)),
     accordionOpen: true,
-    reservationUnitPk: 0,
-    priority: 300,
   };
   return {
     pk: app?.pk ?? 0,

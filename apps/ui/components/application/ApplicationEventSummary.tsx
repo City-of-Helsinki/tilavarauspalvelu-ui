@@ -9,7 +9,15 @@ import { type ApplicationSectionFormValue } from "./form";
 import { Flex } from "common/styles/util";
 import { IconWithText } from "../common/IconWithText";
 
-type SectionT = Pick<ApplicationSectionFormValue, "begin" | "end" | "appliedReservationsPerWeek" | "minDuration" | "maxDuration" | "numPersons">;
+type SectionT = Pick<
+  ApplicationSectionFormValue,
+  | "begin"
+  | "end"
+  | "appliedReservationsPerWeek"
+  | "minDuration"
+  | "maxDuration"
+  | "numPersons"
+>;
 type Props = {
   applicationSection?: SectionT;
   name: string;
