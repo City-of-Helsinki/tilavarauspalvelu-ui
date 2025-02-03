@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
   IconArrowRight,
   Notification,
@@ -155,6 +156,7 @@ export function Page2({ application, onNext }: Props): JSX.Element {
       <ButtonContainer>
         <Button
           variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
           onClick={() =>
             router.push(getApplicationPath(application.pk, "page1"))
           }
@@ -164,6 +166,7 @@ export function Page2({ application, onNext }: Props): JSX.Element {
         <Button
           id="button__application--next"
           iconEnd={<IconArrowRight aria-hidden="true" />}
+          size={ButtonSize.Small}
           type="submit"
         >
           {t("common:next")}
