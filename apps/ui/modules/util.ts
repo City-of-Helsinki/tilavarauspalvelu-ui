@@ -3,7 +3,6 @@ import { i18n, TFunction } from "next-i18next";
 import { trim } from "lodash";
 import type { ApolloError } from "@apollo/client";
 import {
-  toApiDate,
   toUIDate,
   getTranslation,
   fromApiDate as fromAPIDate,
@@ -28,33 +27,6 @@ export const formatDate = (date: string, formatStr?: string): string => {
     return "-";
   }
   return toUIDate(parseISO(date), formatStr);
-};
-
-// Takes a date string in format "yyyy-MM-dd" and returns a string in format "d.M.yyyy"
-// @deprecated just use the separate functions
-export const apiDateToUIDate = (date: string): string => {
-  const d = fromAPIDate(date);
-  return d ? toUIDate(d) : "";
-};
-
-export const uiDateToApiDate = (date: string): string | null => {
-  // TODO this is awful (unspecified special case) but there is probably a use case that depends on it
-  if (!date.includes(".")) {
-    return date;
-  }
-  const d = fromUIDate(date);
-  if (!d) {
-    return null;
-  }
-  return toApiDate(d);
-};
-
-// @deprecated use toApiDate(new Date(string))
-export const formatApiDate = (date: string): string | null => {
-  if (!date) {
-    return null;
-  }
-  return toApiDate(parseISO(date));
 };
 
 export const capitalize = (s: string): string => {
