@@ -1,10 +1,11 @@
 import {
-  type ApplicationFormValues,
   type ApplicationEventScheduleFormType,
   type SuitableTimeRangeFormValues,
 } from "./form";
 import { ApplicationRoundTimeSlotNode, Priority } from "@/gql/gql-types";
-import { convertWeekday, Day, transformWeekday } from "common/src/conversion";
+import { ApolloError } from "@apollo/client";
+import { getValidationErrors } from "common/src/apolloUtils";
+import { Day, transformWeekday } from "common/src/conversion";
 import { filterNonNullable } from "common/src/helpers";
 
 export type ApplicationEventSchedulePriority = 50 | 100 | 200 | 300;
@@ -119,21 +120,6 @@ function cellLabel(row: number): string {
   return `${row} - ${row + 1}`;
 }
 
-export function convertToSchedule(
-  b: NonNullable<NonNullable<ApplicationFormValues["applicationSections"]>[0]>
-): ApplicationEventScheduleFormType[] {
-  return (
-    b.suitableTimeRanges?.map((range) => {
-      return {
-        day: range ? convertWeekday(range.dayOfTheWeek) : 0,
-        begin: range?.beginTime ?? "",
-        end: range?.endTime ?? "",
-        priority: range?.priority === Priority.Primary ? 300 : 200,
-      };
-    }) ?? []
-  );
-}
-
 export function covertCellsToTimeRange(
   cells: Cell[][][]
 ): SuitableTimeRangeFormValues[][] {
@@ -229,4 +215,65 @@ function formatNumber(n: number): string {
     return `0${n}`;
   }
   return `${n}`;
+}
+
+// TODO move this to a shared file
+// and combine all the separate error handling functions to one
+export function getErrorMessages(error: unknown): string {
+  if (error == null) {
+    return "";
+  }
+  if (error instanceof ApolloError) {
+    const { graphQLErrors, networkError } = error;
+    if (networkError != null) {
+      if ("result" in networkError) {
+        if (typeof networkError.result === "string") {
+          return networkError.result;
+        }
+        if ("errors" in networkError.result) {
+          // TODO match to known error messages
+          // fallback to return unkown backend validation error (different from other unknown errors)
+          const { errors } = networkError.result;
+          // TODO separate validation errors: this is invalid MutationInput (probably a bug)
+          const VALIDATION_ERROR = "Variable '$input'";
+          const isValidationError =
+            errors.find((e: unknown) => {
+              if (typeof e !== "object" || e == null) {
+                return false;
+              }
+              if ("message" in e && typeof e.message === "string") {
+                return e.message.startsWith(VALIDATION_ERROR);
+              }
+              return false;
+            }) != null;
+          if (isValidationError) {
+            return "Validation error";
+          }
+          return "Unknown network error";
+        }
+      }
+      return networkError.message;
+    }
+    // Possible mutations errors (there are others too)
+    // 1. message: "Voi hakea vain 1-7 varausta viikossa."
+    //  - code: "invalid"
+    // 2. message: "Reservations begin date cannot be before the application round's reservation period begin date."
+    //  - code: ""
+    const mutationErrors = getValidationErrors(error);
+    if (mutationErrors.length > 0) {
+      return "Form validation error";
+    }
+    if (graphQLErrors.length > 0) {
+      return "Unknown GQL error";
+    }
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  if (typeof error === "object" && "message" in error) {
+    if (typeof error.message === "string") {
+      return error.message;
+    }
+  }
+  return "Unknown error";
 }
