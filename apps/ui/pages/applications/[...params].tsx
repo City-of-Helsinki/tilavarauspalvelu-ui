@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { ApolloError } from "@apollo/client";
 import Error from "next/error";
 import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -14,9 +13,9 @@ import {
   type ApplicationFormValues,
   transformApplication,
   convertApplication,
-  ApplicationFormSchemaRefined,
+  type ApplicationPage1FormValues,
+  ApplicationPage1SchemaRefined,
 } from "@/components/application/form";
-import { getValidationErrors } from "common/src/apolloUtils";
 import { useReservationUnitList } from "@/hooks";
 import { useApplicationUpdate } from "@/hooks/useApplicationUpdate";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
@@ -33,67 +32,7 @@ import {
   convertLanguageCode,
   getTranslationSafe,
 } from "common/src/common/util";
-
-// TODO move this to a shared file
-// and combine all the separate error handling functions to one
-function getErrorMessages(error: unknown): string {
-  if (error == null) {
-    return "";
-  }
-  if (error instanceof ApolloError) {
-    const { graphQLErrors, networkError } = error;
-    if (networkError != null) {
-      if ("result" in networkError) {
-        if (typeof networkError.result === "string") {
-          return networkError.result;
-        }
-        if ("errors" in networkError.result) {
-          // TODO match to known error messages
-          // fallback to return unkown backend validation error (different from other unknown errors)
-          const { errors } = networkError.result;
-          // TODO separate validation errors: this is invalid MutationInput (probably a bug)
-          const VALIDATION_ERROR = "Variable '$input'";
-          const isValidationError =
-            errors.find((e: unknown) => {
-              if (typeof e !== "object" || e == null) {
-                return false;
-              }
-              if ("message" in e && typeof e.message === "string") {
-                return e.message.startsWith(VALIDATION_ERROR);
-              }
-              return false;
-            }) != null;
-          if (isValidationError) {
-            return "Validation error";
-          }
-          return "Unknown network error";
-        }
-      }
-      return networkError.message;
-    }
-    // Possible mutations errors (there are others too)
-    // 1. message: "Voi hakea vain 1-7 varausta viikossa."
-    //  - code: "invalid"
-    // 2. message: "Reservations begin date cannot be before the application round's reservation period begin date."
-    //  - code: ""
-    const mutationErrors = getValidationErrors(error);
-    if (mutationErrors.length > 0) {
-      return "Form validation error";
-    }
-    if (graphQLErrors.length > 0) {
-      return "Unknown GQL error";
-    }
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (typeof error === "object" && "message" in error) {
-    if (typeof error.message === "string") {
-      return error.message;
-    }
-  }
-  return "Unknown error";
-}
+import { getErrorMessages } from "@/components/application/module";
 
 type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
 type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
@@ -166,7 +105,7 @@ function ApplicationRootPage({
   };
 
   const saveAndNavigate =
-    (path: "page2" | "page3") => async (appToSave: ApplicationFormValues) => {
+    (path: "page2" | "page3") => async (appToSave: ApplicationPage1FormValues) => {
       const pk = await handleSave(appToSave);
       if (pk === 0) {
         return;
@@ -179,10 +118,10 @@ function ApplicationRootPage({
 
   const begin = new Date(applicationRound.reservationPeriodBegin);
   const end = new Date(applicationRound.reservationPeriodEnd);
-  const form = useForm<ApplicationFormValues>({
+  const form = useForm<ApplicationPage1FormValues>({
     mode: "onChange",
     defaultValues: convertApplication(application, selectedReservationUnits),
-    resolver: zodResolver(ApplicationFormSchemaRefined({ begin, end })),
+    resolver: zodResolver(ApplicationPage1SchemaRefined({ begin, end })),
   });
 
   const {
