@@ -148,6 +148,7 @@ function convertApplicationSectionPage2(
     minDuration: section.reservationMinDuration ?? 0,
     reservationUnitPk:
       section.reservationUnitOptions[0].reservationUnit.pk ?? 0,
+    priority: 300,
   };
 }
 const ApplicationPage2Schema = z.object({
@@ -596,13 +597,11 @@ export function transformApplicationPage2(
 export function transformApplicationPage1(
   values: ApplicationPage1FormValues
 ): ApplicationUpdateMutationInput {
-  const { pk } = values;
+  const { pk, applicantType } = values;
   const appEvents = filterNonNullable(values.applicationSections);
   return {
     pk,
-    ...("applicantType" in values
-      ? { applicantType: values.applicantType }
-      : {}),
+    ...(applicantType != null ? { applicantType } : {}),
     applicationSections: appEvents.map((ae) => transformApplicationSection(ae)),
   };
 }
