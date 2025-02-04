@@ -39,6 +39,7 @@ import {
   useCreateReservationUnitMutation,
   useUpdateReservationUnitMutation,
   useReservationUnitEditQuery,
+  EquipmentOrderingChoices,
 } from "@gql/gql-types";
 import { ControlledSelect } from "common/src/components/form/ControlledSelect";
 import { DateTimeInput } from "common/src/components/form/DateTimeInput";
@@ -1417,20 +1418,18 @@ function DescriptionSection({
   purposes,
   qualifiers,
   reservationUnitTypes,
-}: {
+}: Readonly<{
   form: UseFormReturn<ReservationUnitEditFormValues>;
-  equipments: ReservationUnitEditorParametersQuery["equipments"];
+  equipments: ReservationUnitEditorParametersQuery["equipmentsAll"];
   purposes: ReservationUnitEditorParametersQuery["purposes"];
   qualifiers: ReservationUnitEditorParametersQuery["qualifiers"];
   reservationUnitTypes: ReservationUnitEditorParametersQuery["reservationUnitTypes"];
-}) {
+}>) {
   const { t } = useTranslation();
   const { control, formState } = form;
   const { errors } = formState;
 
-  const equipmentOptions = filterNonNullable(
-    equipments?.edges.map((n) => n?.node)
-  ).map((n) => ({
+  const equipmentOptions = filterNonNullable(equipments).map((n) => ({
     value: n.pk ?? -1,
     label: n.nameFi ?? "no-name",
   }));
@@ -1634,6 +1633,9 @@ function ReservationUnitEditor({
       // eslint-disable-next-line no-console
       console.error(e);
       errorToast({ text: t("errors.errorFetchingData") });
+    },
+    variables: {
+      equipmentsOrderBy: EquipmentOrderingChoices.CategoryRankAsc,
     },
   });
 
@@ -1848,7 +1850,7 @@ function ReservationUnitEditor({
         <BasicSection form={form} unit={unit} />
         <DescriptionSection
           form={form}
-          equipments={parametersData?.equipments}
+          equipments={parametersData?.equipmentsAll}
           purposes={parametersData?.purposes}
           qualifiers={parametersData?.qualifiers}
           reservationUnitTypes={parametersData?.reservationUnitTypes}
