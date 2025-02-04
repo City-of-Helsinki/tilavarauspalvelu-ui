@@ -5,11 +5,9 @@ import {
   ButtonVariant,
   IconArrowRight,
   Notification,
-  NotificationSize,
 } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import styled from "styled-components";
 import { useFormContext } from "react-hook-form";
 import { type ApplicationPage2Query } from "@gql/gql-types";
 import { filterNonNullable } from "common/src/helpers";
@@ -36,10 +34,6 @@ type Props = {
   application: Pick<Node, "applicationSections" | "pk">;
   onNext: (appToSave: ApplicationPage2FormValues) => void;
 };
-
-const StyledNotification = styled(Notification)`
-  margin-top: var(--spacing-m);
-`;
 
 function getLongestChunks(selectorData: Cell[][][]): number[] {
   return selectorData.map((n) => {
@@ -101,7 +95,6 @@ export function Page2({ application, onNext }: Props): JSX.Element {
         ) : null
       )}
       <MinDurationMessage />
-
       <ButtonContainer>
         <Button
           variant={ButtonVariant.Secondary}
@@ -189,7 +182,7 @@ function ApplicationSectionTimePicker({
 }): JSX.Element {
   const { watch } = useFormContext<ApplicationPage2FormValues>();
 
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const language = convertLanguageCode(i18n.language);
 
   const allOpeningHours = section.reservationUnitOptions.map((ruo) => ({
@@ -226,13 +219,6 @@ function ApplicationSectionTimePicker({
       heading={watch(`applicationSections.${sectionIndex}.name`) ?? ""}
       theme="thin"
     >
-      <StyledNotification
-        label={t("application:Page2.info")}
-        size={NotificationSize.Small}
-        type="info"
-      >
-        {t("application:Page2.info")}
-      </StyledNotification>
       <TimeSelector
         index={sectionIndex}
         cells={selectorData[sectionIndex]}
