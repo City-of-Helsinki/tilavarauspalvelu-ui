@@ -118,20 +118,6 @@ export const getAddressAlt = (ru: {
   return trim(`${street}, ${city}`, ", ");
 };
 
-export const getReadableList = (list: string[]): string => {
-  if (list.length === 0) {
-    return "";
-  }
-
-  const andStr = i18n?.t("common:and") || "";
-
-  if (list.length < 3) {
-    return list.join(` ${andStr} `);
-  }
-
-  return `${list.slice(0, -1).join(", ")} ${andStr} ${list[list.length - 1]}`;
-};
-
 export const printErrorMessages = (error: ApolloError): string => {
   if (!error.graphQLErrors || error.graphQLErrors.length === 0) {
     return "";
