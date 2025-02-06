@@ -27,8 +27,7 @@ import { base64encode, ignoreMaybeArray, toNumber } from "common/src/helpers";
 import { errorToast } from "common/src/common/toast";
 import { getApplicationPath } from "@/modules/urls";
 import { Button, ButtonSize, ButtonVariant, IconArrowRight } from "hds-react";
-import { AutoGrid, ButtonContainer } from "common/styles/util";
-import styled from "styled-components";
+import { AutoGrid, ButtonContainer, Flex } from "common/styles/util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EmailInput } from "@/components/application/EmailInput";
 import { FormSubHeading } from "@/components/application/styled";
@@ -56,12 +55,6 @@ function Page3Form(): JSX.Element | null {
   }
 }
 
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-m);
-`;
-
 function Page3({ application }: PropsNarrowed): JSX.Element {
   const router = useRouter();
 
@@ -72,12 +65,7 @@ function Page3({ application }: PropsNarrowed): JSX.Element {
     reValidateMode: "onChange",
   });
 
-  const {
-    handleSubmit,
-    reset,
-    formState: { isDirty },
-    watch,
-  } = form;
+  const { handleSubmit, reset, watch } = form;
 
   useEffect(() => {
     if (application != null) {
@@ -106,9 +94,8 @@ function Page3({ application }: PropsNarrowed): JSX.Element {
       <ApplicationPageWrapper
         translationKeyPrefix="application:Page3"
         application={application}
-        isDirty={isDirty}
       >
-        <Form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <Flex as="form" noValidate onSubmit={handleSubmit(onSubmit)}>
           <ApplicantTypeSelector />
           <AutoGrid $alignCenter>
             <FormSubHeading as="h2">
@@ -127,7 +114,7 @@ function Page3({ application }: PropsNarrowed): JSX.Element {
             </Button>
             <Button
               id="button__application--next"
-              iconEnd={<IconArrowRight aria-hidden="true" />}
+              iconEnd={<IconArrowRight />}
               size={ButtonSize.Small}
               type="submit"
               disabled={!isValid}
@@ -135,7 +122,7 @@ function Page3({ application }: PropsNarrowed): JSX.Element {
               {t("common:next")}
             </Button>
           </ButtonContainer>
-        </Form>
+        </Flex>
       </ApplicationPageWrapper>
     </FormProvider>
   );
