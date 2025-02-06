@@ -1,18 +1,18 @@
-import { IconArrowRight, IconGroup, IconTicket } from "hds-react";
+import {
+  IconArrowRight,
+  IconGroup,
+  IconHome,
+  IconSize,
+  IconTicket,
+} from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
-import NextImage from "next/image";
 import { useMedia } from "react-use";
 import { breakpoints } from "common/src/common/style";
 import type { RelatedReservationUnitsQuery } from "@gql/gql-types";
 import { getMainImage } from "@/modules/util";
 import Carousel from "../Carousel";
-import {
-  getActivePricing,
-  getPriceString,
-  getReservationUnitName,
-  getUnitName,
-} from "@/modules/reservationUnit";
+import { getActivePricing, getPriceString } from "@/modules/reservationUnit";
 import Card from "common/src/components/Card";
 import { ButtonLikeLink } from "@/components/common/ButtonLikeLink";
 import { getImageSource } from "common/src/helpers";
@@ -72,7 +72,8 @@ function RelatedUnitCard({
   const { t, i18n } = useTranslation();
   const lang = convertLanguageCode(i18n.language);
 
-  const name = getReservationUnitName(reservationUnit, lang);
+  const name = getTranslationSafe(reservationUnit, "name", lang);
+  const unitName = getTranslationSafe(reservationUnit.unit ?? {}, "name", lang);
   const pricing = getActivePricing(reservationUnit);
   const unitPrice =
     pricing != null ? getPriceString({ t, pricing }) : undefined;
@@ -86,15 +87,7 @@ function RelatedUnitCard({
   const infos = [];
   if (reservationUnitTypeName) {
     infos.push({
-      icon: (
-        <NextImage
-          src="/icons/icon_premises.svg"
-          alt=""
-          width="24"
-          height="24"
-          aria-hidden="true"
-        />
-      ),
+      icon: <IconHome size={IconSize.Small} />,
       value: reservationUnitTypeName,
     });
   }
@@ -133,7 +126,7 @@ function RelatedUnitCard({
       variant="vertical"
       key={reservationUnit.pk}
       heading={name ?? ""}
-      text={getUnitName(reservationUnit.unit) ?? ""}
+      text={unitName}
       infos={infos}
       buttons={buttons}
       imageSrc={imgSrc}

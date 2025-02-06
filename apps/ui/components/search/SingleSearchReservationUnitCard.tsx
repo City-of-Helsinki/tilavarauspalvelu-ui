@@ -1,20 +1,25 @@
-import { IconArrowRight, IconEuroSign, IconGroup, IconSize } from "hds-react";
+import {
+  IconArrowRight,
+  IconEuroSign,
+  IconGroup,
+  IconHome,
+  IconSize,
+} from "hds-react";
 import React from "react";
 import { useTranslation } from "next-i18next";
-import NextImage from "next/image";
 import type {
+  Maybe,
   ReservationUnitNode,
   SearchReservationUnitsQuery,
 } from "@gql/gql-types";
-import { format, isToday, isTomorrow } from "date-fns";
-import { toUIDate } from "common/src/common/util";
-import { getMainImage, getTranslation } from "@/modules/util";
+import { format, isToday, isTomorrow, isValid } from "date-fns";
 import {
-  getActivePricing,
-  getPriceString,
-  getReservationUnitName,
-  getUnitName,
-} from "@/modules/reservationUnit";
+  convertLanguageCode,
+  getTranslationSafe,
+  toUIDate,
+} from "common/src/common/util";
+import { getMainImage } from "@/modules/util";
+import { getActivePricing, getPriceString } from "@/modules/reservationUnit";
 import { isBrowser } from "@/modules/const";
 import { ButtonLikeLink } from "../common/ButtonLikeLink";
 import { getImageSource } from "common/src/helpers";
@@ -30,34 +35,24 @@ interface PropsT {
   reservationUnit: Node;
 }
 
-function StatusTag({
-  data,
-}: {
-  data: { closed: boolean; availableAt: string };
+function StatusTag(props: {
+  closed?: Maybe<boolean>;
+  availableAt: Maybe<Date> | undefined;
 }): JSX.Element {
   const { t } = useTranslation();
-  const { closed, availableAt } = data;
+  const { closed, availableAt } = props;
 
   if (closed) {
-    return (
-      <Tag ariaLabel={t("reservationUnitCard:closed")} type="error">
-        {t("reservationUnitCard:closed")}
-      </Tag>
-    );
+    return <Tag type="error">{t("reservationUnitCard:closed")}</Tag>;
   }
 
-  if (!availableAt) {
-    return (
-      <Tag ariaLabel={t("reservationUnitCard:noTimes")} type="neutral">
-        {t("reservationUnitCard:noTimes")}
-      </Tag>
-    );
+  if (!availableAt || !isValid(availableAt)) {
+    return <Tag type="neutral">{t("reservationUnitCard:noTimes")}</Tag>;
   }
-  const availableAtDate = new Date(availableAt);
-  let dayText = toUIDate(availableAtDate);
-  if (isToday(availableAtDate)) {
+  let dayText = toUIDate(availableAt);
+  if (isToday(availableAt)) {
     dayText = t("common:today");
-  } else if (isTomorrow(availableAtDate)) {
+  } else if (isTomorrow(availableAt)) {
     dayText = t("common:tomorrow");
   }
   const timeText = format(new Date(availableAt), "HH:mm");
@@ -97,11 +92,12 @@ function useConstructLink(
 }
 
 function ReservationUnitCard({ reservationUnit }: PropsT): JSX.Element {
-  const { t } = useTranslation();
-  const name = getReservationUnitName(reservationUnit);
+  const { t, i18n } = useTranslation();
+  const lang = convertLanguageCode(i18n.language);
+  const name = getTranslationSafe(reservationUnit, "name", lang);
 
   const link = useConstructLink(reservationUnit);
-  const unitName = getUnitName(reservationUnit.unit ?? undefined);
+  const unitName = getTranslationSafe(reservationUnit.unit ?? {}, "name", lang);
 
   const pricing = getActivePricing(reservationUnit);
   const unitPrice =
@@ -109,18 +105,19 @@ function ReservationUnitCard({ reservationUnit }: PropsT): JSX.Element {
 
   const reservationUnitTypeName =
     reservationUnit.reservationUnitType != null
-      ? getTranslation(reservationUnit.reservationUnitType, "name")
+      ? getTranslationSafe(reservationUnit.reservationUnitType, "name", lang)
       : undefined;
 
   const img = getMainImage(reservationUnit);
   const imgSrc = getImageSource(img, "small");
 
+  const firstReservableDatetime = reservationUnit.firstReservableDatetime
+    ? new Date(reservationUnit.firstReservableDatetime)
+    : undefined;
   const tags = [
     <StatusTag
-      data={{
-        closed: reservationUnit.isClosed ?? false,
-        availableAt: reservationUnit.firstReservableDatetime ?? "",
-      }}
+      closed={reservationUnit.isClosed}
+      availableAt={firstReservableDatetime}
       key={`status-tag-${reservationUnit.pk}`}
     />,
   ];
@@ -128,34 +125,24 @@ function ReservationUnitCard({ reservationUnit }: PropsT): JSX.Element {
   const infos = [];
   if (reservationUnitTypeName) {
     infos.push({
-      icon: (
-        <NextImage
-          src="/icons/icon_premises.svg"
-          alt=""
-          width="24"
-          height="24"
-          aria-hidden="true"
-        />
-      ),
+      icon: <IconHome size={IconSize.Small} />,
       value: reservationUnitTypeName,
     });
   }
   if (unitPrice) {
     infos.push({
-      icon: <IconEuroSign aria-label={t("prices:reservationUnitPriceLabel")} />,
+      icon: (
+        <IconEuroSign
+          aria-label={t("prices:reservationUnitPriceLabel")}
+          aria-hidden="false"
+        />
+      ),
       value: unitPrice,
     });
   }
   if (reservationUnit.maxPersons) {
     infos.push({
-      icon: (
-        <IconGroup
-          aria-label={t("reservationUnitCard:maxPersons", {
-            maxPersons: reservationUnit.maxPersons,
-          })}
-          size={IconSize.Small}
-        />
-      ),
+      icon: <IconGroup size={IconSize.Small} />,
       value: t("reservationUnitCard:maxPersons", {
         count: reservationUnit.maxPersons,
       }),
@@ -165,7 +152,7 @@ function ReservationUnitCard({ reservationUnit }: PropsT): JSX.Element {
   const buttons = [
     <ButtonLikeLink href={link} key={link} width="full">
       {t("common:show")}
-      <IconArrowRight aria-hidden="true" />
+      <IconArrowRight />
     </ButtonLikeLink>,
   ];
 

@@ -1,19 +1,26 @@
-import { IconClock, IconGroup, IconEuroSign } from "hds-react";
+import {
+  IconClock,
+  IconGroup,
+  IconEuroSign,
+  IconHome,
+  IconSize,
+} from "hds-react";
 import React from "react";
-import NextImage from "next/image";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
-import { formatDuration } from "common/src/common/util";
+import {
+  convertLanguageCode,
+  formatDuration,
+  getTranslationSafe,
+} from "common/src/common/util";
 import { fontRegular, H1, H3 } from "common/src/common/typography";
 import { ReservationKind, type ReservationUnitPageQuery } from "@gql/gql-types";
-import { formatDate, getTranslation, orderImages } from "@/modules/util";
+import { formatDate, orderImages } from "@/modules/util";
 import { IconWithText } from "../common/IconWithText";
 import { Images } from "./Images";
 import {
   getActivePricing,
   getPriceString,
-  getReservationUnitName,
-  getUnitName,
   isReservationUnitPaid,
 } from "@/modules/reservationUnit";
 import { isReservationStartInFuture } from "@/modules/reservation";
@@ -81,8 +88,10 @@ export function Head({
   reservationUnitIsReservable,
   subventionSuffix,
 }: HeadProps): JSX.Element {
-  const reservationUnitName = getReservationUnitName(reservationUnit);
-  const unitName = getUnitName(reservationUnit.unit ?? undefined);
+  const { i18n } = useTranslation();
+  const lang = convertLanguageCode(i18n.language);
+  const reservationUnitName = getTranslationSafe(reservationUnit, "name", lang);
+  const unitName = getTranslationSafe(reservationUnit.unit ?? {}, "name", lang);
 
   return (
     <Wrapper>
@@ -124,7 +133,8 @@ function IconList({
   reservationUnit,
   subventionSuffix,
 }: Pick<HeadProps, "reservationUnit" | "subventionSuffix">): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = convertLanguageCode(i18n.language);
 
   const minDur = reservationUnit.minReservationDuration ?? 0;
   const maxDur = reservationUnit.maxReservationDuration ?? 0;
@@ -139,22 +149,23 @@ function IconList({
     reservationUnit.reservationUnitType != null
       ? {
           key: "reservationUnitType",
-          icon: (
-            <NextImage
-              src="/icons/icon_premises.svg"
-              alt=""
-              width="24"
-              height="24"
-              aria-hidden="true"
-            />
+          icon: <IconHome size={IconSize.Small} />,
+          text: getTranslationSafe(
+            reservationUnit.reservationUnitType,
+            "name",
+            lang
           ),
-          text: getTranslation(reservationUnit.reservationUnitType, "name"),
         }
       : null,
     reservationUnit.maxPersons != null
       ? {
           key: "maxPersons",
-          icon: <IconGroup aria-label={t("reservationUnit:maxPersons")} />,
+          icon: (
+            <IconGroup
+              aria-label={t("reservationUnit:maxPersons")}
+              aria-hidden="false"
+            />
+          ),
           text: t("reservationUnitCard:personRange", {
             count: reservationUnit.maxPersons,
             value:
@@ -171,7 +182,10 @@ function IconList({
       ? {
           key: "eventDuration",
           icon: (
-            <IconClock aria-label={t("reservationCalendar:eventDuration")} />
+            <IconClock
+              aria-label={t("reservationCalendar:eventDuration")}
+              aria-hidden="false"
+            />
           ),
           text: t(`reservationCalendar:eventDurationLiteral`, {
             min: minReservationDuration,
@@ -183,7 +197,10 @@ function IconList({
       ? {
           key: "unitPrice",
           icon: (
-            <IconEuroSign aria-label={t("prices:reservationUnitPriceLabel")} />
+            <IconEuroSign
+              aria-label={t("prices:reservationUnitPriceLabel")}
+              aria-hidden="false"
+            />
           ),
           text: (
             <>
