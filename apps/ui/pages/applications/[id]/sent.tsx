@@ -5,23 +5,39 @@ import styled from "styled-components";
 import { H1 } from "common";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import type { GetServerSidePropsContext } from "next";
-import { applicationsPath, applicationsPrefix } from "@/modules/urls";
+import {
+  applicationsPath,
+  applicationsPrefix,
+  getApplicationPath,
+} from "@/modules/urls";
 import { getCommonServerSideProps } from "@/modules/serverUtils";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { ButtonLikeLink } from "@/components/common/ButtonLikeLink";
-import { toNumber } from "common/src/helpers";
+import { base64encode, ignoreMaybeArray, toNumber } from "common/src/helpers";
+import { gql } from "@apollo/client";
+import {
+  ApplicationSentPageDocument,
+  type ApplicationSentPageQuery,
+  ApplicationStatusChoice,
+  type Maybe,
+} from "@/gql/gql-types";
+import { createApolloClient } from "@/modules/apolloClient";
 
 const Paragraph = styled.p`
   max-width: var(--prose-width);
 `;
 
-function Sent(): JSX.Element {
+function Sent({ pk }: PropsNarrowed): JSX.Element {
   const { t } = useTranslation();
 
   const routes = [
     {
       slug: applicationsPrefix,
       title: t("breadcrumb:applications"),
+    },
+    {
+      slug: getApplicationPath(pk, "view"),
+      title: t("breadcrumb:application"),
     },
     {
       title: t("application:sent.heading"),
@@ -46,19 +62,75 @@ function Sent(): JSX.Element {
   );
 }
 
+type Props = Awaited<ReturnType<typeof getServerSideProps>>["props"];
+type PropsNarrowed = Exclude<Props, { notFound: boolean }>;
+
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const { locale, query } = ctx;
-  const { id } = query;
-  // TODO should fetch the application here to check it's actually sent
-  const pkstring = Array.isArray(id) ? id[0] : id;
-  const pk = toNumber(pkstring);
+  const pk = toNumber(ignoreMaybeArray(query.id));
+  const commonProps = getCommonServerSideProps();
+  const apolloClient = createApolloClient(commonProps.apiBaseUrl, ctx);
+  const notFound = {
+    notFound: true,
+    props: {
+      ...commonProps,
+      notFound: true,
+      ...(await serverSideTranslations(locale ?? "fi")),
+    },
+  };
+
+  if (pk == null) {
+    return notFound;
+  }
+
+  const { data } = await apolloClient.query<ApplicationSentPageQuery>({
+    query: ApplicationSentPageDocument,
+    variables: { id: base64encode(`ApplicationNode:${pk}`) },
+  });
+
+  if (data.application == null) {
+    return notFound;
+  }
+  const { status } = data.application;
+  if (!isSent(status)) {
+    return notFound;
+  }
+
   return {
     notFound: pk == null,
     props: {
-      ...getCommonServerSideProps(),
+      pk,
+      ...commonProps,
       ...(await serverSideTranslations(locale ?? "fi")),
     },
   };
 }
 
+function isSent(status: Maybe<ApplicationStatusChoice> | undefined): boolean {
+  if (status == null) {
+    return false;
+  }
+  switch (status) {
+    case ApplicationStatusChoice.Draft:
+    case ApplicationStatusChoice.Expired:
+    case ApplicationStatusChoice.Cancelled:
+      return false;
+    case ApplicationStatusChoice.Received:
+    case ApplicationStatusChoice.ResultsSent:
+    case ApplicationStatusChoice.Handled:
+    case ApplicationStatusChoice.InAllocation:
+      return true;
+  }
+}
+
 export default Sent;
+
+export const APPLICATION_SENT_PAGE_QUERY = gql`
+  query ApplicationSentPage($id: ID!) {
+    application(id: $id) {
+      id
+      pk
+      status
+    }
+  }
+`;

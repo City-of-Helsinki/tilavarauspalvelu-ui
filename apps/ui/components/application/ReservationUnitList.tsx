@@ -10,22 +10,21 @@ import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "next-i18next";
 import type {
-  ApplicationQuery,
+  ApplicationReservationUnitListFragment,
   ReservationUnitCardFieldsFragment,
 } from "@gql/gql-types";
 import { IconButton } from "common/src/components";
 import { filterNonNullable } from "common/src/helpers";
 import Modal from "../common/Modal";
-import type { ApplicationFormValues } from "./Form";
+import { type ApplicationPage1FormValues } from "./form";
 import { OrderedReservationUnitCard } from "./OrderedReservationUnitCard";
 import { Flex } from "common/styles/util";
 import { ReservationUnitModalContent } from "./ReservationUnitModalContent";
 import { breakpoints } from "common";
+import { gql } from "@apollo/client";
+import ClientOnly from "common/src/ClientOnly";
 
-type Node = NonNullable<ApplicationQuery["application"]>;
-type AppRoundNode = NonNullable<Node["applicationRound"]>;
 type ReservationUnitType = ReservationUnitCardFieldsFragment;
-
 export type OptionType = { value: number; label: string };
 export type OptionTypes = {
   ageGroupOptions?: OptionType[];
@@ -37,7 +36,7 @@ export type OptionTypes = {
 
 type Props = {
   index: number;
-  applicationRound: AppRoundNode;
+  applicationRound: ApplicationReservationUnitListFragment;
   options: OptionTypes;
   minSize?: number;
 };
@@ -53,11 +52,13 @@ export function ReservationUnitList({
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
 
-  const form = useFormContext<ApplicationFormValues>();
+  const form = useFormContext<ApplicationPage1FormValues>();
   const { clearErrors, setError, watch, setValue, formState } = form;
   const { errors } = formState;
 
-  const isValid = (units: typeof applicationRound.reservationUnits) => {
+  const isValid = (
+    units: ApplicationReservationUnitListFragment["reservationUnits"]
+  ) => {
     const error = units
       .map(
         (resUnit) =>
@@ -86,7 +87,7 @@ export function ReservationUnitList({
   useEffect(() => {
     const valid = isValid(currentReservationUnits);
     if (valid) {
-      clearErrors([`applicationSections.${index}.reservationUnits`]);
+      clearErrors([fieldName]);
     } else {
       setError(fieldName, { message: "reservationUnitTooSmall" });
     }
@@ -154,29 +155,31 @@ export function ReservationUnitList({
       >
         {t("reservationUnitList:infoReservationUnits")}
       </Notification>
-      <Flex $gap="m" $direction="column">
-        {currentReservationUnits.map((ru, i, all) => (
-          <OrderedReservationUnitCard
-            key={ru.pk}
-            invalid={
-              minSize != null &&
-              ru.maxPersons != null &&
-              minSize > ru.maxPersons
-            }
-            onDelete={remove}
-            reservationUnit={ru}
-            order={i}
-            first={i === 0}
-            last={i === all.length - 1}
-            onMoveDown={moveDown}
-            onMoveUp={moveUp}
-          />
-        ))}
-      </Flex>
+      <ClientOnly>
+        <Flex $gap="m" $direction="column">
+          {currentReservationUnits.map((ru, i, all) => (
+            <OrderedReservationUnitCard
+              key={ru.pk}
+              invalid={
+                minSize != null &&
+                ru.maxPersons != null &&
+                minSize > ru.maxPersons
+              }
+              onDelete={remove}
+              reservationUnit={ru}
+              order={i}
+              first={i === 0}
+              last={i === all.length - 1}
+              onMoveDown={moveDown}
+              onMoveUp={moveUp}
+            />
+          ))}
+        </Flex>
+      </ClientOnly>
       <Flex $alignItems="center">
         <IconButton
           onClick={() => setShowModal(true)}
-          icon={<IconPlus aria-hidden="true" />}
+          icon={<IconPlus />}
           label={t("reservationUnitList:add")}
         />
       </Flex>
@@ -188,7 +191,7 @@ export function ReservationUnitList({
         actions={
           <Flex $alignItems="center">
             <Button
-              iconStart={<IconArrowUndo aria-hidden="true" />}
+              iconStart={<IconArrowUndo />}
               onClick={() => setShowModal(false)}
               variant={ButtonVariant.Supplementary}
             >
@@ -208,3 +211,32 @@ export function ReservationUnitList({
     </Flex>
   );
 }
+
+export const APPLICATION_RESERVATION_UNIT_LIST_FRAGMENT = gql`
+  fragment ApplicationReservationUnitList on ApplicationRoundNode {
+    id
+    pk
+    nameFi
+    nameSv
+    nameEn
+    reservationUnits {
+      id
+      pk
+      nameFi
+      nameSv
+      nameEn
+      minPersons
+      maxPersons
+      images {
+        ...Image
+      }
+      unit {
+        id
+        pk
+        nameFi
+        nameSv
+        nameEn
+      }
+    }
+  }
+`;

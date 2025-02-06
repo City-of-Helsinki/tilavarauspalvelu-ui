@@ -3,7 +3,6 @@ import { i18n, TFunction } from "next-i18next";
 import { trim } from "lodash";
 import type { ApolloError } from "@apollo/client";
 import {
-  toApiDate,
   toUIDate,
   getTranslation,
   fromApiDate as fromAPIDate,
@@ -28,33 +27,6 @@ export const formatDate = (date: string, formatStr?: string): string => {
     return "-";
   }
   return toUIDate(parseISO(date), formatStr);
-};
-
-// Takes a date string in format "yyyy-MM-dd" and returns a string in format "d.M.yyyy"
-// @deprecated just use the separate functions
-export const apiDateToUIDate = (date: string): string => {
-  const d = fromAPIDate(date);
-  return d ? toUIDate(d) : "";
-};
-
-export const uiDateToApiDate = (date: string): string | null => {
-  // TODO this is awful (unspecified special case) but there is probably a use case that depends on it
-  if (!date.includes(".")) {
-    return date;
-  }
-  const d = fromUIDate(date);
-  if (!d) {
-    return null;
-  }
-  return toApiDate(d);
-};
-
-// @deprecated use toApiDate(new Date(string))
-export const formatApiDate = (date: string): string | null => {
-  if (!date) {
-    return null;
-  }
-  return toApiDate(parseISO(date));
 };
 
 export const capitalize = (s: string): string => {
@@ -144,26 +116,6 @@ export const getAddressAlt = (ru: {
   const city =
     getTranslation(location, "addressCity") || location.addressCityFi || "";
   return trim(`${street}, ${city}`, ", ");
-};
-
-export const applicationErrorText = (
-  t: TFunction,
-  key: string | undefined,
-  attrs: { [key: string]: string | number } = {}
-): string => (key ? t(`application:error.${key}`, attrs) : "");
-
-export const getReadableList = (list: string[]): string => {
-  if (list.length === 0) {
-    return "";
-  }
-
-  const andStr = i18n?.t("common:and") || "";
-
-  if (list.length < 3) {
-    return list.join(` ${andStr} `);
-  }
-
-  return `${list.slice(0, -1).join(", ")} ${andStr} ${list[list.length - 1]}`;
 };
 
 export const printErrorMessages = (error: ApolloError): string => {

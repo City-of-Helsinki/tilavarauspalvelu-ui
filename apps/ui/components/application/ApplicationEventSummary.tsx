@@ -5,12 +5,21 @@ import { Trans, useTranslation, TFunction } from "next-i18next";
 import styled from "styled-components";
 import { H4 } from "common/src/common/typography";
 import { fromUIDate } from "common/src/common/util";
-import { ApplicationSectionFormValue } from "./Form";
+import { type ApplicationSectionFormValue } from "./form";
 import { Flex } from "common/styles/util";
 import { IconWithText } from "../common/IconWithText";
 
+type SectionT = Pick<
+  ApplicationSectionFormValue,
+  | "begin"
+  | "end"
+  | "appliedReservationsPerWeek"
+  | "minDuration"
+  | "maxDuration"
+  | "numPersons"
+>;
 type Props = {
-  applicationSection?: ApplicationSectionFormValue;
+  applicationSection?: SectionT;
   name: string;
 };
 
@@ -108,8 +117,8 @@ export function ApplicationEventSummary({
           minDuration === maxDuration ? "minDuration" : "durations"
         }`,
         {
-          minDuration: displayDuration(applicationSection.minDuration, t),
-          maxDuration: displayDuration(applicationSection.maxDuration, t),
+          minDuration: displayDuration(minDuration, t),
+          maxDuration: displayDuration(maxDuration, t),
         }
       ),
     },

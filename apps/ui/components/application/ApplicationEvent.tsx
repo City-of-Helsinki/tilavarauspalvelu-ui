@@ -5,39 +5,30 @@ import {
   ButtonVariant,
   Checkbox,
   DateInput,
-  NumberInput,
   TextInput,
 } from "hds-react";
 import { useTranslation } from "next-i18next";
 import { useFormContext } from "react-hook-form";
-import type { ApplicationQuery } from "@gql/gql-types";
+import type { ApplicationRoundForApplicationFragment } from "@gql/gql-types";
 import { H4 } from "common/src/common/typography";
-import { CheckboxWrapper } from "common/src/reservation-form/components";
 import { getLocalizationLang } from "common/src/helpers";
-import { OptionTypes, ReservationUnitList } from "./ReservationUnitList";
-import {
-  apiDateToUIDate,
-  formatApiDate,
-  formatDate,
-  uiDateToApiDate,
-} from "@/modules/util";
+import { type OptionTypes, ReservationUnitList } from "./ReservationUnitList";
 import { ApplicationEventSummary } from "./ApplicationEventSummary";
 import { Accordion } from "@/components/Accordion";
 import { getDurationOptions } from "@/modules/const";
 import { ConfirmationDialog } from "common/src/components/ConfirmationDialog";
-import { ApplicationFormValues } from "./Form";
+import { type ApplicationPage1FormValues } from "./form";
 import { AutoGrid, Flex } from "common/styles/util";
 import {
   ControlledNumberInput,
   ControlledSelect,
 } from "common/src/components/form";
-
-type Node = NonNullable<ApplicationQuery["application"]>;
-type AppRoundNode = NonNullable<Node["applicationRound"]>;
+import { toUIDate } from "common/src/common/util";
+import { gql } from "@apollo/client";
 
 type Props = {
   index: number;
-  applicationRound: AppRoundNode;
+  applicationRound: ApplicationRoundForApplicationFragment;
   optionTypes: OptionTypes;
   isVisible: boolean;
   onToggleAccordion: () => void;
@@ -52,8 +43,8 @@ function ApplicationEventInner({
 }: Omit<Props, "onToggleAccordion" | "onDeleteEvent"> & {
   del: () => void;
 }): JSX.Element {
-  const { t, i18n } = useTranslation();
-  const form = useFormContext<ApplicationFormValues>();
+  const { t } = useTranslation();
+  const form = useFormContext<ApplicationPage1FormValues>();
   const {
     control,
     register,
@@ -61,15 +52,10 @@ function ApplicationEventInner({
     getValues,
     setValue,
     clearErrors,
-    trigger,
     watch,
   } = form;
 
   const [isWaitingForDelete, setIsWaitingForDelete] = useState(false);
-  const periodStartDate = formatApiDate(
-    applicationRound.reservationPeriodBegin
-  );
-  const periodEndDate = formatApiDate(applicationRound.reservationPeriodEnd);
 
   const {
     ageGroupOptions,
@@ -79,22 +65,25 @@ function ApplicationEventInner({
     unitOptions,
   } = optionTypes;
 
-  const applicationPeriodBegin = watch(`applicationSections.${index}.begin`);
-  const applicationPeriodEnd = watch(`applicationSections.${index}.end`);
-  const numPersons = watch(`applicationSections.${index}.numPersons`);
+  const periodStartDate = new Date(applicationRound.reservationPeriodBegin);
+  const periodEndDate = new Date(applicationRound.reservationPeriodEnd);
 
   const selectDefaultPeriod = (): void => {
-    const begin = periodStartDate ? apiDateToUIDate(periodStartDate) : "";
-    const end = periodEndDate ? apiDateToUIDate(periodEndDate) : "";
+    const begin = toUIDate(periodStartDate);
+    const end = toUIDate(periodEndDate);
     setValue(`applicationSections.${index}.begin`, begin);
     setValue(`applicationSections.${index}.end`, end);
   };
 
+  const applicationPeriodBegin = watch(`applicationSections.${index}.begin`);
+  const applicationPeriodEnd = watch(`applicationSections.${index}.end`);
+  const numPersons = watch(`applicationSections.${index}.numPersons`);
+
   const selectionIsDefaultPeriod =
     applicationPeriodEnd != null &&
     applicationPeriodBegin != null &&
-    uiDateToApiDate(applicationPeriodBegin) === periodStartDate &&
-    uiDateToApiDate(applicationPeriodEnd) === periodEndDate;
+    applicationPeriodBegin === toUIDate(periodStartDate) &&
+    applicationPeriodEnd === toUIDate(periodEndDate);
 
   type FieldName =
     | "begin"
@@ -107,12 +96,12 @@ function ApplicationEventInner({
     | "name"
     | "appliedReservationsPerWeek"
     | "reservationUnits";
-  const getTranslatedError = (field: FieldName): string => {
+  const getTranslatedError = (field: FieldName): string | undefined => {
     const error = errors.applicationSections?.[index]?.[field];
     if (error?.message != null) {
       return t(`application:validation.${error.message}`);
     }
-    return "";
+    return undefined;
   };
 
   // convert from minutes to seconds (search page uses minutes, this uses seconds)
@@ -125,24 +114,21 @@ function ApplicationEventInner({
     <Flex $gap="s" $marginTop="s">
       <H4 as="h3">{t("application:Page1.basicInformationSubHeading")}</H4>
       <AutoGrid>
-        <div>
-          <TextInput
-            {...register(`applicationSections.${index}.name`)}
-            label={t("application:Page1.name")}
-            id={`applicationSections.${index}.name`}
-            required
-            invalid={errors.applicationSections?.[index]?.name != null}
-            errorText={getTranslatedError("name")}
-          />
-        </div>
-        <div>
-          <ControlledNumberInput
-            name={`applicationSections.${index}.numPersons`}
-            label={t("application:Page1.groupSize")}
-            min={0}
-            errorText={getTranslatedError("numPersons")}
-          />
-        </div>
+        <TextInput
+          {...register(`applicationSections.${index}.name`)}
+          label={t("application:Page1.name")}
+          id={`applicationSections.${index}.name`}
+          required
+          invalid={errors.applicationSections?.[index]?.name != null}
+          errorText={getTranslatedError("name")}
+        />
+        <ControlledNumberInput
+          name={`applicationSections.${index}.numPersons`}
+          label={t("application:Page1.groupSize")}
+          required
+          min={0}
+          errorText={getTranslatedError("numPersons")}
+        />
         <ControlledSelect
           control={control}
           required
@@ -164,7 +150,7 @@ function ApplicationEventInner({
       <ReservationUnitList
         applicationRound={applicationRound}
         index={index}
-        minSize={numPersons ?? undefined}
+        minSize={numPersons}
         options={{
           purposeOptions,
           reservationUnitTypeOptions,
@@ -173,71 +159,26 @@ function ApplicationEventInner({
         }}
       />
       <H4 as="h3">{t("application:Page1.applicationRoundSubHeading")}</H4>
-      <CheckboxWrapper style={{ margin: "0 0" }}>
-        <Checkbox
-          id={`applicationSections.${index}.defaultPeriod`}
-          checked={selectionIsDefaultPeriod}
-          label={`${t("application:Page1.defaultPeriodPrefix")} ${formatDate(
-            applicationRound.reservationPeriodBegin
-          )} - ${formatDate(applicationRound.reservationPeriodEnd)}`}
-          onChange={() => {
-            clearErrors([
-              `applicationSections.${index}.begin`,
-              `applicationSections.${index}.end`,
-            ]);
-            selectDefaultPeriod();
-          }}
-          disabled={selectionIsDefaultPeriod}
-        />
-      </CheckboxWrapper>
+      <Checkbox
+        id={`applicationSections.${index}.defaultPeriod`}
+        checked={selectionIsDefaultPeriod}
+        label={`${t("application:Page1.defaultPeriodPrefix")} ${toUIDate(
+          periodStartDate
+        )} - ${toUIDate(periodEndDate)}`}
+        onChange={() => {
+          clearErrors([
+            `applicationSections.${index}.begin`,
+            `applicationSections.${index}.end`,
+          ]);
+          selectDefaultPeriod();
+        }}
+        disabled={selectionIsDefaultPeriod}
+      />
       <AutoGrid>
-        <DateInput
-          // disableConfirmation: is not accessible
-          language={getLocalizationLang(i18n.language)}
-          {...register(`applicationSections.${index}.begin`)}
-          onChange={(v) => {
-            clearErrors([
-              `applicationSections.${index}.begin`,
-              `applicationSections.${index}.end`,
-            ]);
-            setValue(`applicationSections.${index}.begin`, v);
-            trigger([
-              `applicationSections.${index}.begin`,
-              `applicationSections.${index}.end`,
-            ]);
-          }}
-          label={t("application:Page1.periodStartDate")}
-          id={`applicationSections.${index}.begin`}
-          value={getValues(`applicationSections.${index}.begin`)}
-          required
-          minDate={new Date(applicationRound.reservationPeriodBegin)}
-          maxDate={new Date(applicationRound.reservationPeriodEnd)}
-          invalid={errors?.applicationSections?.[index]?.begin != null}
-          errorText={getTranslatedError("begin")}
-        />
-        <DateInput
-          {...register(`applicationSections.${index}.end`)}
-          // disableConfirmation: is not accessible
-          language={getLocalizationLang(i18n.language)}
-          onChange={(v) => {
-            clearErrors([
-              `applicationSections.${index}.begin`,
-              `applicationSections.${index}.end`,
-            ]);
-            setValue(`applicationSections.${index}.end`, v);
-            trigger([
-              `applicationSections.${index}.begin`,
-              `applicationSections.${index}.end`,
-            ]);
-          }}
-          value={getValues(`applicationSections.${index}.end`)}
-          label={t("application:Page1.periodEndDate")}
-          id={`applicationSections.${index}.end`}
-          required
-          minDate={new Date(applicationRound.reservationPeriodBegin)}
-          maxDate={new Date(applicationRound.reservationPeriodEnd)}
-          invalid={errors.applicationSections?.[index]?.end != null}
-          errorText={getTranslatedError("end")}
+        <ApplicationDateRangePicker
+          index={index}
+          minDate={periodStartDate}
+          maxDate={periodEndDate}
         />
         <ControlledSelect
           control={control}
@@ -250,31 +191,17 @@ function ApplicationEventInner({
         <ControlledSelect
           control={control}
           name={`applicationSections.${index}.maxDuration`}
-          placeholder={t("common:select")}
           options={durationOptions}
           label={t("application:Page1.maxDuration")}
           required
           error={getTranslatedError("maxDuration")}
         />
-        <NumberInput
-          id={`applicationSections.${index}.appliedReservationsPerWeek`}
-          required
-          {...register(
-            `applicationSections.${index}.appliedReservationsPerWeek`,
-            {
-              valueAsNumber: true,
-            }
-          )}
+        <ControlledNumberInput
+          name={`applicationSections.${index}.appliedReservationsPerWeek`}
           label={t("application:Page1.eventsPerWeek")}
           min={1}
-          max={undefined}
-          minusStepButtonAriaLabel={t("common:subtract")}
-          plusStepButtonAriaLabel={t("common:add")}
-          step={1}
-          invalid={
-            errors.applicationSections?.[index]?.appliedReservationsPerWeek !=
-            null
-          }
+          max={7}
+          required
           errorText={getTranslatedError("appliedReservationsPerWeek")}
         />
       </AutoGrid>
@@ -285,7 +212,7 @@ function ApplicationEventInner({
       <Button
         variant={ButtonVariant.Secondary}
         size={ButtonSize.Small}
-        id={`applicationSections[${index}].delete`}
+        id={`applicationSections.${index}.delete`}
         onClick={() => setIsWaitingForDelete(true)}
       >
         {t("application:Page1.deleteEvent")}
@@ -307,12 +234,81 @@ function ApplicationEventInner({
   );
 }
 
+function ApplicationDateRangePicker({
+  index,
+  minDate,
+  maxDate,
+}: {
+  index: number;
+  minDate: Date;
+  maxDate: Date;
+}): JSX.Element {
+  const { t, i18n } = useTranslation();
+  const form = useFormContext<ApplicationPage1FormValues>();
+  const { register, getValues, setValue, clearErrors, trigger, getFieldState } =
+    form;
+
+  const lang = getLocalizationLang(i18n.language);
+
+  const getTranslatedError = (msg?: string): string | undefined => {
+    if (msg != null) {
+      return t(`application:validation.${msg}`);
+    }
+    return undefined;
+  };
+
+  const field = "applicationSections" as const;
+  const beginField = `${field}.${index}.begin` as const;
+  const endField = `${field}.${index}.end` as const;
+  const beginState = getFieldState(beginField);
+  const endState = getFieldState(endField);
+
+  return (
+    <>
+      <DateInput
+        {...register(beginField)}
+        language={lang}
+        id={beginField}
+        label={t("application:Page1.periodStartDate")}
+        onChange={(v) => {
+          clearErrors([beginField, endField]);
+          setValue(beginField, v);
+          trigger([beginField, endField]);
+        }}
+        value={getValues(beginField)}
+        required
+        minDate={minDate}
+        maxDate={maxDate}
+        invalid={beginState.error?.message != null}
+        errorText={getTranslatedError(beginState.error?.message)}
+      />
+      <DateInput
+        {...register(endField)}
+        language={lang}
+        id={endField}
+        label={t("application:Page1.periodEndDate")}
+        onChange={(v) => {
+          clearErrors([beginField, endField]);
+          setValue(endField, v);
+          trigger([beginField, endField]);
+        }}
+        value={getValues(endField)}
+        required
+        minDate={minDate}
+        maxDate={maxDate}
+        invalid={endState.error?.message != null}
+        errorText={getTranslatedError(endState.error?.message)}
+      />
+    </>
+  );
+}
+
 export function ApplicationEvent(props: Props): JSX.Element {
   const { index, isVisible, onDeleteEvent, onToggleAccordion } = props;
 
   const { t } = useTranslation();
 
-  const form = useFormContext<ApplicationFormValues>();
+  const form = useFormContext<ApplicationPage1FormValues>();
   const {
     watch,
     formState: { errors },
@@ -340,3 +336,11 @@ export function ApplicationEvent(props: Props): JSX.Element {
     </Accordion>
   );
 }
+
+export const APPLICATION_ROUND_FRAGMENT = gql`
+  fragment ApplicationRoundForApplication on ApplicationRoundNode {
+    ...ApplicationReservationUnitList
+    reservationPeriodBegin
+    reservationPeriodEnd
+  }
+`;

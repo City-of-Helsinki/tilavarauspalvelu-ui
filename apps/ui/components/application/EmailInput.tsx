@@ -2,28 +2,30 @@ import React from "react";
 import { useTranslation } from "next-i18next";
 import { useFormContext } from "react-hook-form";
 import { Notification, NotificationSize, TextInput } from "hds-react";
-import { applicationErrorText } from "@/modules/util";
-import type { ApplicationFormPage3Values } from "./Form";
-import { SpanTwoColumns } from "./styled";
+import { type ApplicationPage3FormValues } from "./form";
+import { SpanFullRow } from "./styled";
 
-const EmailInput = () => {
+export function EmailInput() {
   const { t } = useTranslation();
 
   const {
     register,
     formState: { errors },
-  } = useFormContext<ApplicationFormPage3Values>();
+  } = useFormContext<ApplicationPage3FormValues>();
+
+  const translateError = (errorMsg?: string) =>
+    errorMsg ? t(`application:validation.${errorMsg}`) : "";
 
   return (
     <>
-      <SpanTwoColumns>
+      <SpanFullRow>
         <Notification
           size={NotificationSize.Small}
           label={t("application:Page3.emailNotification")}
         >
           {t("application:Page3.emailNotification")}
         </Notification>
-      </SpanTwoColumns>
+      </SpanFullRow>
       <TextInput
         {...register("contactPerson.email", {
           required: true,
@@ -36,13 +38,9 @@ const EmailInput = () => {
         name="contactPerson.email"
         type="email"
         required
-        invalid={!!errors.contactPerson?.email?.type}
-        errorText={applicationErrorText(t, errors.contactPerson?.email?.type, {
-          count: 254,
-        })}
+        invalid={!!errors.contactPerson?.email?.message}
+        errorText={translateError(errors.contactPerson?.email?.message)}
       />
     </>
   );
-};
-
-export { EmailInput };
+}

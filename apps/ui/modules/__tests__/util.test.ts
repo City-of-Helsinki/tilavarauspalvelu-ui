@@ -1,5 +1,5 @@
 import { ApolloError } from "@apollo/client";
-import { getReadableList, printErrorMessages } from "../util";
+import { printErrorMessages } from "../util";
 
 jest.mock("next-i18next", () => ({
   i18n: {
@@ -9,13 +9,6 @@ jest.mock("next-i18next", () => ({
     },
   },
 }));
-
-test("getReadableList", () => {
-  expect(getReadableList(["a"])).toEqual("a");
-  expect(getReadableList(["a", "b"])).toEqual("a common:and b");
-  expect(getReadableList(["a", "b", "c"])).toEqual("a, b common:and c");
-  expect(getReadableList([])).toEqual("");
-});
 
 test("printErrorMessages", () => {
   expect(
