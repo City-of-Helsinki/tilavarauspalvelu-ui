@@ -406,8 +406,9 @@ const translations: ITranslations = {
       pageTitle: ["Tee toistuva varaus"],
       addNewReservation: ["Lisää uusi varaus"],
       Confirmation: {
-        removed: ["Poistettu"],
+        removed: ["Hylätty"],
         overlapping: ["Ei saatavilla"],
+        cancelled: ["Peruttu"],
         title: ["Toistuva varaus tehty"],
         allFailedTitle: ["Toistuvaa varausta ei voitu tehdä"],
         failedSubtitle: ["Epäonnistuneet varaukset"],
@@ -425,7 +426,7 @@ const translations: ITranslations = {
         // TODO these should be in the common translations (enum)
         RejectionReadinessChoice: {
           INTERVAL_NOT_ALLOWED: ["Aloitusaika ei sallittu"],
-          OVERLAPPING_RESERVATIONS: ["Päivämäärä ei saatavilla"],
+          OVERLAPPING_RESERVATIONS: ["Ei saatavilla"],
           RESERVATION_UNIT_CLOSED: ["Suljettu"],
         },
         failureMessages: {
