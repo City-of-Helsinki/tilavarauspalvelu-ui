@@ -29,11 +29,11 @@ import {
   transformWeekday,
   type Day,
 } from "common/src/conversion";
-import { getReadableList } from "@/modules/util";
 import { AccordionWithState as Accordion } from "@/components/Accordion";
 import { TimeSelector, TimeSelectorFormValues } from "./TimeSelector";
 import { errorToast, successToast } from "common/src/common/toast";
 import { ButtonContainer } from "common/styles/util";
+import { type TFunction } from "i18next";
 
 type Node = NonNullable<ApplicationQuery["application"]>;
 type Props = {
@@ -55,15 +55,31 @@ const StyledNotification = styled(Notification)`
   margin-top: var(--spacing-m);
 `;
 
+function formatEventTitleList(t: TFunction, list: string[]): string {
+  if (list.length === 0) {
+    return "";
+  }
+
+  const andStr = t("common:and") || "";
+
+  if (list.length < 3) {
+    return list.join(` ${andStr} `);
+  }
+
+  return `${list.slice(0, -1).join(", ")} ${andStr} ${list[list.length - 1]}`;
+}
+
 function cellLabel(row: number): string {
   return `${row} - ${row + 1}`;
 }
 
 function getListOfApplicationEventTitles(
+  t: TFunction,
   applicationSections: ApplicationSectionFormValue[],
   ids: number[]
 ): string {
-  return getReadableList(ids.map((id) => `"${applicationSections[id].name}"`));
+  const titles = ids.map((id) => `"${applicationSections[id].name}"`);
+  return formatEventTitleList(t, titles);
 }
 
 function getOpeningHours(
@@ -485,6 +501,7 @@ function Page2({ application, onNext }: Props): JSX.Element {
             ? t("application:Page2.notification.minDuration.bodySingle")
             : t("application:Page2.notification.minDuration.body", {
                 title: getListOfApplicationEventTitles(
+                  t,
                   applicationSections,
                   applicationEventsForWhichMinDurationIsNotFulfilled
                 ),
