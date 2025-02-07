@@ -1,5 +1,4 @@
 import {
-  Button,
   ButtonSize,
   ButtonVariant,
   IconArrowRight,
@@ -9,7 +8,6 @@ import React from "react";
 import { useTranslation } from "next-i18next";
 import styled from "styled-components";
 import { breakpoints } from "common/src/common/style";
-import ClientOnly from "common/src/ClientOnly";
 import { useRouter } from "next/router";
 import {
   ApplicationCreateMutationInput,
@@ -18,11 +16,11 @@ import {
 } from "@/gql/gql-types";
 import { errorToast } from "common/src/common/toast";
 import { getApplicationPath } from "@/modules/urls";
-import { Flex, NoWrap } from "common/styles/util";
-import { truncatedText } from "common/styles/cssFragments";
+import { Flex, NoWrap, WhiteButton } from "common/styles/util";
 import { useMedia } from "react-use";
 import { useReservationUnitList } from "@/hooks";
 import { useSearchParams } from "next/navigation";
+import { pageSideMargins } from "common/styles/layout";
 
 const BackgroundContainer = styled.div`
   position: fixed;
@@ -33,9 +31,6 @@ const BackgroundContainer = styled.div`
 
   background-color: var(--color-bus);
   color: var(--color-white);
-
-  padding: var(--spacing-m) var(--spacing-m);
-  box-sizing: border-box;
 `;
 
 const InnerContainer = styled(Flex).attrs({
@@ -43,26 +38,20 @@ const InnerContainer = styled(Flex).attrs({
   $alignItems: "center",
   $wrap: "wrap",
 })`
-  max-width: var(--tilavaraus-page-max-width);
-  width: 100%;
+  ${pageSideMargins}
   margin: 0 auto;
+  padding-bottom: var(--spacing-s);
+  padding-top: var(--spacing-s);
 
   /* three div layout */
   & > :last-child {
     margin-left: auto;
   }
 
-  gap: var(--spacing-2-xs);
+  gap: var(--spacing-xs);
   @media (min-width: ${breakpoints.m}) {
     gap: var(--spacing-l);
   }
-`;
-
-const DeleteButton = styled(Button).attrs({
-  variant: ButtonVariant.Primary,
-  iconStart: <IconCross aria-hidden="true" />,
-})`
-  ${truncatedText}
 `;
 
 type NodeList = Pick<ReservationUnitNode, "pk">[];
@@ -72,7 +61,9 @@ type Props = {
   };
 };
 
-function StartApplicationBar({ applicationRound }: Props): JSX.Element | null {
+export function StartApplicationBar({
+  applicationRound,
+}: Props): JSX.Element | null {
   const { t } = useTranslation();
   const router = useRouter();
   const isMobile = useMedia(`(max-width: ${breakpoints.m})`, false);
@@ -128,39 +119,35 @@ function StartApplicationBar({ applicationRound }: Props): JSX.Element | null {
   return (
     <BackgroundContainer>
       <InnerContainer>
-        <div>
-          <NoWrap id="reservationUnitCount">
-            {isMobile
-              ? t("shoppingCart:countShort", { count })
-              : t("shoppingCart:count", { count })}
-          </NoWrap>
-        </div>
-        <DeleteButton
+        <NoWrap id="reservationUnitCount">
+          {isMobile
+            ? t("shoppingCart:countShort", { count })
+            : t("shoppingCart:count", { count })}
+        </NoWrap>
+        <WhiteButton
           onClick={clearSelections}
           size={ButtonSize.Small}
           data-testid="start-application-bar__button--clear-selections"
+          variant={ButtonVariant.Supplementary}
+          iconStart={<IconCross />}
+          colorVariant="light"
         >
           {isMobile
             ? t("shoppingCart:deleteSelectionsShort")
             : t("shoppingCart:deleteSelections")}
-        </DeleteButton>
-        <Button
+        </WhiteButton>
+        <WhiteButton
           id="startApplicationButton"
+          variant={ButtonVariant.Supplementary}
+          size={ButtonSize.Small}
           onClick={onNext}
           disabled={isSaving}
-          iconEnd={<IconArrowRight aria-hidden="true" />}
+          iconEnd={<IconArrowRight />}
+          colorVariant="light"
         >
           {t("shoppingCart:nextShort")}
-        </Button>
+        </WhiteButton>
       </InnerContainer>
     </BackgroundContainer>
   );
 }
-
-const StartApplicationBarWrapped = (props: Props) => (
-  <ClientOnly>
-    <StartApplicationBar {...props} />
-  </ClientOnly>
-);
-
-export default StartApplicationBarWrapped;
